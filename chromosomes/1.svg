@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:odm="http://product.corel.com/CGS/11/cddns/" xml:space="preserve" width="164px" height="768px" style="shape-rendering:geometricPrecision; image-rendering:optimizeQuality"
+    viewBox="0 0 164 768">
+    <defs>
+    <clipPath id="clip1">
+	<path d="M5 746c0 22.7 34 22.7 34 0v-357c0 -22.7 -34 -22.7 -34 0z m0 -391c0 22.7 34 22.7 34 0v-337c0 -22.7 -34 -22.7 -34 0z"/>    </clipPath>
+    <style type="text/css">
+	.locus { fill:url(#lograd); }
+	.dark1 { fill:#CCCCBB; }
+	.dark2 { fill:#999988; }
+	.line  { stroke:#000000; stroke-width:1; }
+	.text  { font-size: 16px; fill: #000000; font-family:serif; }
+    </style>
+<linearGradient id="lograd" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#BBBBAA"/>
+        <stop offset="50%" style="stop-color:#FFFFEE"/>
+        <stop offset="100%" style="stop-color:#BBBBAA"/>
+    </linearGradient>
+    <linearGradient id="d1grad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#887777"/>
+        <stop offset="50%" style="stop-color:#CCBBBB"/>
+        <stop offset="100%" style="stop-color:#887777"/>
+    </linearGradient>
+    <linearGradient id="d2grad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#443333"/>
+        <stop offset="50%" style="stop-color:#998888"/>
+        <stop offset="100%" style="stop-color:#443333"/>
+    </linearGradient>
+    <linearGradient id="bgrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#000000"/>
+        <stop offset="50%" style="stop-color:#666666"/>
+        <stop offset="100%" style="stop-color:#000000"/>
+    </linearGradient>
+         </defs>
+ <g id="Layer 1" transform="rotate(0)">
+
+     <g id="locii" clip-path="url(#clip1)">
+	 <rect x="0" y="0" width="40" height="773" fill="url(#bgrad)"/>
+	 <path class="locus" d="M0 749.1h40v-17.64h-40z"/>
+	 <path class="locus" d="M0 721.38h40v-8.82h-40z"/>
+	 <path class="locus" d="M0 693.66h40v-8.82h-40z"/>
+	 <path class="locus" d="M0 679.8h40v-12.6h-40z"/>
+	 <path class="locus" d="M0 654.6h40v-8.82h-40z"/>
+	 <path class="locus" d="M0 624.36h40v-11.34h-40z"/>
+	 <path class="locus" d="M0 605.46h40v-11.34h-40z"/>
+	 <path class="locus" d="M0 575.22h40v-8.82h-40z"/>
+	 <path class="locus" d="M0 558.84h40v-11.34h-40z"/>
+	 <path class="locus" d="M0 538.68h40v-7.56h-40z"/>
+	 <path class="locus" d="M0 516h40v-11.34h-40z"/>
+	 <path class="locus" d="M0 485.76h40v-11.34h-40z"/>
+	 <path class="locus" d="M0 460.56h40v-10.08h-40z"/>
+	 <path class="dark1" d="M0 436.62h40v-44.1h-40z"/>
+	 <path class="dark2" d="M0 392.52h40v-25.2h-40z"/>
+	 <path class="locus" d="M0 363.54h40v-8.82h-40z"/>
+	 <path class="locus" d="M0 345.9h40v-11.34h-40z"/>
+	 <path class="locus" d="M0 323.22h40v-11.34h-40z"/>
+	 <path class="locus" d="M0 281.64h40v-11.34h-40z"/>
+	 <path class="locus" d="M0 253.92h40v-34.02h-40z"/>
+	 <path class="locus" d="M0 208.56h40v-12.6h-40z"/>
+	 <path class="locus" d="M0 179.58h40v-7.56h-40z"/>
+	 <path class="locus" d="M0 158.16h40v-11.34h-40z"/>
+	 <path class="locus" d="M0 129.18h40v-8.82h-40z"/>
+	 <path class="locus" d="M0 102.72h40v-6.3h-40z"/>
+	 <path class="locus" d="M0 90.12h40v-6.3h-40z"/>
+	 <path class="locus" d="M0 73.74h40v-6.3h-40z"/>
+	 <path class="locus" d="M0 49.8h40v-10.08h-40z"/>
+	 <path class="locus" d="M0 29.64h40v-6.3h-40z"/>
+	 <path class="locus" d="M0 18.3h40v-7.56h-40z"/>
+</g>
+
+ </g>
+</svg>

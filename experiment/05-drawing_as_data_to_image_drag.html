@@ -1,0 +1,121 @@
+
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <style>
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
+            
+            canvas {
+                border: 1px solid #9C9898;
+            }
+
+            </style>
+            
+    		<script type="text/javascript" src="js/jquery.js"></script>
+        <script src="js/kinetic.js"></script>
+        
+        <script>
+        
+          window.onload = function(){
+              var stage = new Kinetic.Stage("container", 800, 200);
+              var canvas = stage.getCanvas();
+              var context = canvas.getContext("2d");
+
+
+
+              
+              context.fillStyle = "#000000";
+              context.beginPath();
+              for (var x = 1; x < 800; x++) {
+                context.fillRect(x, 200*Math.random(), 2, 2);
+              }
+              context.closePath();
+
+              // save canvas image as data url (png format by default)
+              var dataURL = canvas.toDataURL();
+
+              //context.clearRect(0,0,800,200);
+
+              var imageObj = new Image();
+              imageObj.src = dataURL;
+
+              //context.drawImage(imageObj, 0, 0);
+
+              var draggingRect = false;
+              var draggingRectOffsetX = 0;
+              
+              var kinImg = Kinetic.drawImage(imageObj, 0, 0, 800, 200);
+              var darthVaderImg = new Kinetic.Region(kinImg);
+              
+              $('#container').mousedown(function(e){
+                  draggingRect = true;
+                  draggingRectOffsetX = e.clientX - darthVaderImg.position.x;
+              });
+              
+              darthVaderImg.addEventListener("mouseover", function(){
+                  document.body.style.cursor = "pointer";
+              });
+              darthVaderImg.addEventListener("mouseout", function(){
+                  document.body.style.cursor = "default";
+              });
+
+              stage.clear();
+              stage.add(darthVaderImg);
+              
+              //darthVaderImg.getCanvas().addEventListener("mouseout", function(){
+              //    draggingRect = false;
+              //}, false);
+              
+              
+              $(document).live('mousemove', function(e){
+                  if (draggingRect) {
+                      var x = e.clientX - draggingRectOffsetX;
+                      darthVaderImg.setPosition(x, 0);
+                  }
+              });
+              
+              $(document).live('mouseup', function(){
+                if (draggingRect) {
+                  var position = darthVaderImg.position.x;
+                  var context  = darthVaderImg.context;
+                  if (position >= 0) {
+                    for (var x = 0; x < position; x++) {
+                      context.fillRect(x, 200*Math.random(), 2, 2);
+                    }
+                  } else {
+                    for (var x = 800+position; x < 800; x++) {
+                      context.fillRect(x, 200*Math.random(), 2, 2);
+                    }
+                  }
+                  //console.dir(darthVaderImg);
+                  var dataURL = darthVaderImg.canvas.toDataURL();
+                  var imageObj = new Image();
+                  imageObj.src = dataURL;
+                  darthVaderImg.draw = function(){
+                      var context = this.getContext();
+                      context.drawImage(imageObj, 0, 0, 800, 200);
+                      context.beginPath();
+                      context.rect(0, 0, 800, 200);
+                      context.closePath();
+                  };
+                  darthVaderImg.position.x = 0;
+                  darthVaderImg.position.y = 0;
+                  
+                }
+                
+                draggingRect = false;
+              });
+
+             
+          };
+            
+        </script>
+    </head>
+    <body id="body">
+        <div id="container">
+        </div>
+    </body>
+</html>

@@ -1,0 +1,411 @@
+/*!
+ * Copyright (c) 2011 Genome Research Ltd.
+ * Author: Evgeny Bragin
+ * Released under the Modified-BSD license, see LICENSE.TXT
+ */
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * 
+ * Constructors
+ *
+ */
+
+CBrowse = function(config) {
+  for (var key in this.defaults) this[key] = this.defaults[key];
+  for (var key in config) this[key] = config[key];
+
+  this.initTracks();
+};
+
+CBrowse.prototype.initTracks = function() {
+  this.height = 0;
+
+  for (var i = 0; i < this.tracks.length; i++) {
+    //Copy some default values from cBrowse to Track
+    track = {
+      width: this.width,
+      colors: this.colors,
+      cBrowse: this,
+      offsetY: this.height,
+      i: i
+    };
+    
+    for (var key in this.tracks[i]) track[key] = this.tracks[i][key];
+    
+    //TODO: bless
+    this.tracks[i] = new CBrowseTrack(track);
+    this.height += track.height;
+  }
+}
+
+
+
+
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * 
+ * Defaults
+ *
+ */
+
+
+CBrowse.prototype.defaults = {
+  image: new Image(),
+  width: 1000,
+  chromosome: chromosomes["1"],
+  zoom: 1,
+  start: 0,
+  delta: 0,
+  colors: {
+    foreground: '#000000',
+    border: '#A3A3A3',
+    call: '#FF0000'
+  },
+  tracks: [
+     {
+       name: "aCGH",
+       type: "aCGH",
+       height: 200,
+       source: 'data/PROBAND/aCGH/CHR.json'
+     },
+     {
+       name: "SNP",
+       type: "SNP",
+       height: 400,
+       source: 'data/PROBAND/SNP/CHR.json'
+     }
+  ],
+}
+
+
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * 
+ * Setters
+ *
+ */
+
+CBrowse.prototype.setChromosome = function(n) {
+  if (chromosomes[n]) {
+    this.chromosome = chromosomes[n];
+  } else {
+    this.die("Unknown chromosome " + n);
+  }
+}
+
+CBrowse.prototype.setProband = function(proband) {
+  this.proband = proband;
+}
+
+CBrowse.prototype.setStart = function(start) {
+  this.start = parseInt(start);
+  if (this.end && this.chromosome) {
+    this.zoom = this.chromosome.size/(this.end - this.start);
+    this.initScale();
+  }
+}
+
+CBrowse.prototype.setEnd = function(end) {
+  this.end  = parseInt(end);
+  if (this.start && this.chromosome) {
+    this.zoom = this.chromosome.size/(this.end - this.start);
+    this.initScale();
+  }
+}
+
+CBrowse.prototype.setTracks = function(tracks) {
+  this.tracks = tracks;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// ...
+//
+
+// Page muse have ?PROBAND;CHR as first url query params
+// Where PROBAND is the PROBAND id and 
+// CHR is the chromosome 1..22 / X / Y
+CBrowse.prototype.parseURL = function() {
+  var url = window.location.search.slice(1);
+  if (!url.length) this.die("Please specify the proband ID and the chromosome");
+
+  var params = url.split(";");
+  this.proband = params[0];
+  this.chromosome.number = params[1] || '1';
+  if (params[2] && params[3]) {
+    this.start = parseInt(params[2]);
+    this.zoom  = this.chromosome.size/(params[3] - params[2]);
+  }
+  
+  
+  //TODO: set up chromosomes constant
+  //this.chromosome = chromosomes[proband_and_chr[1]]
+}
+
+// Get data for each track in this.tracks
+CBrowse.prototype.getDataAndPlot = function() {
+  this.ajaxCounter = 0;
+  for (var i = 0; i < this.tracks.length; i++) {
+    this.tracks[i].getDataAndPlotWhenAllFinished();
+  }
+}
+
+CBrowse.prototype.initDOM = function() {
+  //$('body').html('<div id="chromosome"> </div>');
+  $('body').html('<div><select id="calls" disabled><option>Calls shortcuts:</select>' +
+                 '<span class="zoom_controls"><a class="zoom_in" href="#">+</a><a class="zoom_out" href="#">-</a></span>' +
+                 '</div>');
+
+  $('body').append( '<div class="track" style="width:' + this.width + 'px; height:' + this.height + 'px;">' +
+                    '<canvas width="'+ ( 3*this.width ) +'" height="' + this.height + '" style="left:-' + this.width + 'px"></canvas>' +
+                    '<div id="mask" style="height:' + this.height + 'px; width:' + this.width + 'px;">Loading...</div></div>' +
+                    '<div id="feature_info"></div>');
+
+  this.mask    = $('#mask').css('top', $('.track').offset().top).show();
+  this.canvas  = $('.track canvas')[0];
+  this.context = this.canvas.getContext("2d");    
+  this.offset  = $(this.canvas).offset();
+  this.featureInfo = $('#feature_info');
+  
+  for (var i = 0; i < this.tracks.length; i++) {
+    this.tracks[i].context = this.context;
+  }
+}
+
+CBrowse.prototype.initScale = function() {
+  this.scale = this.zoom * this.width / this.chromosome.size;
+  this.offsetX = this.start * this.scale;
+  if (!this.end && this.zoom == 1) this.end = this.chromosome.size;
+}
+
+
+CBrowse.prototype.zoomIn = function(x) {
+  if (!x) x = this.width/2;
+  
+  this.mask.show();
+  var start = this.start + (x - 2*this.delta)/(2*this.scale);
+  var end   = start + (this.end - this.start)/2;
+
+  this.setStart(start);
+  this.setEnd(end);
+  
+  setTimeout("cBrowse.plot();", 100);    
+}
+
+CBrowse.prototype.zoomOut = function(x) {
+  if (!x) x = this.width/2;
+  
+  this.mask.show();
+  var start = this.start - (x + this.delta)/this.scale;
+  var end   = start + 2*(this.end - this.start);
+
+  if (start < 0) start = 0;
+  if (end > this.chromosome.size) end = this.chromosome.size;
+
+  this.setStart(start);
+  this.setEnd(end);
+  
+  setTimeout("cBrowse.plot();", 100);    
+}
+
+CBrowse.prototype.initEventHandlers = function() {
+  var cBrowse = this;
+
+  $('a.zoom_in').click(function(){
+    cBrowse.zoomIn();
+  });
+
+  $('a.zoom_out').click(function(){
+    cBrowse.zoomOut();
+  });
+  
+  $(this.canvas).dblclick(function(e){
+    var x = e.clientX - cBrowse.offset.left - cBrowse.width;
+    cBrowse.zoomIn(x);
+  });
+
+  $(this.canvas).mousedown(function(e){
+    console.log('mousedown');
+    if (cBrowse.zoom == 1) return false;
+    
+    cBrowse.dragging = true;
+    cBrowse.draggingOffsetX  = e.clientX - cBrowse.delta;
+  });
+
+  $(this.canvas).mousemove(function(e){
+    if (!cBrowse.dragging) {
+      var x = e.clientX - cBrowse.offset.left;
+      var y = e.clientY - cBrowse.offset.top;
+      
+      for (var i=0; i < cBrowse.tracks.length; i++) {
+        var track = cBrowse.tracks[i];
+        if (y > track.offsetY && y < track.offsetY + track.height) {
+          track.mousemove(x, y);
+          break;
+        }
+      }
+    }
+  });
+  
+  $(document).mousemove(function(e){
+    if (cBrowse.dragging) {
+        cBrowse.lastClientX = e.clientX;
+        var x = e.clientX - cBrowse.draggingOffsetX;
+        //$('#image_0').css('left', - cBrowse.width + x);
+        cBrowse.hideFeatureInfo();
+        cBrowse.offsetImage(x);
+    }
+  });
+  
+  $(document).mouseup(function(e){
+    console.log('mouseup');
+    if (cBrowse.dragging) {
+      cBrowse.dragging = false;
+      cBrowse.delta = e.clientX - cBrowse.draggingOffsetX;
+
+      console.log('delta: ' + cBrowse.delta);
+      
+      if (Math.abs(cBrowse.delta) < cBrowse.width) {
+        cBrowse.updateURL(cBrowse.delta);
+        return false;
+      }
+      
+      cBrowse.mask.show();
+      
+      cBrowse.start = cBrowse.start - cBrowse.delta/cBrowse.scale;
+      
+      if (cBrowse.delta > 0) {
+      // moved right
+        setTimeout("cBrowse.plot(0, "+ cBrowse.delta +")", 100);
+        cBrowse.delta = 0;
+      } else { 
+      // moved left
+        setTimeout("cBrowse.plot(" + (3*cBrowse.width + cBrowse.delta) + "," + 3*cBrowse.width + ")", 100);
+        cBrowse.delta = 0;
+      }
+      
+      //cBrowse.plot();
+    }
+  });
+}
+
+CBrowse.prototype.hideFeatureInfo = function(){
+  this.featureInfo.hide();
+}
+
+CBrowse.prototype.updateURL = function(delta) {
+  var start, end;
+  if (delta) {
+    start = this.start - delta/this.scale;
+  } else {
+    start = this.start;
+  }
+  end = start + this.chromosome.size/this.zoom
+  history.pushState({}, "", "cbrowse.html?"+ this.proband +";"+ this.chromosome.id +";"+ start +";"+ end);
+}
+
+CBrowse.prototype.updateImage = function(x1, x2) {
+  if (!x1 && !x2) {
+    x1 = 0;
+    x2 = 3*this.width;
+  }
+  this.dataURL = this.canvas.toDataURL();
+  this.image.src = this.dataURL;
+  this.mask.hide();  
+}
+
+CBrowse.prototype.updateCallShortCuts = function() {
+  var $select = $('#calls');
+  for (var i = 0; i < this.tracks.length; i++) {
+    var track = this.tracks[i];
+    if (track.calls && track.calls.length) {
+      
+      for (var j = 0; j < track.calls.length; j++) {
+        var call = track.calls[j];
+        $select
+          .append($('<option>', call)
+          .text("Source: " + track.name
+              + "; Size "  + (call.stop - call.start)
+              + "; Ratio " + call.ratio
+              + "; "       + this.chromosome.id + ":" +call.start.toLocaleString() + "-" + call.stop.toLocaleString()));
+      }
+      
+      
+      $select.change(function(){
+        $option = $('option:selected', this);
+        if (!$option.attr('start')) return false;
+        cBrowse.mask.show();
+        var start  = parseInt($option.attr('start'));
+        var end    = parseInt($option.attr('stop'));
+        var size   = end - start;
+        var k = 1;
+        if (size < 1000000) k = 5;
+        if (size < 100000) k = 20;
+
+        start = start - k*size;
+        end = end + k*size;
+
+        cBrowse.setStart(start);
+        cBrowse.setEnd(end);
+        setTimeout("cBrowse.plot();", 100);
+      });
+      $select.removeAttr('disabled');
+      
+    }
+  }
+}
+
+CBrowse.prototype.plot = function(x1, x2) {
+  console.time("plot");
+  this.hideFeatureInfo();
+  
+  if (!x1 && !x2) {
+    x1 = 0;
+    x2 = 3*this.width;
+  }
+  
+  //TODO: reset dragging offsets into separate routine
+  this.delta = 0;
+  
+  this.context.fillStyle = this.colors.foreground;
+  this.offsetX = this.start * this.scale;
+  
+  this.context.clearRect(x1, 0, x2, this.height);
+  
+  for (var i = 0; i < this.tracks.length; i++) {
+    this.tracks[i].plot(x1, x2);
+  }  
+  
+  //save canvas image as data url (png format by default)
+  this.dataURL = this.canvas.toDataURL();
+  this.image.src = this.dataURL;
+  this.mask.hide();
+
+  console.timeEnd("plot");
+  this.updateURL();
+  //this.offsetImage(0);
+}
+
+CBrowse.prototype.offsetImage = function(x) {
+  this.context.clearRect(0,0, 3*this.width, this.height);
+  this.context.drawImage(this.image, x, 0);
+}
+
+
+CBrowse.prototype.render = function() {
+  this.initDOM();
+  this.getDataAndPlot();
+  this.initEventHandlers();
+}
+
+CBrowse.prototype.die = function(error) {
+  alert(error);
+  throw(error);
+}
+
+CBrowse.prototype.warn = function(error) {
+  alert(error);
+}

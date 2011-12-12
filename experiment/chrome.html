@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<script>
+function handle_files(files) {
+  for (i = 0; i < files.length; i++) {
+    file = files[i]
+    console.log(file.webkitSlice());
+    var reader = new FileReader()
+    ret = []
+    reader.onload = function(e) {
+      console.log(e.target.result)
+    }
+    reader.onerror = function(stuff) {
+      console.log("error", stuff)
+    }
+    var blob = file.webkitSlice(0, 100);
+    reader.readAsText(blob);
+  }
+
+}
+</script>
+<body>
+FileReader that works!
+<input type="file" multiple onchange="handle_files(this.files)">
+</body>
+</html>

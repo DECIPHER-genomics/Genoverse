@@ -1,0 +1,72 @@
+body * {
+	  -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;    
+}
+
+body {
+  margin:50px 0px; padding:0px;
+  text-align:center;
+}
+
+#chromosome {
+   margin:20px auto; 
+   background: url("../chromosomes/1.png") no-repeat scroll 50% 0 transparent; 
+   width: 800px;   
+   height: 100px;   
+}
+
+.track {
+    /*border: 1px solid #9C9898;*/
+    margin: 20px auto; 
+    overflow: hidden;
+}
+
+.track>canvas {
+    position: relative;
+}
+
+.track>img {
+    position: relative;
+}
+
+#mask {
+  position: absolute;
+  background: url("../i/greypx.png") repeat scroll transparent; 
+  text-align: right;
+  z-index: 100000;
+  font-size: 2em;
+  font-weight: bold;
+  color: white;
+}
+
+#feature_info {
+  display:none;
+  text-align: left;
+  z-index: 10000;
+  position:absolute;  
+  background: #F8EDD1;
+  padding: 0.5em;
+  width: 200px;
+  box-shadow: 2px 2px 2px #CCCCCC;
+  font-size: 0.9em;    
+}
+
+.zoom_controls {
+  font-family: monospace;
+  font-size: 2em;
+  font-weight: bold;
+  margin-left: 1em;
+  text-decoration: none;
+}
+
+.zoom_controls>a {
+	text-decoration: none;
+  margin-right: 0.5em;
+}
+
+.zoom_controls>a:hover {
+	text-decoration: underline;
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/cbrowse.css" />  
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/chromosomes.js"></script>
+    <script type="text/javascript" src="js/cbrowse.js"></script>
+    <script type="text/javascript" src="js/cbrowsetrack.js"></script>
+	  <script>
+			var cBrowse = new CBrowse();
+
+		  var url = window.location.search.slice(1);
+		  if (!url.length) cBrowse.die("ERROR: Please specify the ProbandID and the chromosome");
+		
+		  var params = url.split(";");
+		  cBrowse.setProband(params[0]);
+		  cBrowse.setChromosome(params[1] || "1");
+
+      if (params[2] && params[3]) {
+        cBrowse.setStart(params[2]);
+        cBrowse.setEnd(params[3]);
+      }
+      
+		  var probandSummaryUrl = 'data/'+ cBrowse.proband +'/proband.json';
+		  
+			window.onload = function(){
+
+	      $.ajax({
+	        url: probandSummaryUrl,
+	        dataType: "json",
+	        beforeSend: function(){
+	        },
+	        success: function(probandSummary){
+	          cBrowse.probandSummary = probandSummary;
+	          cBrowse.setTracks([
+	              {
+	                name: "aCGH",
+	                type: "aCGH",
+	                height: 200,
+	                source: 'data/PROBAND/aCGH/CHR.json'
+	              },
+                {
+                  name: "SNP",
+                  type: "SNP",
+                  height: 200,
+                  source: 'data/PROBAND/SNP/CHR.json'
+                },
+                {
+                  name: "SNP",
+                  type: "SNP",
+                  height: 200,
+                  source: 'data/'+ cBrowse.probandSummary.mother +'/SNP/CHR.json'
+                },
+                {
+                  name: "SNP",
+                  type: "SNP",
+                  height: 200,
+                  source: 'data/'+ cBrowse.probandSummary.father +'/SNP/CHR.json'
+                }
+	          ]);
+	          cBrowse.initTracks();
+            cBrowse.render();
+	        },
+	        error: function(jqXHR, textStatus, errorThrown){
+	          //console.log(jqXHR);
+	          cBrowse.die("ERROR: Failed to get proband summary file from "+ probandSummaryUrl +"\nREASON: " + errorThrown);
+	        }
+	      });  			
+			
+			  
+			}	  
+	  </script>
+  </head>
+  <body></body>
+</html>
