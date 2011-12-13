@@ -34,16 +34,15 @@ var CBrowse = Base.extend({
     
     for (var i = 0; i < this.tracks.length; i++) {
       //Copy some default values from cBrowse to Track
-      var track = $.extend({
+      this.tracks[i] = new CBrowse.Track[this.tracks[i].type]($.extend({
         width:   this.width,
         colors:  this.colors,
         cBrowse: this,
         offsetY: this.height,
         i:       i
-      }, this.tracks[i]);
+      }, this.tracks[i]));
       
-      this.tracks[i] = new CBrowseTrack[track.type](track);
-      this.height   += track.height;
+      this.height += this.tracks[i].height;
     }
   },
   
@@ -65,7 +64,7 @@ var CBrowse = Base.extend({
       this.start = parseInt(stop, 10);
     }
     
-    this.zoom  = this.chromosome.size / (this.stop - this.start);
+    this.zoom = this.chromosome.size / (this.stop - this.start);
     this.initScale();
   },
   
@@ -77,13 +76,7 @@ var CBrowse = Base.extend({
   getDataAndPlot: function () {
     var cBrowse = this;
     
-    //this.ajaxCounter = 0;
-    
-    $.when.apply($,
-      $.map(this.tracks, function (track) {
-        return track.getDataAndPlot();
-      })
-    ).done(function () {
+    $.when.apply($, $.map(this.tracks, function (track) { return track.getDataAndPlot(); })).done(function () {
       cBrowse.updateImage();
       cBrowse.updateCallShortCuts();
     });
@@ -120,7 +113,7 @@ var CBrowse = Base.extend({
     
     this.mask.show();
     
-    var start = this.start + (x - 2*this.delta) / (2 * this.scale);
+    var start = this.start + (x - 2 * this.delta) / (2 * this.scale);
     var stop  = start + (this.stop - this.start) / 2;
 
     this.setRange(start, stop);
@@ -184,9 +177,10 @@ var CBrowse = Base.extend({
       if (!cBrowse.dragging) {
         var x = e.pageX - cBrowse.offset.left;
         var y = e.pageY - cBrowse.offset.top;
+        var track;
         
         for (var i = 0; i < cBrowse.tracks.length; i++) {
-          var track = cBrowse.tracks[i];
+          track = cBrowse.tracks[i];
           
           if (y > track.offsetY && y < track.offsetY + track.height) {
             track.mousemove(x, y);
@@ -252,7 +246,7 @@ var CBrowse = Base.extend({
     
     stop = start + this.chromosome.size / this.zoom;
     
-    history.pushState({}, "", this.baseURL + start + ";" + stop);
+    window.history.pushState({}, "", this.baseURL + start + ";" + stop);
   },
   
   updateImage: function (x1, x2) {
@@ -270,13 +264,14 @@ var CBrowse = Base.extend({
   updateCallShortCuts: function () {
     var cBrowse = this;
     var select = $('#calls');
+    var track, j, call;
     
     for (var i = 0; i < this.tracks.length; i++) {
-      var track = this.tracks[i];
+      track = this.tracks[i];
       
       if (track.calls && track.calls.length) {
-        for (var j = 0; j < track.calls.length; j++) {
-          var call = track.calls[j];
+        for (j = 0; j < track.calls.length; j++) {
+          call = track.calls[j];
           
           select.append($('<option>', call).text(
             "Source: " + track.name +
@@ -300,8 +295,8 @@ var CBrowse = Base.extend({
           var size  = stop - start;
           var k     = size < 100000 ? 20 : size < 1000000 ? 5 : 1;
 
-          start = start - k*size;
-          stop  = stop  + k*size;
+          start = start - k * size;
+          stop  = stop  + k * size;
           
           cBrowse.setRange(start, stop);
           

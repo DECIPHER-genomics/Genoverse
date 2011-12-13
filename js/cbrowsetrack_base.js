@@ -4,7 +4,7 @@
  * Released under the Modified-BSD license, see LICENSE.TXT
  */
 
-var CBrowseTrack = Base.extend({
+CBrowse.Track = Base.extend({
   defaults: {
     image: new Image(),
     pointSize: 1.5,
@@ -46,10 +46,12 @@ var CBrowseTrack = Base.extend({
   },
   
   mousemove: function (x, y) {
+    var call;
+    
     x = x - this.cBrowse.delta;
     
     for (var i = 0; i < this.currentCalls.length; i++) {
-      var call = this.currentCalls[i];
+      call = this.currentCalls[i];
       
       if (x > call.scaledStart && x < call.scaledStop) {
         this.showFeatureInfo(call, {
@@ -82,6 +84,8 @@ var CBrowseTrack = Base.extend({
   },
   
   decorate: function (x1, x2) {
+    var position;
+    
     this.context.fillStyle = this.colors.border;
     this.context.fillRect(x1, this.offsetY, x2, 1); // borders
     
@@ -92,7 +96,7 @@ var CBrowseTrack = Base.extend({
     
     // coordinates
     for (var x = 0; x < this.cBrowse.chromosome.size; x += 1e7) {
-      var position = x * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
+      position = x * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
       
       if (position > x1 && position < x2) {
         this.context.fillRect(position, this.offsetY, 1, 7);
@@ -110,8 +114,10 @@ var CBrowseTrack = Base.extend({
     this.currentCalls = [];
     
     if (this.calls) {
+      var call;
+      
       for (var i = 0; i < this.calls.length; i++) {
-        var call = this.calls[i];
+        call = this.calls[i];
         
         call.scaledStart  = call.start * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
         call.scaledStop   = call.stop  * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
@@ -185,7 +191,7 @@ var CBrowseTrack = Base.extend({
 
 // Children. TODO: move to separate files
 
-CBrowseTrack.SNP = CBrowseTrack.extend({
+CBrowse.Track.SNP = CBrowse.Track.extend({
   plotData: function (probe, x1, x2) {
     var x = probe[0] * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
     
@@ -193,12 +199,12 @@ CBrowseTrack.SNP = CBrowseTrack.extend({
       return false;
     }
 
-    this.point(x, this.offsetY + this.height/20 + probe[1]*this.height*0.9);
-    this.vline(x, this.offsetY + this.height/2, -probe[2]*this.height/5);
+    this.point(x, this.offsetY + this.height / 20 + probe[1] * this.height * 0.9);
+    this.vline(x, this.offsetY + this.height / 2, -probe[2] * this.height / 5);
   }
 });
 
-CBrowseTrack.aCGH = CBrowseTrack.extend({
+CBrowse.Track.aCGH = CBrowse.Track.extend({
   plotData: function (probe, x1, x2) {
     var x = probe[0] * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
     
@@ -206,11 +212,11 @@ CBrowseTrack.aCGH = CBrowseTrack.extend({
       return false;
     }
     
-    this.point(x, this.offsetY + this.height/2 - probe[1]*this.height/5);
+    this.point(x, this.offsetY + this.height / 2 - probe[1] * this.height / 5);
   }
 });
 
-CBrowseTrack.Exome = CBrowseTrack.extend({
+CBrowse.Track.Exome = CBrowse.Track.extend({
   plotData: function (probe, x1, x2) {
     var a = probe[0] * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
     var b = probe[1] * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
@@ -219,7 +225,7 @@ CBrowseTrack.Exome = CBrowseTrack.extend({
       return false;
     }
 
-    this.vline((a+b)/2, this.offsetY + this.height/2, -probe[3]*this.height/5);  
-    this.hline(a, this.offsetY + this.height/2 - probe[2]*this.height/5, b-a);
+    this.vline((a + b) / 2, this.offsetY + this.height / 2, -probe[3] * this.height / 5);  
+    this.hline(a, this.offsetY + this.height / 2 - probe[2] * this.height / 5, b - a);
   }
 });
