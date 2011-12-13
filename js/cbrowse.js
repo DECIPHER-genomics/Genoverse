@@ -273,46 +273,7 @@ CBrowse.prototype.updateImage = function(x1, x2) {
   this.mask.hide();  
 }
 
-CBrowse.prototype.updateCallShortCuts = function() {
-  var $select = $('#calls');
-  for (var i = 0; i < this.tracks.length; i++) {
-    var track = this.tracks[i];
-    if (track.calls && track.calls.length) {
-      
-      for (var j = 0; j < track.calls.length; j++) {
-        var call = track.calls[j];
-        $select
-          .append($('<option>', call)
-          .text("Source: " + track.name
-              + "; Size "  + (call.stop - call.start)
-              + "; Ratio " + call.ratio
-              + "; "       + this.chromosome.id + ":" +call.start.toLocaleString() + "-" + call.stop.toLocaleString()));
-      }
-      
-      
-      $select.change(function(){
-        $option = $('option:selected', this);
-        if (!$option.attr('start')) return false;
-        cBrowse.mask.show();
-        var start  = parseInt($option.attr('start'));
-        var stop   = parseInt($option.attr('stop'));
-        var size   = stop - start;
-        var k = 1;
-        if (size < 1000000) k = 5;
-        if (size < 100000) k = 20;
 
-        start = start - k*size;
-        stop = stop + k*size;
-
-        cBrowse.setStart(start);
-        cBrowse.setStop(stop);
-        setTimeout("cBrowse.plot();", 100);
-      });
-      $select.removeAttr('disabled');
-      
-    }
-  }
-}
 
 CBrowse.prototype.plot = function(x1, x2) {
   console.time("plot");

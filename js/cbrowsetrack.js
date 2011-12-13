@@ -89,6 +89,10 @@ CBrowseTrack.prototype.decorate = function(x1, x2) {
   //TODO: getter for scale!
   // borders
   this.context.fillRect(x1, this.offsetY, x2, 1);
+
+  this.context.fillStyle = '#3B62FF';
+  this.context.fillRect(x1, this.offsetY+this.height/2, x2, 1);
+  this.context.fillStyle = this.colors.border;
   
   // coordinates
   for (var x = 0; x < this.cBrowse.chromosome.size; x+=10000000) {
@@ -99,6 +103,7 @@ CBrowseTrack.prototype.decorate = function(x1, x2) {
     }
   }
   
+  this.context.fillRect(x1, this.cBrowse.height-1, x2, 1);
   
   this.context.fillStyle = this.colors.foreground;
 }
@@ -170,6 +175,15 @@ CBrowseTrack.prototype.plotAcghProbe = function(probe, x1, x2) {
   this.point(x, this.offsetY + this.height/2 - probe[1]*this.height/5);
 }
 
+CBrowseTrack.prototype.plotExomeProbe = function(probe, x1, x2) {
+  var a = probe[0] * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
+  var b = probe[1] * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
+  if (!(a < x2 && b > x1)) return false;
+  
+  this.vline((a+b)/2, this.offsetY + this.height/2, -probe[3]*this.height/5);  
+  this.hline(a, this.offsetY + this.height/2 - probe[2]*this.height/5, b-a);
+}
+
 CBrowseTrack.prototype.point = function(x, y) {
   if (y > this.offsetY && y < this.offsetY + this.height)
     this.context.fillRect(x, y, this.pointSize, this.pointSize);
@@ -180,6 +194,12 @@ CBrowseTrack.prototype.vline = function(x, y, l) {
   this.context.fillStyle = this.colors.border;
   this.context.fillRect(x, y, this.pointSize, l);
   this.context.fillStyle = this.colors.foreground;
+}
+
+CBrowseTrack.prototype.hline = function(x, y, l) {
+  //if (y+l > this.offsetY && y < this.offsetY + this.height)
+  if (l < this.pointSize) l = this.pointSize;
+  this.context.fillRect(x, y, l, this.pointSize);
 }
 
 CBrowseTrack.prototype.die = function(error) {
