@@ -42,8 +42,7 @@ var CBrowse = Base.extend({
         i:       i
       }, this.tracks[i]);
       
-      //TODO: bless
-      this.tracks[i] = new CBrowseTrack(track);
+      this.tracks[i] = new CBrowseTrack[track.type](track);
       this.height   += track.height;
     }
   },
@@ -58,7 +57,14 @@ var CBrowse = Base.extend({
   
   setRange: function (start, stop) {
     this.start = parseInt(start, 10);
-    this.stop  = parseInt(stop, 10);
+    this.stop  = parseInt(stop,  10);
+    
+    // THIS SHOULD NEVER HAPPEN
+    if (this.stop < this.start) {
+      this.stop  = this.start;
+      this.start = parseInt(stop, 10);
+    }
+    
     this.zoom  = this.chromosome.size / (this.stop - this.start);
     this.initScale();
   },
@@ -152,7 +158,7 @@ var CBrowse = Base.extend({
     });
     
     $(this.canvas).dblclick(function (e) {
-      var x = e.clientX - cBrowse.offset.left - cBrowse.width;
+      var x = e.pageX - cBrowse.offset.left - cBrowse.width;
       cBrowse.zoomIn(x);
     });
     
@@ -164,13 +170,13 @@ var CBrowse = Base.extend({
       }
       
       cBrowse.dragging        = true;
-      cBrowse.draggingOffsetX = e.clientX - cBrowse.delta;
+      cBrowse.draggingOffsetX = e.pageX - cBrowse.delta;
     });
     
     $(this.canvas).mousemove(function (e) {
       if (!cBrowse.dragging) {
-        var x = e.clientX - cBrowse.offset.left;
-        var y = e.clientY - cBrowse.offset.top;
+        var x = e.pageX - cBrowse.offset.left;
+        var y = e.pageY - cBrowse.offset.top;
         
         for (var i = 0; i < cBrowse.tracks.length; i++) {
           var track = cBrowse.tracks[i];
@@ -185,9 +191,9 @@ var CBrowse = Base.extend({
     
     $(document).mousemove(function (e) {
       if (cBrowse.dragging) {
-        var x = e.clientX - cBrowse.draggingOffsetX;
+        var x = e.pageX - cBrowse.draggingOffsetX;
         
-        cBrowse.lastClientX = e.clientX;
+        cBrowse.lastClientX = e.pageX;
         cBrowse.hideFeatureInfo();
         cBrowse.offsetImage(x);
       }
@@ -198,7 +204,7 @@ var CBrowse = Base.extend({
       
       if (cBrowse.dragging) {
         cBrowse.dragging = false;
-        cBrowse.delta    = e.clientX - cBrowse.draggingOffsetX;
+        cBrowse.delta    = e.pageX - cBrowse.draggingOffsetX;
 
         console.log('delta: ' + cBrowse.delta);
         
@@ -307,7 +313,7 @@ var CBrowse = Base.extend({
     
     if (!x1 && !x2) {
       x1 = 0;
-      x2 = 3*this.width;
+      x2 = 3 * this.width;
     }
     
     //TODO: reset dragging offsets into separate routine
@@ -333,7 +339,7 @@ var CBrowse = Base.extend({
   },
   
   offsetImage: function (x) {
-    this.context.clearRect(0, 0, 3*this.width, this.height);
+    this.context.clearRect(0, 0, 3 * this.width, this.height);
     this.context.drawImage(this.image, x, 0);
   },
   
