@@ -4,7 +4,6 @@
  * Released under the Modified-BSD license, see LICENSE.TXT
  */
 
-
 var CBrowse = Base.extend({
   defaults: {
     image: new Image(),
