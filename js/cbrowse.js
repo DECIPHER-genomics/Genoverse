@@ -20,7 +20,8 @@ CBrowse = function(config) {
 
 CBrowse.prototype.initTracks = function() {
   this.height = 0;
-
+  if (!this.tracks) return false;
+  
   for (var i = 0; i < this.tracks.length; i++) {
     //Copy some default values from cBrowse to Track
     track = {
@@ -62,21 +63,7 @@ CBrowse.prototype.defaults = {
     foreground: '#000000',
     border: '#A3A3A3',
     call: '#FF0000'
-  },
-  tracks: [
-     {
-       name: "aCGH",
-       type: "aCGH",
-       height: 200,
-       source: 'data/PROBAND/aCGH/CHR.json'
-     },
-     {
-       name: "SNP",
-       type: "SNP",
-       height: 400,
-       source: 'data/PROBAND/SNP/CHR.json'
-     }
-  ],
+  }
 }
 
 
@@ -98,16 +85,16 @@ CBrowse.prototype.setChromosome = function(n) {
 
 CBrowse.prototype.setStart = function(start) {
   this.start = parseInt(start);
-  if (this.end && this.chromosome) {
-    this.zoom = this.chromosome.size/(this.end - this.start);
+  if (this.stop && this.chromosome) {
+    this.zoom = this.chromosome.size/(this.stop - this.start);
     this.initScale();
   }
 }
 
-CBrowse.prototype.setEnd = function(end) {
-  this.end  = parseInt(end);
+CBrowse.prototype.setStop = function(stop) {
+  this.stop  = parseInt(stop);
   if (this.start && this.chromosome) {
-    this.zoom = this.chromosome.size/(this.end - this.start);
+    this.zoom = this.chromosome.size/(this.stop - this.start);
     this.initScale();
   }
 }
@@ -147,7 +134,7 @@ CBrowse.prototype.initDOM = function() {
 CBrowse.prototype.initScale = function() {
   this.scale = this.zoom * this.width / this.chromosome.size;
   this.offsetX = this.start * this.scale;
-  if (!this.end && this.zoom == 1) this.end = this.chromosome.size;
+  if (!this.stop && this.zoom == 1) this.stop = this.chromosome.size;
 }
 
 
@@ -156,10 +143,10 @@ CBrowse.prototype.zoomIn = function(x) {
   
   this.mask.show();
   var start = this.start + (x - 2*this.delta)/(2*this.scale);
-  var end   = start + (this.end - this.start)/2;
+  var stop  = start + (this.stop - this.start)/2;
 
   this.setStart(start);
-  this.setEnd(end);
+  this.setStop(stop);
   
   setTimeout("cBrowse.plot();", 100);    
 }
@@ -169,13 +156,13 @@ CBrowse.prototype.zoomOut = function(x) {
   
   this.mask.show();
   var start = this.start - (x + this.delta)/this.scale;
-  var end   = start + 2*(this.end - this.start);
+  var stop   = start + 2*(this.stop - this.start);
 
   if (start < 0) start = 0;
-  if (end > this.chromosome.size) end = this.chromosome.size;
+  if (stop > this.chromosome.size) stop = this.chromosome.size;
 
   this.setStart(start);
-  this.setEnd(end);
+  this.setStop(stop);
   
   setTimeout("cBrowse.plot();", 100);    
 }
@@ -266,14 +253,14 @@ CBrowse.prototype.hideFeatureInfo = function(){
 }
 
 CBrowse.prototype.updateURL = function(delta) {
-  var start, end;
+  var start, stop;
   if (delta) {
     start = this.start - delta/this.scale;
   } else {
     start = this.start;
   }
-  end = start + this.chromosome.size/this.zoom
-  history.pushState({}, "", this.baseURL + start + ";" + end);
+  stop = start + this.chromosome.size/this.zoom
+  history.pushState({}, "", this.baseURL + start + ";" + stop);
 }
 
 CBrowse.prototype.updateImage = function(x1, x2) {
@@ -308,17 +295,17 @@ CBrowse.prototype.updateCallShortCuts = function() {
         if (!$option.attr('start')) return false;
         cBrowse.mask.show();
         var start  = parseInt($option.attr('start'));
-        var end    = parseInt($option.attr('stop'));
-        var size   = end - start;
+        var stop   = parseInt($option.attr('stop'));
+        var size   = stop - start;
         var k = 1;
         if (size < 1000000) k = 5;
         if (size < 100000) k = 20;
 
         start = start - k*size;
-        end = end + k*size;
+        stop = stop + k*size;
 
         cBrowse.setStart(start);
-        cBrowse.setEnd(end);
+        cBrowse.setStop(stop);
         setTimeout("cBrowse.plot();", 100);
       });
       $select.removeAttr('disabled');

@@ -144,32 +144,30 @@ CBrowseTrack.prototype.plot = function(x1, x2) {
   this.getCurrentCalls();
   
   for (var i = 0; i < this.data.length; i++) {
-    var position = this.data[i][0];
-    
-    var x = position * this.cBrowse.scale;
-    x += this.width - this.cBrowse.offsetX;
-    
-    if (x < x1 || x > x2) continue;
 
-    this.plotPoint(x, this.data[i]);
+    if (this.type == 'SNP') this.plotSnpProbe(this.data[i], x1, x2);
+    if (this.type == 'aCGH') this.plotAcghProbe(this.data[i], x1, x2);
+    if (this.type == 'exome') this.plotExomeProbe(this.data[i], x1, x2);
+    
   }
 
   this.plotCurrentCalls(x1, x2);
   
 };
 
-CBrowseTrack.prototype.plotPoint = function() {
-  if (this.type == 'SNP') this.plotSNPpoint.apply(this, arguments);
-  if (this.type == 'aCGH') this.plotACGHpoint.apply(this, arguments);
+CBrowseTrack.prototype.plotSnpProbe = function(probe, x1, x2) {
+  var x = probe[0] * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
+  if (x < x1 || x > x2) return false;
+
+  this.point(x, this.offsetY + this.height/20 + probe[1]*this.height*0.9);
+  this.vline(x, this.offsetY + this.height/2, -probe[2]*this.height/5);  
 }
 
-CBrowseTrack.prototype.plotSNPpoint = function(x, data) {
-  this.point(x, this.offsetY + this.height/20 + data[1]*this.height*0.9);
-  this.bar(x, this.offsetY + this.height/2, -data[2]*this.height/5);
-}
-
-CBrowseTrack.prototype.plotACGHpoint = function(x, data) {
-  this.point(x, this.offsetY + this.height/2 - data[1]*this.height/5);
+CBrowseTrack.prototype.plotAcghProbe = function(probe, x1, x2) {
+  var x = probe[0] * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
+  if (x < x1 || x > x2) return false;
+  
+  this.point(x, this.offsetY + this.height/2 - probe[1]*this.height/5);
 }
 
 CBrowseTrack.prototype.point = function(x, y) {
@@ -177,7 +175,7 @@ CBrowseTrack.prototype.point = function(x, y) {
     this.context.fillRect(x, y, this.pointSize, this.pointSize);
 }
 
-CBrowseTrack.prototype.bar = function(x, y, l) {
+CBrowseTrack.prototype.vline = function(x, y, l) {
   //if (y+l > this.offsetY && y < this.offsetY + this.height)
   this.context.fillStyle = this.colors.border;
   this.context.fillRect(x, y, this.pointSize, l);
