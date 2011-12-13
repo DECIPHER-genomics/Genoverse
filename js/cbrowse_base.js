@@ -22,6 +22,11 @@ var CBrowse = Base.extend({
 
   constructor: function (config) {  
     $.extend(this, this.defaults, config);
+    
+    if (!(this.container && this.container.length)) {
+      this.die('You must supply a ' + (this.container ? 'valid ' : '') + 'container element');
+    }
+    
     this.initTracks();
   },
   
@@ -32,17 +37,16 @@ var CBrowse = Base.extend({
       return false;
     }
     
+    var defaults = {
+      width:   this.width,
+      colors:  this.colors,
+      cBrowse: this
+    };
+    
     for (var i = 0; i < this.tracks.length; i++) {
       //Copy some default values from cBrowse to Track
-      this.tracks[i] = new CBrowse.Track[this.tracks[i].type]($.extend({
-        width:   this.width,
-        colors:  this.colors,
-        cBrowse: this,
-        offsetY: this.height,
-        i:       i
-      }, this.tracks[i]));
-      
-      this.height += this.tracks[i].height;
+      this.tracks[i] = new CBrowse.Track[this.tracks[i].type]($.extend(defaults, { offsetY: this.height, i: i }, this.tracks[i]));
+      this.height   += this.tracks[i].height;
     }
   },
   
@@ -83,12 +87,12 @@ var CBrowse = Base.extend({
   },
   
   initDOM: function () {
-    this.window      = $('#window').css({ width: this.width, height: this.height });
-    this.canvas      = $('canvas').attr('width', 3 * this.width).attr('height', this.height).css('left', -this.width)[0];
-    this.mask        = $('#mask').css({ width: this.width, height: this.height, top: this.window.offset().top }).show();
-    this.context     = this.canvas.getContext('2d');    
-    this.offset      = $(this.canvas).offset();
-    this.featureInfo = $('#feature_info');
+    this.viewPort    = $('.viewport',     this.container).css({ width: this.width, height: this.height });
+    this.canvas      = $('canvas',        this.container).attr('width', 3 * this.width).attr('height', this.height).css('left', -this.width);
+    this.mask        = $('.mask',         this.container).css({ width: this.width, height: this.height, top: this.viewPort.offset().top }).show();
+    this.featureInfo = $('.feature_info', this.container);
+    this.context     = this.canvas[0].getContext('2d');    
+    this.offset      = this.canvas.offset();
     
     for (var i = 0; i < this.tracks.length; i++) {
       this.tracks[i].context = this.context;
@@ -96,7 +100,7 @@ var CBrowse = Base.extend({
   },
   
   initScale: function () {
-    this.scale   = this.zoom * this.width / this.chromosome.size;
+    this.scale   = this.zoom  * this.width / this.chromosome.size;
     this.offsetX = this.start * this.scale;
     
     if (!this.stop && this.zoom === 1) {
@@ -157,12 +161,12 @@ var CBrowse = Base.extend({
       cBrowse.zoomOut();
     });
     
-    $(this.canvas).dblclick(function (e) {
+    this.canvas.dblclick(function (e) {
       var x = e.pageX - cBrowse.offset.left - cBrowse.width;
       cBrowse.zoomIn(x);
     });
     
-    $(this.canvas).mousedown(function (e) {
+    this.canvas.mousedown(function (e) {
       console.log('mousedown');
       
       if (cBrowse.zoom === 1) {
@@ -173,7 +177,7 @@ var CBrowse = Base.extend({
       cBrowse.draggingOffsetX = e.pageX - cBrowse.delta;
     });
     
-    $(this.canvas).mousemove(function (e) {
+    this.canvas.mousemove(function (e) {
       if (!cBrowse.dragging) {
         var x = e.pageX - cBrowse.offset.left;
         var y = e.pageY - cBrowse.offset.top;
@@ -255,7 +259,7 @@ var CBrowse = Base.extend({
       x2 = 3 * this.width;
     }
     
-    this.dataURL   = this.canvas.toDataURL();
+    this.dataURL   = this.canvas[0].toDataURL();
     this.image.src = this.dataURL;
     
     this.mask.hide();
@@ -330,7 +334,7 @@ var CBrowse = Base.extend({
     }  
     
     //save canvas image as data url (png format by default)
-    this.dataURL   = this.canvas.toDataURL();
+    this.dataURL   = this.canvas[0].toDataURL();
     this.image.src = this.dataURL;
     
     this.mask.hide();

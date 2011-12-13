@@ -13,24 +13,24 @@ body {
 
 #chromosome {
    margin:20px auto; 
-   background: url("../chromosomes/1.png") no-repeat scroll 50% 0 transparent; 
+   background: url(../chromosomes/1.png) no-repeat scroll 50% 0 transparent; 
    width: 800px;   
    height: 100px;   
 }
 
-#window {
+.viewport {
   /*border: 1px solid #9C9898;*/
   margin: 20px auto; 
   overflow: hidden;
 }
 
-#window>canvas {
+.viewport > canvas {
     position: relative;
 }
 
-#mask {
+.mask {
   position: absolute;
-  background: url("../i/greypx.png") repeat scroll transparent; 
+  background: url(../i/greypx.png) repeat scroll transparent; 
   text-align: right;
   z-index: 100000;
   font-size: 2em;
@@ -38,7 +38,7 @@ body {
   color: white;
 }
 
-#feature_info {
+.feature_info {
   display:none;
   text-align: left;
   z-index: 10000;
@@ -58,11 +58,11 @@ body {
   text-decoration: none;
 }
 
-.zoom_controls>a {
+.zoom_controls > a {
 	text-decoration: none;
   margin-right: 0.5em;
 }
 
-.zoom_controls>a:hover {
+.zoom_controls > a:hover {
 	text-decoration: underline;
 }

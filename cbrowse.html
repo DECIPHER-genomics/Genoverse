@@ -7,52 +7,48 @@
     <script type="text/javascript" src="js/chromosomes.js"></script>
     <script type="text/javascript" src="js/cbrowse_base.js"></script>
     <script type="text/javascript" src="js/cbrowsetrack_base.js"></script>
-	  <script>
-			var cBrowse = new CBrowse();
-
-      $(function() {
-
-	      var query = window.location.search.slice(1);
-	      var params = query.split(";");
-	
-	      if (params[0] && params[1]) {
-	        cBrowse.setRange(params[0], params[1]);
-	      }
-	      
-	      cBrowse.baseURL = "cbrowse.html?";
-	
-	      cBrowse.setTracks([
-	          {
-	            name: "Example track 1 (aCGH)",
-	            type: "aCGH",
-	            height: 200,
-	            source: 'data/example/aCGH.json'
-	          },
-	          {
-	            name: "Example track 2 (SNP)",
-	            type: "SNP",
-	            height: 200,
-	            source: 'data/example/SNP.json'
-	          }
-	      ]);
-	      cBrowse.initTracks();
-	      cBrowse.render();
-	      
-	    });
-	  </script>
   </head>
   <body>
-  
-  <div>
-  <span class="zoom_controls"><a class="zoom_in" href="#">+</a><a class="zoom_out" href="#">-</a></span>
-  </div>
+  <div id="container">
+    <div>
+      <span class="zoom_controls"><a class="zoom_in" href="#">+</a><a class="zoom_out" href="#">-</a></span>
+    </div>
 
-  <div id="window" style="width:800px; height:600px;">
-    <canvas width="2400" height="600" style="left:-800px"></canvas>
-    <div id="mask" style="width:800px; height:600px;">Loading...</div>
-  </div>
+    <div class="viewport" style="width:800px; height:600px;">
+      <canvas width="2400" height="600" style="left:-800px"></canvas>
+      <div class="mask" style="width:800px; height:600px;">Loading...</div>
+    </div>
 
-  <div id="feature_info"></div>    
+    <div class="feature_info"></div>
+  </div>
+  <script>
+    $(function () {
+      var query   = window.location.search.slice(1);
+      var params  = query.split(";");
+      var cBrowse = new CBrowse({
+        container: $('#container'),
+        baseURL: "cbrowse.html?",
+        tracks: [{
+          name: "Example track 1 (aCGH)",
+          type: "aCGH",
+          height: 200,
+          source: 'data/example/aCGH.json'
+        }, {
+          name: "Example track 2 (SNP)",
+          type: "SNP",
+          height: 200,
+          source: 'data/example/SNP.json'
+        }]
+      });
+      
+      if (params[0] && params[1]) {
+        cBrowse.setRange(params[0], params[1]);
+      }
+      
+      cBrowse.initTracks();
+      cBrowse.render();
+    });
+  </script>
   
   </body>
 </html>
