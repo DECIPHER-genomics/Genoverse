@@ -20,9 +20,7 @@ CBrowseTrack.prototype.sortData = function() {
 };
 
 CBrowseTrack.prototype.getDataAndPlotWhenAllFinished = function() {
-  var url = this.source
-                .replace('PROBAND', this.cBrowse.proband)
-                .replace('CHR', this.cBrowse.chromosome.id);
+  var url = this.source;
 
   this.data = [];
   

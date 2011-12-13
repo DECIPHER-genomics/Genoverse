@@ -96,10 +96,6 @@ CBrowse.prototype.setChromosome = function(n) {
   }
 }
 
-CBrowse.prototype.setProband = function(proband) {
-  this.proband = proband;
-}
-
 CBrowse.prototype.setStart = function(start) {
   this.start = parseInt(start);
   if (this.end && this.chromosome) {
@@ -125,26 +121,6 @@ CBrowse.prototype.setTracks = function(tracks) {
 // ...
 //
 
-// Page muse have ?PROBAND;CHR as first url query params
-// Where PROBAND is the PROBAND id and 
-// CHR is the chromosome 1..22 / X / Y
-CBrowse.prototype.parseURL = function() {
-  var url = window.location.search.slice(1);
-  if (!url.length) this.die("Please specify the proband ID and the chromosome");
-
-  var params = url.split(";");
-  this.proband = params[0];
-  this.chromosome.number = params[1] || '1';
-  if (params[2] && params[3]) {
-    this.start = parseInt(params[2]);
-    this.zoom  = this.chromosome.size/(params[3] - params[2]);
-  }
-  
-  
-  //TODO: set up chromosomes constant
-  //this.chromosome = chromosomes[proband_and_chr[1]]
-}
-
 // Get data for each track in this.tracks
 CBrowse.prototype.getDataAndPlot = function() {
   this.ajaxCounter = 0;
@@ -154,18 +130,11 @@ CBrowse.prototype.getDataAndPlot = function() {
 }
 
 CBrowse.prototype.initDOM = function() {
-  //$('body').html('<div id="chromosome"> </div>');
-  $('body').html('<div><select id="calls" disabled><option>Calls shortcuts:</select>' +
-                 '<span class="zoom_controls"><a class="zoom_in" href="#">+</a><a class="zoom_out" href="#">-</a></span>' +
-                 '</div>');
 
-  $('body').append( '<div class="track" style="width:' + this.width + 'px; height:' + this.height + 'px;">' +
-                    '<canvas width="'+ ( 3*this.width ) +'" height="' + this.height + '" style="left:-' + this.width + 'px"></canvas>' +
-                    '<div id="mask" style="height:' + this.height + 'px; width:' + this.width + 'px;">Loading...</div></div>' +
-                    '<div id="feature_info"></div>');
-
-  this.mask    = $('#mask').css('top', $('.track').offset().top).show();
-  this.canvas  = $('.track canvas')[0];
+  this.window = $('#window').css({ width: this.width+'px', height: this.height+'px'});
+  this.canvas = $('canvas').attr('width', 3*this.width).attr('height', this.height).css('left', (-this.width) + 'px')[0];
+  this.mask   = $('#mask').css({ width: this.width+'px', height: this.height+'px', top: $('#window').offset().top}).show()
+  
   this.context = this.canvas.getContext("2d");    
   this.offset  = $(this.canvas).offset();
   this.featureInfo = $('#feature_info');
@@ -304,7 +273,7 @@ CBrowse.prototype.updateURL = function(delta) {
     start = this.start;
   }
   end = start + this.chromosome.size/this.zoom
-  history.pushState({}, "", "cbrowse.html?"+ this.proband +";"+ this.chromosome.id +";"+ start +";"+ end);
+  history.pushState({}, "", this.baseURL + start + ";" + end);
 }
 
 CBrowse.prototype.updateImage = function(x1, x2) {
@@ -397,6 +366,7 @@ CBrowse.prototype.offsetImage = function(x) {
 
 CBrowse.prototype.render = function() {
   this.initDOM();
+  this.initScale();
   this.getDataAndPlot();
   this.initEventHandlers();
 }

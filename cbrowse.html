@@ -9,67 +9,50 @@
 	  <script>
 			var cBrowse = new CBrowse();
 
-		  var url = window.location.search.slice(1);
-		  if (!url.length) cBrowse.die("ERROR: Please specify the ProbandID and the chromosome");
-		
-		  var params = url.split(";");
-		  cBrowse.setProband(params[0]);
-		  cBrowse.setChromosome(params[1] || "1");
+      $(function() {
 
-      if (params[2] && params[3]) {
-        cBrowse.setStart(params[2]);
-        cBrowse.setEnd(params[3]);
-      }
-      
-		  var probandSummaryUrl = 'data/'+ cBrowse.proband +'/proband.json';
-		  
-			window.onload = function(){
-
-	      $.ajax({
-	        url: probandSummaryUrl,
-	        dataType: "json",
-	        beforeSend: function(){
-	        },
-	        success: function(probandSummary){
-	          cBrowse.probandSummary = probandSummary;
-	          cBrowse.setTracks([
-	              {
-	                name: "aCGH",
-	                type: "aCGH",
-	                height: 200,
-	                source: 'data/PROBAND/aCGH/CHR.json'
-	              },
-                {
-                  name: "SNP",
-                  type: "SNP",
-                  height: 200,
-                  source: 'data/PROBAND/SNP/CHR.json'
-                },
-                {
-                  name: "SNP",
-                  type: "SNP",
-                  height: 200,
-                  source: 'data/'+ cBrowse.probandSummary.mother +'/SNP/CHR.json'
-                },
-                {
-                  name: "SNP",
-                  type: "SNP",
-                  height: 200,
-                  source: 'data/'+ cBrowse.probandSummary.father +'/SNP/CHR.json'
-                }
-	          ]);
-	          cBrowse.initTracks();
-            cBrowse.render();
-	        },
-	        error: function(jqXHR, textStatus, errorThrown){
-	          //console.log(jqXHR);
-	          cBrowse.die("ERROR: Failed to get proband summary file from "+ probandSummaryUrl +"\nREASON: " + errorThrown);
-	        }
-	      });  			
-			
-			  
-			}	  
+	      var query = window.location.search.slice(1);
+	      var params = query.split(";");
+	
+	      if (params[0] && params[1]) {
+	        cBrowse.setStart(params[0]);
+	        cBrowse.setEnd(params[1]);
+	      }
+	      
+	      cBrowse.baseURL = "cbrowse.html?";
+	
+	      cBrowse.setTracks([
+	          {
+	            name: "Example track 1 (aCGH)",
+	            type: "aCGH",
+	            height: 200,
+	            source: 'data/example/aCGH.json'
+	          },
+	          {
+	            name: "Example track 2 (SNP)",
+	            type: "SNP",
+	            height: 200,
+	            source: 'data/example/SNP.json'
+	          }
+	      ]);
+	      cBrowse.initTracks();
+	      cBrowse.render();
+	      
+	    });
 	  </script>
   </head>
-  <body></body>
+  <body>
+  
+  <div>
+  <span class="zoom_controls"><a class="zoom_in" href="#">+</a><a class="zoom_out" href="#">-</a></span>
+  </div>
+
+  <div id="window" style="width:800px; height:600px;">
+    <canvas width="2400" height="600" style="left:-800px"></canvas>
+    <div id="mask" style="width:800px; height:600px;">Loading...</div>
+  </div>
+
+  <div id="feature_info"></div>    
+  
+  </body>
 </html>

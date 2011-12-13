@@ -18,17 +18,13 @@ body {
    height: 100px;   
 }
 
-.track {
-    /*border: 1px solid #9C9898;*/
-    margin: 20px auto; 
-    overflow: hidden;
+#window {
+  /*border: 1px solid #9C9898;*/
+  margin: 20px auto; 
+  overflow: hidden;
 }
 
-.track>canvas {
-    position: relative;
-}
-
-.track>img {
+#window>canvas {
     position: relative;
 }
 
