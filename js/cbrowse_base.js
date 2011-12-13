@@ -75,11 +75,18 @@ var CBrowse = Base.extend({
   
   // Get data for each track in this.tracks
   getDataAndPlot: function () {
-    this.ajaxCounter = 0;
+    var cBrowse = this;
     
-    for (var i = 0; i < this.tracks.length; i++) {
-      this.tracks[i].getDataAndPlotWhenAllFinished();
-    }
+    //this.ajaxCounter = 0;
+    
+    $.when.apply($,
+      $.map(this.tracks, function (track) {
+        return track.getDataAndPlot();
+      })
+    ).done(function () {
+      cBrowse.updateImage();
+      cBrowse.updateCallShortCuts();
+    });
   },
   
   initDOM: function () {

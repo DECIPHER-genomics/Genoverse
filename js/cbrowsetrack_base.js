@@ -1,6 +1,6 @@
 /*!
  * Copyright (c) 2011 Genome Research Ltd.
- * Author: Evgeny Bragin
+ * Authors: Evgeny Bragin, Simon Brent
  * Released under the Modified-BSD license, see LICENSE.TXT
  */
 
@@ -19,19 +19,17 @@ var CBrowseTrack = Base.extend({
     this.data.sort(function (a, b) { return a[0] - b[0]; });
   },
   
-  getDataAndPlotWhenAllFinished: function () {
+  getDataAndPlot: function () {
     var url   = this.source;
     var track = this;
     
     this.data = [];
     
-    $.ajax({
+    return $.ajax({
       url: url,
       dataType: "json",
       beforeSend: function () {
         console.log("started getting data for track" + track.i);
-        
-        track.cBrowse.ajaxCounter++;
         // TODO: performance checks
       },
       success: function (jsonData) {
@@ -43,14 +41,6 @@ var CBrowseTrack = Base.extend({
       error: function (jqXHR, textStatus, errorThrown) {
         console.log(jqXHR);
         track.warn("Failed to get json from " + url + "\nerror: " + errorThrown);
-      },
-      complete: function () {
-        track.cBrowse.ajaxCounter--;
-        
-        if (track.cBrowse.ajaxCounter === 0) {
-          track.cBrowse.updateImage();
-          track.cBrowse.updateCallShortCuts();
-        }
       }
     });  
   },
@@ -60,7 +50,7 @@ var CBrowseTrack = Base.extend({
     
     for (var i = 0; i < this.currentCalls.length; i++) {
       var call = this.currentCalls[i];
-    //console.log(call.scaledStart, call.scaledStop, x, x > call.scaledStart, x < call.scaledStop, call.start, call.stop);  
+      
       if (x > call.scaledStart && x < call.scaledStop) {
         this.showFeatureInfo(call, {
           top:  this.cBrowse.offset.top  + this.offsetY     + this.height - 20,
@@ -84,7 +74,7 @@ var CBrowseTrack = Base.extend({
         '<tr><td>W-score:          </td><td>' + feature.wscore                                + '</td></tr>' +
         '<tr><td>Novelty:          </td><td>' + feature.novelty                               + '</td></tr>' +
         '<tr><td>Links:            </td><td>' +
-          '<a href="http://www.ensembl.org/Homo_sapiens/Location/View?r= '+ this.cBrowse.chromosome.id + ':' + feature.start + '-' + feature.stop + '" target="_blank">e!</a> ' +
+          '<a href="http://www.ensembl.org/Homo_sapiens/Location/View?r= '        + this.cBrowse.chromosome.id + ':' + feature.start + '-' + feature.stop + '" target="_blank">e!</a> '  +
           '<a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=Chr' + this.cBrowse.chromosome.id + ':' + feature.start + '-' + feature.stop + '" target="_blank">UCSC</a>' + 
         '</td></tr>' +
       '</table>'
@@ -101,7 +91,7 @@ var CBrowseTrack = Base.extend({
     this.context.fillStyle = this.colors.border;
     
     // coordinates
-    for (var x = 0; x < this.cBrowse.chromosome.size; x += 10000000) {
+    for (var x = 0; x < this.cBrowse.chromosome.size; x += 1e7) {
       var position = x * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
       
       if (position > x1 && position < x2) {
@@ -192,6 +182,9 @@ var CBrowseTrack = Base.extend({
   }
 });
 
+
+// Children. TODO: move to separate files
+
 CBrowseTrack.SNP = CBrowseTrack.extend({
   plotData: function (probe, x1, x2) {
     var x = probe[0] * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
@@ -217,7 +210,6 @@ CBrowseTrack.aCGH = CBrowseTrack.extend({
   }
 });
 
-
 CBrowseTrack.Exome = CBrowseTrack.extend({
   plotData: function (probe, x1, x2) {
     var a = probe[0] * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
@@ -231,5 +223,3 @@ CBrowseTrack.Exome = CBrowseTrack.extend({
     this.hline(a, this.offsetY + this.height/2 - probe[2]*this.height/5, b-a);
   }
 });
-
-
