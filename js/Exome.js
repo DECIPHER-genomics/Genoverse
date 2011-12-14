@@ -1,3 +1,9 @@
+/*!
+ * Copyright (c) 2011 Genome Research Ltd.
+ * Authors: Evgeny Bragin, Simon Brent
+ * Released under the Modified-BSD license, see LICENSE.TXT
+ */
+
 CBrowse.Track.Exome = CBrowse.Track.extend({
   plotData: function (probe, x1, x2) {
     var a = probe[0] * this.cBrowse.scale + this.width - this.cBrowse.offsetX;
