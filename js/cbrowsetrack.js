@@ -6,12 +6,11 @@
 
 CBrowse.Track = Base.extend({
   defaults: {
-    image: new Image(),
     pointSize: 1.5,
     height: 200
   },
   
-  constructor: function (config) {  
+  constructor: function (config) {
     $.extend(this, this.defaults, config);
   },
   
@@ -20,7 +19,7 @@ CBrowse.Track = Base.extend({
   },
   
   getDataAndPlot: function () {
-    var url   = this.source;
+    var url   = this.source + window.location.search;
     var track = this;
     
     this.data = [];
@@ -36,7 +35,7 @@ CBrowse.Track = Base.extend({
         console.log("got data for track" + track.i);
         
         $.extend(track, jsonData);
-        track.plot();
+       // track.plot();
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.log(jqXHR);
