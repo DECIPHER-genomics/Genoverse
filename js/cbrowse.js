@@ -172,50 +172,6 @@ var CBrowse = Base.extend({
   initEventHandlers: function () {
     var cBrowse = this;
     
-    $('a.zoom_in', this.container).click(function () {
-      cBrowse.zoomIn();
-    //  return false;
-    });
-    
-    $('a.zoom_out', this.container).click(function () {
-      cBrowse.zoomOut();
-     // return false;
-    });
-    
-    this.canvas.dblclick(function (e) {
-      var x = e.pageX - cBrowse.offset.left - cBrowse.width;
-      cBrowse.zoomIn(x);
-      return false;
-    });
-    
-    this.canvas.mousedown(function (e) {
-      console.log('mousedown');
-      
-      if (cBrowse.zoom === 1) {
-        return false;
-      }
-      
-      cBrowse.dragging        = true;
-      cBrowse.draggingOffsetX = e.pageX - cBrowse.delta;
-    });
-    
-    this.canvas.mousemove(function (e) {
-      if (!cBrowse.dragging) {
-        var x = e.pageX - cBrowse.offset.left;
-        var y = e.pageY - cBrowse.offset.top;
-        var track;
-        
-        for (var i = 0; i < cBrowse.tracks.length; i++) {
-          track = cBrowse.tracks[i];
-          
-          if (y > track.offsetY && y < track.offsetY + track.height) {
-            track.mousemove(x, y);
-            break;
-          }
-        }
-      }
-    });
-    
     function mouseup(e) {
       if (cBrowse.dragging) {
         var delta = e.pageX - cBrowse.draggingOffsetX - cBrowse.delta;
@@ -230,24 +186,69 @@ var CBrowse = Base.extend({
       }
     }
     
-    $(document).mousemove(function (e) {
-      if (cBrowse.dragging) {
-        var x = e.pageX - cBrowse.draggingOffsetX;
+    $('a.zoom_in', this.container).bind('click', function () {
+      cBrowse.zoomIn();
+    //  return false;
+    });
+    
+    $('a.zoom_out', this.container).bind('click', function () {
+      cBrowse.zoomOut();
+     // return false;
+    });
+    
+    this.canvas.bind({
+      dblclick: function (e) {
+        var x = e.pageX - cBrowse.offset.left - cBrowse.width;
+        cBrowse.zoomIn(x);
+        return false;
+      },
+      mousedown: function (e) {
+        console.log('mousedown');
         
-        cBrowse.lastClientX = e.pageX;
-        cBrowse.offsetImage(x);
+        if (cBrowse.zoom === 1) {
+          return false;
+        }
         
-        // FIXME: after first reload, reload happens all the time if drag is maintained, because x is always outside the limit. find way to change limit
-        /*if (Math.abs(x) > cBrowse.width) {
-          cBrowse.GO = true;
-          mouseup(e);
-        }*/
+        cBrowse.dragging        = true;
+        cBrowse.draggingOffsetX = e.pageX - cBrowse.delta;
+      },
+      mousemove: function (e) {
+        if (!cBrowse.dragging) {
+          var x = e.pageX - cBrowse.offset.left;
+          var y = e.pageY - cBrowse.offset.top;
+          var track;
+          
+          for (var i = 0; i < cBrowse.tracks.length; i++) {
+            track = cBrowse.tracks[i];
+            
+            if (y > track.offsetY && y < track.offsetY + track.height) {
+              track.mousemove(x, y);
+              break;
+            }
+          }
+        }
       }
     });
     
-    $(document).mouseup(function (e) {
-      console.log('mouseup');
-      mouseup(e);
+    $(document).bind({
+      mousemove: function (e) {
+        if (cBrowse.dragging) {
+          var x = e.pageX - cBrowse.draggingOffsetX;
+          
+          cBrowse.lastClientX = e.pageX;
+          cBrowse.offsetImage(x);
+          
+          // FIXME: after first reload, reload happens all the time if drag is maintained, because x is always outside the limit. find way to change limit
+          /*if (Math.abs(x) > cBrowse.width) {
+            cBrowse.GO = true;
+            mouseup(e);
+          }*/
+        }
+      },
+      mouseup: function (e) {
+        console.log('mouseup');
+        mouseup(e);
+      }
     });
     
     window.onpopstate = function () { cBrowse.PLOT2(); };
