@@ -42,6 +42,13 @@ var CBrowse = Base.extend({
     this.initTracks();
   },
   
+  // Overwrite this function for your URL style
+  parseURL: function () {
+    var coords = (window.location.search + '&').match(/[?&;]r=\w+:(\d+)-(\d+)[;&]/);
+    coords.unshift();
+    return coords;
+  },
+  
   initTracks: function () {
     this.height = 0;
     
@@ -70,7 +77,7 @@ var CBrowse = Base.extend({
     }
   },
   
-  setRange: function (start, stop) {
+  setRange: function (start, stop, update) {
     this.prevStart = this.start;
     this.prevStop  = this.stop;
     this.start     = parseInt(start, 10);
@@ -87,7 +94,7 @@ var CBrowse = Base.extend({
     
     this.initScale();
     
-    if (this.prevStart !== this.start || this.prevStop !== this.stop) {
+    if (update !== false && (this.prevStart !== this.start || this.prevStop !== this.stop)) {
       this.updateURL();
     }
   },
@@ -103,11 +110,6 @@ var CBrowse = Base.extend({
     $.when.apply($, $.map(this.tracks, function (track) { return track.getDataAndPlot(); })).done(function () {
       cBrowse.hasData = [ cBrowse.start - cBrowse.length, cBrowse.stop + cBrowse.length ];
       cBrowse.plot();
-      
-      /*if (cBrowse.GO) {
-        cBrowse.dragging = true;
-        cBrowse.GO       = false;
-      }*/
     });
   },
   
@@ -165,35 +167,22 @@ var CBrowse = Base.extend({
   
   updateURL: function () {
     window.history.pushState({}, "", this.baseURL + '?r=' + this.chromosome.id + ':' + this.start + '-' + this.stop);
-    window.location.hash = '';
+    this.PLOT2();
+    //window.location.hash = new Date().getTime();
     //window.location.hash = 'r=' + this.chromosome.id + ':' + this.start + '-' + this.stop;
   },
-  
+    
   initEventHandlers: function () {
     var cBrowse = this;
     
-    function mouseup(e) {
-      if (cBrowse.dragging) {
-        var delta = e.pageX - cBrowse.draggingOffsetX - cBrowse.delta;
-        var start = cBrowse.start - delta / cBrowse.scale;
-        
-        cBrowse.delta += delta;
-        
-        console.log('delta: ' + cBrowse.delta);
-        
-        cBrowse.setRange(start, start + cBrowse.length);
-        cBrowse.dragging = false;
-      }
-    }
-    
     $('a.zoom_in', this.container).bind('click', function () {
       cBrowse.zoomIn();
-    //  return false;
+      return false;
     });
     
     $('a.zoom_out', this.container).bind('click', function () {
       cBrowse.zoomOut();
-     // return false;
+      return false;
     });
     
     this.canvas.bind({
@@ -211,47 +200,41 @@ var CBrowse = Base.extend({
         
         cBrowse.dragging        = true;
         cBrowse.draggingOffsetX = e.pageX - cBrowse.delta;
-      },
-      mousemove: function (e) {
-        if (!cBrowse.dragging) {
-          var x = e.pageX - cBrowse.offset.left;
-          var y = e.pageY - cBrowse.offset.top;
-          var track;
-          
-          for (var i = 0; i < cBrowse.tracks.length; i++) {
-            track = cBrowse.tracks[i];
-            
-            if (y > track.offsetY && y < track.offsetY + track.height) {
-              track.mousemove(x, y);
-              break;
-            }
-          }
-        }
       }
     });
     
     $(document).bind({
       mousemove: function (e) {
         if (cBrowse.dragging) {
-          var x = e.pageX - cBrowse.draggingOffsetX;
-          
-          cBrowse.lastClientX = e.pageX;
-          cBrowse.offsetImage(x);
-          
-          // FIXME: after first reload, reload happens all the time if drag is maintained, because x is always outside the limit. find way to change limit
-          /*if (Math.abs(x) > cBrowse.width) {
-            cBrowse.GO = true;
-            mouseup(e);
-          }*/
+          cBrowse.offsetImage(e.pageX - cBrowse.draggingOffsetX);
         }
       },
       mouseup: function (e) {
         console.log('mouseup');
-        mouseup(e);
+        
+        if (cBrowse.dragging) {
+          var delta = e.pageX - cBrowse.draggingOffsetX - cBrowse.delta;
+          var start = cBrowse.start - delta / cBrowse.scale;
+          
+          cBrowse.delta += delta;
+          cBrowse.setRange(start, start + cBrowse.length);
+          cBrowse.dragging = false;
+          
+          console.log('delta: ' + cBrowse.delta, start);
+        }
       }
     });
     
-    window.onpopstate = function () { cBrowse.PLOT2(); };
+    window.onpopstate = function () { cBrowse.popState(); };
+  },
+  
+  popState: function () {
+    var coords = this.parseURL();
+    
+    if (coords.length) {
+      this.setRange(coords[1], coords[2], false);
+      this.PLOT2();
+    }
   },
   
   PLOT2: function () {
@@ -259,7 +242,10 @@ var CBrowse = Base.extend({
       return this.dragging && Math.abs(this.delta) < this.width ? false : this.plot();
     }
     
-    this.mask.show();
+    if (!this.dragging) {
+      this.mask.show();
+    }
+    
     this.getDataAndPlot();
   },
   
@@ -269,7 +255,7 @@ var CBrowse = Base.extend({
       x2 = 3 * this.width;
     }
     
-    //save canvas image as data url (png format by default)
+    // save canvas image as data url (png format by default)
     this.dataURL   = this.canvas[0].toDataURL();
     this.image.src = this.dataURL;
     
@@ -286,10 +272,10 @@ var CBrowse = Base.extend({
     
     // TODO: reset dragging offsets into separate routine
     this.delta             = 0;
-    this.context.fillStyle = this.colors.foreground;
+    this.context.fillStyle = '#fff';
     this.offsetX           = this.start * this.scale;
     
-    this.context.clearRect(x1, 0, x2, this.height);
+    this.context.fillRect(x1, 0, x2, this.height);
     
     for (var i = 0; i < this.tracks.length; i++) {
       this.tracks[i].plot(x1, x2);
