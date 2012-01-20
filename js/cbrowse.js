@@ -100,10 +100,6 @@ var CBrowse = Base.extend({
     }
   },
   
-  setTracks: function (tracks) {
-    this.tracks = tracks;
-  },
-  
   // Get data for each track in this.tracks
   getDataAndPlot: function () {
     var cBrowse = this;
@@ -168,7 +164,7 @@ var CBrowse = Base.extend({
   
   updateURL: function () {
     window.history.pushState({}, "", this.baseURL + '?r=' + this.chromosome.id + ':' + this.start + '-' + this.stop);
-    this.PLOT2();
+    this.redraw();
   },
     
   initEventHandlers: function () {
@@ -232,11 +228,11 @@ var CBrowse = Base.extend({
     
     if (coords.length) {
       this.setRange(coords[1], coords[2], false);
-      this.PLOT2();
+      this.redraw();
     }
   },
   
-  PLOT2: function () {
+  redraw: function () {
     if (this.start - this.hasData[0] >= 0 && this.hasData[1] - this.stop >= 0) {
       return this.dragging && Math.abs(this.delta) < this.width ? false : this.plot();
     }
