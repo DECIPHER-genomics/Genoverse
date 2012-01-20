@@ -15,6 +15,7 @@ var CBrowse = Base.extend({
     hasData: [],
     colors: {
       foreground: '#000000',
+      background: '#FFFFFF',
       border: '#A3A3A3',
       call: '#FF0000'
     }
@@ -114,12 +115,12 @@ var CBrowse = Base.extend({
   },
   
   initDOM: function () {
-    this.canvas      = $('canvas',        this.container).attr('width', 3 * this.width).attr('height', this.height).css('left', -this.width);
-    this.mask        = $('.mask',         this.container).show();
-    this.featureInfo = $('.feature_info', this.container);
-    /*this.viewPort    = */$('.viewport',     this.container).css({ width: this.width, height: this.height });
-    this.context     = this.canvas[0].getContext('2d');    
-    this.offset      = this.canvas.offset();
+    $('.viewport', this.container).css({ width: this.width, height: this.height });
+    
+    this.canvas  = $('canvas', this.container).attr('width', 3 * this.width).attr('height', this.height).css('left', -this.width);
+    this.mask    = $('.mask',  this.container).show();
+    this.context = this.canvas[0].getContext('2d');    
+    this.offset  = this.canvas.offset();
     
     for (var i = 0; i < this.tracks.length; i++) {
       this.tracks[i].context = this.context;
@@ -168,8 +169,6 @@ var CBrowse = Base.extend({
   updateURL: function () {
     window.history.pushState({}, "", this.baseURL + '?r=' + this.chromosome.id + ':' + this.start + '-' + this.stop);
     this.PLOT2();
-    //window.location.hash = new Date().getTime();
-    //window.location.hash = 'r=' + this.chromosome.id + ':' + this.start + '-' + this.stop;
   },
     
   initEventHandlers: function () {
@@ -220,7 +219,7 @@ var CBrowse = Base.extend({
           cBrowse.setRange(start, start + cBrowse.length);
           cBrowse.dragging = false;
           
-          console.log('delta: ' + cBrowse.delta, start);
+          console.log('delta: ' + cBrowse.delta);
         }
       }
     });
@@ -272,7 +271,7 @@ var CBrowse = Base.extend({
     
     // TODO: reset dragging offsets into separate routine
     this.delta             = 0;
-    this.context.fillStyle = '#fff';
+    this.context.fillStyle = this.colors.background;
     this.offsetX           = this.start * this.scale;
     
     this.context.fillRect(x1, 0, x2, this.height);
