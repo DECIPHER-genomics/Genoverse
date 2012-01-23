@@ -18,7 +18,7 @@ CBrowse.Track = Base.extend({
     this.data.sort(function (a, b) { return a[0] - b[0]; });
   },
   
-  getDataAndPlot: function () {
+  getData: function () {
     var url   = this.source + this.cBrowse.getQueryString();
     var track = this;
     
