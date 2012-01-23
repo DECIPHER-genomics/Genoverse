@@ -32,28 +32,48 @@ var CBrowse = Base.extend({
     
     this.paramRegex = new RegExp('([?&;])(' + this.urlParam + ')=' + this.urlParamTemplate.replace(/CHR(.)/, '(\\w+)($1)').replace(/START(.)/, '(\\d+)($1)').replace('STOP', '(\\d+)') + '([;&])');
     
-    this.bump = [];
+    if (this.start && this.stop) {
+      this.render();
+    }
+  },
+  
+  render: function () {
+    this.initDOM();
+    this.initBumping();
+    this.setRange(this.start, this.stop);
+    this.initScale();
+    this.initTracks();
+    this.getDataAndPlot();
+  },
+  
+  initDOM: function () {
+    $('.viewport', this.container).width(this.width);
     
+    this.canvas  = $('canvas', this.container).attr('width', 3 * this.width).css('left', -this.width);
+    this.mask    = $('.mask',  this.container).show();
+    this.context = this.canvas[0].getContext('2d');    
+    this.offset  = this.canvas.offset();
+    
+    this.initEventHandlers();
+  },
+  
+  initBumping: function () {
     var i = this.width * 3;
+    
+    this.bump = [];
     
     while (i--) {
       this.bump.push(0);
     }
+  },
+  
+  initScale: function () {
+    this.scale   = this.zoom  * this.width / this.chromosome.size;
+    this.offsetX = this.start * this.scale;
     
-    if (this.start && this.stop) {
-      this.setRange(this.start, this.stop);
+    if (!this.stop && this.zoom === 1) {
+      this.stop = this.chromosome.size;
     }
-    
-    this.initTracks();
-  },
-  
-  getQueryString: function () {
-    return (window.location.search + '&').replace(this.paramRegex, '$1$2=$3$4' + this.start + '$6' + this.stop + '$8').slice(0, -1);
-  },
-  
-  parseURL: function () {
-    var coords = (window.location.search + '&').match(this.paramRegex);
-    return [ coords[5], coords[7] ];
   },
   
   initTracks: function () {
@@ -71,108 +91,13 @@ var CBrowse = Base.extend({
     
     for (var i = 0; i < this.tracks.length; i++) {
       // Copy some default values from cBrowse to Track
-      this.tracks[i] = new CBrowse.Track[this.tracks[i].type]($.extend(defaults, { offsetY: this.height, i: i }, this.tracks[i]));
+      this.tracks[i] = new CBrowse.Track[this.tracks[i].type]($.extend(defaults, { offsetY: this.height, i: i, context: this.context }, this.tracks[i]));
       this.height   += this.tracks[i].height;
     }
+    
+    this.canvas.attr('height', this.height);
   },
   
-  setChromosome: function (n) {
-    if (chromosomes[n]) {
-      this.chromosome = chromosomes[n];
-    } else {
-      this.die("Unknown chromosome " + n);
-    }
-  },
-  
-  setRange: function (start, stop, update) {
-    this.prevStart = this.start;
-    this.prevStop  = this.stop;
-    this.start     = parseInt(start, 10);
-    this.stop      = parseInt(stop,  10);
-    
-    // THIS SHOULD NEVER HAPPEN
-    if (this.stop < this.start) {
-      this.stop  = this.start;
-      this.start = parseInt(stop, 10);
-    }
-    
-    this.length = (this.stop - this.start) || 1; // TODO: check when start = stop
-    this.zoom   = this.chromosome.size / this.length;
-    
-    this.initScale();
-    
-    if (update !== false && (this.prevStart !== this.start || this.prevStop !== this.stop)) {
-      this.updateURL();
-    }
-  },
-  
-  // Get data for each track in this.tracks
-  getDataAndPlot: function () {
-    var cBrowse = this;
-    
-    $.when.apply($, $.map(this.tracks, function (track) { return track.getDataAndPlot(); })).done(function () {
-      cBrowse.hasData = [ cBrowse.start - cBrowse.length, cBrowse.stop + cBrowse.length ];
-      cBrowse.plot();
-    });
-  },
-  
-  initDOM: function () {
-    $('.viewport', this.container).css({ width: this.width, height: this.height });
-    
-    this.canvas  = $('canvas', this.container).attr('width', 3 * this.width).attr('height', this.height).css('left', -this.width);
-    this.mask    = $('.mask',  this.container).show();
-    this.context = this.canvas[0].getContext('2d');    
-    this.offset  = this.canvas.offset();
-    
-    for (var i = 0; i < this.tracks.length; i++) {
-      this.tracks[i].context = this.context;
-    }
-  },
-  
-  initScale: function () {
-    this.scale   = this.zoom  * this.width / this.chromosome.size;
-    this.offsetX = this.start * this.scale;
-    
-    if (!this.stop && this.zoom === 1) {
-      this.stop = this.chromosome.size;
-    }
-  },
-  
-  zoomIn: function (x) {
-    if (!x) {
-      x = this.width / 2;
-    }
-    
-    var start = this.start + x / (2 * this.scale);
-    var stop  = start + this.length / 2;
-
-    this.setRange(start, stop);
-  },
-  
-  zoomOut: function (x) {
-    if (!x) {
-      x = this.width / 2;
-    }
-    
-    var start = this.start - x / this.scale;
-    var stop  = start + 2 * this.length;
-
-    if (start < 0) {
-      start = 0;
-    }
-    
-    if (stop > this.chromosome.size) {
-      stop = this.chromosome.size;
-    }
-
-    this.setRange(start, stop);
-  },
-  
-  updateURL: function () {
-    window.history.pushState({}, "", this.getQueryString());
-    this.redraw();
-  },
-    
   initEventHandlers: function () {
     var cBrowse = this;
     
@@ -221,7 +146,7 @@ var CBrowse = Base.extend({
         if (cBrowse.dragging) {
           cBrowse.delta = e.pageX - cBrowse.draggingOffsetX;
           cBrowse.updateURL();
-          cBrowse.dragging = false;
+          cBrowse.dragging = false; // Order of updateURL and dragging = false is only important if updateURL calls redraw
           
           console.log('delta: ' + cBrowse.delta);
         }
@@ -229,6 +154,36 @@ var CBrowse = Base.extend({
     });
     
     window.onpopstate = function () { cBrowse.popState(); };
+  },
+  
+  zoomIn: function (x) {
+    if (!x) {
+      x = this.width / 2;
+    }
+    
+    var start = this.start + x / (2 * this.scale);
+    var stop  = start + this.length / 2;
+
+    this.setRange(start, stop);
+  },
+  
+  zoomOut: function (x) {
+    if (!x) {
+      x = this.width / 2;
+    }
+    
+    var start = this.start - x / this.scale;
+    var stop  = start + 2 * this.length;
+
+    if (start < 0) {
+      start = 0;
+    }
+    
+    if (stop > this.chromosome.size) {
+      stop = this.chromosome.size;
+    }
+
+    this.setRange(start, stop);
   },
   
   popState: function () {
@@ -240,7 +195,37 @@ var CBrowse = Base.extend({
     }
   },
   
-  redraw: function () {
+  setChromosome: function (n) {
+    if (chromosomes[n]) {
+      this.chromosome = chromosomes[n];
+    } else {
+      this.die("Unknown chromosome " + n);
+    }
+  },
+  
+  setRange: function (start, stop, update) {
+    this.prevStart = this.start;
+    this.prevStop  = this.stop;
+    this.start     = parseInt(start, 10);
+    this.stop      = parseInt(stop,  10);
+    
+    // THIS SHOULD NEVER HAPPEN
+    if (this.stop < this.start) {
+      this.stop  = this.start;
+      this.start = parseInt(stop, 10);
+    }
+    
+    this.length = (this.stop - this.start) || 1; // TODO: check when start = stop
+    this.zoom   = this.chromosome.size / this.length;
+    
+    this.initScale();
+    
+    if (update !== false && (this.prevStart !== this.start || this.prevStop !== this.stop)) {
+      this.updateURL();
+    }
+  },
+  
+  redraw: function (delta) {
     if (this.start - this.hasData[0] >= 0 && this.hasData[1] - this.stop >= 0) {
       return this.dragging && Math.abs(this.delta) < this.width ? false : this.plot();
     }
@@ -249,20 +234,17 @@ var CBrowse = Base.extend({
       this.mask.show();
     }
     
-    this.getDataAndPlot();
+    this.getDataAndPlot(delta);
   },
   
-  updateImage: function (x1, x2) {
-    if (!x1 && !x2) {
-      x1 = 0;
-      x2 = 3 * this.width;
-    }
+  // Get data for each track in this.tracks
+  getDataAndPlot: function (delta) {
+    var cBrowse = this;
     
-    // save canvas image as data url (png format by default)
-    this.dataURL   = this.canvas[0].toDataURL();
-    this.image.src = this.dataURL;
-    
-    this.mask.hide();
+    $.when.apply($, $.map(this.tracks, function (track) { return track.getData(); })).done(function () {
+      cBrowse.hasData = [ cBrowse.start - cBrowse.length, cBrowse.stop + cBrowse.length ];
+      cBrowse.plot(delta, delta + (3 * cBrowse.width));
+    });
   },
   
   plot: function (x1, x2) {
@@ -276,8 +258,6 @@ var CBrowse = Base.extend({
     // TODO: reset dragging offsets into separate routine
     this.delta             = 0;
     this.context.fillStyle = this.colors.background;
-    this.offsetX           = this.start * this.scale;
-    
     this.context.fillRect(x1, 0, x2, this.height);
     
     for (var i = 0; i < this.tracks.length; i++) {
@@ -289,16 +269,34 @@ var CBrowse = Base.extend({
     console.timeEnd("plot");
   },
   
+  updateImage: function () {    
+    // save canvas image as data url (png format by default)
+    this.dataURL   = this.canvas[0].toDataURL();
+    this.image.src = this.dataURL;
+    
+    this.mask.hide();
+  },
+  
   offsetImage: function (x) {
     this.context.clearRect(0, 0, 3 * this.width, this.height);
     this.context.drawImage(this.image, x, 0);
   },
   
-  render: function () {
-    this.initDOM();
-    this.initScale();
-    this.getDataAndPlot();
-    this.initEventHandlers();
+  getQueryString: function () {
+    return (window.location.search + '&').replace(this.paramRegex, '$1$2=$3$4' + this.start + '$6' + this.stop + '$8').slice(0, -1);
+  },
+  
+  parseURL: function () {
+    var coords = (window.location.search + '&').match(this.paramRegex);
+    return [ coords[5], coords[7] ];
+  },
+  
+  updateURL: function (redraw) {
+    window.history.pushState({}, "", this.getQueryString());
+    
+    if (redraw !== false) {
+      this.redraw();
+    }
   },
   
   die: function (error) {
