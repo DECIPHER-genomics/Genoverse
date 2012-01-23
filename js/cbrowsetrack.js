@@ -19,7 +19,7 @@ CBrowse.Track = Base.extend({
   },
   
   getDataAndPlot: function () {
-    var url   = this.source + window.location.search;
+    var url   = this.source + this.cBrowse.getQueryString();
     var track = this;
     
     this.data = [];

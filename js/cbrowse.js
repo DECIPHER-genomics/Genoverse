@@ -6,6 +6,8 @@
 
 var CBrowse = Base.extend({
   defaults: {
+    urlParam: 'r',                      // Overwrite this for your URL style
+    urlParamTemplate: 'CHR:START-STOP', // Overwrite this for your URL style
     image: new Image(),
     width: 1000,
     chromosome: chromosomes["1"],
@@ -28,6 +30,8 @@ var CBrowse = Base.extend({
       this.die('You must supply a ' + (this.container ? 'valid ' : '') + 'container element');
     }
     
+    this.paramRegex = new RegExp('([?&;])(' + this.urlParam + ')=' + this.urlParamTemplate.replace(/CHR(.)/, '(\\w+)($1)').replace(/START(.)/, '(\\d+)($1)').replace('STOP', '(\\d+)') + '([;&])');
+    
     this.bump = [];
     
     var i = this.width * 3;
@@ -43,11 +47,13 @@ var CBrowse = Base.extend({
     this.initTracks();
   },
   
-  // Overwrite this function for your URL style
+  getQueryString: function () {
+    return (window.location.search + '&').replace(this.paramRegex, '$1$2=$3$4' + this.start + '$6' + this.stop + '$8').slice(0, -1);
+  },
+  
   parseURL: function () {
-    var coords = (window.location.search + '&').match(/[?&;]r=\w+:(\d+)-(\d+)[;&]/);
-    coords.unshift();
-    return coords;
+    var coords = (window.location.search + '&').match(this.paramRegex);
+    return [ coords[5], coords[7] ];
   },
   
   initTracks: function () {
@@ -163,7 +169,7 @@ var CBrowse = Base.extend({
   },
   
   updateURL: function () {
-    window.history.pushState({}, "", this.baseURL + '?r=' + this.chromosome.id + ':' + this.start + '-' + this.stop);
+    window.history.pushState({}, "", this.getQueryString());
     this.redraw();
   },
     
@@ -195,24 +201,26 @@ var CBrowse = Base.extend({
         
         cBrowse.dragging        = true;
         cBrowse.draggingOffsetX = e.pageX - cBrowse.delta;
+        cBrowse.dragStart       = cBrowse.start;
       }
     });
     
     $(document).bind({
       mousemove: function (e) {
         if (cBrowse.dragging) {
-          cBrowse.offsetImage(e.pageX - cBrowse.draggingOffsetX);
+          var delta = e.pageX - cBrowse.draggingOffsetX;
+          var start = cBrowse.dragStart - (delta - cBrowse.delta) / cBrowse.scale;
+          
+          cBrowse.offsetImage(delta);
+          cBrowse.setRange(start, start + cBrowse.length, false);
         }
       },
       mouseup: function (e) {
         console.log('mouseup');
         
         if (cBrowse.dragging) {
-          var delta = e.pageX - cBrowse.draggingOffsetX - cBrowse.delta;
-          var start = cBrowse.start - delta / cBrowse.scale;
-          
-          cBrowse.delta += delta;
-          cBrowse.setRange(start, start + cBrowse.length);
+          cBrowse.delta = e.pageX - cBrowse.draggingOffsetX;
+          cBrowse.updateURL();
           cBrowse.dragging = false;
           
           console.log('delta: ' + cBrowse.delta);
@@ -227,7 +235,7 @@ var CBrowse = Base.extend({
     var coords = this.parseURL();
     
     if (coords.length) {
-      this.setRange(coords[1], coords[2], false);
+      this.setRange(coords[0], coords[1], false);
       this.redraw();
     }
   },
