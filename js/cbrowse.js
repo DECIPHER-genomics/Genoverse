@@ -9,6 +9,7 @@ var CBrowse = Base.extend({
     urlParam: 'r',                      // Overwrite this for your URL style
     urlParamTemplate: 'CHR:START-STOP', // Overwrite this for your URL style
     image: new Image(),
+    height: 0,
     width: 1000,
     chromosome: chromosomes["1"],
     zoom: 1,
@@ -68,8 +69,8 @@ var CBrowse = Base.extend({
   },
   
   initScale: function () {
-    this.scale   = this.zoom  * this.width / this.chromosome.size;
-    this.offsetX = this.start * this.scale;
+    this.scale       = this.zoom  * this.width / this.chromosome.size;
+    this.scaledStart = this.start * this.scale;
     
     if (!this.stop && this.zoom === 1) {
       this.stop = this.chromosome.size;
@@ -77,8 +78,6 @@ var CBrowse = Base.extend({
   },
   
   initTracks: function () {
-    this.height = 0;
-    
     if (!this.tracks) {
       return false;
     }
@@ -138,6 +137,8 @@ var CBrowse = Base.extend({
           
           cBrowse.offsetImage(delta);
           cBrowse.setRange(start, start + cBrowse.length, false);
+          
+          // TODO: GET REDRAW WORKING HERE WHEN YOU GO OUTSIDE RANGE
         }
       },
       mouseup: function (e) {
@@ -225,7 +226,7 @@ var CBrowse = Base.extend({
     }
   },
   
-  redraw: function (delta) {
+  redraw: function () {
     if (this.start - this.hasData[0] >= 0 && this.hasData[1] - this.stop >= 0) {
       return this.dragging && Math.abs(this.delta) < this.width ? false : this.plot();
     }
@@ -234,16 +235,16 @@ var CBrowse = Base.extend({
       this.mask.show();
     }
     
-    this.getDataAndPlot(delta);
+    this.getDataAndPlot();
   },
   
   // Get data for each track in this.tracks
-  getDataAndPlot: function (delta) {
+  getDataAndPlot: function () {
     var cBrowse = this;
     
     $.when.apply($, $.map(this.tracks, function (track) { return track.getData(); })).done(function () {
       cBrowse.hasData = [ cBrowse.start - cBrowse.length, cBrowse.stop + cBrowse.length ];
-      cBrowse.plot(delta, delta + (3 * cBrowse.width));
+      cBrowse.plot();
     });
   },
   
@@ -265,7 +266,7 @@ var CBrowse = Base.extend({
     }  
     
     this.updateImage();
-
+    
     console.timeEnd("plot");
   },
   

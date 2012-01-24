@@ -36,10 +36,17 @@ CBrowse.Track = Base.extend({
         console.log("started getting data for track" + track.i);
         // TODO: performance checks
       },
-      success: function (jsonData) {
+      success: function (json) {
         console.log("got data for track" + track.i);
         
-        $.extend(track, jsonData);
+        var i = json.data.length;
+        
+        while (i--) {
+          json.data[i].scaledStart = json.data[i].start * track.cBrowse.scale;
+          json.data[i].scaledStop  = json.data[i].stop  * track.cBrowse.scale;
+        }
+        
+        $.extend(track, json);
       },
     });  
   },
