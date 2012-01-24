@@ -154,7 +154,11 @@ var CBrowse = Base.extend({
       }
     });
     
-    window.onpopstate = function () { cBrowse.popState(); };
+    window.onpopstate = function (e) {
+      if (e.state !== null) {
+        cBrowse.popState();
+      }
+    };
   },
   
   zoomIn: function (x) {
