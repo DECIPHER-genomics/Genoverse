@@ -14,12 +14,15 @@ CBrowse.Track = Base.extend({
     $.extend(this, this.defaults, config);
   },
   
-  sortData: function () {
-    this.data.sort(function (a, b) { return a[0] - b[0]; });
+  getQueryString: function () {
+    var start = this.cBrowse.start - this.cBrowse.length;
+    var end   = this.cBrowse.stop  + this.cBrowse.length;
+    
+    return (window.location.search + '&').replace(this.cBrowse.paramRegex, '$1chr=$3&start=' + start + '&end=' + end + '$8').slice(0, -1);
   },
   
   getData: function () {
-    var url   = this.source + this.cBrowse.getQueryString();
+    var url   = this.source + this.getQueryString();
     var track = this;
     
     this.data = [];
@@ -46,19 +49,14 @@ CBrowse.Track = Base.extend({
           json.data[i].scaledStop  = json.data[i].stop  * track.cBrowse.scale;
         }
         
-        $.extend(track, json);
+        $.extend(true, track, json);
       },
     });  
   },
     
-  plot: function (x1, x2) {
-    if (!x1 && !x2) {
-      x1 = 0;
-      x2 = 3 * this.width;
-    }
-    
+  plot: function (plotStart, plotEnd) {
     for (var i = 0; i < this.data.length; i++) {
-      this.plotData(this.data[i], x1, x2);
+      this.plotData(this.data[i], plotStart, plotEnd);
     }
   },
   
