@@ -16,7 +16,7 @@ CBrowse.Track = Base.extend({
   
   getQueryString: function () {
     var start = this.cBrowse.start - this.cBrowse.length;
-    var end   = this.cBrowse.stop  + this.cBrowse.length;
+    var end   = this.cBrowse.end   + this.cBrowse.length;
     
     return (window.location.search + '&').replace(this.cBrowse.paramRegex, '$1chr=$3&start=' + start + '&end=' + end + '$8').slice(0, -1);
   },
@@ -46,7 +46,7 @@ CBrowse.Track = Base.extend({
         
         while (i--) {
           json.data[i].scaledStart = json.data[i].start * track.cBrowse.scale;
-          json.data[i].scaledStop  = json.data[i].stop  * track.cBrowse.scale;
+          json.data[i].scaledEnd   = json.data[i].end   * track.cBrowse.scale;
         }
         
         $.extend(true, track, json);

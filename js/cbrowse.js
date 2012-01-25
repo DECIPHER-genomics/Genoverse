@@ -6,8 +6,8 @@
 
 var CBrowse = Base.extend({
   defaults: {
-    urlParam: 'r',                      // Overwrite this for your URL style
-    urlParamTemplate: 'CHR:START-STOP', // Overwrite this for your URL style
+    urlParam: 'r',                     // Overwrite this for your URL style
+    urlParamTemplate: 'CHR:START-END', // Overwrite this for your URL style
     image: new Image(),
     height: 0,
     width: 1000,
@@ -31,9 +31,9 @@ var CBrowse = Base.extend({
       this.die('You must supply a ' + (this.container ? 'valid ' : '') + 'container element');
     }
     
-    this.paramRegex = new RegExp('([?&;])(' + this.urlParam + ')=' + this.urlParamTemplate.replace(/CHR(.)/, '(\\w+)($1)').replace(/START(.)/, '(\\d+)($1)').replace('STOP', '(\\d+)') + '([;&])');
+    this.paramRegex = new RegExp('([?&;])(' + this.urlParam + ')=' + this.urlParamTemplate.replace(/CHR(.)/, '(\\w+)($1)').replace(/START(.)/, '(\\d+)($1)').replace('END', '(\\d+)') + '([;&])');
     
-    if (this.start && this.stop) {
+    if (this.start && this.end) {
       this.render();
     }
   },
@@ -41,7 +41,7 @@ var CBrowse = Base.extend({
   render: function () {
     this.initDOM();
     this.initBumping();
-    this.setRange(this.start, this.stop);
+    this.setRange(this.start, this.end);
     this.initScale();
     this.initTracks();
     this.getDataAndPlot();
@@ -72,8 +72,8 @@ var CBrowse = Base.extend({
     this.scale       = this.zoom  * this.width / this.chromosome.size;
     this.scaledStart = this.start * this.scale;
     
-    if (!this.stop && this.zoom === 1) {
-      this.stop = this.chromosome.size;
+    if (!this.end && this.zoom === 1) {
+      this.end = this.chromosome.size;
     }
   },
   
@@ -167,9 +167,9 @@ var CBrowse = Base.extend({
     }
     
     var start = this.start + x / (2 * this.scale);
-    var stop  = start + this.length / 2;
+    var end   = start + this.length / 2;
 
-    this.setRange(start, stop);
+    this.setRange(start, end);
   },
   
   zoomOut: function (x) {
@@ -178,17 +178,17 @@ var CBrowse = Base.extend({
     }
     
     var start = this.start - x / this.scale;
-    var stop  = start + 2 * this.length;
+    var end   = start + 2 * this.length;
 
     if (start < 0) {
       start = 0;
     }
     
-    if (stop > this.chromosome.size) {
-      stop = this.chromosome.size;
+    if (end > this.chromosome.size) {
+      end = this.chromosome.size;
     }
 
-    this.setRange(start, stop);
+    this.setRange(start, end);
   },
   
   popState: function () {
@@ -208,30 +208,30 @@ var CBrowse = Base.extend({
     }
   },
   
-  setRange: function (start, stop, update) {
+  setRange: function (start, end, update) {
     this.prevStart = this.start;
-    this.prevStop  = this.stop;
+    this.prevEnd   = this.end;
     this.start     = parseInt(start, 10);
-    this.stop      = parseInt(stop,  10);
+    this.end       = parseInt(end,   10);
     
     // THIS SHOULD NEVER HAPPEN
-    if (this.stop < this.start) {
-      this.stop  = this.start;
-      this.start = parseInt(stop, 10);
+    if (this.end < this.start) {
+      this.end  = this.start;
+      this.start = parseInt(end, 10);
     }
     
-    this.length = (this.stop - this.start) || 1; // TODO: check when start = stop
+    this.length = (this.end - this.start) || 1; // TODO: check when start = end
     this.zoom   = this.chromosome.size / this.length;
     
     this.initScale();
     
-    if (update !== false && (this.prevStart !== this.start || this.prevStop !== this.stop)) {
+    if (update !== false && (this.prevStart !== this.start || this.prevEnd !== this.end)) {
       this.updateURL();
     }
   },
   
   redraw: function () {
-    if (this.start >= this.hasData[0] && this.stop <= this.hasData[1]) {
+    if (this.start >= this.hasData[0] && this.end <= this.hasData[1]) {
       return this.dragging && Math.abs(this.delta) < this.width ? false : this.plot();
     }
     
@@ -247,7 +247,7 @@ var CBrowse = Base.extend({
     var cBrowse = this;
     
     $.when.apply($, $.map(this.tracks, function (track) { return track.getData(); })).done(function () {
-      cBrowse.hasData = [ cBrowse.start - cBrowse.length, cBrowse.stop + cBrowse.length ];
+      cBrowse.hasData = [ cBrowse.start - cBrowse.length, cBrowse.end + cBrowse.length ];
       cBrowse.plot();
     });
   },
@@ -287,7 +287,7 @@ var CBrowse = Base.extend({
   },
   
   getQueryString: function () {
-    return (window.location.search + '&').replace(this.paramRegex, '$1$2=$3$4' + this.start + '$6' + this.stop + '$8').slice(0, -1);
+    return (window.location.search + '&').replace(this.paramRegex, '$1$2=$3$4' + this.start + '$6' + this.end + '$8').slice(0, -1);
   },
   
   parseURL: function () {
