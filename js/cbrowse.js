@@ -231,7 +231,7 @@ var CBrowse = Base.extend({
   },
   
   redraw: function () {
-    if (this.start - this.hasData[0] >= 0 && this.hasData[1] - this.stop >= 0) {
+    if (this.start >= this.hasData[0] && this.stop <= this.hasData[1]) {
       return this.dragging && Math.abs(this.delta) < this.width ? false : this.plot();
     }
     
@@ -252,22 +252,21 @@ var CBrowse = Base.extend({
     });
   },
   
-  plot: function (x1, x2) {
+  plot: function () {
     console.time("plot");
     
-    if (!x1 && !x2) {
-      x1 = 0;
-      x2 = 3 * this.width;
-    }
+    var width   = 3 * this.width;
+    //var offsetX = this.delta ? width + this.delta : 0;
     
     // TODO: reset dragging offsets into separate routine
     this.delta             = 0;
     this.context.fillStyle = this.colors.background;
-    this.context.fillRect(x1, 0, x2, this.height);
+    this.context.fillRect(0, 0, width, this.height);
     
     for (var i = 0; i < this.tracks.length; i++) {
-      this.tracks[i].plot(x1, x2);
-    }  
+      //this.tracks[i].plot(offsetX, offsetX + width);
+      this.tracks[i].plot(0, width);
+    }
     
     this.updateImage();
     
