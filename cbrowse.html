@@ -4,54 +4,41 @@
     <link rel="stylesheet" type="text/css" href="css/cbrowse.css" />  
     <script type="text/javascript" src="js/Base.js"></script>
     <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/rtree.js"></script>
     <script type="text/javascript" src="js/chromosomes.js"></script>
-    <script type="text/javascript" src="js/cbrowse.js"></script>
-    <script type="text/javascript" src="js/cbrowsetrack.js"></script>
-    <script type="text/javascript" src="js/SNP.js"></script>
-    <script type="text/javascript" src="js/aCGH.js"></script>
-    <script type="text/javascript" src="js/Exome.js"></script>
+    <script type="text/javascript" src="js/Cbrowse.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script>
+    <script type="text/javascript" src="js/Block.js"></script>
+    <script type="text/javascript" src="js/Scalebar.js"></script>
+    <script type="text/javascript" src="js/TrackImage.js"></script>
   </head>
   <body>
-  <div id="container">
-    <div>
-      <span class="zoom_controls"><a class="zoom_in" href="#">+</a><a class="zoom_out" href="#">-</a></span>
-    </div>
-
-    <div class="viewport" style="width:800px; height:600px;">
-      <canvas width="2400" height="600" style="left:-800px"></canvas>
-      <div class="mask" style="width:800px; height:600px;">Loading...</div>
-    </div>
-
-    <div class="feature_info"></div>
-  </div>
+  <div id="container"></div>
   <script>
     $(function () {
-      var query   = window.location.search.slice(1);
-      var params  = query.split(";");
-      var cBrowse = new CBrowse({
-        container: $('#container'),
-        baseURL: "cbrowse.html?",
-        tracks: [{
-          name: "Example track 1 (aCGH)",
-          type: "aCGH",
-          height: 200,
-          source: 'data/example/aCGH.json'
+      new CBrowse({
+        container  : $('#container'),
+        chromosome : chromosomes[13],
+        tracks     : [{
+          type: 'Scalebar'
         }, {
-          name: "Example track 2 (SNP)",
-          type: "SNP",
-          height: 200,
-          source: 'data/example/SNP.json'
+          name          : 'Genes',
+          type          : 'Block',
+          url           : 'data/example/genes.json',
+          height        : 100,
+          featureHeight : 6,
+          bump          : true
+        },/* {
+          name   : 'Variations',
+          type   : 'Block',
+          url    : 'data/example/snps.json',
+          height : 12
+        },*/ {
+          type       : 'Scalebar',
+          guideLines : false
         }]
       });
-      
-      if (params[0] && params[1]) {
-        cBrowse.setRange(params[0], params[1]);
-      }
-      
-      cBrowse.initTracks();
-      cBrowse.render();
     });
   </script>
-  
   </body>
 </html>

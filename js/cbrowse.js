@@ -1,164 +1,106 @@
-/*!
- * Copyright (c) 2011 Genome Research Ltd.
- * Authosr: Evgeny Bragin, Simon Brent
- * Released under the Modified-BSD license, see LICENSE.TXT
- */
+// $Revision: 1.3 $
 
-var CBrowse = Base.extend({
+var CBrowse = {};
+
+CBrowse.Canvas = Base.extend({
   defaults: {
-    urlParam: 'r',                     // Overwrite this for your URL style
-    urlParamTemplate: 'CHR:START-END', // Overwrite this for your URL style
-    image: new Image(),
-    height: 0,
-    width: 1000,
-    chromosome: chromosomes["1"],
-    zoom: 1,
-    start: 0,
-    delta: 0,
-    hasData: [],
-    colors: {
+    urlParamTemplate : 'r=CHR:START-END', // Overwrite this for your URL style
+    width            : 1000,
+    height           : 200,
+    labelWidth       : 134,
+    buffer           : 1,
+    longestLabel     : 30,
+    tracks           : [],
+    data             : { start: 9e99, end: -9e99 },
+    colors           : {
       foreground: '#000000',
-      background: '#FFFFFF',
-      border: '#A3A3A3',
-      call: '#FF0000'
+      background: '#FFFFFF'
     }
   },
 
   constructor: function (config) {
+    var cBrowse = this;
+    
     $.extend(this, this.defaults, config);
     
     if (!(this.container && this.container.length)) {
       this.die('You must supply a ' + (this.container ? 'valid ' : '') + 'container element');
     }
     
-    this.paramRegex = new RegExp('([?&;])(' + this.urlParam + ')=' + this.urlParamTemplate.replace(/CHR(.)/, '(\\w+)($1)').replace(/START(.)/, '(\\d+)($1)').replace('END', '(\\d+)') + '([;&])');
-    
-    if (this.start && this.end) {
-      this.render();
-    }
+    this.init();
   },
-  
-  render: function () {
-    this.initDOM();
-    this.initBumping();
-    this.setRange(this.start, this.end);
-    this.initScale();
-    this.initTracks();
-    this.getDataAndPlot();
-  },
-  
-  initDOM: function () {
-    $('.viewport', this.container).width(this.width);
-    
-    this.canvas  = $('canvas', this.container).attr('width', 3 * this.width).css('left', -this.width);
-    this.mask    = $('.mask',  this.container).show();
-    this.context = this.canvas[0].getContext('2d');    
-    this.offset  = this.canvas.offset();
-    
-    this.initEventHandlers();
-  },
-  
-  initBumping: function () {
-    var i = this.width * 3;
-    
-    this.bump = [];
-    
-    while (i--) {
-      this.bump.push(0);
-    }
-  },
-  
-  initScale: function () {
-    this.scale       = this.zoom  * this.width / this.chromosome.size;
-    this.scaledStart = this.start * this.scale;
-    
-    if (!this.end && this.zoom === 1) {
-      this.end = this.chromosome.size;
-    }
-  },
-  
-  initTracks: function () {
-    if (!this.tracks) {
-      return false;
-    }
-    
-    var defaults = {
-      width:   this.width,
-      colors:  this.colors,
-      cBrowse: this
-    };
-    
-    for (var i = 0; i < this.tracks.length; i++) {
-      // Copy some default values from cBrowse to Track
-      this.tracks[i] = new CBrowse.Track[this.tracks[i].type]($.extend(defaults, { offsetY: this.height, i: i, context: this.context }, this.tracks[i]));
-      this.height   += this.tracks[i].height;
-    }
-    
-    this.canvas.attr('height', this.height);
-  },
-  
-  initEventHandlers: function () {
+
+  init: function () {
     var cBrowse = this;
     
-    $('a.zoom_in', this.container).bind('click', function () {
-      cBrowse.zoomIn();
-      return false;
-    });
+    this.paramRegex     = new RegExp('([?&;])' + this.urlParamTemplate.replace(/^(\w+)=/, '($1)=').replace(/CHR(.)/, '(\\w+)($1)').replace(/START(.)/, '(\\d+)($1)').replace('END', '(\\d+)') + '([;&])');
+    this.fullWidth      = this.width * (2 * this.buffer + 1);
+    this.labelContainer = $('<div class="label_container">').width(this.labelWidth).appendTo(this.container);
+    this.menuContainer  = $('<div class="menu_container">').css({ width: this.width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
     
-    $('a.zoom_out', this.container).bind('click', function () {
-      cBrowse.zoomOut();
-      return false;
-    });
-    
-    this.canvas.bind({
-      dblclick: function (e) {
-        var x = e.pageX - cBrowse.offset.left - cBrowse.width;
-        cBrowse.zoomIn(x);
+    this.container.width(this.width).on({
+      mousedown: function (e) { 
+        cBrowse.mousedown(e);
         return false;
       },
-      mousedown: function (e) {
-        console.log('mousedown');
-        
-        if (cBrowse.zoom === 1) {
-          return false;
-        }
-        
-        cBrowse.dragging        = true;
-        cBrowse.draggingOffsetX = e.pageX - cBrowse.delta;
-        cBrowse.dragStart       = cBrowse.start;
+      dblclick: function (e) {
+        var x = e.pageX - cBrowse.container.offset().left;
+        cBrowse.zoomIn(x);
+        return false;
+      }
+    }, '.image_container img');
+    
+    $(document).on('mousemove mouseup', function (e) {
+      if (cBrowse.dragging) {
+        cBrowse[e.type](e);
       }
     });
     
-    $(document).bind({
-      mousemove: function (e) {
-        if (cBrowse.dragging) {
-          var delta = e.pageX - cBrowse.draggingOffsetX;
-          var start = cBrowse.dragStart - (delta - cBrowse.delta) / cBrowse.scale;
-          
-          cBrowse.offsetImage(delta);
-          cBrowse.setRange(start, start + cBrowse.length, false);
-          
-          // TODO: GET REDRAW WORKING HERE WHEN YOU GO OUTSIDE RANGE
-        }
-      },
-      mouseup: function (e) {
-        console.log('mouseup');
-        
-        if (cBrowse.dragging) {
-          cBrowse.delta = e.pageX - cBrowse.draggingOffsetX;
-          cBrowse.updateURL();
-          cBrowse.dragging = false; // Order of updateURL and dragging = false is only important if updateURL calls redraw
-          
-          console.log('delta: ' + cBrowse.delta);
-        }
-      }
-    });
-    
-    window.onpopstate = function (e) {
+    /*window.onpopstate = function (e) {
       if (e.state !== null) {
-        cBrowse.popState();
+        cBrowse.popState(e.state);
       }
-    };
+    };*/
+    
+    var coords = (window.location.search + '&').match(this.paramRegex);
+    
+    this.setRange(coords[5], coords[7], false);
+    this.setTracks();
+    this.makeImage();
+  },
+  
+  mousedown: function (e) {
+    this.dragging   = true;
+    this.dragOffset = e.pageX - this.delta;
+    this.dragStart  = this.start;
+  },
+  
+  mouseup: function (e, update) {
+    var delta = this.delta;
+    
+    this.dragging = false;
+    this.delta    = e.pageX - this.dragOffset;
+    
+    if (delta !== this.delta && update !== false) {
+      this.updateURL();
+    }
+  },
+  
+  // FIXME: can scroll off the ends
+  mousemove: function (e) {
+    var left  = e.pageX - this.dragOffset;
+    var start = this.dragStart - (left - this.delta) / this.scale;
+    var end   = start + this.length
+    this.left = left;
+    
+    $('.track_container', this.container).css('left', this.left);
+    
+    this.setRange(start, end, false);
+    
+    if (this.redraw()) {
+      this.mouseup(e, false);
+      this.mousedown(e);
+    }
   },
   
   zoomIn: function (x) {
@@ -168,7 +110,7 @@ var CBrowse = Base.extend({
     
     var start = this.start + x / (2 * this.scale);
     var end   = start + this.length / 2;
-
+    
     this.setRange(start, end);
   },
   
@@ -180,8 +122,8 @@ var CBrowse = Base.extend({
     var start = this.start - x / this.scale;
     var end   = start + 2 * this.length;
 
-    if (start < 0) {
-      start = 0;
+    if (start < 1) {
+      start = 1;
     }
     
     if (end > this.chromosome.size) {
@@ -191,124 +133,169 @@ var CBrowse = Base.extend({
     this.setRange(start, end);
   },
   
-  popState: function () {
-    var coords = this.parseURL();
+  // TODO: zooming
+  redraw: function () {
+    if (this.start >= this.edges.start && this.end <= this.edges.end) {
+      return false;
+    }
     
-    if (coords.length) {
-      this.setRange(coords[0], coords[1], false);
-      this.redraw();
-    }
+    this.makeImage();
+    
+    return true;
   },
   
-  setChromosome: function (n) {
-    if (chromosomes[n]) {
-      this.chromosome = chromosomes[n];
-    } else {
-      this.die("Unknown chromosome " + n);
-    }
-  },
-  
-  setRange: function (start, end, update) {
+  setRange: function (start, end, update, edges) {
     this.prevStart = this.start;
     this.prevEnd   = this.end;
     this.start     = parseInt(start, 10);
     this.end       = parseInt(end,   10);
     
-    // THIS SHOULD NEVER HAPPEN
-    if (this.end < this.start) {
-      this.end  = this.start;
-      this.start = parseInt(end, 10);
+    if (this.start < 1) {
+      this.start = 1;
+    }
+    
+    if (this.end > this.chromosome.size) {
+      this.end = this.chromosome.size;
     }
     
     this.length = (this.end - this.start) || 1; // TODO: check when start = end
     this.zoom   = this.chromosome.size / this.length;
     
-    this.initScale();
+    this.setScale(edges);
     
     if (update !== false && (this.prevStart !== this.start || this.prevEnd !== this.end)) {
       this.updateURL();
     }
   },
   
-  redraw: function () {
-    if (this.start >= this.hasData[0] && this.end <= this.hasData[1]) {
-      return this.dragging && Math.abs(this.delta) < this.width ? false : this.plot();
+  setScale: function (edges) {
+    this.prevScale   = this.scale;
+    this.scale       = this.zoom  * this.width / this.chromosome.size;
+    this.scaledStart = this.start * this.scale;
+    
+    if (!this.end && this.zoom === 1) {
+      this.end = this.chromosome.size;
     }
     
-    if (!this.dragging) {
-      this.mask.show();
+    if (this.prevScale !== this.scale) {
+      this.edges = edges || { start: 9e99, end: -9e99 };
+      this.left  = 0;
+      this.delta = 0;
+      
+      if (this.prevScale) {
+        this.menuContainer.children().hide();
+        
+        var i = this.tracks.length;
+        
+        while (i--) {
+          this.tracks[i].setScale(!!edges);
+        }
+      }
     }
-    
-    this.getDataAndPlot();
   },
   
-  // Get data for each track in this.tracks
-  getDataAndPlot: function () {
-    var cBrowse = this;
+  setTracks: function () {
+    var defaults = {
+      cBrowse         : this,
+      canvasContainer : $('<div class="wrapper">').appendTo(this.container),
+      paramRegex      : this.paramRegex,
+      width           : this.width
+    };
     
-    $.when.apply($, $.map(this.tracks, function (track) { return track.getData(); })).done(function () {
-      cBrowse.hasData = [ cBrowse.start - cBrowse.length, cBrowse.end + cBrowse.length ];
-      cBrowse.plot();
+    for (var i = 0; i < this.tracks.length; i++) {
+      this.tracks[i] = new CBrowse.Track[this.tracks[i].type]($.extend(this.tracks[i], defaults));
+      
+      if (this.tracks[i].name) {
+        this.tracks[i].label = $('<div>', { html: this.tracks[i].name, css: { marginTop: i && !this.tracks[i-1].label ? this.tracks[i-1].height : 0, height: this.tracks[i].height } }).appendTo(this.labelContainer);
+      }
+    }
+  },
+  
+  makeImage: function () {
+    var cBrowse = this;
+    var left    = -this.left;
+    var start, end;
+    
+    if (left) {
+      start = left > 0 ? this.edges.end   + 1 : this.edges.start - (this.buffer * this.length) - 1;
+      end   = left < 0 ? this.edges.start - 1 : this.edges.end   + (this.buffer * this.length) + 1;
+    } else {
+      start = this.start - this.length;
+      end   = this.end   + this.length;
+    }
+    
+    this.edges.start = Math.min(start, this.edges.start);
+    this.edges.end   = Math.max(end,   this.edges.end);
+    
+    var width = Math.round((end - start) * this.scale);
+    
+    /*if (!this.dragging) {
+      this.setHistory(true);
+    }*/
+    
+    $.when.apply($, $.map(this.tracks, function (track) { return track.makeImage(start, end, width, left); })).done(function () {
+      $($.map(arguments, function (a) { return a.target; })).show().parent().addClass('loc_' + cBrowse.zoom.toString().replace('.', '_'));
+      
+      cBrowse.data.start = Math.min(start, cBrowse.data.start);
+      cBrowse.data.end   = Math.max(end,   cBrowse.data.end);
+      
+      /*for (var i = 0; i < cBrowse.tracks.length; i++) {
+        if (cBrowse.tracks[i].height < cBrowse.tracks[i].fullHeight) {
+          cBrowse.tracks[i].sizeHandle.show();
+        }
+      }*/
     });
   },
   
-  plot: function () {
-    console.time("plot");
-    
-    var width   = 3 * this.width;
-    //var offsetX = this.delta ? width + this.delta : 0;
-    
-    // TODO: reset dragging offsets into separate routine
-    this.delta             = 0;
-    this.context.fillStyle = this.colors.background;
-    this.context.fillRect(0, 0, width, this.height);
-    
-    for (var i = 0; i < this.tracks.length; i++) {
-      //this.tracks[i].plot(offsetX, offsetX + width);
-      this.tracks[i].plot(0, width);
-    }
-    
-    this.updateImage();
-    
-    console.timeEnd("plot");
-  },
-  
-  updateImage: function () {    
-    // save canvas image as data url (png format by default)
-    this.dataURL   = this.canvas[0].toDataURL();
-    this.image.src = this.dataURL;
-    
-    this.mask.hide();
-  },
-  
-  offsetImage: function (x) {
-    this.context.clearRect(0, 0, 3 * this.width, this.height);
-    this.context.drawImage(this.image, x, 0);
-  },
-  
-  getQueryString: function () {
-    return (window.location.search + '&').replace(this.paramRegex, '$1$2=$3$4' + this.start + '$6' + this.end + '$8').slice(0, -1);
-  },
-  
-  parseURL: function () {
-    var coords = (window.location.search + '&').match(this.paramRegex);
-    return [ coords[5], coords[7] ];
-  },
-  
   updateURL: function (redraw) {
-    window.history.pushState({}, "", this.getQueryString());
+    //this.setHistory();
     
     if (redraw !== false) {
       this.redraw();
     }
   },
   
-  die: function (error) {
-    alert(error);
-    throw(error);
+  /*setHistory: function (replace) {
+    window.history[replace ? 'replaceState' : 'pushState']({
+      show  : 'loc_' + this.zoom.toString().replace('.', '_'),
+      edges : this.edges
+    }, '', this.getQueryString());
   },
   
-  warn: function (error) {
-    alert(error);
-  }
+  popState: function (state) {
+    var coords = (window.location.search + '&').match(this.paramRegex);
+    
+    if (coords.length) {
+      this.setRange(coords[5], coords[7], false, state.edges);
+      var left   = parseInt($('.track_container:first', this.container).css('left'), 10) - Math.round((this.start - this.prevStart) * this.scale);
+      var images = $('.track_container', this.container).css('left', left).children();
+      var show   = images.filter('.' + state.show);
+      
+      if (this.edges.start <= state.edges.start && this.edges.end >= state.edges.end && show.length) {
+        images.hide();
+        show.show();
+      } else {
+        var callback;
+        
+        if (this.scale === this.prevScale) {
+          this.left = left;
+        }
+        
+        if (Math.abs(left) > this.width * (this.buffer + 1)) {
+          callback = this.makeImage;
+        }
+        
+        this.makeImage(callback);
+      }
+      
+      this.delta = left;
+    }
+  },*/
+  
+  getQueryString: function () {
+    return (window.location.search + '&').replace(this.paramRegex, '$1$2=$3$4' + this.start + '$6' + this.end + '$8').slice(0, -1);
+  },
+  
+  decorateTrack : $.noop, // implement in plugin
+  makeMenu      : $.noop  // implement in plugin
 });
