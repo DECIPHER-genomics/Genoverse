@@ -1,5 +1,3 @@
-// $Revision: 1.2 $
-
 CBrowse.TrackImage = Base.extend({
   constructor: function (config) {
     $.extend(this, config);
@@ -8,7 +6,7 @@ CBrowse.TrackImage = Base.extend({
   
   getData: function () {
     var deferred = $.Deferred();
-    var data     = this.bufferedStart >= this.track.cBrowse.data.start && this.end <= this.track.cBrowse.data.end ? this.track.features.search({ x: this.bufferedStart, w: this.end - this.bufferedStart, y: 0, h: 1 }) : [];
+    var data     = this.start >= this.track.cBrowse.data.start && this.end <= this.track.cBrowse.data.end ? this.track.features.search({ x: this.bufferedStart, w: this.end - this.bufferedStart, y: 0, h: 1 }) : [];
     
     this.image = $('<img />').load(deferred.resolve);
     
