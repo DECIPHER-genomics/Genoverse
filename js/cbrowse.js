@@ -42,9 +42,8 @@ CBrowse.Canvas = Base.extend({
         cBrowse.mousedown(e);
         return false;
       },
-      dblclick: function (e) {
-        var x = e.pageX - cBrowse.container.offset().left;
-        cBrowse.zoomIn(x);
+      mousewheel: function (e, delta) {
+        cBrowse[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - cBrowse.container.offset().left - cBrowse.labelWidth);
         return false;
       }
     }, '.image_container img');
@@ -123,8 +122,8 @@ CBrowse.Canvas = Base.extend({
       x = this.width / 2;
     }
     
-    var start = this.start + x / (2 * this.scale);
-    var end   = start + this.length / 2;
+    var start = Math.round(this.start + x / (2 * this.scale));
+    var end   = Math.round(start + this.length / 2);
     
     this.setRange(start, end);
   },
@@ -134,9 +133,9 @@ CBrowse.Canvas = Base.extend({
       x = this.width / 2;
     }
     
-    var start = this.start - x / this.scale;
-    var end   = start + 2 * this.length;
-
+    var start = Math.round(this.start - x / this.scale);
+    var end   = Math.round(start + 2 * this.length);
+    
     if (start < 1) {
       start = 1;
     }
@@ -144,7 +143,7 @@ CBrowse.Canvas = Base.extend({
     if (end > this.chromosome.size) {
       end = this.chromosome.size;
     }
-
+    
     this.setRange(start, end);
   },
   
@@ -241,6 +240,10 @@ CBrowse.Canvas = Base.extend({
     this.edges.start = Math.min(start, this.edges.start);
     this.edges.end   = Math.max(end,   this.edges.end);
     
+    if (this.updateFromHistory()) {
+      return;
+    }
+    
     var width = Math.round((end - start) * this.scale);
     var edges = $.extend({}, this.edges);
     
@@ -274,7 +277,11 @@ CBrowse.Canvas = Base.extend({
     window.history[replace ? 'replaceState' : 'pushState']({}, '', this.getQueryString());
     
     if (this.prevHistory) {
-      this.history[this.start + ':' + this.end] = $.extend({}, this.history[this.prevHistory], { left: this.left });
+      this.history[this.start + ':' + this.end] = {
+        left   : this.left,
+        images : '.zoom_' + this.zoom.toString().replace('.', '_'),
+        edges  : this.history[this.prevHistory].edges
+      };
     }
   },
   
@@ -284,16 +291,32 @@ CBrowse.Canvas = Base.extend({
     if (coords.length) {
       this.setRange(coords[5], coords[7], false);
       
-      var history = this.history[this.start + ':' + this.end];
-      
-      if (history && $('.track_container ' + history.images, this.container).length) {
-        $('.track_container', this.container).css('left', history.left).children().hide().filter(history.images).show();
-        this.delta = history.left;
-        this.edges = history.edges;
-      } else {
+      if (!this.updateFromHistory()) {
         this.reset();
       }
     }
+  },
+  
+  updateFromHistory: function () {
+    var history = this.history[this.start + ':' + this.end];
+    
+    if (history) {
+      var images = $('.track_container ' + history.images, this.container);
+      
+      if (images.length) { 
+        $('.track_container', this.container).css('left', history.left).children().hide();
+        images.show();
+        
+        this.delta = history.left;
+        this.edges = history.edges;
+        
+        images = null;
+        
+        return true;
+      }
+    }
+    
+    return false;
   },
   
   getQueryString: function () {
