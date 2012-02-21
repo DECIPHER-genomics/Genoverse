@@ -1,5 +1,3 @@
-// $Revision: 1.2 $
-
 CBrowse.Track.Block = CBrowse.Track.extend({
   defaults: {
     height : 10,
