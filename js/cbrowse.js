@@ -1,5 +1,3 @@
-// $Revision: 1.3 $
-
 var CBrowse = {};
 
 CBrowse.Canvas = Base.extend({
@@ -11,7 +9,6 @@ CBrowse.Canvas = Base.extend({
     buffer           : 1,
     longestLabel     : 30,
     tracks           : [],
-    data             : { start: 9e99, end: -9e99 },
     colors           : {
       foreground: '#000000',
       background: '#FFFFFF'
@@ -33,8 +30,10 @@ CBrowse.Canvas = Base.extend({
   init: function () {
     var cBrowse = this;
     
-    this.paramRegex     = new RegExp('([?&;])' + this.urlParamTemplate.replace(/^(\w+)=/, '($1)=').replace(/CHR(.)/, '(\\w+)($1)').replace(/START(.)/, '(\\d+)($1)').replace('END', '(\\d+)') + '([;&])');
+    this.data           = { start: 9e99, end: -9e99 };
     this.fullWidth      = this.width * (2 * this.buffer + 1);
+    this.history        = {};
+    this.paramRegex     = new RegExp('([?&;])' + this.urlParamTemplate.replace(/^(\w+)=/, '($1)=').replace(/CHR(.)/, '(\\w+)($1)').replace(/START(.)/, '(\\d+)($1)').replace('END', '(\\d+)') + '([;&])');
     this.labelContainer = $('<div class="label_container">').width(this.labelWidth).appendTo(this.container);
     this.menuContainer  = $('<div class="menu_container">').css({ width: this.width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
     
@@ -56,16 +55,32 @@ CBrowse.Canvas = Base.extend({
       }
     });
     
-    /*window.onpopstate = function (e) {
+    window.onpopstate = function (e) {
       if (e.state !== null) {
         cBrowse.popState(e.state);
       }
-    };*/
+    };
     
     var coords = (window.location.search + '&').match(this.paramRegex);
     
     this.setRange(coords[5], coords[7], false);
+    this.setHistory(true);
     this.setTracks();
+    this.makeImage();
+  },
+  
+  reset: function () {
+    var i = this.tracks.length;
+    
+    while (i--) {
+      this.tracks[i].reset();
+    }
+    
+    this.scale   = 9e99; // arbitrary value so that setScale resets track scales as well
+    this.data    = { start: 9e99, end: -9e99 };
+    this.history = {};
+    
+    this.setRange(this.start, this.end, false);
     this.makeImage();
   },
   
@@ -133,7 +148,6 @@ CBrowse.Canvas = Base.extend({
     this.setRange(start, end);
   },
   
-  // TODO: zooming
   redraw: function () {
     if (this.start >= this.edges.start && this.end <= this.edges.end) {
       return false;
@@ -144,7 +158,7 @@ CBrowse.Canvas = Base.extend({
     return true;
   },
   
-  setRange: function (start, end, update, edges) {
+  setRange: function (start, end, update) {
     this.prevStart = this.start;
     this.prevEnd   = this.end;
     this.start     = parseInt(start, 10);
@@ -161,14 +175,14 @@ CBrowse.Canvas = Base.extend({
     this.length = (this.end - this.start) || 1; // TODO: check when start = end
     this.zoom   = this.chromosome.size / this.length;
     
-    this.setScale(edges);
+    this.setScale();
     
     if (update !== false && (this.prevStart !== this.start || this.prevEnd !== this.end)) {
       this.updateURL();
     }
   },
   
-  setScale: function (edges) {
+  setScale: function () {
     this.prevScale   = this.scale;
     this.scale       = this.zoom  * this.width / this.chromosome.size;
     this.scaledStart = this.start * this.scale;
@@ -178,7 +192,7 @@ CBrowse.Canvas = Base.extend({
     }
     
     if (this.prevScale !== this.scale) {
-      this.edges = edges || { start: 9e99, end: -9e99 };
+      this.edges = { start: 9e99, end: -9e99 };
       this.left  = 0;
       this.delta = 0;
       
@@ -188,7 +202,7 @@ CBrowse.Canvas = Base.extend({
         var i = this.tracks.length;
         
         while (i--) {
-          this.tracks[i].setScale(!!edges);
+          this.tracks[i].setScale();
         }
       }
     }
@@ -228,69 +242,59 @@ CBrowse.Canvas = Base.extend({
     this.edges.end   = Math.max(end,   this.edges.end);
     
     var width = Math.round((end - start) * this.scale);
-    
-    /*if (!this.dragging) {
-      this.setHistory(true);
-    }*/
+    var edges = $.extend({}, this.edges);
     
     $.when.apply($, $.map(this.tracks, function (track) { return track.makeImage(start, end, width, left); })).done(function () {
-      $($.map(arguments, function (a) { return a.target; })).show().parent().addClass('loc_' + cBrowse.zoom.toString().replace('.', '_'));
+      var cls = 'zoom_' + cBrowse.zoom.toString().replace('.', '_');
+      
+      $($.map(arguments, function (a) { return a.target; })).show().parent().addClass(cls);
+      
+      cBrowse.prevHistory = cBrowse.start + ':' + cBrowse.end;
+      
+      cBrowse.history[cBrowse.prevHistory] = {
+        left   : cBrowse.left,
+        images : '.' + cls,
+        edges  : edges
+      };
       
       cBrowse.data.start = Math.min(start, cBrowse.data.start);
       cBrowse.data.end   = Math.max(end,   cBrowse.data.end);
-      
-      /*for (var i = 0; i < cBrowse.tracks.length; i++) {
-        if (cBrowse.tracks[i].height < cBrowse.tracks[i].fullHeight) {
-          cBrowse.tracks[i].sizeHandle.show();
-        }
-      }*/
     });
   },
   
   updateURL: function (redraw) {
-    //this.setHistory();
+    this.setHistory();
     
     if (redraw !== false) {
       this.redraw();
     }
   },
   
-  /*setHistory: function (replace) {
-    window.history[replace ? 'replaceState' : 'pushState']({
-      show  : 'loc_' + this.zoom.toString().replace('.', '_'),
-      edges : this.edges
-    }, '', this.getQueryString());
+  setHistory: function (replace) {
+    window.history[replace ? 'replaceState' : 'pushState']({}, '', this.getQueryString());
+    
+    if (this.prevHistory) {
+      this.history[this.start + ':' + this.end] = $.extend({}, this.history[this.prevHistory], { left: this.left });
+    }
   },
   
-  popState: function (state) {
+  popState: function () {
     var coords = (window.location.search + '&').match(this.paramRegex);
     
     if (coords.length) {
-      this.setRange(coords[5], coords[7], false, state.edges);
-      var left   = parseInt($('.track_container:first', this.container).css('left'), 10) - Math.round((this.start - this.prevStart) * this.scale);
-      var images = $('.track_container', this.container).css('left', left).children();
-      var show   = images.filter('.' + state.show);
+      this.setRange(coords[5], coords[7], false);
       
-      if (this.edges.start <= state.edges.start && this.edges.end >= state.edges.end && show.length) {
-        images.hide();
-        show.show();
+      var history = this.history[this.start + ':' + this.end];
+      
+      if (history && $('.track_container ' + history.images, this.container).length) {
+        $('.track_container', this.container).css('left', history.left).children().hide().filter(history.images).show();
+        this.delta = history.left;
+        this.edges = history.edges;
       } else {
-        var callback;
-        
-        if (this.scale === this.prevScale) {
-          this.left = left;
-        }
-        
-        if (Math.abs(left) > this.width * (this.buffer + 1)) {
-          callback = this.makeImage;
-        }
-        
-        this.makeImage(callback);
+        this.reset();
       }
-      
-      this.delta = left;
     }
-  },*/
+  },
   
   getQueryString: function () {
     return (window.location.search + '&').replace(this.paramRegex, '$1$2=$3$4' + this.start + '$6' + this.end + '$8').slice(0, -1);

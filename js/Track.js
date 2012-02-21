@@ -1,5 +1,3 @@
-// $Revision: 1.2 $
-
 CBrowse.Track = Base.extend({
   defaults: {
     height: 10
@@ -12,7 +10,6 @@ CBrowse.Track = Base.extend({
     
     this.canvas        = $('<canvas>').appendTo(this.canvasContainer);
     this.container     = $('<div class="track_container">').css({ height: this.height }).appendTo(this.canvasContainer),
-    //this.sizeHandle    = $('<p>').insertAfter(this.container);
     this.imgContainer  = $('<div class="image_container">');
     this.context       = this.canvas[0].getContext('2d');
     this.fontHeight    = parseInt(this.context.font, 10);
@@ -24,15 +21,6 @@ CBrowse.Track = Base.extend({
     this.features      = new RTree();
     
     this.setScale();
-    
-    /*this.sizeHandle.on('click', function () {
-      var height = track.height < track.fullHeight ? track.fullHeight + $(this).height() : track.initialHeight;
-      
-      track.height = height;
-      
-      track.container.height(height);
-      track.label.height(height);
-    });*/
     
     this.container.on('click', 'img', function (e) {
       var x        = e.pageX - track.container.parent().offset().left + track.cBrowse.scaledStart;
@@ -51,6 +39,13 @@ CBrowse.Track = Base.extend({
         track.cBrowse.makeMenu(features[i], { left: e.pageX, top: e.pageY }, track.name);
       }
     });
+  },
+  
+  reset: function () {
+    this.zoomSettings = {};
+    this.features     = new RTree();
+    
+    this.container.empty();
   },
   
   makeImage: function (start, end, width, moved) {
@@ -86,14 +81,14 @@ CBrowse.Track = Base.extend({
     return data;
   },
   
-  setScale: function (edges) {
+  setScale: function () {
     var track = this;
     var zoom  = this.cBrowse.zoom;
     
     this.scale = this.cBrowse.scale;
     
-    if (edges === false && this.zoomSettings[zoom]) {
-      this.container.children('.loc_' + zoom.toString().replace('.', '_')).remove();
+    if (this.zoomSettings[zoom] && !this.cBrowse.history[this.cBrowse.start + ':' + this.cBrowse.end]) {
+      this.container.children('.zoom_' + zoom.toString().replace('.', '_')).remove();
       delete this.zoomSettings[zoom];
     }
     

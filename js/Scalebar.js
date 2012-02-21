@@ -1,5 +1,3 @@
-// $Revision: 1.2 $
-
 CBrowse.Track.Scalebar = CBrowse.Track.extend({
   defaults: {
     height        : 20,
@@ -8,6 +6,11 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     borderTop     : 0.5,
     borderBottom  : 3.5,
     guideLines    : true
+  },
+  
+  reset: function () {
+    this.base();
+    this.features = {};
   },
   
   setScale: function (edges) {
