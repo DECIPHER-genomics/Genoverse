@@ -5,7 +5,7 @@
 
 .canvas_container .wrapper {
   border-left: 1px solid black;
-  overflow: hidden;
+  overflow-x: hidden;
   position: relative;
 }
 
@@ -19,14 +19,14 @@
   width: 0;
 }
 
-.canvas_container .track_container div {
+.canvas_container .track_container .image_container {
   height: 100%;
   overflow: hidden;
   position: absolute;
   background: #ccc;
 }
 
-.canvas_container .track_container img {
+.canvas_container .track_container .image_container img {
   display: none;
 }
 
@@ -41,13 +41,19 @@
   display: none;
 }
 
-.label_container {
+.canvas_container .label_container {
   float: left;
   height: 100%;
 }
 
-.label_container div {
+.canvas_container .label_container div {
   position: relative;
   margin-left: 5px;
   color: black;
+}
+
+.canvas_container .menu_container {
+  position: absolute;
+  height: 100%;
+  overflow: hidden;
 }
