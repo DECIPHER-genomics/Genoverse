@@ -22,7 +22,11 @@ CBrowse.Track = Base.extend({
     
     this.setScale();
     
-    this.container.on('click', 'img', function (e) {
+    this.container.on('mouseup', 'img', function (e) {
+      if (e.pageX - track.cBrowse.dragOffset !== 0) {
+        return; // No menus when dragging
+      }
+      
       var x        = e.pageX - track.container.parent().offset().left + track.cBrowse.scaledStart;
       var y        = e.pageY - track.container.offset().top;
       var features = track.rtree.search({ x: x, y: y, w: 1, h: 1 });
