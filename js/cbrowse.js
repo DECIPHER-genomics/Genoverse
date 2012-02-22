@@ -38,7 +38,7 @@ CBrowse.Canvas = Base.extend({
     this.menuContainer  = $('<div class="menu_container">').css({ width: this.width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
     
     this.container.width(this.width).on({
-      mousedown: function (e) { 
+      mousedown: function (e) {
         cBrowse.mousedown(e);
         return false;
       },
@@ -48,9 +48,9 @@ CBrowse.Canvas = Base.extend({
       }
     }, '.image_container img');
     
-    $(document).on('mousemove mouseup', function (e) {
+    $(document).on('mouseup', function (e) {
       if (cBrowse.dragging) {
-        cBrowse[e.type](e);
+        cBrowse.mouseup(e);
       }
     });
     
@@ -84,9 +84,14 @@ CBrowse.Canvas = Base.extend({
   },
   
   mousedown: function (e) {
+    var cBrowse = this;
+
     this.dragging   = true;
     this.dragOffset = e.pageX - this.delta;
     this.dragStart  = this.start;
+    this.dragEvent  = function (e) { cBrowse.mousemove(e); };
+    
+    $(document).on('mousemove', this.dragEvent);
   },
   
   mouseup: function (e, update) {
@@ -98,6 +103,8 @@ CBrowse.Canvas = Base.extend({
     if (delta !== this.delta && update !== false) {
       this.updateURL();
     }
+    
+    $(document).off('mousemove', this.dragEvent);
   },
   
   // FIXME: can scroll off the ends
