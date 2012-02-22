@@ -13,7 +13,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     this.features = {};
   },
   
-  setScale: function (edges) {
+  setScale: function () {
     var length = this.cBrowse.length;
     var majorUnit, minorUnit, exponent, mantissa;
     
@@ -46,19 +46,23 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
       this.cBrowse.guideLines = { major: {}, minor: {} };
     }
     
-    this.base(edges);
-    this.positionData();
+    this.features = {};
+    
+    this.base();
   },
   
-  positionData: function () {
+  positionData: function (start, end) {
     var flip  = 1;
     var width = Math.round(this.minorUnit * this.scale);
     var features, start, major;
     
     this.labelOffset = Math.ceil(this.fontWidth / this.scale) * this.cBrowse.longestLabel;
-    this.features    = {};
     
-    for (var x = 0; x < this.cBrowse.chromosome.size; x += this.minorUnit) {
+    for (var x = start - (start % this.minorUnit); x < end - (end % this.minorUnit) + this.minorUnit; x += this.minorUnit) {
+      if (this.features[x]) {
+        continue;
+      }
+      
       features = [];
       start    = Math.round(x * this.scale);
       major    = x && !(x % this.majorUnit);
@@ -88,6 +92,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     var div      = this.imgContainer.clone().width(width);
     var deferred = $.Deferred();
     
+    this.positionData(start, end);
     this.draw(start, end, width);
     
     this.imgContainers[func](div.append($('<img />').load(deferred.resolve).attr('src', this.canvas[0].toDataURL())).css(pos, this.offsets[pos])[0]);
