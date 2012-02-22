@@ -5,7 +5,7 @@ CBrowse.Track.Block = CBrowse.Track.extend({
   },
   
   positionData: function (data, edges, func) {
-    var feature, start, end, x, width, bounds, bump, j, k;
+    var feature, start, end, x, width, bounds, bump, j, k, noLabel;
     var labels   = data.length && data[0].label && this.cBrowse.length < 1e7 ? 1 : 0;
     var height   = this.height;
     var scale    = this.scale > 1 ? this.scale : 1;
@@ -23,11 +23,12 @@ CBrowse.Track.Block = CBrowse.Track.extend({
       
       seen[feature.id] = 1;
       
-      start  = feature.scaledStart - edges.start;
-      end    = feature.scaledEnd   - edges.start;
-      x      = feature.scaledStart;
-      width  = start > end ? 1 : (end - start) || scale;
-      bounds = feature.bounds;
+      start   = feature.scaledStart - edges.start;
+      end     = feature.scaledEnd   - edges.start;
+      x       = feature.scaledStart;
+      bounds  = feature.bounds;
+      width   = start > end ? 1 : (end - start) || scale;
+      noLabel = scale > 1 && start < 0;
       
       if (!bounds) {
         bounds = [{ x: x, y: 0, w: width, h: this.featureHeight + (2 * labels) }];
@@ -66,12 +67,21 @@ CBrowse.Track.Block = CBrowse.Track.extend({
       
       this.rtree.insert(bounds[0], feature);
       
+      if (scale > 1) {
+        start = Math.max(start, 0);
+        end   = Math.min(end, this.cBrowse.fullWidth);
+        width = end - start;
+      }
+      
       features[feature.colour].push([ 'fillRect', [ start, bounds[0].y, width, this.featureHeight ] ]);
       
       if (labels) {
         bounds[1].h += 2;
         this.rtree.insert(bounds[1], feature);
-        features[feature.colour].push([ 'fillText', [ feature.label, start, bounds[1].y ] ]);
+        
+        if (!noLabel) {
+          features[feature.colour].push([ 'fillText', [ feature.label, start, bounds[1].y ] ]);
+        }
       }
       
       height = Math.max(bounds[labels].y + bounds[labels].h, height);
