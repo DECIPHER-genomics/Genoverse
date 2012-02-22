@@ -101,6 +101,7 @@ CBrowse.Canvas = Base.extend({
   },
   
   // FIXME: can scroll off the ends
+  // FIXME: at less than 1px per base pair (this.scale > 1), start and end rounding causes redraw to be triggered at the wrong location
   mousemove: function (e) {
     var left  = e.pageX - this.dragOffset;
     var start = this.dragStart - (left - this.delta) / this.scale;
@@ -160,8 +161,8 @@ CBrowse.Canvas = Base.extend({
   setRange: function (start, end, update) {
     this.prevStart = this.start;
     this.prevEnd   = this.end;
-    this.start     = parseInt(start, 10);
-    this.end       = parseInt(end,   10);
+    this.start     = typeof start === 'number' ? Math.round(start) : parseInt(start, 10);
+    this.end       = typeof end   === 'number' ? Math.round(end)   : parseInt(end,   10);
     
     if (this.start < 1) {
       this.start = 1;
@@ -171,7 +172,11 @@ CBrowse.Canvas = Base.extend({
       this.end = this.chromosome.size;
     }
     
-    this.length = (this.end - this.start) || 1; // TODO: check when start = end
+    if (this.end === this.start) {
+      this.end++;
+    }
+    
+    this.length = this.end - this.start;
     this.zoom   = this.chromosome.size / this.length;
     
     this.setScale();
