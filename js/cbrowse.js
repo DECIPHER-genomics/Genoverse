@@ -1,6 +1,4 @@
-var CBrowse = {};
-
-CBrowse.Canvas = Base.extend({
+var CBrowse = Base.extend({
   defaults: {
     urlParamTemplate : 'r=CHR:START-END', // Overwrite this for your URL style
     width            : 1000,
@@ -240,25 +238,29 @@ CBrowse.Canvas = Base.extend({
   makeImage: function () {
     var cBrowse = this;
     var left    = -this.left;
+    var dir     = left < 0 ? 'right' : 'left';
     var start, end;
     
     if (left) {
-      start = left > 0 ? this.edges.end   : this.edges.start - ((1 + this.buffer) * this.length);
-      end   = left < 0 ? this.edges.start : this.edges.end   + ((1 + this.buffer) * this.length);
+      start = left > 0 ? this.edges.end   : this.edges.start - (this.buffer * this.length);
+      end   = left < 0 ? this.edges.start : this.edges.end   + (this.buffer * this.length);
     } else {
       start = this.start - this.length;
       end   = this.end   + this.length;
     }
     
-    this.edges.start = Math.min(start, this.edges.start);
-    this.edges.end   = Math.max(end,   this.edges.end);
+    var width = Math.round((end - start) * this.scale);
+    
+    this.edges.start  = Math.min(start, this.edges.start);
+    this.edges.end    = Math.max(end,   this.edges.end);
+    this.offsets[dir] = this.tracks[0].offsets[dir] + width;
     
     if (this.updateFromHistory()) {
       return;
     }
     
-    var width = Math.round((end - start) * this.scale);
-    var edges = $.extend({}, this.edges);
+    var edges   = $.extend({}, this.edges);
+    var offsets = $.extend({}, this.offsets);
     
     $.when.apply($, $.map(this.tracks, function (track) { return track.makeImage(start, end, width, left); })).done(function () {
       var cls = 'zoom_' + cBrowse.zoom.toString().replace('.', '_');
@@ -268,9 +270,10 @@ CBrowse.Canvas = Base.extend({
       cBrowse.prevHistory = cBrowse.start + ':' + cBrowse.end;
       
       cBrowse.history[cBrowse.prevHistory] = {
-        left   : cBrowse.left,
-        images : '.' + cls,
-        edges  : edges
+        left    : cBrowse.left,
+        images  : '.' + cls,
+        edges   : edges,
+        offsets : offsets
       };
       
       cBrowse.data.start = Math.min(start, cBrowse.data.start);
@@ -291,9 +294,10 @@ CBrowse.Canvas = Base.extend({
     
     if (this.prevHistory) {
       this.history[this.start + ':' + this.end] = {
-        left   : this.left,
-        images : '.zoom_' + this.zoom.toString().replace('.', '_'),
-        edges  : this.history[this.prevHistory].edges
+        left    : this.left,
+        images  : '.zoom_' + this.zoom.toString().replace('.', '_'),
+        edges   : this.history[this.prevHistory].edges,
+        offsets : this.history[this.prevHistory].offsets
       };
     }
   },
@@ -320,8 +324,9 @@ CBrowse.Canvas = Base.extend({
         $('.track_container', this.container).css('left', history.left).children().hide();
         images.show();
         
-        this.delta = history.left;
-        this.edges = history.edges;
+        this.delta   = history.left;
+        this.edges   = history.edges;
+        this.offsets = history.offsets;
         
         images = null;
         
