@@ -53,7 +53,7 @@ CBrowse.Track = Base.extend({
   
   makeImage: function (start, end, width, moved) {
     var func = moved < 0 ? 'unshift' : 'push';
-    var pos  = moved < 0 ? 'right'   : 'left';
+    var dir  = moved < 0 ? 'right'   : 'left';
     var div  = this.imgContainer.clone().width(width);
     
     var img = new CBrowse.TrackImage({
@@ -71,11 +71,9 @@ CBrowse.Track = Base.extend({
     this.imgContainers[func](div[0]);
     this.container.append(this.imgContainers);
     
-    div.css(pos, this.offsets[pos]);
+    div.css(dir, this.offsets[dir]);
     
-    this.offsets[pos] += width;
-    
-    this.cBrowse.offsets[pos] = this.offsets[pos];
+    this.offsets[dir] += width;
     
     return img.getData();
   },
@@ -123,6 +121,24 @@ CBrowse.Track = Base.extend({
     }
   },
   
-  positionData: $.noop, // implement in children
-  drawCallback: $.noop  // implement in children
+  beforeDraw: function (image) {
+    if (this.cBrowse.guideLines === false) {
+      return;
+    }
+    
+    var colors      = { major: [ '#cccccc', this.cBrowse.majorUnit ], minor: [ '#e5e5e5', this.cBrowse.minorUnit ] };
+    var scaledStart = Math.round(image.start * this.scale) + 1;
+    var x, c;
+    
+    for (c in colors) {
+      this.context.fillStyle = colors[c][0];
+      
+      for (x = Math.max(image.start - (image.start % colors[c][1]), 0); x < image.end + this.cBrowse.minorUnit; x += colors[c][1]) {
+        this.context.fillRect((this.cBrowse.guideLines[c][x] || 0) - scaledStart, 0, 1, this.fullHeight);
+      }
+    }
+  },
+  
+  positionData : $.noop, // implement in children
+  afterDraw    : $.noop  // implement in children
 });
