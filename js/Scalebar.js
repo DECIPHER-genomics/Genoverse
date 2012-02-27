@@ -106,7 +106,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.Block.extend({
     return this.base(start, end, width, moved);
   },
   
-  drawCallback: function (image) {
+  afterDraw: function (image) {
     var i = this.data.length;
     
     while (i--) {
