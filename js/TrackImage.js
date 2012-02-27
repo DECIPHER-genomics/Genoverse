@@ -6,7 +6,12 @@ CBrowse.TrackImage = Base.extend({
   
   getData: function () {
     var deferred = $.Deferred();
-    var data     = !this.track.url || (this.start >= this.track.cBrowse.data.start && this.end <= this.track.cBrowse.data.end) ? this.track.features.search({ x: this.bufferedStart, w: this.end - this.bufferedStart, y: 0, h: 1 }) : [];
+    var data     = !this.track.url || (this.start >= this.track.cBrowse.data.start && this.end <= this.track.cBrowse.data.end) ? this.track.features.search({
+      x: this.bufferedStart,
+      y: 0,
+      w: this.end - this.bufferedStart,
+      h: 1
+    }) : [];
     
     this.image = $('<img />').load(deferred.resolve);
     
@@ -51,7 +56,7 @@ CBrowse.TrackImage = Base.extend({
     this.track.context.fillStyle    = this.background;
     this.track.context.fillRect(0, 0, this.width, this.track.fullHeight);
     
-    this.track.cBrowse.decorateTrack(this.start, this.end, this.track);
+    this.track.beforeDraw(this);
     
     if (!this.track.colourOrder.length) {
       for (colour in features) {
@@ -76,7 +81,7 @@ CBrowse.TrackImage = Base.extend({
       }
     }
     
-    this.track.drawCallback(this);
+    this.track.afterDraw(this);
     
     this.container.append(this.image.attr('src', this.track.canvas[0].toDataURL()));
   }
