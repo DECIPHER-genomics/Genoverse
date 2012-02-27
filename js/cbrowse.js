@@ -84,22 +84,20 @@ var CBrowse = Base.extend({
   
   mousedown: function (e) {
     var cBrowse = this;
-
+    
     this.dragging   = true;
-    this.dragOffset = e.pageX - this.delta;
+    this.prevLeft   = this.left;
+    this.dragOffset = e.pageX - this.left;
     this.dragStart  = this.start;
-    this.dragEvent  = function (e) { cBrowse.mousemove(e); };
+    this.dragEvent  = function (e2) { cBrowse.mousemove(e2); };
     
     $(document).on('mousemove', this.dragEvent);
   },
   
   mouseup: function (e, update) {
-    var delta = this.delta;
-    
     this.dragging = false;
-    this.delta    = e.pageX - this.dragOffset;
     
-    if (delta !== this.delta && update !== false) {
+    if (this.left !== this.prevLeft && update !== false) {
       this.updateURL();
     }
     
@@ -108,10 +106,9 @@ var CBrowse = Base.extend({
   
   // FIXME: can scroll off the ends
   mousemove: function (e) {
-    var left  = e.pageX - this.dragOffset;
-    var start = this.dragStart - (left - this.delta) / this.scale;
-    var end   = start + this.length
-    this.left = left;
+    this.left = e.pageX - this.dragOffset;
+    var start = this.dragStart - (this.left - this.prevLeft) / this.scale;
+    var end   = start + this.length;
     
     $('.track_container', this.container).css('left', this.left);
     
@@ -201,10 +198,10 @@ var CBrowse = Base.extend({
     }
     
     if (this.prevScale !== this.scale) {
-      this.edges   = { start: 9e99, end: -9e99 };
-      this.offsets = { right: this.width, left: -this.width };
-      this.left    = 0;
-      this.delta   = 0;
+      this.edges    = { start: 9e99, end: -9e99 };
+      this.offsets  = { right: this.width, left: -this.width };
+      this.left     = 0;
+      this.prevLeft = 0;
       
       if (this.prevScale) {
         this.menuContainer.children().hide();
@@ -324,9 +321,9 @@ var CBrowse = Base.extend({
         $('.track_container', this.container).css('left', history.left).children().hide();
         images.show();
         
-        this.delta   = history.left;
-        this.edges   = history.edges;
-        this.offsets = history.offsets;
+        this.prevLeft = history.left;
+        this.edges    = history.edges;
+        this.offsets  = history.offsets;
         
         images = null;
         
