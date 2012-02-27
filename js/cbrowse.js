@@ -32,6 +32,7 @@ CBrowse.Canvas = Base.extend({
     
     this.data           = { start: 9e99, end: -9e99 };
     this.fullWidth      = this.width * (2 * this.buffer + 1);
+    this.wrapperLeft    = this.labelWidth - this.width;
     this.history        = {};
     this.paramRegex     = new RegExp('([?&;])' + this.urlParamTemplate.replace(/^(\w+)=/, '($1)=').replace(/CHR(.)/, '(\\w+)($1)').replace(/START(.)/, '(\\d+)($1)').replace('END', '(\\d+)') + '([;&])');
     this.labelContainer = $('<div class="label_container">').width(this.labelWidth).appendTo(this.container);
@@ -46,7 +47,7 @@ CBrowse.Canvas = Base.extend({
         cBrowse[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - cBrowse.container.offset().left - cBrowse.labelWidth);
         return false;
       }
-    }, '.image_container img');
+    }, '.image_container');
     
     $(document).on('mouseup', function (e) {
       if (cBrowse.dragging) {
@@ -108,7 +109,6 @@ CBrowse.Canvas = Base.extend({
   },
   
   // FIXME: can scroll off the ends
-  // FIXME: at less than 1px per base pair (this.scale > 1), start and end rounding causes redraw to be triggered at the wrong location
   mousemove: function (e) {
     var left  = e.pageX - this.dragOffset;
     var start = this.dragStart - (left - this.delta) / this.scale;
@@ -156,7 +156,7 @@ CBrowse.Canvas = Base.extend({
   },
   
   redraw: function () {
-    if (this.start >= this.edges.start && this.end <= this.edges.end) {
+    if ((this.left > 0 && this.left < this.offsets.right) || (this.left < 0 && Math.abs(this.left) < Math.abs(this.offsets.left + this.wrapperLeft))) {
       return false;
     }
     
@@ -203,9 +203,10 @@ CBrowse.Canvas = Base.extend({
     }
     
     if (this.prevScale !== this.scale) {
-      this.edges = { start: 9e99, end: -9e99 };
-      this.left  = 0;
-      this.delta = 0;
+      this.edges   = { start: 9e99, end: -9e99 };
+      this.offsets = { right: this.width, left: -this.width };
+      this.left    = 0;
+      this.delta   = 0;
       
       if (this.prevScale) {
         this.menuContainer.children().hide();
@@ -242,8 +243,8 @@ CBrowse.Canvas = Base.extend({
     var start, end;
     
     if (left) {
-      start = left > 0 ? this.edges.end   + 1 : this.edges.start - (this.buffer * this.length) - 1;
-      end   = left < 0 ? this.edges.start - 1 : this.edges.end   + (this.buffer * this.length) + 1;
+      start = left > 0 ? this.edges.end   : this.edges.start - ((1 + this.buffer) * this.length);
+      end   = left < 0 ? this.edges.start : this.edges.end   + ((1 + this.buffer) * this.length);
     } else {
       start = this.start - this.length;
       end   = this.end   + this.length;
