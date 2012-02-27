@@ -6,7 +6,7 @@ CBrowse.Track.Block = CBrowse.Track.extend({
   
   positionData: function (data, edges, func) {
     var feature, start, end, x, width, bounds, bump, j, k, noLabel;
-    var labels   = data.length && data[0].label && this.cBrowse.length < 1e7 ? 1 : 0;
+    var labels   = this.forceLabels || (data.length && data[0].label && this.cBrowse.length < 1e7) ? 1 : 0;
     var height   = this.height;
     var scale    = this.scale > 1 ? this.scale : 1;
     var seen     = {};
@@ -28,7 +28,7 @@ CBrowse.Track.Block = CBrowse.Track.extend({
       x       = feature.scaledStart;
       bounds  = feature.bounds;
       width   = start > end ? 1 : (end - start) || scale;
-      noLabel = scale > 1 && start < 0;
+      noLabel = !feature.label || (scale > 1 && start < 0);
       
       if (!bounds) {
         bounds = [{ x: x, y: 0, w: width, h: this.featureHeight + (2 * labels) }];
@@ -94,7 +94,7 @@ CBrowse.Track.Block = CBrowse.Track.extend({
       }
     }
     
-    this.fullHeight = height;
+    this.fullHeight = Math.max(height, this.fullHeight);
     
     return features;
   }

@@ -16,13 +16,12 @@ CBrowse.Track = Base.extend({
     this.fontWidth     = this.context.measureText('W').width;
     this.featureHeight = this.featureHeight || this.height;
     this.fullHeight    = this.height;
-    this.initialHeight = this.height;
     this.zoomSettings  = {};
     this.features      = new RTree();
     
     this.setScale();
     
-    this.container.on('mouseup', 'img', function (e) {
+    this.container.on('mouseup', '.image_container', function (e) {
       if (e.pageX - track.cBrowse.dragOffset !== 0) {
         return; // No menus when dragging
       }
@@ -76,6 +75,8 @@ CBrowse.Track = Base.extend({
     
     this.offsets[pos] += width;
     
+    this.cBrowse.offsets[pos] = this.offsets[pos];
+    
     return img.getData();
   },
   
@@ -122,5 +123,6 @@ CBrowse.Track = Base.extend({
     }
   },
   
-  positionData: $.noop // implement in children
+  positionData: $.noop, // implement in children
+  drawCallback: $.noop  // implement in children
 });

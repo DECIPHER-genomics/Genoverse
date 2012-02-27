@@ -1,12 +1,12 @@
 CBrowse.TrackImage = Base.extend({
   constructor: function (config) {
     $.extend(this, config);
-    this.bufferedStart = this.start - (this.labelScale * this.track.cBrowse.longestLabel);
+    this.bufferedStart = Math.max(this.start - (this.labelScale * this.track.cBrowse.longestLabel), 1);
   },
   
   getData: function () {
     var deferred = $.Deferred();
-    var data     = this.start >= this.track.cBrowse.data.start && this.end <= this.track.cBrowse.data.end ? this.track.features.search({ x: this.bufferedStart, w: this.end - this.bufferedStart, y: 0, h: 1 }) : [];
+    var data     = !this.track.url || (this.start >= this.track.cBrowse.data.start && this.end <= this.track.cBrowse.data.end) ? this.track.features.search({ x: this.bufferedStart, w: this.end - this.bufferedStart, y: 0, h: 1 }) : [];
     
     this.image = $('<img />').load(deferred.resolve);
     
@@ -75,6 +75,8 @@ CBrowse.TrackImage = Base.extend({
         }
       }
     }
+    
+    this.track.drawCallback(this);
     
     this.container.append(this.image.attr('src', this.track.canvas[0].toDataURL()));
   }
