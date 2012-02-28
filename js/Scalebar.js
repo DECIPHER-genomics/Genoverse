@@ -2,12 +2,16 @@ CBrowse.Track.Scalebar = CBrowse.Track.Block.extend({
   defaults: {
     height        : 20,
     featureHeight : 3,
-    labelY        : 15,
-    color         : '#000000',
-    guideLines    : true,
-    bump          : false,
-    forceLabels   : true,
-    labelUnits    : [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ]
+    color         : '#000000'
+  },
+  
+  constructor: function (config) {
+    this.guideLines  = true;
+    this.forceLabels = true;
+    this.labelUnits  = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
+    this.bump        = false;
+    
+    this.base(config);
   },
   
   setScale: function () {
@@ -87,7 +91,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.Block.extend({
         data.push(feature);
       }
       
-      if (this.guideLines !== false) {
+      if (this.guideLines) {
         this.cBrowse.guideLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
       }
     }
@@ -133,4 +137,12 @@ CBrowse.Track.Scalebar = CBrowse.Track.Block.extend({
       return Math.floor(x) + (unit === 'bp' ? '' : '.' + (x.toString().split('.')[1] || '').concat('00').substring(0, 2)) + ' ' + unit;
     }
   }
+});
+
+CBrowse.Track.ScalebarBottom = CBrowse.Track.Scalebar.extend({
+  constructor: function (config) {
+    this.base($.extend(config, { guideLines: false }));
+  },
+  
+  beforeDraw: $.noop
 });
