@@ -27,16 +27,19 @@ var CBrowse = Base.extend({
 
   init: function () {
     var cBrowse = this;
+    var width   = this.width;
     
     this.data           = { start: 9e99, end: -9e99 };
+    this.history        = {};
+    this.prev           = {};
+    this.width         -= this.labelWidth;
     this.fullWidth      = this.width * (2 * this.buffer + 1);
     this.wrapperLeft    = this.labelWidth - this.width;
-    this.history        = {};
     this.paramRegex     = new RegExp('([?&;])' + this.urlParamTemplate.replace(/^(\w+)=/, '($1)=').replace(/CHR(.)/, '(\\w+)($1)').replace(/START(.)/, '(\\d+)($1)').replace('END', '(\\d+)') + '([;&])');
     this.labelContainer = $('<div class="label_container">').width(this.labelWidth).appendTo(this.container);
-    this.menuContainer  = $('<div class="menu_container">').css({ width: this.width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
+    this.menuContainer  = $('<div class="menu_container">').css({ width: width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
     
-    this.container.width(this.width).on({
+    this.container.width(width).on({
       mousedown: function (e) {
         cBrowse.mousedown(e);
         return false;
@@ -86,7 +89,7 @@ var CBrowse = Base.extend({
     var cBrowse = this;
     
     this.dragging   = true;
-    this.prevLeft   = this.left;
+    this.prev.left  = this.left;
     this.dragOffset = e.pageX - this.left;
     this.dragStart  = this.start;
     this.dragEvent  = function (e2) { cBrowse.mousemove(e2); };
@@ -97,18 +100,34 @@ var CBrowse = Base.extend({
   mouseup: function (e, update) {
     this.dragging = false;
     
-    if (this.left !== this.prevLeft && update !== false) {
+    if (this.left !== this.prev.left && update !== false) {
       this.updateURL();
     }
     
     $(document).off('mousemove', this.dragEvent);
   },
   
-  // FIXME: can scroll off the ends
   mousemove: function (e) {
+    var star, end;
+  
     this.left = e.pageX - this.dragOffset;
-    var start = this.dragStart - (this.left - this.prevLeft) / this.scale;
-    var end   = start + this.length;
+    
+    if (this.left < this.minLeft) {
+      this.prev.left = this.left;
+      this.left      = this.minLeft;
+      
+      start = this.chromosome.size - this.length + 1;
+      end   = this.chromosome.size;
+    } else if (this.left > this.maxLeft) {
+      this.prev.left = this.left;
+      this.left      = this.maxLeft;
+      
+      start = 1;
+      end   = this.length;
+    } else {
+      start = this.dragStart - (this.left - this.prev.left) / this.scale;
+      end   = start + this.length - 1;
+    }
     
     $('.track_container', this.container).css('left', this.left);
     
@@ -126,7 +145,7 @@ var CBrowse = Base.extend({
     }
     
     var start = Math.round(this.start + x / (2 * this.scale));
-    var end   = Math.round(start + this.length / 2);
+    var end   = Math.round(start + (this.length - 1) / 2);
     
     this.setRange(start, end);
   },
@@ -137,7 +156,7 @@ var CBrowse = Base.extend({
     }
     
     var start = Math.round(this.start - x / this.scale);
-    var end   = Math.round(start + 2 * this.length);
+    var end   = Math.round(start + 2 * (this.length - 1));
     
     if (start < 1) {
       start = 1;
@@ -161,10 +180,10 @@ var CBrowse = Base.extend({
   },
   
   setRange: function (start, end, update) {
-    this.prevStart = this.start;
-    this.prevEnd   = this.end;
-    this.start     = typeof start === 'number' ? Math.round(start) : parseInt(start, 10);
-    this.end       = typeof end   === 'number' ? Math.round(end)   : parseInt(end,   10);
+    this.prev.start = this.start;
+    this.prev.end   = this.end;
+    this.start      = typeof start === 'number' ? Math.round(start) : parseInt(start, 10);
+    this.end        = typeof end   === 'number' ? Math.round(end)   : parseInt(end,   10);
     
     if (this.start < 1) {
       this.start = 1;
@@ -178,32 +197,29 @@ var CBrowse = Base.extend({
       this.end++;
     }
     
-    this.length = this.end - this.start;
-    this.zoom   = this.chromosome.size / this.length;
+    this.length = this.end - this.start + 1;
     
     this.setScale();
     
-    if (update !== false && (this.prevStart !== this.start || this.prevEnd !== this.end)) {
+    if (update !== false && (this.prev.start !== this.start || this.prev.end !== this.end)) {
       this.updateURL();
     }
   },
   
   setScale: function () {
-    this.prevScale   = this.scale;
-    this.scale       = this.zoom  * this.width / this.chromosome.size;
+    this.prev.scale  = this.scale;
+    this.scale       = this.width / this.length;
     this.scaledStart = this.start * this.scale;
     
-    if (!this.end && this.zoom === 1) {
-      this.end = this.chromosome.size;
-    }
-    
-    if (this.prevScale !== this.scale) {
-      this.edges    = { start: 9e99, end: -9e99 };
-      this.offsets  = { right: this.width, left: -this.width };
-      this.left     = 0;
-      this.prevLeft = 0;
+    if (this.prev.scale !== this.scale) {
+      this.edges     = { start: 9e99, end: -9e99 };
+      this.offsets   = { right: this.width, left: -this.width };
+      this.left      = 0;
+      this.prev.left = 0;
+      this.minLeft   = Math.round((this.end   - this.chromosome.size) * this.scale);
+      this.maxLeft   = Math.round((this.start - 1) * this.scale);
       
-      if (this.prevScale) {
+      if (this.prev.scale) {
         this.menuContainer.children().hide();
         
         var i = this.tracks.length;
@@ -260,13 +276,13 @@ var CBrowse = Base.extend({
     var offsets = $.extend({}, this.offsets);
     
     $.when.apply($, $.map(this.tracks, function (track) { return track.makeImage(start, end, width, left); })).done(function () {
-      var cls = 'zoom_' + cBrowse.zoom.toString().replace('.', '_');
+      var cls = 'scale_' + cBrowse.scale.toString().replace('.', '_');
       
       $($.map(arguments, function (a) { return a.target; })).show().parent().addClass(cls);
       
-      cBrowse.prevHistory = cBrowse.start + ':' + cBrowse.end;
+      cBrowse.prev.history = cBrowse.start + ':' + cBrowse.end;
       
-      cBrowse.history[cBrowse.prevHistory] = {
+      cBrowse.history[cBrowse.prev.history] = {
         left    : cBrowse.left,
         images  : '.' + cls,
         edges   : edges,
@@ -287,14 +303,20 @@ var CBrowse = Base.extend({
   },
   
   setHistory: function (replace) {
+    if (this.prev.location === this.start + ':' + this.end) {
+      return;
+    }
+    
+    this.prev.location = this.start + ':' + this.end;
+    
     window.history[replace ? 'replaceState' : 'pushState']({}, '', this.getQueryString());
     
-    if (this.prevHistory) {
+    if (this.prev.history) {
       this.history[this.start + ':' + this.end] = {
         left    : this.left,
-        images  : '.zoom_' + this.zoom.toString().replace('.', '_'),
-        edges   : this.history[this.prevHistory].edges,
-        offsets : this.history[this.prevHistory].offsets
+        images  : '.scale_' + this.scale.toString().replace('.', '_'),
+        edges   : this.history[this.prev.history].edges,
+        offsets : this.history[this.prev.history].offsets
       };
     }
   },
@@ -321,7 +343,7 @@ var CBrowse = Base.extend({
         $('.track_container', this.container).css('left', history.left).children().hide();
         images.show();
         
-        this.prevLeft = history.left;
+        this.left     = history.left;
         this.edges    = history.edges;
         this.offsets  = history.offsets;
         
