@@ -16,14 +16,14 @@ CBrowse.Track = Base.extend({
     this.fontWidth     = this.context.measureText('W').width;
     this.featureHeight = this.featureHeight || this.height;
     this.fullHeight    = this.height;
-    this.zoomSettings  = {};
+    this.scaleSettings = {};
     this.features      = new RTree();
     
     this.setScale();
     
     this.container.on('mouseup', '.image_container', function (e) {
-      if (e.pageX - track.cBrowse.dragOffset !== 0) {
-        return; // No menus when dragging
+      if ((e.which && e.which !== 1) || (e.pageX - track.cBrowse.dragOffset !== 0)) {
+        return; // Only show menus on left click when not dragging
       }
       
       var x        = e.pageX - track.container.parent().offset().left + track.cBrowse.scaledStart;
@@ -45,8 +45,8 @@ CBrowse.Track = Base.extend({
   },
   
   reset: function () {
-    this.zoomSettings = {};
-    this.features     = new RTree();
+    this.scaleSettings = {};
+    this.features      = new RTree();
     
     this.container.empty();
   },
@@ -86,17 +86,16 @@ CBrowse.Track = Base.extend({
   
   setScale: function () {
     var track = this;
-    var zoom  = this.cBrowse.zoom;
     
     this.scale = this.cBrowse.scale;
     
-    if (this.zoomSettings[zoom] && !this.cBrowse.history[this.cBrowse.start + ':' + this.cBrowse.end]) {
-      this.container.children('.zoom_' + zoom.toString().replace('.', '_')).remove();
-      delete this.zoomSettings[zoom];
+    if (this.scaleSettings[this.scale] && !this.cBrowse.history[this.cBrowse.start + ':' + this.cBrowse.end]) {
+      this.container.children('.scale_' + this.scale.toString().replace('.', '_')).remove();
+      delete this.scaleSettings[this.scale];
     }
     
-    if (!this.zoomSettings[zoom]) {
-      this.zoomSettings[zoom] = {
+    if (!this.scaleSettings[this.scale]) {
+      this.scaleSettings[this.scale] = {
         offsets       : { right: this.width, left: -this.width },
         rtree         : new RTree(),
         imgContainers : [],
@@ -104,10 +103,10 @@ CBrowse.Track = Base.extend({
       };
     }
     
-    var zoomSettings = this.zoomSettings[zoom];
+    var scaleSettings = this.scaleSettings[this.scale];
     
     $.each([ 'offsets', 'rtree', 'imgContainers', 'overlaps' ], function () {
-      track[this] = zoomSettings[this];
+      track[this] = scaleSettings[this];
     });
     
     this.container.css('left', 0).children().hide();
@@ -122,10 +121,6 @@ CBrowse.Track = Base.extend({
   },
   
   beforeDraw: function (image) {
-    if (this.cBrowse.guideLines === false) {
-      return;
-    }
-    
     var colors      = { major: [ '#cccccc', this.cBrowse.majorUnit ], minor: [ '#e5e5e5', this.cBrowse.minorUnit ] };
     var scaledStart = Math.round(image.start * this.scale) + 1;
     var x, c;
