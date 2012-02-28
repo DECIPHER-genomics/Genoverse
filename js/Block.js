@@ -12,7 +12,7 @@ CBrowse.Track.Block = CBrowse.Track.extend({
     var seen     = {};
     var features = {};
     
-    this.colourOrder = [];
+    this.colorOrder = [];
     
     for (var i = 0; i < data.length; i++) {
       feature = data[i];
@@ -58,11 +58,11 @@ CBrowse.Track.Block = CBrowse.Track.extend({
         }
       }
       
-      if (!features[feature.colour]) {
-        features[feature.colour] = [];
+      if (!features[feature.color]) {
+        features[feature.color] = [];
         
         if (feature.order) {
-          this.colourOrder[feature.order] = feature.colour;
+          this.colorOrder[feature.order] = feature.color;
         }
       }
       
@@ -74,14 +74,14 @@ CBrowse.Track.Block = CBrowse.Track.extend({
         width = end - start;
       }
       
-      features[feature.colour].push([ 'fillRect', [ start, bounds[0].y, width, this.featureHeight ] ]);
+      features[feature.color].push([ 'fillRect', [ start, bounds[0].y, width, this.featureHeight ] ]);
       
       if (labels) {
         bounds[1].h += 2;
         this.rtree.insert(bounds[1], feature);
         
         if (!noLabel) {
-          features[feature.colour].push([ 'fillText', [ feature.label, start, bounds[1].y ] ]);
+          features[feature.color].push([ 'fillText', [ feature.label, start, bounds[1].y ] ]);
         }
       }
       

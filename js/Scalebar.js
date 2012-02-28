@@ -72,18 +72,18 @@ CBrowse.Track.Scalebar = CBrowse.Track.Block.extend({
       major   = x && !(x % this.majorUnit);
       
       if (flip === 1) {
-        feature.start  = x;
-        feature.end    = x + this.minorUnit;
-        feature.colour = this.color;
+        feature.start = x;
+        feature.end   = x + this.minorUnit;
+        feature.color = this.color;
       }
       
       if (major) {
         feature.label = this.formatLabel(x);
         
         if (!feature.end) {
-          feature.start  = x;
-          feature.end    = x;
-          feature.colour = this.color;
+          feature.start = x;
+          feature.end   = x;
+          feature.color = this.color;
         }
       }
       

@@ -48,7 +48,7 @@ CBrowse.TrackImage = Base.extend({
   },
   
   draw: function (features) {
-    var i, colour;
+    var i, color;
     
     this.track.canvas.attr({ width: this.width, height: this.track.fullHeight });
     
@@ -58,25 +58,25 @@ CBrowse.TrackImage = Base.extend({
     
     this.track.beforeDraw(this);
     
-    if (!this.track.colourOrder.length) {
-      for (colour in features) {
-        this.track.colourOrder.push(colour);
+    if (!this.track.colorOrder.length) {
+      for (color in features) {
+        this.track.colorOrder.push(color);
       }
     }
     
-    var c = this.track.colourOrder.length;
+    var c = this.track.colorOrder.length;
     
     // reverse order - lower orders are more important so draw them last
     while (c--) {
-      colour = this.track.colourOrder[c];
+      color = this.track.colorOrder[c];
       
-      if (colour) {
-        this.track.context.fillStyle = colour;
+      if (color) {
+        this.track.context.fillStyle = color;
         
-        i = features[colour].length;
+        i = features[color].length;
         
         while (i--) {
-          this.track.context[features[colour][i][0]].apply(this.track.context, features[colour][i][1]);
+          this.track.context[features[color][i][0]].apply(this.track.context, features[color][i][1]);
         }
       }
     }
