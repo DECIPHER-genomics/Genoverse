@@ -109,15 +109,15 @@ var CBrowse = Base.extend({
   
   mousemove: function (e) {
     var star, end;
-  
+    
     this.left = e.pageX - this.dragOffset;
     
     if (this.left < this.minLeft) {
       this.prev.left = this.left;
       this.left      = this.minLeft;
       
-      start = this.chromosome.size - this.length + 1;
-      end   = this.chromosome.size;
+      start = this.chromosomeSize - this.length + 1;
+      end   = this.chromosomeSize;
     } else if (this.left > this.maxLeft) {
       this.prev.left = this.left;
       this.left      = this.maxLeft;
@@ -162,8 +162,8 @@ var CBrowse = Base.extend({
       start = 1;
     }
     
-    if (end > this.chromosome.size) {
-      end = this.chromosome.size;
+    if (end > this.chromosomeSize) {
+      end = this.chromosomeSize;
     }
     
     this.setRange(start, end);
@@ -189,8 +189,8 @@ var CBrowse = Base.extend({
       this.start = 1;
     }
     
-    if (this.end > this.chromosome.size) {
-      this.end = this.chromosome.size;
+    if (this.end > this.chromosomeSize) {
+      this.end = this.chromosomeSize;
     }
     
     if (this.end === this.start) {
@@ -216,7 +216,7 @@ var CBrowse = Base.extend({
       this.offsets   = { right: this.width, left: -this.width };
       this.left      = 0;
       this.prev.left = 0;
-      this.minLeft   = Math.round((this.end   - this.chromosome.size) * this.scale);
+      this.minLeft   = Math.round((this.end   - this.chromosomeSize) * this.scale);
       this.maxLeft   = Math.round((this.start - 1) * this.scale);
       
       if (this.prev.scale) {
