@@ -6,7 +6,7 @@ CBrowse.TrackImage = Base.extend({
   
   getData: function () {
     var deferred = $.Deferred();
-    var data     = !this.track.url || (this.start >= this.track.cBrowse.data.start && this.end <= this.track.cBrowse.data.end) ? this.track.features.search({
+    var features = !this.track.url || (this.start >= this.track.cBrowse.data.start && this.end <= this.track.cBrowse.data.end) ? this.track.features.search({
       x: this.bufferedStart,
       y: 0,
       w: this.end - this.bufferedStart,
@@ -15,16 +15,17 @@ CBrowse.TrackImage = Base.extend({
     
     this.image = $('<img />').load(deferred.resolve);
     
-    if (data.length) {
-      this.draw(this.track.positionData(this.track.addOverlaps(this.scaleData(data.sort(function (a, b) { return a.start - b.start; }))), this.edges, this.func));
+    if (features.length) {
+      this.draw(this.track.positionData(this.track.addOverlaps(this.scaleFeatures(features.sort(function (a, b) { return a.start - b.start; }))), this.edges, this.func));
     } else {
       $.ajax({
         url      : this.track.url + this.getQueryString(),
+        data     : this.track.urlParams,
         context  : this,
         dataType : 'json',
         success  : function (json) {
-          this.track.setFeatures(json.data);
-          this.draw(this.track.positionData(this.track.addOverlaps(this.scaleData(json.data)), this.edges, this.func));
+          this.track.setFeatures(json);
+          this.draw(this.track.positionData(this.track.addOverlaps(this.scaleFeatures(json.features)), this.edges, this.func));
         }
       });
     }
@@ -36,42 +37,69 @@ CBrowse.TrackImage = Base.extend({
     return (window.location.search + '&').replace(this.track.paramRegex, '$1chr=$3&start=' + this.bufferedStart + '&end=' + this.end + '$8').slice(0, -1);
   },
   
-  scaleData: function (data) {
-    var i = data.length;
+  scaleFeatures: function (features) {
+    var i = features.length;
         
     while (i--) {
-      data[i].scaledStart = data[i].start * this.track.scale;
-      data[i].scaledEnd   = data[i].end   * this.track.scale;
+      features[i].scaledStart = features[i].start * this.track.scale;
+      features[i].scaledEnd   = features[i].end   * this.track.scale;
     }
     
-    return data;
+    return features;
   },
   
   draw: function (features) {
-    var i, color;
+    var i, color, labelColor;
+    
+    if (!this.track.colorOrder.length) {
+      for (color in features.fill) {
+        this.track.colorOrder.push(color);
+      }
+    }
     
     this.track.canvas.attr({ width: this.width, height: this.track.fullHeight });
     
-    this.track.context.textBaseline = 'top'; // gets reset every time width/height are set on the canvas
+    this.track.context.textBaseline = 'top';
     this.track.context.fillStyle    = this.background;
     this.track.context.fillRect(0, 0, this.width, this.track.fullHeight);
     
     this.track.beforeDraw(this);
     
-    if (!this.track.colorOrder.length) {
+    this.drawFeatures(features.fill,   'fillStyle', this.track.colorOrder);
+    this.drawFeatures(features.border, 'strokeStyle');
+    
+    this.track.context.textBaseline = 'middle';
+    this.drawFeatures(features.label, 'fillStyle');
+    
+    this.track.afterDraw(this);
+    
+    this.container.append(this.image.attr('src', this.track.canvas[0].toDataURL()));
+    
+    if (!this.track.fixedHeight) {
+      this.drawBackground();
+    }
+  },
+  
+  drawFeatures: function (features, style, order) {
+    var color, i;
+    
+    if (!order) {
+      order = [];
+      
       for (color in features) {
-        this.track.colorOrder.push(color);
+        order.push(color);
       }
     }
     
-    var c = this.track.colorOrder.length;
+    var c = order.length;
     
     // reverse order - lower orders are more important so draw them last
     while (c--) {
-      color = this.track.colorOrder[c];
+      color = order[c];
       
       if (color) {
-        this.track.context.fillStyle = color;
+        this.track.context[style] = color;
+        
         
         i = features[color].length;
         
@@ -80,9 +108,14 @@ CBrowse.TrackImage = Base.extend({
         }
       }
     }
+  },
+  
+  drawBackground: function () {
+    this.track.canvas.attr({ width: this.width, height: 100 });
+    this.track.context.fillStyle = this.background;
+    this.track.context.fillRect(0, 0, this.width, 100);
+    this.track.beforeDraw(this);
     
-    this.track.afterDraw(this);
-    
-    this.container.append(this.image.attr('src', this.track.canvas[0].toDataURL()));
+    this.container.data('bg', 'url(' + this.track.canvas[0].toDataURL() + ')');
   }
 });
