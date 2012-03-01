@@ -23,22 +23,30 @@
   height: 100%;
   overflow: hidden;
   position: absolute;
-  background: #ccc;
+  background: #ccc repeat-y top left;
 }
 
 .canvas_container .track_container .image_container img {
   display: none;
 }
 
-.canvas_container p {
-  position: absolute;
-  margin-top: -10px;
-  height: 10px;
-  width: 100%;
-  z-index: 10;
-  background: red;
+.canvas_container .size_handle {
+  float: right;
+}
+
+.canvas_container .size_handle div {
+  font-size: 11px;
+  color: #FFF;
+  border: 1px solid #000;
+  background-color: #667AA6;
+  width: 12px;
+  height: 12px;
+  line-height: 11px;
+  text-align: center;
+  float: left;
+  margin-right: 5px;
+  border-radius: 12px;
   cursor: pointer;
-  display: none;
 }
 
 .canvas_container .label_container {
@@ -46,14 +54,19 @@
   height: 100%;
 }
 
-.canvas_container .label_container div {
+.canvas_container .label_container .label {
   position: relative;
   margin-left: 5px;
-  color: black;
+  color: #000;
+  font-size: 11px;
 }
 
 .canvas_container .menu_container {
   position: absolute;
   height: 100%;
   overflow: hidden;
+}
+
+.canvas_container .menu_container .floating_popup {
+  margin-top: 8px;
 }
