@@ -37,8 +37,19 @@ var CBrowse = Base.extend({
     this.width         -= this.labelWidth;
     this.fullWidth      = this.width * (2 * this.buffer + 1);
     this.paramRegex     = new RegExp('([?&;])' + this.urlParamTemplate.replace(/^(\w+)=/, '($1)=').replace(/CHR(.)/, '(\\w+)($1)').replace(/START(.)/, '(\\d+)($1)').replace('END', '(\\d+)') + '([;&])');
-    this.labelContainer = $('<div class="label_container">').width(this.labelWidth).appendTo(this.container);
     this.menuContainer  = $('<div class="menu_container">').css({ width: width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
+    this.labelContainer = $('<ul class="label_container">').width(this.labelWidth).appendTo(this.container).sortable({
+      axis        : 'y',
+      helper      : 'clone',
+      placeholder : 'label',
+      start       : function (e, ui) {
+        ui.placeholder.css({ height: ui.item.height(), visibility: 'visible', background: '#CFD4E7' }).html(ui.item.html());
+        ui.helper.hide();
+      },
+      update      : function (e, ui) {
+        cBrowse.tracks[ui.item.data('index')].container[ui.item[0].previousSibling ? 'insertAfter' : 'insertBefore'](cBrowse.tracks[$(ui.item[0].previousSibling || ui.item[0].nextSibling).data('index')].container);
+      }
+    })
     
     this.container.width(width).on({
       mousedown: function (e) {

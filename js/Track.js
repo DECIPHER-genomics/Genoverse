@@ -27,14 +27,11 @@ CBrowse.Track = Base.extend({
     this.setScale();
     
     if (this.name) {
-      this.label = $('<div>', {
+      this.label = $('<li>', {
         html    : this.name,
         'class' : 'label',
-        css     : {
-          marginTop : this.index && !this.cBrowse.tracks[this.index - 1].label ? this.cBrowse.tracks[this.index - 1].height : 0, 
-          height    : this.height
-        }
-      }).appendTo(this.cBrowse.labelContainer);
+        height  : this.height
+      }).appendTo(this.cBrowse.labelContainer).data('index', this.index);
     }
     
     if (!this.fixedHeight) {

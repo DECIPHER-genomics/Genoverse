@@ -14,6 +14,10 @@ CBrowse.Track.Scalebar = CBrowse.Track.Block.extend({
     this.spacing     = 0;
     
     this.base(config);
+    
+    if (this.type === 'Scalebar') {
+      this.cBrowse.labelContainer.css('top', this.height);
+    }
   },
   
   setScale: function () {
