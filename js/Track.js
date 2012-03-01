@@ -8,18 +8,48 @@ CBrowse.Track = Base.extend({
     
     $.extend(this, this.defaults, config);
     
+    this.spacing       = typeof this.spacing === 'undefined' ? this.cBrowse.trackSpacing : this.spacing;
+    this.featureHeight = this.featureHeight || this.height;
+    this.fixedHeight   = typeof this.fixedHeight === 'undefined' ? this.featureHeight === this.height : this.fixedHeight;
+    this.height       += this.spacing;
     this.canvas        = $('<canvas>').appendTo(this.canvasContainer);
-    this.container     = $('<div class="track_container">').css({ height: this.height }).appendTo(this.canvasContainer),
+    this.container     = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer),
     this.imgContainer  = $('<div class="image_container">');
     this.context       = this.canvas[0].getContext('2d');
     this.fontHeight    = parseInt(this.context.font, 10);
     this.fontWidth     = this.context.measureText('W').width;
-    this.featureHeight = this.featureHeight || this.height;
     this.fullHeight    = this.height;
+    this.maxHeight     = this.height;
+    this.initialHeight = this.height;
     this.scaleSettings = {};
     this.features      = new RTree();
     
     this.setScale();
+    
+    if (this.name) {
+      this.label = $('<div>', {
+        html    : this.name,
+        'class' : 'label',
+        css     : {
+          marginTop : this.index && !this.cBrowse.tracks[this.index - 1].label ? this.cBrowse.tracks[this.index - 1].height : 0, 
+          height    : this.height
+        }
+      }).appendTo(this.cBrowse.labelContainer);
+    }
+    
+    if (!this.fixedHeight) {
+      this.sizeHandle = $('<div class="size_handle"><div class="expand" title="Show all">+</div><div class="collapse" title="Collapse">-</div></div>').appendTo(this.label).children().on('click', function (e) {
+        var height;
+        
+        switch (e.target.className) {
+          case 'expand'   : height = $(this).data('height'); track.autoHeight = true; break;
+          case 'collapse' : height = track.initialHeight;    track.autoHeight = false; break;
+          default         : return;
+        }
+        
+        track.resize(height);
+      });
+    }
     
     this.container.on('mouseup', '.image_container', function (e) {
       if ((e.which && e.which !== 1) || (e.pageX - track.cBrowse.dragOffset !== 0)) {
@@ -49,6 +79,13 @@ CBrowse.Track = Base.extend({
     this.features      = new RTree();
     
     this.container.empty();
+  },
+  
+  resize: function (height) {
+    this.height = height;
+    
+    this.container.height(height);
+    this.label.height(height);
   },
   
   makeImage: function (start, end, width, moved) {
@@ -113,10 +150,10 @@ CBrowse.Track = Base.extend({
   },
   
   setFeatures: function (data) {
-    var i = data.length;
+    var i = data.features.length;
     
     while (i--) {
-      this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
+      this.features.insert({ x: data.features[i].start, y: 0, w: data.features[i].end - data.features[i].start, h: 1 }, data.features[i]);
     }
   },
   
@@ -131,6 +168,13 @@ CBrowse.Track = Base.extend({
       for (x = Math.max(image.start - (image.start % colors[c][1]), 0); x < image.end + this.cBrowse.minorUnit; x += colors[c][1]) {
         this.context.fillRect((this.cBrowse.guideLines[c][x] || 0) - scaledStart, 0, 1, this.fullHeight);
       }
+    }
+    
+    if (this.borderColor) {
+      this.context.fillStyle = this.borderColor;
+      
+      this.context.fillRect(0, 0,                      image.width, 1);
+      this.context.fillRect(0, this.featureHeight - 1, image.width, 1);
     }
   },
   
