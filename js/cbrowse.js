@@ -6,6 +6,7 @@ var CBrowse = Base.extend({
     labelWidth       : 134,
     buffer           : 1,
     longestLabel     : 30,
+    trackSpacing     : 5,
     tracks           : [],
     colors           : {
       foreground: '#000000',
@@ -32,9 +33,9 @@ var CBrowse = Base.extend({
     this.data           = { start: 9e99, end: -9e99 };
     this.history        = {};
     this.prev           = {};
+    this.wrapperLeft    = this.labelWidth - width;
     this.width         -= this.labelWidth;
     this.fullWidth      = this.width * (2 * this.buffer + 1);
-    this.wrapperLeft    = this.labelWidth - this.width;
     this.paramRegex     = new RegExp('([?&;])' + this.urlParamTemplate.replace(/^(\w+)=/, '($1)=').replace(/CHR(.)/, '(\\w+)($1)').replace(/START(.)/, '(\\d+)($1)').replace('END', '(\\d+)') + '([;&])');
     this.labelContainer = $('<div class="label_container">').width(this.labelWidth).appendTo(this.container);
     this.menuContainer  = $('<div class="menu_container">').css({ width: width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
@@ -100,11 +101,15 @@ var CBrowse = Base.extend({
   mouseup: function (e, update) {
     this.dragging = false;
     
+    $(document).off('mousemove', this.dragEvent);
+    
     if (this.left !== this.prev.left && update !== false) {
       this.updateURL();
     }
     
-    $(document).off('mousemove', this.dragEvent);
+    if (update !== false) {
+      this.checkTrackSize();
+    }
   },
   
   mousemove: function (e) {
@@ -136,6 +141,34 @@ var CBrowse = Base.extend({
     if (this.redraw()) {
       this.mouseup(e, false);
       this.mousedown(e);
+    }
+  },
+  
+  checkTrackSize: function () {
+    var zooming = this.prev.scale && this.scale !== this.prev.scale;
+    var height;
+    
+    for (var i = 0; i < this.tracks.length; i++) {
+      if (!this.tracks[i].fixedHeight) {
+        if (zooming) {
+          height = this.tracks[i].initialHeight;
+        }
+        
+        height = Math.max.apply(Math, $.map(this.tracks[i].rtree.search({
+          x: this.scaledStart,
+          w: this.width,
+          y: 0,
+          h: this.tracks[i].maxHeight
+        }), function (feature) { return feature.bottom; }).concat(this.tracks[i].initialHeight));
+        
+        if (!this.dragging) {
+          if (this.tracks[i].autoHeight) {
+            this.tracks[i].resize(height);
+          }
+          
+          this.tracks[i].sizeHandle.data('height', height);
+        }
+      }
     }
   },
   
@@ -240,11 +273,7 @@ var CBrowse = Base.extend({
     };
     
     for (var i = 0; i < this.tracks.length; i++) {
-      this.tracks[i] = new CBrowse.Track[this.tracks[i].type]($.extend(this.tracks[i], defaults));
-      
-      if (this.tracks[i].name) {
-        this.tracks[i].label = $('<div>', { html: this.tracks[i].name, css: { marginTop: i && !this.tracks[i-1].label ? this.tracks[i-1].height : 0, height: this.tracks[i].height } }).appendTo(this.labelContainer);
-      }
+      this.tracks[i] = new CBrowse.Track[this.tracks[i].type]($.extend(this.tracks[i], defaults, { index: i }));
     }
   },
   
@@ -278,7 +307,9 @@ var CBrowse = Base.extend({
     $.when.apply($, $.map(this.tracks, function (track) { return track.makeImage(start, end, width, left); })).done(function () {
       var cls = 'scale_' + cBrowse.scale.toString().replace('.', '_');
       
-      $($.map(arguments, function (a) { return a.target; })).show().parent().addClass(cls);
+      $($.map(arguments, function (a) { return a.target; })).show().parent().addClass(cls).css('backgroundImage', function () { return $(this).data('bg'); });
+      
+      cBrowse.checkTrackSize();
       
       cBrowse.prev.history = cBrowse.start + ':' + cBrowse.end;
       
