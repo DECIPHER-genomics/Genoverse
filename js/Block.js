@@ -7,10 +7,10 @@ CBrowse.Track.Block = CBrowse.Track.extend({
   positionData: function (data, edges, func) {
     var feature, start, end, x, y, width, bounds, bump, j, k, noLabel;
     var labels   = this.forceLabels || (data.length && data[0].label && this.cBrowse.length < 1e7) ? 1 : 0;
-    var height   = this.height;
+    var height   = this.initialHeight;
     var scale    = this.scale > 1 ? this.scale : 1;
     var seen     = {};
-    var features = {};
+    var features = { fill: {}, border: {}, label: {} };
     
     this.colorOrder = [];
     
@@ -25,13 +25,13 @@ CBrowse.Track.Block = CBrowse.Track.extend({
       
       start   = feature.scaledStart - edges.start;
       end     = feature.scaledEnd   - edges.start;
-      x       = feature.scaledStart;
-      y       = feature.y || 0;
       bounds  = feature.bounds;
       width   = start > end ? 1 : (end - start) || scale;
       noLabel = !feature.label || (scale > 1 && start < 0);
       
       if (!bounds) {
+        x      = feature.scaledStart;
+        y      = feature.y || 0;
         bounds = [{ x: x, y: y, w: width, h: this.featureHeight + (2 * labels) }];
         
         if (labels) {
@@ -56,17 +56,30 @@ CBrowse.Track.Block = CBrowse.Track.extend({
             }
           } while (bump);
         }
+        
+        this.rtree.insert(bounds[0], feature);
+        
+        if (labels) {
+          bounds[1].h += 2;
+          this.rtree.insert(bounds[1], feature);
+        }
       }
       
-      if (!features[feature.color]) {
-        features[feature.color] = [];
+      if (!features.fill[feature.color]) {
+        features.fill[feature.color] = [];
         
         if (feature.order) {
           this.colorOrder[feature.order] = feature.color;
         }
       }
       
-      this.rtree.insert(bounds[0], feature);
+      if (feature.borderColor && !features.border[feature.borderColor]) {
+        features.border[feature.borderColor] = [];
+      }
+      
+      if (feature.labelOverlay && !features.label[feature.labelColor || feature.color]) {
+        features.label[feature.labelColor || feature.color] = [];
+      }
       
       if (scale > 1) {
         start = Math.max(start, 0);
@@ -74,28 +87,31 @@ CBrowse.Track.Block = CBrowse.Track.extend({
         width = end - start;
       }
       
-      features[feature.color].push([ 'fillRect', [ start, bounds[0].y, width, this.featureHeight ] ]);
+      features.fill[feature.color].push([ 'fillRect', [ start, bounds[0].y, width, this.featureHeight ] ]);
       
-      if (labels) {
-        bounds[1].h += 2;
-        this.rtree.insert(bounds[1], feature);
-        
-        if (!noLabel) {
-          features[feature.color].push([ 'fillText', [ feature.label, start, bounds[1].y ] ]);
+      if (feature.borderColor) {
+        features.border[feature.borderColor].push([ 'strokeRect', [ Math.round(start), Math.round(bounds[0].y) + 0.5, Math.round(width), Math.round(this.featureHeight) ] ]);
+      }
+      
+      if (labels && !noLabel) {
+        if (!feature.labelOverlay) {
+          features.fill[feature.color].push([ 'fillText', [ feature.label, start, bounds[1].y ], feature.labelColor ]);
+        } else if (bounds[1].w < bounds[0].w) {
+          features.label[feature.labelColor || feature.color].push([ 'fillText', [ feature.label, start + (feature.textAlign === 'center' ? (bounds[0].w - bounds[1].w) / 2 : 0), bounds[0].h / 2 ] ]);
         }
       }
       
-      height = Math.max(bounds[labels].y + bounds[labels].h, height);
-      
-      if (
-        (feature.scaledStart + Math.max(width, labels ? bounds[1].w : 0) > edges.end) ||
-        (feature.scaledStart < edges.start)
-      ) {
+      if ((feature.scaledStart + Math.max(width, labels ? bounds[1].w : 0) > edges.end) || (feature.scaledStart < edges.start)) {
         this.overlaps[func]($.extend({}, feature, { bounds: bounds }));
       }
+      
+      feature.bottom = bounds[labels].y + bounds[labels].h;
+      
+      height = Math.max(feature.bottom, height);
     }
     
     this.fullHeight = height;
+    this.maxHeight  = Math.max(height, this.maxHeight);
     
     return features;
   }
