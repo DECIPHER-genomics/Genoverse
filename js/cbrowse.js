@@ -9,8 +9,10 @@ var CBrowse = Base.extend({
     trackSpacing     : 5,
     tracks           : [],
     colors           : {
-      foreground: '#000000',
-      background: '#FFFFFF'
+      background     : '#FFFFFF',
+      majorScaleLine : '#CCCCCC',
+      minorScaleLine : '#E5E5E5',
+      sortHandle     : '#CFD4E7'
     }
   },
 
@@ -43,7 +45,7 @@ var CBrowse = Base.extend({
       helper      : 'clone',
       placeholder : 'label',
       start       : function (e, ui) {
-        ui.placeholder.css({ height: ui.item.height(), visibility: 'visible', background: '#CFD4E7' }).html(ui.item.html());
+        ui.placeholder.css({ height: ui.item.height(), visibility: 'visible', background: cBrowse.colors.sortHandle }).html(ui.item.html());
         ui.helper.hide();
       },
       update      : function (e, ui) {
