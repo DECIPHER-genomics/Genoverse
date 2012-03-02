@@ -6,7 +6,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.Block.extend({
   },
   
   constructor: function (config) {
-    this.guideLines  = true;
+    this.scaleLines  = true;
     this.forceLabels = true;
     this.labelUnits  = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
     this.bump        = false;
@@ -53,8 +53,8 @@ CBrowse.Track.Scalebar = CBrowse.Track.Block.extend({
     this.seen      = {};
     this.features  = new RTree();
     
-    if (this.guideLines) {
-      this.cBrowse.guideLines = { major: {}, minor: {} };
+    if (this.scaleLines) {
+      this.cBrowse.scaleLines = { major: {}, minor: {} };
     }
   },
   
@@ -97,8 +97,8 @@ CBrowse.Track.Scalebar = CBrowse.Track.Block.extend({
         features.push(feature);
       }
       
-      if (this.guideLines) {
-        this.cBrowse.guideLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
+      if (this.scaleLines) {
+        this.cBrowse.scaleLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
       }
     }
     
@@ -147,7 +147,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.Block.extend({
 
 CBrowse.Track.ScalebarBottom = CBrowse.Track.Scalebar.extend({
   constructor: function (config) {
-    this.base($.extend(config, { guideLines: false }));
+    this.base($.extend(config, { scaleLines: false }));
   },
   
   beforeDraw: $.noop
