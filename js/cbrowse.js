@@ -57,7 +57,29 @@ var CBrowse = Base.extend({
         return false;
       },
       mousewheel: function (e, delta) {
-        cBrowse[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - cBrowse.container.offset().left - cBrowse.labelWidth);
+        clearTimeout(cBrowse.zoomDeltaTimeout);
+        clearTimeout(cBrowse.zoomTimeout);
+        
+        cBrowse.zoomDeltaTimeout = setTimeout(function () {
+          if (delta > 0) {
+            cBrowse.zoomInHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
+              width: 80, height: 80, top: '-=20', left: '-=20'
+            }, {
+              complete: function () { $(this).css({ width: 40, height: 40, display: 'none' }); }
+            });
+          } else {
+            cBrowse.zoomOutHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
+              width: 40, height: 40, top: '+=10', left: '+=10'
+            }, {
+              complete: function () { $(this).css({ width: 80, height:80, display: 'none' }); }
+            });
+          }
+        }, 100);
+        
+        cBrowse.zoomTimeout = setTimeout(function () {
+          cBrowse[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - cBrowse.container.offset().left - cBrowse.labelWidth);
+        }, 300);
+        
         return false;
       }
     }, '.image_container');
@@ -80,6 +102,21 @@ var CBrowse = Base.extend({
     this.setHistory(true);
     this.setTracks();
     this.makeImage();
+    
+    this.zoomInHighlight = $([
+      '<div class="canvas_zoom i">',
+        '<div class="t l h"></div>',
+        '<div class="t r h"></div>',
+        '<div class="t l v"></div>',
+        '<div class="t r v"></div>',
+        '<div class="b l h"></div>',
+        '<div class="b r h"></div>',
+        '<div class="b l v"></div>',
+        '<div class="b r v"></div>',
+      '</div>'
+    ].join('')).appendTo('body');
+    
+    this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('i o').appendTo('body');
   },
   
   reset: function () {
