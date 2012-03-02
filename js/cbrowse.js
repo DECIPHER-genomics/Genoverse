@@ -163,7 +163,7 @@ var CBrowse = Base.extend({
   },
   
   mousemove: function (e) {
-    var star, end;
+    var start, end;
     
     this.left = e.pageX - this.dragOffset;
     
