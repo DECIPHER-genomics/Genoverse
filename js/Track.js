@@ -155,7 +155,7 @@ CBrowse.Track = Base.extend({
   },
   
   beforeDraw: function (image) {
-    var colors      = { major: [ '#cccccc', this.cBrowse.majorUnit ], minor: [ '#e5e5e5', this.cBrowse.minorUnit ] };
+    var colors      = { major: [ this.cBrowse.colors.majorScaleLine, this.cBrowse.majorUnit ], minor: [ this.cBrowse.colors.minorScaleLine, this.cBrowse.minorUnit ] };
     var scaledStart = Math.round(image.start * this.scale) + 1;
     var x, c;
     
@@ -163,7 +163,7 @@ CBrowse.Track = Base.extend({
       this.context.fillStyle = colors[c][0];
       
       for (x = Math.max(image.start - (image.start % colors[c][1]), 0); x < image.end + this.cBrowse.minorUnit; x += colors[c][1]) {
-        this.context.fillRect((this.cBrowse.guideLines[c][x] || 0) - scaledStart, 0, 1, this.fullHeight);
+        this.context.fillRect((this.cBrowse.scaleLines[c][x] || 0) - scaledStart, 0, 1, this.fullHeight);
       }
     }
     
