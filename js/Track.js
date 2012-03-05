@@ -49,7 +49,7 @@ CBrowse.Track = Base.extend({
     }
     
     this.container.on('mouseup', '.image_container', function (e) {
-      if ((e.which && e.which !== 1) || (e.pageX - track.cBrowse.dragOffset !== 0)) {
+      if ((e.which && e.which !== 1) || (track.cBrowse.prev.left !== track.cBrowse.left)) {
         return; // Only show menus on left click when not dragging
       }
       
