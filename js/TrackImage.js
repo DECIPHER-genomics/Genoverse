@@ -22,7 +22,7 @@ CBrowse.TrackImage = Base.extend({
         url      : this.track.url + this.getQueryString(),
         data     : this.track.urlParams,
         context  : this,
-        dataType : 'json',
+        dataType : this.track.url.match(/^http/) ? 'jsonp' : 'json',
         success  : function (json) {
           this.track.setFeatures(json);
           this.draw(this.track.positionData(this.track.addOverlaps(this.scaleFeatures(json.features)), this.edges, this.func));
