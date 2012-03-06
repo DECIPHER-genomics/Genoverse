@@ -424,8 +424,9 @@ var CBrowse = Base.extend({
     if (history) {
       var images = $('.track_container ' + history.images, this.container);
       
-      if (images.length) { 
+      if (images.length) {
         $('.track_container', this.container).css('left', history.left).children().hide();
+        this.checkTrackSize();
         images.show();
         
         this.left     = history.left;
