@@ -15,9 +15,11 @@ var CBrowse = Base.extend({
       sortHandle     : '#CFD4E7'
     }
   },
-
+  
   constructor: function (config) {
-    var cBrowse = this;
+    if (!this.supported()) {
+      this.die('Your browser does not support this functionality');
+    }
     
     $.extend(this, this.defaults, config);
     
@@ -446,6 +448,15 @@ var CBrowse = Base.extend({
     return (window.location.search + '&').replace(this.paramRegex, '$1$2=$3$4' + this.start + '$6' + this.end + '$8').slice(0, -1);
   },
   
-  decorateTrack : $.noop, // implement in plugin
-  makeMenu      : $.noop  // implement in plugin
+  supported: function () {
+    var elem = document.createElement('canvas');
+    return !!(elem.getContext && elem.getContext('2d') && typeof window.history.pushState === 'function');
+  },
+  
+  die: function (error) {
+    alert(error);
+    throw(error);
+  },
+  
+  makeMenu: $.noop // implement in plugin
 });
