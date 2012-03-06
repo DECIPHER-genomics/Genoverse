@@ -204,7 +204,7 @@ var CBrowse = Base.extend({
           height = this.tracks[i].initialHeight;
         }
         
-        height = Math.max.apply(Math, $.map(this.tracks[i].rtree.search({
+        height = Math.max.apply(Math, $.map(this.tracks[i].featurePositions.search({
           x: this.scaledStart,
           w: this.width,
           y: 0,
@@ -323,7 +323,11 @@ var CBrowse = Base.extend({
     };
     
     for (var i = 0; i < this.tracks.length; i++) {
-      this.tracks[i] = new CBrowse.Track[this.tracks[i].type]($.extend(this.tracks[i], defaults, { index: i }));
+      if (this.tracks[i].type) {
+        this.tracks[i] = new CBrowse.Track[this.tracks[i].type]($.extend(this.tracks[i], defaults, { index: i }));
+      } else {
+        this.tracks[i] = new CBrowse.Track($.extend(this.tracks[i], defaults, { index: i }));
+      }
     }
   },
   

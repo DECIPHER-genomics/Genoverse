@@ -1,6 +1,7 @@
 CBrowse.Track = Base.extend({
   defaults: {
-    height: 10
+    height : 10,
+    bump   : false
   },
   
   constructor: function (config) {
@@ -55,7 +56,7 @@ CBrowse.Track = Base.extend({
       
       var x        = e.pageX - track.container.parent().offset().left + track.cBrowse.scaledStart;
       var y        = e.pageY - track.container.offset().top;
-      var features = track.rtree.search({ x: x, y: y, w: 1, h: 1 });
+      var features = track.featurePositions.search({ x: x, y: y, w: 1, h: 1 });
       var i        = features.length;
       var seen     = {};
       
@@ -130,16 +131,16 @@ CBrowse.Track = Base.extend({
     
     if (!this.scaleSettings[this.scale]) {
       this.scaleSettings[this.scale] = {
-        offsets       : { right: this.width, left: -this.width },
-        rtree         : new RTree(),
-        imgContainers : [],
-        overlaps      : []
+        offsets          : { right: this.width, left: -this.width },
+        featurePositions : new RTree(),
+        imgContainers    : [],
+        overlaps         : []
       };
     }
     
     var scaleSettings = this.scaleSettings[this.scale];
     
-    $.each([ 'offsets', 'rtree', 'imgContainers', 'overlaps' ], function () {
+    $.each([ 'offsets', 'featurePositions', 'imgContainers', 'overlaps' ], function () {
       track[this] = scaleSettings[this];
     });
     
@@ -152,6 +153,118 @@ CBrowse.Track = Base.extend({
     while (i--) {
       this.features.insert({ x: data.features[i].start, y: 0, w: data.features[i].end - data.features[i].start, h: 1 }, data.features[i]);
     }
+  },
+  
+  positionData: function (data, edges, func) {
+    var feature, start, end, x, y, width, bounds, bump, j, k, noLabel;
+    var maxIndex = this.forceLabels || (data.length && data[0].label && this.cBrowse.length < 1e7) ? 1 : 0;
+    var height   = this.initialHeight;
+    var scale    = this.scale > 1 ? this.scale : 1;
+    var seen     = {};
+    var features = { fill: {}, border: {}, label: {} };
+    
+    this.colorOrder = [];
+    
+    for (var i = 0; i < data.length; i++) {
+      feature = data[i];
+      
+      if (seen[feature.id]) {
+        continue;
+      }
+      
+      seen[feature.id] = 1;
+      
+      start   = feature.scaledStart - edges.start;
+      end     = feature.scaledEnd   - edges.start;
+      bounds  = feature.bounds;
+      width   = start > end ? 1 : (end - start) || scale;
+      noLabel = !feature.label || (scale > 1 && start < 0);
+      
+      if (!bounds) {
+        x      = feature.scaledStart;
+        y      = feature.y || 0;
+        bounds = [{ x: x, y: y, w: width, h: this.featureHeight + maxIndex + 1 }];
+        
+        if (maxIndex) {
+          bounds.push({ x: x, y: y + bounds[0].h, w: Math.ceil(this.context.measureText(feature.label).width) + 1, h: this.fontHeight + 2 });
+        }
+        
+        if (this.bump) {
+          do {
+            bump = false;
+            j    = bounds.length;
+            
+            while (j--) {
+              if ((this.featurePositions.search(bounds[j])[0] || feature).id !== feature.id) {
+                k = bounds.length;
+                
+                while (k--) {
+                  bounds[k].y += bounds[j].h;
+                }
+                
+                bump = true;
+              }
+            }
+          } while (bump);
+        }
+        
+        this.featurePositions.insert(bounds[0], feature);
+        
+        if (maxIndex) {
+          bounds[1].h += 2;
+          this.featurePositions.insert(bounds[1], feature);
+        }
+      }
+      
+      if (!features.fill[feature.color]) {
+        features.fill[feature.color] = [];
+        
+        if (feature.order) {
+          this.colorOrder[feature.order] = feature.color;
+        }
+      }
+      
+      if (feature.borderColor && !features.border[feature.borderColor]) {
+        features.border[feature.borderColor] = [];
+      }
+      
+      if (feature.labelOverlay && !features.label[feature.labelColor || feature.color]) {
+        features.label[feature.labelColor || feature.color] = [];
+      }
+      
+      if (scale > 1 && start < end) {
+        start = Math.max(start, 0);
+        end   = Math.min(end, this.cBrowse.fullWidth);
+        width = end - start;
+      }
+      
+      features.fill[feature.color].push([ 'fillRect', [ start, bounds[0].y, width, this.featureHeight ] ]);
+      
+      if (feature.borderColor) {
+        features.border[feature.borderColor].push([ 'strokeRect', [ Math.round(start), Math.round(bounds[0].y) + 0.5, Math.round(width), Math.round(this.featureHeight) ] ]);
+      }
+      
+      if (maxIndex && !noLabel) {
+        if (!feature.labelOverlay) {
+          features.fill[feature.color].push([ 'fillText', [ feature.label, start, bounds[1].y ], feature.labelColor ]);
+        } else if (bounds[1].w < bounds[0].w) {
+          features.label[feature.labelColor || feature.color].push([ 'fillText', [ feature.label, start + (feature.textAlign === 'center' ? (bounds[0].w - bounds[1].w) / 2 : 0), bounds[0].h / 2 ] ]);
+        }
+      }
+      
+      if ((feature.scaledStart + Math.max(width, maxIndex ? bounds[1].w : 0) > edges.end) || (feature.scaledStart < edges.start)) {
+        this.overlaps[func]($.extend({}, feature, { bounds: bounds }));
+      }
+      
+      feature.bottom = bounds[maxIndex].y + bounds[maxIndex].h;
+      
+      height = Math.max(feature.bottom, height);
+    }
+    
+    this.fullHeight = height;
+    this.maxHeight  = Math.max(height, this.maxHeight);
+    
+    return features;
   },
   
   beforeDraw: function (image) {
@@ -175,6 +288,5 @@ CBrowse.Track = Base.extend({
     }
   },
   
-  positionData : $.noop, // implement in children
-  afterDraw    : $.noop  // implement in children
+  afterDraw: $.noop  // implement in children
 });

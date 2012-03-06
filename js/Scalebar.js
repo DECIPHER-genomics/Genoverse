@@ -1,4 +1,4 @@
-CBrowse.Track.Scalebar = CBrowse.Track.Block.extend({
+CBrowse.Track.Scalebar = CBrowse.Track.extend({
   defaults: {
     height        : 20,
     featureHeight : 3,

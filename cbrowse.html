@@ -10,7 +10,6 @@
     <script type="text/javascript" src="js/chromosomes.js"></script>
     <script type="text/javascript" src="js/Cbrowse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script>
-    <script type="text/javascript" src="js/Block.js"></script>
     <script type="text/javascript" src="js/Scalebar.js"></script>
     <script type="text/javascript" src="js/TrackImage.js"></script>
   </head>
@@ -19,25 +18,18 @@
   <script>
     $(function () {
       new CBrowse({
-        container  : $('#container'),
-        chromosome : chromosomes[13],
-        tracks     : [{
+        container      : $('#container'),
+        chromosomeSize : 115169878, // chromosome 13
+        tracks         : [{
           type: 'Scalebar'
         }, {
           name          : 'Genes',
-          type          : 'Block',
           url           : 'data/example/genes.json',
           height        : 100,
           featureHeight : 6,
           bump          : true
-        },/* {
-          name   : 'Variations',
-          type   : 'Block',
-          url    : 'data/example/snps.json',
-          height : 12
-        },*/ {
-          type       : 'Scalebar',
-          guideLines : false
+        }, {
+          type: 'ScalebarBottom'
         }]
       });
     });
