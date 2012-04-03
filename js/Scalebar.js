@@ -1,8 +1,9 @@
 CBrowse.Track.Scalebar = CBrowse.Track.extend({
-  defaults: {
+  config: {
     height        : 20,
     featureHeight : 3,
-    color         : '#000000'
+    color         : '#000000',
+    bumpSpacing   : 1,
   },
   
   constructor: function (config) {
@@ -84,7 +85,8 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
       }
       
       if (major) {
-        feature.label = this.formatLabel(x);
+        feature.label      = this.formatLabel(x);
+        feature.labelColor = this.color;
         
         if (!feature.end) {
           feature.start = x;
@@ -129,6 +131,11 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     this.context.fillRect(0, this.featureHeight, image.width, 1);
   },
   
+  drawBackgroundColor: function (scaledStart, height) {
+    this.context.fillStyle = this.cBrowse.colors.background;
+    this.context.fillRect(0, 0, this.width, height);
+  },
+  
   formatLabel: function (x) {
     var str = x.toString();
     
@@ -150,5 +157,5 @@ CBrowse.Track.ScalebarBottom = CBrowse.Track.Scalebar.extend({
     this.base($.extend(config, { scaleLines: false }));
   },
   
-  beforeDraw: $.noop
+  drawBackground: $.noop
 });
