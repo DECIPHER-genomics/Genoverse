@@ -6,7 +6,7 @@ var CBrowse = Base.extend({
     labelWidth       : 134,
     buffer           : 1,
     longestLabel     : 30,
-    trackSpacing     : 5,
+    trackSpacing     : 2,
     tracks           : [],
     colors           : {
       background     : '#FFFFFF',
@@ -53,7 +53,9 @@ var CBrowse = Base.extend({
       update      : function (e, ui) {
         cBrowse.tracks[ui.item.data('index')].container[ui.item[0].previousSibling ? 'insertAfter' : 'insertBefore'](cBrowse.tracks[$(ui.item[0].previousSibling || ui.item[0].nextSibling).data('index')].container);
       }
-    })
+    });
+    
+    this.wrapper = $('<div class="wrapper">').appendTo(this.container);
     
     this.container.width(width).on({
       mousedown: function (e) {
@@ -86,7 +88,7 @@ var CBrowse = Base.extend({
         
         return false;
       }
-    }, '.image_container');
+    }, '.image_container, .overlay');
     
     $(document).on('mouseup', function (e) {
       if (cBrowse.dragging) {
@@ -103,7 +105,7 @@ var CBrowse = Base.extend({
     var coords = (window.location.search + '&').match(this.paramRegex);
     
     this.setRange(coords[5], coords[7], false);
-    this.setHistory(true);
+    this.setHistory('replaceState');
     this.setTracks();
     this.makeImage();
     
@@ -155,6 +157,11 @@ var CBrowse = Base.extend({
     
     $(document).off('mousemove', this.dragEvent);
     
+    $('.overlay', this.wrapper).css({
+      left       : function (i, left) { return parseInt(left, 10) + parseInt($(this).css('marginLeft'), 10); },
+      marginLeft : 0
+    });
+    
     if (this.left !== this.prev.left && update !== false) {
       this.updateURL();
     }
@@ -187,6 +194,7 @@ var CBrowse = Base.extend({
     }
     
     $('.track_container', this.container).css('left', this.left);
+    $('.overlay', this.wrapper).css('marginLeft', this.left - this.prev.left);
     
     this.setRange(start, end, false);
     
@@ -197,21 +205,15 @@ var CBrowse = Base.extend({
   },
   
   checkTrackSize: function () {
-    var zooming = this.prev.scale && this.scale !== this.prev.scale;
+    var bounds = { x: this.scaledStart, w: this.width, y: 0 };
     var height;
     
     for (var i = 0; i < this.tracks.length; i++) {
       if (!this.tracks[i].fixedHeight) {
-        if (zooming) {
-          height = this.tracks[i].initialHeight;
-        }
-        
-        height = Math.max.apply(Math, $.map(this.tracks[i].featurePositions.search({
-          x: this.scaledStart,
-          w: this.width,
-          y: 0,
-          h: this.tracks[i].maxHeight
-        }), function (feature) { return feature.bottom; }).concat(this.tracks[i].initialHeight));
+        bounds.h = this.tracks[i].maxHeight;
+        height   = this.tracks[i].separateLabels ?
+          Math.max.apply(Math, $.map(this.tracks[i].labelPositions.search(bounds),   function (feature) { return feature.labelBottom; }).concat(this.tracks[i].initialHeight)) + this.tracks[i].maxFeaturesHeight :
+          Math.max.apply(Math, $.map(this.tracks[i].featurePositions.search(bounds), function (feature) { return feature.bottom;      }).concat(this.tracks[i].initialHeight));
         
         if (!this.dragging) {
           if (this.tracks[i].autoHeight) {
@@ -251,6 +253,7 @@ var CBrowse = Base.extend({
       end = this.chromosomeSize;
     }
     
+    this.abortAjax();
     this.setRange(start, end);
   },
   
@@ -297,20 +300,32 @@ var CBrowse = Base.extend({
     this.scaledStart = this.start * this.scale;
     
     if (this.prev.scale !== this.scale) {
-      this.edges     = { start: 9e99, end: -9e99 };
-      this.offsets   = { right: this.width, left: -this.width };
-      this.left      = 0;
-      this.prev.left = 0;
-      this.minLeft   = Math.round((this.end   - this.chromosomeSize) * this.scale);
-      this.maxLeft   = Math.round((this.start - 1) * this.scale);
+      this.edges       = { start: 9e99, end: -9e99 };
+      this.offsets     = { right: this.width, left: -this.width };
+      this.left        = 0;
+      this.prev.left   = 0;
+      this.minLeft     = Math.round((this.end   - this.chromosomeSize) * this.scale);
+      this.maxLeft     = Math.round((this.start - 1) * this.scale);
+      this.scrollStart = 'ss_' + this.start + '_' + this.end;
       
       if (this.prev.scale) {
-        this.menuContainer.children().hide();
-        
         var i = this.tracks.length;
+        
+        this.menuContainer.children().hide();
         
         while (i--) {
           this.tracks[i].setScale();
+        }
+        
+        if (this.backgrounds) {
+          for (var c in this.backgrounds) {
+            i = this.backgrounds[c].length;
+            
+            while (i--) {
+              this.backgrounds[c][i].scaledStart = this.backgrounds[c][i].start * this.scale;
+              this.backgrounds[c][i].scaledEnd   = this.backgrounds[c][i].end   * this.scale;
+            }
+          }
         }
       }
     }
@@ -319,7 +334,7 @@ var CBrowse = Base.extend({
   setTracks: function () {
     var defaults = {
       cBrowse         : this,
-      canvasContainer : $('<div class="wrapper">').appendTo(this.container),
+      canvasContainer : this.wrapper,
       paramRegex      : this.paramRegex,
       width           : this.width
     };
@@ -359,25 +374,42 @@ var CBrowse = Base.extend({
     
     var edges   = $.extend({}, this.edges);
     var offsets = $.extend({}, this.offsets);
+    var overlay = $('<div class="overlay">').prependTo(this.wrapper).css(dir, left ? width - (Math.abs(left) % width) : 0).width(width);
+    var cls     = this.scrollStart;
     
     $.when.apply($, $.map(this.tracks, function (track) { return track.makeImage(start, end, width, left); })).done(function () {
-      var cls = 'scale_' + cBrowse.scale.toString().replace('.', '_');
+      var deferreds = [];
       
-      $($.map(arguments, function (a) { return a.target; })).show().parent().addClass(cls).css('backgroundImage', function () { return $(this).data('bg'); });
+      $($.map(arguments, function (a) { return a.target; })).show().parent().addClass(cls).each(function () {
+        var dfd    = $.Deferred();
+        var img    = $(this).data('img');
+        var height = img.track.fullBackground && img.track.features.search({ x: start, y: 0, w: end - start, h: 1 }).length ? 'auto' : '100%'; 
+        
+        $('<img class="bg" src="' + img.drawBackground() + '"/>').height(height).data('parent', this).load(dfd.resolve);
+        
+        deferreds.push(dfd);
+      });
       
-      cBrowse.checkTrackSize();
+      $.when.apply($, deferreds).done(function (a) {
+        $.each(arguments, function () {
+          var img = $(this.target);
+          img.prependTo(img.data('parent'));
+          img = null;
+        });
+        
+        overlay.remove();
+        overlay = null;
+      });
       
+      cBrowse.data.start   = Math.min(start, cBrowse.data.start);
+      cBrowse.data.end     = Math.max(end,   cBrowse.data.end);
       cBrowse.prev.history = cBrowse.start + ':' + cBrowse.end;
       
-      cBrowse.history[cBrowse.prev.history] = {
-        left    : cBrowse.left,
-        images  : '.' + cls,
-        edges   : edges,
-        offsets : offsets
-      };
-      
-      cBrowse.data.start = Math.min(start, cBrowse.data.start);
-      cBrowse.data.end   = Math.max(end,   cBrowse.data.end);
+      cBrowse.checkTrackSize();
+      cBrowse.setHistory(false, edges, offsets);
+    }).fail(function () {
+      overlay.remove();
+      overlay = null;
     });
   },
   
@@ -389,21 +421,23 @@ var CBrowse = Base.extend({
     }
   },
   
-  setHistory: function (replace) {
-    if (this.prev.location === this.start + ':' + this.end) {
-      return;
+  setHistory: function (action, edges, offsets) {
+    if (action !== false) {
+      if (this.prev.location === this.start + ':' + this.end) {
+        return;
+      }
+      
+      this.prev.location = this.start + ':' + this.end;
+    
+      window.history[action || 'pushState']({}, '', this.getQueryString());
     }
-    
-    this.prev.location = this.start + ':' + this.end;
-    
-    window.history[replace ? 'replaceState' : 'pushState']({}, '', this.getQueryString());
     
     if (this.prev.history) {
       this.history[this.start + ':' + this.end] = {
         left    : this.left,
-        images  : '.scale_' + this.scale.toString().replace('.', '_'),
-        edges   : this.history[this.prev.history].edges,
-        offsets : this.history[this.prev.history].offsets
+        images  : this.scrollStart,
+        edges   : edges   || this.history[this.prev.history].edges,
+        offsets : offsets || this.history[this.prev.history].offsets
       };
     }
   },
@@ -424,7 +458,7 @@ var CBrowse = Base.extend({
     var history = this.history[this.start + ':' + this.end];
     
     if (history) {
-      var images = $('.track_container ' + history.images, this.container);
+      var images = $('.track_container .' + history.images, this.container);
       
       if (images.length) {
         $('.track_container', this.container).css('left', history.left).children().hide();
@@ -442,6 +476,16 @@ var CBrowse = Base.extend({
     }
     
     return false;
+  },
+  
+  abortAjax: function () {
+    var i = this.tracks.length;
+    
+    while (i--) {
+      if (this.tracks[i].ajax) {
+        this.tracks[i].ajax.abort();
+      }
+    }
   },
   
   getQueryString: function () {
