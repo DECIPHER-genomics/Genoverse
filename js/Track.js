@@ -11,9 +11,9 @@ CBrowse.Track = Base.extend({
     
     $.extend(this, this.defaults, this.config, config);
     
-    this.spacing           = typeof this.spacing === 'undefined' ? this.cBrowse.trackSpacing : this.spacing;
     this.featureHeight     = this.featureHeight || this.height;
-    this.fixedHeight       = typeof this.fixedHeight === 'undefined' ? this.featureHeight === this.height : this.fixedHeight;
+    this.spacing           = typeof this.spacing     === 'undefined' ? this.cBrowse.trackSpacing : this.spacing;
+    this.fixedHeight       = typeof this.fixedHeight === 'undefined' ? this.featureHeight === this.height && !(this.bump || this.bumpLabels) : this.fixedHeight;
     this.height           += this.spacing;
     this.canvas            = $('<canvas>').appendTo(this.canvasContainer);
     this.container         = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer),
@@ -38,6 +38,7 @@ CBrowse.Track = Base.extend({
     }
     
     if (!this.fixedHeight) {
+      this.autoHeight = typeof this.autoHeight === 'undefined' ? this.cBrowse.autoHeight : this.autoHeight;
       this.sizeHandle = $('<div class="size_handle"><div class="expand" title="Show all">+</div><div class="collapse" title="Collapse">-</div></div>').appendTo(this.label).children().on('click', function (e) {
         var height;
         
@@ -92,7 +93,7 @@ CBrowse.Track = Base.extend({
     this.height = height;
     
     this.container.height(height);
-    this.label.height(height);
+    this.label.height(height)[height < this.featureHeight ? 'hide' : 'show']();
   },
   
   makeImage: function (start, end, width, moved) {
@@ -171,7 +172,7 @@ CBrowse.Track = Base.extend({
   positionData: function (data, edges, func) {
     var feature, start, end, x, y, width, bounds, bump, depth, j, k, labelWidth, maxIndex;
     var showLabels   = this.forceLabels === true || !(this.maxLabelRegion && this.cBrowse.length > this.maxLabelRegion);
-    var height       = this.initialHeight;
+    var height       = 1;
     var labelsHeight = 1;
     var scale        = this.scale > 1 ? this.scale : 1;
     var seen         = {};
@@ -330,7 +331,7 @@ CBrowse.Track = Base.extend({
     
     this.featuresHeight    = height;
     this.labelsHeight      = labelsHeight;
-    this.fullHeight        = height + labelsHeight;
+    this.fullHeight        = Math.max(height, this.initialHeight) + labelsHeight;
     this.maxHeight         = Math.max(this.fullHeight, this.maxHeight);
     this.maxFeaturesHeight = Math.max(height, this.maxFeaturesHeight);
     

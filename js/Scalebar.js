@@ -4,6 +4,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     featureHeight : 3,
     color         : '#000000',
     bumpSpacing   : 1,
+    autoHeight    : false
   },
   
   constructor: function (config) {

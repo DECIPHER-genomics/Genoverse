@@ -212,8 +212,8 @@ var CBrowse = Base.extend({
       if (!this.tracks[i].fixedHeight) {
         bounds.h = this.tracks[i].maxHeight;
         height   = this.tracks[i].separateLabels ?
-          Math.max.apply(Math, $.map(this.tracks[i].labelPositions.search(bounds),   function (feature) { return feature.labelBottom; }).concat(this.tracks[i].initialHeight)) + this.tracks[i].maxFeaturesHeight :
-          Math.max.apply(Math, $.map(this.tracks[i].featurePositions.search(bounds), function (feature) { return feature.bottom;      }).concat(this.tracks[i].initialHeight));
+          Math.max.apply(Math, $.map(this.tracks[i].labelPositions.search(bounds),   function (feature) { return feature.labelBottom; }).concat(0)) + this.tracks[i].maxFeaturesHeight :
+          Math.max.apply(Math, $.map(this.tracks[i].featurePositions.search(bounds), function (feature) { return feature.bottom;      }).concat(0));
         
         if (!this.dragging) {
           if (this.tracks[i].autoHeight) {
