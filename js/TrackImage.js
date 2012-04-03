@@ -11,19 +11,35 @@ CBrowse.TrackImage = Base.extend({
       y: 0,
       w: this.end - this.bufferedStart,
       h: 1
-    }) : [];
+    }) : false;
     
-    this.image = $('<img />').load(deferred.resolve);
+    if (this.track.separateLabels) {
+      var deferreds = [];
+      
+      this.image = $('<img class="features" /><img class="labels" />').each(function () {
+        var dfd = $.Deferred();
+        $(this).load(dfd.resolve);
+        deferreds.push(dfd);
+      });
+      
+      $.when.apply($, deferreds).done(function () {
+        deferred.resolve({ target: $.map(arguments, function (a) { return a.target; }) });
+      });
+    } else {
+      this.image = $('<img />').load(deferred.resolve);
+    }
     
-    if (features.length) {
+    if (features || !this.track.url) {
       this.draw(this.track.positionData(this.track.addOverlaps(this.scaleFeatures(features.sort(function (a, b) { return a.start - b.start; }))), this.edges, this.func));
     } else {
-      $.ajax({
+      this.track.ajax = $.ajax({
         url      : this.track.url + this.getQueryString(),
         data     : this.track.urlParams,
         context  : this,
         dataType : this.track.url.match(/^http/) ? 'jsonp' : 'json',
+        error    : function () { deferred.reject(); },
         success  : function (json) {
+          delete this.track.ajax;
           this.track.setFeatures(json);
           this.draw(this.track.positionData(this.track.addOverlaps(this.scaleFeatures(json.features)), this.edges, this.func));
         }
@@ -49,34 +65,48 @@ CBrowse.TrackImage = Base.extend({
   },
   
   draw: function (features) {
+    var track = this.track;
     var i, color, labelColor;
     
-    if (!this.track.colorOrder.length) {
+    if (!track.colorOrder.length) {
       for (color in features.fill) {
-        this.track.colorOrder.push(color);
+        track.colorOrder.push(color);
       }
     }
     
-    this.track.canvas.attr({ width: this.width, height: this.track.fullHeight });
+    track.canvas.attr({ width: this.width, height: track.featuresHeight });
+    track.context.textBaseline = 'top';
     
-    this.track.context.textBaseline = 'top';
-    this.track.context.fillStyle    = this.background;
-    this.track.context.fillRect(0, 0, this.width, this.track.fullHeight);
+    track.beforeDraw(this);
     
-    this.track.beforeDraw(this);
-    
-    this.drawFeatures(features.fill,   'fillStyle', this.track.colorOrder);
+    this.drawFeatures(features.fill,   'fillStyle', track.colorOrder);
     this.drawFeatures(features.border, 'strokeStyle');
     
-    this.track.context.textBaseline = 'middle';
-    this.drawFeatures(features.label, 'fillStyle');
-    
-    this.track.afterDraw(this);
-    
-    this.container.append(this.image.attr('src', this.track.canvas[0].toDataURL()));
-    
-    if (!this.track.fixedHeight) {
-      this.drawBackground();
+    if (track.separateLabels) {
+      track.afterDraw(this);
+      
+      this.container.append(this.image.filter('.features').attr('src', track.canvas[0].toDataURL())).data('img', this);
+      
+      track.canvas.attr({ width: this.width, height: track.labelsHeight });
+      track.context.textBaseline = 'top';
+      
+      track.beforeDraw(this);
+      
+      this.drawFeatures(features.label, 'fillStyle');
+      
+      track.afterDraw(this);
+      
+      this.container.append(this.image.filter('.labels').attr('src', track.canvas[0].toDataURL()).css('top', track.maxFeaturesHeight).load(function () {
+        $(this).parent().siblings().children('.labels').css('top', track.maxFeaturesHeight);
+      }));
+    } else {
+      track.context.textBaseline = 'middle'; // labels overlaid on features - use middle to position them correctly
+      
+      this.drawFeatures(features.label, 'fillStyle');
+      
+      track.afterDraw(this);
+      
+      this.container.append(this.image.attr('src', track.canvas[0].toDataURL())).data('img', this);
     }
   },
   
@@ -100,7 +130,6 @@ CBrowse.TrackImage = Base.extend({
       if (color) {
         this.track.context[style] = color;
         
-        
         i = features[color].length;
         
         while (i--) {
@@ -111,11 +140,13 @@ CBrowse.TrackImage = Base.extend({
   },
   
   drawBackground: function () {
-    this.track.canvas.attr({ width: this.width, height: 100 });
-    this.track.context.fillStyle = this.background;
-    this.track.context.fillRect(0, 0, this.width, 100);
-    this.track.beforeDraw(this);
+    var height = this.track.fullBackground ? this.track.fullHeight : 1;
     
-    this.container.data('bg', 'url(' + this.track.canvas[0].toDataURL() + ')');
+    this.track.canvas.attr({ width: this.width, height: height });
+    this.track.context.fillStyle = this.background;
+    this.track.context.fillRect(0, 0, this.width, height);
+    this.track.drawBackground(this, height);
+    
+    return this.track.canvas[0].toDataURL();
   }
 });
