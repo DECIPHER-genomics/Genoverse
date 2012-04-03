@@ -7,6 +7,14 @@
   border-left: 1px solid black;
   overflow-x: hidden;
   position: relative;
+  background: #ccc;
+}
+
+.canvas_container .wrapper .overlay {
+  position: absolute;
+  background: #ccc;
+  height: 100%;
+  z-index: 1;
 }
 
 .canvas_container canvas {
@@ -23,11 +31,17 @@
   height: 100%;
   overflow: hidden;
   position: absolute;
-  background: #ccc repeat-y top left;
+  background: #ccc;
 }
 
 .canvas_container .track_container .image_container img {
   display: none;
+  position: absolute;
+}
+
+.canvas_container .track_container .image_container img.bg {
+  display: block;
+  width: 100%;
 }
 
 .canvas_container .size_handle {
@@ -65,9 +79,10 @@
   font-size: 11px;
   list-style-image: none;
   cursor: pointer;
+  white-space: nowrap;
 }
 
-.canvas_zoom         { position: absolute; display: none; }
+.canvas_zoom         { position: absolute; display: none; z-index: 2; }
 .canvas_zoom.i       { width: 40px; height: 40px; }
 .canvas_zoom.o       { width: 80px; height: 80px; }
 .canvas_zoom .h      { position: absolute; height: 2px;  width: 10px; background: red; }
