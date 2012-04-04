@@ -18,7 +18,7 @@ CBrowse.TrackImage = Base.extend({
       
       this.image = $('<img class="features" /><img class="labels" />').each(function () {
         var dfd = $.Deferred();
-        $(this).load(dfd.resolve);
+        $(this).load(dfd.resolve).data('deferred', dfd);
         deferreds.push(dfd);
       });
       
@@ -26,7 +26,7 @@ CBrowse.TrackImage = Base.extend({
         deferred.resolve({ target: $.map(arguments, function (a) { return a.target; }) });
       });
     } else {
-      this.image = $('<img />').load(deferred.resolve);
+      this.image = $('<img />').load(deferred.resolve).data('deferred', deferred);
     }
     
     if (features || !this.track.url) {
@@ -66,12 +66,16 @@ CBrowse.TrackImage = Base.extend({
   
   draw: function (features) {
     var track = this.track;
-    var i, color, labelColor;
+    var i, color, labelColor, labels;
     
     if (!track.colorOrder.length) {
       for (color in features.fill) {
         track.colorOrder.push(color);
       }
+    }
+    
+    if (track.featuresHeight === 0) {
+      return this.image.each(function () { $(this).data('deferred').resolve({ target: this }); });
     }
     
     track.canvas.attr({ width: this.width, height: track.featuresHeight });
@@ -83,9 +87,15 @@ CBrowse.TrackImage = Base.extend({
     this.drawFeatures(features.border, 'strokeStyle');
     
     if (track.separateLabels) {
+      labels = this.image.filter('.labels');
+      
       track.afterDraw(this);
       
       this.container.append(this.image.filter('.features').attr('src', track.canvas[0].toDataURL())).data('img', this);
+      
+      if (track.labelsHeight === 0) {
+        return labels.data('deferred').resolve({ target: labels });
+      }
       
       track.canvas.attr({ width: this.width, height: track.labelsHeight });
       track.context.textBaseline = 'top';
@@ -96,7 +106,7 @@ CBrowse.TrackImage = Base.extend({
       
       track.afterDraw(this);
       
-      this.container.append(this.image.filter('.labels').attr('src', track.canvas[0].toDataURL()).css('top', track.maxFeaturesHeight).load(function () {
+      this.container.append(labels.attr('src', track.canvas[0].toDataURL()).css('top', track.maxFeaturesHeight).load(function () {
         $(this).parent().siblings().children('.labels').css('top', track.maxFeaturesHeight);
       }));
     } else {

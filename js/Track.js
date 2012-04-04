@@ -12,8 +12,9 @@ CBrowse.Track = Base.extend({
     $.extend(this, this.defaults, this.config, config);
     
     this.featureHeight     = this.featureHeight || this.height;
-    this.spacing           = typeof this.spacing     === 'undefined' ? this.cBrowse.trackSpacing : this.spacing;
-    this.fixedHeight       = typeof this.fixedHeight === 'undefined' ? this.featureHeight === this.height && !(this.bump || this.bumpLabels) : this.fixedHeight;
+    this.separateLabels    = typeof this.separateLabels === 'undefined' ? !!this.depth : this.separateLabels;
+    this.spacing           = typeof this.spacing        === 'undefined' ? this.cBrowse.trackSpacing : this.spacing;
+    this.fixedHeight       = typeof this.fixedHeight    === 'undefined' ? this.featureHeight === this.height && !(this.bump || this.bumpLabels) : this.fixedHeight;
     this.height           += this.spacing;
     this.canvas            = $('<canvas>').appendTo(this.canvasContainer);
     this.container         = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer),
@@ -21,7 +22,6 @@ CBrowse.Track = Base.extend({
     this.context           = this.canvas[0].getContext('2d');
     this.fontHeight        = parseInt(this.context.font, 10);
     this.fontWidth         = this.context.measureText('W').width;
-    this.separateLabels    = this.separateLabels || !!this.depth;
     this.initialHeight     = this.height;
     this.maxHeight         = this.height;
     this.maxFeaturesHeight = 0;
@@ -172,8 +172,8 @@ CBrowse.Track = Base.extend({
   positionData: function (data, edges, func) {
     var feature, start, end, x, y, width, bounds, bump, depth, j, k, labelWidth, maxIndex;
     var showLabels   = this.forceLabels === true || !(this.maxLabelRegion && this.cBrowse.length > this.maxLabelRegion);
-    var height       = 1;
-    var labelsHeight = 1;
+    var height       = 0;
+    var labelsHeight = 0;
     var scale        = this.scale > 1 ? this.scale : 1;
     var seen         = {};
     var features     = { fill: {}, border: {}, label: {} };
