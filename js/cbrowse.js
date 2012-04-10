@@ -37,6 +37,7 @@ var CBrowse = Base.extend({
     this.data           = { start: 9e99, end: -9e99 };
     this.history        = {};
     this.prev           = {};
+    this.backgrounds    = {};
     this.wrapperLeft    = this.labelWidth - width;
     this.width         -= this.labelWidth;
     this.fullWidth      = this.width * (2 * this.buffer + 1);
@@ -103,6 +104,8 @@ var CBrowse = Base.extend({
     };
     
     var coords = (window.location.search + '&').match(this.paramRegex);
+    
+    this.chromosome = coords[3];
     
     this.setRange(coords[5], coords[7], false);
     this.setHistory('replaceState');
@@ -206,16 +209,17 @@ var CBrowse = Base.extend({
   
   checkTrackSize: function () {
     var bounds = { x: this.scaledStart, w: this.width, y: 0 };
+    var scale  = this.scale;
     var height;
     
     for (var i = 0; i < this.tracks.length; i++) {
       if (!this.tracks[i].fixedHeight) {
-        bounds.h = this.tracks[i].maxHeight;
-        height   = this.tracks[i].separateLabels ?
-          Math.max.apply(Math, $.map(this.tracks[i].labelPositions.search(bounds),   function (feature) { return feature.labelBottom; }).concat(0)) + this.tracks[i].maxFeaturesHeight :
-          Math.max.apply(Math, $.map(this.tracks[i].featurePositions.search(bounds), function (feature) { return feature.bottom;      }).concat(0));
-        
         if (!this.dragging) {
+          bounds.h = this.tracks[i].heights.max;
+          height   = this.tracks[i].separateLabels ?
+            Math.max.apply(Math, $.map(this.tracks[i].labelPositions.search(bounds),   function (feature) { return feature.labelBottom[scale]; }).concat(0)) + this.tracks[i].heights.maxFeatures :
+            Math.max.apply(Math, $.map(this.tracks[i].featurePositions.search(bounds), function (feature) { return feature.bottom[scale];      }).concat(0));
+          
           if (this.tracks[i].autoHeight) {
             this.tracks[i].resize(height);
           }
@@ -377,26 +381,10 @@ var CBrowse = Base.extend({
     var overlay = $('<div class="overlay">').prependTo(this.wrapper).css(dir, left ? width - (Math.abs(left) % width) : 0).width(width);
     var cls     = this.scrollStart;
     
-    $.when.apply($, $.map(this.tracks, function (track) { return track.makeImage(start, end, width, left); })).done(function () {
-      var deferreds = [];
-      
-      $($.map(arguments, function (a) { return a.target; })).show().parent().addClass(cls).each(function () {
-        var dfd    = $.Deferred();
-        var img    = $(this).data('img');
-        var height = img.track.fullBackground && img.track.features.search({ x: start, y: 0, w: end - start, h: 1 }).length ? 'auto' : '100%'; 
-        
-        $('<img class="bg" src="' + img.drawBackground() + '"/>').height(height).data('parent', this).load(dfd.resolve);
-        
-        deferreds.push(dfd);
-      });
-      
-      $.when.apply($, deferreds).done(function (a) {
-        $.each(arguments, function () {
-          var img = $(this.target);
-          img.prependTo(img.data('parent'));
-          img = null;
-        });
-        
+    $.when.apply($, $.map(this.tracks, function (track) { return track.makeImage(start, end, width, left, cls); })).done(function () {
+      $.when.apply($, $($.map(arguments, function (a) { return a.target; })).show().map(function () {
+        return $(this).data('img').drawBackground();
+      })).done(function () {
         overlay.remove();
         overlay = null;
       });
@@ -462,13 +450,14 @@ var CBrowse = Base.extend({
       
       if (images.length) {
         $('.track_container', this.container).css('left', history.left).children().hide();
+        
+        this.left    = history.left;
+        this.edges   = history.edges;
+        this.offsets = history.offsets;
+        
         this.checkTrackSize();
+        
         images.show();
-        
-        this.left     = history.left;
-        this.edges    = history.edges;
-        this.offsets  = history.offsets;
-        
         images = null;
         
         return true;

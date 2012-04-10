@@ -11,20 +11,18 @@ CBrowse.Track = Base.extend({
     
     $.extend(this, this.defaults, this.config, config);
     
-    this.featureHeight     = this.featureHeight || this.height;
-    this.separateLabels    = typeof this.separateLabels === 'undefined' ? !!this.depth : this.separateLabels;
-    this.spacing           = typeof this.spacing        === 'undefined' ? this.cBrowse.trackSpacing : this.spacing;
-    this.fixedHeight       = typeof this.fixedHeight    === 'undefined' ? this.featureHeight === this.height && !(this.bump || this.bumpLabels) : this.fixedHeight;
-    this.height           += this.spacing;
-    this.canvas            = $('<canvas>').appendTo(this.canvasContainer);
-    this.container         = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer),
-    this.imgContainer      = $('<div class="image_container">');
-    this.context           = this.canvas[0].getContext('2d');
-    this.fontHeight        = parseInt(this.context.font, 10);
-    this.fontWidth         = this.context.measureText('W').width;
-    this.initialHeight     = this.height;
-    this.maxHeight         = this.height;
-    this.maxFeaturesHeight = 0;
+    this.featureHeight  = this.featureHeight || this.height;
+    this.separateLabels = typeof this.separateLabels === 'undefined' ? !!this.depth : this.separateLabels;
+    this.spacing        = typeof this.spacing        === 'undefined' ? this.cBrowse.trackSpacing : this.spacing;
+    this.fixedHeight    = typeof this.fixedHeight    === 'undefined' ? this.featureHeight === this.height && !(this.bump || this.bumpLabels) : this.fixedHeight;
+    this.height        += this.spacing;
+    this.canvas         = $('<canvas>').appendTo(this.canvasContainer);
+    this.container      = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer),
+    this.imgContainer   = $('<div class="image_container">');
+    this.context        = this.canvas[0].getContext('2d');
+    this.fontHeight     = parseInt(this.context.font, 10);
+    this.fontWidth      = this.context.measureText('W').width;
+    this.initialHeight  = this.height;
     
     this.init();
     this.setScale();
@@ -85,7 +83,10 @@ CBrowse.Track = Base.extend({
       this.ajax.abort();
     }
     
-    this.init();
+    if (this.url !== false) {
+      this.init();
+    }
+    
     this.container.empty();
   },
   
@@ -96,10 +97,9 @@ CBrowse.Track = Base.extend({
     this.label.height(height)[height < this.featureHeight ? 'hide' : 'show']();
   },
   
-  makeImage: function (start, end, width, moved) {
-    var func = moved < 0 ? 'unshift' : 'push';
-    var dir  = moved < 0 ? 'right'   : 'left';
-    var div  = this.imgContainer.clone().width(width);
+  makeImage: function (start, end, width, moved, cls) {
+    var dir = moved < 0 ? 'right' : 'left';
+    var div = this.imgContainer.clone().width(width).addClass(cls);
     
     var img = new CBrowse.TrackImage({
       track      : this,
@@ -108,12 +108,11 @@ CBrowse.Track = Base.extend({
       end        : end,
       width      : width,
       edges      : { start: start * this.scale, end: end * this.scale },
-      func       : func,
       labelScale : Math.ceil(this.fontWidth / this.scale),
       background : this.cBrowse.colors.background
     });
     
-    this.imgContainers[func](div[0]);
+    this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
     this.container.append(this.imgContainers);
     
     div.css(dir, this.offsets[dir]);
@@ -123,18 +122,16 @@ CBrowse.Track = Base.extend({
     return img.getData();
   },
   
-  addOverlaps: function (data) {
-    data = this.overlaps.concat(data);
-    this.overlaps = [];
-    return data;
-  },
-  
   setScale: function () {
     var track = this;
+    var featurePositions, labelPositions;
     
     this.scale = this.cBrowse.scale;
     
     if (this.scaleSettings[this.scale] && !this.cBrowse.history[this.cBrowse.start + ':' + this.cBrowse.end]) {
+      featurePositions = this.scaleSettings[this.scale].featurePositions;
+      labelPositions   = this.scaleSettings[this.scale].labelPositions;
+      
       this.container.children('.' + this.cBrowse.scrollStart).remove();
       delete this.scaleSettings[this.scale];
     }
@@ -142,21 +139,19 @@ CBrowse.Track = Base.extend({
     if (!this.scaleSettings[this.scale]) {
       this.scaleSettings[this.scale] = {
         offsets          : { right: this.width, left: -this.width },
-        featurePositions : new RTree(),
+        featurePositions : featurePositions || new RTree(),
         imgContainers    : [],
-        overlaps         : []
+        heights          : { max: this.height, maxFeatures: 0 }
       };
       
-      this.scaleSettings[this.scale].labelPositions = this.separateLabels ? new RTree() : this.scaleSettings[this.scale].featurePositions;
+      this.scaleSettings[this.scale].labelPositions = this.separateLabels ? labelPositions || new RTree() : this.scaleSettings[this.scale].featurePositions;
     }
     
     var scaleSettings = this.scaleSettings[this.scale];
     
-    $.each([ 'offsets', 'featurePositions', 'labelPositions', 'imgContainers', 'overlaps' ], function () {
+    $.each([ 'offsets', 'featurePositions', 'labelPositions', 'imgContainers', 'heights' ], function () {
       track[this] = scaleSettings[this];
     });
-    
-    this.maxFeaturesHeight = 0;
     
     this.container.css('left', 0).children().hide();
   },
@@ -165,11 +160,19 @@ CBrowse.Track = Base.extend({
     var i = data.features.length;
     
     while (i--) {
+      data.features[i].sort        = i;
+      data.features[i].bounds      = {};
+      data.features[i].bottom      = {};
+      data.features[i].labelBottom = {};
       this.features.insert({ x: data.features[i].start, y: 0, w: data.features[i].end - data.features[i].start, h: 1 }, data.features[i]);
+    }
+    
+    if (this.allData) {
+      this.url = false;
     }
   },
   
-  positionData: function (data, edges, func) {
+  positionData: function (data, edges) {
     var feature, start, end, x, y, width, bounds, bump, depth, j, k, labelWidth, maxIndex;
     var showLabels   = this.forceLabels === true || !(this.maxLabelRegion && this.cBrowse.length > this.maxLabelRegion);
     var height       = 0;
@@ -191,7 +194,7 @@ CBrowse.Track = Base.extend({
       
       start      = feature.scaledStart - edges.start;
       end        = feature.scaledEnd   - edges.start;
-      bounds     = feature.bounds;
+      bounds     = feature.bounds[this.scale];
       labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
       
       if (bounds) {
@@ -276,6 +279,8 @@ CBrowse.Track = Base.extend({
         if (bounds[1]) {
           this.labelPositions.insert(bounds[1], feature);
         }
+        
+        feature.bounds[this.scale] = bounds;
       }
       
       if (!features.fill[feature.color]) {
@@ -314,26 +319,22 @@ CBrowse.Track = Base.extend({
         features[this.separateLabels ? 'label' : 'fill'][feature.labelColor].push([ 'fillText', [ feature.label, start, bounds[1].y ], feature.labelColor ]);
       }
       
-      if ((feature.scaledStart + Math.max(width, bounds[1] ? labelWidth : 0) > edges.end) || (feature.scaledStart < edges.start)) {
-        this.overlaps[func]($.extend({}, feature, { bounds: bounds }));
-      }
-      
       if (this.separateLabels && bounds[1]) {
-        feature.bottom      = bounds[0].y + bounds[0].h + this.spacing;
-        feature.labelBottom = bounds[1].y + bounds[1].h + this.spacing;
-        labelsHeight        = Math.max(feature.labelBottom, labelsHeight);
+        feature.bottom[this.scale]      = bounds[0].y + bounds[0].h + this.spacing;
+        feature.labelBottom[this.scale] = bounds[1].y + bounds[1].h + this.spacing;
+        labelsHeight                    = Math.max(feature.labelBottom[this.scale], labelsHeight);
       } else {
-        feature.bottom = bounds[maxIndex].y + bounds[maxIndex].h + this.spacing;
+        feature.bottom[this.scale] = bounds[maxIndex].y + bounds[maxIndex].h + this.spacing;
       }
       
-      height = Math.max(feature.bottom, height);
+      height = Math.max(feature.bottom[this.scale], height);
     }
     
-    this.featuresHeight    = height;
-    this.labelsHeight      = labelsHeight;
-    this.fullHeight        = Math.max(height, this.initialHeight) + labelsHeight;
-    this.maxHeight         = Math.max(this.fullHeight, this.maxHeight);
-    this.maxFeaturesHeight = Math.max(height, this.maxFeaturesHeight);
+    this.featuresHeight      = height;
+    this.labelsHeight        = labelsHeight;
+    this.fullHeight          = Math.max(height, this.initialHeight) + labelsHeight;
+    this.heights.max         = Math.max(this.fullHeight, this.heights.max);
+    this.heights.maxFeatures = Math.max(height, this.heights.maxFeatures);
     
     return features;
   },

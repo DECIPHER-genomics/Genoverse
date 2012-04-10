@@ -14,34 +14,34 @@ CBrowse.TrackImage = Base.extend({
     }) : false;
     
     if (this.track.separateLabels) {
-      var deferreds = [];
+      this.image = $('<img class="features" /><img class="labels" />');
       
-      this.image = $('<img class="features" /><img class="labels" />').each(function () {
+      $.when.apply($, this.image.map(function () {
         var dfd = $.Deferred();
         $(this).load(dfd.resolve).data('deferred', dfd);
-        deferreds.push(dfd);
-      });
-      
-      $.when.apply($, deferreds).done(function () {
+        return dfd;
+      })).done(function () {
         deferred.resolve({ target: $.map(arguments, function (a) { return a.target; }) });
       });
     } else {
       this.image = $('<img />').load(deferred.resolve).data('deferred', deferred);
     }
     
+    this.image.data('img', this);
+    
     if (features || !this.track.url) {
-      this.draw(this.track.positionData(this.track.addOverlaps(this.scaleFeatures(features.sort(function (a, b) { return a.start - b.start; }))), this.edges, this.func));
+      this.draw(this.track.positionData(this.scaleFeatures(features.sort(function (a, b) { return a.sort - b.sort; })), this.edges));
     } else {
       this.track.ajax = $.ajax({
-        url      : this.track.url + this.getQueryString(),
-        data     : this.track.urlParams,
+        url      : this.track.url,
+        data     : this.urlParams(),
         context  : this,
         dataType : this.track.url.match(/^http/) ? 'jsonp' : 'json',
         error    : function () { deferred.reject(); },
         success  : function (json) {
           delete this.track.ajax;
           this.track.setFeatures(json);
-          this.draw(this.track.positionData(this.track.addOverlaps(this.scaleFeatures(json.features)), this.edges, this.func));
+          this.draw(this.track.positionData(this.scaleFeatures(json.features), this.edges));
         }
       });
     }
@@ -49,8 +49,12 @@ CBrowse.TrackImage = Base.extend({
     return deferred;
   },
   
-  getQueryString: function () {
-    return (window.location.search + '&').replace(this.track.paramRegex, '$1chr=$3&start=' + this.bufferedStart + '&end=' + this.end + '$8').slice(0, -1);
+  urlParams: function () {
+    return $.extend({
+      chr   : this.track.cBrowse.chromosome,
+      start : this.bufferedStart,
+      end   : this.end
+    }, this.track.urlParams, this.track.allData ? { start: 1, end: this.track.cBrowse.chromosomeSize } : {});
   },
   
   scaleFeatures: function (features) {
@@ -91,7 +95,7 @@ CBrowse.TrackImage = Base.extend({
       
       track.afterDraw(this);
       
-      this.container.append(this.image.filter('.features').attr('src', track.canvas[0].toDataURL())).data('img', this);
+      this.container.append(this.image.filter('.features').attr('src', track.canvas[0].toDataURL()));
       
       if (track.labelsHeight === 0) {
         return labels.data('deferred').resolve({ target: labels });
@@ -100,14 +104,10 @@ CBrowse.TrackImage = Base.extend({
       track.canvas.attr({ width: this.width, height: track.labelsHeight });
       track.context.textBaseline = 'top';
       
-      track.beforeDraw(this);
-      
       this.drawFeatures(features.label, 'fillStyle');
       
-      track.afterDraw(this);
-      
-      this.container.append(labels.attr('src', track.canvas[0].toDataURL()).css('top', track.maxFeaturesHeight).load(function () {
-        $(this).parent().siblings().children('.labels').css('top', track.maxFeaturesHeight);
+      this.container.append(labels.attr('src', track.canvas[0].toDataURL()).css('top', track.heights.maxFeatures).load(function () {
+        $(this).parent().siblings('.' + track.cBrowse.scrollStart).children('.labels').css('top', track.heights.maxFeatures);
       }));
     } else {
       track.context.textBaseline = 'middle'; // labels overlaid on features - use middle to position them correctly
@@ -116,7 +116,7 @@ CBrowse.TrackImage = Base.extend({
       
       track.afterDraw(this);
       
-      this.container.append(this.image.attr('src', track.canvas[0].toDataURL())).data('img', this);
+      this.container.append(this.image.attr('src', track.canvas[0].toDataURL()));
     }
   },
   
@@ -150,13 +150,29 @@ CBrowse.TrackImage = Base.extend({
   },
   
   drawBackground: function () {
-    var height = this.track.fullBackground ? this.track.fullHeight : 1;
+    var backgrounds = $();
+    var deferred    = $.Deferred();
+    var heights     = this.track.backgrounds ? [ this.track.fullHeight, 1 ] : [ 1 ];
     
-    this.track.canvas.attr({ width: this.width, height: height });
-    this.track.context.fillStyle = this.background;
-    this.track.context.fillRect(0, 0, this.width, height);
-    this.track.drawBackground(this, height);
+    for (var i = 0; i < heights.length; i++) {
+      this.track.canvas.attr({ width: this.width, height: heights[i] });
+      this.track.context.fillStyle = this.background;
+      this.track.context.fillRect(0, 0, this.width, heights[i]);
+      this.track.drawBackground(this, heights[i]);
+      
+      backgrounds.push($('<img class="bg" src="' + this.track.canvas[0].toDataURL() + '"/>').prependTo(this.container)[0]);
+    }
     
-    return this.track.canvas[0].toDataURL();
+    backgrounds.last().height('100%');
+    
+    $.when.apply($, backgrounds.map(function () {
+      var dfd = $.Deferred();
+      $(this).load(dfd.resolve);
+      return dfd;
+    })).done(function () {
+      deferred.resolve();
+    });
+    
+    return deferred;
   }
 });

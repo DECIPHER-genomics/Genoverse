@@ -22,6 +22,11 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     }
   },
   
+  reset: function () {
+    this.init();
+    this.container.empty();
+  },
+  
   setScale: function () {
     this.base();
     
@@ -108,15 +113,15 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     this.base({ features: features });
   },
   
-  positionData: function (data, edges, func) {
-    var data = this.base(data, edges, func);
+  positionData: function (data, edges) {
+    var data = this.base(data, edges);
     this.data = data.fill[this.color];
     return data;
   },
   
-  makeImage: function (start, end, width, moved) {
-    this.setFeatures(start, end);
-    return this.base(start, end, width, moved);
+  makeImage: function () {
+    this.setFeatures.apply(this, arguments);
+    return this.base.apply(this, arguments);
   },
   
   afterDraw: function (image) {
