@@ -128,7 +128,7 @@ CBrowse.Track = Base.extend({
     
     this.scale = this.cBrowse.scale;
     
-    if (this.scaleSettings[this.scale] && !this.cBrowse.history[this.cBrowse.start + ':' + this.cBrowse.end]) {
+    if (this.scaleSettings[this.scale] && !this.cBrowse.history[this.cBrowse.start + '-' + this.cBrowse.end]) {
       featurePositions = this.scaleSettings[this.scale].featurePositions;
       labelPositions   = this.scaleSettings[this.scale].labelPositions;
       

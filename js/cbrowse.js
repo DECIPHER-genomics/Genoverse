@@ -60,7 +60,10 @@ var CBrowse = Base.extend({
     
     this.container.width(width).on({
       mousedown: function (e) {
-        cBrowse.mousedown(e);
+        if (!e.which || e.which === 1) {  // Only scroll on left click
+          cBrowse.mousedown(e);
+        }
+        
         return false;
       },
       mousewheel: function (e, delta) {
@@ -391,7 +394,7 @@ var CBrowse = Base.extend({
       
       cBrowse.data.start   = Math.min(start, cBrowse.data.start);
       cBrowse.data.end     = Math.max(end,   cBrowse.data.end);
-      cBrowse.prev.history = cBrowse.start + ':' + cBrowse.end;
+      cBrowse.prev.history = cBrowse.start + '-' + cBrowse.end;
       
       cBrowse.checkTrackSize();
       cBrowse.setHistory(false, edges, offsets);
@@ -411,17 +414,17 @@ var CBrowse = Base.extend({
   
   setHistory: function (action, edges, offsets) {
     if (action !== false) {
-      if (this.prev.location === this.start + ':' + this.end) {
+      if (this.prev.location === this.start + '-' + this.end) {
         return;
       }
       
-      this.prev.location = this.start + ':' + this.end;
+      this.prev.location = this.start + '-' + this.end;
     
       window.history[action || 'pushState']({}, '', this.getQueryString());
     }
     
     if (this.prev.history) {
-      this.history[this.start + ':' + this.end] = {
+      this.history[this.start + '-' + this.end] = {
         left    : this.left,
         images  : this.scrollStart,
         edges   : edges   || this.history[this.prev.history].edges,
@@ -443,7 +446,7 @@ var CBrowse = Base.extend({
   },
   
   updateFromHistory: function () {
-    var history = this.history[this.start + ':' + this.end];
+    var history = this.history[this.start + '-' + this.end];
     
     if (history) {
       var images = $('.track_container .' + history.images, this.container);
