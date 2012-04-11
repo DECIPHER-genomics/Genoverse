@@ -162,6 +162,7 @@ CBrowse.Track = Base.extend({
     while (i--) {
       data.features[i].sort        = i;
       data.features[i].bounds      = {};
+      data.features[i].visible     = {};
       data.features[i].bottom      = {};
       data.features[i].labelBottom = {};
       this.features.insert({ x: data.features[i].start, y: 0, w: data.features[i].end - data.features[i].start, h: 1 }, data.features[i]);
@@ -178,10 +179,12 @@ CBrowse.Track = Base.extend({
     var height       = 0;
     var labelsHeight = 0;
     var scale        = this.scale > 1 ? this.scale : 1;
+    var scaleKey     = this.scale;
     var seen         = {};
     var features     = { fill: {}, border: {}, label: {} };
     
-    this.colorOrder = [];
+    this.colorOrder  = [];
+    this.decorations = {};
     
     for (var i = 0; i < data.length; i++) {
       feature = data[i];
@@ -194,7 +197,7 @@ CBrowse.Track = Base.extend({
       
       start      = feature.scaledStart - edges.start;
       end        = feature.scaledEnd   - edges.start;
-      bounds     = feature.bounds[this.scale];
+      bounds     = feature.bounds[scaleKey];
       labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
       
       if (bounds) {
@@ -234,6 +237,10 @@ CBrowse.Track = Base.extend({
             while (j--) {
               do {
                 if (j === 0 && this.depth && ++depth >= this.depth) {
+                  if ($.grep(this.featurePositions.search(bounds[0]), function (f) { return f.visible[scaleKey] !== false; }).length) {
+                    feature.visible[scaleKey] = false;
+                  }
+                  
                   break;
                 }
                 
@@ -280,7 +287,11 @@ CBrowse.Track = Base.extend({
           this.labelPositions.insert(bounds[1], feature);
         }
         
-        feature.bounds[this.scale] = bounds;
+        feature.bounds[scaleKey] = bounds;
+      }
+      
+      if (feature.visible[scaleKey] === false) {
+        continue;
       }
       
       if (!features.fill[feature.color]) {
@@ -320,14 +331,24 @@ CBrowse.Track = Base.extend({
       }
       
       if (this.separateLabels && bounds[1]) {
-        feature.bottom[this.scale]      = bounds[0].y + bounds[0].h + this.spacing;
-        feature.labelBottom[this.scale] = bounds[1].y + bounds[1].h + this.spacing;
-        labelsHeight                    = Math.max(feature.labelBottom[this.scale], labelsHeight);
+        feature.bottom[scaleKey]      = bounds[0].y + bounds[0].h + this.spacing;
+        feature.labelBottom[scaleKey] = bounds[1].y + bounds[1].h + this.spacing;
+        labelsHeight                  = Math.max(feature.labelBottom[scaleKey], labelsHeight);
       } else {
-        feature.bottom[this.scale] = bounds[maxIndex].y + bounds[maxIndex].h + this.spacing;
+        feature.bottom[scaleKey] = bounds[maxIndex].y + bounds[maxIndex].h + this.spacing;
       }
       
-      height = Math.max(feature.bottom[this.scale], height);
+      if (feature.decorations) {
+        for (j = 0; j < feature.decorations.length; j++) {
+          if (!this.decorations[feature.decorations[j].color]) {
+            this.decorations[feature.decorations[j].color] = [];
+          }
+          
+          this.decorations[feature.decorations[j].color].push([ feature, feature.decorations[j] ]);
+        }
+      }
+      
+      height = Math.max(feature.bottom[scaleKey], height);
     }
     
     this.featuresHeight      = height;
@@ -372,6 +393,7 @@ CBrowse.Track = Base.extend({
     }
   },
   
-  beforeDraw : $.noop,  // implement in children
-  afterDraw  : $.noop   // implement in children
+  drawDecorations : $.noop,  // implement in children
+  beforeDraw      : $.noop,  // implement in children
+  afterDraw       : $.noop   // implement in children
 });

@@ -90,6 +90,8 @@ CBrowse.TrackImage = Base.extend({
     this.drawFeatures(features.fill,   'fillStyle', track.colorOrder);
     this.drawFeatures(features.border, 'strokeStyle');
     
+    track.drawDecorations(this);
+    
     if (track.separateLabels) {
       labels = this.image.filter('.labels');
       
