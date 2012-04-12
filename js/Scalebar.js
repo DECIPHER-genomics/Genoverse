@@ -137,7 +137,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     this.context.fillRect(0, this.featureHeight, image.width, 1);
   },
   
-  drawBackgroundColor: function (scaledStart, height) {
+  drawBackgroundColor: function (image, height) {
     this.context.fillStyle = this.cBrowse.colors.background;
     this.context.fillRect(0, 0, this.width, height);
   },

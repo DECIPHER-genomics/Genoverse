@@ -220,7 +220,7 @@ CBrowse.Track = Base.extend({
           if (this.separateLabels) {
             bounds.push({ x: x, y: y, w: labelWidth, h: this.fontHeight + 2 });
           } else {
-            bounds.push({ x: x, y: y + this.featureHeight + 1, w: Math.max(labelWidth, width + 1), h: this.fontHeight + 2 });
+            bounds.push({ x: x, y: y + this.featureHeight + this.bumpSpacing + 1, w: Math.max(labelWidth, width + 1), h: this.fontHeight + 2 });
           }
         }
         
@@ -366,7 +366,7 @@ CBrowse.Track = Base.extend({
     var x;
     
     if (this.cBrowse.backgrounds) {
-      this.drawBackgroundColor(scaledStart, height);
+      this.drawBackgroundColor(image, height, scaledStart);
     }
     
     for (var c in scaleLines) {
@@ -378,9 +378,9 @@ CBrowse.Track = Base.extend({
     }
   },
   
-  drawBackgroundColor: function (scaledStart, height) {
+  drawBackgroundColor: function (image, height, scaledStart) {
     var backgrounds = this.cBrowse.backgrounds;
-    var i;
+    var i, start, end;
     
     for (var c in backgrounds) {
       this.context.fillStyle = c;
@@ -388,7 +388,12 @@ CBrowse.Track = Base.extend({
       i = backgrounds[c].length;
       
       while (i--) {
-        this.context.fillRect(backgrounds[c][i].scaledStart - scaledStart, 0, backgrounds[c][i].scaledEnd - backgrounds[c][i].scaledStart, height);
+        if (backgrounds[c][i].end >= image.start && backgrounds[c][i].start <= image.end) {
+          start = Math.max(backgrounds[c][i].scaledStart - scaledStart, 0);
+          end   = Math.min(backgrounds[c][i].scaledEnd   - scaledStart, image.width);
+          
+          this.context.fillRect(start, 0, end - start, height);
+        }
       }
     }
   },
