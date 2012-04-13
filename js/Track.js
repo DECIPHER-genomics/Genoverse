@@ -23,6 +23,7 @@ CBrowse.Track = Base.extend({
     this.fontHeight     = parseInt(this.context.font, 10);
     this.fontWidth      = this.context.measureText('W').width;
     this.initialHeight  = this.height;
+    this.dataRegion     = { start: 9e99, end: -9e99 };
     
     this.init();
     this.setScale();

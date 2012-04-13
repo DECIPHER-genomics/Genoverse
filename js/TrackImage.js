@@ -6,7 +6,7 @@ CBrowse.TrackImage = Base.extend({
   
   getData: function () {
     var deferred = $.Deferred();
-    var features = !this.track.url || (this.start >= this.track.cBrowse.data.start && this.end <= this.track.cBrowse.data.end) ? this.track.features.search({
+    var features = !this.track.url || (this.start >= this.track.dataRegion.start && this.end <= this.track.dataRegion.end) ? this.track.features.search({
       x: this.bufferedStart,
       y: 0,
       w: this.end - this.bufferedStart,
@@ -40,7 +40,12 @@ CBrowse.TrackImage = Base.extend({
         error    : function () { deferred.reject(); },
         success  : function (json) {
           delete this.track.ajax;
+          
+          this.track.dataRegion.start = Math.min(this.start, this.track.dataRegion.start);
+          this.track.dataRegion.end   = Math.max(this.end,   this.track.dataRegion.end);
+          
           this.track.setFeatures(json);
+          
           this.draw(this.track.positionData(this.scaleFeatures(json.features), this.edges));
         }
       });

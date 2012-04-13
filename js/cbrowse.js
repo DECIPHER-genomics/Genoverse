@@ -34,7 +34,6 @@ var CBrowse = Base.extend({
     var cBrowse = this;
     var width   = this.width;
     
-    this.data           = { start: 9e99, end: -9e99 };
     this.history        = {};
     this.prev           = {};
     this.backgrounds    = {};
@@ -139,7 +138,6 @@ var CBrowse = Base.extend({
     }
     
     this.scale   = 9e99; // arbitrary value so that setScale resets track scales as well
-    this.data    = { start: 9e99, end: -9e99 };
     this.history = {};
     
     this.setRange(this.start, this.end, false);
@@ -392,8 +390,6 @@ var CBrowse = Base.extend({
         overlay = null;
       });
       
-      cBrowse.data.start   = Math.min(start, cBrowse.data.start);
-      cBrowse.data.end     = Math.max(end,   cBrowse.data.end);
       cBrowse.prev.history = cBrowse.start + '-' + cBrowse.end;
       
       cBrowse.checkTrackSize();
