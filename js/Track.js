@@ -30,9 +30,8 @@ CBrowse.Track = Base.extend({
     
     if (this.name) {
       this.label = $('<li>', {
-        html    : this.name,
-        'class' : 'label',
-        height  : this.height
+        html   : this.name,
+        height : this.height
       }).appendTo(this.cBrowse.labelContainer).data('index', this.index);
     }
     

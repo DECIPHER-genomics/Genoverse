@@ -71,7 +71,7 @@
   list-style: none;
 }
 
-.canvas_container .label_container .label {
+.canvas_container .label_container li {
   position: relative;
   padding: 0 5px;
   margin: 0;
