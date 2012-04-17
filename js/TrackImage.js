@@ -4,19 +4,13 @@ CBrowse.TrackImage = Base.extend({
     this.bufferedStart = Math.max(this.start - (this.labelScale * this.track.cBrowse.longestLabel), 1);
   },
   
-  getData: function () {
+  makeImage: function () {
     var deferred = $.Deferred();
-    var features = !this.track.url || (this.start >= this.track.dataRegion.start && this.end <= this.track.dataRegion.end) ? this.track.features.search({
-      x: this.bufferedStart,
-      y: 0,
-      w: this.end - this.bufferedStart,
-      h: 1
-    }) : false;
     
     if (this.track.separateLabels) {
-      this.image = $('<img class="features" /><img class="labels" />');
+      this.images = $('<img class="features" /><img class="labels" />');
       
-      $.when.apply($, this.image.map(function () {
+      $.when.apply($, this.images.map(function () {
         var dfd = $.Deferred();
         $(this).load(dfd.resolve).data('deferred', dfd);
         return dfd;
@@ -24,53 +18,12 @@ CBrowse.TrackImage = Base.extend({
         deferred.resolve({ target: $.map(arguments, function (a) { return a.target; }) });
       });
     } else {
-      this.image = $('<img />').load(deferred.resolve).data('deferred', deferred);
+      this.images = $('<img />').load(deferred.resolve).data('deferred', deferred);
     }
     
-    this.image.data('img', this);
-    
-    if (features || !this.track.url) {
-      this.draw(this.track.positionData(this.scaleFeatures(features.sort(function (a, b) { return a.sort - b.sort; })), this.edges));
-    } else {
-      this.track.ajax = $.ajax({
-        url      : this.track.url,
-        data     : this.urlParams(),
-        context  : this,
-        dataType : this.track.url.match(/^http/) ? 'jsonp' : 'json',
-        error    : function () { deferred.reject(); },
-        success  : function (json) {
-          delete this.track.ajax;
-          
-          this.track.dataRegion.start = Math.min(this.start, this.track.dataRegion.start);
-          this.track.dataRegion.end   = Math.max(this.end,   this.track.dataRegion.end);
-          
-          this.track.setFeatures(json);
-          
-          this.draw(this.track.positionData(this.scaleFeatures(json.features), this.edges));
-        }
-      });
-    }
+    this.images.data('img', this);
     
     return deferred;
-  },
-  
-  urlParams: function () {
-    return $.extend({
-      chr   : this.track.cBrowse.chromosome,
-      start : this.bufferedStart,
-      end   : this.end
-    }, this.track.urlParams, this.track.allData ? { start: 1, end: this.track.cBrowse.chromosomeSize } : {});
-  },
-  
-  scaleFeatures: function (features) {
-    var i = features.length;
-        
-    while (i--) {
-      features[i].scaledStart = features[i].start * this.track.scale;
-      features[i].scaledEnd   = features[i].end   * this.track.scale;
-    }
-    
-    return features;
   },
   
   draw: function (features) {
@@ -84,7 +37,7 @@ CBrowse.TrackImage = Base.extend({
     }
     
     if (track.featuresHeight === 0) {
-      return this.image.each(function () { $(this).data('deferred').resolve({ target: this }); });
+      return this.images.each(function () { $(this).data('deferred').resolve({ target: this }); });
     }
     
     track.canvas.attr({ width: this.width, height: track.featuresHeight });
@@ -95,14 +48,14 @@ CBrowse.TrackImage = Base.extend({
     this.drawFeatures(features.fill,   'fillStyle', track.colorOrder);
     this.drawFeatures(features.border, 'strokeStyle');
     
-    track.drawDecorations(this);
+    track.decorateFeatures(this);
     
     if (track.separateLabels) {
-      labels = this.image.filter('.labels');
+      labels = this.images.filter('.labels');
       
       track.afterDraw(this);
       
-      this.container.append(this.image.filter('.features').attr('src', track.canvas[0].toDataURL()));
+      this.container.append(this.images.filter('.features').attr('src', track.canvas[0].toDataURL()));
       
       if (track.labelsHeight === 0) {
         return labels.data('deferred').resolve({ target: labels });
@@ -123,7 +76,7 @@ CBrowse.TrackImage = Base.extend({
       
       track.afterDraw(this);
       
-      this.container.append(this.image.attr('src', track.canvas[0].toDataURL()));
+      this.container.append(this.images.attr('src', track.canvas[0].toDataURL()));
     }
   },
   
@@ -176,9 +129,7 @@ CBrowse.TrackImage = Base.extend({
       var dfd = $.Deferred();
       $(this).load(dfd.resolve);
       return dfd;
-    })).done(function () {
-      deferred.resolve();
-    });
+    })).done(deferred.resolve);
     
     return deferred;
   }
