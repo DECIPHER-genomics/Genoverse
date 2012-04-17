@@ -29,10 +29,9 @@ CBrowse.Track = Base.extend({
     this.setScale();
     
     if (this.name) {
-      this.label = $('<li>', {
-        html   : this.name,
-        height : this.height
-      }).appendTo(this.cBrowse.labelContainer).data('index', this.index);
+      this.label          = $('<li><span class="name">' + this.name + '</span></li>').appendTo(this.cBrowse.labelContainer).data('index', this.index);
+      this.minLabelHeight = this.label.children('.name').height();
+      this.label.height(Math.max(this.height, this.minLabelHeight));
     }
     
     if (!this.fixedHeight) {
@@ -91,10 +90,16 @@ CBrowse.Track = Base.extend({
   },
   
   resize: function (height) {
+    if (height < this.featureHeight) {
+      height = 0;
+    } else {
+      height = Math.max(height, this.minLabelHeight);
+    }
+    
     this.height = height;
     
     this.container.height(height);
-    this.label.height(height)[height < this.featureHeight ? 'hide' : 'show']();
+    this.label.height(height)[height ? 'show' : 'hide']();
   },
   
   makeImage: function (start, end, width, moved, cls) {
