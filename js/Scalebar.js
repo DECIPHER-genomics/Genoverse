@@ -113,10 +113,10 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     this.base({ features: features });
   },
   
-  positionData: function (data, edges) {
-    var data = this.base(data, edges);
-    this.data = data.fill[this.color];
-    return data;
+  positionFeatures: function (features, startOffset) {
+    var features = this.base(features, startOffset);
+    this.data = features.fill[this.color];
+    return features;
   },
   
   makeImage: function () {
