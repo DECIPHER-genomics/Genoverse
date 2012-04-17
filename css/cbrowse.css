@@ -73,13 +73,22 @@
 
 .canvas_container .label_container li {
   position: relative;
-  padding: 0 5px;
   margin: 0;
   color: #000;
   font-size: 11px;
   list-style-image: none;
   cursor: pointer;
   white-space: nowrap;
+}
+
+.canvas_container .label_container li .name {
+  position: relative; 
+  left: 5px; 
+  vertical-align: top;
+}
+
+.canvas_container .label_container li.unsortable .name {
+  left: 15px;
 }
 
 .canvas_zoom         { position: absolute; display: none; z-index: 2; }
