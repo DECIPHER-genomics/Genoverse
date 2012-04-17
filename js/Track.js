@@ -102,31 +102,6 @@ CBrowse.Track = Base.extend({
     this.label.height(height)[height ? 'show' : 'hide']();
   },
   
-  makeImage: function (start, end, width, moved, cls) {
-    var dir = moved < 0 ? 'right' : 'left';
-    var div = this.imgContainer.clone().width(width).addClass(cls);
-    
-    var img = new CBrowse.TrackImage({
-      track      : this,
-      container  : div,
-      start      : start, 
-      end        : end,
-      width      : width,
-      edges      : { start: start * this.scale, end: end * this.scale },
-      labelScale : Math.ceil(this.fontWidth / this.scale),
-      background : this.cBrowse.colors.background
-    });
-    
-    this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
-    this.container.append(this.imgContainers);
-    
-    div.css(dir, this.offsets[dir]);
-    
-    this.offsets[dir] += width;
-    
-    return img.getData();
-  },
-  
   setScale: function () {
     var track = this;
     var featurePositions, labelPositions;
@@ -178,7 +153,18 @@ CBrowse.Track = Base.extend({
     }
   },
   
-  positionData: function (data, edges) {
+  scaleFeatures: function (features) {
+    var i = features.length;
+        
+    while (i--) {
+      features[i].scaledStart = features[i].start * this.scale;
+      features[i].scaledEnd   = features[i].end   * this.scale;
+    }
+    
+    return features;
+  },
+  
+  positionFeatures: function (features, startOffset) {
     var feature, start, end, x, y, width, bounds, bump, depth, j, k, labelWidth, maxIndex;
     var showLabels   = this.forceLabels === true || !(this.maxLabelRegion && this.cBrowse.length > this.maxLabelRegion);
     var height       = 0;
@@ -186,13 +172,10 @@ CBrowse.Track = Base.extend({
     var scale        = this.scale > 1 ? this.scale : 1;
     var scaleKey     = this.scale;
     var seen         = {};
-    var features     = { fill: {}, border: {}, label: {} };
+    var draw         = { fill: {}, border: {}, label: {} };
     
-    this.colorOrder  = [];
-    this.decorations = {};
-    
-    for (var i = 0; i < data.length; i++) {
-      feature = data[i];
+    for (var i = 0; i < features.length; i++) {
+      feature = features[i];
       
       if (seen[feature.id]) {
         continue;
@@ -200,8 +183,8 @@ CBrowse.Track = Base.extend({
       
       seen[feature.id] = 1;
       
-      start      = feature.scaledStart - edges.start;
-      end        = feature.scaledEnd   - edges.start;
+      start      = feature.scaledStart - startOffset;
+      end        = feature.scaledEnd   - startOffset;
       bounds     = feature.bounds[scaleKey];
       labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
       
@@ -299,22 +282,22 @@ CBrowse.Track = Base.extend({
         continue;
       }
       
-      if (!features.fill[feature.color]) {
-        features.fill[feature.color] = [];
+      if (!draw.fill[feature.color]) {
+        draw.fill[feature.color] = [];
         
         if (feature.order) {
           this.colorOrder[feature.order] = feature.color;
         }
       }
       
-      if (feature.borderColor && !features.border[feature.borderColor]) {
-        features.border[feature.borderColor] = [];
+      if (feature.borderColor && !draw.border[feature.borderColor]) {
+        draw.border[feature.borderColor] = [];
       }
       
-      if ((this.separateLabels || this.labelOverlay) && !features.label[feature.labelColor]) {
-        features.label[feature.labelColor] = [];
-      } else if (feature.labelColor && feature.labelColor !== feature.color && !features.fill[feature.labelColor]) {
-        features.fill[feature.labelColor] = [];
+      if ((this.separateLabels || this.labelOverlay) && !draw.label[feature.labelColor]) {
+        draw.label[feature.labelColor] = [];
+      } else if (feature.labelColor && feature.labelColor !== feature.color && !draw.fill[feature.labelColor]) {
+        draw.fill[feature.labelColor] = [];
       }
       
       if (scale > 1 && start < end) {
@@ -323,16 +306,16 @@ CBrowse.Track = Base.extend({
         width = end - start;
       }
       
-      features.fill[feature.color].push([ 'fillRect', [ start, bounds[0].y, width, this.featureHeight ] ]);
+      draw.fill[feature.color].push([ 'fillRect', [ start, bounds[0].y, width, this.featureHeight ] ]);
       
       if (feature.borderColor) {
-        features.border[feature.borderColor].push([ 'strokeRect', [ start, bounds[0].y + 0.5, width, this.featureHeight ] ]);
+        draw.border[feature.borderColor].push([ 'strokeRect', [ start, bounds[0].y + 0.5, width, this.featureHeight ] ]);
       }
       
       if (this.labelOverlay && labelWidth < width - 1) { // Don't show overlaid labels on features which aren't wider than the label
-        features.label[feature.labelColor].push([ 'fillText', [ feature.label, start + (width - labelWidth) / 2, bounds[0].y + bounds[0].h / 2 ], feature.labelColor ]);
+        draw.label[feature.labelColor].push([ 'fillText', [ feature.label, start + (width - labelWidth) / 2, bounds[0].y + bounds[0].h / 2 ], feature.labelColor ]);
       } else if (bounds[1]) {
-        features[this.separateLabels ? 'label' : 'fill'][feature.labelColor].push([ 'fillText', [ feature.label, start, bounds[1].y ], feature.labelColor ]);
+        draw[this.separateLabels ? 'label' : 'fill'][feature.labelColor].push([ 'fillText', [ feature.label, start, bounds[1].y ], feature.labelColor ]);
       }
       
       if (this.separateLabels && bounds[1]) {
@@ -362,12 +345,73 @@ CBrowse.Track = Base.extend({
     this.heights.max         = Math.max(this.fullHeight, this.heights.max);
     this.heights.maxFeatures = Math.max(height, this.heights.maxFeatures);
     
-    return features;
+    return draw;
+  },
+  
+  makeImage: function (start, end, width, moved, cls) {
+    var dir   = moved < 0 ? 'right' : 'left';
+    var div   = this.imgContainer.clone().width(width).addClass(cls);
+    var image = new CBrowse.TrackImage({
+      track       : this,
+      container   : div,
+      start       : start, 
+      end         : end,
+      width       : width,
+      scaledStart : start * this.scale,
+      labelScale  : Math.ceil(this.fontWidth / this.scale),
+      background  : this.cBrowse.colors.background
+    });
+    
+    this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
+    this.container.append(this.imgContainers);
+    
+    div.css(dir, this.offsets[dir]);
+    
+    this.offsets[dir] += width;
+    
+    var deferred = image.makeImage();
+    
+    this.getData(image, deferred);
+    
+    return deferred;
+  },
+  
+  getData: function (image, deferred) {
+    var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search({ x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 }) : false;
+    
+    if (features) {
+      this.draw(image, features.sort(function (a, b) { return a.sort - b.sort; }));
+    } else {
+      this.ajax = $.ajax({
+        url      : this.url,
+        data     : $.extend({ chr: this.cBrowse.chromosome, start: image.bufferedStart, end: image.end }, this.urlParams, this.allData ? { start: 1, end: this.cBrowse.chromosomeSize } : {}),
+        dataType : this.url.match(/^http/) ? 'jsonp' : 'json',
+        context  : this,
+        error    : function () { deferred.reject(); },
+        success  : function (json) {
+          delete this.ajax;
+          
+          this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
+          this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
+          
+          this.setFeatures(json);
+          
+          this.draw(image, json.features);
+        }
+      });
+    }
+  },
+  
+  draw: function (image, features) {
+    this.colorOrder  = [];
+    this.decorations = {};
+    
+    image.draw(this.positionFeatures(this.scaleFeatures(features), image.scaledStart));
   },
   
   drawBackground: function (image, height) {
     var scaleLines  = { major: [ this.cBrowse.colors.majorScaleLine, this.cBrowse.majorUnit ], minor: [ this.cBrowse.colors.minorScaleLine, this.cBrowse.minorUnit ] };
-    var scaledStart = Math.round(image.start * this.scale) + 1;
+    var scaledStart = Math.round(image.scaledStart);
     var x;
     
     if (this.cBrowse.backgrounds) {
@@ -403,7 +447,7 @@ CBrowse.Track = Base.extend({
     }
   },
   
-  drawDecorations : $.noop,  // implement in children
-  beforeDraw      : $.noop,  // implement in children
-  afterDraw       : $.noop   // implement in children
+  beforeDraw       : $.noop, // decoration for the track, drawn before the features
+  decorateFeatures : $.noop, // decoration for the features
+  afterDraw        : $.noop  // decoration for the track, drawn after the features
 });
