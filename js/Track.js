@@ -387,7 +387,7 @@ CBrowse.Track = Base.extend({
       this.ajax = $.ajax({
         url      : this.url,
         data     : $.extend({ chr: this.cBrowse.chromosome, start: image.bufferedStart, end: image.end }, this.urlParams, this.allData ? { start: 1, end: this.cBrowse.chromosomeSize } : {}),
-        dataType : this.url.match(/^http/) ? 'jsonp' : 'json',
+        dataType : 'json',
         context  : this,
         error    : function () { deferred.reject(); },
         success  : function (json) {
