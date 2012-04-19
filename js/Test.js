@@ -1,7 +1,8 @@
 CBrowse.Track.Test = CBrowse.Track.extend({
   config: {
-    height        : 20,
-    featureHeight : 3,
+    height        : 200,
+    fixedHeight   : true,
+    featureHeight : 1,
     color         : '#000000',
     bump          : false,
     autoHeight    : false
@@ -12,26 +13,50 @@ CBrowse.Track.Test = CBrowse.Track.extend({
     return this.base.apply(this, arguments);
   },
 
-  setFeatures: function (start, end) {
-    console.log(start);
-    console.log(end);
+  getData: function (image, deferred) {
+    var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search({ x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 }) : false;
+    
+    if (features) {
+      this.draw(image, features.sort(function (a, b) { return a.sort - b.sort; }));
+    } else {
+      this.ajax = $.ajax({
+        url      : this.url,
+        data     : $.extend({ chr: this.cBrowse.chromosome, start: image.bufferedStart, end: image.end }, this.urlParams, this.allData ? { start: 1, end: this.cBrowse.chromosomeSize } : {}),
+        dataType : 'json',
+        context  : this,
+        error    : function () { deferred.reject(); },
+        success  : function (json) {
+          delete this.ajax;
+          
+          this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
+          this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
+          
+          this.setFeatures(json);
+          
+          this.draw(image, json.features);
+        }
+      });
+    }
+  },
 
-    var features = [
-      {
-        start: 500000,
-        end: 1000500,
+  setFeatures: function (start, end) {
+    var features = [];
+    for (var i = 0; i < 50000; i++) {
+      features[i] = {
+        start: i,
+        y: Math.random() * this.height,
+        end: i+5,
         color: '#000000',
-        id: 'f1'
-      },
-      {
-        start: 905500,
-        end: 1055500,
-        color: '#000000',
-        id: 'f2'
-      },
-    ];
+        id: 'f'+i        
+      };
+    }
 
     this.base({ features: features });
+  },
+
+  positionFeatures: function (features, startOffset) {
+    //console.log(features);
+    return this.base(features, startOffset);
   },
 
 
