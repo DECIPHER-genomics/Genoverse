@@ -17,6 +17,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     this.base(config);
     
     if (this.type === 'Scalebar') {
+      this.cBrowse.tracks.push(this.cBrowse.tracks.length - this.index, 0, { type: 'ScalebarBottom' });
       this.cBrowse.labelContainer.css('top', this.height);
     }
   },
@@ -118,9 +119,19 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     return features;
   },
   
-  makeImage: function () {
-    this.setFeatures.apply(this, arguments);
-    return this.base.apply(this, arguments);
+  makeImage: function (start, end, width, moved, cls) {
+    var deferred    = $.Deferred();
+    var bottomTrack = this.bottomTrack;
+    
+    this.setFeatures(start, end);
+    
+    $.when(this.base(start, end, width, moved, cls)).done(function (dfd) {
+      $.when(bottomTrack._makeImage($.extend(true, {}, $(dfd.target).data('img')), width, moved, cls)).done(function (dfd2) {
+        deferred.resolve({ target: [ dfd.target, dfd2.target ] });
+      });
+    });
+    
+    return deferred;
   },
   
   afterDraw: function (image) {
@@ -160,7 +171,27 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
 CBrowse.Track.ScalebarBottom = CBrowse.Track.Scalebar.extend({
   constructor: function (config) {
     this.base($.extend(config, { scaleLines: false }));
+    $.grep(this.cBrowse.tracks, function (t) { return t.type === 'Scalebar'; })[0].bottomTrack = this;
   },
   
-  drawBackground: $.noop
+  _makeImage: function (img, width, moved, cls) {
+    var dir      = moved < 0 ? 'right' : 'left';
+    var div      = this.imgContainer.clone().width(width).addClass(cls).css(dir, this.offsets[dir]);
+    var deferred = $.Deferred();
+    
+    this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
+    this.container.append(this.imgContainers);
+    
+    this.offsets[dir] += width;
+    
+    img.track     = this;
+    img.container = div;
+    
+    img.images.clone().appendTo(div).load(deferred.resolve).data({ deferred: deferred, img: img });
+    
+    return deferred;
+  },
+  
+  makeImage      : $.noop,
+  drawBackground : $.noop
 });
