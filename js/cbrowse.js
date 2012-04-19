@@ -352,6 +352,8 @@ var CBrowse = Base.extend({
         this.tracks[i] = new CBrowse.Track($.extend(this.tracks[i], defaults, { index: i }));
       }
     }
+    
+    this.labelBuffer = Math.ceil(this.tracks[0].context.measureText('W').width / this.scale) * this.longestLabel;
   },
   
   makeImage: function () {

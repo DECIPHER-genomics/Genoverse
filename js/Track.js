@@ -21,7 +21,6 @@ CBrowse.Track = Base.extend({
     this.imgContainer   = $('<div class="image_container">');
     this.context        = this.canvas[0].getContext('2d');
     this.fontHeight     = parseInt(this.context.font, 10);
-    this.fontWidth      = this.context.measureText('W').width;
     this.initialHeight  = this.height;
     this.dataRegion     = { start: 9e99, end: -9e99 };
     
@@ -165,7 +164,7 @@ CBrowse.Track = Base.extend({
   },
   
   positionFeatures: function (features, startOffset) {
-    var feature, start, end, x, y, width, bounds, bump, depth, j, k, labelWidth, maxIndex;
+    var feature, start, end, x, y, width, bounds, bump, depth, j, k, labelStart, labelWidth, maxIndex;
     var showLabels   = this.forceLabels === true || !(this.maxLabelRegion && this.cBrowse.length > this.maxLabelRegion);
     var height       = 0;
     var labelsHeight = 0;
@@ -186,6 +185,7 @@ CBrowse.Track = Base.extend({
       start      = feature.scaledStart - startOffset;
       end        = feature.scaledEnd   - startOffset;
       bounds     = feature.bounds[scaleKey];
+      labelStart = start;
       labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
       
       if (bounds) {
@@ -204,7 +204,7 @@ CBrowse.Track = Base.extend({
         y      = feature.y || 0;
         bounds = [{ x: x, y: y, w: width + 1, h: this.featureHeight + this.bumpSpacing }];
         
-        if (feature.label && showLabels && !this.labelOverlay && this.forceLabels !== 'off' && !(scale > 1 && start < 0)) {
+        if (feature.label && showLabels && !this.labelOverlay && this.forceLabels !== 'off' && !(scale > 1 && start < -this.cBrowse.labelBuffer)) {
           if (this.separateLabels) {
             bounds.push({ x: x, y: y, w: labelWidth, h: this.fontHeight + 2 });
           } else {
@@ -300,22 +300,25 @@ CBrowse.Track = Base.extend({
         draw.fill[feature.labelColor] = [];
       }
       
+      // truncate features in very small regions (where scale > 1) - make the features start at 1px outside the canvas to ensure no lines are drawn at the borders incorrectly
       if (scale > 1 && start < end) {
-        start = Math.max(start, 0);
-        end   = Math.min(end, this.cBrowse.fullWidth);
+        start = Math.max(start, -1);
+        end   = Math.min(end, this.cBrowse.fullWidth + 1);
         width = end - start;
       }
       
-      draw.fill[feature.color].push([ 'fillRect', [ start, bounds[0].y, width, this.featureHeight ] ]);
-      
-      if (feature.borderColor) {
-        draw.border[feature.borderColor].push([ 'strokeRect', [ start, bounds[0].y + 0.5, width, this.featureHeight ] ]);
+      if (width > 0) {
+        draw.fill[feature.color].push([ 'fillRect', [ start, bounds[0].y, width, this.featureHeight ] ]);
+        
+        if (feature.borderColor) {
+          draw.border[feature.borderColor].push([ 'strokeRect', [ start, bounds[0].y + 0.5, width, this.featureHeight ] ]);
+        }
       }
       
       if (this.labelOverlay && labelWidth < width - 1) { // Don't show overlaid labels on features which aren't wider than the label
-        draw.label[feature.labelColor].push([ 'fillText', [ feature.label, start + (width - labelWidth) / 2, bounds[0].y + bounds[0].h / 2 ], feature.labelColor ]);
+        draw.label[feature.labelColor].push([ 'fillText', [ feature.label, labelStart + (width - labelWidth) / 2, bounds[0].y + bounds[0].h / 2 ], feature.labelColor ]);
       } else if (bounds[1]) {
-        draw[this.separateLabels ? 'label' : 'fill'][feature.labelColor].push([ 'fillText', [ feature.label, start, bounds[1].y ], feature.labelColor ]);
+        draw[this.separateLabels ? 'label' : 'fill'][feature.labelColor].push([ 'fillText', [ feature.label, labelStart, bounds[1].y ], feature.labelColor ]);
       }
       
       if (this.separateLabels && bounds[1]) {
@@ -358,7 +361,6 @@ CBrowse.Track = Base.extend({
       end         : end,
       width       : width,
       scaledStart : start * this.scale,
-      labelScale  : Math.ceil(this.fontWidth / this.scale),
       background  : this.cBrowse.colors.background
     });
     
