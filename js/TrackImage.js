@@ -1,7 +1,7 @@
 CBrowse.TrackImage = Base.extend({
   constructor: function (config) {
     $.extend(this, config);
-    this.bufferedStart = Math.max(this.start - (this.labelScale * this.track.cBrowse.longestLabel), 1);
+    this.bufferedStart = Math.max(this.start - (this.track.cBrowse.labelBuffer), 1);
   },
   
   makeImage: function () {

@@ -3,7 +3,6 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     height        : 20,
     featureHeight : 3,
     color         : '#000000',
-    bumpSpacing   : 1,
     autoHeight    : false
   },
   
@@ -66,7 +65,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
   },
   
   setFeatures: function (start, end) {
-    start  = Math.max(start - (start % this.minorUnit), 0);
+    start = Math.max(start - (start % this.minorUnit) - this.majorUnit, 0);
     
     var flip     = (start / this.minorUnit) % 2 ? 1 : -1;
     var features = [];
