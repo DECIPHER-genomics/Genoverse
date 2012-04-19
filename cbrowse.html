@@ -7,27 +7,34 @@
     <script type="text/javascript" src="js/jquery-ui.js"></script>
     <script type="text/javascript" src="js/jquery.mousewheel.js"></script>
     <script type="text/javascript" src="js/rtree.js"></script>
-    <script type="text/javascript" src="js/chromosomes.js"></script>
     <script type="text/javascript" src="js/Cbrowse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script>
     <script type="text/javascript" src="js/Scalebar.js"></script>
+    <script type="text/javascript" src="js/Test.js"></script>
     <script type="text/javascript" src="js/TrackImage.js"></script>
   </head>
   <body>
-  <div id="container"></div>
+  <div class="canvas_container"></div>
   <script>
     $(function () {
       new CBrowse({
-        container      : $('#container'),
-        chromosomeSize : 115169878, // chromosome 13
+        container      : $('.canvas_container'),
+        chromosomeSize : 249250621, // chromosome 1
         tracks         : [{
           type: 'Scalebar'
         }, {
           name          : 'Genes',
-          url           : 'data/example/genes.json',
+          url           : 'http://enssand-03.internal.sanger.ac.uk:7000/Homo_sapiens/Ajax/fetch_features/stranded_contig',
           height        : 100,
           featureHeight : 6,
-          bump          : true
+          bump          : true,
+          urlParams     : { id: 'transcript_core_ensembl' }
+        }, {
+          type          : 'Test',
+          name          : 'Test',
+          url           : false,
+          height        : 100,
+          featureHeight : 6
         }, {
           type: 'ScalebarBottom'
         }]
