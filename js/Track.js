@@ -69,7 +69,7 @@ CBrowse.Track = Base.extend({
         track.cBrowse.makeMenu(features[i], { left: e.pageX, top: e.pageY }, track.name);
       }
     });
-
+    
     if (this.debug) {
       for (var key in this) {
         if (typeof this[key] === 'function') {
@@ -162,6 +162,7 @@ CBrowse.Track = Base.extend({
   
   scaleFeatures: function (features) {
     var i = features.length;
+    
     while (i--) {
       features[i].scaledStart = features[i].start * this.scale;
       features[i].scaledEnd   = features[i].end   * this.scale;
@@ -178,8 +179,8 @@ CBrowse.Track = Base.extend({
     var scale        = this.scale > 1 ? this.scale : 1;
     var scaleKey     = this.scale;
     var seen         = {};
-    var draw         = { fill: {}, border: {}, label: {} };
-
+    var draw         = { fill: {}, border: {}, label: {}, highlight: {}, labelHighlight: {} };
+    
     for (var i = 0; i < features.length; i++) {
       feature = features[i];
       
@@ -347,18 +348,18 @@ CBrowse.Track = Base.extend({
       }
       
       if (feature.highlight) {
-        if (!draw.fill[feature.highlight]) {
-          draw.fill[feature.highlight] = [];
+        if (!draw.highlight[feature.highlight]) {
+          draw.highlight[feature.highlight] = [];
         }
         
-        draw.fill[feature.highlight].push([ 'fillRect', [ start - 1, bounds[0].y - 1, Math.max(labelWidth, width + 1) + 1, bounds[0].h + 1 ] ]);
+        draw.highlight[feature.highlight].push([ 'fillRect', [ start - 1, bounds[0].y - 1, Math.max(labelWidth, width + 1) + 1, bounds[0].h + 1 ] ]);
         
         if (this.separateLabels && bounds[1]) {
-          if (!draw.label[feature.highlight]) {
-            draw.label[feature.highlight] = [];
+          if (!draw.labelHighlight[feature.highlight]) {
+            draw.labelHighlight[feature.highlight] = [];
           }
-        
-          draw.label[feature.highlight].push([ 'fillRect', [ start, bounds[1].y, labelWidth, this.fontHeight ] ]);
+          
+          draw.labelHighlight[feature.highlight].push([ 'fillRect', [ start, bounds[1].y, labelWidth, this.fontHeight ] ]);
         }
       }
       
@@ -415,6 +416,7 @@ CBrowse.Track = Base.extend({
         error    : function () { deferred.reject(); },
         success  : function (json) {
           delete this.ajax;
+          
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
           
@@ -446,6 +448,7 @@ CBrowse.Track = Base.extend({
   draw: function (image, features) {
     this.colorOrder  = [];
     this.decorations = {};
+    
     image.draw(this.positionFeatures(this.scaleFeatures(features), image.scaledStart));
   },
   
@@ -486,7 +489,7 @@ CBrowse.Track = Base.extend({
       }
     }
   },
-
+  
   // initial version of debug functionality
   // to use pass debug: 1 into configuration of the track to debug and profile all calls
   // TODO: implement debug levels

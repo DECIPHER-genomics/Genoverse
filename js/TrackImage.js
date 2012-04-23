@@ -45,8 +45,9 @@ CBrowse.TrackImage = Base.extend({
     
     track.beforeDraw(this);
     
-    this.drawFeatures(features.fill,   'fillStyle', track.colorOrder);
-    this.drawFeatures(features.border, 'strokeStyle');
+    this.drawFeatures(features.highlight, 'fillStyle');
+    this.drawFeatures(features.fill,      'fillStyle', track.colorOrder);
+    this.drawFeatures(features.border,    'strokeStyle');
     
     track.decorateFeatures(this);
     
@@ -64,7 +65,8 @@ CBrowse.TrackImage = Base.extend({
       track.canvas.attr({ width: this.width, height: track.labelsHeight });
       track.context.textBaseline = 'top';
       
-      this.drawFeatures(features.label, 'fillStyle');
+      this.drawFeatures(features.labelHighlight, 'fillStyle');
+      this.drawFeatures(features.label,          'fillStyle');
       
       this.container.append(labels.attr('src', track.canvas[0].toDataURL()).css('top', track.heights.maxFeatures).load(function () {
         $(this).parent().siblings('.' + track.cBrowse.scrollStart).children('.labels').css('top', track.heights.maxFeatures);
