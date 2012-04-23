@@ -352,14 +352,18 @@ CBrowse.Track = Base.extend({
           draw.highlight[feature.highlight] = [];
         }
         
-        draw.highlight[feature.highlight].push([ 'fillRect', [ start - 1, bounds[0].y - 1, Math.max(labelWidth, width + 1) + 1, bounds[0].h + 1 ] ]);
-        
-        if (this.separateLabels && bounds[1]) {
-          if (!draw.labelHighlight[feature.highlight]) {
-            draw.labelHighlight[feature.highlight] = [];
+        if (bounds[1]) {
+          if (this.separateLabels) {
+            if (!draw.labelHighlight[feature.highlight]) {
+              draw.labelHighlight[feature.highlight] = [];
+            }
+            
+            draw.labelHighlight[feature.highlight].push([ 'fillRect', [ start, bounds[1].y, labelWidth, this.fontHeight ] ]);
+          } else {
+            draw.highlight[feature.highlight].push([ 'fillRect', [ start - 1, bounds[0].y - 1, Math.max(labelWidth, width + 1) + 1, bounds[0].h + bounds[1].h ] ]);
           }
-          
-          draw.labelHighlight[feature.highlight].push([ 'fillRect', [ start, bounds[1].y, labelWidth, this.fontHeight ] ]);
+        } else {
+          draw.highlight[feature.highlight].push([ 'fillRect', [ start - 1, bounds[0].y - 1, width + 2, bounds[0].h + 1] ]);
         }
       }
       
