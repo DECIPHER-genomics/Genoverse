@@ -69,6 +69,14 @@ CBrowse.Track = Base.extend({
         track.cBrowse.makeMenu(features[i], { left: e.pageX, top: e.pageY }, track.name);
       }
     });
+
+    if (this.debug) {
+      for (var key in this) {
+        if (typeof this[key] === 'function') {
+          this.debugWrap(this, key);
+        }
+      }
+    }
   },
   
   init: function () {
@@ -154,7 +162,6 @@ CBrowse.Track = Base.extend({
   
   scaleFeatures: function (features) {
     var i = features.length;
-        
     while (i--) {
       features[i].scaledStart = features[i].start * this.scale;
       features[i].scaledEnd   = features[i].end   * this.scale;
@@ -172,7 +179,7 @@ CBrowse.Track = Base.extend({
     var scaleKey     = this.scale;
     var seen         = {};
     var draw         = { fill: {}, border: {}, label: {} };
-    
+
     for (var i = 0; i < features.length; i++) {
       feature = features[i];
       
@@ -392,7 +399,6 @@ CBrowse.Track = Base.extend({
         error    : function () { deferred.reject(); },
         success  : function (json) {
           delete this.ajax;
-          
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
           
@@ -407,7 +413,6 @@ CBrowse.Track = Base.extend({
   draw: function (image, features) {
     this.colorOrder  = [];
     this.decorations = {};
-    
     image.draw(this.positionFeatures(this.scaleFeatures(features), image.scaledStart));
   },
   
@@ -446,6 +451,25 @@ CBrowse.Track = Base.extend({
           this.context.fillRect(start, 0, end - start, height);
         }
       }
+    }
+  },
+
+  // initial version of debug functionality
+  // to use pass debug: 1 into configuration of the track to debug and profile all calls
+  // TODO: implement debug levels
+  debugWrap: function (obj, key) {
+    obj['__original_' + key] = obj[key];
+
+    obj[key] = function () {
+      var name = (obj.name || '') + '(' + (obj.type || 'Track') + ').' + key;
+
+      console.log(name + ' is called');
+      console.time(name);
+
+      var result = this['__original_' + key].apply(this, arguments);
+
+      console.timeEnd(name);
+      return result;
     }
   },
   

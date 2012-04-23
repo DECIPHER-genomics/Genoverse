@@ -16,15 +16,18 @@
   <body>
   <div class="canvas_container"></div>
   <script>
+    var cBrowse;
     $(function () {
-      new CBrowse({
+      cBrowse = new CBrowse({
         container      : $('.canvas_container'),
         chromosomeSize : 249250621, // chromosome 1
         tracks         : [{
-          type: 'Scalebar'
+          type  : 'Scalebar',
+          debug : 1
         }, {
           type          : 'Test',
           name          : 'Test',
+          debug         : 1,
           url           : '/data/1.json'
         }]
       });

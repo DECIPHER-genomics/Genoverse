@@ -9,10 +9,13 @@ CBrowse.Track.Test = CBrowse.Track.extend({
     allData       : true
   },
 
+  testFunc: function() {
+    alert('shit');
+  },
+
   setFeatures: function (json) {
     console.time("timing setFeatures");
     var i = json.data.length;
-    debugger;
     while (i--) {
       var feature = {
         sort: i,
