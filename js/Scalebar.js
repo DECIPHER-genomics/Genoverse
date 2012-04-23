@@ -70,7 +70,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     
     var flip     = (start / this.minorUnit) % 2 ? 1 : -1;
     var features = [];
-    var feature, major;
+    var feature, major, label;
     
     for (var x = start; x < end + this.minorUnit; x += this.minorUnit) {
       flip *= -1;
@@ -91,14 +91,20 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
       }
       
       if (major) {
-        feature.label      = this.formatLabel(x);
-        feature.labelColor = this.color;
+        label = this.formatLabel(x);
         
-        if (!feature.end) {
-          feature.start = x;
-          feature.end   = x;
-          feature.color = this.color;
+        if (label !== this.lastLabel) {
+          feature.label      = label;
+          feature.labelColor = this.color;
+          
+          if (!feature.end) {
+            feature.start = x;
+            feature.end   = x;
+            feature.color = this.color;
+          }
         }
+        
+        this.lastLabel = label;
       }
       
       if (feature.end) {
