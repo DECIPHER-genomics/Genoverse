@@ -17,7 +17,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     this.base(config);
     
     if (this.type === 'Scalebar') {
-      this.cBrowse.tracks.push(this.cBrowse.tracks.length - this.index, 0, { type: 'ScalebarBottom' });
+      this.cBrowse.tracks.push({ type: 'ScalebarBottom' });
       this.cBrowse.labelContainer.css('top', this.height);
     }
   },
