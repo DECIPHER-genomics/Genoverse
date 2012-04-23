@@ -346,6 +346,22 @@ CBrowse.Track = Base.extend({
         }
       }
       
+      if (feature.highlight) {
+        if (!draw.fill[feature.highlight]) {
+          draw.fill[feature.highlight] = [];
+        }
+        
+        draw.fill[feature.highlight].push([ 'fillRect', [ start - 1, bounds[0].y - 1, Math.max(labelWidth, width + 1) + 1, bounds[0].h + 1 ] ]);
+        
+        if (this.separateLabels && bounds[1]) {
+          if (!draw.label[feature.highlight]) {
+            draw.label[feature.highlight] = [];
+          }
+        
+          draw.label[feature.highlight].push([ 'fillRect', [ start, bounds[1].y, labelWidth, this.fontHeight ] ]);
+        }
+      }
+      
       height = Math.max(feature.bottom[scaleKey], height);
     }
     
@@ -393,7 +409,7 @@ CBrowse.Track = Base.extend({
     } else {
       this.ajax = $.ajax({
         url      : this.url,
-        data     : $.extend({ chr: this.cBrowse.chromosome, start: image.bufferedStart, end: image.end }, this.urlParams, this.allData ? { start: 1, end: this.cBrowse.chromosomeSize } : {}),
+        data     : this.getQueryString(image.bufferedStart, image.end),
         dataType : 'json',
         context  : this,
         error    : function () { deferred.reject(); },
@@ -403,11 +419,28 @@ CBrowse.Track = Base.extend({
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
           
           this.setFeatures(json);
-          
           this.draw(image, json.features);
         }
       });
     }
+  },
+  
+  getQueryString: function (start, end) {
+    var search = window.location.search.split(/[?&;]/);
+    var data   = {
+      chr   : this.cBrowse.chromosome,
+      start : this.allData ? 1 : start,
+      end   : this.allData ? this.cBrowse.chromosomeSize : end
+    };
+    
+    for (var i = 0; i < search.length; i++) {
+      if (search[i] && !('&' + search[i] + '&').match(this.cBrowse.paramRegex)) {
+        search[i] = search[i].split('=');
+        data[search[i][0]] = search[i][1];
+      }
+    }
+    
+    return $.extend(data, this.urlParams);
   },
   
   draw: function (image, features) {
