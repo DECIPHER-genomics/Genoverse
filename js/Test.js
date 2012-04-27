@@ -1,6 +1,6 @@
 CBrowse.Track.Test = CBrowse.Track.extend({
   config: {
-    height        : 200,
+    height        : 150,
     fixedHeight   : true,
     featureHeight : 1,
     color         : '#000000',
@@ -213,7 +213,7 @@ CBrowse.Track.Test = CBrowse.Track.extend({
       height = Math.max(feature.bottom[scaleKey], height);
     }
     
-    this.featuresHeight      = height;
+    this.featuresHeight      = Math.max(height, this.fixedHeight ? this.height : 0);
     this.labelsHeight        = labelsHeight;
     this.fullHeight          = Math.max(height, this.initialHeight) + labelsHeight;
     this.heights.max         = Math.max(this.fullHeight, this.heights.max);
@@ -222,11 +222,12 @@ CBrowse.Track.Test = CBrowse.Track.extend({
     return draw;
   },
   
-  setFeatures: function (json) {
-    var i = json.data.length;
+  parseFeatures: function (json, bounds) {
     var features = new Array();
+    this.tree = new RTree();
 
-    while (i--) {
+
+    for (i = 0; i < json.data.length; i++) {
       features.push({
         sort: i,
         start: json.data[i][0],
@@ -240,6 +241,22 @@ CBrowse.Track.Test = CBrowse.Track.extend({
       });
     }
 
+    // var heigth = this.height;
+
+    // json.data.every(function (element, index) {
+    //   features.push({
+    //     start    : element[0],
+    //     end      : element[0] + 10,
+    //     id       : index,
+    //     color    : "#000000",
+    //     y        : heigth/2 - element[1]*heigth/4,
+    //     bounds   : {},
+    //     visible  : {},
+    //     bottom   : {}
+    //   });
+    //   return true;
+    // })
+
     this.features = new FRegion(features);
    
     if (this.allData) {
@@ -247,8 +264,37 @@ CBrowse.Track.Test = CBrowse.Track.extend({
     }
   },
 
+  // setFeatures: function (json) {
+  //   var i = json.data.length;
+  //   var features = new Array();
+  //   this.features = new RTree();
+
+  //   while (i--) {
+  //     features.push({
+  //       sort: i,
+  //       start: json.data[i][0],
+  //       end:  json.data[i][0] + 10,
+  //       id: "f" + i,
+  //       color: "#000000",
+  //       y: this.height/2 - json.data[i][1]*this.height/4,
+  //       bounds: {},
+  //       visible: {},
+  //       bottom: {}
+  //     });
+
+  //     this.features.insert({ x: json.data[i][0], y: 0, w: 0, h: 1 }, features[i]);
+  //   }
+
+  //   //this.features = new FRegion(features);
+   
+  //   if (this.allData) {
+  //     this.url = false;
+  //   }
+  // },
+
   getData: function (image, deferred) {
-    var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search(image.bufferedStart, image.end) : false;
+    var bounds   = { x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 };    
+    var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search(bounds) : false;
     
     if (features) {
       this.draw(image, features.sort(function (a, b) { return a.sort - b.sort; }));
@@ -265,7 +311,7 @@ CBrowse.Track.Test = CBrowse.Track.extend({
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
           
-          this.setFeatures(json);
+          this.parseFeatures(json, bounds);
 
           if (this.url) {
             this.draw(image, json.features);
@@ -282,7 +328,7 @@ CBrowse.Track.Test = CBrowse.Track.extend({
     this.context.fillStyle = '#89BDFF';
     this.context.fillRect(0, this.height/2, image.width, 1);
     this.context.fillRect(0, this.height/4, image.width, 1);
-    this.context.fillRect(0, 3*this.height/4, image.width, 1);
+    this.context.fillRect(0, 3 * this.height/4, image.width, 1);
   },
 
   afterDraw: function (image) {

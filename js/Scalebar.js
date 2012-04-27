@@ -116,7 +116,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
       }
     }
     
-    this.base({ features: features });
+    return this.parseFeatures({ features: features });
   },
   
   positionFeatures: function (features, startOffset) {

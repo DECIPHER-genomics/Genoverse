@@ -25,6 +25,13 @@
         tracks         : [{
           type  : 'Scalebar'
         }, {
+          name          : 'Genes',
+          url           : 'http://enssand-03.internal.sanger.ac.uk:7000/Homo_sapiens/Ajax/fetch_features/_transcript',
+          height        : 100,
+          featureHeight : 6,
+          bump          : true,
+          urlParams     : { id: 'transcript_core_ensembl' }
+        }, {
           type          : 'Test',
           name          : 'Test',
           debug         : 1,

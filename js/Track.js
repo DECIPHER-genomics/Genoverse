@@ -143,7 +143,7 @@ CBrowse.Track = Base.extend({
     this.container.css('left', 0).children().hide();
   },
   
-  setFeatures: function (data) {
+  parseFeatures: function (data, bounds) {
     var i = data.features.length;
     
     while (i--) {
@@ -157,6 +157,9 @@ CBrowse.Track = Base.extend({
     
     if (this.allData) {
       this.url = false;
+      return this.features.search(bounds);
+    } else {
+      return data.features;
     }
   },
   
@@ -407,7 +410,8 @@ CBrowse.Track = Base.extend({
   },
   
   getData: function (image, deferred) {
-    var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search({ x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 }) : false;
+    var bounds   = { x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 };
+    var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search(bounds) : false;
     
     if (features) {
       this.draw(image, features.sort(function (a, b) { return a.sort - b.sort; }));
@@ -424,8 +428,7 @@ CBrowse.Track = Base.extend({
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
           
-          this.setFeatures(json);
-          this.draw(image, json.features);
+          this.draw(image, this.parseFeatures(json, bounds));
         }
       });
     }
