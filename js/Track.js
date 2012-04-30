@@ -80,8 +80,15 @@ CBrowse.Track = Base.extend({
   },
   
   init: function () {
+    if (this.renderer) {
+      this.urlParams.renderer = this.renderer;
+      this.featuresByRenderer = {};
+      this.features           = this.featuresByRenderer[this.urlParams.renderer] = new RTree();
+    } else {
+      this.features = new RTree();
+    }
+    
     this.scaleSettings = {};
-    this.features      = new RTree();
   },
   
   reset: function () {
@@ -140,7 +147,26 @@ CBrowse.Track = Base.extend({
       track[this] = scaleSettings[this];
     });
     
+    if (this.renderer) {
+      var renderer = this.getRenderer();
+      
+      if (renderer !== this.urlParams.renderer) {
+        this.urlParams.renderer = renderer;
+        this.dataRegion = { start: 9e99, end: -9e99 };
+        
+        if (!this.featuresByRenderer[renderer]) {
+          this.featuresByRenderer[renderer] = new RTree();
+        }
+        
+        this.features = this.featuresByRenderer[renderer];
+      }
+    }
+    
     this.container.css('left', 0).children().hide();
+  },
+  
+  getRenderer: function () {
+    return this.urlParams.renderer;
   },
   
   parseFeatures: function (data, bounds) {
