@@ -183,7 +183,7 @@ CBrowse.Track = Base.extend({
     
     if (this.allData) {
       this.url = false;
-      return this.features.search(bounds);
+      return this.features.search(bounds).sort(function (a, b) { return a.sort - b.sort; });
     } else {
       return data.features;
     }
