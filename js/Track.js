@@ -69,7 +69,7 @@ CBrowse.Track = Base.extend({
         track.cBrowse.makeMenu(features[i], { left: e.pageX, top: e.pageY }, track.name);
       }
     });
-
+    
     if (this.debug) {
       for (var key in this) {
         if (typeof this[key] === 'function') {
@@ -80,8 +80,15 @@ CBrowse.Track = Base.extend({
   },
   
   init: function () {
+    if (this.renderer) {
+      this.urlParams.renderer = this.renderer;
+      this.featuresByRenderer = {};
+      this.features           = this.featuresByRenderer[this.urlParams.renderer] = new RTree();
+    } else {
+      this.features = new RTree();
+    }
+    
     this.scaleSettings = {};
-    this.features      = new RTree();
   },
   
   reset: function () {
@@ -140,10 +147,29 @@ CBrowse.Track = Base.extend({
       track[this] = scaleSettings[this];
     });
     
+    if (this.renderer) {
+      var renderer = this.getRenderer();
+      
+      if (renderer !== this.urlParams.renderer) {
+        this.urlParams.renderer = renderer;
+        this.dataRegion = { start: 9e99, end: -9e99 };
+        
+        if (!this.featuresByRenderer[renderer]) {
+          this.featuresByRenderer[renderer] = new RTree();
+        }
+        
+        this.features = this.featuresByRenderer[renderer];
+      }
+    }
+    
     this.container.css('left', 0).children().hide();
   },
   
-  setFeatures: function (data) {
+  getRenderer: function () {
+    return this.urlParams.renderer;
+  },
+  
+  parseFeatures: function (data, bounds) {
     var i = data.features.length;
     
     while (i--) {
@@ -157,11 +183,15 @@ CBrowse.Track = Base.extend({
     
     if (this.allData) {
       this.url = false;
+      return this.features.search(bounds);
+    } else {
+      return data.features;
     }
   },
   
   scaleFeatures: function (features) {
     var i = features.length;
+    
     while (i--) {
       features[i].scaledStart = features[i].start * this.scale;
       features[i].scaledEnd   = features[i].end   * this.scale;
@@ -178,8 +208,8 @@ CBrowse.Track = Base.extend({
     var scale        = this.scale > 1 ? this.scale : 1;
     var scaleKey     = this.scale;
     var seen         = {};
-    var draw         = { fill: {}, border: {}, label: {} };
-
+    var draw         = { fill: {}, border: {}, label: {}, highlight: {}, labelHighlight: {} };
+    
     for (var i = 0; i < features.length; i++) {
       feature = features[i];
       
@@ -347,18 +377,22 @@ CBrowse.Track = Base.extend({
       }
       
       if (feature.highlight) {
-        if (!draw.fill[feature.highlight]) {
-          draw.fill[feature.highlight] = [];
+        if (!draw.highlight[feature.highlight]) {
+          draw.highlight[feature.highlight] = [];
         }
         
-        draw.fill[feature.highlight].push([ 'fillRect', [ start - 1, bounds[0].y - 1, Math.max(labelWidth, width + 1) + 1, bounds[0].h + 1 ] ]);
-        
-        if (this.separateLabels && bounds[1]) {
-          if (!draw.label[feature.highlight]) {
-            draw.label[feature.highlight] = [];
+        if (bounds[1]) {
+          if (this.separateLabels) {
+            if (!draw.labelHighlight[feature.highlight]) {
+              draw.labelHighlight[feature.highlight] = [];
+            }
+            
+            draw.labelHighlight[feature.highlight].push([ 'fillRect', [ start, bounds[1].y, labelWidth, this.fontHeight ] ]);
+          } else {
+            draw.highlight[feature.highlight].push([ 'fillRect', [ start - 1, bounds[0].y - 1, Math.max(labelWidth, width + 1) + 1, bounds[0].h + bounds[1].h ] ]);
           }
-        
-          draw.label[feature.highlight].push([ 'fillRect', [ start, bounds[1].y, labelWidth, this.fontHeight ] ]);
+        } else {
+          draw.highlight[feature.highlight].push([ 'fillRect', [ start - 1, bounds[0].y - 1, width + 2, bounds[0].h + 1] ]);
         }
       }
       
@@ -402,7 +436,8 @@ CBrowse.Track = Base.extend({
   },
   
   getData: function (image, deferred) {
-    var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search({ x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 }) : false;
+    var bounds   = { x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 };
+    var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search(bounds) : false;
     
     if (features) {
       this.draw(image, features.sort(function (a, b) { return a.sort - b.sort; }));
@@ -415,11 +450,11 @@ CBrowse.Track = Base.extend({
         error    : function () { deferred.reject(); },
         success  : function (json) {
           delete this.ajax;
+          
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
           
-          this.setFeatures(json);
-          this.draw(image, json.features);
+          this.draw(image, this.parseFeatures(json, bounds));
         }
       });
     }
@@ -446,6 +481,7 @@ CBrowse.Track = Base.extend({
   draw: function (image, features) {
     this.colorOrder  = [];
     this.decorations = {};
+    
     image.draw(this.positionFeatures(this.scaleFeatures(features), image.scaledStart));
   },
   
@@ -486,7 +522,7 @@ CBrowse.Track = Base.extend({
       }
     }
   },
-
+  
   // initial version of debug functionality
   // to use pass debug: 1 into configuration of the track to debug and profile all calls
   // TODO: implement debug levels
