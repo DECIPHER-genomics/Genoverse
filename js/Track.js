@@ -438,7 +438,6 @@ CBrowse.Track = Base.extend({
   },
   
   getData: function (image, deferred) {
-    console.time(this.type + ".getData");
     var bounds   = { x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 };
     var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search(bounds) : false;
     
@@ -461,7 +460,6 @@ CBrowse.Track = Base.extend({
         }
       });
     }
-    console.timeEnd(this.type + ".getData");
   },
   
   getQueryString: function (start, end) {

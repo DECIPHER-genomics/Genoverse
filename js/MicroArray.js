@@ -23,7 +23,6 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
   },
 
   parseFeatures: function (json, bounds) {
-    console.time('MicroArray.parseFeatures');
     var features = new Array();
     var i = json.data.length;
 
@@ -49,7 +48,6 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
       this.url = false;
     }
 
-    console.timeEnd('MicroArray.parseFeatures');
     return this.features.search(bounds);
   },
 
