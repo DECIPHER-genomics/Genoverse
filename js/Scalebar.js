@@ -132,8 +132,8 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     this.setFeatures(start, end);
     
     $.when(this.base(start, end, width, moved, cls)).done(function (dfd) {
-      $.when(bottomTrack._makeImage($.extend(true, {}, $(dfd.target).data('img')), width, moved, cls)).done(function (dfd2) {
-        deferred.resolve({ target: [ dfd.target, dfd2.target ] });
+      $.when(bottomTrack._makeImage($.extend(true, {}, dfd.img), width, moved, cls)).done(function (dfd2) {
+        deferred.resolve({ target: [ dfd.target, dfd2.target ], img: [ dfd.img, dfd2.img ] });
       });
     });
     
@@ -182,7 +182,7 @@ CBrowse.Track.ScalebarBottom = CBrowse.Track.Scalebar.extend({
   
   _makeImage: function (img, width, moved, cls) {
     var dir      = moved < 0 ? 'right' : 'left';
-    var div      = this.imgContainer.clone().width(width).addClass(cls).css(dir, this.offsets[dir]);
+    var div      = this.imgContainer.clone().width(width).addClass(cls).css(dir, this.offsets[dir]).data('img', img);
     var deferred = $.Deferred();
     
     this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
@@ -193,7 +193,7 @@ CBrowse.Track.ScalebarBottom = CBrowse.Track.Scalebar.extend({
     img.track     = this;
     img.container = div;
     
-    img.images.clone().appendTo(div).load(deferred.resolve).data({ deferred: deferred, img: img });
+    img.images.clone().appendTo(div).load(function (e) { deferred.resolve({ target: e.target, img: img }); }).data('deferred', deferred);
     
     return deferred;
   },

@@ -2,9 +2,11 @@ CBrowse.TrackImage = Base.extend({
   constructor: function (config) {
     $.extend(this, config);
     this.bufferedStart = Math.max(this.start - (this.track.cBrowse.labelBuffer), 1);
+    this.container.data('img', this);
   },
   
   makeImage: function () {
+    var img      = this;
     var deferred = $.Deferred();
     
     if (this.track.separateLabels) {
@@ -15,18 +17,17 @@ CBrowse.TrackImage = Base.extend({
         $(this).load(dfd.resolve).data('deferred', dfd);
         return dfd;
       })).done(function () {
-        deferred.resolve({ target: $.map(arguments, function (a) { return a.target; }) });
+        deferred.resolve({ target: $.map(arguments, function (a) { return a.target; }), img: img });
       });
     } else {
-      this.images = $('<img />').load(deferred.resolve).data('deferred', deferred);
+      this.images = $('<img />').load(function (e) { deferred.resolve({ target: e.target, img: img }); }).data('deferred', deferred);
     }
-    
-    this.images.data('img', this);
     
     return deferred;
   },
   
   draw: function (features) {
+    var img   = this;
     var track = this.track;
     var i, color, labelColor, labels;
     
@@ -37,7 +38,7 @@ CBrowse.TrackImage = Base.extend({
     }
     
     if (track.featuresHeight === 0) {
-      return this.images.each(function () { $(this).data('deferred').resolve({ target: this }); });
+      return this.images.each(function () { $(this).data('deferred').resolve({ target: this, img: img }); });
     }
     
     track.canvas.attr({ width: this.width, height: track.featuresHeight });
@@ -59,7 +60,7 @@ CBrowse.TrackImage = Base.extend({
       this.container.append(this.images.filter('.features').attr('src', track.canvas[0].toDataURL()));
       
       if (track.labelsHeight === 0) {
-        return labels.data('deferred').resolve({ target: labels });
+        return labels.data('deferred').resolve({ target: labels, img: img });
       }
       
       track.canvas.attr({ width: this.width, height: track.labelsHeight });
@@ -132,7 +133,6 @@ CBrowse.TrackImage = Base.extend({
       $(this).load(dfd.resolve);
       return dfd;
     })).done(deferred.resolve);
-    
     return deferred;
   }
 });
