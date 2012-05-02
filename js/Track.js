@@ -306,10 +306,12 @@ CBrowse.Track = Base.extend({
           } while (bump);
         }
         
-        this.featurePositions.insert(bounds[0], feature);
-        
-        if (bounds[1]) {
-          this.labelPositions.insert(bounds[1], feature);
+        if (this.bump || this.bumpLabels) {
+          this.featurePositions.insert(bounds[0], feature);
+          
+          if (bounds[1]) {
+            this.labelPositions.insert(bounds[1], feature);
+          }
         }
         
         feature.bounds[scaleKey] = bounds;
@@ -399,7 +401,7 @@ CBrowse.Track = Base.extend({
       height = Math.max(feature.bottom[scaleKey], height);
     }
     
-    this.featuresHeight      = height;
+    this.featuresHeight      = Math.max(height, this.fixedHeight ? this.height : 0);
     this.labelsHeight        = labelsHeight;
     this.fullHeight          = Math.max(height, this.initialHeight) + labelsHeight;
     this.heights.max         = Math.max(this.fullHeight, this.heights.max);
@@ -436,6 +438,7 @@ CBrowse.Track = Base.extend({
   },
   
   getData: function (image, deferred) {
+    console.time(this.type + ".getData");
     var bounds   = { x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 };
     var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search(bounds) : false;
     
@@ -458,6 +461,7 @@ CBrowse.Track = Base.extend({
         }
       });
     }
+    console.timeEnd(this.type + ".getData");
   },
   
   getQueryString: function (start, end) {
