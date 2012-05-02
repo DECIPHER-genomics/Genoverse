@@ -12,6 +12,11 @@ var FRegion = function(features){
     _isSorted = false;
   }
 
+  this.add = function (array) {
+    _features.concat(array);
+    _isSorted = false;
+  }
+
   this.sort = function (force) {
     if (_isSorted && !force) return;
 
@@ -63,6 +68,10 @@ var FRegion = function(features){
   this.findLastStartingBeforeX = function (x, iStart, iEnd) {
     if (!_isSorted) this.sort();
 
+    // Check last element
+    if (_featuresSortedByEnds[_featuresSortedByEnds.length-1].end < x) 
+      return _featuresSortedByEnds[_featuresSortedByEnds.length-1].index;
+
     if (iStart === undefined) iStart = 0;
     if (iEnd   === undefined) iEnd   = _features.length - 1;
     var iMiddle = Math.floor((iEnd+iStart)/2);
@@ -78,6 +87,10 @@ var FRegion = function(features){
 
   this.findFirstEndingAfterX = function (x, iStart, iEnd) {
     if (!_isSorted) this.sort();
+
+    // Check first element
+    if (_featuresSortedByEnds[0].end > x) 
+      return _featuresSortedByEnds[0].index;
 
     if (iStart === undefined) iStart = 0;
     if (iEnd   === undefined) iEnd   = _featuresSortedByEnds.length - 1;
