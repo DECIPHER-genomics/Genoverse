@@ -386,9 +386,10 @@ var CBrowse = Base.extend({
     var cls     = this.scrollStart;
     
     $.when.apply($, $.map(this.tracks, function (track) { return track.makeImage(start, end, width, left, cls); })).done(function () {
-      $.when.apply($, $($.map(arguments, function (a) { return a.target; })).show().map(function () {
-        return $(this).data('img').drawBackground();
-      })).done(function () {
+      $.when.apply($, $.map($.map(arguments, function (a) {
+        $(a.target).show();
+        return a.img;
+      }), function (i) { return i.drawBackground(); })).done(function () {
         overlay.remove();
         overlay = null;
       });
