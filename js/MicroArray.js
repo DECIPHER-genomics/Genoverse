@@ -18,30 +18,50 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
     this.context.fillRect(0, 3*this.height/4, image.width, 1);
   },
 
-  afterDraw: function (image) {
+  decorateFeatures: function (image) {
     var bounds = { x: image.bufferedStart, w: image.end - image.bufferedStart };
     var calls  = this.calls.search(bounds);
     var i = calls.length;
-    console.log(bounds);
-    console.log(calls);
 
-    this.context.globalAlpha = 0.5;
     while (i--) {
       start      = calls[i].start * this.scale - image.scaledStart;
       end        = calls[i].end * this.scale   - image.scaledStart;
 
-      var lingrad = this.context.createLinearGradient(0,0,0,150);
-      lingrad.addColorStop(0, calls[i].color);
-      lingrad.addColorStop(0.5, '#fff');
+      // var lingrad = this.context.createLinearGradient(0,0,0,150);
+      // lingrad.addColorStop(0, calls[i].color);
+      // lingrad.addColorStop(0.5, '#fff');
 
-      this.context.fillStyle = lingrad;
+      this.context.fillStyle = calls[i].color;
+      this.context.globalAlpha = 0.2;
       this.context.fillRect(start, calls[i].y, end-start, this.height/2-calls[i].y);
+      this.context.globalAlpha = 0.8;
+      this.context.fillRect(start, calls[i].y-2, end-start, 4);
     }
+  },
+
+  afterDraw: function (image) {
 
     this.context.globalAlpha = 1;
     //this.context.globalAlpha = 0.5;
     this.context.fillStyle = '#7F7F7F';
     this.context.fillRect(0, 0, image.width, 1);
+  },
+
+  addEventHandlers: function () {
+    var track = this;
+
+    // MouseUp event when not scrolling (dragging)
+    this.container.on('mouseup', '.image_container', function (e) {
+      if ((e.which && e.which !== 1) || (track.cBrowse.prev.left !== track.cBrowse.left)) {
+        return; // Only show menus on left click when not dragging
+      }
+      var x = (e.pageX - track.container.parent().offset().left)/track.scale + track.cBrowse.start;
+      var y = e.pageY - $(e.target).offset().top;
+      var calls = track.calls.search({ x: x, y: 0, w: 1, h: 1 });
+      if (calls.length) {
+        track.makeMenu(calls[0], e);
+      }
+    });
   },
 
   parseFeatures: function (json, bounds) {
@@ -69,17 +89,12 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
     var calls = new Array();
     for (var i = 0; i < json.calls.length; i++) {
       var call = json.calls[i];
-      calls.push({
-        sort: i,
+      calls.push($.extend(call, {
         start: call.start,
         end:  call.stop,
-        id: "c" + i,
         color: call.ratio > 0 ? "#13BF04" : "#FF2F00",
         y: halfHeight - call.ratio*quarterHeight,
-        bounds: {},
-        visible: {},
-        bottom: {}
-      });
+      }));
     }
     this.calls = new FRegion(calls);
 
@@ -89,5 +104,17 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
 
     return this.features.search(bounds);
   },
+
+  makeMenu: function (call, e) {
+    var id = 'featureMenu' + call.start;
+    if ($('#'+ id).length) return;
+
+    var $menu = $('div.featureMenuContainer').clone();
+    $('.eval', $menu).each(function(){
+      $(this).html(eval( $(this).html() ));
+    });
+
+    $('body').append($menu.css({ left: e.pageX, top: e.pageY, display: 'block' }).attr('id', id));
+  }
 
 });

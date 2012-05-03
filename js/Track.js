@@ -48,27 +48,7 @@ CBrowse.Track = Base.extend({
       });
     }
     
-    this.container.on('mouseup', '.image_container', function (e) {
-      if ((e.which && e.which !== 1) || (track.cBrowse.prev.left !== track.cBrowse.left)) {
-        return; // Only show menus on left click when not dragging
-      }
-      
-      var x        = e.pageX - track.container.parent().offset().left + track.cBrowse.scaledStart;
-      var y        = e.pageY - $(e.target).offset().top;
-      var features = track[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 });
-      var i        = features.length;
-      var seen     = {};
-      
-      while (i--) {
-        if (seen[features[i].id]) {
-          continue;
-        }
-        
-        seen[features[i].id] = 1;
-        
-        track.cBrowse.makeMenu(features[i], { left: e.pageX, top: e.pageY }, track.name);
-      }
-    });
+    this.addEventHandlers();
     
     if (this.debug) {
       for (var key in this) {
@@ -90,7 +70,37 @@ CBrowse.Track = Base.extend({
     
     this.scaleSettings = {};
   },
-  
+
+  addEventHandlers: function () {
+    var track = this;
+
+    // MouseUp event when not scrolling (dragging)
+    this.container.on('mouseup', '.image_container', function (e) {
+      console.log('bla');
+      if ((e.which && e.which !== 1) || (track.cBrowse.prev.left !== track.cBrowse.left)) {
+        return; // Only show menus on left click when not dragging
+      }
+      
+      var x        = e.pageX - track.container.parent().offset().left + track.cBrowse.scaledStart;
+      var y        = e.pageY - $(e.target).offset().top;
+      var features = track[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 });
+      var i        = features.length;
+      var seen     = {};
+
+      console.log(x, y);
+      
+      while (i--) {
+        if (seen[features[i].id]) {
+          continue;
+        }
+        
+        seen[features[i].id] = 1;
+        
+        track.cBrowse.makeMenu(features[i], { left: e.pageX, top: e.pageY }, track.name);
+      }
+    });
+  },
+
   reset: function () {
     if (this.ajax) {
       this.ajax.abort();
