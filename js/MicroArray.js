@@ -62,6 +62,23 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
         track.makeMenu(calls[0], e);
       }
     });
+
+    this.container.on('mousemove', '.image_container', function (e) {
+      var x = (e.pageX - track.container.parent().offset().left)/track.scale + track.cBrowse.start;
+      var y = e.pageY - $(e.target).offset().top;
+      
+      var calls = track.calls.search({ x: x, y: 0, w: 1, h: 1 });
+      if (calls.length) {
+        yRatio = 2 - 4*y/track.height;
+        if ((calls[0].ratio > 0 && yRatio > 0 && yRatio < calls[0].ratio) || (calls[0].ratio < 0 && yRatio < 0 && yRatio > calls[0].ratio)) {
+          $(this).css({ cursor: 'pointer'});
+        } else {
+          $(this).css({ cursor: 'auto'});
+        }
+      } else {
+        $(this).css({ cursor: 'auto'});
+      }
+    });
   },
 
   parseFeatures: function (json, bounds) {
