@@ -1,6 +1,6 @@
 var CBrowse = Base.extend({
   defaults: {
-    urlParamTemplate : 'r=CHR:START-END', // Overwrite this for your URL style
+    urlParamTemplate : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
     width            : 1000,
     height           : 200,
     labelWidth       : 134,
@@ -40,7 +40,7 @@ var CBrowse = Base.extend({
     this.wrapperLeft    = this.labelWidth - width;
     this.width         -= this.labelWidth;
     this.fullWidth      = this.width * (2 * this.buffer + 1);
-    this.paramRegex     = new RegExp('([?&;])' + this.urlParamTemplate.replace(/^(\w+)=/, '($1)=').replace(/CHR(.)/, '(\\w+)($1)').replace(/START(.)/, '(\\d+)($1)').replace('END', '(\\d+)') + '([;&])');
+    this.paramRegex     = new RegExp('([?&;])' + this.urlParamTemplate.replace(/^(\w+)=/, '($1)=').replace(/__CHR__(.)/, '(\\w+)($1)').replace(/__START__(.)/, '(\\d+)($1)').replace('__END__', '(\\d+)') + '([;&])');
     this.menuContainer  = $('<div class="menu_container">').css({ width: width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
     this.labelContainer = $('<ul class="label_container">').width(this.labelWidth).appendTo(this.container).sortable({
       items       : 'li:not(.unsortable)',
@@ -81,7 +81,7 @@ var CBrowse = Base.extend({
             cBrowse.zoomOutHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
               width: 40, height: 40, top: '+=10', left: '+=10'
             }, {
-              complete: function () { $(this).css({ width: 80, height:80, display: 'none' }); }
+              complete: function () { $(this).css({ width: 80, height: 80, display: 'none' }); }
             });
           }
         }, 100);
@@ -162,7 +162,7 @@ var CBrowse = Base.extend({
     
     $(document).off('mousemove', this.dragEvent);
     
-    $('.overlay', this.wrapper).css({
+    $('.overlay', this.wrapper).add('.menu', this.menuContainer).css({
       left       : function (i, left) { return parseInt(left, 10) + parseInt($(this).css('marginLeft'), 10); },
       marginLeft : 0
     });
@@ -199,7 +199,7 @@ var CBrowse = Base.extend({
     }
     
     $('.track_container', this.container).css('left', this.left);
-    $('.overlay', this.wrapper).css('marginLeft', this.left - this.prev.left);
+    $('.overlay', this.wrapper).add('.menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
     
     this.setRange(start, end, false);
     
@@ -212,21 +212,26 @@ var CBrowse = Base.extend({
   checkTrackSize: function () {
     var bounds = { x: this.scaledStart, w: this.width, y: 0 };
     var scale  = this.scale;
-    var height;
+    var height, labelTop;
     
     for (var i = 0; i < this.tracks.length; i++) {
       if (!this.tracks[i].fixedHeight) {
         if (!this.dragging) {
           bounds.h = this.tracks[i].heights.max;
-          height   = this.tracks[i].separateLabels ?
-            Math.max.apply(Math, $.map(this.tracks[i].labelPositions.search(bounds),   function (feature) { return feature.labelBottom[scale]; }).concat(0)) + this.tracks[i].heights.maxFeatures :
-            Math.max.apply(Math, $.map(this.tracks[i].featurePositions.search(bounds), function (feature) { return feature.bottom[scale];      }).concat(0));
+          height   = Math.max.apply(Math, $.map(this.tracks[i].featurePositions.search(bounds), function (feature) { return feature.bottom[scale]; }).concat(0));
           
-          if (this.tracks[i].autoHeight) {
-            this.tracks[i].resize(height);
+          if (this.tracks[i].separateLabels) {
+            labelTop = height;
+            height  += Math.max.apply(Math, $.map(this.tracks[i].labelPositions.search(bounds), function (feature) { return feature.labelBottom[scale]; }).concat(0));
           }
           
-          this.tracks[i].sizeHandle.data('height', height);
+          if (this.tracks[i].autoHeight) {
+            this.tracks[i].resize(height, labelTop);
+          }
+          
+          if (this.tracks[i].sizeHandle) {
+            this.tracks[i].sizeHandle.data('height', height);
+          }
         }
       }
     }
@@ -345,15 +350,129 @@ var CBrowse = Base.extend({
       width           : this.width
     };
     
+    this.tracksById = {};
+    
     for (var i = 0; i < this.tracks.length; i++) {
       if (this.tracks[i].type) {
         this.tracks[i] = new CBrowse.Track[this.tracks[i].type]($.extend(this.tracks[i], defaults, { index: i }));
       } else {
         this.tracks[i] = new CBrowse.Track($.extend(this.tracks[i], defaults, { index: i }));
       }
+      
+      if (this.tracks[i].id) {
+        this.tracksById[this.tracks[i].id] = this.tracks[i];
+      }
     }
     
     this.labelBuffer = Math.ceil(this.tracks[0].context.measureText('W').width / this.scale) * this.longestLabel;
+  },
+  
+  addTracks: function (tracks) {
+    var cBrowse = this;
+    
+    var defaults = {
+      cBrowse         : this,
+      canvasContainer : this.wrapper,
+      paramRegex      : this.paramRegex,
+      width           : this.width
+    };
+    
+    var start = this.start - this.length;
+    var end   = this.end   + this.length;
+    var width = Math.round((end - start) * this.scale);
+    var index = this.tracks.length;
+    
+    for (var i = 0; i < tracks.length; i++) {
+      if (tracks[i].type) {
+        tracks[i] = new CBrowse.Track[tracks[i].type]($.extend(tracks[i], defaults, { index: i + index }));
+      } else {
+        tracks[i] = new CBrowse.Track($.extend(tracks[i], defaults, { index: i + index }));
+      }
+      
+      this.tracks.push(tracks[i]);
+      
+      if (tracks[i].id) {
+        this.tracksById[tracks[i].id] = tracks[i];
+      }
+      
+      tracks[i].setScale();
+      tracks[i].container.data('left', this.left);
+    }
+    
+    $.when.apply($, $.map(tracks, function (track) { return track.makeImage(start, end, width, -cBrowse.left, cBrowse.scrollStart); })).done(function () {
+      var redraw = false;
+      
+      $.map(arguments, function (a) {
+        $(a.target).show();
+        $.each(a.img.length ? a.img : [ a.img ], function () {
+          if (this.track.backgrounds) {
+            this.track.scaleFeatures(this.track.backgrounds);
+            redraw = true;
+          }
+          
+          this.drawBackground();
+        });
+      });
+      
+      cBrowse.updateTracks(redraw);
+      cBrowse.checkTrackSize();
+    });
+  },
+  
+  removeTracks: function (tracks) {
+    var i      = tracks.length;
+    var redraw = false;
+    var track, j, k, bg;
+    
+    tracks.sort(function (a, b) { return a.index - b.index; }); // tracks must be ordered low to high by index for splice to work correctly (splice is done in track.remove())
+    
+    while (i--) {
+      track = tracks[i];
+      j     = track.backgrounds ? track.backgrounds.length : 0;
+      
+      while (j--) {
+        bg = this.backgrounds[track.backgrounds[j].background];
+        k  = bg.length;
+        
+        while (k--) {
+          if (bg[k] === track.backgrounds[j]) {
+            bg.splice(k, 1);
+            redraw = true;
+            break;
+          }
+        }
+        
+        if (bg.length === 0) {
+          delete this.backgrounds[track.backgrounds[j].background];
+        }
+      }
+      
+      track.remove();
+    }
+    
+    this.updateTracks(redraw);
+  },
+  
+  updateTracks: function (redrawBackground) {
+    var i = this.tracks.length;
+    
+    while (i--) {
+      // redraw all backgrounds if a track which contributed to this.backgrounds has been added removed
+      if (redrawBackground) {
+        $(this.tracks[i].imgContainers).each(function () {
+          $(this).children('.bg').remove().end().data('img').drawBackground();
+        });
+      }
+      
+      // correct track index
+      if (this.tracks[i].index !== i) {
+        this.tracks[i].index = i;
+        
+        if (this.tracks[i].label) {
+          this.tracks[i].label.data('index', i);
+        }
+      }
+    }
   },
   
   makeImage: function () {
