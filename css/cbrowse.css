@@ -108,3 +108,55 @@
   height: 100%;
   overflow: hidden;
 }
+
+.featureMenuContainer {
+  position: absolute;
+  display: none;
+}
+
+.featureMenu {
+  position: absolute;
+  display: block;
+  opacity: 0.8;
+  visibility: visible;  
+}
+
+.featureMenuInner {
+  background-color: black;
+  color: white;
+  width: 225px;
+  border-radius: 0 10px 10px 10px;  
+  box-shadow: 3px 3px 3px #666666;
+  margin: 5px;
+  padding: 5px;
+  text-align: center;  
+}
+
+.featureMenuInner table {
+  font-family: monospace;
+  font-size: 0.9em;
+  text-align: left;
+  margin: 5px;
+}
+
+.featureMenuClose {
+  background-color: #CCCCCC;
+  border-radius: 12px;
+  color: #000000;
+  cursor: pointer;
+  float: right;
+  font-family: Comic Sans MS;
+  height: 18px;
+  left: 212px;
+  line-height: 12px;
+  padding: 2px;
+  position: absolute;
+  text-align: center;
+  top: 10px;
+  width: 18px;
+  z-index: 10001;
+}
+
+.featureMenuClose:hover {
+  background-color: #FFF;
+}

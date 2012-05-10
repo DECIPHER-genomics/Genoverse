@@ -11,6 +11,7 @@
     <script type="text/javascript" src="js/Cbrowse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script>
     <script type="text/javascript" src="js/Scalebar.js"></script>
+    <script type="text/javascript" src="js/MicroArray.js"></script>
     <script type="text/javascript" src="js/Test.js"></script>
     <script type="text/javascript" src="js/TrackImage.js"></script>
   </head>
@@ -25,20 +26,46 @@
         tracks         : [{
           type  : 'Scalebar'
         }, {
-          name          : 'Genes',
-          url           : 'http://enssand-03.internal.sanger.ac.uk:7000/Homo_sapiens/Ajax/fetch_features/_transcript',
-          height        : 100,
-          featureHeight : 6,
-          bump          : true,
-          urlParams     : { id: 'transcript_core_ensembl' }
-        }, {
-          type          : 'Test',
-          name          : 'Test',
-          debug         : 1,
-          url           : '/data/1.json'
+        //   name          : 'Genes',
+        //   url           : 'http://enssand-03.internal.sanger.ac.uk:7000/Homo_sapiens/Ajax/fetch_features/_transcript',
+        //   height        : 100,
+        //   featureHeight : 6,
+        //   bump          : true,
+        //   separateLabels: true,
+
+        //   urlParams     : { id: 'transcript_core_ensembl' }
+        // }, {
+          type : 'MicroArray',
+          name : 'MicroArray',
+          url  : '/data/1.json',
+          debug: 0
         }]
+      });
+
+
+      $('.featureMenuClose').live('click', function(){
+        $(this).parent().remove();
       });
     });
   </script>
+
+  <div class="featureMenuContainer">
+    <div class="featureMenuClose">x</div>    
+    <div class="featureMenu">
+      <div class="featureMenuInner">
+      <table>
+        <tr><td>Start position: </td><td class="eval"> call.stop.toLocaleString() </td></tr>
+        <tr><td>Stop position:  </td><td class="eval"> call.stop.toLocaleString() </td></tr>
+        <tr><td>Size:           </td><td class="eval"> (call.stop-call.start).toLocaleString() </td></tr>
+        <tr><td>Ratio:          </td><td class="eval"> call.ratio </td></tr>
+        <tr><td>Probes:         </td><td class="eval"> call.probes </td></tr>
+        <tr><td>P-value:        </td><td class="eval"> call.pvalue </td></tr>
+        <tr><td>W-score:        </td><td class="eval"> call.wscore </td></tr>
+        <tr><td>Novelty:        </td><td class="eval"> call.novelty </td></tr>
+      </table>
+      </div>
+    </div>
+  </div>
+
   </body>
 </html>

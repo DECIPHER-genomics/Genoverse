@@ -12,6 +12,11 @@ var FRegion = function(features){
     _isSorted = false;
   }
 
+  this.add = function (array) {
+    _features.concat(array);
+    _isSorted = false;
+  }
+
   this.sort = function (force) {
     if (_isSorted && !force) return;
 
@@ -29,8 +34,11 @@ var FRegion = function(features){
     _isSorted = true;
   }
 
-  this.search = function (a, b) {
+  this.bruteForceSearch = function (bounds) {
     var features = new Array();
+    var a = bounds.x;
+    var b = a + bounds.w;
+
     for (var i = 0; i < _features.length; i++) {
       if (_features[i].start < b && _features[i].end > a) {
         features.push(_features[i]);
@@ -39,8 +47,11 @@ var FRegion = function(features){
     return features;
   }
 
-  this.binarySearch = function (a, b) {
+  this.binarySearch = function (bounds) {
     if (!_isSorted) this.sort();
+
+    var a = bounds.x;
+    var b = a + bounds.w;
 
     var iA = this.findFirstEndingAfterX(a);
     var iB = this.findLastStartingBeforeX(b);
@@ -56,6 +67,10 @@ var FRegion = function(features){
    */
   this.findLastStartingBeforeX = function (x, iStart, iEnd) {
     if (!_isSorted) this.sort();
+
+    // Check last element
+    if (_featuresSortedByEnds[_featuresSortedByEnds.length-1].end < x) 
+      return _featuresSortedByEnds[_featuresSortedByEnds.length-1].index;
 
     if (iStart === undefined) iStart = 0;
     if (iEnd   === undefined) iEnd   = _features.length - 1;
@@ -73,6 +88,10 @@ var FRegion = function(features){
   this.findFirstEndingAfterX = function (x, iStart, iEnd) {
     if (!_isSorted) this.sort();
 
+    // Check first element
+    if (_featuresSortedByEnds[0].end > x) 
+      return _featuresSortedByEnds[0].index;
+
     if (iStart === undefined) iStart = 0;
     if (iEnd   === undefined) iEnd   = _featuresSortedByEnds.length - 1;
     var iMiddle = Math.ceil((iEnd+iStart)/2);
@@ -87,6 +106,10 @@ var FRegion = function(features){
     }
   }
 
+  this.search = function (bounds) {
+    //return this.bruteForceSearch(bounds);
+    return this.binarySearch(bounds);
+  }
 
   this.getElement = function (i) {
     return _features[i];
