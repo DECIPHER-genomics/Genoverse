@@ -69,9 +69,7 @@ CBrowse.TrackImage = Base.extend({
       this.drawFeatures(features.labelHighlight, 'fillStyle');
       this.drawFeatures(features.label,          'fillStyle');
       
-      this.container.append(labels.attr('src', track.canvas[0].toDataURL()).css('top', track.heights.maxFeatures).load(function () {
-        $(this).parent().siblings('.' + track.cBrowse.scrollStart).children('.labels').css('top', track.heights.maxFeatures);
-      }));
+      this.container.append(labels.attr('src', track.canvas[0].toDataURL()));
     } else {
       track.context.textBaseline = 'middle'; // labels overlaid on features - use middle to position them correctly
       
