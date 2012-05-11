@@ -59,14 +59,16 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
       var y = e.pageY - $(e.target).offset().top;
       var calls = track.calls.search({ x: x, y: 0, w: 1, h: 1 });
       if (calls.length) {
-        track.makeMenu(calls[0], e);
+        yRatio = 2 - 4*y/track.height;
+        if ((calls[0].ratio > 0 && yRatio > 0 && yRatio < calls[0].ratio) || (calls[0].ratio < 0 && yRatio < 0 && yRatio > calls[0].ratio))
+          track.makeMenu(calls[0], e);
       }
     });
 
     this.container.on('mousemove', '.image_container', function (e) {
       var x = (e.pageX - track.container.parent().offset().left)/track.scale + track.cBrowse.start;
       var y = e.pageY - $(e.target).offset().top;
-      
+
       var calls = track.calls.search({ x: x, y: 0, w: 1, h: 1 });
       if (calls.length) {
         yRatio = 2 - 4*y/track.height;
@@ -126,12 +128,21 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
     var id = 'featureMenu' + call.start;
     if ($('#'+ id).length) return;
 
+    var overlapLeft = (call.start - this.cBrowse.start)*this.scale;
+    var overlapWidth = (call.end - call.start)*this.scale;
+
+    $('<div class="overlap">')
+      .appendTo(this.cBrowse.wrapper)
+      .css({ left: overlapLeft, width: overlapWidth })
+      .show();
+
     var $menu = $('div.featureMenuContainer').clone();
     $('.eval', $menu).each(function(){
       $(this).html(eval( $(this).html() ));
     });
 
-    $('body').append($menu.css({ left: e.pageX, top: e.pageY, display: 'block' }).attr('id', id));
+    $('body').append($menu.css({ left: e.pageX, top: e.pageY}).attr('id', id));
+    $menu.fadeIn(100);
   }
 
 });

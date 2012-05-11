@@ -5,7 +5,7 @@
 
 .canvas_container .wrapper {
   border-left: 1px solid black;
-  overflow-x: hidden;
+  overflow: hidden;
   position: relative;
   background: #ccc;
 }
@@ -159,4 +159,19 @@
 
 .featureMenuClose:hover {
   background-color: #FFF;
+}
+
+
+
+
+.overlap {
+  background: none repeat scroll 0 0 #000000;
+  display: none;
+  height: 900px;
+  left: 264px;
+  opacity: 0.08;
+  position: absolute;
+  top: 0;
+  width: 651px;
+  z-index: 10;
 }

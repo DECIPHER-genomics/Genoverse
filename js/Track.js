@@ -3,7 +3,8 @@ CBrowse.Track = Base.extend({
     height      : 10,
     bump        : false,
     bumpSpacing : 2,
-    urlParams   : {}
+    urlParams   : {},
+    urlTemplate : {}
   },
   
   constructor: function (config) {
@@ -27,25 +28,45 @@ CBrowse.Track = Base.extend({
     this.init();
     this.setScale();
     
+    if (this.url) {
+      this.url = this.url.split('?');
+      
+      if (this.url[1]) {
+        $.each(this.url[1].split(/[;&]/), function () {
+          var tmp = this.split('=');
+          track[tmp[1].match(/__(CHR|START|END)__/) ? 'urlTemplate' : 'urlParams'][tmp[0]] = tmp[1];
+        });
+      }
+      
+      this.url = this.url[0];
+    }
+    
     if (this.name) {
       this.label          = $('<li><span class="name">' + this.name + '</span></li>').appendTo(this.cBrowse.labelContainer).data('index', this.index);
       this.minLabelHeight = this.label.children('.name').height();
       this.label.height(Math.max(this.height, this.minLabelHeight));
+      
+      if (this.unsortable) {
+        this.label.addClass('unsortable');
+      }
     }
     
     if (!this.fixedHeight) {
       this.autoHeight = typeof this.autoHeight === 'undefined' ? this.cBrowse.autoHeight : this.autoHeight;
-      this.sizeHandle = $('<div class="size_handle"><div class="expand" title="Show all">+</div><div class="collapse" title="Collapse">-</div></div>').appendTo(this.label).children().on('click', function (e) {
-        var height;
-        
-        switch (e.target.className) {
-          case 'expand'   : height = $(this).data('height'); track.autoHeight = true;  break;
-          case 'collapse' : height = track.initialHeight;    track.autoHeight = false; break;
-          default         : return;
-        }
-        
-        track.resize(height);
-      });
+      
+      if (this.resizable !== false) {
+        this.sizeHandle = $('<div class="size_handle"><div class="expand" title="Show all">+</div><div class="collapse" title="Collapse">-</div></div>').appendTo(this.label).children().on('click', function (e) {
+          var height;
+          
+          switch (e.target.className) {
+            case 'expand'   : height = $(this).data('height'); track.autoHeight = true;  break;
+            case 'collapse' : height = track.initialHeight;    track.autoHeight = false; break;
+            default         : return;
+          }
+          
+          track.resize(height);
+        });
+      }
     }
     
     this.addEventHandlers();
@@ -113,7 +134,7 @@ CBrowse.Track = Base.extend({
     this.container.empty();
   },
   
-  resize: function (height) {
+  resize: function (height, labelTop) {
     if (height < this.featureHeight) {
       height = 0;
     } else {
@@ -122,8 +143,21 @@ CBrowse.Track = Base.extend({
     
     this.height = height;
     
+    if (typeof labelTop === 'number') {
+      $(this.imgContainers).children('.labels').css('top', labelTop);
+    }
+    
     this.container.height(height);
     this.label.height(height)[height ? 'show' : 'hide']();
+  },
+  
+  remove: function () {
+    this.resize(0);
+    this.cBrowse.tracks.splice(this.index, 1);
+    
+    if (this.id) {
+      delete this.cBrowse.tracksById[this.id];
+    }
   },
   
   setScale: function () {
@@ -161,18 +195,48 @@ CBrowse.Track = Base.extend({
       var renderer = this.getRenderer();
       
       if (renderer !== this.urlParams.renderer) {
-        this.urlParams.renderer = renderer;
-        this.dataRegion = { start: 9e99, end: -9e99 };
-        
-        if (!this.featuresByRenderer[renderer]) {
-          this.featuresByRenderer[renderer] = new RTree();
-        }
-        
-        this.features = this.featuresByRenderer[renderer];
+        this.setRenderer(renderer);
       }
     }
     
     this.container.css('left', 0).children().hide();
+  },
+  
+  setRenderer: function (renderer, permanent) {
+    if (this.urlParams.renderer !== renderer) {
+      this.urlParams.renderer = renderer;
+      this.dataRegion = { start: 9e99, end: -9e99 };
+      
+      if (!this.featuresByRenderer[renderer]) {
+        this.featuresByRenderer[renderer] = new RTree();
+      }
+      
+      this.features = this.featuresByRenderer[renderer];
+    }
+    
+    if (permanent && this.renderer !== renderer) {
+      this.renderer = renderer;
+      
+      var cBrowse = this.cBrowse;
+      var img = $(this.imgContainers).filter(cBrowse.left > 0 ? ':first' : ':last').data('img');
+      
+      if (img) {
+        this.reset();
+        this.setScale();
+        this.container.data('left', cBrowse.left);
+        
+        var start = cBrowse.start - cBrowse.length;
+        var end   = cBrowse.end   + cBrowse.length;
+        var width = Math.round((end - start) * this.scale);
+        
+        $.when(this.makeImage(start, end, width, -cBrowse.left, cBrowse.scrollStart)).done(function (a) {
+          $(a.target).show()
+          a.img.drawBackground();
+          
+          cBrowse.checkTrackSize();
+        });
+      }
+    }
   },
   
   getRenderer: function () {
@@ -473,18 +537,20 @@ CBrowse.Track = Base.extend({
   },
   
   getQueryString: function (start, end) {
-    var search = window.location.search.split(/[?&;]/);
-    var data   = {
-      chr   : this.cBrowse.chromosome,
-      start : this.allData ? 1 : start,
-      end   : this.allData ? this.cBrowse.chromosomeSize : end
-    };
+    var search   = window.location.search.split(/[?&;]/);
+    var chr      = this.cBrowse.chromosome;
+    var start    = this.allData ? 1 : start;
+    var end      = this.allData ? this.cBrowse.chromosomeSize : end;
+    var data     = {};
+    var template = false;
     
-    for (var i = 0; i < search.length; i++) {
-      if (search[i] && !('&' + search[i] + '&').match(this.cBrowse.paramRegex)) {
-        search[i] = search[i].split('=');
-        data[search[i][0]] = search[i][1];
-      }
+    $.each(this.urlTemplate, function (key, val) {
+      data[key] = val.replace(/__CHR__/, chr).replace(/__START__/, start).replace(/__END__/, end);
+      template  = true;
+    });
+    
+    if (!template) {
+      data = { chr: chr, start: start, end: end };
     }
     
     return $.extend(data, this.urlParams);

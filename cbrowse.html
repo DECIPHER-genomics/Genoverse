@@ -26,26 +26,53 @@
         tracks         : [{
           type  : 'Scalebar'
         }, {
-        //   name          : 'Genes',
-        //   url           : 'http://enssand-03.internal.sanger.ac.uk:7000/Homo_sapiens/Ajax/fetch_features/_transcript',
-        //   height        : 100,
-        //   featureHeight : 6,
-        //   bump          : true,
-        //   separateLabels: true,
+          name          : 'Genes',
+          //url           : 'http://enssand-03.internal.sanger.ac.uk:7000/Homo_sapiens/Ajax/fetch_features/_transcript?chr=__CHR__&start=__START__&end=__END__&id=transcript_core_ensembl',
+          url           : 'http://decipher.sandbox.sanger.ac.uk/gene;json?region=__CHR__:__START__-__END__',
+          //urlParams   : { region: 'transcript_core_ensembl', start: '__START__' },
+          height        : 100,
+          featureHeight : 6,
+          bump          : true,
+          separateLabels: false,
+          parseFeatures: function (data, bounds) {
+            var i = data.length;
 
-        //   urlParams     : { id: 'transcript_core_ensembl' }
-        // }, {
+            while (i--) {
+              data[i].sort        = i;
+              data[i].bounds      = {};
+              data[i].visible     = {};
+              data[i].bottom      = {};
+              data[i].labelBottom = {};
+              data[i].id          = data[i].name;
+              data[i].label       = data[i].name;
+              data[i].color       = "rgb(" + data[i].hi_rgb + ")";
+              data[i].labelColor  = "rgb(" + data[i].hi_rgb + ")";
+              data[i].start       = parseFloat(data[i].chr_start);
+              data[i].end         = parseFloat(data[i].chr_end);
+              this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
+            }
+
+            return data;
+          },
+          debug: 1
+        }, {
           type : 'MicroArray',
           name : 'MicroArray',
           url  : '/data/1.json',
-          debug: 0
+          debug: 1
         }]
       });
 
 
       $('.featureMenuClose').live('click', function(){
-        $(this).parent().remove();
+        $(this).fadeOut(100, function(){
+          $(this).parent().remove();
+          $('div.overlap').remove();
+        });
       });
+
+      $('.overlap').on('mousedown', function(e){ $(this).hide(); cBrowse.mousedown(e); return false; })
+
     });
   </script>
 
