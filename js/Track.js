@@ -97,7 +97,6 @@ CBrowse.Track = Base.extend({
 
     // MouseUp event when not scrolling (dragging)
     this.container.on('mouseup', '.image_container', function (e) {
-      console.log('bla');
       if ((e.which && e.which !== 1) || (track.cBrowse.prev.left !== track.cBrowse.left)) {
         return; // Only show menus on left click when not dragging
       }
@@ -107,8 +106,6 @@ CBrowse.Track = Base.extend({
       var features = track[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 });
       var i        = features.length;
       var seen     = {};
-
-      console.log(x, y);
       
       while (i--) {
         if (seen[features[i].id]) {
@@ -380,12 +377,10 @@ CBrowse.Track = Base.extend({
           } while (bump);
         }
         
-        if (this.bump || this.bumpLabels) {
-          this.featurePositions.insert(bounds[0], feature);
-          
-          if (bounds[1]) {
-            this.labelPositions.insert(bounds[1], feature);
-          }
+        this.featurePositions.insert(bounds[0], feature);
+        
+        if (bounds[1]) {
+          this.labelPositions.insert(bounds[1], feature);
         }
         
         feature.bounds[scaleKey] = bounds;
@@ -475,7 +470,7 @@ CBrowse.Track = Base.extend({
       height = Math.max(feature.bottom[scaleKey], height);
     }
     
-    this.featuresHeight      = Math.max(height, this.fixedHeight ? this.height : 0);
+    this.featuresHeight      = height;
     this.labelsHeight        = labelsHeight;
     this.fullHeight          = Math.max(height, this.initialHeight) + labelsHeight;
     this.heights.max         = Math.max(this.fullHeight, this.heights.max);

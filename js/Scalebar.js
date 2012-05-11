@@ -3,7 +3,8 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     height        : 20,
     featureHeight : 3,
     color         : '#000000',
-    autoHeight    : false
+    autoHeight    : false,
+    order         : 1
   },
   
   constructor: function (config) {
@@ -176,7 +177,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
 
 CBrowse.Track.ScalebarBottom = CBrowse.Track.Scalebar.extend({
   constructor: function (config) {
-    this.base($.extend(config, { scaleLines: false }));
+    this.base($.extend(config, { scaleLines: false, order: 1e5 }));
     $.grep(this.cBrowse.tracks, function (t) { return t.type === 'Scalebar'; })[0].bottomTrack = this;
   },
   
