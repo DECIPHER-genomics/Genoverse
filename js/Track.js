@@ -470,7 +470,7 @@ CBrowse.Track = Base.extend({
       height = Math.max(feature.bottom[scaleKey], height);
     }
     
-    this.featuresHeight      = height;
+    this.featuresHeight      = Math.max(height, this.fixedHeight ? this.height : 0);
     this.labelsHeight        = labelsHeight;
     this.fullHeight          = Math.max(height, this.initialHeight) + labelsHeight;
     this.heights.max         = Math.max(this.fullHeight, this.heights.max);
