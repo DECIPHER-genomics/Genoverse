@@ -613,37 +613,39 @@ CBrowse.Track = Base.extend({
   functionWrap: function (key) {
     var Fname = key.substring(0, 1).toUpperCase() + key.substring(1);
     var name  = (this.name || '') + '(' + (this.type || 'Track') + ').' + key;
-    var i;
+    var i, rtn;
     
-    this['__original' + Fname] = this[key];
-    
-    this[key] = function () {
-      if (this.debug) { 
-        console.log(name + ' is called');
-        console.time(name);
-      }
+    if (this.systemEventHandlers['before' + Fname] || this.systemEventHandlers['after' + Fname]) {
+      this['__original' + Fname] = this[key];
       
-      if (this.systemEventHandlers['before' + Fname]) {
-        for (i = 0; i < this.systemEventHandlers['before' + Fname].length; i++) {
-          // TODO: Should it stop once beforeFnc returned false or something??
-          this.systemEventHandlers['before' + Fname][i].apply(this, arguments);
+      this[key] = function () {
+        if (this.debug) { 
+          console.log(name + ' is called');
+          console.time(name);
         }
-      }
-      
-      var result = this['__original' + Fname].apply(this, arguments);
-      
-      if (this.systemEventHandlers['after' + Fname]) {
-        for (i = 0; i < this.systemEventHandlers['after' + Fname].length; i++) {
-          // TODO: Should it stop once afterFn returned false or something??
-          this.systemEventHandlers['after' + Fname][i].apply(this, arguments);
+        
+        if (this.systemEventHandlers['before' + Fname]) {
+          for (i = 0; i < this.systemEventHandlers['before' + Fname].length; i++) {
+            // TODO: Should it stop once beforeFnc returned false or something??
+            this.systemEventHandlers['before' + Fname][i].apply(this, arguments);
+          }
         }
+        
+        rtn = this['__original' + Fname].apply(this, arguments);
+        
+        if (this.systemEventHandlers['after' + Fname]) {
+          for (i = 0; i < this.systemEventHandlers['after' + Fname].length; i++) {
+            // TODO: Should it stop once afterFn returned false or something??
+            this.systemEventHandlers['after' + Fname][i].apply(this, arguments);
+          }
+        }
+        
+        if (this.debug) {
+          console.timeEnd(name);
+        }
+        
+        return rtn;
       }
-      
-      if (this.debug) {
-        console.timeEnd(name);
-      }
-      
-      return result;
     }
   },
   
