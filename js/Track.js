@@ -4,13 +4,22 @@ CBrowse.Track = Base.extend({
     bump        : false,
     bumpSpacing : 2,
     urlParams   : {},
-    urlTemplate : {}
+    urlTemplate : {},
+    inherit     : []
   },
   
   constructor: function (config) {
     var track = this;
     
     $.extend(this, this.defaults, this.config, config);
+    
+    for (var i = 0; i < this.inherit.length; i++) {
+      parent = CBrowse.Track[this.inherit[i]];
+      
+      if (parent) {
+        this.extend(parent);
+      }
+    }
     
     this.featureHeight  = this.featureHeight || this.height;
     this.separateLabels = typeof this.separateLabels === 'undefined' ? !!this.depth : this.separateLabels;
