@@ -128,14 +128,6 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
     var id = 'featureMenu' + call.start;
     if ($('#'+ id).length) return;
 
-    var overlapLeft = (call.start - this.cBrowse.start)*this.scale;
-    var overlapWidth = (call.end - call.start)*this.scale;
-
-    $('<div class="overlap">')
-      .appendTo(this.cBrowse.wrapper)
-      .css({ left: overlapLeft, width: overlapWidth })
-      .show();
-
     var $menu = $('div.featureMenuContainer').clone();
     $('.eval', $menu).each(function(){
       $(this).html(eval( $(this).html() ));

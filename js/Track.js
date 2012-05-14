@@ -68,16 +68,22 @@ CBrowse.Track = Base.extend({
         });
       }
     }
+
+    for (var key in this) {
+      if (typeof this[key] === 'function') {
+        this.eventWrap(this, key);
+      }
+    }
     
     this.addEventHandlers();
     
-    if (this.debug) {
-      for (var key in this) {
-        if (typeof this[key] === 'function') {
-          this.debugWrap(this, key);
-        }
-      }
-    }
+    // if (this.debug) {
+    //   for (var key in this) {
+    //     if (typeof this[key] === 'function') {
+    //       this.debugWrap(this, key);
+    //     }
+    //   }
+    // }
   },
   
   init: function () {
@@ -382,7 +388,7 @@ CBrowse.Track = Base.extend({
         if (bounds[1]) {
           this.labelPositions.insert(bounds[1], feature);
         }
-        
+
         feature.bounds[scaleKey] = bounds;
       }
       
@@ -614,8 +620,39 @@ CBrowse.Track = Base.extend({
       return result;
     }
   },
+
+  eventWrap: function (obj, key) {
+    var Fname = key.substring(0, 1).toUpperCase() + key.substring(1);
+    obj['__original' + Fname] = obj[key];
+
+    obj[key] = function () {
+      if (obj.eventHandlers['before' + Fname])
+      for (var i=0; i<obj.eventHandlers['before' + Fname].length; i++) {
+        // TODO: Should it stop once beforeFnc returned false or something??
+        obj.eventHandlers['before' + Fname][i].apply(this, arguments);
+      }
+
+      var result = this['__original' + Fname].apply(this, arguments);
+
+      if (obj.eventHandlers['after' + Fname])
+      for (var i=0; i<obj.eventHandlers['after' + Fname].length; i++) {
+        // TODO: Should it stop once afterFn returned false or something??
+        obj.eventHandlers['after' + Fname][i].apply(this, arguments);
+      }
+      return result;
+    }
+  },
   
+  eventHandlers: {},
+
   beforeDraw       : $.noop, // decoration for the track, drawn before the features
   decorateFeatures : $.noop, // decoration for the features
   afterDraw        : $.noop  // decoration for the track, drawn after the features
+}, {
+
+  on: function (event, handler) {
+    if (CBrowse.Track.prototype.eventHandlers[event] === undefined) CBrowse.Track.prototype.eventHandlers[event] = [];
+    CBrowse.Track.prototype.eventHandlers[event].push(handler);
+  }
+
 });
