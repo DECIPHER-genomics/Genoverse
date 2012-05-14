@@ -4,13 +4,22 @@ CBrowse.Track = Base.extend({
     bump        : false,
     bumpSpacing : 2,
     urlParams   : {},
-    urlTemplate : {}
+    urlTemplate : {},
+    inherit     : []
   },
   
   constructor: function (config) {
     var track = this;
     
     $.extend(this, this.defaults, this.config, config);
+    
+    for (var i = 0; i < this.inherit.length; i++) {
+      parent = CBrowse.Track[this.inherit[i]];
+      
+      if (parent) {
+        this.extend(parent);
+      }
+    }
     
     this.featureHeight  = this.featureHeight || this.height;
     this.separateLabels = typeof this.separateLabels === 'undefined' ? !!this.depth : this.separateLabels;
@@ -476,7 +485,7 @@ CBrowse.Track = Base.extend({
       height = Math.max(feature.bottom[scaleKey], height);
     }
     
-    this.featuresHeight      = height;
+    this.featuresHeight      = Math.max(height, this.fixedHeight ? this.height : 0);
     this.labelsHeight        = labelsHeight;
     this.fullHeight          = Math.max(height, this.initialHeight) + labelsHeight;
     this.heights.max         = Math.max(this.fullHeight, this.heights.max);
@@ -648,6 +657,7 @@ CBrowse.Track = Base.extend({
   beforeDraw       : $.noop, // decoration for the track, drawn before the features
   decorateFeatures : $.noop, // decoration for the features
   afterDraw        : $.noop  // decoration for the track, drawn after the features
+<<<<<<< HEAD
 }, {
 
   on: function (event, handler) {
@@ -656,3 +666,6 @@ CBrowse.Track = Base.extend({
   }
 
 });
+=======
+});
+>>>>>>> 9d3b17dec636da021fc5b76a1fb86409b8d3d419
