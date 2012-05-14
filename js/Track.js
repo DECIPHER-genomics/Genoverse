@@ -21,6 +21,12 @@ CBrowse.Track = Base.extend({
       }
     }
     
+    for (var key in this) {
+      if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap)$/)) {
+        this.functionWrap(key);
+      }
+    }
+    
     this.featureHeight  = this.featureHeight || this.height;
     this.separateLabels = typeof this.separateLabels === 'undefined' ? !!this.depth : this.separateLabels;
     this.spacing        = typeof this.spacing        === 'undefined' ? this.cBrowse.trackSpacing : this.spacing;
@@ -77,14 +83,8 @@ CBrowse.Track = Base.extend({
         });
       }
     }
-
-    for (var key in this) {
-      if (typeof this[key] === 'function') {
-        this.functionWrap(key);
-      }
-    }
-
-    this.addUserEventHandlers();        
+    
+    this.addUserEventHandlers();
   },
   
   init: function () {
@@ -101,7 +101,7 @@ CBrowse.Track = Base.extend({
 
   addUserEventHandlers: function () {
     var track = this;
-
+    
     // MouseUp event when not scrolling (dragging)
     this.container.on('mouseup', '.image_container', function (e) {
       if ((e.which && e.which !== 1) || (track.cBrowse.prev.left !== track.cBrowse.left)) {
@@ -125,7 +125,7 @@ CBrowse.Track = Base.extend({
       }
     });
   },
-
+  
   reset: function () {
     if (this.ajax) {
       this.ajax.abort();
