@@ -33,12 +33,11 @@ CBrowse.Track = Base.extend({
     this.fixedHeight    = typeof this.fixedHeight    === 'undefined' ? this.featureHeight === this.height && !(this.bump || this.bumpLabels) : this.fixedHeight;
     this.height        += this.spacing;
     this.canvas         = $('<canvas>').appendTo(this.canvasContainer);
-    this.container      = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer),
+    this.container      = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer);
     this.imgContainer   = $('<div class="image_container">');
     this.context        = this.canvas[0].getContext('2d');
     this.fontHeight     = parseInt(this.context.font, 10);
     this.initialHeight  = this.height;
-    this.dataRegion     = { start: 9e99, end: -9e99 };
     
     this.init();
     this.setScale();
@@ -91,11 +90,12 @@ CBrowse.Track = Base.extend({
     if (this.renderer) {
       this.urlParams.renderer = this.renderer;
       this.featuresByRenderer = {};
-      this.features           = this.featuresByRenderer[this.urlParams.renderer] = new RTree();
+      this.features           = this.featuresByRenderer[this.renderer] = new RTree();
     } else {
       this.features = new RTree();
     }
     
+    this.dataRegion    = { start: 9e99, end: -9e99 };
     this.scaleSettings = {};
   },
 
