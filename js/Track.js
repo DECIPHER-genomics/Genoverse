@@ -657,7 +657,6 @@ CBrowse.Track = Base.extend({
   beforeDraw       : $.noop, // decoration for the track, drawn before the features
   decorateFeatures : $.noop, // decoration for the features
   afterDraw        : $.noop  // decoration for the track, drawn after the features
-<<<<<<< HEAD
 }, {
 
   on: function (event, handler) {
@@ -666,6 +665,3 @@ CBrowse.Track = Base.extend({
   }
 
 });
-=======
-});
->>>>>>> 9d3b17dec636da021fc5b76a1fb86409b8d3d419
