@@ -47,7 +47,7 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
     this.context.fillRect(0, 0, image.width, 1);
   },
 
-  addEventHandlers: function () {
+  addUserEventHandlers: function () {
     var track = this;
 
     // MouseUp event when not scrolling (dragging)

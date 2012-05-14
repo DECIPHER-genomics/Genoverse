@@ -80,19 +80,11 @@ CBrowse.Track = Base.extend({
 
     for (var key in this) {
       if (typeof this[key] === 'function') {
-        this.eventWrap(this, key);
+        this.functionWrap(this, key);
       }
     }
-    
-    this.addEventHandlers();
-    
-    // if (this.debug) {
-    //   for (var key in this) {
-    //     if (typeof this[key] === 'function') {
-    //       this.debugWrap(this, key);
-    //     }
-    //   }
-    // }
+
+    this.addUserEventHandlers();        
   },
   
   init: function () {
@@ -107,7 +99,7 @@ CBrowse.Track = Base.extend({
     this.scaleSettings = {};
   },
 
-  addEventHandlers: function () {
+  addUserEventHandlers: function () {
     var track = this;
 
     // MouseUp event when not scrolling (dragging)
@@ -611,48 +603,48 @@ CBrowse.Track = Base.extend({
     }
   },
   
-  // initial version of debug functionality
-  // to use pass debug: 1 into configuration of the track to debug and profile all calls
-  // TODO: implement debug levels
-  debugWrap: function (obj, key) {
-    obj['__original_' + key] = obj[key];
 
-    obj[key] = function () {
-      var name = (obj.name || '') + '(' + (obj.type || 'Track') + ').' + key;
-
-      console.log(name + ' is called');
-      console.time(name);
-
-      var result = this['__original_' + key].apply(this, arguments);
-
-      console.timeEnd(name);
-      return result;
-    }
-  },
-
-  eventWrap: function (obj, key) {
+  /**
+   * functionWrap - wraps event handlers & adds debugging functionality
+   * 
+   */
+  functionWrap: function (obj, key) {
     var Fname = key.substring(0, 1).toUpperCase() + key.substring(1);
     obj['__original' + Fname] = obj[key];
 
+    var name = (obj.name || '') + '(' + (obj.type || 'Track') + ').' + key;
+
     obj[key] = function () {
-      if (obj.eventHandlers['before' + Fname])
-      for (var i=0; i<obj.eventHandlers['before' + Fname].length; i++) {
-        // TODO: Should it stop once beforeFnc returned false or something??
-        obj.eventHandlers['before' + Fname][i].apply(this, arguments);
+      if (this.debug) { 
+        console.log(name + ' is called');
+        console.time(name);
+      }
+
+      if (obj.systemEventHandlers['before' + Fname]) {
+        for (var i=0; i<obj.systemEventHandlers['before' + Fname].length; i++) {
+          // TODO: Should it stop once beforeFnc returned false or something??
+          obj.systemEventHandlers['before' + Fname][i].apply(this, arguments);
+        }
       }
 
       var result = this['__original' + Fname].apply(this, arguments);
 
-      if (obj.eventHandlers['after' + Fname])
-      for (var i=0; i<obj.eventHandlers['after' + Fname].length; i++) {
-        // TODO: Should it stop once afterFn returned false or something??
-        obj.eventHandlers['after' + Fname][i].apply(this, arguments);
+      if (obj.systemEventHandlers['after' + Fname]) {
+        for (var i=0; i<obj.systemEventHandlers['after' + Fname].length; i++) {
+          // TODO: Should it stop once afterFn returned false or something??
+          obj.systemEventHandlers['after' + Fname][i].apply(this, arguments);
+        }
       }
+
+      if (this.debug) {
+        console.timeEnd(name);
+      }
+
       return result;
     }
   },
   
-  eventHandlers: {},
+  systemEventHandlers: {},
 
   beforeDraw       : $.noop, // decoration for the track, drawn before the features
   decorateFeatures : $.noop, // decoration for the features
@@ -660,8 +652,11 @@ CBrowse.Track = Base.extend({
 }, {
 
   on: function (event, handler) {
-    if (CBrowse.Track.prototype.eventHandlers[event] === undefined) CBrowse.Track.prototype.eventHandlers[event] = [];
-    CBrowse.Track.prototype.eventHandlers[event].push(handler);
+    if (CBrowse.Track.prototype.systemEventHandlers[event] === undefined) {
+      CBrowse.Track.prototype.systemEventHandlers[event] = [];
+    }
+
+    CBrowse.Track.prototype.systemEventHandlers[event].push(handler);
   }
 
 });
