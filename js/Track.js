@@ -80,7 +80,7 @@ CBrowse.Track = Base.extend({
 
     for (var key in this) {
       if (typeof this[key] === 'function') {
-        this.functionWrap(this, key);
+        this.functionWrap(key);
       }
     }
 
@@ -603,60 +603,57 @@ CBrowse.Track = Base.extend({
     }
   },
   
-
+  beforeDraw       : $.noop, // decoration for the track, drawn before the features
+  decorateFeatures : $.noop, // decoration for the features
+  afterDraw        : $.noop, // decoration for the track, drawn after the features
+  
   /**
    * functionWrap - wraps event handlers & adds debugging functionality
-   * 
    */
-  functionWrap: function (obj, key) {
+  functionWrap: function (key) {
     var Fname = key.substring(0, 1).toUpperCase() + key.substring(1);
-    obj['__original' + Fname] = obj[key];
-
-    var name = (obj.name || '') + '(' + (obj.type || 'Track') + ').' + key;
-
-    obj[key] = function () {
+    var name  = (this.name || '') + '(' + (this.type || 'Track') + ').' + key;
+    var i;
+    
+    this['__original' + Fname] = this[key];
+    
+    this[key] = function () {
       if (this.debug) { 
         console.log(name + ' is called');
         console.time(name);
       }
-
-      if (obj.systemEventHandlers['before' + Fname]) {
-        for (var i=0; i<obj.systemEventHandlers['before' + Fname].length; i++) {
+      
+      if (this.systemEventHandlers['before' + Fname]) {
+        for (i = 0; i < this.systemEventHandlers['before' + Fname].length; i++) {
           // TODO: Should it stop once beforeFnc returned false or something??
-          obj.systemEventHandlers['before' + Fname][i].apply(this, arguments);
+          this.systemEventHandlers['before' + Fname][i].apply(this, arguments);
         }
       }
-
+      
       var result = this['__original' + Fname].apply(this, arguments);
-
-      if (obj.systemEventHandlers['after' + Fname]) {
-        for (var i=0; i<obj.systemEventHandlers['after' + Fname].length; i++) {
+      
+      if (this.systemEventHandlers['after' + Fname]) {
+        for (i = 0; i < this.systemEventHandlers['after' + Fname].length; i++) {
           // TODO: Should it stop once afterFn returned false or something??
-          obj.systemEventHandlers['after' + Fname][i].apply(this, arguments);
+          this.systemEventHandlers['after' + Fname][i].apply(this, arguments);
         }
       }
-
+      
       if (this.debug) {
         console.timeEnd(name);
       }
-
+      
       return result;
     }
   },
   
-  systemEventHandlers: {},
-
-  beforeDraw       : $.noop, // decoration for the track, drawn before the features
-  decorateFeatures : $.noop, // decoration for the features
-  afterDraw        : $.noop  // decoration for the track, drawn after the features
+  systemEventHandlers: {}
 }, {
-
   on: function (event, handler) {
-    if (CBrowse.Track.prototype.systemEventHandlers[event] === undefined) {
+    if (typeof CBrowse.Track.prototype.systemEventHandlers[event] === 'undefined') {
       CBrowse.Track.prototype.systemEventHandlers[event] = [];
     }
-
+    
     CBrowse.Track.prototype.systemEventHandlers[event].push(handler);
   }
-
 });
