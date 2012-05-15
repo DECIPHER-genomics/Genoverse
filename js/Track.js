@@ -611,12 +611,12 @@ CBrowse.Track = Base.extend({
    * functionWrap - wraps event handlers & adds debugging functionality
    */
   functionWrap: function (key) {
-    var Fname = key.substring(0, 1).toUpperCase() + key.substring(1);
-    var name  = (this.name || '') + '(' + (this.type || 'Track') + ').' + key;
+    var func = key.substring(0, 1).toUpperCase() + key.substring(1);
+    var name = (this.name || '') + '(' + (this.type || 'Track') + ').' + key;
     var i, rtn;
     
-    if (this.systemEventHandlers['before' + Fname] || this.systemEventHandlers['after' + Fname]) {
-      this['__original' + Fname] = this[key];
+    if (this.systemEventHandlers['before' + func] || this.systemEventHandlers['after' + func]) {
+      this['__original' + func] = this[key];
       
       this[key] = function () {
         if (this.debug) { 
@@ -624,19 +624,19 @@ CBrowse.Track = Base.extend({
           console.time(name);
         }
         
-        if (this.systemEventHandlers['before' + Fname]) {
-          for (i = 0; i < this.systemEventHandlers['before' + Fname].length; i++) {
+        if (this.systemEventHandlers['before' + func]) {
+          for (i = 0; i < this.systemEventHandlers['before' + func].length; i++) {
             // TODO: Should it stop once beforeFnc returned false or something??
-            this.systemEventHandlers['before' + Fname][i].apply(this, arguments);
+            this.systemEventHandlers['before' + func][i].apply(this, arguments);
           }
         }
         
-        rtn = this['__original' + Fname].apply(this, arguments);
+        rtn = this['__original' + func].apply(this, arguments);
         
-        if (this.systemEventHandlers['after' + Fname]) {
-          for (i = 0; i < this.systemEventHandlers['after' + Fname].length; i++) {
+        if (this.systemEventHandlers['after' + func]) {
+          for (i = 0; i < this.systemEventHandlers['after' + func].length; i++) {
             // TODO: Should it stop once afterFn returned false or something??
-            this.systemEventHandlers['after' + Fname][i].apply(this, arguments);
+            this.systemEventHandlers['after' + func][i].apply(this, arguments);
           }
         }
         
