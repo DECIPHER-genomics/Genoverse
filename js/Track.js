@@ -21,18 +21,23 @@ CBrowse.Track = Base.extend({
       }
     }
     
+    for (var key in this) {
+      if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap)$/)) {
+        this.functionWrap(key);
+      }
+    }
+    
     this.featureHeight  = this.featureHeight || this.height;
     this.separateLabels = typeof this.separateLabels === 'undefined' ? !!this.depth : this.separateLabels;
     this.spacing        = typeof this.spacing        === 'undefined' ? this.cBrowse.trackSpacing : this.spacing;
     this.fixedHeight    = typeof this.fixedHeight    === 'undefined' ? this.featureHeight === this.height && !(this.bump || this.bumpLabels) : this.fixedHeight;
     this.height        += this.spacing;
     this.canvas         = $('<canvas>').appendTo(this.canvasContainer);
-    this.container      = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer),
+    this.container      = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer);
     this.imgContainer   = $('<div class="image_container">');
     this.context        = this.canvas[0].getContext('2d');
     this.fontHeight     = parseInt(this.context.font, 10);
     this.initialHeight  = this.height;
-    this.dataRegion     = { start: 9e99, end: -9e99 };
     
     this.init();
     this.setScale();
@@ -77,31 +82,26 @@ CBrowse.Track = Base.extend({
         });
       }
     }
-
-    for (var key in this) {
-      if (typeof this[key] === 'function') {
-        this.functionWrap(key);
-      }
-    }
-
-    this.addUserEventHandlers();        
+    
+    this.addUserEventHandlers();
   },
   
   init: function () {
     if (this.renderer) {
       this.urlParams.renderer = this.renderer;
       this.featuresByRenderer = {};
-      this.features           = this.featuresByRenderer[this.urlParams.renderer] = new RTree();
+      this.features           = this.featuresByRenderer[this.renderer] = new RTree();
     } else {
       this.features = new RTree();
     }
     
+    this.dataRegion    = { start: 9e99, end: -9e99 };
     this.scaleSettings = {};
   },
 
   addUserEventHandlers: function () {
     var track = this;
-
+    
     // MouseUp event when not scrolling (dragging)
     this.container.on('mouseup', '.image_container', function (e) {
       if ((e.which && e.which !== 1) || (track.cBrowse.prev.left !== track.cBrowse.left)) {
@@ -125,7 +125,7 @@ CBrowse.Track = Base.extend({
       }
     });
   },
-
+  
   reset: function () {
     if (this.ajax) {
       this.ajax.abort();
@@ -611,39 +611,41 @@ CBrowse.Track = Base.extend({
    * functionWrap - wraps event handlers & adds debugging functionality
    */
   functionWrap: function (key) {
-    var Fname = key.substring(0, 1).toUpperCase() + key.substring(1);
-    var name  = (this.name || '') + '(' + (this.type || 'Track') + ').' + key;
-    var i;
+    var func = key.substring(0, 1).toUpperCase() + key.substring(1);
+    var name = (this.name || '') + '(' + (this.type || 'Track') + ').' + key;
+    var i, rtn;
     
-    this['__original' + Fname] = this[key];
-    
-    this[key] = function () {
-      if (this.debug) { 
-        console.log(name + ' is called');
-        console.time(name);
-      }
+    if (this.systemEventHandlers['before' + func] || this.systemEventHandlers['after' + func]) {
+      this['__original' + func] = this[key];
       
-      if (this.systemEventHandlers['before' + Fname]) {
-        for (i = 0; i < this.systemEventHandlers['before' + Fname].length; i++) {
-          // TODO: Should it stop once beforeFnc returned false or something??
-          this.systemEventHandlers['before' + Fname][i].apply(this, arguments);
+      this[key] = function () {
+        if (this.debug) { 
+          console.log(name + ' is called');
+          console.time(name);
         }
-      }
-      
-      var result = this['__original' + Fname].apply(this, arguments);
-      
-      if (this.systemEventHandlers['after' + Fname]) {
-        for (i = 0; i < this.systemEventHandlers['after' + Fname].length; i++) {
-          // TODO: Should it stop once afterFn returned false or something??
-          this.systemEventHandlers['after' + Fname][i].apply(this, arguments);
+        
+        if (this.systemEventHandlers['before' + func]) {
+          for (i = 0; i < this.systemEventHandlers['before' + func].length; i++) {
+            // TODO: Should it stop once beforeFnc returned false or something??
+            this.systemEventHandlers['before' + func][i].apply(this, arguments);
+          }
         }
+        
+        rtn = this['__original' + func].apply(this, arguments);
+        
+        if (this.systemEventHandlers['after' + func]) {
+          for (i = 0; i < this.systemEventHandlers['after' + func].length; i++) {
+            // TODO: Should it stop once afterFn returned false or something??
+            this.systemEventHandlers['after' + func][i].apply(this, arguments);
+          }
+        }
+        
+        if (this.debug) {
+          console.timeEnd(name);
+        }
+        
+        return rtn;
       }
-      
-      if (this.debug) {
-        console.timeEnd(name);
-      }
-      
-      return result;
     }
   },
   

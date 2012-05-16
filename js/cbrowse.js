@@ -369,6 +369,10 @@ var CBrowse = Base.extend({
   
   addTracks: function (tracks) {
     var cBrowse = this;
+    var start   = this.edges.start;
+    var end     = this.edges.end;
+    var width   = Math.round((end - start) * this.scale);
+    var index   = this.tracks.length;
     
     var defaults = {
       cBrowse         : this,
@@ -376,11 +380,6 @@ var CBrowse = Base.extend({
       paramRegex      : this.paramRegex,
       width           : this.width
     };
-    
-    var start = this.start - this.length;
-    var end   = this.end   + this.length;
-    var width = Math.round((end - start) * this.scale);
-    var index = this.tracks.length;
     
     for (var i = 0; i < tracks.length; i++) {
       if (tracks[i].type) {
@@ -395,7 +394,10 @@ var CBrowse = Base.extend({
         this.tracksById[tracks[i].id] = tracks[i];
       }
       
-      tracks[i].setScale();
+      if (this.left) {
+        tracks[i].offsets = this.left < 0 ? { right: this.offsets.right, left: -this.offsets.right } : { right: -this.offsets.left, left: this.offsets.left };
+      }
+      
       tracks[i].container.data('left', this.left);
     }
     
@@ -404,6 +406,7 @@ var CBrowse = Base.extend({
       
       $.map(arguments, function (a) {
         $(a.target).show();
+        
         $.each(a.img.length ? a.img : [ a.img ], function () {
           if (this.track.backgrounds) {
             this.track.scaleFeatures(this.track.backgrounds);
