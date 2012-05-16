@@ -229,8 +229,8 @@ CBrowse.Track = Base.extend({
         this.setScale();
         this.container.data('left', cBrowse.left);
         
-        var start = cBrowse.start - cBrowse.length;
-        var end   = cBrowse.end   + cBrowse.length;
+        var start = cBrowse.edges.start;
+        var end   = cBrowse.edges.end;
         var width = Math.round((end - start) * this.scale);
         
         $.when(this.makeImage(start, end, width, -cBrowse.left, cBrowse.scrollStart)).done(function (a) {
