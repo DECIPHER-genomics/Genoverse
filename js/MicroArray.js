@@ -12,10 +12,47 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
   beforeDraw: function (image) {
     this.context.fillStyle = '#CCCCCC';
     this.context.fillRect(0, this.height/2, image.width, 1);
-
-    this.context.fillStyle = '#CCCCCC';
     this.context.fillRect(0, this.height/4, image.width, 1);
     this.context.fillRect(0, 3*this.height/4, image.width, 1);
+  },
+
+  draw: function (image, features) {
+    this.canvas.attr({ width: image.width, height: this.height });
+
+    this.context.textBaseline = 'top';
+    this.beforeDraw(image);
+
+
+    var i = features.length;
+    this.context.fillStyle = '#000000';
+
+    var halfHeight = this.height/2;
+    var colorScale = 500/halfHeight;
+
+    // console.log(i);
+    // debugger;
+    while (i--) {
+      var feature = features[i];
+      var start   = feature.start * this.scale - image.scaledStart;
+      var end     = feature.end   * this.scale - image.scaledStart;
+      
+      var color   = colorScale * (feature.y - halfHeight);
+      this.context.fillStyle = color < 0 ? 'rgb(0, '+ Math.ceil(-color) +',0)' : 'rgb('+ Math.ceil(color) +',0,0)';
+      this.context.fillRect(start, feature.y, 1, 1);
+    }
+
+    this.decorateFeatures(image);
+    this.afterDraw(image);
+
+    image.container.append(image.images.attr('src', this.canvas[0].toDataURL()));
+  },
+
+  afterDraw: function (image) {
+
+    this.context.globalAlpha = 1;
+    //this.context.globalAlpha = 0.5;
+    this.context.fillStyle = '#7F7F7F';
+    this.context.fillRect(0, 0, image.width, 1);
   },
 
   decorateFeatures: function (image) {
@@ -37,14 +74,6 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
       this.context.globalAlpha = 0.8;
       this.context.fillRect(start, calls[i].y-2, end-start, 4);
     }
-  },
-
-  afterDraw: function (image) {
-
-    this.context.globalAlpha = 1;
-    //this.context.globalAlpha = 0.5;
-    this.context.fillStyle = '#7F7F7F';
-    this.context.fillRect(0, 0, image.width, 1);
   },
 
   addUserEventHandlers: function () {
@@ -91,15 +120,15 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
 
     for (var i = 0; i < json.data.length; i++) {
       features.push({
-        sort: i,
         start: json.data[i][0],
         end:  json.data[i][0] + 10,
-        id: "p" + i,
-        color: "#000000",
-        y: halfHeight - json.data[i][1]*quarterHeight,
-        bounds: {},
-        visible: {},
-        bottom: {}
+        y: halfHeight - json.data[i][1]*quarterHeight
+        // sort: i,
+        // color: "#000000",
+        // id: "p" + i,
+        // bounds: {},
+        // visible: {},
+        // bottom: {}
       });
     }
 
