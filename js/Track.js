@@ -203,7 +203,7 @@ CBrowse.Track = Base.extend({
       }
     }
     
-    this.container.css('left', 0).children().hide();
+    this.container.css('left', this.cBrowse.left).children().hide();
   },
   
   setRenderer: function (renderer, permanent) {
