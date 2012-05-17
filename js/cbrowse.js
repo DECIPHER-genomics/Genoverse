@@ -181,14 +181,12 @@ var CBrowse = Base.extend({
     this.left = e.pageX - this.dragOffset;
     
     if (this.left < this.minLeft) {
-      this.prev.left = this.left;
-      this.left      = this.minLeft;
+      this.left = this.minLeft;
       
       start = this.chromosomeSize - this.length + 1;
       end   = this.chromosomeSize;
     } else if (this.left > this.maxLeft) {
-      this.prev.left = this.left;
-      this.left      = this.maxLeft;
+      this.left = this.maxLeft;
       
       start = 1;
       end   = this.length;
