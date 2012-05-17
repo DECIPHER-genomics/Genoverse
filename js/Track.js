@@ -278,7 +278,7 @@ CBrowse.Track = Base.extend({
     return features;
   },
   
-  positionFeatures: function (features, startOffset) {
+  positionFeatures: function (features, startOffset, imageWidth) {
     var feature, start, end, x, y, width, bounds, bump, depth, j, k, labelStart, labelWidth, maxIndex;
     var showLabels   = this.forceLabels === true || !(this.maxLabelRegion && this.cBrowse.length > this.maxLabelRegion);
     var height       = 0;
@@ -418,7 +418,7 @@ CBrowse.Track = Base.extend({
       // truncate features in very small regions (where scale > 1) - make the features start at 1px outside the canvas to ensure no lines are drawn at the borders incorrectly
       if (scale > 1 && start < end) {
         start = Math.max(start, -1);
-        end   = Math.min(end, this.cBrowse.fullWidth + 1);
+        end   = Math.min(end, imageWidth + 1);
         width = end - start;
       }
       
@@ -562,7 +562,7 @@ CBrowse.Track = Base.extend({
     this.colorOrder  = [];
     this.decorations = {};
     
-    image.draw(this.positionFeatures(this.scaleFeatures(features), image.scaledStart));
+    image.draw(this.positionFeatures(this.scaleFeatures(features), image.scaledStart, image.width));
   },
   
   drawBackground: function (image, height) {

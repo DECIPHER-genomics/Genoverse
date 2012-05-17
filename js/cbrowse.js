@@ -39,7 +39,6 @@ var CBrowse = Base.extend({
     this.backgrounds    = {};
     this.wrapperLeft    = this.labelWidth - width;
     this.width         -= this.labelWidth;
-    this.fullWidth      = this.width * (2 * this.buffer + 1);
     this.paramRegex     = new RegExp('([?&;])' + this.urlParamTemplate.replace(/^(\w+)=/, '($1)=').replace(/__CHR__(.)/, '(\\w+)($1)').replace(/__START__(.)/, '(\\d+)($1)').replace('__END__', '(\\d+)') + '([;&])');
     this.menuContainer  = $('<div class="menu_container">').css({ width: width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
     this.labelContainer = $('<ul class="label_container">').width(this.labelWidth).appendTo(this.container).sortable({
