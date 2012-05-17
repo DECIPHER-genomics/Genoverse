@@ -170,23 +170,30 @@ CBrowse.Track = Base.extend({
     
     this.scale = this.cBrowse.scale;
     
+    // Reset scaleSettings if the user has zoomed back to a previously existent zoom level, but has scrolled to a new region.
+    // This is needed to get the newly created images in the right place.
+    // Sadly we have to throw away all other images generated at this zoom level for it to work, 
+    // since the new image probably won't fit exactly with the positioning of the old images,
+    // and there would probably be a gap between this image and the old ones.
     if (this.scaleSettings[this.scale] && !this.cBrowse.history[this.cBrowse.start + '-' + this.cBrowse.end]) {
       featurePositions = this.scaleSettings[this.scale].featurePositions;
       labelPositions   = this.scaleSettings[this.scale].labelPositions;
       
       this.container.children('.' + this.cBrowse.scrollStart).remove();
+      
       delete this.scaleSettings[this.scale];
     }
     
     if (!this.scaleSettings[this.scale]) {
+      featurePositions = featurePositions || new RTree();
+      
       this.scaleSettings[this.scale] = {
         offsets          : { right: this.width, left: -this.width },
-        featurePositions : featurePositions || new RTree(),
         imgContainers    : [],
-        heights          : { max: this.height, maxFeatures: 0 }
+        heights          : { max: this.height, maxFeatures: 0 },
+        featurePositions : featurePositions,
+        labelPositions   : this.separateLabels ? labelPositions || new RTree() : featurePositions
       };
-      
-      this.scaleSettings[this.scale].labelPositions = this.separateLabels ? labelPositions || new RTree() : this.scaleSettings[this.scale].featurePositions;
     }
     
     var scaleSettings = this.scaleSettings[this.scale];
@@ -227,7 +234,6 @@ CBrowse.Track = Base.extend({
       if (img) {
         this.reset();
         this.setScale();
-        this.container.data('left', cBrowse.left);
         
         var start = cBrowse.edges.start;
         var end   = cBrowse.edges.end;
