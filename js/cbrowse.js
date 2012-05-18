@@ -37,9 +37,9 @@ var CBrowse = Base.extend({
     this.history        = {};
     this.prev           = {};
     this.backgrounds    = {};
+    this.tracksById     = {};
     this.wrapperLeft    = this.labelWidth - width;
     this.width         -= this.labelWidth;
-    this.fullWidth      = this.width * (2 * this.buffer + 1);
     this.paramRegex     = new RegExp('([?&;])' + this.urlParamTemplate.replace(/^(\w+)=/, '($1)=').replace(/__CHR__(.)/, '(\\w+)($1)').replace(/__START__(.)/, '(\\d+)($1)').replace('__END__', '(\\d+)') + '([;&])');
     this.menuContainer  = $('<div class="menu_container">').css({ width: width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
     this.labelContainer = $('<ul class="label_container">').width(this.labelWidth).appendTo(this.container).sortable({
@@ -113,7 +113,8 @@ var CBrowse = Base.extend({
     this.setRange(coords[5], coords[7], false);
     this.setHistory('replaceState');
     this.setTracks();
-    this.makeImage();
+    
+    this.labelBuffer = Math.ceil(this.tracks[0].context.measureText('W').width / this.scale) * this.longestLabel;
     
     this.zoomInHighlight = $([
       '<div class="canvas_zoom i">',
@@ -129,6 +130,8 @@ var CBrowse = Base.extend({
     ].join('')).appendTo('body');
     
     this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('i o').appendTo('body');
+    
+    this.makeImage();
   },
   
   reset: function () {
@@ -182,14 +185,12 @@ var CBrowse = Base.extend({
     this.left = e.pageX - this.dragOffset;
     
     if (this.left < this.minLeft) {
-      this.prev.left = this.left;
-      this.left      = this.minLeft;
+      this.left = this.minLeft;
       
       start = this.chromosomeSize - this.length + 1;
       end   = this.chromosomeSize;
     } else if (this.left > this.maxLeft) {
-      this.prev.left = this.left;
-      this.left      = this.maxLeft;
+      this.left = this.maxLeft;
       
       start = 1;
       end   = this.length;
@@ -334,7 +335,7 @@ var CBrowse = Base.extend({
     }
   },
   
-  setTracks: function () {
+  setTracks: function (tracks, index) {
     var defaults = {
       cBrowse         : this,
       canvasContainer : this.wrapper,
@@ -342,36 +343,10 @@ var CBrowse = Base.extend({
       width           : this.width
     };
     
-    this.tracksById = {};
+    var push = !!tracks;
     
-    for (var i = 0; i < this.tracks.length; i++) {
-      if (this.tracks[i].type) {
-        this.tracks[i] = new CBrowse.Track[this.tracks[i].type]($.extend(this.tracks[i], defaults, { index: i }));
-      } else {
-        this.tracks[i] = new CBrowse.Track($.extend(this.tracks[i], defaults, { index: i }));
-      }
-      
-      if (this.tracks[i].id) {
-        this.tracksById[this.tracks[i].id] = this.tracks[i];
-      }
-    }
-    
-    this.labelBuffer = Math.ceil(this.tracks[0].context.measureText('W').width / this.scale) * this.longestLabel;
-  },
-  
-  addTracks: function (tracks) {
-    var cBrowse = this;
-    var start   = this.edges.start;
-    var end     = this.edges.end;
-    var width   = Math.round((end - start) * this.scale);
-    var index   = this.tracks.length;
-    
-    var defaults = {
-      cBrowse         : this,
-      canvasContainer : this.wrapper,
-      paramRegex      : this.paramRegex,
-      width           : this.width
-    };
+    tracks = tracks || this.tracks;
+    index  = index  || 0;
     
     for (var i = 0; i < tracks.length; i++) {
       if (tracks[i].type) {
@@ -380,7 +355,9 @@ var CBrowse = Base.extend({
         tracks[i] = new CBrowse.Track($.extend(tracks[i], defaults, { index: i + index }));
       }
       
-      this.tracks.push(tracks[i]);
+      if (push) {
+        this.tracks.push(tracks[i]);
+      }
       
       if (tracks[i].id) {
         this.tracksById[tracks[i].id] = tracks[i];
@@ -389,29 +366,12 @@ var CBrowse = Base.extend({
       if (this.left) {
         tracks[i].offsets = this.left < 0 ? { right: this.offsets.right, left: -this.offsets.right } : { right: -this.offsets.left, left: this.offsets.left };
       }
-      
-      tracks[i].container.data('left', this.left);
     }
-    
-    $.when.apply($, $.map(tracks, function (track) { return track.makeImage(start, end, width, -cBrowse.left, cBrowse.scrollStart); })).done(function () {
-      var redraw = false;
-      
-      $.map(arguments, function (a) {
-        $(a.target).show();
-        
-        $.each(a.img.length ? a.img : [ a.img ], function () {
-          if (this.track.backgrounds) {
-            this.track.scaleFeatures(this.track.backgrounds);
-            redraw = true;
-          }
-          
-          this.drawBackground();
-        });
-      });
-      
-      cBrowse.updateTracks(redraw);
-      cBrowse.checkTrackSize();
-    });
+  },
+  
+  addTracks: function (tracks) {
+    this.setTracks(tracks, this.tracks.length);
+    this.makeTrackImages(tracks);
   },
   
   removeTracks: function (tracks) {
@@ -471,9 +431,8 @@ var CBrowse = Base.extend({
   },
   
   makeImage: function () {
-    var cBrowse = this;
-    var left    = -this.left;
-    var dir     = left < 0 ? 'right' : 'left';
+    var left = -this.left;
+    var dir  = left < 0 ? 'right' : 'left';
     var start, end;
     
     if (left) {
@@ -494,28 +453,52 @@ var CBrowse = Base.extend({
       return;
     }
     
-    var edges   = $.extend({}, this.edges);
-    var offsets = $.extend({}, this.offsets);
-    var overlay = $('<div class="overlay">').prependTo(this.wrapper).css(dir, left ? width - (Math.abs(left) % width) : 0).width(width);
-    var cls     = this.scrollStart;
+    this.makeTrackImages(this.tracks, start, end, width);
+  },
+  
+  makeTrackImages: function (tracks, start, end, width) {
+    start = start || this.edges.start;
+    end   = end   || this.edges.end;
+    width = width || Math.round((end - start) * this.scale);
     
-    $.when.apply($, $.map(this.tracks, function (track) { return track.makeImage(start, end, width, left, cls); })).done(function () {
+    var cBrowse   = this;
+    var left      = -this.left;
+    var edges     = $.extend({}, this.edges);
+    var offsets   = $.extend({}, this.offsets);
+    var allTracks = tracks.length === this.tracks.length;
+    var overlay   = allTracks ? $('<div class="overlay">').prependTo(this.wrapper).css(left < 0 ? 'right' : 'left', left ? width - (Math.abs(left) % width) : 0).width(width) : false;
+    
+    function removeOverlay() {
+      if (overlay) {
+        overlay.remove();
+        overlay = null;
+      }
+    }
+    
+    $.when.apply($, $.map(tracks, function (track) { return track.makeImage(start, end, width, left, cBrowse.scrollStart); })).done(function () {
+      var redraw = false;
+      
       $.when.apply($, $.map($.map(arguments, function (a) {
         $(a.target).show();
         return a.img;
-      }), function (i) { return i.drawBackground(); })).done(function () {
-        overlay.remove();
-        overlay = null;
-      });
+      }), function (i) { 
+        if (i.track.backgrounds && !allTracks) {
+          i.track.scaleFeatures(i.track.backgrounds);
+          redraw = true;
+        }
+        
+        return i.drawBackground();
+      })).done(removeOverlay);
       
-      cBrowse.prev.history = cBrowse.start + '-' + cBrowse.end;
+      if (allTracks) {
+        cBrowse.prev.history = cBrowse.start + '-' + cBrowse.end;
+        cBrowse.setHistory(false, edges, offsets);
+      } else {
+        cBrowse.updateTracks(redraw);
+      }
       
       cBrowse.checkTrackSize();
-      cBrowse.setHistory(false, edges, offsets);
-    }).fail(function () {
-      overlay.remove();
-      overlay = null;
-    });
+    }).fail(removeOverlay);
   },
   
   updateURL: function (redraw) {

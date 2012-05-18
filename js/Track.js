@@ -171,23 +171,30 @@ CBrowse.Track = Base.extend({
     
     this.scale = this.cBrowse.scale;
     
+    // Reset scaleSettings if the user has zoomed back to a previously existent zoom level, but has scrolled to a new region.
+    // This is needed to get the newly created images in the right place.
+    // Sadly we have to throw away all other images generated at this zoom level for it to work, 
+    // since the new image probably won't fit exactly with the positioning of the old images,
+    // and there would probably be a gap between this image and the old ones.
     if (this.scaleSettings[this.scale] && !this.cBrowse.history[this.cBrowse.start + '-' + this.cBrowse.end]) {
       featurePositions = this.scaleSettings[this.scale].featurePositions;
       labelPositions   = this.scaleSettings[this.scale].labelPositions;
       
       this.container.children('.' + this.cBrowse.scrollStart).remove();
+      
       delete this.scaleSettings[this.scale];
     }
     
     if (!this.scaleSettings[this.scale]) {
+      featurePositions = featurePositions || new RTree();
+      
       this.scaleSettings[this.scale] = {
         offsets          : { right: this.width, left: -this.width },
-        featurePositions : featurePositions || new RTree(),
         imgContainers    : [],
-        heights          : { max: this.height, maxFeatures: 0 }
+        heights          : { max: this.height, maxFeatures: 0 },
+        featurePositions : featurePositions,
+        labelPositions   : this.separateLabels ? labelPositions || new RTree() : featurePositions
       };
-      
-      this.scaleSettings[this.scale].labelPositions = this.separateLabels ? labelPositions || new RTree() : this.scaleSettings[this.scale].featurePositions;
     }
     
     var scaleSettings = this.scaleSettings[this.scale];
@@ -204,7 +211,7 @@ CBrowse.Track = Base.extend({
       }
     }
     
-    this.container.css('left', 0).children().hide();
+    this.container.css('left', this.cBrowse.left).children().hide();
   },
   
   setRenderer: function (renderer, permanent) {
@@ -228,10 +235,9 @@ CBrowse.Track = Base.extend({
       if (img) {
         this.reset();
         this.setScale();
-        this.container.data('left', cBrowse.left);
         
-        var start = cBrowse.start - cBrowse.length;
-        var end   = cBrowse.end   + cBrowse.length;
+        var start = cBrowse.edges.start;
+        var end   = cBrowse.edges.end;
         var width = Math.round((end - start) * this.scale);
         
         $.when(this.makeImage(start, end, width, -cBrowse.left, cBrowse.scrollStart)).done(function (a) {
@@ -279,7 +285,7 @@ CBrowse.Track = Base.extend({
     return features;
   },
   
-  positionFeatures: function (features, startOffset) {
+  positionFeatures: function (features, startOffset, imageWidth) {
     var feature, start, end, x, y, width, bounds, bump, depth, j, k, labelStart, labelWidth, maxIndex;
     var showLabels   = this.forceLabels === true || !(this.maxLabelRegion && this.cBrowse.length > this.maxLabelRegion);
     var height       = 0;
@@ -419,7 +425,7 @@ CBrowse.Track = Base.extend({
       // truncate features in very small regions (where scale > 1) - make the features start at 1px outside the canvas to ensure no lines are drawn at the borders incorrectly
       if (scale > 1 && start < end) {
         start = Math.max(start, -1);
-        end   = Math.min(end, this.cBrowse.fullWidth + 1);
+        end   = Math.min(end, imageWidth + 1);
         width = end - start;
       }
       
@@ -563,7 +569,7 @@ CBrowse.Track = Base.extend({
     this.colorOrder  = [];
     this.decorations = {};
     
-    image.draw(this.positionFeatures(this.scaleFeatures(features), image.scaledStart));
+    image.draw(this.positionFeatures(this.scaleFeatures(features), image.scaledStart, image.width));
   },
   
   drawBackground: function (image, height) {
