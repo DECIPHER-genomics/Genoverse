@@ -15,6 +15,7 @@
   background: #ccc;
   height: 100%;
   z-index: 1;
+  background: url('/i/loadingBG.png') repeat;
   opacity: 0.5;
 }
 
@@ -127,7 +128,7 @@
   color: white;
   width: 225px;
   border-radius: 0 10px 10px 10px;  
-  box-shadow: 3px 3px 3px #666666;
+  box-shadow: 3px 3px 10px #666666;
   margin: 5px;
   padding: 5px;
   text-align: center;  
@@ -162,17 +163,12 @@
   background-color: #FFF;
 }
 
-
-
-
-.overlap {
-  background: none repeat scroll 0 0 #000000;
-  display: none;
-  height: 900px;
-  left: 264px;
-  opacity: 0.08;
+.expander {
   position: absolute;
-  top: 0;
-  width: 651px;
+  display: block;
+  height: 15px;
+  left: -10px;
+  box-shadow: 0 -5px 7px -3px #000000 inset;
+  cursor: pointer;
   z-index: 10;
 }
