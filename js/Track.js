@@ -153,6 +153,7 @@ CBrowse.Track = Base.extend({
     
     this.container.height(height);
     this.label.height(height)[height ? 'show' : 'hide']();
+    this.checkSize();
   },
   
   remove: function () {
@@ -607,6 +608,40 @@ CBrowse.Track = Base.extend({
   decorateFeatures : $.noop, // decoration for the features
   afterDraw        : $.noop, // decoration for the track, drawn after the features
   
+  checkSize: function () {
+    var bounds = { x: this.cBrowse.scaledStart, w: this.cBrowse.width, y: 0, h: this.heights.max };
+    var scale = this.scale;
+    var height = Math.max.apply(Math, $.map(this.featurePositions.search(bounds), function (feature) { return feature.bottom[scale]; }).concat(0));
+    
+    if (this.separateLabels) {
+      this.labelTop = height;
+      height  += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.labelBottom[scale]; }).concat(0));
+    }
+
+    this.fullVizibleHeight = height;
+    this.toggleExpander();
+  },
+
+  toggleExpander: function () {
+    if (!this.resizable) return;
+
+    if (this.fullVizibleHeight > this.height) {
+      if (!this.expander) {
+        var track = this;
+        this.expander = $('<div class="expander">')
+          .css({ top: this.container.position().top + this.height - 15 + 1, width: this.width + 20 })
+          .appendTo(this.cBrowse.wrapper)
+          .show()
+          .on('click', function() {
+            track.resize(track.fullVizibleHeight);
+          });
+      }
+    } else if (this.expander) {
+      this.expander.remove();
+      delete this.expander;
+    }    
+  },
+
   /**
    * functionWrap - wraps event handlers & adds debugging functionality
    */

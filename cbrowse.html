@@ -24,7 +24,9 @@
     $(function () {
       cBrowse = new CBrowse({
         container      : $('.canvas_container'),
-        chromosomeSize : 249250621, // chromosome 1
+//        chromosomeSize : 249250621, // chromosome 1
+//        chromosomeSize : 102531392, // chromosome 15
+        chromosomeSize : 81195210, // chromosome 17
         tracks         : [{
           type  : 'Scalebar'
         }, {
@@ -36,7 +38,8 @@
           featureHeight : 6,
           bump          : true,
           separateLabels: false,
-          parseFeatures: function (data, bounds) {
+          resizable     : true,
+          parseFeatures : function (data, bounds) {
             var i = data.length;
 
             while (i--) {
@@ -47,8 +50,8 @@
               data[i].labelBottom = {};
               data[i].id          = data[i].name;
               data[i].label       = data[i].name;
-              data[i].color       = "rgb(" + data[i].hi_rgb + ")";
-              data[i].labelColor  = "rgb(" + data[i].hi_rgb + ")";
+              data[i].color       = "rgb(" + (data[i].hi_rgb || '0,0,0') + ")";
+              data[i].labelColor  = "rgb(" + (data[i].hi_rgb || '0,0,0') + ")";
               data[i].start       = parseFloat(data[i].chr_start);
               data[i].end         = parseFloat(data[i].chr_end);
               this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
@@ -64,7 +67,7 @@
         }, {
           type    : 'MicroArray',
           name    : 'MicroArray',
-          url     : '/data/1.json',
+          url     : '/data/17.json',
           overlap : 1,
           debug   : {
             parseFeatures: 1,

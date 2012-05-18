@@ -210,28 +210,20 @@ var CBrowse = Base.extend({
   },
   
   checkTrackSize: function () {
-    var bounds = { x: this.scaledStart, w: this.width, y: 0 };
-    var scale  = this.scale;
-    var height, labelTop;
-    
     for (var i = 0; i < this.tracks.length; i++) {
       if (!this.tracks[i].fixedHeight) {
         if (!this.dragging) {
-          bounds.h = this.tracks[i].heights.max;
-          height   = Math.max.apply(Math, $.map(this.tracks[i].featurePositions.search(bounds), function (feature) { return feature.bottom[scale]; }).concat(0));
-          
-          if (this.tracks[i].separateLabels) {
-            labelTop = height;
-            height  += Math.max.apply(Math, $.map(this.tracks[i].labelPositions.search(bounds), function (feature) { return feature.labelBottom[scale]; }).concat(0));
-          }
-          
+
+          this.tracks[i].checkSize();
+
           if (this.tracks[i].autoHeight) {
-            this.tracks[i].resize(height, labelTop);
+            this.tracks[i].resize(this.tracks[i].fullVizibleHeight, this.tracks[i].labelTop);
           }
           
           if (this.tracks[i].sizeHandle) {
-            this.tracks[i].sizeHandle.data('height', height);
+            this.tracks[i].sizeHandle.data('height', this.tracks[i].fullVizibleHeight);
           }
+          
         }
       }
     }

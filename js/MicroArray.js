@@ -36,8 +36,8 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
       var start   = feature.start * this.scale - image.scaledStart;
       var end     = feature.end   * this.scale - image.scaledStart;
       
-      var color   = colorScale * (feature.y - halfHeight);
-      this.context.fillStyle = color < 0 ? 'rgb(0, '+ Math.ceil(-color) +',0)' : 'rgb('+ Math.ceil(color) +',0,0)';
+      // var color   = colorScale * (feature.y - halfHeight);
+      // this.context.fillStyle = color < 0 ? 'rgb(0, '+ Math.ceil(-color) +',0)' : 'rgb('+ Math.ceil(color) +',0,0)';
       this.context.fillRect(start, feature.y, 1, 1);
     }
 
@@ -117,7 +117,6 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
 
     var halfHeight = this.height/2;
     var quarterHeight = this.height/4;
-
     for (var i = 0; i < json.data.length; i++) {
       features.push({
         start: json.data[i][0],
