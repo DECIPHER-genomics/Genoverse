@@ -14,3 +14,7 @@ CBrowse.Track.on('afterMakeMenu', function (feature, e) {
     .css({ left: overlapLeft, width: overlapWidth })
     .show();
 });
+
+CBrowse.on('beforeMousedown', function () {
+  $('div.overlap').remove();  
+});

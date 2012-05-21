@@ -649,22 +649,46 @@ CBrowse.Track = Base.extend({
   },
 
   /**
+   * 
    * functionWrap - wraps event handlers & adds debugging functionality
-   */
+   *
+   **/
   functionWrap: function (key) {
     var func = key.substring(0, 1).toUpperCase() + key.substring(1);
     var name = (this.name || '') + '(' + (this.type || 'Track') + ').' + key;
     var i, rtn;
     
+    //
+    // Debugging functionality
+    // enabled by "debug": true || { functionName: true, ...} option
+    //
+    // if "debug": true, simply log function call
+    if (this.debug === true) {
+      if (!this.systemEventHandlers['before' + func]) { this.systemEventHandlers['before' + func] = []; }
+      this.systemEventHandlers['before' + func].unshift(function(){
+        console.log(name +' is called');
+      });
+    }
+
+    // if debug: { functionName: true, ...}, log function time
+    if (typeof(this.debug) === "object" && this.debug[key]) {
+      if (!this.systemEventHandlers['before' + func]) { this.systemEventHandlers['before' + func] = []; }
+      if (!this.systemEventHandlers['after'  + func]) { this.systemEventHandlers['after'  + func] = []; }
+      this.systemEventHandlers['before' + func].unshift(function(){
+        console.time(name);
+      });
+      this.systemEventHandlers['after' + func].push(function(){
+        console.timeEnd(name);
+      });
+    }
+    // End of debugging functionality
+
+    // 
+    // turn function into system event, enabling eventHandlers for before/after the event
     if (this.systemEventHandlers['before' + func] || this.systemEventHandlers['after' + func]) {
       this['__original' + func] = this[key];
-      
+
       this[key] = function () {
-        if (this.debug) { 
-          console.log(name + ' is called');
-          console.time(name);
-        }
-        
         if (this.systemEventHandlers['before' + func]) {
           for (i = 0; i < this.systemEventHandlers['before' + func].length; i++) {
             // TODO: Should it stop once beforeFnc returned false or something??
@@ -681,16 +705,14 @@ CBrowse.Track = Base.extend({
           }
         }
         
-        if (this.debug) {
-          console.timeEnd(name);
-        }
-        
         return rtn;
       }
     }
+    
   },
   
   systemEventHandlers: {}
+
 }, {
   on: function (event, handler) {
     if (typeof CBrowse.Track.prototype.systemEventHandlers[event] === 'undefined') {

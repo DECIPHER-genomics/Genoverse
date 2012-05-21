@@ -26,7 +26,13 @@ var CBrowse = Base.extend({
     if (!(this.container && this.container.length)) {
       this.die('You must supply a ' + (this.container ? 'valid ' : '') + 'container element');
     }
-    
+
+    for (var key in this) {
+      if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap)$/)) {
+        this.functionWrap(key);
+      }
+    }
+
     this.init();
   },
 
@@ -590,6 +596,80 @@ var CBrowse = Base.extend({
     alert(error);
     throw(error);
   },
+
+  makeMenu: $.noop, // implement in plugin
+
+  /**
+   * 
+   * functionWrap - wraps event handlers & adds debugging functionality
+   *
+   **/
+  functionWrap: function (key) {
+    var func = key.substring(0, 1).toUpperCase() + key.substring(1);
+    var name = 'CBrowse.' + key;
+    var i, rtn;
+    
+    //
+    // Debugging functionality
+    // enabled by "debug": true || { functionName: true, ...} option
+    //
+    // if "debug": true, simply log function call
+    if (this.debug === true) {
+      if (!this.systemEventHandlers['before' + func]) { this.systemEventHandlers['before' + func] = []; }
+      this.systemEventHandlers['before' + func].unshift(function(){
+        console.log(name +' is called');
+      });
+    }
+
+    // if debug: { functionName: true, ...}, log function time
+    if (typeof(this.debug) === "object" && this.debug[key]) {
+      if (!this.systemEventHandlers['before' + func]) { this.systemEventHandlers['before' + func] = []; }
+      if (!this.systemEventHandlers['after'  + func]) { this.systemEventHandlers['after'  + func] = []; }
+      this.systemEventHandlers['before' + func].unshift(function(){
+        console.time(name);
+      });
+      this.systemEventHandlers['after' + func].push(function(){
+        console.timeEnd(name);
+      });
+    }
+    // End of debugging functionality
+
+    // 
+    // turn function into system event, enabling eventHandlers for before/after the event
+    if (this.systemEventHandlers['before' + func] || this.systemEventHandlers['after' + func]) {
+      this['__original' + func] = this[key];
+
+      this[key] = function () {
+        if (this.systemEventHandlers['before' + func]) {
+          for (i = 0; i < this.systemEventHandlers['before' + func].length; i++) {
+            // TODO: Should it stop once beforeFnc returned false or something??
+            this.systemEventHandlers['before' + func][i].apply(this, arguments);
+          }
+        }
+        
+        rtn = this['__original' + func].apply(this, arguments);
+        
+        if (this.systemEventHandlers['after' + func]) {
+          for (i = 0; i < this.systemEventHandlers['after' + func].length; i++) {
+            // TODO: Should it stop once afterFn returned false or something??
+            this.systemEventHandlers['after' + func][i].apply(this, arguments);
+          }
+        }
+        
+        return rtn;
+      }
+    }
+    
+  },
   
-  makeMenu: $.noop // implement in plugin
+  systemEventHandlers: {}
+
+}, {
+  on: function (event, handler) {
+    if (typeof CBrowse.prototype.systemEventHandlers[event] === 'undefined') {
+      CBrowse.prototype.systemEventHandlers[event] = [];
+    }
+    
+    CBrowse.prototype.systemEventHandlers[event].push(handler);
+  }
 });
