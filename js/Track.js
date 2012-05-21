@@ -153,7 +153,7 @@ CBrowse.Track = Base.extend({
     
     this.container.height(height);
     this.label.height(height)[height ? 'show' : 'hide']();
-    this.checkSize();
+    this.toggleExpander();
   },
   
   remove: function () {
