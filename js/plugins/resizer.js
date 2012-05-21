@@ -32,5 +32,11 @@ CBrowse.Track.on('afterDraw', function () {
       },
       snap: true
     });
+});
 
+CBrowse.Track.on('afterResize', function () {
+  if (!this.resizable) return;
+  if (!this.resizer) return;
+
+  this.resizer.css({ top: this.container.position().top + this.height });
 });
