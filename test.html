@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/cbrowse.css" />  
+    <link rel="stylesheet" type="text/css" href="css/test.css" />  
+
+    <script type="text/javascript" src="js/Base.js"></script>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/rtree.js"></script>
+    <script type="text/javascript" src="js/FRegion.js"></script>
+
+    <script type="text/javascript" src="js/cbrowse.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script>    
+    <script type="text/javascript" src="js/Scalebar.js"></script>
+    <script type="text/javascript" src="js/TrackImage.js"></script>
+    <script type="text/javascript" src="js/MicroArray.js"></script>
+
+    <script type="text/javascript" src="js/plugins/overlap.js"></script>
+    <script type="text/javascript" src="js/plugins/resizer.js"></script>
+    <script type="text/javascript" src="js/plugins/scroll_arrows.js"></script>
+  </head>
+  <body>
+
+  <div class="wrap">
+    <div class="canvas_container"></div>
+  </div>
+  
+
+
+  <script>
+    var cBrowse;
+    $(function () {
+      cBrowse = new CBrowse({
+        container      : $('.canvas_container'),
+//        chromosomeSize : 249250621, // chromosome 1
+//        chromosomeSize : 102531392, // chromosome 15
+        chromosomeSize : 81195210, // chromosome 17
+        tracks         : [{
+          type  : 'Scalebar'
+        }, {
+          name          : 'Genes',
+          //url           : 'http://enssand-03.internal.sanger.ac.uk:7000/Homo_sapiens/Ajax/fetch_features/_transcript?chr=__CHR__&start=__START__&end=__END__&id=transcript_core_ensembl',
+          url           : 'http://decipher.sandbox.sanger.ac.uk/gene;json?region=__CHR__:__START__-__END__',
+          //urlParams   : { region: 'transcript_core_ensembl', start: '__START__' },
+          height        : 100,
+          featureHeight : 6,
+          bump          : true,
+          separateLabels: false,
+          resizable     : true,
+          parseFeatures : function (data, bounds) {
+            var i = data.length;
+
+            while (i--) {
+              data[i].sort        = i;
+              data[i].bounds      = {};
+              data[i].visible     = {};
+              data[i].bottom      = {};
+              data[i].labelBottom = {};
+              data[i].id          = data[i].name;
+              data[i].label       = data[i].name;
+              data[i].color       = "rgb(" + (data[i].hi_rgb || '0,0,0') + ")";
+              data[i].labelColor  = "rgb(" + (data[i].hi_rgb || '0,0,0') + ")";
+              data[i].start       = parseFloat(data[i].chr_start);
+              data[i].end         = parseFloat(data[i].chr_end);
+              this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
+            }
+
+            return data;
+          },
+          debug   : {
+            parseFeatures: 1,
+            positionFeatures: 1,
+            draw: 1
+          }
+        }, {
+          type    : 'MicroArray',
+          name    : 'MicroArray',
+          url     : '/data/17.json',
+          overlap : 1,
+          debug   : {
+            parseFeatures: 1,
+            positionFeatures: 1,
+            draw: 1
+          }
+        }]
+      });
+
+
+      $('.featureMenuClose').live('click', function(){
+        $(this).fadeOut(100, function(){
+          $(this).parent().remove();
+          $('div.overlap').remove();
+        });
+      });
+
+    });
+
+  </script>
+
+  <div class="featureMenuContainer">
+    <div class="featureMenuClose">x</div>    
+    <div class="featureMenu">
+      <div class="featureMenuInner">
+      <table>
+        <tr><td>Start position: </td><td class="eval"> call.start.toLocaleString() </td></tr>
+        <tr><td>Stop position:  </td><td class="eval"> call.stop.toLocaleString() </td></tr>
+        <tr><td>Size:           </td><td class="eval"> (call.stop-call.start).toLocaleString() </td></tr>
+        <tr><td>Ratio:          </td><td class="eval"> call.ratio </td></tr>
+        <tr><td>Probes:         </td><td class="eval"> call.probes </td></tr>
+        <tr><td>P-value:        </td><td class="eval"> call.pvalue </td></tr>
+        <tr><td>W-score:        </td><td class="eval"> call.wscore </td></tr>
+        <tr><td>Novelty:        </td><td class="eval"> call.novelty </td></tr>
+      </table>
+      </div>
+    </div>
+  </div>
+  </body>
+</html>

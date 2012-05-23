@@ -1,0 +1,12 @@
+body {
+  font-family: Verdana, Tahoma, Lucida Console, monospace;
+}
+
+.wrap {
+  margin: auto;
+  width: 1000px;
+}
+
+.canvas_container .label_container li .name {
+  font-weight: bold;
+}

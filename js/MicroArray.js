@@ -6,7 +6,20 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
     color         : '#000000',
     bump          : false,
     autoHeight    : false,
+    scope         : [-2, 2],
     allData       : true
+  },
+
+  constructor: function (config) {
+    this.base(config);
+
+    this.yRuler = $('<table class="yRuler">');
+    this.yRulerCount = Math.floor(this.scope[1] - this.scope[0]); 
+    for (var i=0; i < this.yRulerCount; i++) {
+      this.yRuler.append('<tr><td>'+ (this.scope[1]-i-1) +' </td></tr>');
+    }
+
+    this.label.prepend(this.yRuler);
   },
 
   beforeDraw: function (image) {
@@ -36,8 +49,8 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
       var start   = feature.start * this.scale - image.scaledStart;
       var end     = feature.end   * this.scale - image.scaledStart;
       
-      var color   = colorScale * (feature.y - halfHeight);
-      this.context.fillStyle = color < 0 ? 'rgb(0, '+ Math.ceil(-color) +',0)' : 'rgb('+ Math.ceil(color) +',0,0)';
+      // var color   = colorScale * (feature.y - halfHeight);
+      // this.context.fillStyle = color < 0 ? 'rgb(0, '+ Math.ceil(-color) +',0)' : 'rgb('+ Math.ceil(color) +',0,0)';
       this.context.fillRect(start, feature.y, 1, 1);
     }
 
@@ -117,7 +130,6 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
 
     var halfHeight = this.height/2;
     var quarterHeight = this.height/4;
-
     for (var i = 0; i < json.data.length; i++) {
       features.push({
         start: json.data[i][0],
@@ -167,3 +179,10 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
   }
 
 });
+
+// Default css
+// Reason it's here is so that developer only has to include this js file for entire plugin functionality
+// Any additional custom css will overwrite it
+document.styleSheets[0].insertRule("table.yRuler { float: right; height: 100%; border-spacing: 0; margin: 0.6em 3px 0 0; }", 0);
+document.styleSheets[0].insertRule("table.yRuler td { vertical-align: bottom; text-align: right; padding: 0; }", 0);
+document.styleSheets[0].insertRule("table.yRuler tr:last-of-type td { visibility: hidden; }", 0);

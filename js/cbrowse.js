@@ -26,7 +26,13 @@ var CBrowse = Base.extend({
     if (!(this.container && this.container.length)) {
       this.die('You must supply a ' + (this.container ? 'valid ' : '') + 'container element');
     }
-    
+
+    for (var key in this) {
+      if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap)$/)) {
+        this.functionWrap(key);
+      }
+    }
+
     this.init();
   },
 
@@ -165,7 +171,7 @@ var CBrowse = Base.extend({
     this.prev.left  = this.left;
     this.dragOffset = e.pageX - this.left;
     this.dragStart  = this.start;
-    this.dragEvent  = function (e2) { cBrowse.mousemove(e2); };
+    this.dragEvent  = function (e2) { cBrowse.move(e2); };
     
     $(document).on('mousemove', this.dragEvent);
   },
@@ -189,10 +195,9 @@ var CBrowse = Base.extend({
     }
   },
   
-  mousemove: function (e) {
+  move: function (e, delta, speed) {
     var start, end;
-    
-    this.left = e.pageX - this.dragOffset;
+    this.left = e ? e.pageX - this.dragOffset : this.left + delta;
     
     if (this.left < this.minLeft) {
       this.left = this.minLeft;
@@ -205,44 +210,44 @@ var CBrowse = Base.extend({
       start = 1;
       end   = this.length;
     } else {
-      start = this.dragStart - (this.left - this.prev.left) / this.scale;
+      start = e ? this.dragStart - (this.left - this.prev.left) / this.scale : this.start - delta/this.scale;
       end   = start + this.length - 1;
     }
-    
-    $('.track_container', this.container).css('left', this.left);
-    $('.overlay', this.wrapper).add('.menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
-    
+
+    if (speed) {
+      $('.track_container', this.container).animate({ left: this.left }, speed);
+      $('.overlay', this.wrapper).add('.menu', this.menuContainer).animate({ marginLeft: this.left - this.prev.left }, speed);
+    } else {
+      $('.track_container', this.container).css('left', this.left);
+      $('.overlay', this.wrapper).add('.menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
+    }
+
     this.setRange(start, end, false);
-    
-    if (this.redraw()) {
+
+    if (this.redraw() && e) {
       this.mouseup(e, false);
       this.mousedown(e);
+    } else if (!e) {
+      this.updateURL();
+      this.checkTrackSize();
     }
   },
-  
+
   checkTrackSize: function () {
-    var bounds = { x: this.scaledStart, w: this.width, y: 0 };
-    var scale  = this.scale;
-    var height, labelTop;
-    
     for (var i = 0; i < this.tracks.length; i++) {
       if (!this.tracks[i].fixedHeight) {
         if (!this.dragging) {
-          bounds.h = this.tracks[i].heights.max;
-          height   = Math.max.apply(Math, $.map(this.tracks[i].featurePositions.search(bounds), function (feature) { return feature.bottom[scale]; }).concat(0));
-          
-          if (this.tracks[i].separateLabels) {
-            labelTop = height;
-            height  += Math.max.apply(Math, $.map(this.tracks[i].labelPositions.search(bounds), function (feature) { return feature.labelBottom[scale]; }).concat(0));
-          }
-          
+
+          this.tracks[i].checkSize();
+
           if (this.tracks[i].autoHeight) {
-            this.tracks[i].resize(height, labelTop);
+            this.tracks[i].resize(this.tracks[i].fullVizibleHeight, this.tracks[i].labelTop);
           }
           
           if (this.tracks[i].sizeHandle) {
-            this.tracks[i].sizeHandle.data('height', height);
+            this.tracks[i].sizeHandle.data('height', this.tracks[i].fullVizibleHeight);
           }
+          
         }
       }
     }
@@ -636,6 +641,80 @@ var CBrowse = Base.extend({
     alert(error);
     throw(error);
   },
+
+  makeMenu: $.noop, // implement in plugin
+
+  /**
+   * 
+   * functionWrap - wraps event handlers & adds debugging functionality
+   *
+   **/
+  functionWrap: function (key) {
+    var func = key.substring(0, 1).toUpperCase() + key.substring(1);
+    var name = 'CBrowse.' + key;
+    var i, rtn;
+    
+    //
+    // Debugging functionality
+    // enabled by "debug": true || { functionName: true, ...} option
+    //
+    // if "debug": true, simply log function call
+    if (this.debug === true) {
+      if (!this.systemEventHandlers['before' + func]) { this.systemEventHandlers['before' + func] = []; }
+      this.systemEventHandlers['before' + func].unshift(function(){
+        console.log(name +' is called');
+      });
+    }
+
+    // if debug: { functionName: true, ...}, log function time
+    if (typeof(this.debug) === "object" && this.debug[key]) {
+      if (!this.systemEventHandlers['before' + func]) { this.systemEventHandlers['before' + func] = []; }
+      if (!this.systemEventHandlers['after'  + func]) { this.systemEventHandlers['after'  + func] = []; }
+      this.systemEventHandlers['before' + func].unshift(function(){
+        console.time(name);
+      });
+      this.systemEventHandlers['after' + func].push(function(){
+        console.timeEnd(name);
+      });
+    }
+    // End of debugging functionality
+
+    // 
+    // turn function into system event, enabling eventHandlers for before/after the event
+    if (this.systemEventHandlers['before' + func] || this.systemEventHandlers['after' + func]) {
+      this['__original' + func] = this[key];
+
+      this[key] = function () {
+        if (this.systemEventHandlers['before' + func]) {
+          for (i = 0; i < this.systemEventHandlers['before' + func].length; i++) {
+            // TODO: Should it stop once beforeFnc returned false or something??
+            this.systemEventHandlers['before' + func][i].apply(this, arguments);
+          }
+        }
+        
+        rtn = this['__original' + func].apply(this, arguments);
+        
+        if (this.systemEventHandlers['after' + func]) {
+          for (i = 0; i < this.systemEventHandlers['after' + func].length; i++) {
+            // TODO: Should it stop once afterFn returned false or something??
+            this.systemEventHandlers['after' + func][i].apply(this, arguments);
+          }
+        }
+        
+        return rtn;
+      }
+    }
+    
+  },
   
-  makeMenu: $.noop // implement in plugin
+  systemEventHandlers: {}
+
+}, {
+  on: function (event, handler) {
+    if (typeof CBrowse.prototype.systemEventHandlers[event] === 'undefined') {
+      CBrowse.prototype.systemEventHandlers[event] = [];
+    }
+    
+    CBrowse.prototype.systemEventHandlers[event].push(handler);
+  }
 });
