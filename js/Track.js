@@ -97,6 +97,7 @@ CBrowse.Track = Base.extend({
     
     this.dataRegion    = { start: 9e99, end: -9e99 };
     this.scaleSettings = {};
+    this.expander      = false;
   },
 
   addUserEventHandlers: function () {
