@@ -222,6 +222,8 @@ var CBrowse = Base.extend({
       $('.overlay', this.wrapper).add('.menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
     }
     
+    $('.expander', this.wrapper).css('left', -this.left);
+    
     this.setRange(start, end, false);
     
     if (this.redraw() && e) {

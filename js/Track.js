@@ -178,13 +178,12 @@ CBrowse.Track = Base.extend({
     var track = this;
     
     if (this.fullVizibleHeight > this.height) {
-      if (!this.expander) {
-        this.expander = $('<div class="expander">').css({ top: this.container.position().top + this.height, width: this.width }).appendTo(this.cBrowse.wrapper).on('click', function () {
-          track.resize(track.fullVizibleHeight);
-        });
-      }
+      this.expander = (this.expander || $('<div class="expander">').width(this.width).appendTo(this.container).on('click', function () {
+        track.resize(track.fullVizibleHeight);
+      })).css('left', -this.cBrowse.left).show();
     } else if (this.expander) {
-      delete this.expander.remove();
+      this.expander.remove();
+      delete this.expander;
     }    
   },
   
@@ -244,6 +243,7 @@ CBrowse.Track = Base.extend({
     }
     
     this.container.css('left', this.cBrowse.left).children().hide();
+    this.toggleExpander();
   },
   
   setRenderer: function (renderer, permanent) {
