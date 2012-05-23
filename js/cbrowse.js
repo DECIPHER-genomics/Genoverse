@@ -161,7 +161,7 @@ var CBrowse = Base.extend({
     this.prev.left  = this.left;
     this.dragOffset = e.pageX - this.left;
     this.dragStart  = this.start;
-    this.dragEvent  = function (e2) { cBrowse.mousemove(e2); };
+    this.dragEvent  = function (e2) { cBrowse.move(e2); };
     
     $(document).on('mousemove', this.dragEvent);
   },
@@ -185,10 +185,9 @@ var CBrowse = Base.extend({
     }
   },
   
-  mousemove: function (e) {
+  move: function (e, delta, speed) {
     var start, end;
-    
-    this.left = e.pageX - this.dragOffset;
+    this.left = e ? e.pageX - this.dragOffset : this.left + delta;
     
     if (this.left < this.minLeft) {
       this.left = this.minLeft;
@@ -201,21 +200,29 @@ var CBrowse = Base.extend({
       start = 1;
       end   = this.length;
     } else {
-      start = this.dragStart - (this.left - this.prev.left) / this.scale;
+      start = e ? this.dragStart - (this.left - this.prev.left) / this.scale : this.start - delta/this.scale;
       end   = start + this.length - 1;
     }
-    
-    $('.track_container', this.container).css('left', this.left);
-    $('.overlay', this.wrapper).add('.menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
-    
+
+    if (speed) {
+      $('.track_container', this.container).animate({ left: this.left }, speed);
+      $('.overlay', this.wrapper).add('.menu', this.menuContainer).animate({ marginLeft: this.left - this.prev.left }, speed);
+    } else {
+      $('.track_container', this.container).css('left', this.left);
+      $('.overlay', this.wrapper).add('.menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
+    }
+
     this.setRange(start, end, false);
-    
-    if (this.redraw()) {
+
+    if (this.redraw() && e) {
       this.mouseup(e, false);
       this.mousedown(e);
+    } else if (!e) {
+      this.updateURL();
+      this.checkTrackSize();
     }
   },
-  
+
   checkTrackSize: function () {
     for (var i = 0; i < this.tracks.length; i++) {
       if (!this.tracks[i].fixedHeight) {
