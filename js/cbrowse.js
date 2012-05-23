@@ -72,31 +72,8 @@ var CBrowse = Base.extend({
         
         return false;
       },
-      mousewheel: function (e, delta) {
-        clearTimeout(cBrowse.zoomDeltaTimeout);
-        clearTimeout(cBrowse.zoomTimeout);
-        
-        cBrowse.zoomDeltaTimeout = setTimeout(function () {
-          if (delta > 0) {
-            cBrowse.zoomInHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
-              width: 80, height: 80, top: '-=20', left: '-=20'
-            }, {
-              complete: function () { $(this).css({ width: 40, height: 40, display: 'none' }); }
-            });
-          } else {
-            cBrowse.zoomOutHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
-              width: 40, height: 40, top: '+=10', left: '+=10'
-            }, {
-              complete: function () { $(this).css({ width: 80, height: 80, display: 'none' }); }
-            });
-          }
-        }, 100);
-        
-        cBrowse.zoomTimeout = setTimeout(function () {
-          cBrowse[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - cBrowse.container.offset().left - cBrowse.labelWidth);
-        }, 300);
-        
-        return false;
+      mousewheel: function (e, delta) { 
+        return cBrowse.mousewheelZoom(e, delta);
       }
     }, '.image_container, .overlay');
     
@@ -153,6 +130,34 @@ var CBrowse = Base.extend({
     this.setRange(this.start, this.end, false);
     this.makeImage();
   },
+
+  mousewheelZoom: function (e, delta) {
+    var cBrowse = this;
+    clearTimeout(cBrowse.zoomDeltaTimeout);
+    clearTimeout(cBrowse.zoomTimeout);
+    
+    cBrowse.zoomDeltaTimeout = setTimeout(function () {
+      if (delta > 0) {
+        cBrowse.zoomInHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
+          width: 80, height: 80, top: '-=20', left: '-=20'
+        }, {
+          complete: function () { $(this).css({ width: 40, height: 40, display: 'none' }); }
+        });
+      } else {
+        cBrowse.zoomOutHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
+          width: 40, height: 40, top: '+=10', left: '+=10'
+        }, {
+          complete: function () { $(this).css({ width: 80, height: 80, display: 'none' }); }
+        });
+      }
+    }, 100);
+    
+    cBrowse.zoomTimeout = setTimeout(function () {
+      cBrowse[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - cBrowse.container.offset().left - cBrowse.labelWidth);
+    }, 300);
+    
+    return false;
+  },
   
   mousedown: function (e) {
     var cBrowse = this;
@@ -205,7 +210,8 @@ var CBrowse = Base.extend({
     }
 
     if (speed) {
-      $('.track_container', this.container).animate({ left: this.left }, speed);
+      var cBrowse = this;
+      $('.track_container', this.container).stop().animate({ left: this.left }, speed);
       $('.overlay', this.wrapper).add('.menu', this.menuContainer).animate({ marginLeft: this.left - this.prev.left }, speed);
     } else {
       $('.track_container', this.container).css('left', this.left);
