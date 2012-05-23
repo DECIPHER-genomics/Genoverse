@@ -34,13 +34,19 @@ var CBrowse = Base.extend({
     var cBrowse = this;
     var width   = this.width;
     
+    this.paramRegex = new RegExp('([?&;])' + this.urlParamTemplate
+      .replace(/(\b(\w+=)?__CHR__(.)?)/,   '$2(\\w+)$3')
+      .replace(/(\b(\w+=)?__START__(.)?)/, '$2(\\d+)$3')
+      .replace(/(\b(\w+=)?__END__(.)?)/,   '$2(\\d+)$3') + '([;&])'
+    );
+    
+    this.tracksById     = {};
     this.history        = {};
     this.prev           = {};
     this.backgrounds    = {};
-    this.tracksById     = {};
+    this.useHash        = typeof window.history.pushState !== 'function';
     this.wrapperLeft    = this.labelWidth - width;
     this.width         -= this.labelWidth;
-    this.paramRegex     = new RegExp('([?&;])' + this.urlParamTemplate.replace(/^(\w+)=/, '($1)=').replace(/__CHR__(.)/, '(\\w+)($1)').replace(/__START__(.)/, '(\\d+)($1)').replace('__END__', '(\\d+)') + '([;&])');
     this.menuContainer  = $('<div class="menu_container">').css({ width: width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
     this.labelContainer = $('<ul class="label_container">').width(this.labelWidth).appendTo(this.container).sortable({
       items       : 'li:not(.unsortable)',
@@ -100,18 +106,22 @@ var CBrowse = Base.extend({
       }
     });
     
-    window.onpopstate = function (e) {
-      if (e.state !== null) {
-        cBrowse.popState(e.state);
-      }
-    };
+    if (this.useHash) {
+      $(window).on('hashchange', function () {  
+        cBrowse.popState(true);
+      });
+    } else {
+      window.onpopstate = function () {
+        cBrowse.popState();
+      };
+    }
     
-    var coords = (window.location.search + '&').match(this.paramRegex);
+    var coords = this.getCoords();
     
-    this.chromosome = coords[3];
+    this.chr = coords.chr;
     
-    this.setRange(coords[5], coords[7], false);
-    this.setHistory('replaceState');
+    this.setRange(coords.start, coords.end, false);
+    this.setHistory(false);
     this.setTracks();
     
     this.labelBuffer = Math.ceil(this.tracks[0].context.measureText('W').width / this.scale) * this.longestLabel;
@@ -347,7 +357,6 @@ var CBrowse = Base.extend({
     var defaults = {
       cBrowse         : this,
       canvasContainer : this.wrapper,
-      paramRegex      : this.paramRegex,
       width           : this.width
     };
     
@@ -517,15 +526,19 @@ var CBrowse = Base.extend({
     }
   },
   
-  setHistory: function (action, edges, offsets) {
-    if (action !== false) {
+  setHistory: function (updateURL, edges, offsets) {
+    if (updateURL !== false) {
       if (this.prev.location === this.start + '-' + this.end) {
         return;
       }
       
       this.prev.location = this.start + '-' + this.end;
-    
-      window.history[action || 'pushState']({}, '', this.getQueryString());
+      
+      if (this.useHash) {
+        window.location.hash = this.getQueryString();
+      } else {
+        window.history.pushState({}, '', this.getQueryString());
+      }
     }
     
     if (this.prev.history) {
@@ -538,16 +551,20 @@ var CBrowse = Base.extend({
     }
   },
   
-  popState: function () {
-    var coords = (window.location.search + '&').match(this.paramRegex);
+  popState: function (hashChange) {
+    var coords = this.getCoords();
     
-    if (coords.length) {
-      this.setRange(coords[5], coords[7], false);
+    if (coords.start && !(hashChange && parseInt(coords.start, 10) === this.start && parseInt(coords.end, 10) === this.end)) {
+      this.setRange(coords.start, coords.end, false);
       
       if (!this.updateFromHistory()) {
         this.reset();
       }
     }
+    
+    var delta = Math.round((this.start - this.prev.start) * this.scale);
+    
+    $('.menu', this.container).css('left', function (i, left) { return parseInt(left, 10) - delta; });
   },
   
   updateFromHistory: function () {
@@ -575,6 +592,31 @@ var CBrowse = Base.extend({
     return false;
   },
   
+  getCoords: function () {
+    var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') || window.location.search : window.location.search) + '&').match(this.paramRegex).slice(2, -1);
+    var coords = {};
+    var i      = 0;
+    
+    $.each(this.urlParamTemplate.split('__'), function () {
+      var tmp = this.match(/^(CHR|START|END)$/);
+      
+      if (tmp) {
+        coords[tmp[1].toLowerCase()] = match[i++];
+      }
+    });
+    
+    return coords;
+  },
+  
+  getQueryString: function () {
+    var location = this.urlParamTemplate
+      .replace('__CHR__',   this.chr)
+      .replace('__START__', this.start)
+      .replace('__END__',   this.end);
+    
+    return this.useHash ? location : (window.location.search + '&').replace(this.paramRegex, '$1' + location + '$5').slice(0, -1);
+  },
+  
   abortAjax: function () {
     var i = this.tracks.length;
     
@@ -585,13 +627,9 @@ var CBrowse = Base.extend({
     }
   },
   
-  getQueryString: function () {
-    return (window.location.search + '&').replace(this.paramRegex, '$1$2=$3$4' + this.start + '$6' + this.end + '$8').slice(0, -1);
-  },
-  
   supported: function () {
     var elem = document.createElement('canvas');
-    return !!(elem.getContext && elem.getContext('2d') && typeof window.history.pushState === 'function');
+    return !!(elem.getContext && elem.getContext('2d'));
   },
   
   die: function (error) {

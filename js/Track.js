@@ -545,8 +545,7 @@ CBrowse.Track = Base.extend({
   },
   
   getQueryString: function (start, end) {
-    var search   = window.location.search.split(/[?&;]/);
-    var chr      = this.cBrowse.chromosome;
+    var chr      = this.cBrowse.chr;
     var start    = this.allData ? 1 : start;
     var end      = this.allData ? this.cBrowse.chromosomeSize : end;
     var data     = {};
