@@ -26,13 +26,13 @@ var CBrowse = Base.extend({
     if (!(this.container && this.container.length)) {
       this.die('You must supply a ' + (this.container ? 'valid ' : '') + 'container element');
     }
-
+    
     for (var key in this) {
       if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap)$/)) {
         this.functionWrap(key);
       }
     }
-
+    
     this.init();
   },
 
@@ -210,10 +210,10 @@ var CBrowse = Base.extend({
       start = 1;
       end   = this.length;
     } else {
-      start = e ? this.dragStart - (this.left - this.prev.left) / this.scale : this.start - delta/this.scale;
+      start = e ? this.dragStart - (this.left - this.prev.left) / this.scale : this.start - delta / this.scale;
       end   = start + this.length - 1;
     }
-
+    
     if (speed) {
       $('.track_container', this.container).animate({ left: this.left }, speed);
       $('.overlay', this.wrapper).add('.menu', this.menuContainer).animate({ marginLeft: this.left - this.prev.left }, speed);
@@ -221,9 +221,9 @@ var CBrowse = Base.extend({
       $('.track_container', this.container).css('left', this.left);
       $('.overlay', this.wrapper).add('.menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
     }
-
+    
     this.setRange(start, end, false);
-
+    
     if (this.redraw() && e) {
       this.mouseup(e, false);
       this.mousedown(e);
@@ -232,14 +232,13 @@ var CBrowse = Base.extend({
       this.checkTrackSize();
     }
   },
-
+  
   checkTrackSize: function () {
     for (var i = 0; i < this.tracks.length; i++) {
       if (!this.tracks[i].fixedHeight) {
         if (!this.dragging) {
-
           this.tracks[i].checkSize();
-
+          
           if (this.tracks[i].autoHeight) {
             this.tracks[i].resize(this.tracks[i].fullVizibleHeight, this.tracks[i].labelTop);
           }
@@ -247,7 +246,6 @@ var CBrowse = Base.extend({
           if (this.tracks[i].sizeHandle) {
             this.tracks[i].sizeHandle.data('height', this.tracks[i].fullVizibleHeight);
           }
-          
         }
       }
     }
@@ -645,49 +643,27 @@ var CBrowse = Base.extend({
   makeMenu: $.noop, // implement in plugin
 
   /**
-   * 
-   * functionWrap - wraps event handlers & adds debugging functionality
-   *
+   * functionWrap - wraps event handlers and adds debugging functionality
    **/
-  functionWrap: function (key) {
+  functionWrap: function (key, obj) {
     var func = key.substring(0, 1).toUpperCase() + key.substring(1);
-    var name = 'CBrowse.' + key;
-    var i, rtn;
+        name = (obj ? (obj.name || '') + '(' + (obj.type || 'Track.') + ')' : 'CBrowse.') + key;
+        obj  = obj || this;
     
-    //
-    // Debugging functionality
-    // enabled by "debug": true || { functionName: true, ...} option
-    //
-    // if "debug": true, simply log function call
-    if (this.debug === true) {
-      if (!this.systemEventHandlers['before' + func]) { this.systemEventHandlers['before' + func] = []; }
-      this.systemEventHandlers['before' + func].unshift(function(){
-        console.log(name +' is called');
-      });
+    if (obj.debug) {
+      this.debugWrap(obj, key, name, func);
     }
-
-    // if debug: { functionName: true, ...}, log function time
-    if (typeof(this.debug) === "object" && this.debug[key]) {
-      if (!this.systemEventHandlers['before' + func]) { this.systemEventHandlers['before' + func] = []; }
-      if (!this.systemEventHandlers['after'  + func]) { this.systemEventHandlers['after'  + func] = []; }
-      this.systemEventHandlers['before' + func].unshift(function(){
-        console.time(name);
-      });
-      this.systemEventHandlers['after' + func].push(function(){
-        console.timeEnd(name);
-      });
-    }
-    // End of debugging functionality
-
-    // 
+    
     // turn function into system event, enabling eventHandlers for before/after the event
-    if (this.systemEventHandlers['before' + func] || this.systemEventHandlers['after' + func]) {
-      this['__original' + func] = this[key];
+    if (obj.systemEventHandlers['before' + func] || obj.systemEventHandlers['after' + func]) {
+      obj['__original' + func] = obj[key];
 
-      this[key] = function () {
+      obj[key] = function () {
+        var i, rtn;
+        
         if (this.systemEventHandlers['before' + func]) {
           for (i = 0; i < this.systemEventHandlers['before' + func].length; i++) {
-            // TODO: Should it stop once beforeFnc returned false or something??
+            // TODO: Should it stop once beforeFunc returned false or something??
             this.systemEventHandlers['before' + func][i].apply(this, arguments);
           }
         }
@@ -696,7 +672,7 @@ var CBrowse = Base.extend({
         
         if (this.systemEventHandlers['after' + func]) {
           for (i = 0; i < this.systemEventHandlers['after' + func].length; i++) {
-            // TODO: Should it stop once afterFn returned false or something??
+            // TODO: Should it stop once afterFunc returned false or something??
             this.systemEventHandlers['after' + func][i].apply(this, arguments);
           }
         }
@@ -704,11 +680,43 @@ var CBrowse = Base.extend({
         return rtn;
       }
     }
+  },
+  
+  debugWrap: function (obj, key, name, func) {
+    // Debugging functionality
+    // Enabled by "debug": true || { functionName: true, ...} option
+    // if "debug": true, simply log function call
+    if (obj.debug === true) {
+      if (!obj.systemEventHandlers['before' + func]) {
+        obj.systemEventHandlers['before' + func] = [];
+      }
+      
+      obj.systemEventHandlers['before' + func].unshift(function () {
+        console.log(name + ' is called');
+      });
+    }
     
+    // if debug: { functionName: true, ...}, log function time
+    if (typeof obj.debug === 'object' && obj.debug[key]) {
+      if (!obj.systemEventHandlers['before' + func]) {
+        obj.systemEventHandlers['before' + func] = [];
+      }
+      
+      if (!obj.systemEventHandlers['after' + func]) {
+        obj.systemEventHandlers['after' + func] = [];
+      }
+      
+      obj.systemEventHandlers['before' + func].unshift(function () {
+        console.time(name);
+      });
+      
+      obj.systemEventHandlers['after' + func].push(function () {
+        console.timeEnd(name);
+      });
+    }
   },
   
   systemEventHandlers: {}
-
 }, {
   on: function (event, handler) {
     if (typeof CBrowse.prototype.systemEventHandlers[event] === 'undefined') {

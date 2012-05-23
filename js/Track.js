@@ -23,7 +23,7 @@ CBrowse.Track = Base.extend({
     
     for (var key in this) {
       if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap)$/)) {
-        this.functionWrap(key);
+        this.cBrowse.functionWrap(key, this);
       }
     }
     
@@ -138,6 +138,20 @@ CBrowse.Track = Base.extend({
     this.container.empty();
   },
   
+  checkSize: function () {
+    var bounds = { x: this.cBrowse.scaledStart, w: this.width, y: 0, h: this.heights.max };
+    var scale  = this.scale;
+    var height = Math.max.apply(Math, $.map(this.featurePositions.search(bounds), function (feature) { return feature.bottom[scale]; }).concat(0));
+    
+    if (this.separateLabels) {
+      this.labelTop = height;
+      height  += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.labelBottom[scale]; }).concat(0));
+    }
+
+    this.fullVizibleHeight = height;
+    this.toggleExpander();
+  },
+  
   resize: function (height, labelTop) {
     if (height < this.featureHeight) {
       height = 0;
@@ -154,6 +168,24 @@ CBrowse.Track = Base.extend({
     this.container.height(height);
     this.label.height(height)[height ? 'show' : 'hide']();
     this.toggleExpander();
+  },
+  
+  toggleExpander: function () {
+    if (!this.resizable) {
+      return;
+    }
+    
+    var track = this;
+    
+    if (this.fullVizibleHeight > this.height) {
+      if (!this.expander) {
+        this.expander = $('<div class="expander">').css({ top: this.container.position().top + this.height, width: this.width }).appendTo(this.cBrowse.wrapper).on('click', function () {
+          track.resize(track.fullVizibleHeight);
+        });
+      }
+    } else if (this.expander) {
+      delete this.expander.remove();
+    }    
   },
   
   remove: function () {
@@ -609,109 +641,10 @@ CBrowse.Track = Base.extend({
     }
   },
   
-  beforeDraw       : $.noop, // decoration for the track, drawn before the features
-  decorateFeatures : $.noop, // decoration for the features
-  afterDraw        : $.noop, // decoration for the track, drawn after the features
-  
-  checkSize: function () {
-    var bounds = { x: this.cBrowse.scaledStart, w: this.cBrowse.width, y: 0, h: this.heights.max };
-    var scale = this.scale;
-    var height = Math.max.apply(Math, $.map(this.featurePositions.search(bounds), function (feature) { return feature.bottom[scale]; }).concat(0));
-    
-    if (this.separateLabels) {
-      this.labelTop = height;
-      height  += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.labelBottom[scale]; }).concat(0));
-    }
-
-    this.fullVizibleHeight = height;
-    this.toggleExpander();
-  },
-
-  toggleExpander: function () {
-    if (!this.resizable) return;
-
-    if (this.fullVizibleHeight > this.height) {
-      if (!this.expander) {
-        var track = this;
-        this.expander = $('<div class="expander">')
-          .css({ top: this.container.position().top + this.height - 15 + 1, width: this.width + 20 })
-          .appendTo(this.cBrowse.wrapper)
-          .show()
-          .on('click', function() {
-            track.resize(track.fullVizibleHeight);
-          });
-      }
-    } else if (this.expander) {
-      this.expander.remove();
-      delete this.expander;
-    }    
-  },
-
-  /**
-   * 
-   * functionWrap - wraps event handlers & adds debugging functionality
-   *
-   **/
-  functionWrap: function (key) {
-    var func = key.substring(0, 1).toUpperCase() + key.substring(1);
-    var name = (this.name || '') + '(' + (this.type || 'Track') + ').' + key;
-    var i, rtn;
-    
-    //
-    // Debugging functionality
-    // enabled by "debug": true || { functionName: true, ...} option
-    //
-    // if "debug": true, simply log function call
-    if (this.debug === true) {
-      if (!this.systemEventHandlers['before' + func]) { this.systemEventHandlers['before' + func] = []; }
-      this.systemEventHandlers['before' + func].unshift(function(){
-        console.log(name +' is called');
-      });
-    }
-
-    // if debug: { functionName: true, ...}, log function time
-    if (typeof(this.debug) === "object" && this.debug[key]) {
-      if (!this.systemEventHandlers['before' + func]) { this.systemEventHandlers['before' + func] = []; }
-      if (!this.systemEventHandlers['after'  + func]) { this.systemEventHandlers['after'  + func] = []; }
-      this.systemEventHandlers['before' + func].unshift(function(){
-        console.time(name);
-      });
-      this.systemEventHandlers['after' + func].push(function(){
-        console.timeEnd(name);
-      });
-    }
-    // End of debugging functionality
-
-    // 
-    // turn function into system event, enabling eventHandlers for before/after the event
-    if (this.systemEventHandlers['before' + func] || this.systemEventHandlers['after' + func]) {
-      this['__original' + func] = this[key];
-
-      this[key] = function () {
-        if (this.systemEventHandlers['before' + func]) {
-          for (i = 0; i < this.systemEventHandlers['before' + func].length; i++) {
-            // TODO: Should it stop once beforeFnc returned false or something??
-            this.systemEventHandlers['before' + func][i].apply(this, arguments);
-          }
-        }
-        
-        rtn = this['__original' + func].apply(this, arguments);
-        
-        if (this.systemEventHandlers['after' + func]) {
-          for (i = 0; i < this.systemEventHandlers['after' + func].length; i++) {
-            // TODO: Should it stop once afterFn returned false or something??
-            this.systemEventHandlers['after' + func][i].apply(this, arguments);
-          }
-        }
-        
-        return rtn;
-      }
-    }
-    
-  },
-  
-  systemEventHandlers: {}
-
+  beforeDraw          : $.noop, // decoration for the track, drawn before the features
+  decorateFeatures    : $.noop, // decoration for the features
+  afterDraw           : $.noop, // decoration for the track, drawn after the features
+  systemEventHandlers : {}
 }, {
   on: function (event, handler) {
     if (typeof CBrowse.Track.prototype.systemEventHandlers[event] === 'undefined') {
