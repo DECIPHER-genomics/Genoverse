@@ -692,6 +692,16 @@ var CBrowse = Base.extend({
     }
   },
   
+  getHeight: function () {
+    var height = 0;
+    var i = this.tracks.length;
+    while (i--) {
+      height += this.tracks[i].height;
+    }
+
+    return height;
+  },
+
   debugWrap: function (obj, key, name, func) {
     // Debugging functionality
     // Enabled by "debug": true || { functionName: true, ...} option
