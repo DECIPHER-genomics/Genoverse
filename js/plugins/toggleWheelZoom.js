@@ -10,6 +10,8 @@ CBrowse.on('afterInit', function () {
     } else {
       this.mousewheelZoom     = $.noop;
     }
+
+    return this;
   }
 
   this.toggleWheelZoom();
