@@ -1,7 +1,7 @@
 // Default css
 // Reason it's here is so that developer only has to include this js file for entire plugin functionality
 // Any additional custom css will overwrite it
-document.styleSheets[0].insertRule(".crosshair { position: absolute; display: block; width: 0; border-left: 1px dashed red; top:0; z-index: 20; }", 0);
+document.styleSheets[0].insertRule(".crosshair { position: absolute; display: block; width: 0; border-left: 1px dashed red; top:0; left:-2px; z-index: 20; }", 0);
 
 CBrowse.on('afterInit', function () {
   var cBrowse = this;
@@ -24,6 +24,8 @@ CBrowse.on('afterInit', function () {
     } else {
       this.crosshair.hide();
     }
+
+    return this;
   };
 
 });

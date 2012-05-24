@@ -30,6 +30,8 @@ CBrowse.on('afterInit', function () {
       this.lArrow.fadeIn('fast');
       this.rArrow.fadeIn('fast');
     }
+
+    return this;
   }
 
   this.lArrow = $('<div class="arrow left"><div>&#9668;</div></div>').css({ left: lArrowLeft }).appendTo(this.wrapper);
