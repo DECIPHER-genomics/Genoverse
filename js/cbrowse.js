@@ -26,13 +26,13 @@ var CBrowse = Base.extend({
     if (!(this.container && this.container.length)) {
       this.die('You must supply a ' + (this.container ? 'valid ' : '') + 'container element');
     }
-
+    
     for (var key in this) {
       if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap)$/)) {
         this.functionWrap(key);
       }
     }
-
+    
     this.init();
   },
 
@@ -40,13 +40,19 @@ var CBrowse = Base.extend({
     var cBrowse = this;
     var width   = this.width;
     
+    this.paramRegex = new RegExp('([?&;])' + this.urlParamTemplate
+      .replace(/(\b(\w+=)?__CHR__(.)?)/,   '$2(\\w+)$3')
+      .replace(/(\b(\w+=)?__START__(.)?)/, '$2(\\d+)$3')
+      .replace(/(\b(\w+=)?__END__(.)?)/,   '$2(\\d+)$3') + '([;&])'
+    );
+    
+    this.tracksById     = {};
     this.history        = {};
     this.prev           = {};
     this.backgrounds    = {};
-    this.tracksById     = {};
+    this.useHash        = typeof window.history.pushState !== 'function';
     this.wrapperLeft    = this.labelWidth - width;
     this.width         -= this.labelWidth;
-    this.paramRegex     = new RegExp('([?&;])' + this.urlParamTemplate.replace(/^(\w+)=/, '($1)=').replace(/__CHR__(.)/, '(\\w+)($1)').replace(/__START__(.)/, '(\\d+)($1)').replace('__END__', '(\\d+)') + '([;&])');
     this.menuContainer  = $('<div class="menu_container">').css({ width: width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
     this.labelContainer = $('<ul class="label_container">').width(this.labelWidth).appendTo(this.container).sortable({
       items       : 'li:not(.unsortable)',
@@ -83,18 +89,22 @@ var CBrowse = Base.extend({
       }
     });
     
-    window.onpopstate = function (e) {
-      if (e.state !== null) {
-        cBrowse.popState(e.state);
-      }
-    };
+    if (this.useHash) {
+      $(window).on('hashchange', function () {  
+        cBrowse.popState(true);
+      });
+    } else {
+      window.onpopstate = function () {
+        cBrowse.popState();
+      };
+    }
     
-    var coords = (window.location.search + '&').match(this.paramRegex);
+    var coords = this.getCoords();
     
-    this.chromosome = coords[3];
+    this.chr = coords.chr;
     
-    this.setRange(coords[5], coords[7], false);
-    this.setHistory('replaceState');
+    this.setRange(coords.start, coords.end, false);
+    this.setHistory(false);
     this.setTracks();
     
     this.labelBuffer = Math.ceil(this.tracks[0].context.measureText('W').width / this.scale) * this.longestLabel;
@@ -205,10 +215,10 @@ var CBrowse = Base.extend({
       start = 1;
       end   = this.length;
     } else {
-      start = e ? this.dragStart - (this.left - this.prev.left) / this.scale : this.start - delta/this.scale;
+      start = e ? this.dragStart - (this.left - this.prev.left) / this.scale : this.start - delta / this.scale;
       end   = start + this.length - 1;
     }
-
+    
     if (speed) {
       var cBrowse = this;
       $('.track_container', this.container).stop().animate({ left: this.left }, speed);
@@ -217,9 +227,11 @@ var CBrowse = Base.extend({
       $('.track_container', this.container).css('left', this.left);
       $('.overlay', this.wrapper).add('.menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
     }
-
+    
+    $('.expander', this.wrapper).css('left', -this.left);
+    
     this.setRange(start, end, false);
-
+    
     if (this.redraw() && e) {
       this.mouseup(e, false);
       this.mousedown(e);
@@ -228,22 +240,22 @@ var CBrowse = Base.extend({
       this.checkTrackSize();
     }
   },
-
+  
   checkTrackSize: function () {
     for (var i = 0; i < this.tracks.length; i++) {
       if (!this.tracks[i].fixedHeight) {
         if (!this.dragging) {
-
           this.tracks[i].checkSize();
-
-          if (this.tracks[i].autoHeight) {
-            this.tracks[i].resize(this.tracks[i].fullVizibleHeight, this.tracks[i].labelTop);
+          
+          if (this.tracks[i].autoHeight || this.tracks[i].separateLabels) {
+            this.tracks[i].resize(this.tracks[i][this.tracks[i].autoHeight ? 'fullVizibleHeight' : 'height'], this.tracks[i].labelTop);
+          } else {
+            this.tracks[i].toggleExpander();
           }
           
           if (this.tracks[i].sizeHandle) {
             this.tracks[i].sizeHandle.data('height', this.tracks[i].fullVizibleHeight);
           }
-          
         }
       }
     }
@@ -358,7 +370,6 @@ var CBrowse = Base.extend({
     var defaults = {
       cBrowse         : this,
       canvasContainer : this.wrapper,
-      paramRegex      : this.paramRegex,
       width           : this.width
     };
     
@@ -528,15 +539,19 @@ var CBrowse = Base.extend({
     }
   },
   
-  setHistory: function (action, edges, offsets) {
-    if (action !== false) {
+  setHistory: function (updateURL, edges, offsets) {
+    if (updateURL !== false) {
       if (this.prev.location === this.start + '-' + this.end) {
         return;
       }
       
       this.prev.location = this.start + '-' + this.end;
-    
-      window.history[action || 'pushState']({}, '', this.getQueryString());
+      
+      if (this.useHash) {
+        window.location.hash = this.getQueryString();
+      } else {
+        window.history.pushState({}, '', this.getQueryString());
+      }
     }
     
     if (this.prev.history) {
@@ -549,16 +564,20 @@ var CBrowse = Base.extend({
     }
   },
   
-  popState: function () {
-    var coords = (window.location.search + '&').match(this.paramRegex);
+  popState: function (hashChange) {
+    var coords = this.getCoords();
     
-    if (coords.length) {
-      this.setRange(coords[5], coords[7], false);
+    if (coords.start && !(hashChange && parseInt(coords.start, 10) === this.start && parseInt(coords.end, 10) === this.end)) {
+      this.setRange(coords.start, coords.end, false);
       
       if (!this.updateFromHistory()) {
         this.reset();
       }
     }
+    
+    var delta = Math.round((this.start - this.prev.start) * this.scale);
+    
+    $('.menu', this.container).css('left', function (i, left) { return parseInt(left, 10) - delta; });
   },
   
   updateFromHistory: function () {
@@ -586,6 +605,31 @@ var CBrowse = Base.extend({
     return false;
   },
   
+  getCoords: function () {
+    var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') || window.location.search : window.location.search) + '&').match(this.paramRegex).slice(2, -1);
+    var coords = {};
+    var i      = 0;
+    
+    $.each(this.urlParamTemplate.split('__'), function () {
+      var tmp = this.match(/^(CHR|START|END)$/);
+      
+      if (tmp) {
+        coords[tmp[1].toLowerCase()] = match[i++];
+      }
+    });
+    
+    return coords;
+  },
+  
+  getQueryString: function () {
+    var location = this.urlParamTemplate
+      .replace('__CHR__',   this.chr)
+      .replace('__START__', this.start)
+      .replace('__END__',   this.end);
+    
+    return this.useHash ? location : (window.location.search + '&').replace(this.paramRegex, '$1' + location + '$5').slice(0, -1);
+  },
+  
   abortAjax: function () {
     var i = this.tracks.length;
     
@@ -596,13 +640,9 @@ var CBrowse = Base.extend({
     }
   },
   
-  getQueryString: function () {
-    return (window.location.search + '&').replace(this.paramRegex, '$1$2=$3$4' + this.start + '$6' + this.end + '$8').slice(0, -1);
-  },
-  
   supported: function () {
     var elem = document.createElement('canvas');
-    return !!(elem.getContext && elem.getContext('2d') && typeof window.history.pushState === 'function');
+    return !!(elem.getContext && elem.getContext('2d'));
   },
   
   die: function (error) {
@@ -613,49 +653,27 @@ var CBrowse = Base.extend({
   makeMenu: $.noop, // implement in plugin
 
   /**
-   * 
-   * functionWrap - wraps event handlers & adds debugging functionality
-   *
+   * functionWrap - wraps event handlers and adds debugging functionality
    **/
-  functionWrap: function (key) {
+  functionWrap: function (key, obj) {
     var func = key.substring(0, 1).toUpperCase() + key.substring(1);
-    var name = 'CBrowse.' + key;
-    var i, rtn;
+        name = (obj ? (obj.name || '') + '(' + (obj.type || 'Track.') + ')' : 'CBrowse.') + key;
+        obj  = obj || this;
     
-    //
-    // Debugging functionality
-    // enabled by "debug": true || { functionName: true, ...} option
-    //
-    // if "debug": true, simply log function call
-    if (this.debug === true) {
-      if (!this.systemEventHandlers['before' + func]) { this.systemEventHandlers['before' + func] = []; }
-      this.systemEventHandlers['before' + func].unshift(function(){
-        console.log(name +' is called');
-      });
+    if (obj.debug) {
+      this.debugWrap(obj, key, name, func);
     }
-
-    // if debug: { functionName: true, ...}, log function time
-    if (typeof(this.debug) === "object" && this.debug[key]) {
-      if (!this.systemEventHandlers['before' + func]) { this.systemEventHandlers['before' + func] = []; }
-      if (!this.systemEventHandlers['after'  + func]) { this.systemEventHandlers['after'  + func] = []; }
-      this.systemEventHandlers['before' + func].unshift(function(){
-        console.time(name);
-      });
-      this.systemEventHandlers['after' + func].push(function(){
-        console.timeEnd(name);
-      });
-    }
-    // End of debugging functionality
-
-    // 
+    
     // turn function into system event, enabling eventHandlers for before/after the event
-    if (this.systemEventHandlers['before' + func] || this.systemEventHandlers['after' + func]) {
-      this['__original' + func] = this[key];
+    if (obj.systemEventHandlers['before' + func] || obj.systemEventHandlers['after' + func]) {
+      obj['__original' + func] = obj[key];
 
-      this[key] = function () {
+      obj[key] = function () {
+        var i, rtn;
+        
         if (this.systemEventHandlers['before' + func]) {
           for (i = 0; i < this.systemEventHandlers['before' + func].length; i++) {
-            // TODO: Should it stop once beforeFnc returned false or something??
+            // TODO: Should it stop once beforeFunc returned false or something??
             this.systemEventHandlers['before' + func][i].apply(this, arguments);
           }
         }
@@ -664,7 +682,7 @@ var CBrowse = Base.extend({
         
         if (this.systemEventHandlers['after' + func]) {
           for (i = 0; i < this.systemEventHandlers['after' + func].length; i++) {
-            // TODO: Should it stop once afterFn returned false or something??
+            // TODO: Should it stop once afterFunc returned false or something??
             this.systemEventHandlers['after' + func][i].apply(this, arguments);
           }
         }
@@ -672,17 +690,51 @@ var CBrowse = Base.extend({
         return rtn;
       }
     }
+  },
+  
+  debugWrap: function (obj, key, name, func) {
+    // Debugging functionality
+    // Enabled by "debug": true || { functionName: true, ...} option
+    // if "debug": true, simply log function call
+    if (obj.debug === true) {
+      if (!obj.systemEventHandlers['before' + func]) {
+        obj.systemEventHandlers['before' + func] = [];
+      }
+      
+      obj.systemEventHandlers['before' + func].unshift(function () {
+        console.log(name + ' is called');
+      });
+    }
     
+    // if debug: { functionName: true, ...}, log function time
+    if (typeof obj.debug === 'object' && obj.debug[key]) {
+      if (!obj.systemEventHandlers['before' + func]) {
+        obj.systemEventHandlers['before' + func] = [];
+      }
+      
+      if (!obj.systemEventHandlers['after' + func]) {
+        obj.systemEventHandlers['after' + func] = [];
+      }
+      
+      obj.systemEventHandlers['before' + func].unshift(function () {
+        console.time(name);
+      });
+      
+      obj.systemEventHandlers['after' + func].push(function () {
+        console.timeEnd(name);
+      });
+    }
   },
   
   systemEventHandlers: {}
-
 }, {
-  on: function (event, handler) {
-    if (typeof CBrowse.prototype.systemEventHandlers[event] === 'undefined') {
-      CBrowse.prototype.systemEventHandlers[event] = [];
-    }
-    
-    CBrowse.prototype.systemEventHandlers[event].push(handler);
+  on: function (events, handler) {
+    $.each(events.split(' '), function () {
+      if (typeof CBrowse.prototype.systemEventHandlers[this] === 'undefined') {
+        CBrowse.prototype.systemEventHandlers[this] = [];
+      }
+      
+      CBrowse.prototype.systemEventHandlers[this].push(handler);
+    });
   }
 });
