@@ -647,11 +647,13 @@ CBrowse.Track = Base.extend({
   afterDraw           : $.noop, // decoration for the track, drawn after the features
   systemEventHandlers : {}
 }, {
-  on: function (event, handler) {
-    if (typeof CBrowse.Track.prototype.systemEventHandlers[event] === 'undefined') {
-      CBrowse.Track.prototype.systemEventHandlers[event] = [];
-    }
-    
-    CBrowse.Track.prototype.systemEventHandlers[event].push(handler);
+  on: function (events, handler) {
+    $.each(events.split(' '), function () {
+      if (typeof CBrowse.Track.prototype.systemEventHandlers[this] === 'undefined') {
+        CBrowse.Track.prototype.systemEventHandlers[this] = [];
+      }
+      
+      CBrowse.Track.prototype.systemEventHandlers[this].push(handler);
+    });
   }
 });

@@ -720,11 +720,13 @@ var CBrowse = Base.extend({
   
   systemEventHandlers: {}
 }, {
-  on: function (event, handler) {
-    if (typeof CBrowse.prototype.systemEventHandlers[event] === 'undefined') {
-      CBrowse.prototype.systemEventHandlers[event] = [];
-    }
-    
-    CBrowse.prototype.systemEventHandlers[event].push(handler);
+  on: function (events, handler) {
+    $.each(events.split(' '), function () {
+      if (typeof CBrowse.prototype.systemEventHandlers[this] === 'undefined') {
+        CBrowse.prototype.systemEventHandlers[this] = [];
+      }
+      
+      CBrowse.prototype.systemEventHandlers[this].push(handler);
+    });
   }
 });
