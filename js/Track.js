@@ -146,11 +146,10 @@ CBrowse.Track = Base.extend({
     
     if (this.separateLabels) {
       this.labelTop = height;
-      height  += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.labelBottom[scale]; }).concat(0));
+      height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.labelBottom[scale]; }).concat(0));
     }
 
     this.fullVizibleHeight = height;
-    this.toggleExpander();
   },
   
   resize: function (height, labelTop) {
@@ -178,7 +177,13 @@ CBrowse.Track = Base.extend({
     
     var track = this;
     
-    if (this.fullVizibleHeight > this.height) {
+    // Note: this.fullVizibleHeight - this.bumpSpacing is not actually the correct value to test against, but it's the easiest best guess to obtain.
+    // this.fullVizibleHeight is the maximum bottom position of the track's features in the region, which includes spacing at the bottom of each feature and label
+    // Therefore this.fullVizibleHeight includes this spacing for the bottom-most feature.
+    // The correct value (for a track using the default positionFeatures code) is:
+    // this.fullVizibleHeight - ([there are labels in this region] ? (this.separateLabels ? 0 : this.bumpSpacing + 1) + 2 : this.bumpSpacing)
+    //                                                                ^ padding on label y-position                     ^ margin on label height
+    if (this.fullVizibleHeight - this.bumpSpacing > this.height) {
       this.expander = (this.expander || $('<div class="expander">').width(this.width).appendTo(this.container).on('click', function () {
         track.resize(track.fullVizibleHeight);
       })).css('left', -this.cBrowse.left).show();

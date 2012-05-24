@@ -243,6 +243,8 @@ var CBrowse = Base.extend({
           
           if (this.tracks[i].autoHeight || this.tracks[i].separateLabels) {
             this.tracks[i].resize(this.tracks[i][this.tracks[i].autoHeight ? 'fullVizibleHeight' : 'height'], this.tracks[i].labelTop);
+          } else {
+            this.tracks[i].toggleExpander();
           }
           
           if (this.tracks[i].sizeHandle) {
