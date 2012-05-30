@@ -143,6 +143,7 @@ var CBrowse = Base.extend({
 
   mousewheelZoom: function (e, delta) {
     var cBrowse = this;
+    
     clearTimeout(cBrowse.zoomDeltaTimeout);
     clearTimeout(cBrowse.zoomTimeout);
     
@@ -220,7 +221,6 @@ var CBrowse = Base.extend({
     }
     
     if (speed) {
-      var cBrowse = this;
       $('.track_container', this.container).stop().animate({ left: this.left }, speed);
       $('.overlay', this.wrapper).add('.menu', this.menuContainer).animate({ marginLeft: this.left - this.prev.left }, speed);
     } else {
@@ -699,8 +699,9 @@ var CBrowse = Base.extend({
   },
   
   getHeight: function () {
+    var i      = this.tracks.length;
     var height = 0;
-    var i = this.tracks.length;
+    
     while (i--) {
       height += this.tracks[i].height;
     }
