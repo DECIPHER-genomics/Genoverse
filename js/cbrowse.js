@@ -452,10 +452,7 @@ var CBrowse = Base.extend({
       // correct track index
       if (this.tracks[i].index !== i) {
         this.tracks[i].index = i;
-        
-        if (this.tracks[i].label) {
-          this.tracks[i].label.data('index', i);
-        }
+        this.tracks[i].label.data('index', i);
       }
     }
   },
