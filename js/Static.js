@@ -21,6 +21,7 @@ CBrowse.Track.Static = {
   
   setScale: function () {
     this.base();
+    this.container.css('left', 0);
     this.imgContainer.show();
   },
   

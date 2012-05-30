@@ -89,5 +89,10 @@ CBrowse.Track.Legend = CBrowse.Track.extend({
     this.colorOrder.push(this.cBrowse.colors.background);
     
     return { fill: fill };
+  },
+  
+  remove: function () {
+    delete this.cBrowse.legends[this.id];
+    this.base();
   }
 });
