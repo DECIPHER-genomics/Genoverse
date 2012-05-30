@@ -8,7 +8,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
   },
   
   constructor: function (config) {
-    this.scaleLines  = true;
+    this.guideLines  = true;
     this.forceLabels = true;
     this.labelUnits  = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
     this.bump        = false;
@@ -61,8 +61,16 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     this.seen      = {};
     this.features  = new RTree();
     
-    if (this.scaleLines) {
-      this.cBrowse.scaleLines = { major: {}, minor: {} };
+    if (this.guideLines) {
+      if (!this.cBrowse.guideLinesByScale) {
+        this.cBrowse.guideLinesByScale = {};
+      }
+      
+      if (!this.cBrowse.guideLinesByScale[this.scale]) {
+        this.cBrowse.guideLinesByScale[this.scale] = { major: {}, minor: {} };
+      }
+      
+      this.cBrowse.guideLines = this.cBrowse.guideLinesByScale[this.scale];
     }
   },
   
@@ -112,8 +120,8 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
         features.push(feature);
       }
       
-      if (this.scaleLines) {
-        this.cBrowse.scaleLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
+      if (this.guideLines) {
+        this.cBrowse.guideLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
       }
     }
     
@@ -177,7 +185,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
 
 CBrowse.Track.ScalebarBottom = CBrowse.Track.Scalebar.extend({
   constructor: function (config) {
-    this.base($.extend(config, { scaleLines: false, order: 1e5 }));
+    this.base($.extend(config, { guideLines: false, order: 1e5 }));
     $.grep(this.cBrowse.tracks, function (t) { return t.type === 'Scalebar'; })[0].bottomTrack = this;
   },
   

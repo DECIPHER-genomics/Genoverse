@@ -22,7 +22,7 @@ CBrowse.Track = Base.extend({
     }
     
     for (var key in this) {
-      if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap)$/)) {
+      if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap|debugWrap)$/)) {
         this.cBrowse.functionWrap(key, this);
       }
     }
@@ -278,6 +278,10 @@ CBrowse.Track = Base.extend({
         var end   = cBrowse.edges.end;
         var width = Math.round((end - start) * this.scale);
         
+        if (cBrowse.left) {
+          this.offsets = cBrowse.left < 0 ? { right: cBrowse.offsets.right, left: -cBrowse.offsets.right } : { right: -cBrowse.offsets.left, left: cBrowse.offsets.left };
+        }
+        
         $.when(this.makeImage(start, end, width, -cBrowse.left, cBrowse.scrollStart)).done(function (a) {
           $(a.target).show()
           a.img.drawBackground();
@@ -476,9 +480,9 @@ CBrowse.Track = Base.extend({
       }
       
       if (this.labelOverlay && labelWidth < width - 1) { // Don't show overlaid labels on features which aren't wider than the label
-        draw.label[feature.labelColor].push([ 'fillText', [ feature.label, labelStart + (width - labelWidth) / 2, bounds[0].y + bounds[0].h / 2 ], feature.labelColor ]);
+        draw.label[feature.labelColor].push([ 'fillText', [ feature.label, labelStart + (width - labelWidth) / 2, bounds[0].y + bounds[0].h / 2 ] ]);
       } else if (bounds[1]) {
-        draw[this.separateLabels ? 'label' : 'fill'][feature.labelColor].push([ 'fillText', [ feature.label, labelStart, bounds[1].y ], feature.labelColor ]);
+        draw[this.separateLabels ? 'label' : 'fill'][feature.labelColor].push([ 'fillText', [ feature.label, labelStart, bounds[1].y ] ]);
       }
       
       if (this.separateLabels && bounds[1]) {
@@ -610,7 +614,7 @@ CBrowse.Track = Base.extend({
   },
   
   drawBackground: function (image, height) {
-    var scaleLines  = { major: [ this.cBrowse.colors.majorScaleLine, this.cBrowse.majorUnit ], minor: [ this.cBrowse.colors.minorScaleLine, this.cBrowse.minorUnit ] };
+    var guideLines  = { major: [ this.cBrowse.colors.majorGuideLine, this.cBrowse.majorUnit ], minor: [ this.cBrowse.colors.minorGuideLine, this.cBrowse.minorUnit ] };
     var scaledStart = Math.round(image.scaledStart);
     var x;
     
@@ -618,11 +622,11 @@ CBrowse.Track = Base.extend({
       this.drawBackgroundColor(image, height, scaledStart);
     }
     
-    for (var c in scaleLines) {
-      this.context.fillStyle = scaleLines[c][0];
+    for (var c in guideLines) {
+      this.context.fillStyle = guideLines[c][0];
       
-      for (x = Math.max(image.start - (image.start % scaleLines[c][1]), 0); x < image.end + this.cBrowse.minorUnit; x += scaleLines[c][1]) {
-        this.context.fillRect((this.cBrowse.scaleLines[c][x] || 0) - scaledStart, 0, 1, height);
+      for (x = Math.max(image.start - (image.start % guideLines[c][1]), 0); x < image.end + this.cBrowse.minorUnit; x += guideLines[c][1]) {
+        this.context.fillRect((this.cBrowse.guideLines[c][x] || 0) - scaledStart, 0, 1, height);
       }
     }
   },

@@ -10,8 +10,8 @@ var CBrowse = Base.extend({
     tracks           : [],
     colors           : {
       background     : '#FFFFFF',
-      majorScaleLine : '#CCCCCC',
-      minorScaleLine : '#E5E5E5',
+      majorGuideLine : '#CCCCCC',
+      minorGuideLine : '#E5E5E5',
       sortHandle     : '#CFD4E7'
     }
   },
@@ -28,7 +28,7 @@ var CBrowse = Base.extend({
     }
     
     for (var key in this) {
-      if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap)$/)) {
+      if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap|debugWrap)$/)) {
         this.functionWrap(key);
       }
     }
@@ -114,7 +114,7 @@ var CBrowse = Base.extend({
     
     if (this.useHash) {
       $(window).on('hashchange', function () {  
-        cBrowse.popState(true);
+        cBrowse.popState();
       });
     } else {
       window.onpopstate = function () {
@@ -558,10 +558,10 @@ var CBrowse = Base.extend({
     }
   },
   
-  popState: function (hashChange) {
+  popState: function () {
     var coords = this.getCoords();
     
-    if (coords.start && !(hashChange && parseInt(coords.start, 10) === this.start && parseInt(coords.end, 10) === this.end)) {
+    if (coords.start && !(parseInt(coords.start, 10) === this.start && parseInt(coords.end, 10) === this.end)) {
       this.setRange(coords.start, coords.end, false);
       
       if (!this.updateFromHistory()) {
@@ -586,6 +586,12 @@ var CBrowse = Base.extend({
         this.left    = history.left;
         this.edges   = history.edges;
         this.offsets = history.offsets;
+        
+        var newTracks = $.grep(this.tracks, function (track) { return !$(track.imgContainers).filter('.' + history.images).length; });
+        
+        if (newTracks.length) {
+          this.makeTrackImages(newTracks);
+        }
         
         this.checkTrackSize();
         
