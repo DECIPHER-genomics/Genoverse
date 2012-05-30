@@ -40,6 +40,7 @@ CBrowse.Track = Base.extend({
     this.fontHeight     = parseInt(this.context.font, 10);
     this.initialHeight  = this.height;
     this.minLabelHeight = 0;
+    this.labelUnits     = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
     
     this.init();
     this.setScale();
@@ -649,6 +650,21 @@ CBrowse.Track = Base.extend({
           this.context.fillRect(start, 0, end - start, height);
         }
       }
+    }
+  },
+  
+  formatLabel: function (label) {
+    var str = label.toString();
+    
+    if (this.minorUnit < 1000) {
+      return str.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+    } else {
+      var power = Math.floor((str.length - 1) / 3);
+      var unit  = this.labelUnits[power];
+      
+      label /= Math.pow(10, power * 3);
+      
+      return Math.floor(label) + (unit === 'bp' ? '' : '.' + (label.toString().split('.')[1] || '').concat('00').substring(0, 2)) + ' ' + unit;
     }
   },
   

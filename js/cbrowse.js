@@ -477,7 +477,7 @@ var CBrowse = Base.extend({
     
     this.edges.start  = Math.min(start, this.edges.start);
     this.edges.end    = Math.max(end,   this.edges.end);
-    this.offsets[dir] = this.tracks[0].offsets[dir] + width;
+    this.offsets[dir] = $.grep(this.tracks, function (track) { return !track['static']; })[0].offsets[dir] + width;
     
     if (this.updateFromHistory()) {
       return;

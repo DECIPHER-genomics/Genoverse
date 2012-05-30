@@ -11,7 +11,6 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
   constructor: function (config) {
     this.guideLines  = true;
     this.forceLabels = true;
-    this.labelUnits  = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
     this.bump        = false;
     this.fixedHeight = true;
     this.spacing     = 0;
@@ -165,21 +164,6 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
   drawBackgroundColor: function (image, height) {
     this.context.fillStyle = this.cBrowse.colors.background;
     this.context.fillRect(0, 0, this.width, height);
-  },
-  
-  formatLabel: function (x) {
-    var str = x.toString();
-    
-    if (this.minorUnit < 1000) {
-      return str.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
-    } else {
-      var power = Math.floor((str.length - 1) / 3);
-      var unit  = this.labelUnits[power];
-      
-      x /= Math.pow(10, power * 3);
-      
-      return Math.floor(x) + (unit === 'bp' ? '' : '.' + (x.toString().split('.')[1] || '').concat('00').substring(0, 2)) + ' ' + unit;
-    }
   }
 });
 
