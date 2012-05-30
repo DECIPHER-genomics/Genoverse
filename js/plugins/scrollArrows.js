@@ -30,6 +30,8 @@ CBrowse.on('afterInit', function () {
       this.lArrow.fadeIn('fast');
       this.rArrow.fadeIn('fast');
     }
+
+    return this;
   }
 
   this.lArrow = $('<div class="arrow left"><div>&#9668;</div></div>').css({ left: lArrowLeft }).appendTo(this.wrapper);
@@ -48,6 +50,10 @@ CBrowse.on('afterInit', function () {
 
   $('.arrow.right').on('click', function() {
     cBrowse.move(NaN, -delta, 'fast');
+    return false;
+  })
+
+  $('.arrow').on('dblclick', function() {
     return false;
   })
 

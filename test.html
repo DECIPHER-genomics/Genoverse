@@ -19,7 +19,11 @@
 
     <script type="text/javascript" src="js/plugins/overlap.js"></script>
     <script type="text/javascript" src="js/plugins/resizer.js"></script>
-    <script type="text/javascript" src="js/plugins/scroll_arrows.js"></script>
+    <script type="text/javascript" src="js/plugins/scrollArrows.js"></script>
+    <!--script type="text/javascript" src="js/plugins/toggleWheelZoom.js"></script-->
+    <script type="text/javascript" src="js/plugins/dblClickZoom.js"></script>
+    <script type="text/javascript" src="js/plugins/crosshair.js"></script>
+    <script type="text/javascript" src="js/plugins/selectZoom.js"></script>
   </head>
   <body>
 
@@ -85,7 +89,7 @@
             draw: 1
           }
         }]
-      });
+      }).toggleCrosshair(false);
 
 
       $('.featureMenuClose').live('click', function(){
