@@ -35,9 +35,11 @@ CBrowse.Track = Base.extend({
     this.canvas         = $('<canvas>').appendTo(this.canvasContainer);
     this.container      = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer);
     this.imgContainer   = $('<div class="image_container">');
+    this.label          = $('<li>').appendTo(this.cBrowse.labelContainer).height(this.height).data('index', this.index);
     this.context        = this.canvas[0].getContext('2d');
     this.fontHeight     = parseInt(this.context.font, 10);
     this.initialHeight  = this.height;
+    this.minLabelHeight = 0;
     
     this.init();
     this.setScale();
@@ -56,8 +58,7 @@ CBrowse.Track = Base.extend({
     }
     
     if (this.name) {
-      this.label          = $('<li><span class="name">' + this.name + '</span></li>').appendTo(this.cBrowse.labelContainer).data('index', this.index);
-      this.minLabelHeight = this.label.children('.name').height();
+      this.minLabelHeight = $('<span class="name">' + this.name + '</span>').appendTo(this.label).height();
       this.label.height(Math.max(this.height, this.minLabelHeight));
       
       if (this.unsortable) {

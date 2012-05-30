@@ -4,6 +4,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     featureHeight : 3,
     color         : '#000000',
     autoHeight    : false,
+    unsortable    : true,
     order         : 1
   },
   
@@ -19,7 +20,6 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     
     if (this.type === 'Scalebar') {
       this.cBrowse.tracks.push({ type: 'ScalebarBottom' });
-      this.cBrowse.labelContainer.css('top', this.height);
     }
   },
   
