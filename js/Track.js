@@ -14,10 +14,8 @@ CBrowse.Track = Base.extend({
     $.extend(this, this.defaults, this.config, config);
     
     for (var i = 0; i < this.inherit.length; i++) {
-      parent = CBrowse.Track[this.inherit[i]];
-      
-      if (parent) {
-        this.extend(parent);
+      if (CBrowse.Track[this.inherit[i]]) {
+        this.extend(CBrowse.Track[this.inherit[i]]);
       }
     }
     
