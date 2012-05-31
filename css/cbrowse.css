@@ -100,6 +100,28 @@
   left: 15px;
 }
 
+.canvas_container .menu_container {
+  position: absolute;
+  height: 100%;
+  overflow: hidden;
+}
+
+.canvas_container .expander {
+  position: absolute;
+  display: block;
+  height: 15px;
+  margin-left: -5px;
+  padding-right: 10px;
+  box-shadow: 0 -5px 7px -3px #000000 inset;
+  cursor: pointer;
+  z-index: 1;
+  bottom: 0;
+}
+
+.canvas_container .expander:hover {
+  box-shadow: 0 -5px 7px -3px #7D98B8 inset;
+}
+
 .canvas_zoom         { position: absolute; display: none; z-index: 20; }
 .canvas_zoom.i       { width: 40px; height: 40px; }
 .canvas_zoom.o       { width: 80px; height: 80px; }
@@ -111,12 +133,6 @@
 .canvas_zoom.o .b.h  { bottom: 10px; }
 .canvas_zoom.o .l.v  { left:   8px;  }
 .canvas_zoom.o .r.v  { right:  8px;  }
-
-.canvas_container .menu_container {
-  position: absolute;
-  height: 100%;
-  overflow: hidden;
-}
 
 .featureMenuContainer {
   position: absolute;
@@ -168,16 +184,4 @@
 
 .featureMenuClose:hover {
   background-color: #FFF;
-}
-
-.expander {
-  position: absolute;
-  display: block;
-  height: 15px;
-  margin: -14px 0 0 -5px;
-  padding-right: 10px;
-  box-shadow: 0 -5px 7px -3px #000000 inset;
-  cursor: pointer;
-  z-index: 1;
-  bottom: 0;
 }
