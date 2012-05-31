@@ -34,6 +34,6 @@ CBrowse.Track.on('afterToggleExpander', function () {
   }
 });
 
-CBrowse.on('afterMove', function () {
+CBrowse.on('afterMove afterZoomIn afterZoomOut', function () {
   $('.resizer', this.wrapper).css('left', -this.left);
 });
