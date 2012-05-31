@@ -19,6 +19,8 @@ CBrowse.Track.Static = {
     this.container.toggleClass('track_container track_container_static').html(this.imgContainer);
   },
   
+  reset: $.noop,
+  
   setScale: function () {
     this.base();
     this.container.css('left', 0);
