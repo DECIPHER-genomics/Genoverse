@@ -584,7 +584,7 @@ var CBrowse = Base.extend({
       var images = $('.track_container .' + history.images, this.container);
       
       if (images.length) {
-        $('.track_container', this.container).css('left', history.left).children().hide();
+        $('.track_container', this.container).css('left', history.left).children('.image_container').hide();
         
         this.left    = history.left;
         this.edges   = history.edges;

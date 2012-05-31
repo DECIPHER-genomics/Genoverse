@@ -23,8 +23,8 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
   },
   
   reset: function () {
+    this.container.children('.image_container').remove();
     this.init();
-    this.container.empty();
   },
   
   setScale: function () {

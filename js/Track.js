@@ -29,6 +29,7 @@ CBrowse.Track = Base.extend({
     this.separateLabels = typeof this.separateLabels === 'undefined' ? !!this.depth : this.separateLabels;
     this.spacing        = typeof this.spacing        === 'undefined' ? this.cBrowse.trackSpacing : this.spacing;
     this.fixedHeight    = typeof this.fixedHeight    === 'undefined' ? this.featureHeight === this.height && !(this.bump || this.bumpLabels) : this.fixedHeight;
+    this.resizable      = typeof this.resizable      === 'undefined' ? !this.fixedHeight : this.resizable;
     this.height        += this.spacing;
     this.canvas         = $('<canvas>').appendTo(this.canvasContainer);
     this.container      = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer);
@@ -97,7 +98,6 @@ CBrowse.Track = Base.extend({
     
     this.dataRegion    = { start: 9e99, end: -9e99 };
     this.scaleSettings = {};
-    this.expander      = false;
   },
 
   addUserEventHandlers: function () {
@@ -132,11 +132,11 @@ CBrowse.Track = Base.extend({
       this.ajax.abort();
     }
     
+    this.container.children('.image_container').remove();
+    
     if (this.url !== false) {
       this.init();
     }
-    
-    this.container.empty();
   },
   
   checkSize: function () {
@@ -186,10 +186,9 @@ CBrowse.Track = Base.extend({
     if (this.fullVizibleHeight - this.bumpSpacing > this.height) {
       this.expander = (this.expander || $('<div class="expander">').width(this.width).appendTo(this.container).on('click', function () {
         track.resize(track.fullVizibleHeight);
-      })).css('left', -this.cBrowse.left).show();
+      })).css('left', -this.cBrowse.left)[this.height === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
-      this.expander.remove();
-      delete this.expander;
+      this.expander.hide();
     }    
   },
   
@@ -248,8 +247,7 @@ CBrowse.Track = Base.extend({
       }
     }
     
-    this.container.css('left', this.cBrowse.left).children().hide();
-    this.toggleExpander();
+    this.container.css('left', this.cBrowse.left).children('.image_container').hide();
   },
   
   setRenderer: function (renderer, permanent) {
