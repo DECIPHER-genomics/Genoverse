@@ -248,13 +248,13 @@ var CBrowse = Base.extend({
           this.tracks[i].checkSize();
           
           if (this.tracks[i].autoHeight || this.tracks[i].separateLabels) {
-            this.tracks[i].resize(this.tracks[i][this.tracks[i].autoHeight ? 'fullVizibleHeight' : 'height'], this.tracks[i].labelTop);
+            this.tracks[i].resize(this.tracks[i][this.tracks[i].autoHeight ? 'fullVisibleHeight' : 'height'], this.tracks[i].labelTop);
           } else {
             this.tracks[i].toggleExpander();
           }
           
           if (this.tracks[i].sizeHandle) {
-            this.tracks[i].sizeHandle.data('height', this.tracks[i].fullVizibleHeight);
+            this.tracks[i].sizeHandle.data('height', this.tracks[i].fullVisibleHeight);
           }
         }
       }

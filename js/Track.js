@@ -149,7 +149,7 @@ CBrowse.Track = Base.extend({
       height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.labelBottom[scale]; }).concat(0));
     }
 
-    this.fullVizibleHeight = height;
+    this.fullVisibleHeight = height;
   },
   
   resize: function (height, labelTop) {
@@ -177,15 +177,15 @@ CBrowse.Track = Base.extend({
     
     var track = this;
     
-    // Note: this.fullVizibleHeight - this.bumpSpacing is not actually the correct value to test against, but it's the easiest best guess to obtain.
-    // this.fullVizibleHeight is the maximum bottom position of the track's features in the region, which includes spacing at the bottom of each feature and label
-    // Therefore this.fullVizibleHeight includes this spacing for the bottom-most feature.
+    // Note: this.fullVisibleHeight - this.bumpSpacing is not actually the correct value to test against, but it's the easiest best guess to obtain.
+    // this.fullVisibleHeight is the maximum bottom position of the track's features in the region, which includes spacing at the bottom of each feature and label
+    // Therefore this.fullVisibleHeight includes this spacing for the bottom-most feature.
     // The correct value (for a track using the default positionFeatures code) is:
-    // this.fullVizibleHeight - ([there are labels in this region] ? (this.separateLabels ? 0 : this.bumpSpacing + 1) + 2 : this.bumpSpacing)
+    // this.fullVisibleHeight - ([there are labels in this region] ? (this.separateLabels ? 0 : this.bumpSpacing + 1) + 2 : this.bumpSpacing)
     //                                                                ^ padding on label y-position                     ^ margin on label height
-    if (this.fullVizibleHeight - this.bumpSpacing > this.height) {
+    if (this.fullVisibleHeight - this.bumpSpacing > this.height) {
       this.expander = (this.expander || $('<div class="expander">').width(this.width).appendTo(this.container).on('click', function () {
-        track.resize(track.fullVizibleHeight);
+        track.resize(track.fullVisibleHeight);
       })).css('left', -this.cBrowse.left)[this.height === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
       this.expander.hide();

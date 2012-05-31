@@ -20,10 +20,11 @@ CBrowse.Track.on('afterInit', function () {
     stop   : function (e, ui) {
       $('body').removeClass('dragging');
       track.resize(track.height + ui.position.top - ui.originalPosition.top, true);
+      $(this).css({ top: 'auto' }); // returns the resizer to the bottom of the container - needed when the track is resized to 0
     }
   }).on('click', function () {
-    if (track.fullVizibleHeight) {
-      track.resize(track.fullVizibleHeight);
+    if (track.fullVisibleHeight) {
+      track.resize(track.fullVisibleHeight, true);
     }
   })).css({ width: this.width, left: -this.cBrowse.left }).show();
 });
