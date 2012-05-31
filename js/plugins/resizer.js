@@ -20,7 +20,6 @@ CBrowse.Track.on('afterInit', function () {
     stop   : function (e, ui) {
       $('body').removeClass('dragging');
       track.resize(track.height + ui.position.top - ui.originalPosition.top, true);
-      $(this).css({ top: 'auto' });
     }
   }).on('click', function () {
     if (track.fullVizibleHeight) {
