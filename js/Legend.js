@@ -10,6 +10,12 @@ CBrowse.on('afterCheckTrackSize afterRemoveTracks', function () {
   }
 });
 
+CBrowse.Track.on('afterResize', function (height, userResize) {
+  if (this.legend && userResize === true) {
+    this.legend.makeImage();
+  }
+});
+
 CBrowse.Track.Legend = CBrowse.Track.extend({
   config: {
     textColor : '#000000',
@@ -19,8 +25,6 @@ CBrowse.Track.Legend = CBrowse.Track.extend({
   init: function () {
     this.base();
     
-    this.legend = {};
-    
     if (!this.cBrowse.legends) {
       this.cBrowse.legends = {};
     }
@@ -29,9 +33,10 @@ CBrowse.Track.Legend = CBrowse.Track.extend({
   },
   
   setTracks: function () {
-    var type = this.featureType;
+    var legend = this;
+    var type   = this.featureType;
     
-    this.tracks = $.grep(this.cBrowse.tracks, function (t) { return t.type === type; });
+    this.tracks = $.grep(this.cBrowse.tracks, function (t) { if (t.type === type) { t.legend = legend; return true; } });
   },
   
   getFeatures: function () {

@@ -21,7 +21,7 @@
   background: #ccc;
   height: 100%;
   z-index: 10;
-  background: url('/i/loadingBG.png') repeat;
+  background: url(/i/loadingBG.png) repeat;
   opacity: 0.5;
 }
 
@@ -29,25 +29,26 @@
   display: none;
 }
 
-.canvas_container .track_container {
+.canvas_container .track_container,
+.canvas_container .track_container_static {
   overflow: visible;
   position: relative;
   width: 0;
 }
 
-.canvas_container .track_container .image_container {
+.canvas_container .image_container {
   height: 100%;
   overflow: hidden;
   position: absolute;
   background: #ccc;
 }
 
-.canvas_container .track_container .image_container img {
+.canvas_container .image_container img {
   display: none;
   position: absolute;
 }
 
-.canvas_container .track_container .image_container img.bg {
+.canvas_container .image_container img.bg {
   display: block;
   width: 100%;
 }
