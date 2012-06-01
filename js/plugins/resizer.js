@@ -3,7 +3,7 @@
 // Any additional custom css will overwrite it
 document.styleSheets[0].insertRule('body.dragging *                    { cursor: n-resize!important; }', 0);
 document.styleSheets[0].insertRule('.canvas_container .resizer         { position: absolute; bottom: 0; opacity: 0.8; background-color: #F0F0F0; height: 5px; cursor: n-resize; z-index: 2; }', 0);
-document.styleSheets[0].insertRule('.canvas_container .resizer.shadow  { box-shadow: 0 -3px 5px 0 #000000; }', 0);
+document.styleSheets[0].insertRule('.canvas_container .resizer.shadow  { box-shadow: 0 -3px 5px 0 #000000; margin-left: -5px; padding-right: 10px; }', 0);
 document.styleSheets[0].insertRule('.canvas_container .resizer .handle { background-color: white; border: 1px solid #5A5A5A; border-width: 1px 0; display: inline-block; height: 1px; margin: 1px 48%; width: 4%; }', 0);
 document.styleSheets[0].insertRule('.canvas_container .resizer:hover, .canvas_container .resizer.ui-draggable-dragging { box-shadow: 0 -5px 7px -3px #000000 inset!important; }', 0);
 
