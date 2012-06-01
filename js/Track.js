@@ -1,5 +1,3 @@
-// $Revision: 1.87 $
-
 CBrowse.Track = Base.extend({
   defaults: {
     height      : 10,
@@ -42,6 +40,7 @@ CBrowse.Track = Base.extend({
     this.initialHeight  = this.height;
     this.minLabelHeight = 0;
     this.labelUnits     = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
+    this.menus          = $();
     
     this.init();
     this.setScale();
@@ -72,13 +71,14 @@ CBrowse.Track = Base.extend({
       this.autoHeight = typeof this.autoHeight === 'undefined' ? this.cBrowse.autoHeight : this.autoHeight;
       
       if (this.resizable !== false) {
-        this.sizeHandle = $('<div class="size_handle"><div class="expand" title="Show all">+</div><div class="collapse" title="Collapse">-</div></div>').appendTo(this.label).children().on('click', function (e) {
+        this.heightToggler = $('<div class="height_toggler">').appendTo(this.label).on('click', function (e) {
           var height;
           
-          switch (e.target.className) {
-            case 'expand'   : height = $(this).data('height'); track.autoHeight = true;  break;
-            case 'collapse' : height = track.initialHeight;    track.autoHeight = false; break;
-            default         : return;
+          if (track.autoHeight = !track.autoHeight) {
+            track.heightBeforeToggle = track.height;
+            height = track.fullVisibleHeight
+          } else {
+            height = track.heightBeforeToggle || track.initialHeight;
           }
           
           track.resize(height, true);
@@ -124,7 +124,7 @@ CBrowse.Track = Base.extend({
         
         seen[features[i].id] = 1;
         
-        track.cBrowse.makeMenu(features[i], { left: e.pageX, top: e.pageY }, track.name);
+        track.cBrowse.makeMenu(track, features[i], { left: e.pageX, top: e.pageY });
       }
     });
   },
@@ -195,7 +195,8 @@ CBrowse.Track = Base.extend({
   },
   
   remove: function () {
-    this.resize(0);
+    this.container.add(this.label).add(this.menus).remove();
+    
     this.cBrowse.tracks.splice(this.index, 1);
     
     if (this.id) {
