@@ -150,12 +150,12 @@ CBrowse.Track = Base.extend({
       this.labelTop = height;
       height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.labelBottom[scale]; }).concat(0));
     }
-
+    
     this.fullVisibleHeight = height;
   },
   
-  resize: function (height, labelTop) {
-    if (height < this.featureHeight) {
+  resize: function (height) {
+    if (arguments[1] !== true && height < this.featureHeight) {
       height = 0;
     } else {
       height = Math.max(height, this.minLabelHeight);
@@ -163,8 +163,8 @@ CBrowse.Track = Base.extend({
     
     this.height = height;
     
-    if (typeof labelTop === 'number') {
-      $(this.imgContainers).children('.labels').css('top', labelTop);
+    if (typeof arguments[1] === 'number') {
+      $(this.imgContainers).children('.labels').css('top', arguments[1]);
     }
     
     this.container.height(height);
