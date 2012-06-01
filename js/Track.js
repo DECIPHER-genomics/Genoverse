@@ -1,3 +1,5 @@
+// $Revision: 1.87 $
+
 CBrowse.Track = Base.extend({
   defaults: {
     height      : 10,
@@ -79,7 +81,7 @@ CBrowse.Track = Base.extend({
             default         : return;
           }
           
-          track.resize(height);
+          track.resize(height, true);
         });
       }
     }
@@ -274,7 +276,7 @@ CBrowse.Track = Base.extend({
         
         var start = cBrowse.edges.start;
         var end   = cBrowse.edges.end;
-        var width = Math.round((end - start) * this.scale);
+        var width = Math.round((end - start + 1) * this.scale);
         
         if (cBrowse.left) {
           this.offsets = cBrowse.left < 0 ? { right: cBrowse.offsets.right, left: -cBrowse.offsets.right } : { right: -cBrowse.offsets.left, left: cBrowse.offsets.left };

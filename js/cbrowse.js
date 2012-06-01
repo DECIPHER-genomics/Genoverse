@@ -467,7 +467,7 @@ var CBrowse = Base.extend({
       end   = left < 0 ? this.edges.start : this.edges.end   + (this.buffer * this.length);
     } else {
       start = this.start - this.length;
-      end   = this.end   + this.length;
+      end   = this.end   + this.length + 1;
     }
     
     var width = Math.round((end - start) * this.scale);
@@ -486,14 +486,14 @@ var CBrowse = Base.extend({
   makeTrackImages: function (tracks, start, end, width) {
     start = start || this.edges.start;
     end   = end   || this.edges.end;
-    width = width || Math.round((end - start) * this.scale);
+    width = width || Math.round((end - start + 1) * this.scale);
     
     var cBrowse   = this;
     var left      = -this.left;
     var edges     = $.extend({}, this.edges);
     var offsets   = $.extend({}, this.offsets);
     var allTracks = tracks.length === this.tracks.length;
-    var overlay   = allTracks ? $('<div class="overlay">').prependTo(this.wrapper).css(left < 0 ? 'right' : 'left', left ? width - (Math.abs(left) % width) : 0).width(width) : false;
+    var overlay   = allTracks ? $('<div class="overlay">').prependTo(this.wrapper).css('left', left ? width > Math.abs(left) ? left : (width - (Math.abs(left) % width)) * (left > 0 ? 1 : -1) : 0).width(width) : false;
     
     function removeOverlay() {
       if (overlay) {
