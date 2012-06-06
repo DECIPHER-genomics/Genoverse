@@ -257,6 +257,24 @@ var CBrowse = Base.extend({
     }
   },
   
+  resetTrackHeights: function () {
+    var track;
+    
+    for (var i = 0; i < this.tracks.length; i++) {
+      track = this.tracks[i];
+      
+      if (track.resizable) {
+        track.autoHeight = !!([ (track.config || {}).autoHeight, track.defaults.autoHeight, this.autoHeight ].sort(function (a, b) {
+          return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1)
+        })[0]);
+        
+        track.heightToggler[track.autoHeight ? 'addClass' : 'removeClass']('auto_height');
+        
+        track.resize(((track.config || {}).height || track.defaults.height) + track.spacing);
+      }
+    }
+  },
+  
   zoomIn: function (x) {
     if (!x) {
       x = this.width / 2;

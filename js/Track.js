@@ -25,7 +25,7 @@ CBrowse.Track = Base.extend({
       }
     }
     
-    this.featureHeight  = this.featureHeight || this.height;
+    this.featureHeight  = this.featureHeight || (this.config && typeof this.config.height === 'number' ? this.config.height : this.defaults.height);
     this.separateLabels = typeof this.separateLabels === 'undefined' ? !!this.depth : this.separateLabels;
     this.spacing        = typeof this.spacing        === 'undefined' ? this.cBrowse.trackSpacing : this.spacing;
     this.fixedHeight    = typeof this.fixedHeight    === 'undefined' ? this.featureHeight === this.height && !(this.bump || this.bumpLabels) : this.fixedHeight;
@@ -68,21 +68,27 @@ CBrowse.Track = Base.extend({
     }
     
     if (!this.fixedHeight) {
-      this.autoHeight = typeof this.autoHeight === 'undefined' ? this.cBrowse.autoHeight : this.autoHeight;
+      this.autoHeight = typeof this.autoHeight === 'undefined' && !config.height ? this.cBrowse.autoHeight : this.autoHeight;
       
       if (this.resizable !== false) {
-        this.heightToggler = $('<div class="height_toggler">').appendTo(this.label).on('click', function (e) {
-          var height;
-          
-          if (track.autoHeight = !track.autoHeight) {
-            track.heightBeforeToggle = track.height;
-            height = track.fullVisibleHeight
-          } else {
-            height = track.heightBeforeToggle || track.initialHeight;
+        this.heightToggler = $('<div class="height_toggler"><div class="auto">Set track to auto-adjust height</div><div class="fixed">Set track to fixed height</div></div>').on({
+          mouseover : function () { $(this).children(track.autoHeight ? '.fixed' : '.auto').show(); },
+          mouseout  : function () { $(this).children().hide(); },
+          click     : function () {
+            var height;
+            
+            if (track.autoHeight = !track.autoHeight) {
+              track.heightBeforeToggle = track.height;
+              height = track.fullVisibleHeight;
+            } else {
+              height = track.heightBeforeToggle || track.initialHeight;
+            }
+            
+            $(this).toggleClass('auto_height').children(':visible').hide().siblings().show();
+            
+            track.resize(height, true);
           }
-          
-          track.resize(height, true);
-        });
+        }).addClass(this.autoHeight ? 'auto_height' : '').appendTo(this.label);
       }
     }
     
