@@ -1,6 +1,6 @@
 CBrowse.Track = Base.extend({
   defaults: {
-    height      : 10,
+    height      : 12,
     bump        : false,
     bumpSpacing : 2,
     urlParams   : {},
