@@ -24,6 +24,7 @@
     <script type="text/javascript" src="js/plugins/dblClickZoom.js"></script>
     <script type="text/javascript" src="js/plugins/toggleDragging.js"></script>
     <script type="text/javascript" src="js/plugins/crosshairSelect.js"></script>
+    <script type="text/javascript" src="js/plugins/fileDrop.js"></script>
 
   </head>
   <body>
@@ -36,7 +37,7 @@
     <button class="zoomIn left-neighbour">+</button><button class="zoomOut right-neighbour">-</button>
 
     <span class="label">Drag/Select:</span>
-    <button class="toggleDragging active left-neighbour">&#8644;</button><button class="toggleCrosshairSelect right-neighbour">&#9482;</button>
+    <button class="toggleDragging active left-neighbour">&#8596;</button><button class="toggleCrosshairSelect right-neighbour">&#9482;</button>
 
     <span class="label">Wheel:</span>
     <button class="left-neighbour">&#8597;</button><button class="right-neighbour">&#177;</button>
@@ -54,9 +55,9 @@
     $(function () {
       cBrowse = new CBrowse({
         container      : $('.canvas_container'),
-//        chromosomeSize : 249250621, // chromosome 1
+        chromosomeSize : 249250621, // chromosome 1
 //        chromosomeSize : 102531392, // chromosome 15
-        chromosomeSize : 81195210, // chromosome 17
+//        chromosomeSize : 81195210, // chromosome 17
         tracks         : [{
           type  : 'Scalebar'
         }, {
@@ -94,17 +95,19 @@
             positionFeatures: 1,
             draw: 1
           }
-        }, {
-          type    : 'MicroArray',
-          name    : 'MicroArray',
-          url     : '/data/17.json',
-          overlap : 1,
-          debug   : {
-            parseFeatures: 1,
-            positionFeatures: 1,
-            draw: 1
-          }
-        }]
+        },
+        // {
+        //   type    : 'MicroArray',
+        //   name    : 'MicroArray',
+        //   url     : '/data/1.json',
+        //   overlap : 1,
+        //   debug   : {
+        //     parseFeatures: 1,
+        //     positionFeatures: 1,
+        //     draw: 1
+        //   },
+        // }
+        ]
       });
 
 
