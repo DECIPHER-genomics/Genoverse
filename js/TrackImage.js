@@ -27,6 +27,10 @@ CBrowse.TrackImage = Base.extend({
   },
   
   draw: function (features) {
+    if (features === false) {
+      return;
+    }
+    
     var img   = this;
     var track = this.track;
     var i, color, labelColor, labels;

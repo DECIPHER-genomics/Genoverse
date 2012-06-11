@@ -10,8 +10,8 @@ var CBrowse = Base.extend({
     tracks           : [],
     colors           : {
       background     : '#FFFFFF',
-      majorScaleLine : '#CCCCCC',
-      minorScaleLine : '#E5E5E5',
+      majorGuideLine : '#CCCCCC',
+      minorGuideLine : '#E5E5E5',
       sortHandle     : '#CFD4E7'
     }
   },
@@ -28,7 +28,7 @@ var CBrowse = Base.extend({
     }
     
     for (var key in this) {
-      if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap)$/)) {
+      if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap|debugWrap)$/)) {
         this.functionWrap(key);
       }
     }
@@ -91,7 +91,7 @@ var CBrowse = Base.extend({
     
     if (this.useHash) {
       $(window).on('hashchange', function () {  
-        cBrowse.popState(true);
+        cBrowse.popState();
       });
     } else {
       window.onpopstate = function () {
@@ -103,26 +103,26 @@ var CBrowse = Base.extend({
     
     this.chr = coords.chr;
     
+    this.zoomInHighlight = $('     \
+      <div class="canvas_zoom i">  \
+        <div class="t l h"></div>  \
+        <div class="t r h"></div>  \
+        <div class="t l v"></div>  \
+        <div class="t r v"></div>  \
+        <div class="b l h"></div>  \
+        <div class="b r h"></div>  \
+        <div class="b l v"></div>  \
+        <div class="b r v"></div>  \
+      </div>                       \
+    ').appendTo('body');
+    
+    this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('i o').appendTo('body');
+    
     this.setRange(coords.start, coords.end, false);
     this.setHistory(false);
     this.setTracks();
     
     this.labelBuffer = Math.ceil(this.tracks[0].context.measureText('W').width / this.scale) * this.longestLabel;
-    
-    this.zoomInHighlight = $([
-      '<div class="canvas_zoom i">',
-        '<div class="t l h"></div>',
-        '<div class="t r h"></div>',
-        '<div class="t l v"></div>',
-        '<div class="t r v"></div>',
-        '<div class="b l h"></div>',
-        '<div class="b r h"></div>',
-        '<div class="b l v"></div>',
-        '<div class="b r v"></div>',
-      '</div>'
-    ].join('')).appendTo('body');
-    
-    this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('i o').appendTo('body');
     
     this.makeImage();
   },
@@ -143,6 +143,7 @@ var CBrowse = Base.extend({
 
   mousewheelZoom: function (e, delta) {
     var cBrowse = this;
+    
     clearTimeout(cBrowse.zoomDeltaTimeout);
     clearTimeout(cBrowse.zoomTimeout);
     
@@ -220,7 +221,6 @@ var CBrowse = Base.extend({
     }
     
     if (speed) {
-      var cBrowse = this;
       $('.track_container', this.container).stop().animate({ left: this.left }, speed);
       $('.overlay', this.wrapper).add('.menu', this.menuContainer).animate({ marginLeft: this.left - this.prev.left }, speed);
     } else {
@@ -248,15 +248,29 @@ var CBrowse = Base.extend({
           this.tracks[i].checkSize();
           
           if (this.tracks[i].autoHeight || this.tracks[i].separateLabels) {
-            this.tracks[i].resize(this.tracks[i][this.tracks[i].autoHeight ? 'fullVizibleHeight' : 'height'], this.tracks[i].labelTop);
+            this.tracks[i].resize(this.tracks[i][this.tracks[i].autoHeight ? 'fullVisibleHeight' : 'height'], this.tracks[i].labelTop);
           } else {
             this.tracks[i].toggleExpander();
           }
-          
-          if (this.tracks[i].sizeHandle) {
-            this.tracks[i].sizeHandle.data('height', this.tracks[i].fullVizibleHeight);
-          }
         }
+      }
+    }
+  },
+  
+  resetTrackHeights: function () {
+    var track;
+    
+    for (var i = 0; i < this.tracks.length; i++) {
+      track = this.tracks[i];
+      
+      if (track.resizable) {
+        track.autoHeight = !!([ (track.config || {}).autoHeight, track.defaults.autoHeight, this.autoHeight ].sort(function (a, b) {
+          return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1)
+        })[0]);
+        
+        track.heightToggler[track.autoHeight ? 'addClass' : 'removeClass']('auto_height');
+        
+        track.resize(((track.config || {}).height || track.defaults.height) + track.spacing);
       }
     }
   },
@@ -452,10 +466,7 @@ var CBrowse = Base.extend({
       // correct track index
       if (this.tracks[i].index !== i) {
         this.tracks[i].index = i;
-        
-        if (this.tracks[i].label) {
-          this.tracks[i].label.data('index', i);
-        }
+        this.tracks[i].label.data('index', i);
       }
     }
   },
@@ -470,14 +481,14 @@ var CBrowse = Base.extend({
       end   = left < 0 ? this.edges.start : this.edges.end   + (this.buffer * this.length);
     } else {
       start = this.start - this.length;
-      end   = this.end   + this.length;
+      end   = this.end   + this.length + 1;
     }
     
     var width = Math.round((end - start) * this.scale);
     
     this.edges.start  = Math.min(start, this.edges.start);
     this.edges.end    = Math.max(end,   this.edges.end);
-    this.offsets[dir] = this.tracks[0].offsets[dir] + width;
+    this.offsets[dir] = $.grep(this.tracks, function (track) { return !track['static']; })[0].offsets[dir] + width;
     
     if (this.updateFromHistory()) {
       return;
@@ -489,14 +500,14 @@ var CBrowse = Base.extend({
   makeTrackImages: function (tracks, start, end, width) {
     start = start || this.edges.start;
     end   = end   || this.edges.end;
-    width = width || Math.round((end - start) * this.scale);
+    width = width || Math.round((end - start + 1) * this.scale);
     
     var cBrowse   = this;
     var left      = -this.left;
     var edges     = $.extend({}, this.edges);
     var offsets   = $.extend({}, this.offsets);
     var allTracks = tracks.length === this.tracks.length;
-    var overlay   = allTracks ? $('<div class="overlay">').prependTo(this.wrapper).css(left < 0 ? 'right' : 'left', left ? width - (Math.abs(left) % width) : 0).width(width) : false;
+    var overlay   = allTracks ? $('<div class="overlay">').prependTo(this.wrapper).css('left', left ? width > Math.abs(left) ? left : (width - (Math.abs(left) % width)) * (left > 0 ? 1 : -1) : 0).width(width) : false;
     
     function removeOverlay() {
       if (overlay) {
@@ -564,10 +575,10 @@ var CBrowse = Base.extend({
     }
   },
   
-  popState: function (hashChange) {
+  popState: function () {
     var coords = this.getCoords();
     
-    if (coords.start && !(hashChange && parseInt(coords.start, 10) === this.start && parseInt(coords.end, 10) === this.end)) {
+    if (coords.start && !(parseInt(coords.start, 10) === this.start && parseInt(coords.end, 10) === this.end)) {
       this.setRange(coords.start, coords.end, false);
       
       if (!this.updateFromHistory()) {
@@ -587,11 +598,17 @@ var CBrowse = Base.extend({
       var images = $('.track_container .' + history.images, this.container);
       
       if (images.length) {
-        $('.track_container', this.container).css('left', history.left).children().hide();
+        $('.track_container', this.container).css('left', history.left).children('.image_container').hide();
         
         this.left    = history.left;
         this.edges   = history.edges;
         this.offsets = history.offsets;
+        
+        var newTracks = $.grep(this.tracks, function (track) { return !$(track.imgContainers).filter('.' + history.images).length; });
+        
+        if (newTracks.length) {
+          this.makeTrackImages(newTracks);
+        }
         
         this.checkTrackSize();
         
@@ -630,6 +647,17 @@ var CBrowse = Base.extend({
     return this.useHash ? location : (window.location.search + '&').replace(this.paramRegex, '$1' + location + '$5').slice(0, -1);
   },
   
+  getHeight: function () {
+    var i      = this.tracks.length;
+    var height = 0;
+    
+    while (i--) {
+      height += this.tracks[i].height;
+    }
+
+    return height;
+  },
+  
   abortAjax: function () {
     var i = this.tracks.length;
     
@@ -649,8 +677,32 @@ var CBrowse = Base.extend({
     alert(error);
     throw(error);
   },
-
-  makeMenu: $.noop, // implement in plugin
+  
+  menuTemplate: $('                  \
+    <div class="menu">               \
+      <div class="close">x</div>     \
+      <table>                        \
+        <tr><td></td><td></td></tr>  \
+      </table>                       \
+    </div>                           \
+  '),
+  
+  // Creates a menu template only. Implement properly in a plugin
+  makeMenu: function (track, feature, position) {
+    var offset = this.menuContainer.offset();
+    
+    position.left -= offset.left;
+    position.top  -= offset.top;
+    
+    var menu = this.menuTemplate.clone().appendTo(this.menuContainer).css({
+      left : position.left,
+      top  : function () { return position.top - parseInt($(this).css('marginTop'), 10); }
+    });
+    
+    track.menus.push(menu[0]);
+    
+    return menu;
+  },
 
   /**
    * functionWrap - wraps event handlers and adds debugging functionality
@@ -692,16 +744,6 @@ var CBrowse = Base.extend({
     }
   },
   
-  getHeight: function () {
-    var height = 0;
-    var i = this.tracks.length;
-    while (i--) {
-      height += this.tracks[i].height;
-    }
-
-    return height;
-  },
-
   debugWrap: function (obj, key, name, func) {
     // Debugging functionality
     // Enabled by "debug": true || { functionName: true, ...} option
