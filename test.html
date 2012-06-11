@@ -22,10 +22,26 @@
     <script type="text/javascript" src="js/plugins/scrollArrows.js"></script>
     <!--script type="text/javascript" src="js/plugins/toggleWheelZoom.js"></script-->
     <script type="text/javascript" src="js/plugins/dblClickZoom.js"></script>
-    <script type="text/javascript" src="js/plugins/crosshair.js"></script>
-    <script type="text/javascript" src="js/plugins/selectZoom.js"></script>
+    <script type="text/javascript" src="js/plugins/toggleDragging.js"></script>
+    <script type="text/javascript" src="js/plugins/crosshairSelect.js"></script>
+
   </head>
   <body>
+
+  <div class="top">
+    <span class="label">Search:</span>
+    <input class="search" type="text"></input>
+
+    <span class="label">Zoom:</span>
+    <button class="zoomIn left-neighbour">+</button><button class="zoomOut right-neighbour">-</button>
+
+    <span class="label">Drag/Select:</span>
+    <button class="toggleDragging active left-neighbour">&#8644;</button><button class="toggleCrosshairSelect right-neighbour">&#9482;</button>
+
+    <span class="label">Wheel:</span>
+    <button class="left-neighbour">&#8597;</button><button class="right-neighbour">&#177;</button>
+  </div>
+
 
   <div class="wrap">
     <div class="canvas_container"></div>
@@ -89,7 +105,7 @@
             draw: 1
           }
         }]
-      }).toggleCrosshair(false);
+      });
 
 
       $('.featureMenuClose').live('click', function(){
@@ -97,6 +113,40 @@
           $(this).parent().remove();
           $('div.overlap').remove();
         });
+      });
+
+
+      $("button.zoomIn").click(function () {
+        cBrowse.zoomIn();
+      });
+
+      $("button.zoomOut").click(function () {
+        cBrowse.zoomOut();
+      });
+
+      $("button.toggleDragging").click(function () {
+        if ($(this).hasClass('active')) {
+          cBrowse.toggleDragging(false);
+          $(this).removeClass('active');
+        } else {
+          cBrowse.toggleCrosshairSelect(false);
+          $("button.toggleCrosshairSelect").removeClass('active');
+
+          cBrowse.toggleDragging(true);
+          $(this).addClass('active');
+        }
+      });
+
+      $("button.toggleCrosshairSelect").click(function () {
+        if ($(this).hasClass('active')) {
+          cBrowse.toggleCrosshairSelect(false);
+          $(this).removeClass('active');
+        } else {
+          cBrowse.toggleCrosshairSelect(true);
+          $(this).addClass('active');
+          $("button.toggleDragging").removeClass('active');
+        }
+
       });
 
     });
@@ -120,5 +170,6 @@
       </div>
     </div>
   </div>
+
   </body>
 </html>

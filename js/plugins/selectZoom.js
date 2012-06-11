@@ -6,9 +6,9 @@ document.styleSheets[0].insertRule("           \
     position: absolute;                        \
     width: 0;                                  \
     outline: 1px dashed red;                   \
-    background-color: rgba(8,0,165,0.2);       \
+    background-color: rgba(229,121,5,0.1);     \
     top:1px; left:-2px;                        \
-    z-index: 100;                              \
+    z-index: 50;                               \
   }", 
   0
 );
@@ -24,25 +24,38 @@ CBrowse.on('afterInit', function () {
 
   cBrowse.toggleDragging(false);
 
-  cBrowse.wrapper.on('mousedown', function (e) {
-    cBrowse.selectZoomStart = e.pageX - $(this).offset().left;
-    cBrowse.selectZooming   = true;
-    cBrowse.selectZoom.css({ left: cBrowse.selectZoomStart }).show();
+  $('.track_container').on('mousedown', function (e) {
+    cBrowse.selectZoomStart   = e.pageX - $(this).offset().left;
+    cBrowse.selectZooming     = true;
+    cBrowse.selectZoomVisible = false;
+    cBrowse.selectZoom.css({ left: cBrowse.selectZoomStart-1 });
   });
 
   $(document).on('mousemove', function (e) {
     if (!cBrowse.selectZooming) return;
+    if (!cBrowse.selectZoomVisible) {
+      cBrowse.selectZoom.show();
+      cBrowse.selectZoomVisible = true;
+    }
+
     var x = e.pageX - $(cBrowse.wrapper).offset().left;
     if (x > cBrowse.selectZoomStart) {
-      cBrowse.selectZoom.css({ left: cBrowse.selectZoomStart, width: x-cBrowse.selectZoomStart-2 });
+      cBrowse.selectZoom.css({ left: cBrowse.selectZoomStart, width: Math.min(x-cBrowse.selectZoomStart-1, cBrowse.width-cBrowse.selectZoomStart-1) });
     } else {
-      cBrowse.selectZoom.css({ left: x, width: cBrowse.selectZoomStart-x });      
+      cBrowse.selectZoom.css({ left: Math.max(x, 1), width: Math.min(cBrowse.selectZoomStart-x, cBrowse.selectZoomStart-1) });
     }
   });
 
-  cBrowse.wrapper.on('mouseup', function (e) {
+  $(document).on('mouseup', function (e) {
+    if (!cBrowse.selectZooming) return;
+
+    var start = (cBrowse.selectZoom.offset().left - $(cBrowse.wrapper).offset().left)/cBrowse.scale + cBrowse.start;
+    var end   = (cBrowse.selectZoom.offset().left + cBrowse.selectZoom.outerWidth() - $(cBrowse.wrapper).offset().left)/cBrowse.scale + cBrowse.start;
+
     cBrowse.selectZooming = false;
     cBrowse.selectZoom.hide().css({ width: 0 });
+    cBrowse.selectZoomVisible = false;
+    cBrowse.setRange(start, end, true);
   });
 
 });
