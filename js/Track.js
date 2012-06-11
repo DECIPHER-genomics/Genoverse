@@ -1,6 +1,6 @@
 CBrowse.Track = Base.extend({
   defaults: {
-    height      : 10,
+    height      : 12,
     bump        : false,
     bumpSpacing : 2,
     urlParams   : {},
@@ -14,30 +14,33 @@ CBrowse.Track = Base.extend({
     $.extend(this, this.defaults, this.config, config);
     
     for (var i = 0; i < this.inherit.length; i++) {
-      parent = CBrowse.Track[this.inherit[i]];
-      
-      if (parent) {
-        this.extend(parent);
+      if (CBrowse.Track[this.inherit[i]]) {
+        this.extend(CBrowse.Track[this.inherit[i]]);
       }
     }
     
     for (var key in this) {
-      if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap)$/)) {
+      if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap|debugWrap)$/)) {
         this.cBrowse.functionWrap(key, this);
       }
     }
     
-    this.featureHeight  = this.featureHeight || this.height;
+    this.featureHeight  = this.featureHeight || (this.config && typeof this.config.height === 'number' ? this.config.height : this.defaults.height);
     this.separateLabels = typeof this.separateLabels === 'undefined' ? !!this.depth : this.separateLabels;
     this.spacing        = typeof this.spacing        === 'undefined' ? this.cBrowse.trackSpacing : this.spacing;
     this.fixedHeight    = typeof this.fixedHeight    === 'undefined' ? this.featureHeight === this.height && !(this.bump || this.bumpLabels) : this.fixedHeight;
+    this.resizable      = typeof this.resizable      === 'undefined' ? !this.fixedHeight : this.resizable;
     this.height        += this.spacing;
     this.canvas         = $('<canvas>').appendTo(this.canvasContainer);
     this.container      = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer);
     this.imgContainer   = $('<div class="image_container">');
+    this.label          = $('<li>').appendTo(this.cBrowse.labelContainer).height(this.height).data('index', this.index);
     this.context        = this.canvas[0].getContext('2d');
     this.fontHeight     = parseInt(this.context.font, 10);
     this.initialHeight  = this.height;
+    this.minLabelHeight = 0;
+    this.labelUnits     = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
+    this.menus          = $();
     
     this.init();
     this.setScale();
@@ -56,8 +59,7 @@ CBrowse.Track = Base.extend({
     }
     
     if (this.name) {
-      this.label          = $('<li><span class="name">' + this.name + '</span></li>').appendTo(this.cBrowse.labelContainer).data('index', this.index);
-      this.minLabelHeight = this.label.children('.name').height();
+      this.minLabelHeight = $('<span class="name">' + this.name + '</span>').appendTo(this.label).height();
       this.label.height(Math.max(this.height, this.minLabelHeight));
       
       if (this.unsortable) {
@@ -66,20 +68,27 @@ CBrowse.Track = Base.extend({
     }
     
     if (!this.fixedHeight) {
-      this.autoHeight = typeof this.autoHeight === 'undefined' ? this.cBrowse.autoHeight : this.autoHeight;
+      this.autoHeight = typeof this.autoHeight === 'undefined' && !config.height ? this.cBrowse.autoHeight : this.autoHeight;
       
       if (this.resizable !== false) {
-        this.sizeHandle = $('<div class="size_handle"><div class="expand" title="Show all">+</div><div class="collapse" title="Collapse">-</div></div>').appendTo(this.label).children().on('click', function (e) {
-          var height;
-          
-          switch (e.target.className) {
-            case 'expand'   : height = $(this).data('height'); track.autoHeight = true;  break;
-            case 'collapse' : height = track.initialHeight;    track.autoHeight = false; break;
-            default         : return;
+        this.heightToggler = $('<div class="height_toggler"><div class="auto">Set track to auto-adjust height</div><div class="fixed">Set track to fixed height</div></div>').on({
+          mouseover : function () { $(this).children(track.autoHeight ? '.fixed' : '.auto').show(); },
+          mouseout  : function () { $(this).children().hide(); },
+          click     : function () {
+            var height;
+            
+            if (track.autoHeight = !track.autoHeight) {
+              track.heightBeforeToggle = track.height;
+              height = track.fullVisibleHeight;
+            } else {
+              height = track.heightBeforeToggle || track.initialHeight;
+            }
+            
+            $(this).toggleClass('auto_height').children(':visible').hide().siblings().show();
+            
+            track.resize(height, true);
           }
-          
-          track.resize(height);
-        });
+        }).addClass(this.autoHeight ? 'auto_height' : '').appendTo(this.label);
       }
     }
     
@@ -97,7 +106,6 @@ CBrowse.Track = Base.extend({
     
     this.dataRegion    = { start: 9e99, end: -9e99 };
     this.scaleSettings = {};
-    this.expander      = false;
   },
 
   addUserEventHandlers: function () {
@@ -122,7 +130,7 @@ CBrowse.Track = Base.extend({
         
         seen[features[i].id] = 1;
         
-        track.cBrowse.makeMenu(features[i], { left: e.pageX, top: e.pageY }, track.name);
+        track.cBrowse.makeMenu(track, features[i], { left: e.pageX, top: e.pageY });
       }
     });
   },
@@ -132,11 +140,11 @@ CBrowse.Track = Base.extend({
       this.ajax.abort();
     }
     
+    this.container.children('.image_container').remove();
+    
     if (this.url !== false) {
       this.init();
     }
-    
-    this.container.empty();
   },
   
   checkSize: function () {
@@ -148,12 +156,12 @@ CBrowse.Track = Base.extend({
       this.labelTop = height;
       height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.labelBottom[scale]; }).concat(0));
     }
-
-    this.fullVizibleHeight = height;
+    
+    this.fullVisibleHeight = height;
   },
   
-  resize: function (height, labelTop) {
-    if (height < this.featureHeight) {
+  resize: function (height) {
+    if (arguments[1] !== true && height < this.featureHeight) {
       height = 0;
     } else {
       height = Math.max(height, this.minLabelHeight);
@@ -161,8 +169,8 @@ CBrowse.Track = Base.extend({
     
     this.height = height;
     
-    if (typeof labelTop === 'number') {
-      $(this.imgContainers).children('.labels').css('top', labelTop);
+    if (typeof arguments[1] === 'number') {
+      $(this.imgContainers).children('.labels').css('top', arguments[1]);
     }
     
     this.container.height(height);
@@ -177,24 +185,24 @@ CBrowse.Track = Base.extend({
     
     var track = this;
     
-    // Note: this.fullVizibleHeight - this.bumpSpacing is not actually the correct value to test against, but it's the easiest best guess to obtain.
-    // this.fullVizibleHeight is the maximum bottom position of the track's features in the region, which includes spacing at the bottom of each feature and label
-    // Therefore this.fullVizibleHeight includes this spacing for the bottom-most feature.
+    // Note: this.fullVisibleHeight - this.bumpSpacing is not actually the correct value to test against, but it's the easiest best guess to obtain.
+    // this.fullVisibleHeight is the maximum bottom position of the track's features in the region, which includes spacing at the bottom of each feature and label
+    // Therefore this.fullVisibleHeight includes this spacing for the bottom-most feature.
     // The correct value (for a track using the default positionFeatures code) is:
-    // this.fullVizibleHeight - ([there are labels in this region] ? (this.separateLabels ? 0 : this.bumpSpacing + 1) + 2 : this.bumpSpacing)
+    // this.fullVisibleHeight - ([there are labels in this region] ? (this.separateLabels ? 0 : this.bumpSpacing + 1) + 2 : this.bumpSpacing)
     //                                                                ^ padding on label y-position                     ^ margin on label height
-    if (this.fullVizibleHeight - this.bumpSpacing > this.height) {
+    if (this.fullVisibleHeight - this.bumpSpacing > this.height) {
       this.expander = (this.expander || $('<div class="expander">').width(this.width).appendTo(this.container).on('click', function () {
-        track.resize(track.fullVizibleHeight);
-      })).css('left', -this.cBrowse.left).show();
+        track.resize(track.fullVisibleHeight);
+      })).css('left', -this.cBrowse.left)[this.height === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
-      this.expander.remove();
-      delete this.expander;
+      this.expander.hide();
     }    
   },
   
   remove: function () {
-    this.resize(0);
+    this.container.add(this.label).add(this.menus).remove();
+    
     this.cBrowse.tracks.splice(this.index, 1);
     
     if (this.id) {
@@ -248,8 +256,7 @@ CBrowse.Track = Base.extend({
       }
     }
     
-    this.container.css('left', this.cBrowse.left).children().hide();
-    this.toggleExpander();
+    this.container.css('left', this.cBrowse.left).children('.image_container').hide();
   },
   
   setRenderer: function (renderer, permanent) {
@@ -276,7 +283,11 @@ CBrowse.Track = Base.extend({
         
         var start = cBrowse.edges.start;
         var end   = cBrowse.edges.end;
-        var width = Math.round((end - start) * this.scale);
+        var width = Math.round((end - start + 1) * this.scale);
+        
+        if (cBrowse.left) {
+          this.offsets = cBrowse.left < 0 ? { right: cBrowse.offsets.right, left: -cBrowse.offsets.right } : { right: -cBrowse.offsets.left, left: cBrowse.offsets.left };
+        }
         
         $.when(this.makeImage(start, end, width, -cBrowse.left, cBrowse.scrollStart)).done(function (a) {
           $(a.target).show()
@@ -476,9 +487,9 @@ CBrowse.Track = Base.extend({
       }
       
       if (this.labelOverlay && labelWidth < width - 1) { // Don't show overlaid labels on features which aren't wider than the label
-        draw.label[feature.labelColor].push([ 'fillText', [ feature.label, labelStart + (width - labelWidth) / 2, bounds[0].y + bounds[0].h / 2 ], feature.labelColor ]);
+        draw.label[feature.labelColor].push([ 'fillText', [ feature.label, labelStart + (width - labelWidth) / 2, bounds[0].y + bounds[0].h / 2 ] ]);
       } else if (bounds[1]) {
-        draw[this.separateLabels ? 'label' : 'fill'][feature.labelColor].push([ 'fillText', [ feature.label, labelStart, bounds[1].y ], feature.labelColor ]);
+        draw[this.separateLabels ? 'label' : 'fill'][feature.labelColor].push([ 'fillText', [ feature.label, labelStart, bounds[1].y ] ]);
       }
       
       if (this.separateLabels && bounds[1]) {
@@ -610,7 +621,7 @@ CBrowse.Track = Base.extend({
   },
   
   drawBackground: function (image, height) {
-    var scaleLines  = { major: [ this.cBrowse.colors.majorScaleLine, this.cBrowse.majorUnit ], minor: [ this.cBrowse.colors.minorScaleLine, this.cBrowse.minorUnit ] };
+    var guideLines  = { major: [ this.cBrowse.colors.majorGuideLine, this.cBrowse.majorUnit ], minor: [ this.cBrowse.colors.minorGuideLine, this.cBrowse.minorUnit ] };
     var scaledStart = Math.round(image.scaledStart);
     var x;
     
@@ -618,11 +629,11 @@ CBrowse.Track = Base.extend({
       this.drawBackgroundColor(image, height, scaledStart);
     }
     
-    for (var c in scaleLines) {
-      this.context.fillStyle = scaleLines[c][0];
+    for (var c in guideLines) {
+      this.context.fillStyle = guideLines[c][0];
       
-      for (x = Math.max(image.start - (image.start % scaleLines[c][1]), 0); x < image.end + this.cBrowse.minorUnit; x += scaleLines[c][1]) {
-        this.context.fillRect((this.cBrowse.scaleLines[c][x] || 0) - scaledStart, 0, 1, height);
+      for (x = Math.max(image.start - (image.start % guideLines[c][1]), 0); x < image.end + this.cBrowse.minorUnit; x += guideLines[c][1]) {
+        this.context.fillRect((this.cBrowse.guideLines[c][x] || 0) - scaledStart, 0, 1, height);
       }
     }
   },
@@ -644,6 +655,21 @@ CBrowse.Track = Base.extend({
           this.context.fillRect(start, 0, end - start, height);
         }
       }
+    }
+  },
+  
+  formatLabel: function (label) {
+    var str = label.toString();
+    
+    if (this.minorUnit < 1000) {
+      return str.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+    } else {
+      var power = Math.floor((str.length - 1) / 3);
+      var unit  = this.labelUnits[power];
+      
+      label /= Math.pow(10, power * 3);
+      
+      return Math.floor(label) + (unit === 'bp' ? '' : '.' + (label.toString().split('.')[1] || '').concat('00').substring(0, 2)) + ' ' + unit;
     }
   },
   

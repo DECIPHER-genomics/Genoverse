@@ -4,13 +4,13 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     featureHeight : 3,
     color         : '#000000',
     autoHeight    : false,
+    unsortable    : true,
     order         : 1
   },
   
   constructor: function (config) {
-    this.scaleLines  = true;
+    this.guideLines  = true;
     this.forceLabels = true;
-    this.labelUnits  = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
     this.bump        = false;
     this.fixedHeight = true;
     this.spacing     = 0;
@@ -19,13 +19,12 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     
     if (this.type === 'Scalebar') {
       this.cBrowse.tracks.push({ type: 'ScalebarBottom' });
-      this.cBrowse.labelContainer.css('top', this.height);
     }
   },
   
   reset: function () {
+    this.container.children('.image_container').remove();
     this.init();
-    this.container.empty();
   },
   
   setScale: function () {
@@ -61,8 +60,16 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     this.seen      = {};
     this.features  = new RTree();
     
-    if (this.scaleLines) {
-      this.cBrowse.scaleLines = { major: {}, minor: {} };
+    if (this.guideLines) {
+      if (!this.cBrowse.guideLinesByScale) {
+        this.cBrowse.guideLinesByScale = {};
+      }
+      
+      if (!this.cBrowse.guideLinesByScale[this.scale]) {
+        this.cBrowse.guideLinesByScale[this.scale] = { major: {}, minor: {} };
+      }
+      
+      this.cBrowse.guideLines = this.cBrowse.guideLinesByScale[this.scale];
     }
   },
   
@@ -112,8 +119,8 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
         features.push(feature);
       }
       
-      if (this.scaleLines) {
-        this.cBrowse.scaleLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
+      if (this.guideLines) {
+        this.cBrowse.guideLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
       }
     }
     
@@ -157,27 +164,12 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
   drawBackgroundColor: function (image, height) {
     this.context.fillStyle = this.cBrowse.colors.background;
     this.context.fillRect(0, 0, this.width, height);
-  },
-  
-  formatLabel: function (x) {
-    var str = x.toString();
-    
-    if (this.minorUnit < 1000) {
-      return str.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
-    } else {
-      var power = Math.floor((str.length - 1) / 3);
-      var unit  = this.labelUnits[power];
-      
-      x /= Math.pow(10, power * 3);
-      
-      return Math.floor(x) + (unit === 'bp' ? '' : '.' + (x.toString().split('.')[1] || '').concat('00').substring(0, 2)) + ' ' + unit;
-    }
   }
 });
 
 CBrowse.Track.ScalebarBottom = CBrowse.Track.Scalebar.extend({
   constructor: function (config) {
-    this.base($.extend(config, { scaleLines: false, order: 1e5 }));
+    this.base($.extend(config, { guideLines: false, order: 1e5 }));
     $.grep(this.cBrowse.tracks, function (t) { return t.type === 'Scalebar'; })[0].bottomTrack = this;
   },
   

@@ -22,10 +22,27 @@
     <script type="text/javascript" src="js/plugins/scrollArrows.js"></script>
     <!--script type="text/javascript" src="js/plugins/toggleWheelZoom.js"></script-->
     <script type="text/javascript" src="js/plugins/dblClickZoom.js"></script>
-    <script type="text/javascript" src="js/plugins/crosshair.js"></script>
-    <script type="text/javascript" src="js/plugins/selectZoom.js"></script>
+    <script type="text/javascript" src="js/plugins/toggleDragging.js"></script>
+    <script type="text/javascript" src="js/plugins/crosshairSelect.js"></script>
+    <script type="text/javascript" src="js/plugins/fileDrop.js"></script>
+
   </head>
   <body>
+
+  <div class="top">
+    <span class="label">Search:</span>
+    <input class="search" type="text"></input>
+
+    <span class="label">Zoom:</span>
+    <button class="zoomIn left-neighbour">+</button><button class="zoomOut right-neighbour">-</button>
+
+    <span class="label">Drag/Select:</span>
+    <button class="toggleDragging active left-neighbour">&#8596;</button><button class="toggleCrosshairSelect right-neighbour">&#9482;</button>
+
+    <span class="label">Wheel:</span>
+    <button class="left-neighbour">&#8597;</button><button class="right-neighbour">&#177;</button>
+  </div>
+
 
   <div class="wrap">
     <div class="canvas_container"></div>
@@ -38,9 +55,9 @@
     $(function () {
       cBrowse = new CBrowse({
         container      : $('.canvas_container'),
-//        chromosomeSize : 249250621, // chromosome 1
+        chromosomeSize : 249250621, // chromosome 1
 //        chromosomeSize : 102531392, // chromosome 15
-        chromosomeSize : 81195210, // chromosome 17
+//        chromosomeSize : 81195210, // chromosome 17
         tracks         : [{
           type  : 'Scalebar'
         }, {
@@ -78,18 +95,20 @@
             positionFeatures: 1,
             draw: 1
           }
-        }, {
-          type    : 'MicroArray',
-          name    : 'MicroArray',
-          url     : '/data/17.json',
-          overlap : 1,
-          debug   : {
-            parseFeatures: 1,
-            positionFeatures: 1,
-            draw: 1
-          }
-        }]
-      }).toggleCrosshair(false);
+        },
+        // {
+        //   type    : 'MicroArray',
+        //   name    : 'MicroArray',
+        //   url     : '/data/1.json',
+        //   overlap : 1,
+        //   debug   : {
+        //     parseFeatures: 1,
+        //     positionFeatures: 1,
+        //     draw: 1
+        //   },
+        // }
+        ]
+      });
 
 
       $('.featureMenuClose').live('click', function(){
@@ -97,6 +116,40 @@
           $(this).parent().remove();
           $('div.overlap').remove();
         });
+      });
+
+
+      $("button.zoomIn").click(function () {
+        cBrowse.zoomIn();
+      });
+
+      $("button.zoomOut").click(function () {
+        cBrowse.zoomOut();
+      });
+
+      $("button.toggleDragging").click(function () {
+        if ($(this).hasClass('active')) {
+          cBrowse.toggleDragging(false);
+          $(this).removeClass('active');
+        } else {
+          cBrowse.toggleCrosshairSelect(false);
+          $("button.toggleCrosshairSelect").removeClass('active');
+
+          cBrowse.toggleDragging(true);
+          $(this).addClass('active');
+        }
+      });
+
+      $("button.toggleCrosshairSelect").click(function () {
+        if ($(this).hasClass('active')) {
+          cBrowse.toggleCrosshairSelect(false);
+          $(this).removeClass('active');
+        } else {
+          cBrowse.toggleCrosshairSelect(true);
+          $(this).addClass('active');
+          $("button.toggleDragging").removeClass('active');
+        }
+
       });
 
     });
@@ -120,5 +173,6 @@
       </div>
     </div>
   </div>
+
   </body>
 </html>
