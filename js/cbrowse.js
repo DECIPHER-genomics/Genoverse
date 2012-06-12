@@ -393,6 +393,11 @@ var CBrowse = Base.extend({
     index  = index  || 0;
     
     for (var i = 0; i < tracks.length; i++) {
+      if (typeof tracks[i].extend === 'function') {
+        tracks[i].init();
+        continue;
+      }
+      
       if (tracks[i].type) {
         tracks[i] = new CBrowse.Track[tracks[i].type]($.extend(tracks[i], defaults, { index: i + index }));
       } else {
@@ -588,7 +593,7 @@ var CBrowse = Base.extend({
     
     var delta = Math.round((this.start - this.prev.start) * this.scale);
     
-    $('.menu', this.container).css('left', function (i, left) { return parseInt(left, 10) - delta; });
+    $('.menu', this.menuContainer).css('left', function (i, left) { return parseInt(left, 10) - delta; });
   },
   
   updateFromHistory: function () {

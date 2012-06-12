@@ -2,24 +2,17 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
   config: {
     height        : 20,
     featureHeight : 3,
+    spacing       : 0,
     color         : '#000000',
     autoHeight    : false,
     unsortable    : true,
-    order         : 1
-  },
-  
-  constructor: function (config) {
-    this.guideLines  = true;
-    this.forceLabels = true;
-    this.bump        = false;
-    this.fixedHeight = true;
-    this.spacing     = 0;
-    
-    this.base(config);
-    
-    if (this.type === 'Scalebar') {
-      this.cBrowse.tracks.push({ type: 'ScalebarBottom' });
-    }
+    forceLabels   : true,
+    bump          : false,
+    fixedHeight   : true,
+    order         : 0,
+    orderReverse  : 1e5,
+    featureStrand : 1,
+    inherit       : [ 'Stranded' ]
   },
   
   reset: function () {
@@ -60,7 +53,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     this.seen      = {};
     this.features  = new RTree();
     
-    if (this.guideLines) {
+    if (this.strand === 1) {
       if (!this.cBrowse.guideLinesByScale) {
         this.cBrowse.guideLinesByScale = {};
       }
@@ -89,7 +82,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
       
       this.seen[x] = 1;
       
-      feature = { id: x };
+      feature = { id: x, strand: 1 };
       major   = x && !(x % this.majorUnit);
       
       if (flip === 1) {
@@ -119,7 +112,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
         features.push(feature);
       }
       
-      if (this.guideLines) {
+      if (this.strand === 1) {
         this.cBrowse.guideLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
       }
     }
@@ -133,47 +126,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     return features;
   },
   
-  makeImage: function (start, end, width, moved, cls) {
-    var deferred    = $.Deferred();
-    var bottomTrack = this.bottomTrack;
-    
-    this.setFeatures(start, end);
-    
-    $.when(this.base(start, end, width, moved, cls)).done(function (dfd) {
-      $.when(bottomTrack._makeImage($.extend(true, {}, dfd.img), width, moved, cls)).done(function (dfd2) {
-        deferred.resolve({ target: [ dfd.target, dfd2.target ], img: [ dfd.img, dfd2.img ] });
-      });
-    });
-    
-    return deferred;
-  },
-  
-  afterDraw: function (image) {
-    var i = this.data.length;
-    
-    while (i--) {
-      if (this.data[i][0] === 'fillText') {
-        this.context.fillRect(Math.round(this.data[i][1][1]), this.featureHeight, 1, 3);
-      }
-    }
-    
-    this.context.fillRect(0, 0,                  image.width, 1);
-    this.context.fillRect(0, this.featureHeight, image.width, 1);
-  },
-  
-  drawBackgroundColor: function (image, height) {
-    this.context.fillStyle = this.cBrowse.colors.background;
-    this.context.fillRect(0, 0, this.width, height);
-  }
-});
-
-CBrowse.Track.ScalebarBottom = CBrowse.Track.Scalebar.extend({
-  constructor: function (config) {
-    this.base($.extend(config, { guideLines: false, order: 1e5 }));
-    $.grep(this.cBrowse.tracks, function (t) { return t.type === 'Scalebar'; })[0].bottomTrack = this;
-  },
-  
-  _makeImage: function (img, width, moved, cls) {
+  makeReverseImage: function (start, end, width, moved, cls, img) {
     var dir      = moved < 0 ? 'right' : 'left';
     var div      = this.imgContainer.clone().width(width).addClass(cls).css(dir, this.offsets[dir]).data('img', img);
     var deferred = $.Deferred();
@@ -191,6 +144,30 @@ CBrowse.Track.ScalebarBottom = CBrowse.Track.Scalebar.extend({
     return deferred;
   },
   
-  makeImage      : $.noop,
-  drawBackground : $.noop
+  getData: function (image, deferred) {
+    this.setFeatures(image.start, image.end);
+    this.base(image, deferred);
+  },
+  
+  afterDraw: function (image) {
+    var i = this.data.length;
+    
+    while (i--) {
+      if (this.data[i][0] === 'fillText') {
+        this.context.fillRect(Math.round(this.data[i][1][1]), this.featureHeight, 1, 3);
+      }
+    }
+    
+    this.context.fillRect(0, 0,                  image.width, 1);
+    this.context.fillRect(0, this.featureHeight, image.width, 1);
+  },
+  
+  drawBackground: function () {
+    return this.strand === 1 ? this.base.apply(this, arguments) : false;
+  },
+  
+  drawBackgroundColor: function (image, height) {
+    this.context.fillStyle = this.cBrowse.colors.background;
+    this.context.fillRect(0, 0, this.width, height);
+  }
 });

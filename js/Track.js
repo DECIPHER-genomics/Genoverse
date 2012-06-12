@@ -19,6 +19,10 @@ CBrowse.Track = Base.extend({
       }
     }
     
+    if (typeof this.inheritedConstructor === 'function') {
+      this.inheritedConstructor(config);
+    }
+    
     for (var key in this) {
       if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap|debugWrap)$/)) {
         this.cBrowse.functionWrap(key, this);
@@ -148,6 +152,11 @@ CBrowse.Track = Base.extend({
   },
   
   checkSize: function () {
+    if (this.threshold && this.cBrowse.length > this.threshold) {
+      this.fullVisibleHeight = 0;
+      return;
+    }
+    
     var bounds = { x: this.cBrowse.scaledStart, w: this.width, y: 0, h: this.heights.max };
     var scale  = this.scale;
     var height = Math.max.apply(Math, $.map(this.featurePositions.search(bounds), function (feature) { return feature.bottom[scale]; }).concat(0));
@@ -570,6 +579,10 @@ CBrowse.Track = Base.extend({
   },
   
   getData: function (image, deferred) {
+    if (this.threshold && this.cBrowse.length > this.threshold) {
+      return this.draw(image, []);
+    }
+  
     var bounds   = { x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 };
     var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search(bounds) : false;
     
