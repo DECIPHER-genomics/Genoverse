@@ -107,6 +107,8 @@ var FRegion = function(features){
   }
 
   this.search = function (bounds) {
+    if (!_features.length) return [];
+    
     //return this.bruteForceSearch(bounds);
     return this.binarySearch(bounds);
   }
