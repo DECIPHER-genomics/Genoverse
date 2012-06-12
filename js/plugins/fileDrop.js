@@ -14,30 +14,40 @@ CBrowse.on('afterInit', function () {
     var files = dt.files;
 
     for (var i = 0; i < files.length; i++) {
-      console.log(files[i]);
+
+      var __worker = new Worker('js/worker.js');
+      var __track;
+      var __images = [];
+      var count = 0;
+
+      __worker.addEventListener('message', function(e) {
+        // Make sure file is deleted, data is kept in the worker now
+        delete __track['file'];
+        __track.draw(__images[e.data.taskId], e.data.features);
+        __images[e.data.taskId] = NaN;
+      });
+
 
       cBrowse.addTracks([{
         type    : 'MicroArray',
-        name    : 'MicroArray',
+        name    : files[i].name,
         file    : files[i],
-        debug   : {
-          parseFeatures: 1,
-          positionFeatures: 1,
-          draw: 1
-        },
-        worker  : new Worker('js/worker.js'),
+        calls   : new FRegion(),
 
         getData : function (image, deferred) {
           //debugger;
           var bounds = { x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 };
-          var track  = this;
-          this.worker.addEventListener('message', function(e) {
+          __track = this;
+          var taskId = count++;
+          __images[taskId] = image;
 
-            track.draw(image, track.parseFeatures(e.data, bounds));
-
-          }, false);
-
-          this.worker.postMessage({ bounds: bounds, file: this.file });
+          if (this.file) {
+            this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
+            this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);            
+            __worker.postMessage({ bounds: bounds, file: this.file, height: this.height, taskId: taskId });
+          } else {
+            __worker.postMessage({ bounds: bounds, taskId: taskId });
+          }
         }
 
       }]);
