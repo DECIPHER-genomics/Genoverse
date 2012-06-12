@@ -14,26 +14,30 @@ CBrowse.on('afterInit', function () {
     var files = dt.files;
 
     for (var i = 0; i < files.length; i++) {
+      console.log(files[i]);
+
       cBrowse.addTracks([{
         type    : 'MicroArray',
         name    : 'MicroArray',
         file    : files[i],
-        getData : function (image, deferred) {
-          debugger;
-          var bounds   = { x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 };
+        debug   : {
+          parseFeatures: 1,
+          positionFeatures: 1,
+          draw: 1
+        },
+        worker  : new Worker('js/worker.js'),
 
-          var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search(bounds) : false;
-          if (features && features.length) {
-            this.draw(image, features.sort(function (a, b) { return a.sort - b.sort; }));
-          } else {
-            var track = this;
-            var reader = new FileReader();
-            reader.onload = function(e) {
-              // get file content
-              console.log(e);
-              //track.draw(image, track.parseFeatures(e.target.result, bounds));
-            }
-          }
+        getData : function (image, deferred) {
+          //debugger;
+          var bounds = { x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 };
+          var track  = this;
+          this.worker.addEventListener('message', function(e) {
+
+            track.draw(image, track.parseFeatures(e.data, bounds));
+
+          }, false);
+
+          this.worker.postMessage({ bounds: bounds, file: this.file });
         }
 
       }]);
