@@ -1,3 +1,7 @@
+html {
+  background: url("/i/bg.png") repeat scroll 0 0 transparent;
+}
+
 body {
   font-family: Verdana, Tahoma, Lucida Console, monospace;
   margin: 0;
@@ -17,8 +21,20 @@ body {
   width: 100%;
   background-color: rgba(72,72,72,1);
   color: white;
-  padding: 0.5em;
+  padding: 1em 0.5em 0.5em;
   text-align: center;
+}
+
+.top:before {
+  background: url("/i/blue_line.jpg") repeat scroll 0 0 transparent;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
+  content: "";
+  display: block;
+  height: 4px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
 }
 
 .top .label {
@@ -61,7 +77,7 @@ button {
   color:#b7b7b7;
   font-weight: bold;
   font-size: 1.5em;
-  font-family: Verdana, Tahoma, Trebuchet MS, Arial, Lucida Console;
+  font-family: verdana;
   text-decoration:none;
   text-shadow: 0 -1px 0 #181818;
   width: 2em;
@@ -94,4 +110,20 @@ button.right-neighbour {
 
 .wrap {
   margin-top: 2em;
+}
+
+.canvas_container {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.canvas_container .label_container li .name {
+  display: none;
+}
+
+.canvas_container .wrapper {
+  border: none;
+}
+
+.height_toggler {
+  display: none;
 }

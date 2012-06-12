@@ -8,6 +8,7 @@
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript" src="js/jquery-ui.js"></script>
     <script type="text/javascript" src="js/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/jquery.mousehold.js"></script>
     <script type="text/javascript" src="js/rtree.js"></script>
     <script type="text/javascript" src="js/FRegion.js"></script>
 
@@ -19,7 +20,7 @@
 
     <script type="text/javascript" src="js/plugins/overlap.js"></script>
     <script type="text/javascript" src="js/plugins/resizer.js"></script>
-    <script type="text/javascript" src="js/plugins/scrollArrows.js"></script>
+    <!--script type="text/javascript" src="js/plugins/scrollArrows.js"></script-->
     <!--script type="text/javascript" src="js/plugins/toggleWheelZoom.js"></script-->
     <script type="text/javascript" src="js/plugins/dblClickZoom.js"></script>
     <script type="text/javascript" src="js/plugins/toggleDragging.js"></script>
@@ -32,6 +33,9 @@
   <div class="top">
     <span class="label">Search:</span>
     <input class="search" type="text"></input>
+
+    <span class="label">Scroll:</span>
+    <button class="scroll left left-neighbour">&#9668;</button><button class="scroll right right-neighbour">&#9658;</button>
 
     <span class="label">Zoom:</span>
     <button class="zoomIn left-neighbour">+</button><button class="zoomOut right-neighbour">-</button>
@@ -58,6 +62,7 @@
         chromosomeSize : 249250621, // chromosome 1
 //        chromosomeSize : 102531392, // chromosome 15
 //        chromosomeSize : 81195210, // chromosome 17
+        labelWidth     : 0,
         tracks         : [{
           type  : 'Scalebar'
         }, {
@@ -65,7 +70,7 @@
           //url           : 'http://enssand-03.internal.sanger.ac.uk:7000/Homo_sapiens/Ajax/fetch_features/_transcript?chr=__CHR__&start=__START__&end=__END__&id=transcript_core_ensembl',
           url           : 'http://decipher.sandbox.sanger.ac.uk/gene;json?region=__CHR__:__START__-__END__',
           //urlParams   : { region: 'transcript_core_ensembl', start: '__START__' },
-          height        : 100,
+          height        : 200,
           featureHeight : 6,
           bump          : true,
           separateLabels: false,
@@ -90,22 +95,22 @@
 
             return data;
           },
-          debug   : {
-            parseFeatures: 1,
-            positionFeatures: 1,
-            draw: 1
-          }
+          // debug   : {
+          //   parseFeatures: 1,
+          //   positionFeatures: 1,
+          //   draw: 1
+          // }
         },
         // {
         //   type    : 'MicroArray',
         //   name    : 'MicroArray',
         //   url     : '/data/1.json',
         //   overlap : 1,
-        //   debug   : {
-        //     parseFeatures: 1,
-        //     positionFeatures: 1,
-        //     draw: 1
-        //   },
+        //   // debug   : {
+        //   //   parseFeatures: 1,
+        //   //   positionFeatures: 1,
+        //   //   draw: 1
+        //   // },
         // }
         ]
       });
@@ -116,6 +121,19 @@
           $(this).parent().remove();
           $('div.overlap').remove();
         });
+      });
+
+      $("button.scroll.left").mousehold(50, function () {
+        cBrowse.move(NaN, 100, 100);
+      });
+
+      $("button.scroll").mouseup(function () {
+        cBrowse.updateURL();
+        cBrowse.checkTrackSize();
+      });
+
+      $("button.scroll.right").mousehold(50, function () {
+        cBrowse.move(NaN, -100, 100);
       });
 
 
@@ -149,7 +167,6 @@
           $(this).addClass('active');
           $("button.toggleDragging").removeClass('active');
         }
-
       });
 
     });

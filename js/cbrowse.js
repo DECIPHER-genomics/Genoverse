@@ -235,9 +235,6 @@ var CBrowse = Base.extend({
     if (this.redraw() && e) {
       this.mouseup(e, false);
       this.mousedown(e);
-    } else if (!e) {
-      this.updateURL();
-      this.checkTrackSize();
     }
   },
   
