@@ -79,7 +79,7 @@ CBrowse.Track.Legend = CBrowse.Track.extend({
       }
       
       fill[features[i][1]].push([ 'fillRect', [ (x * xScale) + pad, (y * yScale) + pad, w, this.featureHeight ] ]);
-      fill[this.textColor].push([ 'fillText', [ features[i][0], (x * xScale) + w + (2 * pad), (y * yScale) + pad - 2 ] ]);
+      fill[this.textColor].push([ 'fillText', [ features[i][0], (x * xScale) + w + (2 * pad), (y * yScale) + pad ] ]);
       
       if (++x === cols) {
         x = 0;
