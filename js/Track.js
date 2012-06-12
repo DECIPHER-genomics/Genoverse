@@ -29,22 +29,23 @@ CBrowse.Track = Base.extend({
       }
     }
     
-    this.featureHeight  = this.featureHeight || (this.config && typeof this.config.height === 'number' ? this.config.height : this.defaults.height);
-    this.separateLabels = typeof this.separateLabels === 'undefined' ? !!this.depth : this.separateLabels;
-    this.spacing        = typeof this.spacing        === 'undefined' ? this.cBrowse.trackSpacing : this.spacing;
-    this.fixedHeight    = typeof this.fixedHeight    === 'undefined' ? this.featureHeight === this.height && !(this.bump || this.bumpLabels) : this.fixedHeight;
-    this.resizable      = typeof this.resizable      === 'undefined' ? !this.fixedHeight : this.resizable;
+    this.order          = typeof this.order          !== 'undefined' ? this.order          : this.index;
+    this.separateLabels = typeof this.separateLabels !== 'undefined' ? this.separateLabels : !!this.depth;
+    this.spacing        = typeof this.spacing        !== 'undefined' ? this.spacing        : this.cBrowse.trackSpacing;
+    this.featureHeight  = typeof this.featureHeight  !== 'undefined' ? this.featureHeight  : (this.config && typeof this.config.height === 'number' ? this.config.height : this.defaults.height);
+    this.fixedHeight    = typeof this.fixedHeight    !== 'undefined' ? this.fixedHeight    : this.featureHeight === this.height && !(this.bump || this.bumpLabels);
+    this.resizable      = typeof this.resizable      !== 'undefined' ? this.resizable      : !this.fixedHeight;
     this.height        += this.spacing;
+    this.initialHeight  = this.height;
+    this.minLabelHeight = 0;
     this.canvas         = $('<canvas>').appendTo(this.canvasContainer);
     this.container      = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer);
     this.imgContainer   = $('<div class="image_container">');
     this.label          = $('<li>').appendTo(this.cBrowse.labelContainer).height(this.height).data('index', this.index);
+    this.menus          = $();
     this.context        = this.canvas[0].getContext('2d');
     this.fontHeight     = parseInt(this.context.font, 10);
-    this.initialHeight  = this.height;
-    this.minLabelHeight = 0;
     this.labelUnits     = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
-    this.menus          = $();
     
     this.init();
     this.setScale();

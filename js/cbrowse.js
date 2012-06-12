@@ -407,11 +407,19 @@ var CBrowse = Base.extend({
       if (this.left) {
         tracks[i].offsets = this.left < 0 ? { right: this.offsets.right, left: -this.offsets.right } : { right: -this.offsets.left, left: this.offsets.left };
       }
+      
+      if (tracks[i].strand === -1 && tracks[i].orderReverse) {
+        tracks[i].order = tracks[i].orderReverse;
+      }
+    }
+    
+    if (!push) {
+      this.sortTracks(); // initial sort
     }
   },
   
   addTracks: function (tracks) {
-    this.setTracks(tracks, this.tracks.length);
+    this.setTracks(tracks.sort(function (a, b) { return a.order - b.order; }), this.tracks.length);
     this.makeTrackImages(tracks);
   },
   
@@ -466,6 +474,22 @@ var CBrowse = Base.extend({
         this.tracks[i].label.data('index', i);
       }
     }
+  },
+  
+  sortTracks: function () {
+    var sorted     = $.extend([], this.tracks).sort(function (a, b) { return a.order - b.order });
+    var labels     = $();
+    var containers = $();
+    
+    for (var i = 0; i < sorted.length; i++) {
+      labels.push(sorted[i].label[0]);
+      containers.push(sorted[i].canvas[0], sorted[i].container.detach()[0]);
+    }
+    
+    this.labelContainer.append(labels);
+    this.wrapper.append(containers);
+    
+    sorted = labels = containers = null;
   },
   
   makeImage: function () {
