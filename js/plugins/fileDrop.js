@@ -49,8 +49,9 @@ CBrowse.on('afterInit', function () {
             __worker.postMessage({ bounds: bounds, taskId: taskId });
           }
         }
-
       }]);
+
+      cBrowse.sortTracks();
     }
   });
 
