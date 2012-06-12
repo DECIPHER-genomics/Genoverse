@@ -46,7 +46,6 @@ var CBrowse = Base.extend({
       .replace(/(\b(\w+=)?__END__(.)?)/,   '$2(\\d+)$3') + '([;&])'
     );
     
-    this.tracksById     = {};
     this.history        = {};
     this.prev           = {};
     this.backgrounds    = {};
@@ -403,10 +402,6 @@ var CBrowse = Base.extend({
       
       if (push) {
         this.tracks.push(tracks[i]);
-      }
-      
-      if (tracks[i].id) {
-        this.tracksById[tracks[i].id] = tracks[i];
       }
       
       if (this.left) {

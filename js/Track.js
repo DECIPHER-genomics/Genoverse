@@ -211,12 +211,7 @@ CBrowse.Track = Base.extend({
   
   remove: function () {
     this.container.add(this.label).add(this.menus).remove();
-    
     this.cBrowse.tracks.splice(this.index, 1);
-    
-    if (this.id) {
-      delete this.cBrowse.tracksById[this.id];
-    }
   },
   
   setScale: function () {
