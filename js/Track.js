@@ -126,21 +126,11 @@ CBrowse.Track = Base.extend({
         return; // Only show menus on left click when not dragging
       }
       
-      var x        = e.pageX - track.container.parent().offset().left + track.cBrowse.scaledStart;
-      var y        = e.pageY - $(e.target).offset().top;
-      var features = track[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 });
-      var i        = features.length;
-      var seen     = {};
+      var x       = e.pageX - track.container.parent().offset().left + track.cBrowse.scaledStart;
+      var y       = e.pageY - $(e.target).offset().top;
+      var feature = track[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
       
-      while (i--) {
-        if (seen[features[i].id]) {
-          continue;
-        }
-        
-        seen[features[i].id] = 1;
-        
-        track.cBrowse.makeMenu(track, features[i], { left: e.pageX, top: e.pageY });
-      }
+      track.cBrowse.makeMenu(track, feature, { left: e.pageX, top: e.pageY });
     });
   },
   
