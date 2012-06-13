@@ -1,11 +1,12 @@
 CBrowse.Track = Base.extend({
   defaults: {
-    height      : 12,
-    bump        : false,
-    bumpSpacing : 2,
-    urlParams   : {},
-    urlTemplate : {},
-    inherit     : []
+    height         : 12,
+    bump           : false,
+    bumpSpacing    : 2,
+    featureSpacing : 1,
+    urlParams      : {},
+    urlTemplate    : {},
+    inherit        : []
   },
   
   constructor: function (config) {
@@ -378,13 +379,13 @@ CBrowse.Track = Base.extend({
         
         x      = feature.scaledStart;
         y      = feature.y || 0;
-        bounds = [{ x: x, y: y, w: width + 1, h: this.featureHeight + this.bumpSpacing }];
+        bounds = [{ x: x, y: y, w: width + this.featureSpacing, h: this.featureHeight + this.bumpSpacing }];
         
         if (feature.label && showLabels && !this.labelOverlay && this.forceLabels !== 'off' && !(scale > 1 && start < -this.cBrowse.labelBuffer)) {
           if (this.separateLabels) {
             bounds.push({ x: x, y: y, w: labelWidth, h: this.fontHeight + 2 });
           } else {
-            bounds.push({ x: x, y: y + this.featureHeight + this.bumpSpacing + 1, w: Math.max(labelWidth, width + 1), h: this.fontHeight + 2 });
+            bounds.push({ x: x, y: y + this.featureHeight + this.bumpSpacing + 1, w: Math.max(labelWidth, width + this.featureSpacing), h: this.fontHeight + 2 });
           }
         }
         
@@ -418,6 +419,14 @@ CBrowse.Track = Base.extend({
             }
           } else { // labels and features drawn on the same image
             do {
+              if (this.depth && ++depth >= this.depth) {
+                if ($.grep(this.featurePositions.search(bounds[0]).concat(bounds[1] ? this.labelPositions.search(bounds[1]) : []), function (f) { return f.visible[scaleKey] !== false; }).length) {
+                  feature.visible[scaleKey] = false;
+                }
+                
+                break;
+              }
+            
               bump = false;
               j    = bounds.length;
               

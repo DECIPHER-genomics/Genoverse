@@ -6,6 +6,7 @@ CBrowse.Track.Sequence = CBrowse.Track.extend({
     resizable      : false,
     autoHeight     : true,
     spacing        : 0,
+    featureSpacing : 0,
     inherit        : [ 'Stranded' ]
   }
 });
