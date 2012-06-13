@@ -52,6 +52,7 @@ var CBrowse = Base.extend({
     this.useHash        = typeof window.history.pushState !== 'function';
     this.wrapperLeft    = this.labelWidth - width;
     this.width         -= this.labelWidth;
+    this.textWidth      = document.createElement('canvas').getContext('2d').measureText('W').width;
     this.menuContainer  = $('<div class="menu_container">').css({ width: width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
     this.labelContainer = $('<ul class="label_container">').width(this.labelWidth).appendTo(this.container).sortable({
       items       : 'li:not(.unsortable)',
@@ -120,9 +121,6 @@ var CBrowse = Base.extend({
     this.setRange(coords.start, coords.end, false);
     this.setHistory(false);
     this.setTracks();
-    
-    this.labelBuffer = Math.ceil(this.tracks[0].context.measureText('W').width / this.scale) * this.longestLabel;
-    
     this.makeImage();
   },
   
@@ -352,6 +350,7 @@ var CBrowse = Base.extend({
       this.minLeft     = Math.round((this.end   - this.chromosomeSize) * this.scale);
       this.maxLeft     = Math.round((this.start - 1) * this.scale);
       this.scrollStart = 'ss_' + this.start + '_' + this.end;
+      this.labelBuffer = Math.ceil(this.textWidth / this.scale) * this.longestLabel;
       
       if (this.prev.scale) {
         var i = this.tracks.length;

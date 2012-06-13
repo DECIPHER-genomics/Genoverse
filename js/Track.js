@@ -35,6 +35,7 @@ CBrowse.Track = Base.extend({
     this.spacing        = typeof this.spacing        !== 'undefined' ? this.spacing        : this.cBrowse.trackSpacing;
     this.featureHeight  = typeof this.featureHeight  !== 'undefined' ? this.featureHeight  : (this.config && typeof this.config.height === 'number' ? this.config.height : this.defaults.height);
     this.fixedHeight    = typeof this.fixedHeight    !== 'undefined' ? this.fixedHeight    : this.featureHeight === this.height && !(this.bump || this.bumpLabels);
+    this.autoHeight     = typeof this.autoHeight     !== 'undefined' ? this.autoHeight     : !this.fixedHeight && !config.height ? this.cBrowse.autoHeight : false;
     this.resizable      = typeof this.resizable      !== 'undefined' ? this.resizable      : !this.fixedHeight;
     this.height        += this.spacing;
     this.initialHeight  = this.height;
@@ -47,6 +48,12 @@ CBrowse.Track = Base.extend({
     this.context        = this.canvas[0].getContext('2d');
     this.fontHeight     = parseInt(this.context.font, 10);
     this.labelUnits     = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
+    
+    if (this.autoHeight === 'force') {
+      this.autoHeight  = true;
+      this.fixedHeight = false;
+      this.resizable   = false;
+    }
     
     this.init();
     this.setScale();
@@ -73,29 +80,25 @@ CBrowse.Track = Base.extend({
       }
     }
     
-    if (!this.fixedHeight) {
-      this.autoHeight = typeof this.autoHeight === 'undefined' && !config.height ? this.cBrowse.autoHeight : this.autoHeight;
-      
-      if (this.resizable !== false) {
-        this.heightToggler = $('<div class="height_toggler"><div class="auto">Set track to auto-adjust height</div><div class="fixed">Set track to fixed height</div></div>').on({
-          mouseover : function () { $(this).children(track.autoHeight ? '.fixed' : '.auto').show(); },
-          mouseout  : function () { $(this).children().hide(); },
-          click     : function () {
-            var height;
-            
-            if (track.autoHeight = !track.autoHeight) {
-              track.heightBeforeToggle = track.height;
-              height = track.fullVisibleHeight;
-            } else {
-              height = track.heightBeforeToggle || track.initialHeight;
-            }
-            
-            $(this).toggleClass('auto_height').children(':visible').hide().siblings().show();
-            
-            track.resize(height, true);
+    if (!this.fixedHeight && this.resizable !== false) {
+      this.heightToggler = $('<div class="height_toggler"><div class="auto">Set track to auto-adjust height</div><div class="fixed">Set track to fixed height</div></div>').on({
+        mouseover : function () { $(this).children(track.autoHeight ? '.fixed' : '.auto').show(); },
+        mouseout  : function () { $(this).children().hide(); },
+        click     : function () {
+          var height;
+          
+          if (track.autoHeight = !track.autoHeight) {
+            track.heightBeforeToggle = track.height;
+            height = track.fullVisibleHeight;
+          } else {
+            height = track.heightBeforeToggle || track.initialHeight;
           }
-        }).addClass(this.autoHeight ? 'auto_height' : '').appendTo(this.label);
-      }
+          
+          $(this).toggleClass('auto_height').children(':visible').hide().siblings().show();
+          
+          track.resize(height, true);
+        }
+      }).addClass(this.autoHeight ? 'auto_height' : '').appendTo(this.label);
     }
     
     this.addUserEventHandlers();
@@ -341,7 +344,7 @@ CBrowse.Track = Base.extend({
   },
   
   positionFeatures: function (features, startOffset, imageWidth) {
-    var feature, start, end, x, y, width, bounds, bump, depth, j, k, labelStart, labelWidth, maxIndex;
+    var feature, start, end, x, y, width, originalWidth, bounds, bump, depth, j, k, labelStart, labelWidth, maxIndex;
     var showLabels   = this.forceLabels === true || !(this.maxLabelRegion && this.cBrowse.length > this.maxLabelRegion);
     var height       = 0;
     var labelsHeight = 0;
@@ -366,7 +369,7 @@ CBrowse.Track = Base.extend({
       labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
       
       if (bounds) {
-        width      = bounds[0].w   - 1;
+        width      = bounds[0].w   - this.featureSpacing;
         maxIndex   = bounds.length - 1;
       } else {
         width = end - start;
@@ -420,7 +423,7 @@ CBrowse.Track = Base.extend({
           } else { // labels and features drawn on the same image
             do {
               if (this.depth && ++depth >= this.depth) {
-                if ($.grep(this.featurePositions.search(bounds[0]).concat(bounds[1] ? this.labelPositions.search(bounds[1]) : []), function (f) { return f.visible[scaleKey] !== false; }).length) {
+                if ($.grep(this.featurePositions.search(bounds[0]), function (f) { return f.visible[scaleKey] !== false; }).length) {
                   feature.visible[scaleKey] = false;
                 }
                 
@@ -430,8 +433,8 @@ CBrowse.Track = Base.extend({
               bump = false;
               j    = bounds.length;
               
-              while (j--) {
-                if ((this[j ? 'labelPositions' : 'featurePositions'].search(bounds[j])[0] || feature).id !== feature.id) {
+              while (j--) {              
+                if ((this.featurePositions.search(bounds[j])[0] || feature).id !== feature.id) {
                   k = bounds.length;
                   
                   while (k--) {
@@ -485,8 +488,10 @@ CBrowse.Track = Base.extend({
         draw.fill[feature.labelColor] = [];
       }
       
+      originalWidth = width;
+      
       // truncate features in very small regions (where scale > 1) - make the features start at 1px outside the canvas to ensure no lines are drawn at the borders incorrectly
-      if (scale > 1 && start < end) {
+      if (scale > 1 && start < end && (start < 0 || end > imageWidth)) {
         start = Math.max(start, -1);
         end   = Math.min(end, imageWidth + 1);
         width = end - start;
@@ -501,7 +506,7 @@ CBrowse.Track = Base.extend({
       }
       
       if (this.labelOverlay && labelWidth < width - 1) { // Don't show overlaid labels on features which aren't wider than the label
-        draw.label[feature.labelColor].push([ 'fillText', [ feature.label, labelStart + (width - labelWidth) / 2, bounds[0].y + bounds[0].h / 2 ] ]);
+        draw.label[feature.labelColor].push([ 'fillText', [ feature.label, labelStart + (originalWidth - labelWidth) / 2, bounds[0].y + bounds[0].h / 2 ] ]);
       } else if (bounds[1]) {
         draw[this.separateLabels ? 'label' : 'fill'][feature.labelColor].push([ 'fillText', [ feature.label, labelStart, bounds[1].y ] ]);
       }
