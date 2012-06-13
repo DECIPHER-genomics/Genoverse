@@ -419,7 +419,8 @@ var CBrowse = Base.extend({
   },
   
   addTracks: function (tracks) {
-    this.setTracks(tracks.sort(function (a, b) { return a.order - b.order; }), this.tracks.length);
+    this.setTracks(tracks, this.tracks.length);
+    this.sortTracks();
     this.makeTrackImages(tracks);
   },
   
