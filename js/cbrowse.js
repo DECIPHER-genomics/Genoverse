@@ -236,16 +236,18 @@ var CBrowse = Base.extend({
   },
   
   checkTrackSize: function () {
+    if (this.dragging) {
+      return;
+    }
+    
     for (var i = 0; i < this.tracks.length; i++) {
       if (!this.tracks[i].fixedHeight) {
-        if (!this.dragging) {
-          this.tracks[i].checkSize();
-          
-          if (this.tracks[i].autoHeight || this.tracks[i].separateLabels) {
-            this.tracks[i].resize(this.tracks[i][this.tracks[i].autoHeight ? 'fullVisibleHeight' : 'height'], this.tracks[i].labelTop);
-          } else {
-            this.tracks[i].toggleExpander();
-          }
+        this.tracks[i].checkSize();
+        
+        if (this.tracks[i].autoHeight || this.tracks[i].separateLabels) {
+          this.tracks[i].resize(this.tracks[i][this.tracks[i].autoHeight ? 'fullVisibleHeight' : 'height'], this.tracks[i].labelTop);
+        } else {
+          this.tracks[i].toggleExpander();
         }
       }
     }
