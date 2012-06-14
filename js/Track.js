@@ -53,6 +53,8 @@ CBrowse.Track = Base.extend({
       this.autoHeight  = true;
       this.fixedHeight = false;
       this.resizable   = false;
+    } else if (this.threshold) {
+      this.cBrowse.setTracks([{ type: 'Threshold', track: this }], this.cBrowse.tracks.length);
     }
     
     this.init();

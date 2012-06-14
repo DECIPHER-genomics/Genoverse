@@ -199,7 +199,9 @@ var CBrowse = Base.extend({
   },
   
   move: function (e, delta, speed) {
+    var wrapperOffset = this.wrapper.offset().left;
     var start, end;
+    
     this.left = e ? e.pageX - this.dragOffset : this.left + delta;
     
     if (this.left < this.minLeft) {
@@ -226,6 +228,7 @@ var CBrowse = Base.extend({
     }
     
     $('.expander', this.wrapper).css('left', -this.left);
+    $('.image_container img.static', this.container).css('marginLeft', function () { return wrapperOffset - $(this.parentNode).offset().left; });
     
     this.setRange(start, end, false);
     
@@ -391,7 +394,6 @@ var CBrowse = Base.extend({
     
     for (var i = 0; i < tracks.length; i++) {
       if (typeof tracks[i].extend === 'function') {
-        tracks[i].init();
         continue;
       }
       
