@@ -29,6 +29,11 @@ CBrowse.Track.on('afterInit', function () {
       track.resize(track.fullVisibleHeight, true);
     }
   })).css({ width: this.width, left: -this.cBrowse.left }).show();
+  
+  if (this.height - this.spacing === this.featureHeight) {
+    this.resize(this.height + this.resizer.height());
+    this.initialHeight = this.height;
+  }
 });
 
 CBrowse.Track.on('afterToggleExpander', function () {
