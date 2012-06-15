@@ -8,16 +8,13 @@ CBrowse.Track.Stranded = {
     
     if (this.strand === -1) {
       this.url        = false;
-      this._makeImage = this.makeReverseImage || this.makeImage
+      this._makeImage = this.makeReverseImage || this.makeImage;
       this.makeImage  = $.noop;
-      
-      this.forwardTrack.reverseTrack = this;
     } else {
-      this.strand     = 1;
-      this._makeImage = this.makeImage;
-      this.makeImage  = this.makeForwardImage;
-      
-      this.cBrowse.setTracks([ $.extend({}, this.config, config, { strand: -1, forwardTrack: this }) ], this.cBrowse.tracks.length);
+      this.strand       = 1;
+      this._makeImage   = this.makeImage;
+      this.makeImage    = this.makeForwardImage;
+      this.reverseTrack = this.cBrowse.setTracks([ $.extend({}, this.config, config, { strand: -1, forwardTrack: this }) ], this.cBrowse.tracks.length)[0];
     }
     
     if (!this.featureStrand) {

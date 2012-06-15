@@ -1,9 +1,3 @@
-CBrowse.Track.on('afterDraw', function (image) {
-  if (this.cBrowse.thresholds && this.cBrowse.thresholds[this.id]) {
-    this.cBrowse.thresholds[this.id].trackImg = image.container;
-  }
-});
-
 CBrowse.Track.Threshold = CBrowse.Track.extend({
   config: {
     color   : '#FF0000',
@@ -14,20 +8,13 @@ CBrowse.Track.Threshold = CBrowse.Track.extend({
   constructor: function (config) {
     this.base(config);
     
-    if (!this.cBrowse.thresholds) {
-      this.cBrowse.thresholds = {};
-    }
-    
-    this.cBrowse.thresholds[this.track.id] = this;
-    
     this.container.hide();
     this.label.hide();
-    this.resize();
+    
+    this.height = this.featuresHeight = this.fontHeight;
   },
   
-  resize: function () {
-    this.height = this.featuresHeight = this.track.height;
-  },
+  resize: $.noop,
   
   positionFeatures: function () {
     if (this.cBrowse.length <= this.track.threshold) {
@@ -38,13 +25,14 @@ CBrowse.Track.Threshold = CBrowse.Track.extend({
     var width = this.context.measureText(text).width;
     var fill  = {};
     
-    fill[this.color] = [[ 'fillText', [ text, (this.width - width) / 2, (this.height - this.fontHeight) / 2 ] ]];
+    fill[this.color] = [[ 'fillText', [ text, (this.width - width) / 2, 0 ] ]];
     
     return { fill: fill };
   },
   
-  draw: function (image, features) {
-    this.base(image, features);
-    image.container.children().addClass('static').appendTo(this.trackImg).css('marginLeft', this.width).show();
+  draw: function (trackImgContainer) {
+    this.image.makeImage();
+    this.base(this.image);
+    this.image.container.children().addClass('static').appendTo(trackImgContainer).css({ marginTop: -this.height / 2, marginLeft: this.width - this.cBrowse.left });
   }
 });

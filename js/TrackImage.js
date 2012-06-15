@@ -135,6 +135,7 @@ CBrowse.TrackImage = Base.extend({
       $(this).load(dfd.resolve);
       return dfd;
     })).done(deferred.resolve);
+    
     return deferred;
   }
 });

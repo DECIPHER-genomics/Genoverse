@@ -53,6 +53,11 @@
   width: 100%;
 }
 
+.canvas_container .image_container img.static {
+  display: block;
+  top: 50%;
+}
+
 .canvas_container .height_toggler {
   position: absolute;
   right: 0;

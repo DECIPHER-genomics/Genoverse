@@ -54,7 +54,7 @@ CBrowse.Track = Base.extend({
       this.fixedHeight = false;
       this.resizable   = false;
     } else if (this.threshold) {
-      this.cBrowse.setTracks([{ type: 'Threshold', track: this }], this.cBrowse.tracks.length);
+      this.thresholdMessage = this.cBrowse.setTracks([{ type: 'Threshold', track: this }], this.cBrowse.tracks.length)[0];
     }
     
     this.init();
@@ -209,6 +209,13 @@ CBrowse.Track = Base.extend({
   },
   
   remove: function () {
+    var thresholdMessage = this.thresholdMessage;
+    
+    if (thresholdMessage) {
+      delete this.thresholdMessage;
+      return this.cBrowse.removeTracks([ this, thresholdMessage ]);
+    }
+    
     this.container.add(this.label).add(this.menus).remove();
     this.cBrowse.tracks.splice(this.index, 1);
   },
@@ -578,6 +585,10 @@ CBrowse.Track = Base.extend({
     var deferred = image.makeImage();
     
     this.getData(image, deferred);
+    
+    if (this.thresholdMessage) {
+      this.thresholdMessage.draw(div);
+    }
     
     return deferred;
   },

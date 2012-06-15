@@ -419,6 +419,8 @@ var CBrowse = Base.extend({
     if (!push) {
       this.sortTracks(); // initial sort
     }
+    
+    return tracks;
   },
   
   addTracks: function (tracks) {
