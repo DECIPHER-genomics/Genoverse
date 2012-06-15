@@ -382,7 +382,7 @@ CBrowse.Track = Base.extend({
         }
         
         x      = feature.scaledStart;
-        y      = feature.y || 0;
+        y      = feature.y ? feature.y * (this.featureHeight + this.bumpSpacing) : 0;
         bounds = [{ x: x, y: y, w: width + this.featureSpacing, h: this.featureHeight + this.bumpSpacing }];
         
         if (feature.label && showLabels && !this.labelOverlay && this.forceLabels !== 'off' && !(scale > 1 && start < -this.cBrowse.labelBuffer)) {
@@ -506,7 +506,7 @@ CBrowse.Track = Base.extend({
         }
       }
       
-      if (this.labelOverlay && labelWidth < width - 1) { // Don't show overlaid labels on features which aren't wider than the label
+      if (this.labelOverlay && labelWidth < originalWidth - 1) { // Don't show overlaid labels on features which aren't wider than the label
         draw.label[feature.labelColor].push([ 'fillText', [ feature.label, labelStart + (originalWidth - labelWidth) / 2, bounds[0].y + bounds[0].h / 2 ] ]);
       } else if (bounds[1]) {
         draw[this.separateLabels ? 'label' : 'fill'][feature.labelColor].push([ 'fillText', [ feature.label, labelStart, bounds[1].y ] ]);
