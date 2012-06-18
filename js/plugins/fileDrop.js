@@ -24,10 +24,11 @@ CBrowse.on('afterInit', function () {
         // Make sure file is deleted, data is kept in the worker now
         delete __track['file'];
         __track.draw(__images[e.data.taskId], e.data.features);
-        __images[e.data.taskId] = NaN;
+        __images[e.data.taskId] = null;
       });
 
-
+      console.log(files[i]);
+      
       cBrowse.addTracks([{
         type    : 'MicroArray',
         name    : files[i].name,
@@ -44,7 +45,7 @@ CBrowse.on('afterInit', function () {
           if (this.file) {
             this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
             this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);            
-            __worker.postMessage({ bounds: bounds, file: this.file, height: this.height, taskId: taskId });
+            __worker.postMessage({ bounds: bounds, file: this.file, height: this.height, taskId: taskId, trackType: this.type });
           } else {
             __worker.postMessage({ bounds: bounds, taskId: taskId });
           }
