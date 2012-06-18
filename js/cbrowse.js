@@ -530,7 +530,7 @@ var CBrowse = Base.extend({
     var dataRegion = $.extend({}, this.dataRegion);
     var offsets    = $.extend({}, this.offsets);
     var allTracks  = tracks.length === this.tracks.length;
-    var overlay    = allTracks ? $('<div class="overlay">').prependTo(this.wrapper).css('left', left ? width > Math.abs(left) ? left : (width - (Math.abs(left) % width)) * (left > 0 ? 1 : -1) : 0).width(width) : false;
+    var overlay    = this.makeOverlays(width, allTracks ? false : tracks);
     
     function removeOverlay() {
       if (overlay) {
@@ -563,6 +563,16 @@ var CBrowse = Base.extend({
       
       cBrowse.checkTrackSize();
     }).fail(removeOverlay);
+  },
+  
+  makeOverlays: function (width, tracks) {
+    var overlay = $('<div class="overlay">').css({ left: this.left ? (width - (Math.abs(this.left) % width)) * (width > Math.abs(this.left) || this.left > 0 ? -1 : 1) : 0, width: width });
+    
+    if (tracks) {
+      overlay = $($.map(tracks, function (track) { return overlay.clone().addClass('track').css({ top: track.container.position().top, height: track.height })[0]; }));
+    }
+    
+    return overlay.prependTo(this.wrapper);
   },
   
   updateURL: function (redraw) {
