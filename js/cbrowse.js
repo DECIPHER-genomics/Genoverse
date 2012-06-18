@@ -99,7 +99,9 @@ var CBrowse = Base.extend({
       };
     }
     
-    var coords = this.getCoords();
+    var coords = (this.start && this.end && this.chr) 
+                   ? { start: this.start, end: this.end, chr: this.chr } 
+                   : this.getCoords();
     
     this.chr = coords.chr;
     

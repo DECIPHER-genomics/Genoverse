@@ -14,11 +14,14 @@
 
     <script type="text/javascript" src="js/cbrowse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script> 
+    <script type="text/javascript" src="js/Static.js"></script>
     <script type="text/javascript" src="js/Stranded.js"></script> 
 
+    <script type="text/javascript" src="js/Scaleline.js"></script>
     <script type="text/javascript" src="js/Scalebar.js"></script>
     <script type="text/javascript" src="js/TrackImage.js"></script>
     <script type="text/javascript" src="js/MicroArray.js"></script>
+    <script type="text/javascript" src="js/DAS.js"></script>
 
     <script type="text/javascript" src="js/plugins/overlap.js"></script>
     <script type="text/javascript" src="js/plugins/resizer.js"></script>
@@ -65,55 +68,63 @@
 //        chromosomeSize : 102531392, // chromosome 15
 //        chromosomeSize : 81195210, // chromosome 17
         labelWidth     : 0,
-        tracks         : [{
+        tracks         : [
+        {
+          type  : 'Scaleline'
+        }, 
+        {
           type  : 'Scalebar'
-        }, {
-          name          : 'Genes',
-          //url           : 'http://enssand-03.internal.sanger.ac.uk:7000/Homo_sapiens/Ajax/fetch_features/_transcript?chr=__CHR__&start=__START__&end=__END__&id=transcript_core_ensembl',
-          url           : 'http://decipher.sandbox.sanger.ac.uk/gene;json?region=__CHR__:__START__-__END__',
-          //urlParams   : { region: 'transcript_core_ensembl', start: '__START__' },
-          height        : 200,
-          featureHeight : 6,
-          bump          : true,
-          separateLabels: false,
-          resizable     : true,
-          parseFeatures : function (data, bounds) {
-            var i = data.length;
+        }, 
+        // {
+        //   name          : 'Genes',
+        //   //url           : 'http://enssand-03.internal.sanger.ac.uk:7000/Homo_sapiens/Ajax/fetch_features/_transcript?chr=__CHR__&start=__START__&end=__END__&id=transcript_core_ensembl',
+        //   url           : 'http://decipher.sandbox.sanger.ac.uk/gene;json?region=__CHR__:__START__-__END__',
+        //   //urlParams   : { region: 'transcript_core_ensembl', start: '__START__' },
+        //   height        : 200,
+        //   featureHeight : 6,
+        //   bump          : true,
+        //   separateLabels: false,
+        //   resizable     : true,
+        //   parseFeatures : function (data, bounds) {
+        //     var i = data.length;
 
-            while (i--) {
-              data[i].sort        = i;
-              data[i].bounds      = {};
-              data[i].visible     = {};
-              data[i].bottom      = {};
-              data[i].labelBottom = {};
-              data[i].id          = data[i].name;
-              data[i].label       = data[i].name;
-              data[i].color       = "rgb(" + (data[i].hi_rgb || '0,0,0') + ")";
-              data[i].labelColor  = "rgb(" + (data[i].hi_rgb || '0,0,0') + ")";
-              data[i].start       = parseFloat(data[i].chr_start);
-              data[i].end         = parseFloat(data[i].chr_end);
-              this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
-            }
+        //     while (i--) {
+        //       data[i].sort        = i;
+        //       data[i].bounds      = {};
+        //       data[i].visible     = {};
+        //       data[i].bottom      = {};
+        //       data[i].labelBottom = {};
+        //       data[i].id          = data[i].name;
+        //       data[i].label       = data[i].name;
+        //       data[i].color       = "rgb(" + (data[i].hi_rgb || '0,0,0') + ")";
+        //       data[i].labelColor  = "rgb(" + (data[i].hi_rgb || '0,0,0') + ")";
+        //       data[i].start       = parseFloat(data[i].chr_start);
+        //       data[i].end         = parseFloat(data[i].chr_end);
+        //       this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
+        //     }
 
-            return data;
-          },
-          // debug   : {
-          //   parseFeatures: 1,
-          //   positionFeatures: 1,
-          //   draw: 1
-          // }
-        },
+        //     return data;
+        //   },
+        //   // debug   : {
+        //   //   parseFeatures: 1,
+        //   //   positionFeatures: 1,
+        //   //   draw: 1
+        //   // }
+        // },
         // {
         //   type    : 'MicroArray',
         //   name    : 'MicroArray',
         //   url     : '/data/1.json',
         //   overlap : 1,
-        //   // debug   : {
-        //   //   parseFeatures: 1,
-        //   //   positionFeatures: 1,
-        //   //   draw: 1
-        //   // },
-        // }
+        // },
+        {
+          type    : 'DAS',
+          name    : 'Das',
+          bump          : true,
+          separateLabels: false,
+          resizable     : true          
+        },
+
         ]
       });
 

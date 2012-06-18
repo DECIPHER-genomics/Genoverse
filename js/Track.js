@@ -1,12 +1,13 @@
 CBrowse.Track = Base.extend({
   defaults: {
-    height         : 12,
-    bump           : false,
-    bumpSpacing    : 2,
+    height      : 12,
+    dataType    : 'json',
+    bump        : false,
+    bumpSpacing : 2,
     featureSpacing : 1,
-    urlParams      : {},
-    urlTemplate    : {},
-    inherit        : []
+    urlParams   : {},
+    urlTemplate : {},
+    inherit     : [],
   },
   
   constructor: function (config) {
@@ -607,16 +608,16 @@ CBrowse.Track = Base.extend({
       this.ajax = $.ajax({
         url      : this.url,
         data     : this.getQueryString(image.bufferedStart, image.end),
-        dataType : 'json',
+        dataType : this.dataType,
         context  : this,
         error    : function () { deferred.reject(); },
-        success  : function (json) {
+        success  : function (data) {
           delete this.ajax;
           
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
           
-          this.draw(image, this.parseFeatures(json, bounds));
+          this.draw(image, this.parseFeatures(data, bounds));
         }
       });
     }
