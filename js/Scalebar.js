@@ -128,18 +128,18 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
   
   makeReverseImage: function (start, end, width, moved, cls, img) {
     var dir      = moved < 0 ? 'right' : 'left';
-    var div      = this.imgContainer.clone().width(width).addClass(cls).css(dir, this.offsets[dir]).data('img', img);
+    var div      = this.imgContainer.clone().width(width).addClass(cls).css('left', img.container.position().left).data('img', img);
     var deferred = $.Deferred();
     
     this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
     this.container.append(this.imgContainers);
     
-    this.offsets[dir] += width;
-    
     img.track     = this;
     img.container = div;
     
     img.images.clone().appendTo(div).load(function (e) { deferred.resolve({ target: e.target, img: img }); }).data('deferred', deferred);
+    
+    div = null;
     
     return deferred;
   },

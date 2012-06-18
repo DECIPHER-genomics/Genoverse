@@ -244,7 +244,6 @@ CBrowse.Track = Base.extend({
       featurePositions = featurePositions || new RTree();
       
       this.scaleSettings[this.scale] = {
-        offsets          : { right: this.width, left: -this.width },
         imgContainers    : [],
         heights          : { max: this.height, maxFeatures: 0 },
         featurePositions : featurePositions,
@@ -254,7 +253,7 @@ CBrowse.Track = Base.extend({
     
     var scaleSettings = this.scaleSettings[this.scale];
     
-    $.each([ 'offsets', 'featurePositions', 'labelPositions', 'imgContainers', 'heights' ], function () {
+    $.each([ 'featurePositions', 'labelPositions', 'imgContainers', 'heights' ], function () {
       track[this] = scaleSettings[this];
     });
     
@@ -294,10 +293,6 @@ CBrowse.Track = Base.extend({
         var start = cBrowse.edges.start;
         var end   = cBrowse.edges.end;
         var width = Math.round((end - start + 1) * this.scale);
-        
-        if (cBrowse.left) {
-          this.offsets = cBrowse.left < 0 ? { right: cBrowse.offsets.right, left: -cBrowse.offsets.right } : { right: -cBrowse.offsets.left, left: cBrowse.offsets.left };
-        }
         
         $.when(this.makeImage(start, end, width, -cBrowse.left, cBrowse.scrollStart)).done(function (a) {
           $(a.target).show()
@@ -565,6 +560,7 @@ CBrowse.Track = Base.extend({
   makeImage: function (start, end, width, moved, cls) {
     var dir   = moved < 0 ? 'right' : 'left';
     var div   = this.imgContainer.clone().width(width).addClass(cls);
+    var prev  = $(this.imgContainers).filter('.' + this.cBrowse.scrollStart + ':' + (moved < 0 ? 'first' : 'last'));
     var image = new CBrowse.TrackImage({
       track       : this,
       container   : div,
@@ -575,12 +571,10 @@ CBrowse.Track = Base.extend({
       background  : this.cBrowse.colors.background
     });
     
+    div.css('left', prev.length ? prev.position().left + (moved < 0 ? -this.width : prev.width()) : -this.cBrowse.offsets.right);
+    
     this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
     this.container.append(this.imgContainers);
-    
-    div.css(dir, this.offsets[dir]);
-    
-    this.offsets[dir] += width;
     
     var deferred = image.makeImage();
     
@@ -589,6 +583,8 @@ CBrowse.Track = Base.extend({
     if (this.thresholdMessage) {
       this.thresholdMessage.draw(div);
     }
+    
+    div = prev = null;
     
     return deferred;
   },

@@ -348,7 +348,7 @@ var CBrowse = Base.extend({
     this.scaledStart = this.start * this.scale;
     
     if (this.prev.scale !== this.scale) {
-      this.edges       = { start: 9e99, end: -9e99 };
+      this.dataRegion  = { start: 9e99, end: -9e99 };
       this.offsets     = { right: this.width, left: -this.width };
       this.left        = 0;
       this.prev.left   = 0;
@@ -405,10 +405,6 @@ var CBrowse = Base.extend({
       
       if (push) {
         this.tracks.push(tracks[i]);
-      }
-      
-      if (this.left) {
-        tracks[i].offsets = this.left < 0 ? { right: this.offsets.right, left: -this.offsets.right } : { right: -this.offsets.left, left: this.offsets.left };
       }
       
       if (tracks[i].strand === -1 && tracks[i].orderReverse) {
@@ -504,8 +500,8 @@ var CBrowse = Base.extend({
     var start, end;
     
     if (left) {
-      start = left > 0 ? this.edges.end   : this.edges.start - (this.buffer * this.length);
-      end   = left < 0 ? this.edges.start : this.edges.end   + (this.buffer * this.length);
+      start = left > 0 ? this.dataRegion.end   : this.dataRegion.start - (this.buffer * this.length);
+      end   = left < 0 ? this.dataRegion.start : this.dataRegion.end   + (this.buffer * this.length);
     } else {
       start = this.start - this.length;
       end   = this.end   + this.length + 1;
@@ -513,9 +509,9 @@ var CBrowse = Base.extend({
     
     var width = Math.round((end - start) * this.scale);
     
-    this.edges.start  = Math.min(start, this.edges.start);
-    this.edges.end    = Math.max(end,   this.edges.end);
-    this.offsets[dir] = $.grep(this.tracks, function (track) { return !track['static']; })[0].offsets[dir] + width;
+    this.dataRegion.start = Math.min(start, this.dataRegion.start);
+    this.dataRegion.end   = Math.max(end,   this.dataRegion.end);
+    this.offsets[dir]    += width;
     
     if (this.updateFromHistory()) {
       return;
@@ -525,16 +521,16 @@ var CBrowse = Base.extend({
   },
   
   makeTrackImages: function (tracks, start, end, width) {
-    start = start || this.edges.start;
-    end   = end   || this.edges.end;
+    start = start || this.dataRegion.start;
+    end   = end   || this.dataRegion.end;
     width = width || Math.round((end - start + 1) * this.scale);
     
-    var cBrowse   = this;
-    var left      = -this.left;
-    var edges     = $.extend({}, this.edges);
-    var offsets   = $.extend({}, this.offsets);
-    var allTracks = tracks.length === this.tracks.length;
-    var overlay   = allTracks ? $('<div class="overlay">').prependTo(this.wrapper).css('left', left ? width > Math.abs(left) ? left : (width - (Math.abs(left) % width)) * (left > 0 ? 1 : -1) : 0).width(width) : false;
+    var cBrowse    = this;
+    var left       = -this.left;
+    var dataRegion = $.extend({}, this.dataRegion);
+    var offsets    = $.extend({}, this.offsets);
+    var allTracks  = tracks.length === this.tracks.length;
+    var overlay    = allTracks ? $('<div class="overlay">').prependTo(this.wrapper).css('left', left ? width > Math.abs(left) ? left : (width - (Math.abs(left) % width)) * (left > 0 ? 1 : -1) : 0).width(width) : false;
     
     function removeOverlay() {
       if (overlay) {
@@ -560,7 +556,7 @@ var CBrowse = Base.extend({
       
       if (allTracks) {
         cBrowse.prev.history = cBrowse.start + '-' + cBrowse.end;
-        cBrowse.setHistory(false, edges, offsets);
+        cBrowse.setHistory(false, dataRegion, offsets);
       } else {
         cBrowse.updateTracks(redraw);
       }
@@ -577,7 +573,7 @@ var CBrowse = Base.extend({
     }
   },
   
-  setHistory: function (updateURL, edges, offsets) {
+  setHistory: function (updateURL, dataRegion, offsets) {
     if (updateURL !== false) {
       if (this.prev.location === this.start + '-' + this.end) {
         return;
@@ -593,12 +589,25 @@ var CBrowse = Base.extend({
     }
     
     if (this.prev.history) {
-      this.history[this.start + '-' + this.end] = {
-        left    : this.left,
-        images  : this.scrollStart,
-        edges   : edges   || this.history[this.prev.history].edges,
-        offsets : offsets || this.history[this.prev.history].offsets
+      var history = {
+        dataRegion : dataRegion || this.history[this.prev.history].dataRegion,
+        offsets    : offsets    || this.history[this.prev.history].offsets
       };
+      
+      if (!this.history[this.start + '-' + this.end] || (dataRegion && offsets)) {
+        this.history[this.start + '-' + this.end] = $.extend({
+          left        : this.left,
+          scrollStart : this.scrollStart,
+        }, history);
+      }
+      
+      if (dataRegion && offsets) {
+        for (var i in this.history) {
+          if (this.history[i].scrollStart === this.scrollStart) {
+            $.extend(this.history[i], history);
+          }
+        }
+      }
     }
   },
   
@@ -622,16 +631,14 @@ var CBrowse = Base.extend({
     var history = this.history[this.start + '-' + this.end];
     
     if (history) {
-      var images = $('.track_container .' + history.images, this.container);
+      var images = $('.track_container .' + history.scrollStart, this.container);
       
       if (images.length) {
+        var newTracks = $.grep(this.tracks, function (track) { return !$(track.imgContainers).filter('.' + history.scrollStart).length; });
+        
         $('.track_container', this.container).css('left', history.left).children('.image_container').hide();
         
-        this.left    = history.left;
-        this.edges   = history.edges;
-        this.offsets = history.offsets;
-        
-        var newTracks = $.grep(this.tracks, function (track) { return !$(track.imgContainers).filter('.' + history.images).length; });
+        $.extend(this, history);
         
         if (newTracks.length) {
           this.makeTrackImages(newTracks);
