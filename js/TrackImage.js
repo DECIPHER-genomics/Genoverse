@@ -1,7 +1,7 @@
 CBrowse.TrackImage = Base.extend({
   constructor: function (config) {
     $.extend(this, config);
-    this.bufferedStart = Math.max(this.start - (this.track.cBrowse.labelBuffer), 1);
+    this.bufferedStart = Math.max(this.start - (this.track.labelOverlay ? 0 : this.track.cBrowse.labelBuffer), 1);
     this.container.data('img', this);
   },
   
@@ -135,6 +135,7 @@ CBrowse.TrackImage = Base.extend({
       $(this).load(dfd.resolve);
       return dfd;
     })).done(deferred.resolve);
+    
     return deferred;
   }
 });
