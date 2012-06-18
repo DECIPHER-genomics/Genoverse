@@ -99,12 +99,6 @@ var CBrowse = Base.extend({
       };
     }
     
-    var coords = (this.start && this.end && this.chr) 
-                   ? { start: this.start, end: this.end, chr: this.chr } 
-                   : this.getCoords();
-    
-    this.chr = coords.chr;
-    
     this.zoomInHighlight = $('     \
       <div class="canvas_zoom i">  \
         <div class="t l h"></div>  \
@@ -119,6 +113,10 @@ var CBrowse = Base.extend({
     ').appendTo('body');
     
     this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('i o').appendTo('body');
+    
+    var coords = this.chr && this.start && this.end ? { chr: this.chr, start: this.start, end: this.end } : this.getCoords();
+    
+    this.chr = coords.chr;
     
     this.setRange(coords.start, coords.end, false);
     this.setHistory(false);

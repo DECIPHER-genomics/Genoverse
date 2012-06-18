@@ -1,13 +1,13 @@
 CBrowse.Track = Base.extend({
   defaults: {
-    height      : 12,
-    dataType    : 'json',
-    bump        : false,
-    bumpSpacing : 2,
+    height         : 12,
+    dataType       : 'json',
+    bump           : false,
+    bumpSpacing    : 2,
     featureSpacing : 1,
-    urlParams   : {},
-    urlTemplate : {},
-    inherit     : [],
+    urlParams      : {},
+    urlTemplate    : {},
+    inherit        : []
   },
   
   constructor: function (config) {
