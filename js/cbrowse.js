@@ -190,7 +190,7 @@ var CBrowse = Base.extend({
     });
     
     if (this.left !== this.prev.left && update !== false) {
-      this.updateURL();
+      this.setHistory();
     }
     
     if (update !== false) {
@@ -200,7 +200,7 @@ var CBrowse = Base.extend({
   
   move: function (e, delta, speed) {
     var wrapperOffset = this.wrapper.offset().left;
-    var start, end;
+    var start, end, step;
     
     this.left = e ? e.pageX - this.dragOffset : this.left + delta;
     
@@ -233,8 +233,11 @@ var CBrowse = Base.extend({
     this.setRange(start, end, false);
     
     if (this.redraw() && e) {
+      step = this.left - this.prev.left > 0 ? 1 : -1;
+    
       this.mouseup(e, false);
       this.mousedown(e);
+      this.move(false, step); // Force the scroll on 1px in order to ensure the URL updates correctly (otherwise it might not if scrolling a very small amount on the boundary)
     }
   },
   
@@ -338,7 +341,7 @@ var CBrowse = Base.extend({
     this.setScale();
     
     if (update !== false && (this.prev.start !== this.start || this.prev.end !== this.end)) {
-      this.updateURL();
+      this.setHistory();
     }
   },
   
@@ -575,11 +578,11 @@ var CBrowse = Base.extend({
     return overlay.prependTo(this.wrapper);
   },
   
-  updateURL: function (redraw) {
-    this.setHistory();
-    
-    if (redraw !== false) {
-      this.redraw();
+  updateURL: function () {
+    if (this.useHash) {
+      window.location.hash = this.getQueryString();
+    } else {
+      window.history.pushState({}, '', this.getQueryString());
     }
   },
   
@@ -591,11 +594,7 @@ var CBrowse = Base.extend({
       
       this.prev.location = this.start + '-' + this.end;
       
-      if (this.useHash) {
-        window.location.hash = this.getQueryString();
-      } else {
-        window.history.pushState({}, '', this.getQueryString());
-      }
+      this.updateURL();
     }
     
     if (this.prev.history) {
@@ -619,6 +618,10 @@ var CBrowse = Base.extend({
         }
       }
     }
+    
+    if (updateURL !== false) {
+      this.redraw();
+    }
   },
   
   popState: function () {
@@ -640,7 +643,7 @@ var CBrowse = Base.extend({
   updateFromHistory: function () {
     var history = this.history[this.start + '-' + this.end];
     
-    if (history) {
+    if (history && (this.prev.start !== this.start || this.prev.end !== this.end)) {
       var images = $('.track_container .' + history.scrollStart, this.container);
       
       if (images.length) {
