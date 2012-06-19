@@ -189,13 +189,13 @@ var CBrowse = Base.extend({
       marginLeft : 0
     });
     
-    if (update !== false && this.start !== this.dragStart) {
-      this.updateURL();
-      this.setHistory();
-      this.redraw();
-    }
-    
     if (update !== false) {
+      if (this.start !== this.dragStart) {
+        this.updateURL();
+        this.setHistory();
+        this.redraw();
+      }
+      
       this.checkTrackSize();
     }
   },
@@ -234,9 +234,9 @@ var CBrowse = Base.extend({
     
     this.setRange(start, end, false);
     
-    if (this.redraw() && e) {
+    if (this.redraw()) {
       step = this.left - this.prev.left > 0 ? 1 : -1;
-    
+      
       this.mouseup(e, false);
       this.mousedown(e);
       this.move(false, step); // Force the scroll on 1px in order to ensure the URL updates correctly (otherwise it might not if scrolling a very small amount on the boundary)
@@ -311,7 +311,7 @@ var CBrowse = Base.extend({
   },
   
   redraw: function () {
-    if (!this.left || (this.left > 0 && this.left < this.offsets.right) || (this.left < 0 && Math.abs(this.left) < Math.abs(this.offsets.left + this.wrapperLeft))) {
+    if ((this.left === 0 && this.dragging) || (this.left > 0 && this.left < this.offsets.right) || (this.left < 0 && Math.abs(this.left) < Math.abs(this.offsets.left + this.wrapperLeft))) {
       return false;
     }
     
