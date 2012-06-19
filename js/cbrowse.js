@@ -119,7 +119,7 @@ var CBrowse = Base.extend({
     this.chr = coords.chr;
     
     this.setRange(coords.start, coords.end, false);
-    this.setHistory(false);
+    this.setHistory();
     this.setTracks();
     this.makeImage();
   },
@@ -189,8 +189,10 @@ var CBrowse = Base.extend({
       marginLeft : 0
     });
     
-    if (this.left !== this.prev.left && update !== false) {
+    if (update !== false && this.start !== this.dragStart) {
+      this.updateURL();
       this.setHistory();
+      this.redraw();
     }
     
     if (update !== false) {
@@ -309,7 +311,7 @@ var CBrowse = Base.extend({
   },
   
   redraw: function () {
-    if ((this.left > 0 && this.left < this.offsets.right) || (this.left < 0 && Math.abs(this.left) < Math.abs(this.offsets.left + this.wrapperLeft))) {
+    if (!this.left || (this.left > 0 && this.left < this.offsets.right) || (this.left < 0 && Math.abs(this.left) < Math.abs(this.offsets.left + this.wrapperLeft))) {
       return false;
     }
     
@@ -341,7 +343,9 @@ var CBrowse = Base.extend({
     this.setScale();
     
     if (update !== false && (this.prev.start !== this.start || this.prev.end !== this.end)) {
+      this.updateURL();
       this.setHistory();
+      this.redraw();
     }
   },
   
@@ -559,7 +563,7 @@ var CBrowse = Base.extend({
       
       if (allTracks) {
         cBrowse.prev.history = cBrowse.start + '-' + cBrowse.end;
-        cBrowse.setHistory(false, dataRegion, offsets);
+        cBrowse.setHistory(dataRegion, offsets);
       } else {
         cBrowse.updateTracks(redraw);
       }
@@ -586,17 +590,7 @@ var CBrowse = Base.extend({
     }
   },
   
-  setHistory: function (updateURL, dataRegion, offsets) {
-    if (updateURL !== false) {
-      if (this.prev.location === this.start + '-' + this.end) {
-        return;
-      }
-      
-      this.prev.location = this.start + '-' + this.end;
-      
-      this.updateURL();
-    }
-    
+  setHistory: function (dataRegion, offsets) {
     if (this.prev.history) {
       var history = {
         dataRegion : dataRegion || this.history[this.prev.history].dataRegion,
@@ -617,10 +611,6 @@ var CBrowse = Base.extend({
           }
         }
       }
-    }
-    
-    if (updateURL !== false) {
-      this.redraw();
     }
   },
   
