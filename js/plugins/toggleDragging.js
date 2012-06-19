@@ -1,10 +1,14 @@
 CBrowse.on('afterInit', function () {
-
   this.draggingEnabled = true;
   this.____mousedown   = this.mousedown; 
 
   this.toggleDragging = function (forceFlag) {
-    this.draggingEnabled = forceFlag === undefined ? !this.draggingEnabled : forceFlag;
+    if (this.draggingEnabled === forceFlag) {
+      return this;
+    }
+    
+    this.draggingEnabled = typeof forceFlag === 'undefined' ? !this.draggingEnabled : forceFlag;
+    
     if (this.draggingEnabled) {
       this.mousedown = this.____mousedown;
     } else {
@@ -14,5 +18,4 @@ CBrowse.on('afterInit', function () {
 
     return this;
   }
-
 });
