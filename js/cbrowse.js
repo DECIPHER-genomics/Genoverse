@@ -99,12 +99,6 @@ var CBrowse = Base.extend({
       };
     }
     
-    var coords = (this.start && this.end && this.chr) 
-                   ? { start: this.start, end: this.end, chr: this.chr } 
-                   : this.getCoords();
-    
-    this.chr = coords.chr;
-    
     this.zoomInHighlight = $('     \
       <div class="canvas_zoom i">  \
         <div class="t l h"></div>  \
@@ -120,8 +114,12 @@ var CBrowse = Base.extend({
     
     this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('i o').appendTo('body');
     
+    var coords = this.chr && this.start && this.end ? { chr: this.chr, start: this.start, end: this.end } : this.getCoords();
+    
+    this.chr = coords.chr;
+    
     this.setRange(coords.start, coords.end, false);
-    this.setHistory(false);
+    this.setHistory();
     this.setTracks();
     this.makeImage();
   },
@@ -191,18 +189,20 @@ var CBrowse = Base.extend({
       marginLeft : 0
     });
     
-    if (this.left !== this.prev.left && update !== false) {
-      this.updateURL();
-    }
-    
     if (update !== false) {
+      if (this.start !== this.dragStart) {
+        this.updateURL();
+        this.setHistory();
+        this.redraw();
+      }
+      
       this.checkTrackSize();
     }
   },
   
   move: function (e, delta, speed) {
     var wrapperOffset = this.wrapper.offset().left;
-    var start, end;
+    var start, end, step;
     
     this.left = e ? e.pageX - this.dragOffset : this.left + delta;
     
@@ -234,9 +234,12 @@ var CBrowse = Base.extend({
     
     this.setRange(start, end, false);
     
-    if (this.redraw() && e) {
+    if (this.redraw()) {
+      step = this.left - this.prev.left > 0 ? 1 : -1;
+      
       this.mouseup(e, false);
       this.mousedown(e);
+      this.move(false, step); // Force the scroll on 1px in order to ensure the URL updates correctly (otherwise it might not if scrolling a very small amount on the boundary)
     }
   },
   
@@ -308,7 +311,7 @@ var CBrowse = Base.extend({
   },
   
   redraw: function () {
-    if ((this.left > 0 && this.left < this.offsets.right) || (this.left < 0 && Math.abs(this.left) < Math.abs(this.offsets.left + this.wrapperLeft))) {
+    if ((this.left === 0 && this.dragging) || (this.left > 0 && this.left < this.offsets.right) || (this.left < 0 && Math.abs(this.left) < Math.abs(this.offsets.left + this.wrapperLeft))) {
       return false;
     }
     
@@ -341,6 +344,8 @@ var CBrowse = Base.extend({
     
     if (update !== false && (this.prev.start !== this.start || this.prev.end !== this.end)) {
       this.updateURL();
+      this.setHistory();
+      this.redraw();
     }
   },
   
@@ -532,7 +537,7 @@ var CBrowse = Base.extend({
     var dataRegion = $.extend({}, this.dataRegion);
     var offsets    = $.extend({}, this.offsets);
     var allTracks  = tracks.length === this.tracks.length;
-    var overlay    = allTracks ? $('<div class="overlay">').prependTo(this.wrapper).css('left', left ? width > Math.abs(left) ? left : (width - (Math.abs(left) % width)) * (left > 0 ? 1 : -1) : 0).width(width) : false;
+    var overlay    = this.makeOverlays(width, allTracks ? false : tracks);
     
     function removeOverlay() {
       if (overlay) {
@@ -558,7 +563,7 @@ var CBrowse = Base.extend({
       
       if (allTracks) {
         cBrowse.prev.history = cBrowse.start + '-' + cBrowse.end;
-        cBrowse.setHistory(false, dataRegion, offsets);
+        cBrowse.setHistory(dataRegion, offsets);
       } else {
         cBrowse.updateTracks(redraw);
       }
@@ -567,29 +572,25 @@ var CBrowse = Base.extend({
     }).fail(removeOverlay);
   },
   
-  updateURL: function (redraw) {
-    this.setHistory();
+  makeOverlays: function (width, tracks) {
+    var overlay = $('<div class="overlay">').css({ left: this.left ? (width - (Math.abs(this.left) % width)) * (width > Math.abs(this.left) || this.left > 0 ? -1 : 1) : 0, width: width });
     
-    if (redraw !== false) {
-      this.redraw();
+    if (tracks) {
+      overlay = $($.map(tracks, function (track) { return overlay.clone().addClass('track').css({ top: track.container.position().top, height: track.height })[0]; }));
+    }
+    
+    return overlay.prependTo(this.wrapper);
+  },
+  
+  updateURL: function () {
+    if (this.useHash) {
+      window.location.hash = this.getQueryString();
+    } else {
+      window.history.pushState({}, '', this.getQueryString());
     }
   },
   
-  setHistory: function (updateURL, dataRegion, offsets) {
-    if (updateURL !== false) {
-      if (this.prev.location === this.start + '-' + this.end) {
-        return;
-      }
-      
-      this.prev.location = this.start + '-' + this.end;
-      
-      if (this.useHash) {
-        window.location.hash = this.getQueryString();
-      } else {
-        window.history.pushState({}, '', this.getQueryString());
-      }
-    }
-    
+  setHistory: function (dataRegion, offsets) {
     if (this.prev.history) {
       var history = {
         dataRegion : dataRegion || this.history[this.prev.history].dataRegion,
@@ -632,7 +633,7 @@ var CBrowse = Base.extend({
   updateFromHistory: function () {
     var history = this.history[this.start + '-' + this.end];
     
-    if (history) {
+    if (history && (this.prev.start !== this.start || this.prev.end !== this.end)) {
       var images = $('.track_container .' + history.scrollStart, this.container);
       
       if (images.length) {

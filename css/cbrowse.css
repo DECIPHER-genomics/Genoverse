@@ -18,11 +18,14 @@
 
 .canvas_container .wrapper .overlay {
   position: absolute;
-  background: #ccc;
   height: 100%;
   z-index: 10;
-  background: url(/i/loadingBG.png) repeat;
-  opacity: 0.5;
+  background: url(/i/loadingBG.png) repeat #ccc;
+}
+
+.canvas_container .wrapper .overlay.track {
+  background-position: center;
+  background-repeat: repeat-x;
 }
 
 .canvas_container canvas {

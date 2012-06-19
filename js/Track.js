@@ -1,13 +1,13 @@
 CBrowse.Track = Base.extend({
   defaults: {
-    height      : 12,
-    dataType    : 'json',
-    bump        : false,
-    bumpSpacing : 2,
+    height         : 12,
+    dataType       : 'json',
+    bump           : false,
+    bumpSpacing    : 2,
     featureSpacing : 1,
-    urlParams   : {},
-    urlTemplate : {},
-    inherit     : [],
+    urlParams      : {},
+    urlTemplate    : {},
+    inherit        : []
   },
   
   constructor: function (config) {
@@ -291,15 +291,19 @@ CBrowse.Track = Base.extend({
         this.reset();
         this.setScale();
         
-        var start = cBrowse.dataRegion.start;
-        var end   = cBrowse.dataRegion.end;
-        var width = Math.round((end - start + 1) * this.scale);
+        var start   = cBrowse.dataRegion.start;
+        var end     = cBrowse.dataRegion.end;
+        var width   = Math.round((end - start + 1) * this.scale);
+        var overlay = cBrowse.makeOverlays(width, [ this ]);
         
         $.when(this.makeImage(start, end, width, -cBrowse.left, cBrowse.scrollStart)).done(function (a) {
           $(a.target).show()
           a.img.drawBackground();
           
           cBrowse.checkTrackSize();
+          
+          overlay.remove();
+          overlay = null;
         });
       }
     }
