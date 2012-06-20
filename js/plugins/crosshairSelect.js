@@ -1,28 +1,26 @@
 // Default css
 // Reason it's here is so that developer only has to include this js file for entire plugin functionality
 // Any additional custom css will overwrite it
-document.styleSheets[0].insertRule(".crosshair { position: absolute; display: block; width: 0; border-left: 1px dashed red; top:0; left:-2px; z-index: 20; }", 0);
 document.styleSheets[0].insertRule("           \
   .crosshairSelect {                           \
     position: absolute;                        \
-    width: 0;                                  \
-    border-left: 1px dashed red;               \
-    background-color: rgba(229,121,5,0.1);     \
-    top:1px; left:-2px;                        \
-    z-index: 50;                               \
+    display: none;                             \
+    border: 1px dashed red;                    \
+    border-width: 0 0 0 1px;                   \
+    background-color: rgba(229, 121, 5, 0.1);  \
+    top: 0;                                    \
+    margin-left: -1px;                         \
+    z-index: 9;                                \
   }", 
   0
 );
 
-
-//
-// This select is very slow!!! 
-// We need to disable all onmousemoves when user selecting stuff!!!
 CBrowse.on('afterInit', function () {
   var cBrowse = this;
 
-  cBrowse.toggleCrosshairSelect = function (forceFlag) {
+  this.toggleCrosshairSelect = function (forceFlag) {
     this.crosshairZoomEnabled = forceFlag === undefined ? !this.crosshairZoomEnabled : forceFlag;
+    
     if (this.crosshairZoomEnabled) {
       this.toggleDragging(false);  // Make sure dragging is off
       this.crosshairSelect.show();
@@ -31,62 +29,78 @@ CBrowse.on('afterInit', function () {
     }
 
     return this;
-  }
-
-  cBrowse.crosshairSelecting = false;
-  var margin = 3;
-
-  cBrowse.crosshairSelect = $('<div class="crosshairSelect">')
-                            .css({ height: cBrowse.getHeight()-3 })
-                            .appendTo(cBrowse.wrapper);
-
-  // It would possibly be better to unreguster event handlers 
+  };
+  
+  this.positionCrosshair = function () { 
+    var top    = $('.track_container:first', this.container).position().top;
+    var last   = $('.track_container:last',  this.container);
+    var height = last.position().top + last.height() - top;
+    
+    return { top: top, height: height };
+  };
+  
+  this.crosshairSelectEvent = function (e) {
+    if (!this.crosshairZoomEnabled || !this.crosshairSelecting) {
+      return;
+    }
+    
+    this.crosshairSelecting = false;
+    this.crosshairSelect.css({ left: e.pageX - this.wrapper.offset().left, width: 1, borderWidth: '0 0 0 1px' });
+  };
+  
+  this.functionWrap('toggleCrosshairSelect');
+  this.functionWrap('positionCrosshair');
+  this.functionWrap('crosshairSelectEvent');
+  
+  this.crosshairSelecting = false;
+  this.crosshairSelect    = $('<div class="crosshairSelect">').css(this.positionCrosshair()).appendTo(this.wrapper);
+  
+  // It would possibly be better to unregister event handlers 
   // instead of checking for crosshairZoomEnabled all the time
-  $('.wrapper').on('mousedown', function (e) {
-    if (!cBrowse.crosshairZoomEnabled) return;
-
-    cBrowse.crosshairSelecting = true;
+  this.wrapper.on('mousedown', function (e) {
+    if (!cBrowse.crosshairZoomEnabled) {
+      return;
+    }
+    
+    cBrowse.crosshairSelecting   = true;
     cBrowse.crosshairSelectStart = e.pageX - $(this).offset().left;
   });
 
   $(document).on('mousemove', function (e) {
-    if (!cBrowse.crosshairZoomEnabled || !cBrowse.crosshairSelecting) return;
+    if (!cBrowse.crosshairZoomEnabled || !cBrowse.crosshairSelecting) {
+      return;
+    }
 
-    var x = e.pageX - $(cBrowse.wrapper).offset().left;
+    var x = e.pageX - cBrowse.wrapper.offset().left;
 
     if (x > cBrowse.crosshairSelectStart) {
       cBrowse.crosshairSelect.css({ 
-        left: cBrowse.crosshairSelectStart-margin, 
-        width: Math.min(x-cBrowse.crosshairSelectStart, cBrowse.width-cBrowse.crosshairSelectStart),
-        border: "1px dashed red" 
+        left        : cBrowse.crosshairSelectStart, 
+        width       : Math.min(x - cBrowse.crosshairSelectStart, cBrowse.width - cBrowse.crosshairSelectStart),
+        borderWidth : 1
       });
     } else {
       cBrowse.crosshairSelect.css({ 
-        left: Math.max(x-1, 0), 
-        width: Math.min(cBrowse.crosshairSelectStart-x-margin, cBrowse.crosshairSelectStart-margin-1),
-        border: "1px dashed red" 
+        left        : Math.max(x, 0), 
+        width       : Math.min(cBrowse.crosshairSelectStart - x, cBrowse.crosshairSelectStart),
+        borderWidth : 1
       });
     }
-
+  });
+  
+  this.wrapper.on('mousemove', function (e) {
+    if (!cBrowse.crosshairZoomEnabled || cBrowse.crosshairSelecting) {
+      return;
+    }
+    
+    cBrowse.crosshairSelect.css('left', e.pageX - $(this).offset().left);
   });
 
-  cBrowse.wrapper.on('mousemove', function (e) {
-    if (!cBrowse.crosshairZoomEnabled || cBrowse.crosshairSelecting) return;
-
-    var x = e.pageX - $(this).offset().left;
-    cBrowse.crosshairSelect.css({ left: x-margin });
-  });
-
-  $(document).on('mouseup', function (e) {
-    if (!cBrowse.crosshairZoomEnabled) return;
-
-    cBrowse.crosshairSelecting = false;
-    var x = e.pageX - $(cBrowse.wrapper).offset().left;
-    cBrowse.crosshairSelect.css({ left: x-margin, width: 1, border: "none", "border-left": "1px dashed red" });
-  });
-
+  $(document).on('mouseup', function (e) { cBrowse.crosshairSelectEvent(e); });
 });
 
-CBrowse.on('afterCheck', function () {
-  cBrowse.crosshairSelect.css({ height: cBrowse.getHeight()-3 });
+CBrowse.Track.on('afterResize', function () {
+  if (this.cBrowse.crosshairSelect) {
+    this.cBrowse.crosshairSelect.css(this.cBrowse.positionCrosshair());
+  }
 });

@@ -12,8 +12,8 @@ CBrowse.on('afterInit', function () {
     if (this.draggingEnabled) {
       this.mousedown = this.____mousedown;
     } else {
-      this.____mousedown   = this.mousedown; 
-      this.mousedown       = $.noop;
+      this.____mousedown = this.mousedown; 
+      this.mousedown     = $.noop;
     }
 
     return this;

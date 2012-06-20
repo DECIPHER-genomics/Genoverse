@@ -172,17 +172,23 @@ var CBrowse = Base.extend({
     
     this.dragging   = true;
     this.prev.left  = this.left;
-    this.dragOffset = e.pageX - this.left;
+    this.dragOffset = e ? e.pageX - this.left : 0;
     this.dragStart  = this.start;
-    this.dragEvent  = function (e2) { cBrowse.move(e2); };
     
-    $(document).on('mousemove', this.dragEvent);
+    if (e) {
+      this.dragEvent = function (e2) { cBrowse.move(e2); }
+      $(document).on('mousemove', this.dragEvent);
+    } else {
+      this.dragEvent = false;
+    }
   },
   
   mouseup: function (e, update) {
     this.dragging = false;
     
-    $(document).off('mousemove', this.dragEvent);
+    if (this.dragEvent) {
+      $(document).off('mousemove', this.dragEvent);
+    }
     
     $('.overlay', this.wrapper).add('.menu', this.menuContainer).css({
       left       : function (i, left) { return parseInt(left, 10) + parseInt($(this).css('marginLeft'), 10); },
@@ -233,7 +239,7 @@ var CBrowse = Base.extend({
     $('.image_container img.static', this.container).css('marginLeft', function () { return wrapperOffset - $(this.parentNode).offset().left; });
     
     this.setRange(start, end, false);
-    
+
     if (this.redraw()) {
       step = this.left - this.prev.left > 0 ? 1 : -1;
       
