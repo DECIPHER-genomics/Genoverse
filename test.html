@@ -14,14 +14,16 @@
 
     <script type="text/javascript" src="js/cbrowse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script> 
-    <script type="text/javascript" src="js/Static.js"></script>
-    <script type="text/javascript" src="js/Stranded.js"></script> 
-
-    <script type="text/javascript" src="js/Scaleline.js"></script>
-    <script type="text/javascript" src="js/Scalebar.js"></script>
     <script type="text/javascript" src="js/TrackImage.js"></script>
-    <script type="text/javascript" src="js/MicroArray.js"></script>
-    <script type="text/javascript" src="js/DAS.js"></script>
+
+    <script type="text/javascript" src="js/Track/Static.js"></script>
+    <script type="text/javascript" src="js/Track/Stranded.js"></script> 
+
+    <script type="text/javascript" src="js/Track/Scaleline.js"></script>
+    <script type="text/javascript" src="js/Track/Scalebar.js"></script>
+    <script type="text/javascript" src="js/Track/MicroArray.js"></script>
+    <script type="text/javascript" src="js/Track/Gene.js"></script>
+    <script type="text/javascript" src="js/Track/DAS.js"></script>
 
     <script type="text/javascript" src="js/plugins/overlap.js"></script>
     <script type="text/javascript" src="js/plugins/resizer.js"></script>
@@ -60,6 +62,8 @@
 
 
   <script>
+    jQuery.ajaxSettings.traditional = true;
+    
     var cBrowse;
     $(function () {
       cBrowse = new CBrowse({

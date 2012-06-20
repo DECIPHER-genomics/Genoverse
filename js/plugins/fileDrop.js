@@ -26,9 +26,10 @@ CBrowse.on('afterInit', function () {
         __track.draw(__images[e.data.taskId], e.data.features);
         __images[e.data.taskId] = null;
       });
-
-      console.log(files[i]);
       
+      __worker.postMessage({ bounds: bounds, file: this.file, height: this.height, taskId: taskId, trackType: this.type });
+      console.log(files[i]);
+
       cBrowse.addTracks([{
         type    : 'MicroArray',
         name    : files[i].name,
