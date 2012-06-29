@@ -1,4 +1,4 @@
-CBrowse.Track.DASBand = CBrowse.Track.DAS.extend({
+Genoverse.Track.DASBand = Genoverse.Track.DAS.extend({
 
   config: {
     name         : "Chromosome bands", 
