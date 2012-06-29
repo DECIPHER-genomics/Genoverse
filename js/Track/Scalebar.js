@@ -1,3 +1,5 @@
+// $Revision: 1.34 $
+
 CBrowse.Track.Scalebar = CBrowse.Track.extend({
   config: {
     height        : 20,
@@ -101,7 +103,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
           if (!feature.end) {
             feature.start = x;
             feature.end   = x;
-            feature.color = this.color;
+            feature.color = this.cBrowse.colors.background;
           }
         }
         
@@ -122,7 +124,13 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
   
   positionFeatures: function (features, startOffset, imageWidth) {
     var features = this.base(features, startOffset, imageWidth);
-    this.data = features.fill[this.color];
+    
+    this.labels = $.grep(features.fill[this.color], function (f) { return f[0] === 'fillText'; });
+    
+    if (features.fill[this.cBrowse.colors.background]) {
+      this.colorOrder = [ this.color, this.cBrowse.colors.background ];
+    }
+    
     return features;
   },
   
@@ -150,12 +158,10 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
   },
   
   afterDraw: function (image) {
-    var i = this.data.length;
+    var i = this.labels.length;
     
     while (i--) {
-      if (this.data[i][0] === 'fillText') {
-        this.context.fillRect(Math.round(this.data[i][1][1]), this.featureHeight, 1, 3);
-      }
+      this.context.fillRect(Math.round(this.labels[i][1][1]), this.featureHeight, 1, 3);
     }
     
     this.context.fillRect(0, 0,                  image.width, 1);
