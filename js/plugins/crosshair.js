@@ -3,21 +3,21 @@
 // Any additional custom css will overwrite it
 document.styleSheets[0].insertRule(".crosshair { position: absolute; display: block; width: 0; border-left: 1px dashed red; top:0; left:-2px; z-index: 20; }", 0);
 
-CBrowse.on('afterInit', function () {
-  var cBrowse = this;
+Genoverse.on('afterInit', function () {
+  var browser = this;
 
-  cBrowse.crosshairEnabled = true;
+  browser.crosshairEnabled = true;
 
-  cBrowse.crosshair = $('<div class="crosshair">')
-                      .css({ height: cBrowse.getHeight() })
-                      .appendTo(cBrowse.wrapper);
+  browser.crosshair = $('<div class="crosshair">')
+                      .css({ height: browser.getHeight() })
+                      .appendTo(browser.wrapper);
 
-  cBrowse.wrapper.on('mousemove', function (e) {
+  browser.wrapper.on('mousemove', function (e) {
     var x = e.pageX - $(this).offset().left;
-    cBrowse.crosshair.css({ left: x-2 });
+    browser.crosshair.css({ left: x-2 });
   });
 
-  cBrowse.toggleCrosshair = function (forceFlag) {
+  browser.toggleCrosshair = function (forceFlag) {
     this.crosshairEnabled = forceFlag === undefined ? !this.crosshairEnabled : forceFlag;
     if (this.crosshairEnabled) {
       this.crosshair.show();

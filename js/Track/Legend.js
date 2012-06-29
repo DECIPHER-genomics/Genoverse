@@ -1,22 +1,22 @@
-CBrowse.on('afterSetTracks afterRemoveTracks', function () {
+Genoverse.on('afterSetTracks afterRemoveTracks', function () {
   for (var i in this.legends) {
     this.legends[i].setTracks();
   }
 });
 
-CBrowse.on('afterCheckTrackSize afterRemoveTracks', function () {
+Genoverse.on('afterCheckTrackSize afterRemoveTracks', function () {
   for (var i in this.legends) {
     this.legends[i].makeImage();
   }
 });
 
-CBrowse.Track.on('afterResize', function (height, userResize) {
+Genoverse.Track.on('afterResize', function (height, userResize) {
   if (this.legend && userResize === true) {
     this.legend.makeImage();
   }
 });
 
-CBrowse.Track.Legend = CBrowse.Track.extend({
+Genoverse.Track.Legend = Genoverse.Track.extend({
   config: {
     textColor : '#000000',
     inherit   : [ 'Static' ]
@@ -25,22 +25,22 @@ CBrowse.Track.Legend = CBrowse.Track.extend({
   init: function () {
     this.base();
     
-    if (!this.cBrowse.legends) {
-      this.cBrowse.legends = {};
+    if (!this.browser.legends) {
+      this.browser.legends = {};
     }
     
-    this.cBrowse.legends[this.id] = this;
+    this.browser.legends[this.id] = this;
   },
   
   setTracks: function () {
     var legend = this;
     var type   = this.featureType;
     
-    this.tracks = $.grep(this.cBrowse.tracks, function (t) { if (t.type === type) { t.legend = legend; return true; } });
+    this.tracks = $.grep(this.browser.tracks, function (t) { if (t.type === type) { t.legend = legend; return true; } });
   },
   
   getFeatures: function () {
-    var bounds   = { x: this.cBrowse.scaledStart, y: 0, w: this.width };
+    var bounds   = { x: this.browser.scaledStart, y: 0, w: this.width };
     var features = {};
     
     $.each($.map(this.tracks, function (track) {
@@ -89,15 +89,15 @@ CBrowse.Track.Legend = CBrowse.Track.extend({
     
     this.height = this.featuresHeight = ((y + (x ? 1 : 0)) * yScale) + pad;
     
-    fill[this.cBrowse.colors.background] = [[ 'fillRect', [ 0, 0, this.width, this.height ] ]];
+    fill[this.browser.colors.background] = [[ 'fillRect', [ 0, 0, this.width, this.height ] ]];
     
-    this.colorOrder.push(this.cBrowse.colors.background);
+    this.colorOrder.push(this.browser.colors.background);
     
     return { fill: fill };
   },
   
   remove: function () {
-    delete this.cBrowse.legends[this.id];
+    delete this.browser.legends[this.id];
     this.base();
   }
 });

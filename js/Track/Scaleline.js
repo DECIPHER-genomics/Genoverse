@@ -1,4 +1,4 @@
-CBrowse.Track.Scaleline = CBrowse.Track.extend({
+Genoverse.Track.Scaleline = Genoverse.Track.extend({
   config: {
     color          : '#000000',
     height         : 12,
@@ -13,7 +13,7 @@ CBrowse.Track.Scaleline = CBrowse.Track.extend({
       return false;
     }
     
-    var text   = this.formatLabel(this.cBrowse.length);
+    var text   = this.formatLabel(this.browser.length);
     var text2  = 'Forward strand';
     var width1 = this.context.measureText(text).width;
     var width2 = this.context.measureText(text2).width;
@@ -27,7 +27,7 @@ CBrowse.Track.Scaleline = CBrowse.Track.extend({
       [ 'fillText', [ text2, this.width - width2 - 35, 2 ] ]
     ];
     
-    fill[this.cBrowse.colors.background] = [[ 'fillRect', [ 0, 0, this.width, this.height ] ]];
+    fill[this.browser.colors.background] = [[ 'fillRect', [ 0, 0, this.width, this.height ] ]];
     
     this.drawnScale = this.scale;
     

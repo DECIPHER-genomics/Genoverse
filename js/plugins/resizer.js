@@ -9,7 +9,7 @@ document.styleSheets[0].insertRule('.canvas_container .resizer.shadow .handle   
 document.styleSheets[0].insertRule('.canvas_container .resizer:hover, .canvas_container \
                                     .resizer.ui-draggable-dragging                      { box-shadow: 0 -5px 7px -3px #000000 inset!important; }', 0);
 
-CBrowse.Track.on('afterInit', function () {
+Genoverse.Track.on('afterInit', function () {
   if (!this.resizable) {
     return;
   }
@@ -28,7 +28,7 @@ CBrowse.Track.on('afterInit', function () {
     if (track.fullVisibleHeight) {
       track.resize(track.fullVisibleHeight, true);
     }
-  })).css({ width: this.width, left: -this.cBrowse.left }).show();
+  })).css({ width: this.width, left: -this.browser.left }).show();
   
   if (this.height - this.spacing === this.featureHeight) {
     this.resize(this.height + this.resizer.height());
@@ -36,9 +36,9 @@ CBrowse.Track.on('afterInit', function () {
   }
 });
 
-CBrowse.Track.on('afterToggleExpander', function () {
+Genoverse.Track.on('afterToggleExpander', function () {
   if (this.resizer) {
-    this.resizer.css('left', -this.cBrowse.left);
+    this.resizer.css('left', -this.browser.left);
     
     if (this.expander) {
       this.resizer[this.expander.filter(':visible').hide().length ? 'addClass' : 'removeClass']('shadow');
@@ -46,6 +46,6 @@ CBrowse.Track.on('afterToggleExpander', function () {
   }
 });
 
-CBrowse.on('afterMove afterZoomIn afterZoomOut', function () {
+Genoverse.on('afterMove afterZoomIn afterZoomOut', function () {
   $('.resizer', this.wrapper).css('left', -this.left);
 });

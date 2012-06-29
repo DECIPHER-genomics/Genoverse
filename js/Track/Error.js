@@ -1,4 +1,4 @@
-CBrowse.Track.Error = CBrowse.Track.extend({
+Genoverse.Track.Error = Genoverse.Track.extend({
   config: {
     color   : '#FF0000',
     spacing : 0,
@@ -29,6 +29,6 @@ CBrowse.Track.Error = CBrowse.Track.extend({
 
     this.image.makeImage();
     this.base(this.image);
-    this.image.container.children().addClass('static').appendTo(trackImgContainer).css({ marginTop: -this.height / 2, marginLeft: this.width - this.cBrowse.left });
+    this.image.container.children().addClass('static').appendTo(trackImgContainer).css({ marginTop: -this.height / 2, marginLeft: this.width - this.browser.left });
   }
 });

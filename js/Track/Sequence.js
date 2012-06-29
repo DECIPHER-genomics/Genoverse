@@ -1,4 +1,4 @@
-CBrowse.Track.Sequence = CBrowse.Track.extend({
+Genoverse.Track.Sequence = Genoverse.Track.extend({
   config: {
     labelOverlay   : true,
     separateLabels : false,

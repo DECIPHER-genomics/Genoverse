@@ -1,4 +1,4 @@
-CBrowse.Track.Threshold = CBrowse.Track.extend({
+Genoverse.Track.Threshold = Genoverse.Track.extend({
   config: {
     color   : '#FF0000',
     spacing : 0,
@@ -17,7 +17,7 @@ CBrowse.Track.Threshold = CBrowse.Track.extend({
   resize: $.noop,
   
   positionFeatures: function () {
-    if (this.cBrowse.length <= this.track.threshold) {
+    if (this.browser.length <= this.track.threshold) {
       return false;
     }
     
@@ -33,6 +33,6 @@ CBrowse.Track.Threshold = CBrowse.Track.extend({
   draw: function (trackImgContainer) {
     this.image.makeImage();
     this.base(this.image);
-    this.image.container.children().addClass('static').appendTo(trackImgContainer).css({ marginTop: -this.height / 2, marginLeft: this.width - this.cBrowse.left });
+    this.image.container.children().addClass('static').appendTo(trackImgContainer).css({ marginTop: -this.height / 2, marginLeft: this.width - this.browser.left });
   }
 });

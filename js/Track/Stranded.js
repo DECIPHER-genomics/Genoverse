@@ -1,4 +1,4 @@
-CBrowse.Track.Stranded = {
+Genoverse.Track.Stranded = {
   inheritedConstructor: function (config) {
     if (typeof this._makeImage === 'function') {
       return;
@@ -14,7 +14,7 @@ CBrowse.Track.Stranded = {
       this.strand       = 1;
       this._makeImage   = this.makeImage;
       this.makeImage    = this.makeForwardImage;
-      this.reverseTrack = this.cBrowse.setTracks([ $.extend({}, this.config, config, { strand: -1, forwardTrack: this }) ], this.cBrowse.tracks.length)[0];
+      this.reverseTrack = this.browser.setTracks([ $.extend({}, this.config, config, { strand: -1, forwardTrack: this }) ], this.browser.tracks.length)[0];
     }
     
     if (!this.featureStrand) {
@@ -58,7 +58,7 @@ CBrowse.Track.Stranded = {
       var track = this.forwardTrack || this.reverseTrack;
       
       track.removing = true;
-      this.cBrowse.removeTracks([ track ]);
+      this.browser.removeTracks([ track ]);
     }
     
     this.base();

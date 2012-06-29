@@ -1,4 +1,4 @@
-CBrowse.on('afterInit', function () {
+Genoverse.on('afterInit', function () {
   this.draggingEnabled = true;
   this.____mousedown   = this.mousedown; 
 

@@ -1,8 +1,8 @@
 // http://weblog.bocoup.com/using-datatransfer-with-jquery-events/
 jQuery.event.props.push('dataTransfer');
 
-CBrowse.on('afterInit', function () {
-  var cBrowse = this;
+Genoverse.on('afterInit', function () {
+  var browser = this;
 
   $(".wrapper")
   .on("dragenter dragover", false)
@@ -30,7 +30,7 @@ CBrowse.on('afterInit', function () {
       __worker.postMessage({ bounds: bounds, file: this.file, height: this.height, taskId: taskId, trackType: this.type });
       console.log(files[i]);
 
-      cBrowse.addTracks([{
+      browser.addTracks([{
         type    : 'MicroArray',
         name    : files[i].name,
         file    : files[i],
@@ -53,9 +53,7 @@ CBrowse.on('afterInit', function () {
         }
       }]);
 
-      cBrowse.sortTracks();
+      browser.sortTracks();
     }
   });
-
-
 });

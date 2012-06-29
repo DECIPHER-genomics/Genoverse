@@ -1,4 +1,4 @@
-CBrowse.Track.Gene = CBrowse.Track.extend({ 
+Genoverse.Track.Gene = Genoverse.Track.extend({ 
   config: {
     height : 50,
     bump   : true
@@ -39,9 +39,9 @@ CBrowse.Track.Gene = CBrowse.Track.extend({
   getRenderer: function () {
     var renderer = this.renderer.split('_');
     
-    if (this.cBrowse.length > 1e7) {
+    if (this.browser.length > 1e7) {
       renderer[0] = 'gene';
-    } else if (this.cBrowse.length > 1e6 && this.renderer.match(/transcript/)) {
+    } else if (this.browser.length > 1e6 && this.renderer.match(/transcript/)) {
       renderer[0] = 'collapsed';
     }
     
@@ -77,7 +77,7 @@ CBrowse.Track.Gene = CBrowse.Track.extend({
     var transcript, start, end, x, width, bounds, bump, j, k, label, labelStart, labelHeight, maxIndex, exon, exonStart, exonEnd, exonWidth, introns, intronY1, intronY2;
     var expanded   = this.urlParams.renderer.match(/transcript/);
     var context    = this.context;
-    var showLabels = this.cBrowse.length <= this.maxLabelRegion;
+    var showLabels = this.browser.length <= this.maxLabelRegion;
     var height     = 0;
     var scale      = this.scale > 1 ? this.scale : 1;
     var scaleKey   = this.scale;
@@ -122,7 +122,7 @@ CBrowse.Track.Gene = CBrowse.Track.extend({
         bounds = [{ x: x, y: 0, w: width + 1, h: this.featureHeight + this.bumpSpacing }];
         
         if (label) {
-          if (expanded && scale > 1 && start < -this.cBrowse.labelBuffer) {
+          if (expanded && scale > 1 && start < -this.browser.labelBuffer) {
             bounds[0].h += labelHeight + 1;
           } else {
             bounds.push({ x: x, y: this.featureHeight + this.bumpSpacing + 1, w: Math.max.apply(Math, $.map(label, function (l) { return Math.ceil(context.measureText(l).width); }).concat(width)) + 1, h: labelHeight });
