@@ -38,7 +38,7 @@ CBrowse.Track.DASBand = CBrowse.Track.DAS.extend({
       feature.visible     = {};
       feature.bottom      = {};
       feature.labelBottom = {};
-      console.log(feature);
+      //console.log(feature);
       this.features.insert({ x: feature.start, w: feature.end - feature.start, y:0, h:1 }, feature);
     }
 
