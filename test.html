@@ -24,6 +24,9 @@
     <script type="text/javascript" src="js/Track/MicroArray.js"></script>
     <script type="text/javascript" src="js/Track/Gene.js"></script>
     <script type="text/javascript" src="js/Track/DAS.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Band.js"></script>
+    <script type="text/javascript" src="js/Track/Threshold.js"></script>
+    <script type="text/javascript" src="js/Track/Error.js"></script>
 
     <script type="text/javascript" src="js/plugins/overlap.js"></script>
     <script type="text/javascript" src="js/plugins/resizer.js"></script>
@@ -79,6 +82,10 @@
         {
           type  : 'Scalebar'
         }, 
+        {
+          type : 'DASBand',
+          url  : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.karyotype/features?segment=__CHR__',
+        }, 
         // {
         //   name          : 'Genes',
         //   //url           : 'http://enssand-03.internal.sanger.ac.uk:7000/Homo_sapiens/Ajax/fetch_features/_transcript?chr=__CHR__&start=__START__&end=__END__&id=transcript_core_ensembl',
@@ -88,6 +95,7 @@
         //   featureHeight : 6,
         //   bump          : true,
         //   separateLabels: false,
+        //   threshold     : 1000,
         //   resizable     : true,
         //   parseFeatures : function (data, bounds) {
         //     var i = data.length;
@@ -115,19 +123,20 @@
         //   //   draw: 1
         //   // }
         // },
-        // {
-        //   type    : 'MicroArray',
-        //   name    : 'MicroArray',
-        //   url     : '/data/1.json',
-        //   overlap : 1,
-        // },
         {
-          type    : 'DAS',
-          name    : 'Das',
-          bump          : true,
-          separateLabels: false,
-          resizable     : true          
+          type    : 'MicroArray',
+          name    : 'MicroArray',
+          url     : '/data/1.json',
+
+          overlap : 1,
         },
+        // {
+        //   type    : 'DAS',
+        //   name    : 'Das',
+        //   bump          : true,
+        //   separateLabels: false,
+        //   resizable     : true          
+        // },
 
         ]
       });
