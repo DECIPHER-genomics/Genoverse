@@ -1,4 +1,4 @@
-CBrowse.on('afterInit', function () {
+Genoverse.on('afterInit', function () {
   this.wheelZoomEnabled   = true;
   this.____mousewheelZoom = this.mousewheelZoom; 
 

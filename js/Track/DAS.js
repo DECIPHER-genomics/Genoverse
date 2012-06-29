@@ -1,5 +1,4 @@
-CBrowse.Track.DAS = CBrowse.Track.Gene.extend({
-
+Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
   config: {
     height        : 150,
     dataType      : 'xml',

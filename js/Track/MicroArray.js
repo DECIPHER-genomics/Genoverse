@@ -1,4 +1,4 @@
-CBrowse.Track.MicroArray = CBrowse.Track.extend({
+Genoverse.Track.MicroArray = Genoverse.Track.extend({
   config: {
     height        : 150,
     fixedHeight   : true,
@@ -94,10 +94,10 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
 
     // MouseUp event when not scrolling (dragging)
     this.container.on('mouseup', '.image_container', function (e) {
-      if ((e.which && e.which !== 1) || (track.cBrowse.prev.left !== track.cBrowse.left)) {
+      if ((e.which && e.which !== 1) || (track.browser.prev.left !== track.browser.left)) {
         return; // Only show menus on left click when not dragging
       }
-      var x = (e.pageX - track.container.parent().offset().left)/track.scale + track.cBrowse.start;
+      var x = (e.pageX - track.container.parent().offset().left)/track.scale + track.browser.start;
       var y = e.pageY - $(e.target).offset().top;
       var calls = track.calls.search({ x: x, y: 0, w: 1, h: 1 });
       if (calls.length) {
@@ -108,7 +108,7 @@ CBrowse.Track.MicroArray = CBrowse.Track.extend({
     });
 
     this.container.on('mousemove', '.image_container', function (e) {
-      var x = (e.pageX - track.container.parent().offset().left)/track.scale + track.cBrowse.start;
+      var x = (e.pageX - track.container.parent().offset().left)/track.scale + track.browser.start;
       var y = e.pageY - $(e.target).offset().top;
 
       var calls = track.calls.search({ x: x, y: 0, w: 1, h: 1 });

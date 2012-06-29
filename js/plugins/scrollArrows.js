@@ -19,9 +19,9 @@ document.styleSheets[0].insertRule(".arrow div { color: white; font-size: 57px; 
 document.styleSheets[0].insertRule(".arrow.right div { text-align: left; }", 0);
 
 
-CBrowse.on('afterInit', function () {
-  var cBrowse = this;
-  var delta   = cBrowse.width/2;
+Genoverse.on('afterInit', function () {
+  var browser = this;
+  var delta   = browser.width/2;
   var arrowWidth  = 100;
   var arrowOffset = arrowWidth/10;
   var lArrowLeft  = -arrowWidth+arrowOffset;
@@ -38,12 +38,12 @@ CBrowse.on('afterInit', function () {
   });
 
   $('.arrow.left').on('click', function() {
-    cBrowse.move(NaN, delta, 'fast');
+    browser.move(NaN, delta, 'fast');
     return false;
   })
 
   $('.arrow.right').on('click', function() {
-    cBrowse.move(NaN, -delta, 'fast');
+    browser.move(NaN, -delta, 'fast');
     return false;
   })
 
@@ -52,23 +52,23 @@ CBrowse.on('afterInit', function () {
   })
 
   this.wrapper.on('mousemove', function (e) {
-    if (cBrowse.dragging || cBrowse.crosshairSelecting) return;
+    if (browser.dragging || browser.crosshairSelecting) return;
     var x = e.pageX - $(this).offset().left;
 
     if (x < arrowWidth) {
-      cBrowse.lArrow.stop().css({ left: Math.max(Math.min(-x, -halfArrowWidth), lArrowLeft) });
+      browser.lArrow.stop().css({ left: Math.max(Math.min(-x, -halfArrowWidth), lArrowLeft) });
     } else {
-      cBrowse.lArrow.stop().css({ left: lArrowLeft });
+      browser.lArrow.stop().css({ left: lArrowLeft });
     }
 
-    if (x > cBrowse.width-arrowWidth) {
-      cBrowse.rArrow.stop().css({ left: Math.max(Math.min(rArrowLeft, 2*cBrowse.width - x - arrowWidth), cBrowse.width-halfArrowWidth ) });
+    if (x > browser.width-arrowWidth) {
+      browser.rArrow.stop().css({ left: Math.max(Math.min(rArrowLeft, 2*browser.width - x - arrowWidth), browser.width-halfArrowWidth ) });
     } else {
-      cBrowse.rArrow.stop().css({ left: rArrowLeft });
+      browser.rArrow.stop().css({ left: rArrowLeft });
     }
 
   }).on('mouseleave', function (e) {
-     cBrowse.lArrow.animate({ left: lArrowLeft }, 'slow');
-     cBrowse.rArrow.animate({ left: rArrowLeft }, 'slow');
+     browser.lArrow.animate({ left: lArrowLeft }, 'slow');
+     browser.rArrow.animate({ left: rArrowLeft }, 'slow');
   });
 });

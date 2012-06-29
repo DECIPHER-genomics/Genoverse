@@ -1,4 +1,4 @@
-CBrowse.Track = Base.extend({
+Genoverse.Track = Base.extend({
   defaults: {
     height         : 12,
     dataType       : 'json',
@@ -16,8 +16,8 @@ CBrowse.Track = Base.extend({
     $.extend(this, this.defaults, this.config, config);
     
     for (var i = 0; i < this.inherit.length; i++) {
-      if (CBrowse.Track[this.inherit[i]]) {
-        this.extend(CBrowse.Track[this.inherit[i]]);
+      if (Genoverse.Track[this.inherit[i]]) {
+        this.extend(Genoverse.Track[this.inherit[i]]);
       }
     }
     
@@ -27,16 +27,16 @@ CBrowse.Track = Base.extend({
     
     for (var key in this) {
       if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap|debugWrap)$/)) {
-        this.cBrowse.functionWrap(key, this);
+        this.browser.functionWrap(key, this);
       }
     }
     
     this.order          = typeof this.order          !== 'undefined' ? this.order          : this.index;
     this.separateLabels = typeof this.separateLabels !== 'undefined' ? this.separateLabels : !!this.depth;
-    this.spacing        = typeof this.spacing        !== 'undefined' ? this.spacing        : this.cBrowse.trackSpacing;
+    this.spacing        = typeof this.spacing        !== 'undefined' ? this.spacing        : this.browser.trackSpacing;
     this.featureHeight  = typeof this.featureHeight  !== 'undefined' ? this.featureHeight  : (this.config && typeof this.config.height === 'number' ? this.config.height : this.defaults.height);
     this.fixedHeight    = typeof this.fixedHeight    !== 'undefined' ? this.fixedHeight    : this.featureHeight === this.height && !(this.bump || this.bumpLabels);
-    this.autoHeight     = typeof this.autoHeight     !== 'undefined' ? this.autoHeight     : !this.fixedHeight && !config.height ? this.cBrowse.autoHeight : false;
+    this.autoHeight     = typeof this.autoHeight     !== 'undefined' ? this.autoHeight     : !this.fixedHeight && !config.height ? this.browser.autoHeight : false;
     this.resizable      = typeof this.resizable      !== 'undefined' ? this.resizable      : !this.fixedHeight;
     this.height        += this.spacing;
     this.initialHeight  = this.height;
@@ -44,7 +44,7 @@ CBrowse.Track = Base.extend({
     this.canvas         = $('<canvas>').appendTo(this.canvasContainer);
     this.container      = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer);
     this.imgContainer   = $('<div class="image_container">');
-    this.label          = $('<li>').appendTo(this.cBrowse.labelContainer).height(this.height).data('index', this.index);
+    this.label          = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('index', this.index);
     this.menus          = $();
     this.context        = this.canvas[0].getContext('2d');
     this.fontHeight     = parseInt(this.context.font, 10);
@@ -55,11 +55,7 @@ CBrowse.Track = Base.extend({
       this.fixedHeight = false;
       this.resizable   = false;
     } else if (this.threshold) {
-      this.thresholdMessage = this.cBrowse.setTracks([{ type: 'Threshold', track: this }], this.cBrowse.tracks.length)[0];
-    }
-
-    if (this.type !== 'Error') {
-      this.errorMessage = this.cBrowse.setTracks([{ type: 'Error', track: this }], this.cBrowse.tracks.length)[0];
+      this.thresholdMessage = this.browser.setTracks([{ type: 'Threshold', track: this }], this.browser.tracks.length)[0];
     }
     
     this.init();
@@ -129,16 +125,16 @@ CBrowse.Track = Base.extend({
     
     // MouseUp event when not scrolling (dragging)
     this.container.on('mouseup', '.image_container', function (e) {
-      if ((e.which && e.which !== 1) || (track.cBrowse.prev.left !== track.cBrowse.left)) {
+      if ((e.which && e.which !== 1) || (track.browser.prev.left !== track.browser.left)) {
         return; // Only show menus on left click when not dragging
       }
       
-      var x       = e.pageX - track.container.parent().offset().left + track.cBrowse.scaledStart;
+      var x       = e.pageX - track.container.parent().offset().left + track.browser.scaledStart;
       var y       = e.pageY - $(e.target).offset().top;
       var feature = track[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
       
       if (feature) {
-        track.cBrowse.makeMenu(track, feature, { left: e.pageX, top: e.pageY });
+        track.browser.makeMenu(track, feature, { left: e.pageX, top: e.pageY });
       }
     });
   },
@@ -156,12 +152,12 @@ CBrowse.Track = Base.extend({
   },
   
   checkSize: function () {
-    if (this.threshold && this.cBrowse.length > this.threshold) {
+    if (this.threshold && this.browser.length > this.threshold) {
       this.fullVisibleHeight = 0;
       return;
     }
     
-    var bounds = { x: this.cBrowse.scaledStart, w: this.width, y: 0, h: this.heights.max };
+    var bounds = { x: this.browser.scaledStart, w: this.width, y: 0, h: this.heights.max };
     var scale  = this.scale;
     var height = Math.max.apply(Math, $.map(this.featurePositions.search(bounds), function (feature) { return feature.bottom[scale]; }).concat(0));
     
@@ -207,7 +203,7 @@ CBrowse.Track = Base.extend({
     if (this.fullVisibleHeight - this.bumpSpacing > this.height) {
       this.expander = (this.expander || $('<div class="expander">').width(this.width).appendTo(this.container).on('click', function () {
         track.resize(track.fullVisibleHeight);
-      })).css('left', -this.cBrowse.left)[this.height === 0 ? 'hide' : 'show']();
+      })).css('left', -this.browser.left)[this.height === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
       this.expander.hide();
     }    
@@ -218,29 +214,29 @@ CBrowse.Track = Base.extend({
     
     if (thresholdMessage) {
       delete this.thresholdMessage;
-      return this.cBrowse.removeTracks([ this, thresholdMessage ]);
+      return this.browser.removeTracks([ this, thresholdMessage ]);
     }
     
     this.container.add(this.label).add(this.menus).remove();
-    this.cBrowse.tracks.splice(this.index, 1);
+    this.browser.tracks.splice(this.index, 1);
   },
   
   setScale: function () {
     var track = this;
     var featurePositions, labelPositions;
     
-    this.scale = this.cBrowse.scale;
+    this.scale = this.browser.scale;
     
     // Reset scaleSettings if the user has zoomed back to a previously existent zoom level, but has scrolled to a new region.
     // This is needed to get the newly created images in the right place.
     // Sadly we have to throw away all other images generated at this zoom level for it to work, 
     // since the new image probably won't fit exactly with the positioning of the old images,
     // and there would probably be a gap between this image and the old ones.
-    if (this.scaleSettings[this.scale] && !this.cBrowse.history[this.cBrowse.start + '-' + this.cBrowse.end]) {
+    if (this.scaleSettings[this.scale] && !this.browser.history[this.browser.start + '-' + this.browser.end]) {
       featurePositions = this.scaleSettings[this.scale].featurePositions;
       labelPositions   = this.scaleSettings[this.scale].labelPositions;
       
-      this.container.children('.' + this.cBrowse.scrollStart).remove();
+      this.container.children('.' + this.browser.scrollStart).remove();
       
       delete this.scaleSettings[this.scale];
     }
@@ -270,7 +266,7 @@ CBrowse.Track = Base.extend({
       }
     }
     
-    this.container.css('left', this.cBrowse.left).children('.image_container').hide();
+    this.container.css('left', this.browser.left).children('.image_container').hide();
   },
   
   setRenderer: function (renderer, permanent) {
@@ -288,23 +284,23 @@ CBrowse.Track = Base.extend({
     if (permanent && this.renderer !== renderer) {
       this.renderer = renderer;
       
-      var cBrowse = this.cBrowse;
-      var img = $(this.imgContainers).filter(cBrowse.left > 0 ? ':first' : ':last').data('img');
+      var browser = this.browser;
+      var img     = $(this.imgContainers).filter(browser.left > 0 ? ':first' : ':last').data('img');
       
       if (img) {
         this.reset();
         this.setScale();
         
-        var start   = cBrowse.dataRegion.start;
-        var end     = cBrowse.dataRegion.end;
+        var start   = browser.dataRegion.start;
+        var end     = browser.dataRegion.end;
         var width   = Math.round((end - start + 1) * this.scale);
-        var overlay = cBrowse.makeOverlays(width, [ this ]);
+        var overlay = browser.makeOverlays(width, [ this ]);
         
-        $.when(this.makeImage(start, end, width, -cBrowse.left, cBrowse.scrollStart)).done(function (a) {
+        $.when(this.makeImage(start, end, width, -browser.left, browser.scrollStart)).done(function (a) {
           $(a.target).show()
           a.img.drawBackground();
           
-          cBrowse.checkTrackSize();
+          browser.checkTrackSize();
           
           overlay.remove();
           overlay = null;
@@ -350,7 +346,7 @@ CBrowse.Track = Base.extend({
   
   positionFeatures: function (features, startOffset, imageWidth) {
     var feature, start, end, x, y, width, originalWidth, bounds, bump, depth, j, k, labelStart, labelWidth, maxIndex;
-    var showLabels   = this.forceLabels === true || !(this.maxLabelRegion && this.cBrowse.length > this.maxLabelRegion);
+    var showLabels   = this.forceLabels === true || !(this.maxLabelRegion && this.browser.length > this.maxLabelRegion);
     var height       = 0;
     var labelsHeight = 0;
     var scale        = this.scale > 1 ? this.scale : 1;
@@ -389,7 +385,7 @@ CBrowse.Track = Base.extend({
         y      = feature.y ? feature.y * (this.featureHeight + this.bumpSpacing) : 0;
         bounds = [{ x: x, y: y, w: width + this.featureSpacing, h: this.featureHeight + this.bumpSpacing }];
         
-        if (feature.label && showLabels && !this.labelOverlay && this.forceLabels !== 'off' && !(scale > 1 && start < -this.cBrowse.labelBuffer)) {
+        if (feature.label && showLabels && !this.labelOverlay && this.forceLabels !== 'off' && !(scale > 1 && start < -this.browser.labelBuffer)) {
           if (this.separateLabels) {
             bounds.push({ x: x, y: y, w: labelWidth, h: this.fontHeight + 2 });
           } else {
@@ -487,10 +483,12 @@ CBrowse.Track = Base.extend({
         draw.border[feature.borderColor] = [];
       }
       
-      if ((this.separateLabels || this.labelOverlay) && !draw.label[feature.labelColor]) {
-        draw.label[feature.labelColor] = [];
-      } else if (feature.labelColor && feature.labelColor !== feature.color && !draw.fill[feature.labelColor]) {
-        draw.fill[feature.labelColor] = [];
+      if (feature.labelColor) {
+        if ((this.separateLabels || this.labelOverlay) && !draw.label[feature.labelColor]) {
+          draw.label[feature.labelColor] = [];
+        } else if (feature.labelColor !== feature.color && !draw.fill[feature.labelColor]) {
+          draw.fill[feature.labelColor] = [];
+        }
       }
       
       originalWidth = width;
@@ -510,7 +508,7 @@ CBrowse.Track = Base.extend({
         }
       }
       
-      if (this.labelOverlay && labelWidth < originalWidth - 1) { // Don't show overlaid labels on features which aren't wider than the label
+      if (this.labelOverlay && feature.label && labelWidth < originalWidth - 1) { // Don't show overlaid labels on features which aren't wider than the label
         draw.label[feature.labelColor].push([ 'fillText', [ feature.label, labelStart + (originalWidth - labelWidth) / 2, bounds[0].y + bounds[0].h / 2 ] ]);
       } else if (bounds[1]) {
         draw[this.separateLabels ? 'label' : 'fill'][feature.labelColor].push([ 'fillText', [ feature.label, labelStart, bounds[1].y ] ]);
@@ -569,26 +567,26 @@ CBrowse.Track = Base.extend({
   makeImage: function (start, end, width, moved, cls) {
     var dir   = moved < 0 ? 'right' : 'left';
     var div   = this.imgContainer.clone().width(width).addClass(cls);
-    var prev  = $(this.imgContainers).filter('.' + this.cBrowse.scrollStart + ':' + (moved < 0 ? 'first' : 'last'));
-    var image = new CBrowse.TrackImage({
+    var prev  = $(this.imgContainers).filter('.' + this.browser.scrollStart + ':' + (moved < 0 ? 'first' : 'last'));
+    var image = new Genoverse.TrackImage({
       track       : this,
       container   : div,
       start       : start, 
       end         : end,
       width       : width,
       scaledStart : start * this.scale,
-      background  : this.cBrowse.colors.background
+      background  : this.browser.colors.background
     });
     
-    div.css('left', prev.length ? prev.position().left + (moved < 0 ? -this.width : prev.width()) : -this.cBrowse.offsets.right);
+    div.css('left', prev.length ? prev.position().left + (moved < 0 ? -this.width : prev.width()) : -this.browser.offsets.right);
     
     this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
     this.container.append(this.imgContainers);
     
     var deferred = image.makeImage();
-
+    
     this.getData(image, deferred);
-
+    
     if (this.thresholdMessage) {
       this.thresholdMessage.draw(div);
     }
@@ -599,7 +597,7 @@ CBrowse.Track = Base.extend({
   },
   
   getData: function (image, deferred) {
-    if (this.threshold && this.cBrowse.length > this.threshold) {
+    if (this.threshold && this.browser.length > this.threshold) {
       return this.draw(image, []);
     }
   
@@ -614,31 +612,23 @@ CBrowse.Track = Base.extend({
         data     : this.getQueryString(image.bufferedStart, image.end),
         dataType : this.dataType,
         context  : this,
-        error    : function (jqXHR, textStatus, errorThrown) {
-          this.errorMessage.draw(this.imgContainers[0], errorThrown.message);
-          deferred.resolve({ target: image, img: image }); 
-        },
+        error    : function () { deferred.reject(); },
         success  : function (data) {
           delete this.ajax;
           
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
-          try {
-            this.draw(image, this.parseFeatures(data, bounds));
-          } catch(e) {
-            //console.dir(e);
-            this.errorMessage.draw(this.imgContainers[0], e + ' ' + e.fileName + ':' + e.lineNumber);
-            deferred.resolve({ target: image, img: image }); 
-          }
+          
+          this.draw(image, this.parseFeatures(data, bounds));
         }
       });
     }
   },
   
   getQueryString: function (start, end) {
-    var chr      = this.cBrowse.chr;
+    var chr      = this.browser.chr;
     var start    = this.allData ? 1 : start;
-    var end      = this.allData ? this.cBrowse.chromosomeSize : end;
+    var end      = this.allData ? this.browser.chromosomeSize : end;
     var data     = {};
     var template = false;
     
@@ -662,25 +652,25 @@ CBrowse.Track = Base.extend({
   },
   
   drawBackground: function (image, height) {
-    var guideLines  = { major: [ this.cBrowse.colors.majorGuideLine, this.cBrowse.majorUnit ], minor: [ this.cBrowse.colors.minorGuideLine, this.cBrowse.minorUnit ] };
+    var guideLines  = { major: [ this.browser.colors.majorGuideLine, this.browser.majorUnit ], minor: [ this.browser.colors.minorGuideLine, this.browser.minorUnit ] };
     var scaledStart = Math.round(image.scaledStart);
     var x;
     
-    if (this.cBrowse.backgrounds) {
+    if (this.browser.backgrounds) {
       this.drawBackgroundColor(image, height, scaledStart);
     }
     
     for (var c in guideLines) {
       this.context.fillStyle = guideLines[c][0];
       
-      for (x = Math.max(image.start - (image.start % guideLines[c][1]), 0); x < image.end + this.cBrowse.minorUnit; x += guideLines[c][1]) {
-        this.context.fillRect((this.cBrowse.guideLines[c][x] || 0) - scaledStart, 0, 1, height);
+      for (x = Math.max(image.start - (image.start % guideLines[c][1]), 0); x < image.end + this.browser.minorUnit; x += guideLines[c][1]) {
+        this.context.fillRect((this.browser.guideLines[c][x] || 0) - scaledStart, 0, 1, height);
       }
     }
   },
   
   drawBackgroundColor: function (image, height, scaledStart) {
-    var backgrounds = this.cBrowse.backgrounds;
+    var backgrounds = this.browser.backgrounds;
     var i, start, end;
     
     for (var c in backgrounds) {
@@ -721,11 +711,11 @@ CBrowse.Track = Base.extend({
 }, {
   on: function (events, handler) {
     $.each(events.split(' '), function () {
-      if (typeof CBrowse.Track.prototype.systemEventHandlers[this] === 'undefined') {
-        CBrowse.Track.prototype.systemEventHandlers[this] = [];
+      if (typeof Genoverse.Track.prototype.systemEventHandlers[this] === 'undefined') {
+        Genoverse.Track.prototype.systemEventHandlers[this] = [];
       }
       
-      CBrowse.Track.prototype.systemEventHandlers[this].push(handler);
+      Genoverse.Track.prototype.systemEventHandlers[this].push(handler);
     });
   }
 });

@@ -1,4 +1,4 @@
-CBrowse.Track.Static = {
+Genoverse.Track.Static = {
   init: function () {
     this['static']   = true;
     this.unsortable  = true;
@@ -7,11 +7,11 @@ CBrowse.Track.Static = {
     
     this.base();
     
-    this.image = new CBrowse.TrackImage({
+    this.image = new Genoverse.TrackImage({
       track       : this,
       container   : this.imgContainer.width(this.width),
       width       : this.width,
-      background  : this.cBrowse.colors.background,
+      background  : this.browser.colors.background,
       start       : 0, 
       scaledStart : 0
     });

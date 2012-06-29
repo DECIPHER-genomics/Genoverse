@@ -1,4 +1,4 @@
-var CBrowse = Base.extend({
+var Genoverse = Base.extend({
   defaults: {
     urlParamTemplate : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
     width            : 1000,
@@ -37,7 +37,7 @@ var CBrowse = Base.extend({
   },
 
   init: function () {
-    var cBrowse = this;
+    var browser = this;
     var width   = this.width;
     
     this.paramRegex = new RegExp('([?&;])' + this.urlParamTemplate
@@ -60,11 +60,11 @@ var CBrowse = Base.extend({
       helper      : 'clone',
       placeholder : 'label',
       start       : function (e, ui) {
-        ui.placeholder.css({ height: ui.item.height(), visibility: 'visible', background: cBrowse.colors.sortHandle }).html(ui.item.html());
+        ui.placeholder.css({ height: ui.item.height(), visibility: 'visible', background: browser.colors.sortHandle }).html(ui.item.html());
         ui.helper.hide();
       },
       update      : function (e, ui) {
-        cBrowse.tracks[ui.item.data('index')].container[ui.item[0].previousSibling ? 'insertAfter' : 'insertBefore'](cBrowse.tracks[$(ui.item[0].previousSibling || ui.item[0].nextSibling).data('index')].container);
+        browser.tracks[ui.item.data('index')].container[ui.item[0].previousSibling ? 'insertAfter' : 'insertBefore'](browser.tracks[$(ui.item[0].previousSibling || ui.item[0].nextSibling).data('index')].container);
       }
     });
     
@@ -73,29 +73,29 @@ var CBrowse = Base.extend({
     this.container.width(width).on({
       mousedown: function (e) {
         if (!e.which || e.which === 1) {  // Only scroll on left click
-          cBrowse.mousedown(e);
+          browser.mousedown(e);
         }
         
         return false;
       },
       mousewheel: function (e, delta) { 
-        return cBrowse.mousewheelZoom(e, delta);
+        return browser.mousewheelZoom(e, delta);
       }
     }, '.image_container, .overlay');
     
     $(document).on('mouseup', function (e) {
-      if (cBrowse.dragging) {
-        cBrowse.mouseup(e);
+      if (browser.dragging) {
+        browser.mouseup(e);
       }
     });
     
     if (this.useHash) {
       $(window).on('hashchange', function () {  
-        cBrowse.popState();
+        browser.popState();
       });
     } else {
       window.onpopstate = function () {
-        cBrowse.popState();
+        browser.popState();
       };
     }
     
@@ -139,20 +139,20 @@ var CBrowse = Base.extend({
   },
 
   mousewheelZoom: function (e, delta) {
-    var cBrowse = this;
+    var browser = this;
     
-    clearTimeout(cBrowse.zoomDeltaTimeout);
-    clearTimeout(cBrowse.zoomTimeout);
+    clearTimeout(browser.zoomDeltaTimeout);
+    clearTimeout(browser.zoomTimeout);
     
-    cBrowse.zoomDeltaTimeout = setTimeout(function () {
+    browser.zoomDeltaTimeout = setTimeout(function () {
       if (delta > 0) {
-        cBrowse.zoomInHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
+        browser.zoomInHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
           width: 80, height: 80, top: '-=20', left: '-=20'
         }, {
           complete: function () { $(this).css({ width: 40, height: 40, display: 'none' }); }
         });
       } else {
-        cBrowse.zoomOutHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
+        browser.zoomOutHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
           width: 40, height: 40, top: '+=10', left: '+=10'
         }, {
           complete: function () { $(this).css({ width: 80, height: 80, display: 'none' }); }
@@ -160,15 +160,15 @@ var CBrowse = Base.extend({
       }
     }, 100);
     
-    cBrowse.zoomTimeout = setTimeout(function () {
-      cBrowse[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - cBrowse.container.offset().left - cBrowse.labelWidth);
+    browser.zoomTimeout = setTimeout(function () {
+      browser[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - browser.container.offset().left - browser.labelWidth);
     }, 300);
     
     return false;
   },
   
   mousedown: function (e) {
-    var cBrowse = this;
+    var browser = this;
     
     this.dragging   = true;
     this.prev.left  = this.left;
@@ -176,7 +176,7 @@ var CBrowse = Base.extend({
     this.dragStart  = this.start;
     
     if (e) {
-      this.dragEvent = function (e2) { cBrowse.move(e2); }
+      this.dragEvent = function (e2) { browser.move(e2); }
       $(document).on('mousemove', this.dragEvent);
     } else {
       this.dragEvent = false;
@@ -395,7 +395,7 @@ var CBrowse = Base.extend({
   
   setTracks: function (tracks, index) {
     var defaults = {
-      cBrowse         : this,
+      browser         : this,
       canvasContainer : this.wrapper,
       width           : this.width
     };
@@ -411,9 +411,9 @@ var CBrowse = Base.extend({
       }
       
       if (tracks[i].type) {
-        tracks[i] = new CBrowse.Track[tracks[i].type]($.extend(tracks[i], defaults, { index: i + index }));
+        tracks[i] = new Genoverse.Track[tracks[i].type]($.extend(tracks[i], defaults, { index: i + index }));
       } else {
-        tracks[i] = new CBrowse.Track($.extend(tracks[i], defaults, { index: i + index }));
+        tracks[i] = new Genoverse.Track($.extend(tracks[i], defaults, { index: i + index }));
       }
       
       if (push) {
@@ -538,7 +538,7 @@ var CBrowse = Base.extend({
     end   = end   || this.dataRegion.end;
     width = width || Math.round((end - start + 1) * this.scale);
     
-    var cBrowse    = this;
+    var browser    = this;
     var left       = -this.left;
     var dataRegion = $.extend({}, this.dataRegion);
     var offsets    = $.extend({}, this.offsets);
@@ -552,7 +552,7 @@ var CBrowse = Base.extend({
       }
     }
     
-    $.when.apply($, $.map(tracks, function (track) { return track.makeImage(start, end, width, left, cBrowse.scrollStart); })).done(function () {
+    $.when.apply($, $.map(tracks, function (track) { return track.makeImage(start, end, width, left, browser.scrollStart); })).done(function () {
       var redraw = false;
       
       $.when.apply($, $.map($.map(arguments, function (a) {
@@ -568,13 +568,13 @@ var CBrowse = Base.extend({
       })).done(removeOverlay);
       
       if (allTracks) {
-        cBrowse.prev.history = cBrowse.start + '-' + cBrowse.end;
-        cBrowse.setHistory(dataRegion, offsets);
+        browser.prev.history = browser.start + '-' + browser.end;
+        browser.setHistory(dataRegion, offsets);
       } else {
-        cBrowse.updateTracks(redraw);
+        browser.updateTracks(redraw);
       }
       
-      cBrowse.checkTrackSize();
+      browser.checkTrackSize();
     }).fail(removeOverlay);
   },
   
@@ -606,7 +606,7 @@ var CBrowse = Base.extend({
       if (!this.history[this.start + '-' + this.end] || (dataRegion && offsets)) {
         this.history[this.start + '-' + this.end] = $.extend({
           left        : this.left,
-          scrollStart : this.scrollStart,
+          scrollStart : this.scrollStart
         }, history);
       }
       
@@ -752,7 +752,7 @@ var CBrowse = Base.extend({
    **/
   functionWrap: function (key, obj) {
     var func = key.substring(0, 1).toUpperCase() + key.substring(1);
-        name = (obj ? (obj.name || '') + '(' + (obj.type || 'Track.') + ')' : 'CBrowse.') + key;
+        name = (obj ? (obj.name || '') + '(' + (obj.type || 'Track.') + ')' : 'Genoverse.') + key;
         obj  = obj || this;
     
     if (obj.debug) {
@@ -825,11 +825,13 @@ var CBrowse = Base.extend({
 }, {
   on: function (events, handler) {
     $.each(events.split(' '), function () {
-      if (typeof CBrowse.prototype.systemEventHandlers[this] === 'undefined') {
-        CBrowse.prototype.systemEventHandlers[this] = [];
+      if (typeof Genoverse.prototype.systemEventHandlers[this] === 'undefined') {
+        Genoverse.prototype.systemEventHandlers[this] = [];
       }
       
-      CBrowse.prototype.systemEventHandlers[this].push(handler);
+      Genoverse.prototype.systemEventHandlers[this].push(handler);
     });
   }
 });
+
+window.Genoverse = Genoverse;

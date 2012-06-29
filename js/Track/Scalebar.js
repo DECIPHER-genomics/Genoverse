@@ -1,6 +1,4 @@
-// $Revision: 1.34 $
-
-CBrowse.Track.Scalebar = CBrowse.Track.extend({
+Genoverse.Track.Scalebar = Genoverse.Track.extend({
   config: {
     height        : 20,
     featureHeight : 3,
@@ -25,7 +23,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
   setScale: function () {
     this.base();
     
-    var length = this.cBrowse.length;
+    var length = this.browser.length;
     var majorUnit, minorUnit, exponent, mantissa;
     
     if (length <= 51) {
@@ -50,21 +48,21 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
       }
     }
     
-    this.minorUnit = this.cBrowse.minorUnit = minorUnit;
-    this.majorUnit = this.cBrowse.majorUnit = majorUnit;
+    this.minorUnit = this.browser.minorUnit = minorUnit;
+    this.majorUnit = this.browser.majorUnit = majorUnit;
     this.seen      = {};
     this.features  = new RTree();
     
     if (this.strand === 1) {
-      if (!this.cBrowse.guideLinesByScale) {
-        this.cBrowse.guideLinesByScale = {};
+      if (!this.browser.guideLinesByScale) {
+        this.browser.guideLinesByScale = {};
       }
       
-      if (!this.cBrowse.guideLinesByScale[this.scale]) {
-        this.cBrowse.guideLinesByScale[this.scale] = { major: {}, minor: {} };
+      if (!this.browser.guideLinesByScale[this.scale]) {
+        this.browser.guideLinesByScale[this.scale] = { major: {}, minor: {} };
       }
       
-      this.cBrowse.guideLines = this.cBrowse.guideLinesByScale[this.scale];
+      this.browser.guideLines = this.browser.guideLinesByScale[this.scale];
     }
   },
   
@@ -103,7 +101,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
           if (!feature.end) {
             feature.start = x;
             feature.end   = x;
-            feature.color = this.cBrowse.colors.background;
+            feature.color = this.browser.colors.background;
           }
         }
         
@@ -115,7 +113,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
       }
       
       if (this.strand === 1) {
-        this.cBrowse.guideLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
+        this.browser.guideLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
       }
     }
     
@@ -127,8 +125,8 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
     
     this.labels = $.grep(features.fill[this.color], function (f) { return f[0] === 'fillText'; });
     
-    if (features.fill[this.cBrowse.colors.background]) {
-      this.colorOrder = [ this.color, this.cBrowse.colors.background ];
+    if (features.fill[this.browser.colors.background]) {
+      this.colorOrder = [ this.color, this.browser.colors.background ];
     }
     
     return features;
@@ -173,7 +171,7 @@ CBrowse.Track.Scalebar = CBrowse.Track.extend({
   },
   
   drawBackgroundColor: function (image, height) {
-    this.context.fillStyle = this.cBrowse.colors.background;
+    this.context.fillStyle = this.browser.colors.background;
     this.context.fillRect(0, 0, this.width, height);
   }
 });

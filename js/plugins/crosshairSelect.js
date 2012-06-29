@@ -2,7 +2,7 @@
 // Reason it's here is so that developer only has to include this js file for entire plugin functionality
 // Any additional custom css will overwrite it
 document.styleSheets[0].insertRule("           \
-  .crosshairSelect {                           \
+  .crosshair_select {                           \
     position: absolute;                        \
     display: none;                             \
     border: 1px dashed red;                    \
@@ -15,8 +15,8 @@ document.styleSheets[0].insertRule("           \
   0
 );
 
-CBrowse.on('afterInit', function () {
-  var cBrowse = this;
+Genoverse.on('afterInit', function () {
+  var browser = this;
 
   this.toggleCrosshairSelect = function (forceFlag) {
     this.crosshairZoomEnabled = forceFlag === undefined ? !this.crosshairZoomEnabled : forceFlag;
@@ -53,54 +53,54 @@ CBrowse.on('afterInit', function () {
   this.functionWrap('crosshairSelectEvent');
   
   this.crosshairSelecting = false;
-  this.crosshairSelect    = $('<div class="crosshairSelect">').css(this.positionCrosshair()).appendTo(this.wrapper);
+  this.crosshairSelect    = $('<div class="crosshair_select">').css(this.positionCrosshair()).appendTo(this.wrapper);
   
   // It would possibly be better to unregister event handlers 
   // instead of checking for crosshairZoomEnabled all the time
   this.wrapper.on('mousedown', function (e) {
-    if (!cBrowse.crosshairZoomEnabled) {
+    if (!browser.crosshairZoomEnabled) {
       return;
     }
     
-    cBrowse.crosshairSelecting   = true;
-    cBrowse.crosshairSelectStart = e.pageX - $(this).offset().left;
+    browser.crosshairSelecting   = true;
+    browser.crosshairSelectStart = e.pageX - $(this).offset().left;
   });
 
   $(document).on('mousemove', function (e) {
-    if (!cBrowse.crosshairZoomEnabled || !cBrowse.crosshairSelecting) {
+    if (!browser.crosshairZoomEnabled || !browser.crosshairSelecting) {
       return;
     }
 
-    var x = e.pageX - cBrowse.wrapper.offset().left;
+    var x = e.pageX - browser.wrapper.offset().left;
 
-    if (x > cBrowse.crosshairSelectStart) {
-      cBrowse.crosshairSelect.css({ 
-        left        : cBrowse.crosshairSelectStart, 
-        width       : Math.min(x - cBrowse.crosshairSelectStart, cBrowse.width - cBrowse.crosshairSelectStart),
+    if (x > browser.crosshairSelectStart) {
+      browser.crosshairSelect.css({ 
+        left        : browser.crosshairSelectStart, 
+        width       : Math.min(x - browser.crosshairSelectStart, browser.width - browser.crosshairSelectStart),
         borderWidth : 1
       });
     } else {
-      cBrowse.crosshairSelect.css({ 
+      browser.crosshairSelect.css({ 
         left        : Math.max(x, 0), 
-        width       : Math.min(cBrowse.crosshairSelectStart - x, cBrowse.crosshairSelectStart),
+        width       : Math.min(browser.crosshairSelectStart - x, browser.crosshairSelectStart),
         borderWidth : 1
       });
     }
   });
   
   this.wrapper.on('mousemove', function (e) {
-    if (!cBrowse.crosshairZoomEnabled || cBrowse.crosshairSelecting) {
+    if (!browser.crosshairZoomEnabled || browser.crosshairSelecting) {
       return;
     }
     
-    cBrowse.crosshairSelect.css('left', e.pageX - $(this).offset().left);
+    browser.crosshairSelect.css('left', e.pageX - $(this).offset().left);
   });
 
-  $(document).on('mouseup', function (e) { cBrowse.crosshairSelectEvent(e); });
+  $(document).on('mouseup', function (e) { browser.crosshairSelectEvent(e); });
 });
 
-CBrowse.Track.on('afterResize', function () {
-  if (this.cBrowse.crosshairSelect) {
-    this.cBrowse.crosshairSelect.css(this.cBrowse.positionCrosshair());
+Genoverse.Track.on('afterResize', function () {
+  if (this.browser.crosshairSelect) {
+    this.browser.crosshairSelect.css(this.browser.positionCrosshair());
   }
 });

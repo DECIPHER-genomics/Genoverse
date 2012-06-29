@@ -1,6 +1,6 @@
-CBrowse.on('afterInit', function () {
-  var cBrowse = this;
+Genoverse.on('afterInit', function () {
+  var browser = this;
   this.container.on('dblclick', function(e){
-    cBrowse.zoomIn(e.pageX - cBrowse.container.offset().left - cBrowse.labelWidth);
+    browser.zoomIn(e.pageX - browser.container.offset().left - browser.labelWidth);
   });
 });

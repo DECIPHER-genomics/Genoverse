@@ -13,49 +13,48 @@ document.styleSheets[0].insertRule("           \
   0
 );
 
-CBrowse.on('afterInit', function () {
-  var cBrowse = this;
+Genoverse.on('afterInit', function () {
+  var browser = this;
 
-  cBrowse.selectZoomEnabled = true;
+  browser.selectZoomEnabled = true;
 
-  cBrowse.selectZoom = $('<div class="selectZoom">')
-                       .css({ height: cBrowse.getHeight()-2 })
-                       .appendTo(cBrowse.wrapper);
+  browser.selectZoom = $('<div class="selectZoom">')
+                       .css({ height: browser.getHeight()-2 })
+                       .appendTo(browser.wrapper);
 
-  cBrowse.toggleDragging(false);
+  browser.toggleDragging(false);
 
   $('.track_container').on('mousedown', function (e) {
-    cBrowse.selectZoomStart   = e.pageX - $(this).offset().left;
-    cBrowse.selectZooming     = true;
-    cBrowse.selectZoomVisible = false;
-    cBrowse.selectZoom.css({ left: cBrowse.selectZoomStart-1 });
+    browser.selectZoomStart   = e.pageX - $(this).offset().left;
+    browser.selectZooming     = true;
+    browser.selectZoomVisible = false;
+    browser.selectZoom.css({ left: browser.selectZoomStart-1 });
   });
 
   $(document).on('mousemove', function (e) {
-    if (!cBrowse.selectZooming) return;
-    if (!cBrowse.selectZoomVisible) {
-      cBrowse.selectZoom.show();
-      cBrowse.selectZoomVisible = true;
+    if (!browser.selectZooming) return;
+    if (!browser.selectZoomVisible) {
+      browser.selectZoom.show();
+      browser.selectZoomVisible = true;
     }
 
-    var x = e.pageX - $(cBrowse.wrapper).offset().left;
-    if (x > cBrowse.selectZoomStart) {
-      cBrowse.selectZoom.css({ left: cBrowse.selectZoomStart, width: Math.min(x-cBrowse.selectZoomStart-1, cBrowse.width-cBrowse.selectZoomStart-1) });
+    var x = e.pageX - $(browser.wrapper).offset().left;
+    if (x > browser.selectZoomStart) {
+      browser.selectZoom.css({ left: browser.selectZoomStart, width: Math.min(x-browser.selectZoomStart-1, browser.width-browser.selectZoomStart-1) });
     } else {
-      cBrowse.selectZoom.css({ left: Math.max(x, 1), width: Math.min(cBrowse.selectZoomStart-x, cBrowse.selectZoomStart-1) });
+      browser.selectZoom.css({ left: Math.max(x, 1), width: Math.min(browser.selectZoomStart-x, browser.selectZoomStart-1) });
     }
   });
 
   $(document).on('mouseup', function (e) {
-    if (!cBrowse.selectZooming) return;
+    if (!browser.selectZooming) return;
 
-    var start = (cBrowse.selectZoom.offset().left - $(cBrowse.wrapper).offset().left)/cBrowse.scale + cBrowse.start;
-    var end   = (cBrowse.selectZoom.offset().left + cBrowse.selectZoom.outerWidth() - $(cBrowse.wrapper).offset().left)/cBrowse.scale + cBrowse.start;
+    var start = (browser.selectZoom.offset().left - $(browser.wrapper).offset().left)/browser.scale + browser.start;
+    var end   = (browser.selectZoom.offset().left + browser.selectZoom.outerWidth() - $(browser.wrapper).offset().left)/browser.scale + browser.start;
 
-    cBrowse.selectZooming = false;
-    cBrowse.selectZoom.hide().css({ width: 0 });
-    cBrowse.selectZoomVisible = false;
-    cBrowse.setRange(start, end, true);
+    browser.selectZooming = false;
+    browser.selectZoom.hide().css({ width: 0 });
+    browser.selectZoomVisible = false;
+    browser.setRange(start, end, true);
   });
-
 });
