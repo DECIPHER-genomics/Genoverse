@@ -57,6 +57,10 @@ CBrowse.Track = Base.extend({
     } else if (this.threshold) {
       this.thresholdMessage = this.cBrowse.setTracks([{ type: 'Threshold', track: this }], this.cBrowse.tracks.length)[0];
     }
+
+    if (this.type !== 'Error') {
+      this.errorMessage = this.cBrowse.setTracks([{ type: 'Error', track: this }], this.cBrowse.tracks.length)[0];
+    }
     
     this.init();
     this.setScale();
@@ -582,9 +586,9 @@ CBrowse.Track = Base.extend({
     this.container.append(this.imgContainers);
     
     var deferred = image.makeImage();
-    
+
     this.getData(image, deferred);
-    
+
     if (this.thresholdMessage) {
       this.thresholdMessage.draw(div);
     }
@@ -610,14 +614,22 @@ CBrowse.Track = Base.extend({
         data     : this.getQueryString(image.bufferedStart, image.end),
         dataType : this.dataType,
         context  : this,
-        error    : function () { deferred.reject(); },
+        error    : function (jqXHR, textStatus, errorThrown) {
+          this.errorMessage.draw(this.imgContainers[0], errorThrown.message);
+          deferred.resolve({ target: image, img: image }); 
+        },
         success  : function (data) {
           delete this.ajax;
           
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
-          
-          this.draw(image, this.parseFeatures(data, bounds));
+          try {
+            this.draw(image, this.parseFeatures(data, bounds));
+          } catch(e) {
+            //console.dir(e);
+            this.errorMessage.draw(this.imgContainers[0], e + ' ' + e.fileName + ':' + e.lineNumber);
+            deferred.resolve({ target: image, img: image }); 
+          }
         }
       });
     }
