@@ -16,7 +16,9 @@
  * @cat Plugin
  */
 
-jQuery.fn.mousehold = function(timeout, f) {
+(function($) {
+
+$.fn.mousehold = function(timeout, f) {
   if (timeout && typeof timeout == 'function') {
     f = timeout;
     timeout = 100;
@@ -25,7 +27,7 @@ jQuery.fn.mousehold = function(timeout, f) {
     var timer = 0;
     var fireStep = 0;
     return this.each(function() {
-      jQuery(this).mousedown(function() {
+      $(this).mousedown(function() {
         fireStep = 1;
         var ctr = 0;
         var t = this;
@@ -42,8 +44,10 @@ jQuery.fn.mousehold = function(timeout, f) {
         fireStep = 0;
       }
       
-      jQuery(this).mouseout(clearMousehold);
-      jQuery(this).mouseup(clearMousehold);
+      $(this).mouseout(clearMousehold);
+      $(this).mouseup(clearMousehold);
     })
   }
 }
+
+})(jQuery);
