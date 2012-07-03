@@ -6,27 +6,55 @@ Genoverse.Track.DAS = Genoverse.Track.extend({
     $(data).find('FEATURE').each(function (i, element) {
       var feature = {};
 
+      feature.id    = element.getAttribute('id');
+      feature.label = element.getAttribute('label') || feature.id;
+
       $(element).children().each(function (i, property) {
-        feature[$(property).prop('tagName')] = $(property).text();
+        feature[$(property).prop('tagName').toLowerCase()] = $(property).text();
       });
-      
-      if (feature.START && feature.END) {
-        for (var key in feature) {
-          feature[key.toLowerCase()] = feature[key];
-        }
 
-        feature.id    = $(element).attr('id');
-        feature.label = $(element).attr('label') || feature.id;
+      feature.start = feature.start *1; // Converting to number with *1
+      feature.end   = feature.end   *1; // Converting to number with *1
 
-        feature.start = parseInt(feature.START);
-        feature.end   = parseInt(feature.END);
-      } else {
-        return false;
-      }
+      feature.links  = {};
+      feature.notes  = [];
+
+      $(element).find('LINK').each(function (i, LINK) {
+        feature.links[LINK.getAttribute('href')] = $(LINK).text() || 'link';
+      });
+
+      $(element).find('NOTE').each(function (i, NOTE) {
+        feature.notes.push($(NOTE).text());
+      });
+
+      $(element).find('GROUP').each(function (i, GROUP) {
+        var group   = {};
+        group.id    = GROUP.getAttribute('id');
+        group.type  = GROUP.getAttribute('type');
+        group.links = {};
+        group.notes = [];
+
+        $(GROUP).find('LINK').each(function (i, LINK) {
+          group.links[LINK.getAttribute('href')] = $(LINK).text() || 'link';
+        });
+
+        $(GROUP).find('NOTE').each(function (i, NOTE) {
+          group.notes.push($(NOTE).text());
+        });
+
+        if (!feature.groups) feature.groups = [];
+        feature.groups.push(group);
+      });
+
+      $(element).find('PARENT').each(function (i, PARENT) {
+        if (!feature.parents) feature.parents = [];
+        feature.parents.push({ id: PARENT.getAttribute('id') });
+      });
 
       features.push(feature)
     });
 
+    console.log(features);
     return features;
   }
 
