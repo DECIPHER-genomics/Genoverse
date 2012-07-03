@@ -87,7 +87,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       
       if (flip === 1) {
         feature.start = x;
-        feature.end   = x + this.minorUnit;
+        feature.end   = x + this.minorUnit - 1;
         feature.color = this.color;
       }
       
