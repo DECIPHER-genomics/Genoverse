@@ -5,10 +5,12 @@ Genoverse.Track.DASBand = Genoverse.Track.DAS.extend({
     labelOverlay : true, 
     allData      : true, 
     dataType     : 'xml',
-    depth        : null
+    depth        : null,
+    url          : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.karyotype/features?segment=__CHR__'
   },
-  
-  colors : {
+
+
+  colorMap : {
     "default"      : "grey50",
     "band:acen"    : "slategrey",
     "band:gneg"    : "white",
@@ -24,6 +26,25 @@ Genoverse.Track.DASBand = Genoverse.Track.DAS.extend({
     "band:stalk"   : "slategrey",
     "band:tip"     : "black"
   },
+
+
+  setFeatureColor: function (feature) {
+    feature.labelColor = '#FFFFFF';
+
+    feature.color = this.colorMap[feature.type];
+    var match = /^grey(\d+)$/i.exec(feature.color);
+    if (match) {
+      if (match[1] > 70) { 
+        feature.labelColor = '#000000';
+      }
+
+      var c = Math.round(match[1]*2.55);
+      feature.color = "rgb("+c+","+c+","+c+")";
+    }
+
+    if (feature.color == 'white') feature.labelColor = '#000000';
+  },
+
   
   parseFeatures: function (data, bounds) {
     var features = this.base(data, bounds);
@@ -31,18 +52,26 @@ Genoverse.Track.DASBand = Genoverse.Track.DAS.extend({
     
     while (i--) {
       var feature         = features[i];
-      feature.color       = 'slategrey';
-      feature.labelColor  = '#FFFFFF';
       feature.sort        = i;
       feature.bounds      = {};
       feature.visible     = {};
       feature.bottom      = {};
       feature.labelBottom = {};
-      //console.log(feature);
+
+      this.setFeatureColor(feature);
       this.features.insert({ x: feature.start, w: feature.end - feature.start, y:0, h:1 }, feature);
     }
 
     return this.features.search(bounds);
-  }
+  },
+
+
+  afterDraw: function (image) {
+    this.context.globalAlpha = 1;
+    this.context.fillStyle   = '#000000';
+    this.context.fillRect(0, 0, image.width, 1);
+    this.context.fillRect(0, this.featureHeight, image.width, 1);
+  },
+
 
 });

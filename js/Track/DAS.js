@@ -1,4 +1,4 @@
-Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
+Genoverse.Track.DAS = Genoverse.Track.extend({
 
   parseFeatures: function (data, bounds) {
     var features = new Array();
