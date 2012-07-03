@@ -322,7 +322,7 @@ Genoverse.Track = Base.extend({
       data.features[i].visible     = {};
       data.features[i].bottom      = {};
       data.features[i].labelBottom = {};
-      this.features.insert({ x: data.features[i].start, y: 0, w: data.features[i].end - data.features[i].start, h: 1 }, data.features[i]);
+      this.features.insert({ x: data.features[i].start, y: 0, w: data.features[i].end - data.features[i].start + 1, h: 1 }, data.features[i]);
     }
     
     if (this.allData) {
@@ -373,11 +373,11 @@ Genoverse.Track = Base.extend({
         width      = bounds[0].w   - this.featureSpacing;
         maxIndex   = bounds.length - 1;
       } else {
-        width = end - start;
+        width = end - start + scale;
         
-        if (width < 0) {
+        if (end < start) {
           width = 1;
-        } else if (width < 1) {
+        } else if (width < scale) {
           width = scale;
         }
         
@@ -497,7 +497,7 @@ Genoverse.Track = Base.extend({
       if (scale > 1 && start < end && (start < 0 || end > imageWidth)) {
         start = Math.max(start, -1);
         end   = Math.min(end, imageWidth + 1);
-        width = end - start;
+        width = end - start + scale;
       }
       
       if (width > 0) {
