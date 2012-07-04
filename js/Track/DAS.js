@@ -1,4 +1,4 @@
-Genoverse.Track.DAS = Genoverse.Track.extend({
+Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
 
   parseFeatures: function (data, bounds) {
     var features = new Array();
@@ -54,7 +54,6 @@ Genoverse.Track.DAS = Genoverse.Track.extend({
       features.push(feature)
     });
 
-    console.log(features);
     return features;
   }
 

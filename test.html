@@ -24,7 +24,7 @@
     <script type="text/javascript" src="js/Track/MicroArray.js"></script>
     <script type="text/javascript" src="js/Track/Gene.js"></script>
     <script type="text/javascript" src="js/Track/DAS.js"></script>
-    <script type="text/javascript" src="js/Track/DAS/Band.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
     <script type="text/javascript" src="js/Track/Threshold.js"></script>
     <script type="text/javascript" src="js/Track/Error.js"></script>
 
@@ -76,15 +76,15 @@
 //        chromosomeSize : 81195210, // chromosome 17
         labelWidth     : 0,
         tracks         : [
-        {
-          type  : 'Scaleline'
-        }, 
+        // {
+        //   type  : 'Scaleline'
+        // }, 
         {
           type  : 'Scalebar'
         }, 
         {
-          type : 'DASBand',
-          url  : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.karyotype/features?segment=__CHR__',
+          type : 'DASTranscript',
+          //url  : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.karyotype/features?segment=__CHR__',
         }, 
         // {
         //   name          : 'Genes',
