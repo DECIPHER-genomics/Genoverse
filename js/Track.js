@@ -58,6 +58,11 @@ Genoverse.Track = Base.extend({
       this.thresholdMessage = this.browser.setTracks([{ type: 'Threshold', track: this }], this.browser.tracks.length)[0];
     }
     
+    if (this.type !== 'Error') {
+      this.errorMessage = this.browser.setTracks([{ type: 'Error', track: this }], this.browser.tracks.length)[0];
+    }
+
+
     this.init();
     this.setScale();
     
@@ -612,14 +617,25 @@ Genoverse.Track = Base.extend({
         data     : this.getQueryString(image.bufferedStart, image.end),
         dataType : this.dataType,
         context  : this,
-        error    : function () { deferred.reject(); },
+        timeout  : 10000,
+        error    : function (jqXHR, textStatus, errorThrown) {
+          console.log(arguments);
+          this.errorMessage.draw(this.imgContainers[0], errorThrown.message);
+          deferred.resolve({ target: image, img: image }); 
+        },
         success  : function (data) {
           delete this.ajax;
           
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
-          
-          this.draw(image, this.parseFeatures(data, bounds));
+
+          try {
+            this.draw(image, this.parseFeatures(data, bounds));
+          } catch(e) {
+            this.errorMessage.draw(this.imgContainers[0], e + ' ' + e.fileName + ':' + e.lineNumber);
+            deferred.resolve({ target: image, img: image }); 
+          }
+
         }
       });
     }
