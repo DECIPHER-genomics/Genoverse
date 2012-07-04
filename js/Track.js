@@ -331,7 +331,6 @@ Genoverse.Track = Base.extend({
     }
     
     if (this.allData) {
-      this.url = false;
       return this.features.search(bounds).sort(function (a, b) { return a.sort - b.sort; });
     } else {
       return data.features;
@@ -624,6 +623,10 @@ Genoverse.Track = Base.extend({
           deferred.resolve({ target: image, img: image }); 
         },
         success  : function (data) {
+          if (this.allData) {
+            this.url = false;
+          }
+
           delete this.ajax;
           
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
