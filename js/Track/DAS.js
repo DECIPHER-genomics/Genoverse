@@ -1,4 +1,4 @@
-Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
+Genoverse.Track.DAS = Genoverse.Track.extend({
 
   parseFeatures: function (data, bounds) {
     var features = new Array();
@@ -23,7 +23,7 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
         feature.links[LINK.getAttribute('href')] = $(LINK).text() || 'link';
       });
 
-      $(element).find('NOTE').each(function (i, NOTE) {
+      $(element).find('NOTE').each(function (i, NOTE) { 
         feature.notes.push($(NOTE).text());
       });
 

@@ -4,9 +4,10 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
     name     : "Transcript (DAS)", 
     dataType : 'xml',
     bump     : true,
-    height   : 100,
+    height   : 400,
     url      : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript/features?segment=__CHR__:__START__,__END__',
-    renderer : 'transcript_label'
+    renderer : 'transcript_label',
+    featureHeight : 10
   },
 
 
@@ -70,9 +71,10 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
             if (feature.start < groups[feature.groups[j].id].start) groups[feature.groups[j].id].start = feature.start;
             if (feature.end > groups[feature.groups[j].id].end)     groups[feature.groups[j].id].end   = feature.end;
           } else {
-            groups[feature.groups[j].id] = $.merge({
+            groups[feature.groups[j].id] = $.extend({
               color       : 'black',
               labelColor  : 'black',
+              label       : feature.groups[j].start || feature.groups[j].id,
               sort        : i,
               bounds      : {},
               visible     : {},
@@ -98,6 +100,33 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
 
     console.log(result);
     return result;
+  },
+
+
+  draw: function (image, features) {
+    var seen = {};
+
+    this.positionFeatures(this.scaleFeatures(features), image.scaledStart, image.width);
+
+    this.canvas.attr({ width: image.width, height: this.height });
+    this.context.textBaseline = 'top';
+    this.beforeDraw(image);
+
+    var i = features.length;
+    while (i--) {
+      var feature = features[i];
+      var bounds  = features[i].bounds[this.scale];
+      if (!bounds || seen[feature.id]) continue;
+      //seen[feature.id] = true;
+
+      this.context.fillStyle = features[i].color;
+      this.context.fillRect(bounds[0].x - image.scaledStart, bounds[0].y, bounds[0].w, this.featureHeight);
+      this.context.fillText(feature.label, bounds[1].x - image.scaledStart, bounds[1].y);
+    }
+
+    this.afterDraw(image);
+
+    image.container.append(image.images.attr('src', this.canvas[0].toDataURL()));
   },
 
 });
