@@ -1,35 +1,18 @@
 Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
 
   config: {
-    name     : "Transcript (DAS)", 
-    dataType : 'xml',
-    bump     : true,
-    height   : 400,
-    url      : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript/features?segment=__CHR__:__START__,__END__',
-    renderer : 'transcript_label',
-    featureHeight : 10
+    name          : "Transcript (DAS)", 
+    dataType      : 'xml',
+    bump          : true,
+    height        : 400,
+    source        : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
+    url           : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript/features?segment=__CHR__:__START__,__END__',
+    renderer      : 'transcript_label',
+    featureHeight : 10,
+    decorations   : {},
+    separateLabels : true,
   },
 
-
-  // stylesheet : {
-  //   "default" : { bgcolor: 'grey50', fgcolor: 'grey50' },
-  //   "exon:coding:havana"      : { bgcolor: 'dodgerblue4', fgcolor: 'dodgerblue4' },
-  //   "exon:non_coding:ensembl" : { bgcolor: 'white', fgcolor: 'rust' },
-  //   "exon:coding:ensembl_havana_transcript" : { bgcolor: 'goldenrod3', fgcolor: 'goldenrod3' },
-  //   "exon:5'UTR:ensembl_havana_transcript"  : { bgcolor: 'white',      fgcolor: 'goldenrod3' },
-  //   "exon:coding:ensembl_havana_transcript" : { bgcolor: 'goldenrod3', fgcolor: 'goldenrod3' },
-  //   "exon:3'UTR:ensembl_havana_transcript"  : { bgcolor: 'white',      fgcolor: 'goldenrod3' }
-  // },
-
-  stylesheet : {
-    "default" : { bgcolor: 'grey50', fgcolor: 'grey50' },
-    "exon:coding:havana"      : { bgcolor: 'dodgerblue4', fgcolor: 'dodgerblue4' },
-    "exon:non_coding:ensembl" : { bgcolor: 'white', fgcolor: 'rust' },
-    "exon:coding:ensembl_havana_transcript" : { bgcolor: 'goldenrod3', fgcolor: 'goldenrod3' },
-    "exon:5'UTR:ensembl_havana_transcript"  : { bgcolor: 'white',      fgcolor: 'goldenrod3' },
-    "exon:coding:ensembl_havana_transcript" : { bgcolor: 'goldenrod3', fgcolor: 'goldenrod3' },
-    "exon:3'UTR:ensembl_havana_transcript"  : { bgcolor: 'white',      fgcolor: 'goldenrod3' }
-  },
 
   setFeatureColor: function (feature) {
     feature.labelColor = '#FFFFFF';
@@ -74,7 +57,7 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
             groups[feature.groups[j].id] = $.extend({
               color       : 'black',
               labelColor  : 'black',
-              label       : feature.groups[j].start || feature.groups[j].id,
+              label       : feature.groups[j].id,
               sort        : i,
               bounds      : {},
               visible     : {},
@@ -93,6 +76,8 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
 
     for (id in groups) {
       var group = groups[id];
+      group.label = group.id + ' ' + group.start + '-' + group.end;
+      group.exons.sort(function (a, b) { return a.start - b.start });
       this.features.insert({ x: group.start, w: group.end - group.start, y:0, h:1 }, group);
     }
 
@@ -120,13 +105,31 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
       //seen[feature.id] = true;
 
       this.context.fillStyle = features[i].color;
-      this.context.fillRect(bounds[0].x - image.scaledStart, bounds[0].y, bounds[0].w, this.featureHeight);
+      var j = feature.exons.length;
+      while(j--) {
+        this.context.strokeRect(
+                       Math.floor(feature.exons[j].scaledStart - image.scaledStart)+0.5, 
+                       Math.floor(bounds[0].y)+0.5, 
+                       Math.floor(feature.exons[j].scaledEnd - feature.exons[j].scaledStart), 
+                       this.featureHeight
+        );
+
+        if (j) 
+          this.context.fillRect(
+                             Math.floor(feature.exons[j-1].scaledEnd - image.scaledStart)+0.5, 
+                             Math.round(bounds[0].y + this.featureHeight/2), 
+                             Math.floor(feature.exons[j].scaledStart - feature.exons[j-1].scaledEnd)+0.5, 
+                             1
+          );
+      }
+
       this.context.fillText(feature.label, bounds[1].x - image.scaledStart, bounds[1].y);
     }
 
     this.afterDraw(image);
 
     image.container.append(image.images.attr('src', this.canvas[0].toDataURL()));
-  },
+  }
+
 
 });
