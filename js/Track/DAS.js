@@ -62,6 +62,7 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
 
       feature.start = feature.start *1; // Converting to number with *1
       feature.end   = feature.end   *1; // Converting to number with *1
+      feature.width = feature.end - feature.start;
 
       feature.links  = {};
       feature.notes  = [];

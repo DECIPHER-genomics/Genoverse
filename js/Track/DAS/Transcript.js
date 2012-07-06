@@ -1,16 +1,17 @@
 Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
 
   config: {
-    name          : "Transcript (DAS)", 
-    dataType      : 'xml',
-    bump          : true,
-    height        : 400,
-    source        : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
-    url           : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript/features?segment=__CHR__:__START__,__END__',
-    renderer      : 'transcript_label',
-    featureHeight : 10,
-    decorations   : {},
+    name           : "Transcript (DAS)", 
+    dataType       : 'xml',
+    bump           : true,
+    height         : 400,
+    source         : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
+    url            : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript/features?segment=__CHR__:__START__,__END__',
+    renderer       : 'transcript_label',
+    featureHeight  : 10,
+    decorations    : {},
     separateLabels : true,
+    groups         : {}
   },
 
 
@@ -35,7 +36,6 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
 
   
   parseFeatures: function (data, bounds) {
-    var groups = {};
     var features = this.base(data, bounds);
     var i = features.length;
     
@@ -49,12 +49,29 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
       feature.style = 'strokeRect';
 
       if (feature.groups) {
+        
         for (var j=0; j<feature.groups.length; j++) {
-          if (groups[feature.groups[j].id]) {
-            if (feature.start < groups[feature.groups[j].id].start) groups[feature.groups[j].id].start = feature.start;
-            if (feature.end > groups[feature.groups[j].id].end)     groups[feature.groups[j].id].end   = feature.end;
+
+          if (this.groups[feature.groups[j].id]) {
+
+            var group = this.groups[feature.groups[j].id];
+            if (feature.start < group.start) group.start = feature.start;
+            if (feature.end > group.end)     group.end   = feature.end;
+
+            if (group.exons[feature.id] && group.exons[feature.id].width < feature.width) {
+              group.exons[feature.id] = feature;
+            }
+
+            if (!group.new) {
+              this.refresh = true;
+              group.bounds      = {};
+              group.bottom      = {};
+              group.labelBottom = {};
+              group.new         = true;
+            }
+
           } else {
-            groups[feature.groups[j].id] = $.extend({
+            this.groups[feature.groups[j].id] = $.extend({
               color       : 'black',
               labelColor  : 'black',
               label       : feature.groups[j].id,
@@ -65,26 +82,55 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
               labelBottom : {},
               exons       : [],
               start       : feature.start,
-              end         : feature.end
+              end         : feature.end,
+              new         : 1
             }, feature.groups[j]);
           }
 
-          groups[feature.groups[j].id].exons.push(feature);
+          this.groups[feature.groups[j].id].exons.push(feature);
+          this.groups[feature.groups[j].id].exons[feature.id] = feature;
         }
+
       }
     }
 
-    for (id in groups) {
-      var group = groups[id];
-      group.label = group.id + ' ' + group.start + '-' + group.end;
-      group.exons.sort(function (a, b) { return a.start - b.start });
-      this.features.insert({ x: group.start, w: group.end - group.start, y:0, h:1 }, group);
+    for (id in this.groups) {
+      var group = this.groups[id];
+      if (group.new) {
+        group.label = group.id + ' ' + group.start + '-' + group.end;
+        group.exons.sort(function (a, b) { return a.start - b.start });
+        this.features.insert({ x: group.start, w: group.end - group.start, y:0, h:1 }, group);
+      }
     }
 
     var result = this.features.search(bounds);
 
     console.log(result);
     return result;
+  },
+
+
+  refresh: function () {
+    var browser = this.browser;
+    //this.reset();
+    this.dataRegion    = { start: 9e99, end: -9e99 };
+    this.scaleSettings = {};    
+    this.setScale();
+    
+    var start   = browser.dataRegion.start;
+    var end     = browser.dataRegion.end;
+    var width   = Math.round((end - start + 1) * this.scale);
+    var overlay = browser.makeOverlays(width, [ this ]);
+    
+    $.when(this.makeImage(start, end, width, -browser.left, browser.scrollStart)).done(function (a) {
+      $(a.target).show()
+      a.img.drawBackground();
+      
+      browser.checkTrackSize();
+      
+      overlay.remove();
+      overlay = null;
+    });
   },
 
 
