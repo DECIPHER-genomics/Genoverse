@@ -616,12 +616,6 @@ Genoverse.Track = Base.extend({
         data     : this.getQueryString(image.bufferedStart, image.end),
         dataType : this.dataType,
         context  : this,
-        timeout  : 10000,
-        error    : function (jqXHR, textStatus, errorThrown) {
-          console.log(arguments);
-          this.errorMessage.draw(this.imgContainers[0], errorThrown.message);
-          deferred.resolve({ target: image, img: image }); 
-        },
         success  : function (data) {
           if (this.allData) {
             this.url = false;
@@ -638,7 +632,10 @@ Genoverse.Track = Base.extend({
             this.errorMessage.draw(this.imgContainers[0], e + ' ' + e.fileName + ':' + e.lineNumber);
             deferred.resolve({ target: image, img: image }); 
           }
-
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          this.errorMessage.draw(this.imgContainers[0], errorThrown.message);
+          deferred.resolve({ target: image, img: image }); 
         }
       });
     }
