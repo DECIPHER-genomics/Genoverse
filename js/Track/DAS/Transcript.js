@@ -4,9 +4,9 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
     name           : "Transcript (DAS)", 
     dataType       : 'xml',
     bump           : true,
-    height         : 400,
-    source         : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
-    url            : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript/features?segment=__CHR__:__START__,__END__',
+    height         : 200,
+    // source         : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
+    // url            : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript/features?segment=__CHR__:__START__,__END__',
     renderer       : 'transcript_label',
     featureHeight  : 10,
     decorations    : {},
@@ -14,56 +14,40 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
     groups         : {}
   },
 
-
-  setFeatureColor: function (feature) {
-    feature.labelColor = '#FFFFFF';
-
-    feature.colors = this.stylesheet[feature.type] || this.stylesheet.default;
-    if (feature.colors.bgcolor && feature.colors.fgcolor && feature.colors.bgcolor != feature.colors.fgcolor) {
-      feature.style = 'strokeRect';
-    }
-
-    feature.color = feature.colors.fgcolor;
-
-    var match = /^grey(\d+)$/i.exec(feature.color);
-    if (match) {
-      var c = Math.round(match[1]*2.55);
-      feature.color = "rgb("+c+","+c+","+c+")";
-    }
-
-    feature.labelColor = feature.color;
-  },
-
   
   parseFeatures: function (data, bounds) {
-    var features = this.base(data, bounds);
-    var i = features.length;
-    
-    while (i--) {
+    var track = this;
+    var features = track.base(data, bounds);
+
+    this.groupFeatures(features);
+
+    return this.features.search(bounds);
+  },
+
+
+  groupFeatures: function (features) {
+
+    for (var i=0; i<features.length; i++) {
+
       var feature = features[i];
       if (!feature.start || !feature.end) continue;
 
-      //this.setFeatureColor(feature);
-
-      if (feature.type.indexOf('exon:coding') === 0) continue;
-      feature.style = 'strokeRect';
+      //this.setFeatureStyle(feature);
 
       if (feature.groups) {
-        
-        for (var j=0; j<feature.groups.length; j++) {
 
+        for (var j=0; j<feature.groups.length; j++) {
+          if (!this.display.group[feature.groups[j].type]) continue;
+          
           if (this.groups[feature.groups[j].id]) {
 
-            var group = this.groups[feature.groups[j].id];
-            if (feature.start < group.start) group.start = feature.start;
-            if (feature.end > group.end)     group.end   = feature.end;
+            var group  = this.groups[feature.groups[j].id];
 
-            if (group.exons[feature.id] && group.exons[feature.id].width < feature.width) {
-              group.exons[feature.id] = feature;
-            }
+            if (feature.start < group.start) group.start = feature.start;
+            if (feature.end > group.end) group.end = feature.end;
 
             if (!group.new) {
-              this.refresh = true;
+              this.redraw       = true;
               group.bounds      = {};
               group.bottom      = {};
               group.labelBottom = {};
@@ -72,9 +56,6 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
 
           } else {
             this.groups[feature.groups[j].id] = $.extend({
-              color       : 'black',
-              labelColor  : 'black',
-              label       : feature.groups[j].id,
               sort        : i,
               bounds      : {},
               visible     : {},
@@ -88,93 +69,119 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
           }
 
           this.groups[feature.groups[j].id].exons.push(feature);
-          this.groups[feature.groups[j].id].exons[feature.id] = feature;
         }
-
       }
     }
 
     for (id in this.groups) {
       var group = this.groups[id];
       if (group.new) {
-        group.label = group.id + ' ' + group.start + '-' + group.end;
-        group.exons.sort(function (a, b) { return a.start - b.start });
-        this.features.insert({ x: group.start, w: group.end - group.start, y:0, h:1 }, group);
+        if (!group.label) group.label = group.id;
+        group.exons.sort(function (a, b) { return a.width - b.width });
+        group.type = 'group';
+        this.features.insert({ x: group.start, w: group.end - group.start, y:0, h:1 }, group.id);
       }
     }
-
-    var result = this.features.search(bounds);
-
-    console.log(result);
-    return result;
   },
 
 
-  refresh: function () {
+  reDraw: function () {
     var browser = this.browser;
     //this.reset();
-    this.dataRegion    = { start: 9e99, end: -9e99 };
+    //this.dataRegion    = { start: 9e99, end: -9e99 };
     this.scaleSettings = {};    
     this.setScale();
     
     var start   = browser.dataRegion.start;
     var end     = browser.dataRegion.end;
     var width   = Math.round((end - start + 1) * this.scale);
-    var overlay = browser.makeOverlays(width, [ this ]);
+    //var overlay = browser.makeOverlays(width, [ this ]);
     
     $.when(this.makeImage(start, end, width, -browser.left, browser.scrollStart)).done(function (a) {
       $(a.target).show()
       a.img.drawBackground();
-      
       browser.checkTrackSize();
-      
-      overlay.remove();
-      overlay = null;
     });
   },
 
 
   draw: function (image, features) {
+
+    if (this.redraw) {
+      this.canvas.attr({ width: image.width, height: this.fullHeight });
+      this.context.textBaseline = 'top';
+      this.beforeDraw(image);
+      this.redraw = false; 
+      this.afterDraw(image);
+      image.container.append(image.images.attr('src', this.canvas[0].toDataURL()));
+      return this.reDraw(); 
+    } 
+
+    var track = this;
+
+    $.when(track.stylesheetRequest).always(function(){
+      features.every(function(element, index, array){
+          array[index] = track.groups[element];
+          array[index].bounds = {};
+          return true;
+      });
+
+      track.positionFeatures(track.scaleFeatures(features), image.scaledStart, image.width);
+
+      track.canvas.attr({ width: image.width, height: track.fullHeight });
+      track.context.textBaseline = 'top';
+      track.beforeDraw(image);
+
+      track.drawFeatures(image, features);
+
+
+      track.afterDraw(image);
+      image.container.append(image.images.attr('src', track.canvas[0].toDataURL()));    
+    });
+
+  },
+
+
+  drawFeatures: function (image, features) {
     var seen = {};
+    
+    //this.context.globalAlpha = 0.5;
 
-    this.positionFeatures(this.scaleFeatures(features), image.scaledStart, image.width);
-
-    this.canvas.attr({ width: image.width, height: this.height });
-    this.context.textBaseline = 'top';
-    this.beforeDraw(image);
-
-    var i = features.length;
-    while (i--) {
+    for (var i=0; i<features.length; i++) {
       var feature = features[i];
-      var bounds  = features[i].bounds[this.scale];
-      if (!bounds || seen[feature.id]) continue;
-      //seen[feature.id] = true;
+      feature.new = false;
+      var bounds  = feature.bounds[this.scale];
+      if (!bounds) continue;
 
-      this.context.fillStyle = features[i].color;
+      this.drawFeature(
+        feature, 
+        {
+          x: feature.scaledStart - image.scaledStart, 
+          y: bounds[0].y, 
+          w: feature.scaledEnd - feature.scaledStart, 
+          h: this.featureHeight 
+        }
+      );
+
       var j = feature.exons.length;
-      while(j--) {
-        this.context.strokeRect(
-                       Math.floor(feature.exons[j].scaledStart - image.scaledStart)+0.5, 
-                       Math.floor(bounds[0].y)+0.5, 
-                       Math.floor(feature.exons[j].scaledEnd - feature.exons[j].scaledStart), 
-                       this.featureHeight
+      for (var j=0; j<feature.exons.length; j++) {
+        var exon = feature.exons[j];
+        this.drawFeature(
+          exon, 
+          {
+            x: exon.scaledStart - image.scaledStart, 
+            y: bounds[0].y, 
+            w: exon.scaledEnd - exon.scaledStart, 
+            h: this.featureHeight
+          }
         );
-
-        if (j) 
-          this.context.fillRect(
-                             Math.floor(feature.exons[j-1].scaledEnd - image.scaledStart)+0.5, 
-                             Math.round(bounds[0].y + this.featureHeight/2), 
-                             Math.floor(feature.exons[j].scaledStart - feature.exons[j-1].scaledEnd)+0.5, 
-                             1
-          );
       }
 
-      this.context.fillText(feature.label, bounds[1].x - image.scaledStart, bounds[1].y);
+      if (feature.label && bounds[1]) {
+        this.drawLabel(feature, { x: bounds[1].x - image.scaledStart, y: bounds[1].y });
+      }
+
     }
-
-    this.afterDraw(image);
-
-    image.container.append(image.images.attr('src', this.canvas[0].toDataURL()));
   }
 
 

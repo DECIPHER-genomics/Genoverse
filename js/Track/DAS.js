@@ -2,12 +2,41 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
 
   init: function () {
     this.base();
+    if (!this.url) this.url = this.source + '/features';
+    if (this.display) {
+      for (var key in this.display) {
+        if (this.display[key] instanceof Array) {
+          for (var i=0; i<this.display[key].length; i++) {
+            this.display[key][this.display[key][i]] = 1;
+          }
+        } else {
+          var value = this.display[key];
+          this.display[key] = {};
+          this.display[key][value] = 1;
+        }
+      }
+    }
+
     this.getStylesheet();
   },
 
 
+  getQueryString: function (start, end) {
+    var chr      = this.browser.chr;
+    var start    = this.allData ? 1 : start;
+    var end      = this.allData ? this.browser.chromosomeSize : end;
+
+    // return 'segment=' + chr + ':' + start + ',' + end + '&' + 
+    //        (this.types instanceof Array ? jQuery.map(this.types, function(type){ return "type=" + type }).join('&') : '');
+
+    return $.extend({ 
+      segment: chr + ':' + start + ',' + end, 
+    }, this.filter);
+  },
+
+
   getStylesheet: function () {
-    $.ajax({
+    this.stylesheetRequest = $.ajax({
       url      : this.source + '/stylesheet',
       dataType : 'xml',
       context  : this,
@@ -20,12 +49,13 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
   },
 
 
-  getQueryString: function (start, end) {
-    return this.base(start - (end-start)*10, end + (end-start)*10);
-  },
+  // getQueryString: function (start, end) {
+  //   return this.base(start - (end-start)*10, end + (end-start)*10);
+  // },
 
-  parseStylesheet: function(XML) {
+  parseStylesheet: function (XML) {
     var stylesheet = {};
+    var track = this;
 
     $(XML).find('TYPE').each(function (i, TYPE) {
       var glyphs = [];
@@ -37,13 +67,84 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
           glyph[$(PROPERTY).prop('tagName').toLowerCase()] = $(PROPERTY).text();
         })
 
+        glyph.fgcolor = glyph.fgcolor ? track.mapColor(glyph.fgcolor) : track.stylesheet.default[0].fgcolor;
+        glyph.bgcolor = glyph.bgcolor ? track.mapColor(glyph.bgcolor) : null;
+
         glyphs.push(glyph);
       });
+
+      // Take first glyph as default
+      for (var key in glyphs[0]) {
+        glyphs[key] = glyphs[0][key];
+      }
 
       stylesheet[TYPE.getAttribute('id')] = glyphs;
     });
 
-    this.stylesheet = stylesheet;
+    this.stylesheet = $.extend(stylesheet, this.stylesheet);
+
+    // TODO: check for existing images? or if any drawing has started 
+    //this.redraw = true;
+  },
+
+
+  drawFeature: function (feature, bounds) {
+    var style = this.stylesheet[feature.type] || this.stylesheet.default;
+    bounds.x = Math.floor(bounds.x) + 0.5;
+    bounds.y = Math.floor(bounds.y) + 0.5;
+    bounds.w = Math.round(bounds.w);
+
+    switch (style.type) {
+
+      case 'line' :
+        this.context.strokeStyle = style.fgcolor;
+        this.context.strokeRect(bounds.x, bounds.y + this.featureHeight/2, bounds.w, 0);
+      break;
+
+      case 'box':
+        if (!style.bgcolor || style.bgcolor == this.mapColor('white')) {
+          this.context.strokeStyle = style.fgcolor;
+          this.context.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
+        } else {
+          this.context.fillStyle = style.bgcolor;
+          this.context.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+          if (style.fgcolor) {
+            this.context.strokeStyle = style.fgcolor;
+            this.context.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
+          }
+        }
+      break;
+
+      default:
+        this.context.strokeStyle = style.fgcolor;
+        this.context.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
+      break;
+    }
+  },
+
+
+  drawLabel: function (feature, bounds) {
+    var style = this.stylesheet[feature.type] || this.stylesheet.default;
+    this.context.fillStyle = style.fgcolor;
+    this.context.fillText(feature.label, bounds.x, bounds.y);
+  },
+
+
+  mapColor: function (DASColor) {
+    DASColor = DASColor.toLowerCase();
+
+    if (DASColorMap[DASColor]) {
+      return DASColorMap[DASColor];
+    } 
+
+    var match = /^gr[ea]y(\d+)$/i.exec(DASColor);
+    if (match) {
+      var c = Math.round(match[1]*2.55);
+      return "rgb("+c+","+c+","+c+")";
+    }
+
+    // Can't workout color, return grey
+    return 'grey';
   },
 
 
@@ -106,71 +207,16 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
   },
 
 
-  defaultStylesheet: {
-    "transcript:havana": {
-      glyph:{
-          line:{
-              height:10,
-              fgcolor:'dodgerblue4',
-              style:'hat'
-          }
-      }
+  stylesheet: {
+    default: {
+      bgcolor: 'grey',
+      fgcolor: 'grey',
+      type: 'box'
     },
-    "exon:coding:havana": {
-      glyph:{
-          box:{
-              height:10,
-              fgcolor:'dodgerblue4',
-              bgcolor:'dodgerblue4'
-          }
-      }
+    group: {
+      fgcolor: 'black',
+      type: 'line'
     },
-    "exon:non_coding:ensembl": {
-      glyph:{
-          box:{
-              height:6,
-              bgcolor:'white',
-              fgcolor:'rust'
-          }
-      }      
-    },
-    "exon:coding:ensembl_havana_transcript": {
-      glyph:{
-          box:{
-              height:10,
-              fgcolor:'goldenrod3',
-              bgcolor:'goldenrod3'
-          }
-      }
-    },
-    "exon:5'UTR:ensembl_havana_transcript": {
-      glyph:{
-          box:{
-              height:6,
-              bgcolor:'white',
-              fgcolor:'goldenrod3'
-          }
-      }      
-    },
-    "exon:coding:ensembl_havana_transcript": {
-      glyph:{
-          box:{
-              height:10,
-              fgcolor:'goldenrod3',
-              bgcolor:'goldenrod3'
-          }
-      }
-    },
-    "exon:3'UTR:ensembl_havana_transcript": {
-      glyph:{
-          box:{
-              height:6,
-              bgcolor:'white',
-              fgcolor:'goldenrod3'
-          }
-      }      
-    }
-  }
-
+  },
 
 });

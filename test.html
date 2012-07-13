@@ -4,13 +4,13 @@
     <link rel="stylesheet" type="text/css" href="css/cbrowse.css" />  
     <link rel="stylesheet" type="text/css" href="css/test.css" />  
 
-    <script type="text/javascript" src="js/Base.js"></script>
-    <script type="text/javascript" src="js/jquery.js"></script>
-    <script type="text/javascript" src="js/jquery-ui.js"></script>
-    <script type="text/javascript" src="js/jquery.mousewheel.js"></script>
-    <script type="text/javascript" src="js/jquery.mousehold.js"></script>
-    <script type="text/javascript" src="js/rtree.js"></script>
-    <script type="text/javascript" src="js/FRegion.js"></script>
+    <script type="text/javascript" src="js/lib/Base.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+    <script type="text/javascript" src="js/lib/rtree.js"></script>
+    <script type="text/javascript" src="js/lib/FRegion.js"></script>
 
     <script type="text/javascript" src="js/Genoverse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script> 
@@ -25,6 +25,7 @@
     <script type="text/javascript" src="js/Track/Gene.js"></script>
     <script type="text/javascript" src="js/Track/DAS.js"></script>
     <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
     <script type="text/javascript" src="js/Track/Threshold.js"></script>
     <script type="text/javascript" src="js/Track/Error.js"></script>
 
@@ -71,7 +72,8 @@
     $(function () {
       cBrowse = new Genoverse({
         container      : $('.canvas_container'),
-        chromosomeSize : 249250621, // chromosome 1
+//        chromosomeSize : 249250621, // chromosome 1
+        chromosomeSize : 131738871, // chromosome 8, mouse
 //        chromosomeSize : 102531392, // chromosome 15
 //        chromosomeSize : 81195210, // chromosome 17
         labelWidth     : 0,
@@ -83,9 +85,21 @@
           type  : 'Scalebar'
         }, 
         {
-          type : 'DASTranscript',
-          //url  : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.karyotype/features?segment=__CHR__',
+          name   : 'Genes',
+          type   : 'DASTranscript',
+          source : 'http://www.derkholm.net:8080/das/mmu_58_37k',
+          filter : {
+            type : [ 'transcript', 'translation' ]
+          },
+          display: {
+            group: 'transcript'
+          },
         }, 
+        // {
+        //   name   : 'ikmc alleles',
+        //   type   : 'DASTranscript',
+        //   source : 'http://beta.mousephenotype.org/mi/ws/das-ws/das/ikmcalleles',
+        // }, 
         // {
         //   name          : 'Genes',
         //   //url           : 'http://enssand-03.internal.sanger.ac.uk:7000/Homo_sapiens/Ajax/fetch_features/_transcript?chr=__CHR__&start=__START__&end=__END__&id=transcript_core_ensembl',
@@ -123,13 +137,13 @@
         //   //   draw: 1
         //   // }
         // },
-        {
-          type    : 'MicroArray',
-          name    : 'MicroArray',
-          url     : '/data/1.json',
+        // {
+        //   type    : 'MicroArray',
+        //   name    : 'MicroArray',
+        //   url     : '/data/1.json',
 
-          overlap : 1,
-        },
+        //   overlap : 1,
+        // },
         // {
         //   type    : 'DAS',
         //   name    : 'Das',
