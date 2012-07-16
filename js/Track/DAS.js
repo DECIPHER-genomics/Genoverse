@@ -26,8 +26,8 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
     var start    = this.allData ? 1 : start;
     var end      = this.allData ? this.browser.chromosomeSize : end;
 
-    // return 'segment=' + chr + ':' + start + ',' + end + '&' + 
-    //        (this.types instanceof Array ? jQuery.map(this.types, function(type){ return "type=" + type }).join('&') : '');
+    return 'segment=' + chr + ':' + start + ',' + end +
+            (this.filter && this.filter.type instanceof Array ? '&' + jQuery.map(this.filter.type, function(type){ return "type=" + type }).join('&') : '');
 
     return $.extend({ 
       segment: chr + ':' + start + ',' + end, 
@@ -67,7 +67,7 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
           glyph[$(PROPERTY).prop('tagName').toLowerCase()] = $(PROPERTY).text();
         })
 
-        glyph.fgcolor = glyph.fgcolor ? track.mapColor(glyph.fgcolor) : track.stylesheet.default[0].fgcolor;
+        glyph.fgcolor = glyph.fgcolor ? track.mapColor(glyph.fgcolor) : track._stylesheet.default.fgcolor;
         glyph.bgcolor = glyph.bgcolor ? track.mapColor(glyph.bgcolor) : null;
 
         glyphs.push(glyph);
@@ -81,7 +81,7 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
       stylesheet[TYPE.getAttribute('id')] = glyphs;
     });
 
-    this.stylesheet = $.extend(stylesheet, this.stylesheet);
+    this.stylesheet = $.extend(this._stylesheet, stylesheet, this.stylesheet);
 
     // TODO: check for existing images? or if any drawing has started 
     //this.redraw = true;
@@ -124,8 +124,19 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
         this.context.lineWidth   = 0.4;
         
         this.context.beginPath();
-        this.context.moveTo(bounds.x, bounds.y + this.featureHeight/2);
+        this.context.moveTo(bounds.x, bounds.middleY);
         this.context.bezierCurveTo(bounds.x, bounds.controlY, bounds.x+bounds.w, bounds.controlY, bounds.x+bounds.w, bounds.middleY);
+        this.context.stroke();
+        this.context.closePath();
+      break;
+
+      case 'triangle' :
+        this.context.strokeStyle = style.fgcolor;
+        this.context.beginPath();
+        this.context.moveTo(bounds.x, bounds.y);
+        this.context.lineTo(bounds.x, bounds.y + this.featureHeight);
+        this.context.lineTo(bounds.x + bounds.w, bounds.middleY);
+        this.context.lineTo(bounds.x, bounds.y);
         this.context.stroke();
         this.context.closePath();
       break;
@@ -205,7 +216,7 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
         feature.notes.push($(NOTE).text());
       });
 
-      $(FEATURE).find('GROUP').each(function (i, GROUP) {
+      $(FEATURE).find('GROUP,PARENT').each(function (i, GROUP) {
         var group   = {};
         group.id    = GROUP.getAttribute('id');
         group.type  = GROUP.getAttribute('type');
@@ -224,10 +235,10 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
         feature.groups.push(group);
       });
 
-      $(FEATURE).find('PARENT').each(function (i, PARENT) {
-        if (!feature.parents) feature.parents = [];
-        feature.parents.push({ id: PARENT.getAttribute('id') });
-      });
+      // $(FEATURE).find('PARENT').each(function (i, PARENT) {
+      //   if (!feature.parents) feature.parents = [];
+      //   feature.parents.push({ id: PARENT.getAttribute('id') });
+      // });
 
       features.push(feature)
     });
@@ -236,7 +247,7 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
   },
 
 
-  stylesheet: {
+  _stylesheet: {
     default: {
       bgcolor: 'grey',
       fgcolor: 'grey',

@@ -11,7 +11,7 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
     featureHeight  : 10,
     decorations    : {},
     separateLabels : true,
-    groups         : {}
+    //groups         : {}
   },
 
   
@@ -26,7 +26,8 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
 
 
   groupFeatures: function (features) {
-
+    if (!this.groups) this.groups = {};
+    
     for (var i=0; i<features.length; i++) {
 
       var feature = features[i];
@@ -37,7 +38,7 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
       if (feature.groups) {
 
         for (var j=0; j<feature.groups.length; j++) {
-          if (!this.display.group[feature.groups[j].type]) continue;
+          if (this.display && this.display.group && !this.display.group[feature.groups[j].type]) continue;
 
           if (this.groups[feature.groups[j].id]) {
 
