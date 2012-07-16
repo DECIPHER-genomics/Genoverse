@@ -38,7 +38,7 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
 
         for (var j=0; j<feature.groups.length; j++) {
           if (!this.display.group[feature.groups[j].type]) continue;
-          
+
           if (this.groups[feature.groups[j].id]) {
 
             var group  = this.groups[feature.groups[j].id];
@@ -77,7 +77,7 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
       var group = this.groups[id];
       if (group.new) {
         if (!group.label) group.label = group.id;
-        group.exons.sort(function (a, b) { return a.width - b.width });
+        group.exons.sort(function (a, b) { var s = a.start - b.start; return s ? s : a.width - b.width });
         group.type = 'group';
         this.features.insert({ x: group.start, w: group.end - group.start, y:0, h:1 }, group.id);
       }
@@ -151,17 +151,18 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
       var feature = features[i];
       feature.new = false;
       var bounds  = feature.bounds[this.scale];
-      if (!bounds) continue;
+      if (!bounds || seen[feature.id]) continue;
+      seen[feature.id] = 1;
 
-      this.drawFeature(
-        feature, 
-        {
-          x: feature.scaledStart - image.scaledStart, 
-          y: bounds[0].y, 
-          w: feature.scaledEnd - feature.scaledStart, 
-          h: this.featureHeight 
-        }
-      );
+      // this.drawFeature(
+      //   feature, 
+      //   {
+      //     x: feature.scaledStart - image.scaledStart, 
+      //     y: bounds[0].y, 
+      //     w: feature.scaledEnd - feature.scaledStart, 
+      //     h: this.featureHeight 
+      //   }
+      // );
 
       var j = feature.exons.length;
       for (var j=0; j<feature.exons.length; j++) {
@@ -175,6 +176,26 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
             h: this.featureHeight
           }
         );
+
+        // Introns (connections between exons)
+        if (feature.exons[j+1] && exon.scaledEnd < feature.exons[j+1].scaledStart) {
+          this.drawFeature(
+            {
+              orientation: exon.orientation,
+              style: $.extend(
+                {},
+                this.stylesheet[feature.type] || { fgcolog: 'black' },
+                { type: 'bezierCurve' }
+              )
+            },
+            {
+              x: exon.scaledEnd - image.scaledStart, 
+              y: bounds[0].y,
+              w: feature.exons[j+1].scaledStart - exon.scaledEnd
+            }
+          );
+        }
+
       }
 
       if (feature.label && bounds[1]) {

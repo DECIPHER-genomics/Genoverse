@@ -89,16 +89,45 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
 
 
   drawFeature: function (feature, bounds) {
-    var style = this.stylesheet[feature.type] || this.stylesheet.default;
-    bounds.x = Math.floor(bounds.x) + 0.5;
-    bounds.y = Math.floor(bounds.y) + 0.5;
-    bounds.w = Math.round(bounds.w);
+    var style = feature.style || this.stylesheet[feature.type] || this.stylesheet.default;
+    bounds.x  = Math.floor(bounds.x) + 0.5;
+    bounds.y  = Math.floor(bounds.y) + 0.5;
+    bounds.w  = Math.floor(bounds.w);
+
+    // controlY and middleY for line, hat and bezierCurve
+    bounds.controlY = (feature.orientation == '-') ? bounds.y + this.featureHeight : bounds.y;
+    bounds.middleY  = bounds.y + this.featureHeight/2;
+
+
+    this.context.lineWidth = 1;
 
     switch (style.type) {
 
       case 'line' :
         this.context.strokeStyle = style.fgcolor;
-        this.context.strokeRect(bounds.x, bounds.y + this.featureHeight/2, bounds.w, 0);
+        this.context.strokeRect(bounds.x, bounds.middleY, bounds.w, 0);
+      break;
+
+      case 'hat' :
+        this.context.strokeStyle = style.fgcolor;
+        this.context.lineWidth = 0.5;
+        this.context.beginPath();
+        this.context.moveTo(bounds.x, bounds.middleY);
+        this.context.lineTo(bounds.x + bounds.w/2, bounds.controlY);
+        this.context.lineTo(bounds.x + bounds.w, bounds.middleY);
+        this.context.stroke();
+        this.context.closePath();
+      break;
+
+      case 'bezierCurve' :
+        this.context.strokeStyle = style.fgcolor;
+        this.context.lineWidth   = 0.4;
+        
+        this.context.beginPath();
+        this.context.moveTo(bounds.x, bounds.y + this.featureHeight/2);
+        this.context.bezierCurveTo(bounds.x, bounds.controlY, bounds.x+bounds.w, bounds.controlY, bounds.x+bounds.w, bounds.middleY);
+        this.context.stroke();
+        this.context.closePath();
       break;
 
       case 'box':
