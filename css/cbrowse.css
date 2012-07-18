@@ -158,6 +158,54 @@
 .canvas_zoom.o .l.v  { left:   8px;  }
 .canvas_zoom.o .r.v  { right:  8px;  }
 
+
+.menu {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 0px 12px 12px 12px;
+  color: white;
+  min-width: 200px;
+  padding: 0;
+  position: absolute;
+  z-index: 10000;
+  box-shadow: 3px 3px 10px #666666;
+  margin-left: 5px;  
+}
+
+.menu table {
+  width: 80%;
+  margin-right: 15%;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 10px;
+}
+
+.menu table .title {
+  font-weight: bold;
+}
+
+.menu .close {
+  background-color: #CCCCCC;
+  border-radius : 20px;
+  height        : 20px;
+  width         : 20px;
+  line-height   : 17px;
+  font-size     : 13px;
+  font-family   : Comic Sans MS;
+  font-weight   : bold;
+  color: #2E2E2E;
+  text-shadow : #F5F5F5 1px 1px 0px;
+  cursor: pointer;
+  float: right;
+  padding: 0 0 0 1px;
+  text-align: center;
+  margin: 3px;
+}
+
+.menu .close:hover {
+  background-color: #FFF;
+  box-shadow: 0px 0px 5px #FFFFFF;
+}
+
 .featureMenuContainer {
   position: absolute;
   display: none;

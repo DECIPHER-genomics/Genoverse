@@ -206,5 +206,4 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
     }
   }
 
-
 });

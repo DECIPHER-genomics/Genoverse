@@ -719,7 +719,15 @@ Genoverse.Track = Base.extend({
       return Math.floor(label) + (unit === 'bp' ? '' : '.' + (label.toString().split('.')[1] || '').concat('00').substring(0, 2)) + ' ' + unit;
     }
   },
-  
+
+  populateMenu: function (feature) {
+    return {
+      title : feature.label || feature.id,
+      Start : feature.start,
+      End   : feature.end
+    }
+  },
+
   beforeDraw          : $.noop, // decoration for the track, drawn before the features
   decorateFeatures    : $.noop, // decoration for the features
   afterDraw           : $.noop, // decoration for the track, drawn after the features

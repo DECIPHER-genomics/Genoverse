@@ -246,7 +246,6 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
     return features;
   },
 
-
   _stylesheet: {
     default: {
       bgcolor: 'grey',

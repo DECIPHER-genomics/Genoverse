@@ -122,6 +122,16 @@ var Genoverse = Base.extend({
     this.setHistory();
     this.setTracks();
     this.makeImage();
+
+    this.addUserEventHandlers();
+  },
+
+  addUserEventHandlers: function () {
+    $('.menu .close').live('click', function(){
+      $(this).fadeOut('fast', function(){
+        $(this).parent().remove();
+      });
+    });
   },
   
   reset: function () {
@@ -743,9 +753,27 @@ var Genoverse = Base.extend({
     });
     
     track.menus.push(menu[0]);
+
+    $.when(track.populateMenu(feature)).done(function (items) {
+      $('table', menu).html(
+        (items.title ? '<tr><td colspan="2" class="title">' + items.title + '</td></tr>' : '')
+        +
+        $.map(
+          items, 
+          function (value, key) {
+            if (key !== 'title') {
+              return '<tr><td>'+ key +'</td><td>'+ value +'</td></tr>';
+            }
+          }
+        ).join()
+      );
+
+      menu.show();  
+    });
     
     return menu;
   },
+
 
   /**
    * functionWrap - wraps event handlers and adds debugging functionality

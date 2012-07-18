@@ -94,6 +94,12 @@
           display: {
             group: 'transcript'
           },
+          populateMenu: function (feature) {
+            return {
+              title : "BLA", 
+              foo   : "bar"
+            };
+          }
         }, 
         {
           name   : 'ikmc alleles',
@@ -141,8 +147,7 @@
         //   type    : 'MicroArray',
         //   name    : 'MicroArray',
         //   url     : '/data/1.json',
-
-        //   overlap : 1,
+        //   //overlap : 1,
         // },
         // {
         //   type    : 'DAS',
@@ -155,13 +160,6 @@
         ]
       });
 
-
-      $('.featureMenuClose').live('click', function(){
-        $(this).fadeOut(100, function(){
-          $(this).parent().remove();
-          $('div.overlap').remove();
-        });
-      });
 
       $("button.scroll.left").mousehold(50, function () {
         cBrowse.move(NaN, 100, 100);
