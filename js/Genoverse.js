@@ -756,16 +756,12 @@ var Genoverse = Base.extend({
 
     $.when(track.populateMenu(feature)).done(function (items) {
       $('table', menu).html(
-        (items.title ? '<tr><td colspan="2" class="title">' + items.title + '</td></tr>' : '')
-        +
-        $.map(
-          items, 
-          function (value, key) {
-            if (key !== 'title') {
-              return '<tr><td>'+ key +'</td><td>'+ value +'</td></tr>';
-            }
+        (items.title ? '<tr><td colspan="2" class="title">' + items.title + '</td></tr>' : '') +
+        $.map(items, function (value, key) {
+          if (key !== 'title') {
+            return '<tr><td>'+ key +'</td><td>'+ value +'</td></tr>';
           }
-        ).join()
+        }).join()
       );
 
       menu.show();  
