@@ -1,0 +1,180 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+
+
+    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />  
+
+    <script type="text/javascript" src="js/lib/Base.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+    <script type="text/javascript" src="js/lib/rtree.js"></script>
+    <script type="text/javascript" src="js/lib/FRegion.js"></script>
+
+    <script type="text/javascript" src="js/Genoverse.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script> 
+    <script type="text/javascript" src="js/TrackImage.js"></script>
+
+    <script type="text/javascript" src="js/Track/Static.js"></script>
+    <script type="text/javascript" src="js/Track/Stranded.js"></script> 
+
+    <script type="text/javascript" src="js/Track/Scaleline.js"></script>
+    <script type="text/javascript" src="js/Track/Scalebar.js"></script>
+    <script type="text/javascript" src="js/Track/MicroArray.js"></script>
+    <script type="text/javascript" src="js/Track/Gene.js"></script>
+    <script type="text/javascript" src="js/Track/DAS.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
+    <script type="text/javascript" src="js/Track/Threshold.js"></script>
+    <script type="text/javascript" src="js/Track/Error.js"></script>
+
+    <script type="text/javascript" src="js/plugins/overlap.js"></script>
+    <script type="text/javascript" src="js/plugins/resizer.js"></script>
+    <!--script type="text/javascript" src="js/plugins/scrollArrows.js"></script-->
+    <!--script type="text/javascript" src="js/plugins/toggleWheelZoom.js"></script-->
+    <!--script type="text/javascript" src="js/plugins/dblClickZoom.js"></script-->
+    <script type="text/javascript" src="js/plugins/toggleDragging.js"></script>
+    <script type="text/javascript" src="js/plugins/crosshairSelect.js"></script>
+    <script type="text/javascript" src="js/plugins/fileDrop.js"></script>
+
+    <style>
+      diva {
+        border: 1px solid black;
+      }
+
+      .wrap {
+        margin: auto;
+        width: 1000px;
+        margin-top: 2em;   
+      }
+
+
+    </style>
+
+  </head>
+  <body>
+
+  <div class="wrap">
+
+    <table cellspacing=0 cellpadding=0 class="genoverse">
+      <tr>
+        <td>
+          <div class="canvas_container">
+          </div>
+        </td>
+        <td class="genoverse_panel genoverse_panel_right" rowspan="2">
+          <div class="button_set">
+          <button class="scrollLeft" title="Scroll left">&#9668;</button><button class="scrollRight" title="Scroll right">&#9658;</button>
+          </div>
+          <div class="button_set">
+          <button class="zoomIn" title="Zoom in">+</button><button class="zoomOut" title="Zoom out">&#8722;</button>
+          </div>
+          <div class="button_set">
+          <button class="dragScroll">&#8596;</button><button class="dragSelect">&#9482;</button>
+          </div>
+          <div class="button_set">
+          <button class="wheelScroll">&#8597;</button><button class="wheelZoom">&#177;</button>
+          </div>
+
+        </td>
+      </tr>
+    </table>
+
+  </div>
+
+
+
+
+
+  <script>
+    jQuery.ajaxSettings.traditional = true;
+    
+    var GenoVerse;
+
+    $(function () {
+      GenoVerse = new Genoverse({
+        container      : $('.canvas_container'),
+        chromosomeSize : 131738871, // chromosome 8, mouse
+        labelWidth     : 110,
+        dragScroll     : true,
+        wheelZoom      : false,
+        tracks         : [
+        // {
+        //   type  : 'Scaleline'
+        // }, 
+        {
+          type  : 'Scalebar'
+        },
+
+        {
+          name   : 'Genes',
+          type   : 'DASTranscript',
+          source : 'http://www.derkholm.net:8080/das/mmu_58_37k',
+          filter : {
+            type : [ 'transcript', 'translation' ]
+          },
+          display: {
+            group: 'transcript'
+          },
+          populateMenu: function (feature) {
+            return {
+              title: feature.label,
+              start: feature.start,
+              stop: feature.end,
+              Links: '<a href="#">e!</a>'
+
+            };
+          }
+        },
+
+        {
+          name   : 'ikmc alleles',
+          type   : 'DASTranscript',
+          source : 'http://beta.mousephenotype.org/mi/ws/das-ws/das/ikmcalleles'
+        }, 
+
+
+        ]
+      });
+
+
+      $("button.scrollLeft").mousehold(50, function () {
+        $('.track_container .resizer').hide();
+        GenoVerse.move(NaN, 100, 100);
+      });
+
+      $("button.scrollLeft,button.scrollRight").mouseup(function () {
+        $('.track_container .resizer').show();
+        GenoVerse.updateURL();
+        GenoVerse.checkTrackSize();
+      });
+
+      $("button.scrollRight").mousehold(50, function () {
+        $('.track_container .resizer').hide();
+        GenoVerse.move(NaN, -100, 100);
+      });
+
+      $("button.zoomIn").click(function () {
+        GenoVerse.zoomIn();
+      });
+
+      $("button.zoomOut").click(function () {
+        GenoVerse.zoomOut();
+      });
+
+
+
+
+
+    });
+
+  </script>
+
+
+
+
+
+  </body>
+</html>

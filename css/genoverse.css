@@ -1,0 +1,324 @@
+.genoverse_panel div {
+  white-space: nowrap;
+}
+
+.genoverse_panel_top {
+  height: 40px;
+  background-color: #5F8CB0;
+  background-image: linear-gradient(left, #5F8CB0, #4A7496); 
+  border-radius: 5px 0 0 0;
+  border: 1px solid #1C5380;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);        
+  vertical-align: top;
+}
+
+
+
+.genoverse_panel_right {
+  width: 200px;
+  height: 100%;
+  background-color: #5F8CB0;
+  background-image: -webkit-linear-gradient(left, #5F8CB0, #4A7496);
+  background-image: -moz-linear-gradient(left center, #5F8CB0, #4A7496);
+  border-radius: 0 5px 5px 0;
+  border: 1px solid #1C5380;
+  border-left: none;
+
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);        
+  vertical-align: top;
+}
+
+.genoverse_panel button {
+  background: none;
+  border: none;
+  border-bottom: 1px solid #1C5380;
+  color: #E2E9EF;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.75);
+  width: 30px;
+  height: 50px;
+  font-size: 18px;
+  line-height: 20px;
+  padding: 2px;
+}
+
+.genoverse_panel div.button_set>button:not(:first-child) {
+  border-left: 1px solid #1C5380;
+}
+
+.genoverse_panel div.button_set:not(:first-child)>button {
+  box-shadow: 0 1px 1px rgba(255, 255, 255, 0.12) inset;        
+}
+
+.genoverse_panel div.button_set:last-child {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.genoverse_panel button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.genoverse_panel button:active, .genoverse_panel button.active {
+  border-top: none;
+  background-color: rgba(6, 54, 95, 0.35);
+  box-shadow: 0 0 1px rgba(6, 54, 95, 0.8) inset !important;        
+}
+
+/*
+.genoverse_panel_right button:last-child {
+  box-shadow:  0 1px 1px rgba(255, 255, 255, 0.12) inset, 0 1px 0 0 rgba(255, 255, 255, 0.12);
+}
+
+.genoverse_panel_right button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+
+.genoverse_panel_right button:active {
+  border-top: none;
+  background-color: rgba(6, 54, 95, 0.35);
+  box-shadow: 0 0 1px rgba(6, 54, 95, 0.8) inset;        
+}*/
+
+.genoverse td {
+  padding: 0;
+}
+
+
+ul.label_container {
+  background-color: #5F8CB0;
+  background-image: -moz-linear-gradient(right center , #5F8CB0, #4A7496); 
+  background-image: -webkit-linear-gradient(right, #5F8CB0, #4A7496);
+  border-radius: 5px 0 0 5px;
+  border: 1px solid #1C5380;
+  border-right: none;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);        
+}
+
+
+
+
+
+
+
+
+
+
+.canvas_container {
+  position: relative; 
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;  
+}
+
+.canvas_container .wrapper {
+  border: 1px solid black;
+  overflow: hidden;
+  position: relative;
+  background: #ccc;
+}
+
+.canvas_container .wrapper .overlay {
+  position: absolute;
+  height: 100%;
+  z-index: 10;
+  background: url(/i/loadingBG.png) repeat #ccc;
+}
+
+.canvas_container .wrapper .overlay.track {
+  background-position: center;
+  background-repeat: repeat-x;
+}
+
+.canvas_container canvas {
+  display: none;
+}
+
+.canvas_container .track_container,
+.canvas_container .track_container_static {
+  overflow: visible;
+  position: relative;
+  width: 0;
+}
+
+.canvas_container .image_container {
+  height: 100%;
+  overflow: hidden;
+  position: absolute;
+  background: #ccc;
+}
+
+.canvas_container .image_container img {
+  display: none;
+  position: absolute;
+}
+
+.canvas_container .image_container img.bg {
+  display: block;
+  width: 100%;
+}
+
+.canvas_container .image_container img.static {
+  display: block;
+  top: 50%;
+}
+
+.canvas_container .height_toggler {
+  display: none;
+}
+
+.canvas_container .label_container {
+  position: relative;
+  float: left;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.canvas_container .label_container li {
+  position: relative;
+  margin: 0;
+  color: #FFFFFF;
+  list-style-image: none;
+  white-space: nowrap;
+}
+
+
+.canvas_container .label_container li .handle {
+  position: relative;
+  background-image: url(/i/Grabbar.png);
+  cursor: move;
+  display: inline-block;
+  height: 80%;
+  margin: 20% 0;
+  width: 10px;
+  opacity: 0;
+}
+
+.canvas_container .label_container li:hover .handle {
+  opacity: 0.7;
+}
+
+
+.canvas_container .label_container li .handle:hover {
+  opacity: 0.9;
+}
+
+li.sortHandle {
+  background-color: rgba(6, 54, 95, 0.35);
+}
+
+.canvas_container .label_container li:not(:first-child):not(:last-child) {
+  /*border-bottom: 1px solid #1C5380;*/
+  box-shadow: 0 2px 0 rgba(255, 255, 255, 0.12) inset, 0 1px 0 #1C5380 inset;
+}
+
+.canvas_container .label_container li .name {
+  display: inline-block;
+  position: relative; 
+  overflow: hidden;
+  vertical-align: top;
+  margin-top: 8px;
+  left: 5px; 
+  width: 90%;
+  color: #F2F5F7;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.75);
+  text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: bold;
+  font-family: Verdana;
+}
+
+.canvas_container .label_container li.unsortable .name {
+  left: 15px;
+}
+
+.canvas_container .menu_container {
+  position: absolute;
+  height: 100%;
+  overflow: hidden;
+}
+
+.canvas_container .expander {
+  position: absolute;
+  display: block;
+  height: 15px;
+  margin-left: -5px;
+  padding-right: 10px;
+  box-shadow: 0 -5px 7px -3px #000000 inset;
+  cursor: pointer;
+  z-index: 1;
+  bottom: 0;
+}
+
+.canvas_container .expander:hover {
+  box-shadow: 0 -5px 7px -3px #7D98B8 inset;
+}
+
+.canvas_zoom         { position: absolute; display: none; z-index: 20; }
+.canvas_zoom.i       { width: 40px; height: 40px; }
+.canvas_zoom.o       { width: 80px; height: 80px; }
+.canvas_zoom .h      { position: absolute; height: 2px;  width: 10px; background: red; }
+.canvas_zoom .v      { position: absolute; height: 10px; width: 2px;  background: red; }
+.canvas_zoom .r      { right:  0;    }
+.canvas_zoom .b      { bottom: 0;    }
+.canvas_zoom.o .t.h  { top:    10px; }
+.canvas_zoom.o .b.h  { bottom: 10px; }
+.canvas_zoom.o .l.v  { left:   8px;  }
+.canvas_zoom.o .r.v  { right:  8px;  }
+
+
+.menu {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 0px 12px 12px 12px;
+  color: white;
+  min-width: 200px;
+  padding: 0;
+  position: absolute;
+  z-index: 10000;
+  box-shadow: 3px 3px 10px #666666;
+  margin-left: 5px;  
+}
+
+.menu table {
+  width: 80%;
+  margin-right: 15%;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 10px;
+}
+
+.menu table .title {
+  font-weight: bold;
+}
+
+.menu .close {
+  background-color: #CCCCCC;
+  border-radius : 20px;
+  height        : 20px;
+  width         : 20px;
+  line-height   : 17px;
+  font-size     : 13px;
+  font-family   : Comic Sans MS;
+  font-weight   : bold;
+  color: #2E2E2E;
+  text-shadow : #F5F5F5 1px 1px 0px;
+  cursor: pointer;
+  float: right;
+  padding: 0 0 0 1px;
+  text-align: center;
+  margin: 3px;
+}
+
+.menu .close:hover {
+  background-color: #FFF;
+  box-shadow: 0px 0px 5px #FFFFFF;
+}
+
+
+
+
