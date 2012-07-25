@@ -11,8 +11,7 @@ var Genoverse = Base.extend({
     colors           : {
       background     : '#FFFFFF',
       majorGuideLine : '#CCCCCC',
-      minorGuideLine : '#E5E5E5',
-      sortHandle     : '#CFD4E7'
+      minorGuideLine : '#E5E5E5'
     }
   },
   
@@ -56,12 +55,12 @@ var Genoverse = Base.extend({
     this.menuContainer  = $('<div class="menu_container">').css({ width: width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
     this.labelContainer = $('<ul class="label_container">').width(this.labelWidth).appendTo(this.container).sortable({
       items       : 'li:not(.unsortable)',
+      handle      : '.handle',
       axis        : 'y',
       helper      : 'clone',
-      placeholder : 'label',
+      cursor      : 'move',
       start       : function (e, ui) {
-        ui.placeholder.css({ height: ui.item.height(), visibility: 'visible', background: browser.colors.sortHandle }).html(ui.item.html());
-        ui.helper.hide();
+        ui.placeholder.css({ height: ui.item.height(), visibility: 'visible' }).html(ui.item.html());
       },
       update      : function (e, ui) {
         browser.tracks[ui.item.data('index')].container[ui.item[0].previousSibling ? 'insertAfter' : 'insertBefore'](browser.tracks[$(ui.item[0].previousSibling || ui.item[0].nextSibling).data('index')].container);

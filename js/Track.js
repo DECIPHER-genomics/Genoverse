@@ -80,12 +80,14 @@ Genoverse.Track = Base.extend({
     }
     
     if (this.name) {
-      this.minLabelHeight = $('<span class="name">' + this.name + '</span>').appendTo(this.label).height();
-      this.label.height(Math.max(this.height, this.minLabelHeight));
-      
       if (this.unsortable) {
         this.label.addClass('unsortable');
+      } else {
+        $('<div class="handle"></div>').appendTo(this.label);
       }
+
+      this.minLabelHeight = $('<span class="name">' + this.name + '</span>').appendTo(this.label).height();
+      this.label.height(Math.max(this.height, this.minLabelHeight));
     }
     
     if (!this.fixedHeight && this.resizable !== false) {
