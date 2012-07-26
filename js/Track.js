@@ -132,8 +132,8 @@ Genoverse.Track = Base.extend({
     
     // MouseUp event when not scrolling (dragging)
     this.container.on('mouseup', '.image_container', function (e) {
-      if ((e.which && e.which !== 1) || (track.browser.prev.left !== track.browser.left)) {
-        return; // Only show menus on left click when not dragging
+      if ((e.which && e.which !== 1) || (track.browser.prev.left !== track.browser.left) || (track.browser.selectorStalled)) {
+        return; // Only show menus on left click when not dragging and not selecting
       }
       
       var x       = e.pageX - track.container.parent().offset().left + track.browser.scaledStart;
@@ -192,6 +192,10 @@ Genoverse.Track = Base.extend({
     this.container.height(height);
     this.label.height(height)[height ? 'show' : 'hide']();
     this.toggleExpander();
+
+    // This should be done using events 
+    // (fire adjustSelectorHeight on resize, add Track, remove Track, etc)
+    this.browser.adjustSelectorHeight();
   },
   
   toggleExpander: function () {
@@ -215,7 +219,7 @@ Genoverse.Track = Base.extend({
       this.expander.hide();
     }    
   },
-  
+
   remove: function () {
     var thresholdMessage = this.thresholdMessage;
     

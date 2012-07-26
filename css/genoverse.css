@@ -196,16 +196,7 @@ ul.label_container {
   height: 80%;
   margin: 20% 0;
   width: 10px;
-  opacity: 0;
-}
-
-.canvas_container .label_container li:hover .handle {
   opacity: 0.7;
-}
-
-
-.canvas_container .label_container li .handle:hover {
-  opacity: 0.9;
 }
 
 li.sortHandle {
@@ -320,5 +311,28 @@ li.sortHandle {
 }
 
 
+.selector {
+  position: absolute;
+  display: block;
+  border: 1px dashed red;
+  background-color: rgba(229, 121, 5, 0.1);
+  top: 0;
+  margin-left: -1px;
+  z-index: 10;
+}
 
+.selector.crosshair {
+  border-width: 0 0 0 1px;
+}
 
+.selector_controls {
+  display: none;
+
+  width: 100px;
+  position: relative;
+}
+
+.selector_controls button {
+  display: block;
+  width: 100%;
+}
