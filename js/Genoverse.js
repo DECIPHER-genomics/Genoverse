@@ -99,7 +99,7 @@ var Genoverse = Base.extend({
     this.makeImage();
 
     this.selector = $('<div class="selector crosshair"></div>').appendTo(this.wrapper);
-    this.selectorControls = $('<div class="selector_controls"><button class="zoomIn">Zoom in</button><button class="center">Center</button><button class="summary">Summary</button><button class="cancel">Cancel</button></div>')
+    this.selectorControls = $('<div class="selector_controls"><button class="zoomHere">Zoom here</button><button class="center">Center</button><button class="summary">Summary</button><button class="cancel">Cancel</button></div>')
                             .appendTo(this.selector);
 
     this.adjustSelectorHeight();
@@ -126,8 +126,44 @@ var Genoverse = Base.extend({
     $(document).on('mouseup', $.proxy(this.mouseup, this));
     $(document).on('mousemove', $.proxy(this.mousemove, this));
 
-    $(".selector_controls button.zoomIn").click(function () {
+    $(".selector_controls button.zoomHere").click(function () {
+      var left  = $('.selector').position().left;
+      var width = $('.selector').outerWidth(true);
+      browser.cancelSelect();
 
+      var start = Math.round(left / browser.scale + browser.start);
+      var end   = Math.round((left+width) / browser.scale + browser.start);
+      browser.setRange(start, end);
+    });
+
+    $(".selector_controls button.cancel").click(function () {
+      browser.cancelSelect();
+    });
+
+    $(".selector_controls button.center").click(function () {
+      var left  = $('.selector').position().left;
+      var width = $('.selector').outerWidth(true);
+      var midpt = left + width/2;
+      var delta = browser.width/2 - midpt;
+      browser.cancelSelect();
+      browser.move(null, delta, 'fast');
+    });
+
+    $(".selector_controls button.center").click(function () {
+      var left  = $('.selector').position().left;
+      var width = $('.selector').outerWidth(true);
+      var midpt = left + width/2;
+      var delta = browser.width/2 - midpt;
+      browser.cancelSelect();
+      browser.move(null, delta, 'fast');
+    });
+
+    $(".selector_controls button.suppary").click(function () {
+      var left  = $('.selector').position().left;
+      var width = $('.selector').outerWidth(true);
+      var start = Math.round(left / browser.scale);
+      var end   = Math.round((left + width) / browser.scale);
+      browser.summary(start, end);
     });
     
     if (this.useHash) {
@@ -881,6 +917,14 @@ var Genoverse = Base.extend({
     return menu;
   },
 
+  // Provide summary of a region (as a popup menu)
+  summary: function (start, end) {
+    alert(
+      'Not implemented' + "\n" +
+      'Start: ' + start + "\n" +
+      'End: '   + end   + "\n"
+    );
+  },
 
   /**
    * functionWrap - wraps event handlers and adds debugging functionality
