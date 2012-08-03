@@ -75,7 +75,7 @@
           <button class="dragScroll">&#8596;</button><button class="dragSelect">&#9482;</button>
           </div>
           <div class="button_set">
-          <button class="wheelScroll">&#8597;</button><button class="wheelZoom">&#177;</button>
+          <button class="wheelOff">&#8597;</button><button class="wheelZoom">&#177;</button>
           </div>
 
         </td>
@@ -99,6 +99,7 @@
         chromosomeSize : 131738871, // chromosome 8, mouse
         labelWidth     : 110,
         dragAction     : 'scroll',
+        wheelAction    : 'zoom',
         tracks         : [
         // {
         //   type  : 'Scaleline'
@@ -174,7 +175,6 @@
 
       $(".genoverse_panel button.dragSelect").click(function(){
         GenoVerse.setDragAction('select');
-
         $(".genoverse_panel button.dragSelect").addClass('active');
         $(".genoverse_panel button.dragScroll").removeClass('active');        
       });
@@ -184,6 +184,30 @@
         $(".genoverse_panel button.dragSelect").removeClass('active');
         $(".genoverse_panel button.dragScroll").addClass('active');     
       });
+
+
+      if (GenoVerse.wheelAction == 'zoom') {
+        $(".genoverse_panel button.wheelZoom").addClass('active');
+        $(".genoverse_panel button.wheelOff").removeClass('active');
+      } else {
+        $(".genoverse_panel button.wheelZoom").removeClass('active');
+        $(".genoverse_panel button.wheelOff").addClass('active');
+      }
+
+
+      $(".genoverse_panel button.wheelZoom").click(function(){
+        GenoVerse.setWheelAction('zoom');
+        $(".genoverse_panel button.wheelZoom").addClass('active');
+        $(".genoverse_panel button.wheelOff").removeClass('active');
+      });
+
+      $(".genoverse_panel button.wheelOff").click(function(){
+        GenoVerse.setWheelAction('off');
+        $(".genoverse_panel button.wheelZoom").removeClass('active');
+        $(".genoverse_panel button.wheelOff").addClass('active');    
+      });
+
+
 
 
     });

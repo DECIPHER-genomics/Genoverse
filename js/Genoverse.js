@@ -9,6 +9,7 @@ var Genoverse = Base.extend({
     trackSpacing     : 2,
     tracks           : [],
     dragAction       : 'scroll', // options are: scroll, select, off
+    wheelAction      : 'zoom',   // options are: zoom, off
     colors           : {
       background     : '#FFFFFF',
       majorGuideLine : '#CCCCCC',
@@ -118,8 +119,10 @@ var Genoverse = Base.extend({
         
         return false;
       },
-      mousewheel: function (e, delta) { 
-        return browser.mousewheelZoom(e, delta);
+      mousewheel: function (e, delta) {
+        if (browser.wheelAction == 'zoom') {
+          return browser.mousewheelZoom(e, delta);
+        }
       }
     }, '.image_container, .overlay');
 
@@ -312,6 +315,10 @@ var Genoverse = Base.extend({
       this.cancelSelect();
       this.selector.hide();
     }
+  },
+
+  setWheelAction: function (action) {
+    this.wheelAction = action;
   },
 
   mousedown: function (e) {
