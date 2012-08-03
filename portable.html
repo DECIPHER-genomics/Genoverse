@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+
+
+    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />  
+
+    <script type="text/javascript" src="js/lib/Base.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+    <script type="text/javascript" src="js/lib/rtree.js"></script>
+    <script type="text/javascript" src="js/lib/FRegion.js"></script>
+
+    <script type="text/javascript" src="js/Genoverse.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script> 
+    <script type="text/javascript" src="js/TrackImage.js"></script>
+
+    <script type="text/javascript" src="js/Track/Static.js"></script>
+    <script type="text/javascript" src="js/Track/Stranded.js"></script> 
+
+    <script type="text/javascript" src="js/Track/Scaleline.js"></script>
+    <script type="text/javascript" src="js/Track/Scalebar.js"></script>
+    <script type="text/javascript" src="js/Track/MicroArray.js"></script>
+    <script type="text/javascript" src="js/Track/Gene.js"></script>
+    <script type="text/javascript" src="js/Track/DAS.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
+    <script type="text/javascript" src="js/Track/Threshold.js"></script>
+    <script type="text/javascript" src="js/Track/Error.js"></script>
+
+    <script type="text/javascript" src="js/plugins/overlap.js"></script>
+    <script type="text/javascript" src="js/plugins/resizer.js"></script>
+    <!--script type="text/javascript" src="js/plugins/scrollArrows.js"></script-->
+    <!--script type="text/javascript" src="js/plugins/toggleWheelZoom.js"></script-->
+    <!--script type="text/javascript" src="js/plugins/dblClickZoom.js"></script-->
+    <script type="text/javascript" src="js/plugins/toggleDragging.js"></script>
+    <!--script type="text/javascript" src="js/plugins/crosshairSelect.js"></script-->
+    <script type="text/javascript" src="js/plugins/fileDrop.js"></script>
+    <script type="text/javascript" src="js/plugins/portable.js">
+
+
+      {
+        container      : $('#genoverse'),
+
+        chr            : 8,
+        chromosomeSize : 131738871, // chromosome 8, mouse
+        start          : 109580422,
+        end            : 109617143,
+
+        labelWidth     : 110,
+        dragAction     : 'scroll',
+        wheelAction    : 'zoom',
+
+        tracks         : [
+        // {
+        //   type  : 'Scaleline'
+        // }, 
+        {
+          type  : 'Scalebar'
+        },
+
+        {
+          name   : 'Genes',
+          type   : 'DASTranscript',
+          source : 'http://www.derkholm.net:8080/das/mmu_58_37k',
+          filter : {
+            type : [ 'transcript', 'translation' ]
+          },
+          display: {
+            group: 'transcript'
+          },
+          populateMenu: function (feature) {
+            return {
+              title: feature.label,
+              start: feature.start,
+              stop: feature.end,
+              Links: '<a href="#">e!</a>'
+
+            };
+          }
+        },
+
+        {
+          name   : 'ikmc alleles',
+          type   : 'DASTranscript',
+          source : 'http://beta.mousephenotype.org/mi/ws/das-ws/das/ikmcalleles'
+        }, 
+
+
+        ]
+      }
+
+    </script>
+
+    <style>
+      .wrap {
+        margin: auto;
+        width: 1000px;
+        margin-top: 2em;   
+      }
+    </style>
+
+  </head>
+  <body>
+
+  <div id="genoverse"></div>
+ 
+  </body>
+</html>

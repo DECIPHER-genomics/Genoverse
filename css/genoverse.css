@@ -15,7 +15,6 @@
 
 
 .genoverse_panel_right {
-  width: 200px;
   height: 100%;
   background-color: #5F8CB0;
   background-image: -webkit-linear-gradient(left, #5F8CB0, #4A7496);
@@ -106,7 +105,7 @@ ul.label_container {
 
 
 .canvas_container {
-  position: relative; 
+
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
