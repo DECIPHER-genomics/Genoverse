@@ -96,10 +96,16 @@
     $(function () {
       GenoVerse = new Genoverse({
         container      : $('.canvas_container'),
+
+        chr            : 8,
         chromosomeSize : 131738871, // chromosome 8, mouse
+        start          : 109580422,
+        end            : 109617143,
+
         labelWidth     : 110,
         dragAction     : 'scroll',
         wheelAction    : 'zoom',
+
         tracks         : [
         // {
         //   type  : 'Scaleline'
