@@ -313,6 +313,7 @@ li.sortHandle {
 .selector {
   position: absolute;
   display: block;
+  height: 100%;
   border: 1px dashed red;
   background-color: rgba(229, 121, 5, 0.1);
   top: 0;
@@ -326,7 +327,6 @@ li.sortHandle {
 
 .selector_controls {
   display: none;
-
   width: 100px;
   position: relative;
 }

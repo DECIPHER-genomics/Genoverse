@@ -58,11 +58,6 @@ Genoverse.Track = Base.extend({
       this.thresholdMessage = this.browser.setTracks([{ type: 'Threshold', track: this }], this.browser.tracks.length)[0];
     }
     
-    if (this.type !== 'Error') {
-      this.errorMessage = this.browser.setTracks([{ type: 'Error', track: this }], this.browser.tracks.length)[0];
-    }
-
-
     this.init();
     this.setScale();
     
@@ -85,7 +80,7 @@ Genoverse.Track = Base.extend({
       } else {
         $('<div class="handle"></div>').appendTo(this.label);
       }
-
+      
       this.minLabelHeight = $('<span class="name">' + this.name + '</span>').appendTo(this.label).height();
       this.label.height(Math.max(this.height, this.minLabelHeight));
     }
@@ -147,10 +142,6 @@ Genoverse.Track = Base.extend({
   },
   
   reset: function () {
-    if (this.ajax) {
-      this.ajax.abort();
-    }
-    
     this.container.children('.image_container').remove();
     
     if (this.url !== false) {
@@ -192,10 +183,6 @@ Genoverse.Track = Base.extend({
     this.container.height(height);
     this.label.height(height)[height ? 'show' : 'hide']();
     this.toggleExpander();
-
-    // This should be done using events 
-    // (fire adjustSelectorHeight on resize, add Track, remove Track, etc)
-    this.browser.adjustSelectorHeight();
   },
   
   toggleExpander: function () {
@@ -219,7 +206,7 @@ Genoverse.Track = Base.extend({
       this.expander.hide();
     }    
   },
-
+  
   remove: function () {
     var thresholdMessage = this.thresholdMessage;
     
@@ -617,7 +604,7 @@ Genoverse.Track = Base.extend({
     if (features) {
       this.draw(image, features.sort(function (a, b) { return a.sort - b.sort; }));
     } else {
-      this.ajax = $.ajax({
+      $.ajax({
         url      : this.url,
         data     : this.getQueryString(image.bufferedStart, image.end),
         dataType : this.dataType,
@@ -626,31 +613,36 @@ Genoverse.Track = Base.extend({
           if (this.allData) {
             this.url = false;
           }
-
-          delete this.ajax;
           
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
-
+          
           try {
             this.draw(image, this.parseFeatures(data, bounds));
-          } catch(e) {
-            this.errorMessage.draw(this.imgContainers[0], e + ' ' + e.fileName + ':' + e.lineNumber);
-            deferred.resolve({ target: image, img: image }); 
+          } catch (e) {
+            this.showError(image, deferred, e + ' ' + e.fileName + ':' + e.lineNumber);
           }
         },
         error: function (jqXHR, textStatus, errorThrown) {
-          this.errorMessage.draw(this.imgContainers[0], errorThrown.message);
-          deferred.resolve({ target: image, img: image }); 
+          this.showError(image, deferred, errorThrown.message);
         }
       });
     }
   },
   
+  showError: function (image, deferred, error) {
+    if (!this.errorMessage) {
+      this.errorMessage = this.browser.setTracks([{ type: 'Error', track: this }], this.browser.tracks.length)[0];
+    }
+    
+    this.errorMessage.draw(this.imgContainers[0], error);
+    deferred.resolve({ target: image.images, img: image }); 
+  },
+  
   getQueryString: function (start, end) {
     var chr      = this.browser.chr;
-    var start    = this.allData ? 1 : start;
-    var end      = this.allData ? this.browser.chromosomeSize : end;
+    var start    = this.allData ? 1 : Math.max(start, 1);
+    var end      = this.allData ? this.browser.chromosomeSize : Math.min(end, this.browser.chromosomeSize);
     var data     = {};
     var template = false;
     
@@ -725,7 +717,7 @@ Genoverse.Track = Base.extend({
       return Math.floor(label) + (unit === 'bp' ? '' : '.' + (label.toString().split('.')[1] || '').concat('00').substring(0, 2)) + ' ' + unit;
     }
   },
-
+  
   populateMenu: function (feature) {
     return {
       title : feature.label || feature.id,
@@ -733,7 +725,7 @@ Genoverse.Track = Base.extend({
       End   : feature.end
     }
   },
-
+  
   beforeDraw          : $.noop, // decoration for the track, drawn before the features
   decorateFeatures    : $.noop, // decoration for the features
   afterDraw           : $.noop, // decoration for the track, drawn after the features
