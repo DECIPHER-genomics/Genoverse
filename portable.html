@@ -26,6 +26,8 @@
     <script type="text/javascript" src="js/Track/Gene.js"></script>
     <script type="text/javascript" src="js/Track/DAS.js"></script>
     <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Sequence.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/GC.js"></script>
     <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
     <script type="text/javascript" src="js/Track/Threshold.js"></script>
     <script type="text/javascript" src="js/Track/Error.js"></script>
@@ -43,11 +45,15 @@
 
       {
         container      : $('#genoverse'),
+        width          : 1000,
+        chromosomeSize : 249250621, // chromosome 1, human
+        // chr            : 1,
+        // start          : 109533800,
+        // end            : 109535200,
 
-        chr            : 8,
-        chromosomeSize : 131738871, // chromosome 8, mouse
-        start          : 109580422,
-        end            : 109617143,
+        //chromosomeSize : 131738871, // chromosome 8, mouse
+        //start          : 109600000,
+        //end            : 109600050,
 
         labelWidth     : 110,
         dragAction     : 'scroll',
@@ -62,32 +68,56 @@
         },
 
         {
-          name   : 'Genes',
-          type   : 'DASTranscript',
-          source : 'http://www.derkholm.net:8080/das/mmu_58_37k',
-          filter : {
-            type : [ 'transcript', 'translation' ]
-          },
-          display: {
-            group: 'transcript'
-          },
-          populateMenu: function (feature) {
-            return {
-              title: feature.label,
-              start: feature.start,
-              stop: feature.end,
-              Links: '<a href="#">e!</a>'
-
-            };
-          }
-        },
-
-        {
-          name   : 'ikmc alleles',
-          type   : 'DASTranscript',
-          source : 'http://beta.mousephenotype.org/mi/ws/das-ws/das/ikmcalleles'
+          name   : 'Sequence',
+          threshold : 200000,
+          type   : 'DASSequence'
         }, 
 
+        {
+          type      : 'DASGC',
+          threshold : 200000,
+          height    : 100,
+        }, 
+
+        {
+          name   : 'e! transcript',
+          type   : 'DASTranscript',
+          source : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
+          // filter : {
+          //   type : [ 'transcript', 'translation' ]
+          // },
+          // display: {
+          //   group: 'transcript'
+          // },
+        },
+
+
+        // {
+        //   name   : 'Genes',
+        //   type   : 'DASTranscript',
+        //   source : 'http://www.derkholm.net:8080/das/mmu_58_37k',
+        //   filter : {
+        //     type : [ 'transcript', 'translation' ]
+        //   },
+        //   display: {
+        //     group: 'transcript'
+        //   },
+        //   populateMenu: function (feature) {
+        //     return {
+        //       title: feature.label,
+        //       start: feature.start,
+        //       stop: feature.end,
+        //       Links: '<a href="#">e!</a>'
+
+        //     };
+        //   }
+        // },
+
+        // {
+        //   name   : 'ikmc alleles',
+        //   type   : 'DASTranscript',
+        //   source : 'http://beta.mousephenotype.org/mi/ws/das-ws/das/ikmcalleles'
+        // },
 
         ]
       }
