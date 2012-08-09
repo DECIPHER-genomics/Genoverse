@@ -171,6 +171,9 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
 
 
   mapColor: function (DASColor) {
+    if (DASColor.indexOf('#')==0) 
+      return DASColor;
+    
     DASColor = DASColor.toLowerCase();
 
     if (DASColorMap[DASColor]) {
