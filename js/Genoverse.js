@@ -726,7 +726,10 @@ var Genoverse = Base.extend({
     var overlay = $('<div class="overlay">').css({ left: this.left ? (width - (Math.abs(this.left) % width)) * (width > Math.abs(this.left) || this.left > 0 ? -1 : 1) : 0, width: width });
     
     if (tracks) {
-      overlay = $($.map(tracks, function (track) { return overlay.clone().addClass('track').css({ top: track.container.position().top, height: track.height })[0]; }));
+      overlay = $($.map(
+        $.map(tracks, function (t) { return [ t, t.forwardTrack || t.reverseTrack ]; }),
+        function (track) { return track ? overlay.clone().addClass('track').css({ top: track.container.position().top, height: track.height })[0] : false; }
+      ));
     }
     
     return overlay.prependTo(this.wrapper);

@@ -14,7 +14,7 @@ Genoverse.Track.Stranded = {
       this.strand       = 1;
       this._makeImage   = this.makeImage;
       this.makeImage    = this.makeForwardImage;
-      this.reverseTrack = this.browser.setTracks([ $.extend({}, this.config, config, { strand: -1, forwardTrack: this }) ], this.browser.tracks.length)[0];
+      this.reverseTrack = this.browser.setTracks([ $.extend({}, config, { strand: -1, forwardTrack: this }) ], this.browser.tracks.length)[0];
     }
     
     if (!this.featureStrand) {
