@@ -114,10 +114,10 @@ var Genoverse = Base.extend({
 
   addUserEventHandlers: function () {
     var browser = this;
-
+    
     this.container.on({
       mousedown: function (e) {
-        if (!e.which || e.which === 1) {  // Only scroll on left click
+        if (!e.which || e.which === 1) { // Only scroll on left click
           browser.mousedown(e);
         }
         
@@ -128,7 +128,7 @@ var Genoverse = Base.extend({
           return browser.mousewheelZoom(e, delta);
         }
       }
-    }, '.image_container, .overlay');
+    }, '.image_container, .overlay, .selector');
 
     $(document).on('mouseup',   $.proxy(this.mouseup,   this));
     $(document).on('mousemove', $.proxy(this.mousemove, this));
@@ -138,6 +138,7 @@ var Genoverse = Base.extend({
       var width = browser.selector.outerWidth(true);
       var start = Math.round(left / browser.scale) + browser.start;
       var end   = Math.round((left + width) / browser.scale) + browser.start - 1;
+          end   = end <= start ? start : end;
       
       switch (e.target.className) {
         case 'zoomHere' : browser.cancelSelect(); browser.setRange(start, end, true); break;
@@ -183,10 +184,15 @@ var Genoverse = Base.extend({
   mousewheelZoom: function (e, delta) {
     var browser = this;
     
-    clearTimeout(browser.zoomDeltaTimeout);
-    clearTimeout(browser.zoomTimeout);
+    if (this.dragAction === 'select') {
+      this.cancelSelect();
+      this.moveSelector(e);
+    }
     
-    browser.zoomDeltaTimeout = setTimeout(function () {
+    clearTimeout(this.zoomDeltaTimeout);
+    clearTimeout(this.zoomTimeout);
+    
+    this.zoomDeltaTimeout = setTimeout(function () {
       if (delta > 0) {
         browser.zoomInHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
           width: 80, height: 80, top: '-=20', left: '-=20'
@@ -202,7 +208,7 @@ var Genoverse = Base.extend({
       }
     }, 100);
     
-    browser.zoomTimeout = setTimeout(function () {
+    this.zoomTimeout = setTimeout(function () {
       browser[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - browser.container.offset().left - browser.labelWidth);
     }, 300);
     
