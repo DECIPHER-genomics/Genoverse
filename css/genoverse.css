@@ -330,6 +330,7 @@ li.sortHandle {
   display: none;
   width: 100px;
   position: relative;
+  top: 50%;
 }
 
 .selector_controls button {

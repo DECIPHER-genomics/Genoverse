@@ -84,7 +84,7 @@ var Genoverse = Base.extend({
         <button class="summary">Summary</button>     \
         <button class="cancel">Cancel</button>       \
       </div>                                         \
-    ').appendTo(this.selector)
+    ').appendTo(this.selector);
     
     this.zoomInHighlight = $('     \
       <div class="canvas_zoom i">  \
@@ -124,7 +124,7 @@ var Genoverse = Base.extend({
         return false;
       },
       mousewheel: function (e, delta) {
-        if (browser.wheelAction == 'zoom') {
+        if (browser.wheelAction === 'zoom') {
           return browser.mousewheelZoom(e, delta);
         }
       }
@@ -137,11 +137,14 @@ var Genoverse = Base.extend({
       var left  = browser.selector.position().left;
       var width = browser.selector.outerWidth(true);
       var start = Math.round(left / browser.scale) + browser.start;
-      var end   = Math.round((left + width) / browser.scale) + browser.start;
+      var end   = Math.round((left + width) / browser.scale) + browser.start - 1;
       
       switch (e.target.className) {
         case 'zoomHere' : browser.cancelSelect(); browser.setRange(start, end, true); break;
-        case 'center'   : browser.move(null, browser.width / 2 - (left + width / 2), 'fast'); browser.updateURL(); browser.setHistory(); browser.cancelSelect(); break;
+        case 'center'   : browser.move(null, browser.width / 2 - (left + width / 2), 'fast');
+                          browser.updateURL();
+                          browser.setHistory();
+                          browser.cancelSelect(); break;
         case 'summary'  : browser.summary(start, end); break;
         case 'cancel'   : browser.cancelSelect(); break;
         default         : break;
@@ -149,9 +152,7 @@ var Genoverse = Base.extend({
     });
     
     this.menuContainer.on('click', '.menu .close', function () {
-      $(this).fadeOut('fast', function () {
-        $(this).parent().remove();
-      });
+      $(this).fadeOut('fast');
     });
     
     if (this.useHash) {
@@ -257,13 +258,13 @@ var Genoverse = Base.extend({
     this.dragging        = false;
     this.selectorStalled = true;
     
-    if (this.selector.outerWidth(true) < 5) { 
+    if (this.selector.outerWidth(true) < 2) { 
       return this.cancelSelect();
     }
     
     this.selectorControls.css({
-      top  : Math.min(e.pageY - this.wrapper.offset().top, this.container.height() - 2 * this.selectorControls.outerHeight(true)),
-      left : this.selector.outerWidth(true) / 2 - this.selectorControls.outerWidth(true) / 2
+      marginTop : -this.selectorControls.outerHeight() / 2,
+      left      : this.selector.outerWidth(true) / 2 - this.selectorControls.outerWidth(true) / 2
     }).show();
   },
 
@@ -281,12 +282,12 @@ var Genoverse = Base.extend({
     if (x > this.selectorStart) {
       this.selector.css({ 
         left  : this.selectorStart, 
-        width : Math.min(x - this.selectorStart, this.width - this.selectorStart) - 4,
+        width : Math.min(x - this.selectorStart, this.width - this.selectorStart) - 4
       });
     } else {
       this.selector.css({ 
         left  : Math.max(x, 1), 
-        width : Math.min(this.selectorStart - x, this.selectorStart - 1),
+        width : Math.min(this.selectorStart - x, this.selectorStart - 1)
       });
     }    
   },
@@ -413,7 +414,7 @@ var Genoverse = Base.extend({
       
       if (track.resizable) {
         track.autoHeight = !!([ (track.config || {}).autoHeight, track.defaults.autoHeight, this.autoHeight ].sort(function (a, b) {
-          return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1)
+          return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
         })[0]);
         
         track.heightToggler[track.autoHeight ? 'addClass' : 'removeClass']('auto_height');
@@ -629,7 +630,7 @@ var Genoverse = Base.extend({
   },
   
   sortTracks: function () {
-    var sorted     = $.extend([], this.tracks).sort(function (a, b) { return a.order - b.order });
+    var sorted     = $.extend([], this.tracks).sort(function (a, b) { return a.order - b.order; });
     var labels     = $();
     var containers = $();
     
@@ -837,13 +838,11 @@ var Genoverse = Base.extend({
     throw(error);
   },
   
-  menuTemplate: $('                  \
-    <div class="menu">               \
-      <div class="close">x</div>     \
-      <table>                        \
-        <tr><td></td><td></td></tr>  \
-      </table>                       \
-    </div>                           \
+  menuTemplate: $('               \
+    <div class="menu">            \
+      <div class="close">x</div>  \
+      <table></table>             \
+    </div>                        \
   '),
   
   // Creates a menu template only. Implement properly in a plugin
@@ -859,18 +858,18 @@ var Genoverse = Base.extend({
     });
     
     track.menus.push(menu[0]);
-
+    
     $.when(track.populateMenu(feature)).done(function (items) {
-      $('table', menu).html(
-        (items.title ? '<tr><td colspan="2" class="title">' + items.title + '</td></tr>' : '') +
+      $('table', menu).append(
+        (items.title ? '<tr class="header"><th colspan="2" class="title">' + items.title + '</th></tr>' : '') +
         $.map(items, function (value, key) {
           if (key !== 'title') {
             return '<tr><td>'+ key +'</td><td>'+ value +'</td></tr>';
           }
         }).join()
       );
-
-      menu.show();  
+      
+      menu.show();
     });
     
     return menu;
@@ -921,7 +920,7 @@ var Genoverse = Base.extend({
         }
         
         return rtn;
-      }
+      };
     }
   },
   
