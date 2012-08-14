@@ -153,7 +153,7 @@ var Genoverse = Base.extend({
     });
     
     this.menuContainer.on('click', '.menu .close', function () {
-      $(this).fadeOut('fast');
+      $(this).parent().fadeOut('fast');
     });
     
     if (this.useHash) {

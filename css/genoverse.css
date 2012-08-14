@@ -285,6 +285,7 @@ li.sortHandle {
 
 .menu table .title {
   font-weight: bold;
+  text-align: left;
 }
 
 .menu .close {
