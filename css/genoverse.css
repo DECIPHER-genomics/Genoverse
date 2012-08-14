@@ -320,6 +320,9 @@ li.sortHandle {
   top: 0;
   margin-left: -1px;
   z-index: 10;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
 }
 
 .selector.crosshair {
@@ -330,6 +333,7 @@ li.sortHandle {
   display: none;
   width: 100px;
   position: relative;
+  top: 50%;
 }
 
 .selector_controls button {

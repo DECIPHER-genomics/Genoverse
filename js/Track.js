@@ -298,7 +298,7 @@ Genoverse.Track = Base.extend({
         var overlay = browser.makeOverlays(width, [ this ]);
         
         $.when(this.makeImage(start, end, width, -browser.left, browser.scrollStart)).done(function (a) {
-          $(a.target).show()
+          $(a.target).show();
           a.img.drawBackground();
           
           browser.checkTrackSize();
@@ -565,7 +565,6 @@ Genoverse.Track = Base.extend({
   },
   
   makeImage: function (start, end, width, moved, cls) {
-    var dir   = moved < 0 ? 'right' : 'left';
     var div   = this.imgContainer.clone().width(width).addClass(cls);
     var prev  = $(this.imgContainers).filter('.' + this.browser.scrollStart + ':' + (moved < 0 ? 'first' : 'last'));
     var image = new Genoverse.TrackImage({
@@ -644,10 +643,10 @@ Genoverse.Track = Base.extend({
   
   getQueryString: function (start, end) {
     var chr      = this.browser.chr;
-    var start    = this.allData ? 1 : Math.max(start, 1);
-    var end      = this.allData ? this.browser.chromosomeSize : Math.min(end, this.browser.chromosomeSize);
     var data     = {};
     var template = false;
+        start    = this.allData ? 1 : Math.max(start, 1);
+        end      = this.allData ? this.browser.chromosomeSize : Math.min(end, this.browser.chromosomeSize);
     
     $.each(this.urlTemplate, function (key, val) {
       data[key] = val.replace(/__CHR__/, chr).replace(/__START__/, start).replace(/__END__/, end);
@@ -726,7 +725,7 @@ Genoverse.Track = Base.extend({
       title : feature.label || feature.id,
       Start : feature.start,
       End   : feature.end
-    }
+    };
   },
   
   beforeDraw          : $.noop, // decoration for the track, drawn before the features
