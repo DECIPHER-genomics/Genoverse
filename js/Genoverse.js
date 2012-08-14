@@ -555,7 +555,14 @@ var Genoverse = Base.extend({
       }
       
       if (tracks[i].type) {
-        tracks[i] = new Genoverse.Track[tracks[i].type]($.extend(tracks[i], defaults, { index: i + index }));
+        // Well, this is probably ugly, there could be a nicer way of doing it.
+        var hierarchy = tracks[i].type.split('.');
+        var Class = Genoverse.Track;
+        var subClass;
+        while (subClass = hierarchy.splice(0,1)[0]) {
+          Class = Class[subClass];
+        }
+        tracks[i] = new Class($.extend(tracks[i], defaults, { index: i + index }));
       } else {
         tracks[i] = new Genoverse.Track($.extend(tracks[i], defaults, { index: i + index }));
       }
