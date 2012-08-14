@@ -124,23 +124,26 @@ Genoverse.Track = Base.extend({
 
   addUserEventHandlers: function () {
     var track = this;
-    
-    // MouseUp event when not scrolling (dragging)
+
     this.container.on('mouseup', '.image_container', function (e) {
       if ((e.which && e.which !== 1) || (track.browser.prev.left !== track.browser.left) || (track.browser.selectorStalled)) {
         return; // Only show menus on left click when not dragging and not selecting
       }
-      
-      var x       = e.pageX - track.container.parent().offset().left + track.browser.scaledStart;
-      var y       = e.pageY - $(e.target).offset().top;
-      var feature = track[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
-      
-      if (feature) {
-        track.browser.makeMenu(track, feature, { left: e.pageX, top: e.pageY });
-      }
+
+      track.click(e);
     });
   },
   
+  click: function (e) {
+    var x = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
+    var y = e.pageY - $(e.target).offset().top;
+    var feature = this[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
+    
+    if (feature) {
+      this.browser.makeMenu(this, feature, { left: e.pageX, top: e.pageY });
+    }
+  },
+
   reset: function () {
     this.container.children('.image_container').remove();
     
