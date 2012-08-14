@@ -1,14 +1,14 @@
-Genoverse.Track.DASSequence = Genoverse.Track.extend({
+Genoverse.Track.DAS.Sequence = Genoverse.Track.extend({
 
   config: {
     name          : "Sequence",
     height        : 45,
     featureHeight : 20,
-    labelYOffset  : 15,
+    labelYOffset  : 13,
+    yOffset       : 2,
     complementary : true,
     chunkSize     : 1000,
     threshold     : 2000,
-    chunks        : {},
     labelOverlay  : true, 
     allData       : false,
     font          : "bold 8pt Verdana",
@@ -36,8 +36,21 @@ Genoverse.Track.DASSequence = Genoverse.Track.extend({
   },
 
 
+  complement: function (sequence) {
+    var track = this;
+    return $.map(
+      sequence.toLowerCase().split(''), 
+      function(bp){ 
+        return track.complementaryMap[bp] 
+      }
+    ).join('');    
+  },
+
+
   init: function () {
     this.base();
+    this.chunks = {};
+
     if (!this.url) this.url = this.source + '/sequence';
 
     this.context.font  = this.font;
@@ -124,43 +137,47 @@ Genoverse.Track.DASSequence = Genoverse.Track.extend({
 
   drawFeatures: function (image, features) {
     for (var i=0; i<features.length; i++) {
-      var feature     = this.chunks[features[i]];
-      var scaledStart = feature.start * this.scale - image.scaledStart;
-      var scaledWidth = (feature.end - feature.start) * this.scale;    
-      var bpWidth     = scaledWidth / this.chunkSize;
+      this.drawSequence(image, this.chunks[features[i]]);
+    }
+  },
 
-      var drawLabels = this.bpLabelWidths.a < bpWidth;
-      var labelsOffset = {
-        a: (bpWidth - this.bpLabelWidths.a) / 2,
-        t: (bpWidth - this.bpLabelWidths.t) / 2,
-        g: (bpWidth - this.bpLabelWidths.g) / 2,
-        c: (bpWidth - this.bpLabelWidths.c) / 2,
-        n: (bpWidth - this.bpLabelWidths.n) / 2
-      };
+  drawSequence: function (image, feature, yOffset, complementary) {
+    var complementary = complementary !== undefined ? complementary : this.complementary;
+    var yOffset       = yOffset !== undefined ? yOffset : this.yOffset;
+    var scaledStart   = feature.start * this.scale - image.scaledStart;
+    var scaledWidth   = (feature.end - feature.start) * this.scale;    
+    var bpWidth       = this.scale;
 
-      this.context.font  = this.font;
+    var drawLabels = this.bpLabelWidths.a < bpWidth;
+    var labelsOffset = {
+      a: (bpWidth - this.bpLabelWidths.a) / 2,
+      t: (bpWidth - this.bpLabelWidths.t) / 2,
+      g: (bpWidth - this.bpLabelWidths.g) / 2,
+      c: (bpWidth - this.bpLabelWidths.c) / 2,
+      n: (bpWidth - this.bpLabelWidths.n) / 2
+    };
 
-      for (var j = 0; j<feature.sequence.length; j++) {
-        var bp = feature.sequence.substr(j,1);
-        this.context.fillStyle = this.colorMap[bp];
-        this.context.fillRect(scaledStart + j*bpWidth, 2, bpWidth, this.featureHeight);
+    this.context.font  = this.font;
 
-        if (this.complementary) {
-          this.context.fillStyle = this.colorMap[this.complementaryMap[bp]];
-          this.context.fillRect(scaledStart + j*bpWidth, 2+this.featureHeight, bpWidth, this.featureHeight);
-        }
+    for (var j = 0; j<feature.sequence.length; j++) {
+      var bp = feature.sequence.substr(j,1);
+      this.context.fillStyle = this.colorMap[bp];
+      this.context.fillRect(scaledStart + j*bpWidth, yOffset, bpWidth, this.featureHeight);
 
-        if (drawLabels) {
-          this.context.fillStyle = this.textColor;
-          this.context.fillText(bp, scaledStart + j*bpWidth + labelsOffset[bp], this.labelYOffset);
-          if (this.complementary) {
-            this.context.fillText(this.complementaryMap[bp], scaledStart + j*bpWidth + labelsOffset[this.complementaryMap[bp]], this.featureHeight + this.labelYOffset);
-          }
+      if (complementary) {
+        this.context.fillStyle = this.colorMap[this.complementaryMap[bp]];
+        this.context.fillRect(scaledStart + j*bpWidth, yOffset + this.featureHeight, bpWidth, this.featureHeight);
+      }
+
+      if (drawLabels) {
+        this.context.fillStyle = this.textColor;
+        this.context.fillText(bp, scaledStart + j*bpWidth + labelsOffset[bp], yOffset + this.labelYOffset);
+        if (complementary) {
+          this.context.fillText(this.complementaryMap[bp], scaledStart + j*bpWidth + labelsOffset[this.complementaryMap[bp]], this.featureHeight + yOffset + this.labelYOffset);
         }
       }
     }
   },
-
 
 
 });
