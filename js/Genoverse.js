@@ -200,8 +200,8 @@ var Genoverse = Base.extend({
           complete: function () { $(this).css({ width: 40, height: 40, display: 'none' }); }
         });
       } else {
-        browser.zoomOutHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
-          width: 40, height: 40, top: '+=10', left: '+=10'
+        browser.zoomOutHighlight.css({ left: e.pageX - 40, top: e.pageY - 40, display: 'block' }).animate({
+          width: 40, height: 40, top: '+=20', left: '+=20'
         }, {
           complete: function () { $(this).css({ width: 80, height: 80, display: 'none' }); }
         });
