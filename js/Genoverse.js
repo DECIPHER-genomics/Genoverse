@@ -141,11 +141,8 @@ var Genoverse = Base.extend({
           end   = end <= start ? start : end;
       
       switch (e.target.className) {
-        case 'zoomHere' : browser.cancelSelect(); browser.setRange(start, end, true); break;
-        case 'center'   : browser.move(null, browser.width / 2 - (left + width / 2), 'fast');
-                          browser.updateURL();
-                          browser.setHistory();
-                          browser.cancelSelect(); break;
+        case 'zoomHere' : browser.setRange(start, end, true); break;
+        case 'center'   : browser.startDragScroll(); browser.move(null, browser.width / 2 - (left + width / 2), 'fast', $.proxy(browser.stopDragScroll, browser)); break;
         case 'summary'  : browser.summary(start, end); break;
         case 'cancel'   : browser.cancelSelect(); break;
         default         : break;
@@ -184,11 +181,6 @@ var Genoverse = Base.extend({
   mousewheelZoom: function (e, delta) {
     var browser = this;
     
-    if (this.dragAction === 'select') {
-      this.cancelSelect();
-      this.moveSelector(e);
-    }
-    
     clearTimeout(this.zoomDeltaTimeout);
     clearTimeout(this.zoomTimeout);
     
@@ -210,6 +202,10 @@ var Genoverse = Base.extend({
     
     this.zoomTimeout = setTimeout(function () {
       browser[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - browser.container.offset().left - browser.labelWidth);
+      
+      if (browser.dragAction === 'select') {
+        browser.moveSelector(e);
+      }
     }, 300);
     
     return false;
@@ -351,7 +347,7 @@ var Genoverse = Base.extend({
     }
   },
 
-  move: function (e, delta, speed) {
+  move: function (e, delta, speed, callback) {
     var wrapperOffset = this.wrapper.offset().left;
     var start, end, step;
     
@@ -373,11 +369,20 @@ var Genoverse = Base.extend({
     }
     
     if (speed) {
-      $('.track_container', this.container).stop().animate({ left: this.left }, speed);
-      $('.overlay', this.wrapper).add('.menu', this.menuContainer).animate({ marginLeft: this.left - this.prev.left }, speed);
+      $.when($('.track_container', this.container).stop().animate({ left: this.left }, speed).add(
+        $('.overlay', this.wrapper).add('.menu', this.menuContainer).stop().animate({ marginLeft: this.left - this.prev.left }, speed)
+      )).done(function () {
+        if (typeof callback === 'function') {
+          callback();
+        }
+      });
     } else {
       $('.track_container', this.container).css('left', this.left);
       $('.overlay', this.wrapper).add('.menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
+      
+      if (typeof callback === 'function') {
+        callback();
+      }
     }
     
     $('.expander', this.wrapper).css('left', -this.left);
@@ -485,6 +490,10 @@ var Genoverse = Base.extend({
     }
     
     this.length = this.end - this.start + 1;
+    
+    if (this.dragAction === 'select') {
+      this.cancelSelect();
+    }
     
     this.setScale(force);
     
