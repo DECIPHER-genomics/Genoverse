@@ -384,7 +384,7 @@ var Genoverse = Base.extend({
     $('.image_container img.static', this.container).css('marginLeft', function () { return wrapperOffset - $(this.parentNode).offset().left; });
     
     this.setRange(start, end);
-
+    
     if (this.redraw()) {
       step = this.left - this.prev.left > 0 ? 1 : -1;
       
@@ -436,7 +436,7 @@ var Genoverse = Base.extend({
     }
     
     var start = Math.round(this.start + x / (2 * this.scale));
-    var end   = Math.round(start + (this.length - 1) / 2);
+    var end   = this.length === 2 ? start : Math.round(start + (this.length - 1) / 2);
     
     this.setRange(start, end, true);
   },
@@ -447,7 +447,7 @@ var Genoverse = Base.extend({
     }
     
     var start = Math.round(this.start - x / this.scale);
-    var end   = Math.round(start + 2 * (this.length - 1));
+    var end   = this.length === 1 ? start + 1 : Math.round(start + 2 * (this.length - 1));
     
     if (start < 1) {
       start = 1;
@@ -470,7 +470,7 @@ var Genoverse = Base.extend({
     return true;
   },
   
-  setRange: function (start, end, update) {
+  setRange: function (start, end, update, force) {
     this.prev.start = this.start;
     this.prev.end   = this.end;
     this.start      = typeof start === 'number' ? Math.round(start) : parseInt(start, 10);
@@ -484,13 +484,9 @@ var Genoverse = Base.extend({
       this.end = this.chromosomeSize;
     }
     
-    if (this.end === this.start) {
-      this.end++;
-    }
-    
     this.length = this.end - this.start + 1;
     
-    this.setScale();
+    this.setScale(force);
     
     if (update === true && (this.prev.start !== this.start || this.prev.end !== this.end)) {
       this.updateURL();
@@ -499,12 +495,12 @@ var Genoverse = Base.extend({
     }
   },
   
-  setScale: function () {
+  setScale: function (force) {
     this.prev.scale  = this.scale;
     this.scale       = this.width / this.length;
     this.scaledStart = this.start * this.scale;
     
-    if (this.prev.scale !== this.scale) {
+    if (force || this.prev.scale !== this.scale) {
       this.dataRegion  = { start: 9e99, end: -9e99 };
       this.offsets     = { right: this.width, left: -this.width };
       this.left        = 0;
@@ -545,6 +541,7 @@ var Genoverse = Base.extend({
     };
     
     var push = !!tracks;
+    var hierarchy, Class, subClass;
     
     tracks = tracks || this.tracks;
     index  = index  || 0;
@@ -554,18 +551,15 @@ var Genoverse = Base.extend({
         continue;
       }
       
-      if (tracks[i].type) {
-        // Well, this is probably ugly, there could be a nicer way of doing it.
-        var hierarchy = tracks[i].type.split('.');
-        var Class = Genoverse.Track;
-        var subClass;
-        while (subClass = hierarchy.splice(0,1)[0]) {
-          Class = Class[subClass];
-        }
-        tracks[i] = new Class($.extend(tracks[i], defaults, { index: i + index }));
-      } else {
-        tracks[i] = new Genoverse.Track($.extend(tracks[i], defaults, { index: i + index }));
+      // Well, this is probably ugly, there could be a nicer way of doing it.
+      hierarchy = (tracks[i].type || '').split('.');
+      Class     = Genoverse.Track;
+      
+      while (subClass = hierarchy.shift()) {
+        Class = Class[subClass];
       }
+      
+      tracks[i] = new Class($.extend(tracks[i], defaults, { index: i + index }));
       
       if (push) {
         this.tracks.push(tracks[i]);
@@ -730,7 +724,7 @@ var Genoverse = Base.extend({
   },
   
   makeOverlays: function (width, tracks) {
-    var overlay = $('<div class="overlay">').css({ left: this.left ? (width - (Math.abs(this.left) % width)) * (width > Math.abs(this.left) || this.left > 0 ? -1 : 1) : 0, width: width });
+    var overlay = $('<div class="overlay">').css({ left: this.left ? (width - (Math.abs(this.left) % width)) * (width > Math.abs(this.left) || this.left > 0 ? -1 : 1) : -this.width, width: width });
     
     if (tracks) {
       overlay = $($.map(
