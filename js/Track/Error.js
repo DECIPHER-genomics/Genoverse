@@ -11,7 +11,7 @@ Genoverse.Track.Error = Genoverse.Track.extend({
     this.container.hide();
     this.label.hide();
     
-    this.height = this.featuresHeight = this.fontHeight;
+    this.height = this.featuresHeight = this.fontHeight + 2;
   },
   
   resize: $.noop,

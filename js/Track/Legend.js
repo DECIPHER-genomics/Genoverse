@@ -23,6 +23,8 @@ Genoverse.Track.Legend = Genoverse.Track.extend({
   },
   
   init: function () {
+    this.imgContainer.css('background', this.browser.colors.background);
+    
     this.base();
     
     if (!this.browser.legends) {
