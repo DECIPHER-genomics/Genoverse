@@ -733,7 +733,7 @@ var Genoverse = Base.extend({
   },
   
   makeOverlays: function (width, tracks) {
-    var overlay = $('<div class="overlay">').css({ left: this.left ? (width - (Math.abs(this.left) % width)) * (width > Math.abs(this.left) || this.left > 0 ? -1 : 1) : -this.width, width: width });
+    var overlay = $('<div class="overlay">').css({ left: this.left && !tracks ? (width - (Math.abs(this.left) % width)) * (width > Math.abs(this.left) || this.left > 0 ? -1 : 1) : -this.offsets.right, width: width });
     
     if (tracks) {
       overlay = $($.map(

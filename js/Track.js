@@ -289,21 +289,7 @@ Genoverse.Track = Base.extend({
       if (img) {
         this.reset();
         this.setScale();
-        
-        var start   = browser.dataRegion.start;
-        var end     = browser.dataRegion.end;
-        var width   = Math.round((end - start + 1) * this.scale);
-        var overlay = browser.makeOverlays(width, [ this ]);
-        
-        $.when(this.makeImage(start, end, width, -browser.left, browser.scrollStart)).done(function (a) {
-          $(a.target).show();
-          a.img.drawBackground();
-          
-          browser.checkTrackSize();
-          
-          overlay.remove();
-          overlay = null;
-        });
+        browser.makeTrackImages([ this ]);
       }
     }
   },
