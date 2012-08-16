@@ -133,7 +133,6 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   },
   
   makeReverseImage: function (start, end, width, moved, cls, img) {
-    var dir      = moved < 0 ? 'right' : 'left';
     var div      = this.imgContainer.clone().width(width).addClass(cls).css('left', img.container.position().left).data('img', img);
     var deferred = $.Deferred();
     
