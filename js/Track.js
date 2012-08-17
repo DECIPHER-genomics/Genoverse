@@ -596,10 +596,6 @@ Genoverse.Track = Base.extend({
         dataType : this.dataType,
         context  : this,
         success  : function (data) {
-          if (this.allData) {
-            this.url = false;
-          }
-          
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
           
@@ -607,6 +603,10 @@ Genoverse.Track = Base.extend({
             this.draw(image, this.parseFeatures(data, bounds));
           } catch (e) {
             this.showError(image, deferred, e + ' ' + e.fileName + ':' + e.lineNumber);
+          }
+          
+          if (this.allData) {
+            this.url = false;
           }
         },
         error: function (jqXHR, textStatus, errorThrown) {
