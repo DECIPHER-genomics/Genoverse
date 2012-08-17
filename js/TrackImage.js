@@ -117,7 +117,7 @@ Genoverse.TrackImage = Base.extend({
   drawBackground: function () {
     var backgrounds = $();
     var deferred    = $.Deferred();
-    var heights     = this.track.backgrounds ? [ this.track.fullHeight, 1 ] : [ 1 ];
+    var heights     = this.track.backgrounds ? [ Math.max(this.track.fullHeight, this.track.minLabelHeight), 1 ] : [ 1 ];
     
     for (var i = 0; i < heights.length; i++) {
       this.track.canvas.attr({ width: this.width, height: heights[i] });
