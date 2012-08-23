@@ -15,6 +15,7 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
     
     this.featuresHeight = this.featureHeight + this.bumpSpacing + this.spacing;
     this.labelWidth     = {};
+    this.widestLabel    = this.lowerCase ? 'g' : 'G';
     
     if (!this.colors) {
       this.colors      = {};
@@ -94,6 +95,10 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
       return image.images.each(function () { $(this).data('deferred').resolve({ target: this, img: image }); });
     }
     
+    if (!this.labelWidth[this.widestLabel]) {
+      this.labelWidth[this.widestLabel] = Math.ceil(this.context.measureText(this.widestLabel).width) + 1;
+    }
+    
     this.canvas.attr({ width: image.width, height: this.featuresHeight });
     this.beforeDraw(image);
     this.drawFeatures(image, features);
@@ -115,6 +120,7 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
   drawSequence: function (image, feature) {
     var scaledStart = this.scale * feature.start - image.scaledStart;
     var width       = this.scale;
+    var drawLabels  = this.labelWidth[this.widestLabel] < width - 1;
     var labelY      = (this.featureHeight + (this.lowerCase ? 0 : 1)) / 2;
     var start, bp;
     
@@ -134,7 +140,7 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
         this.labelWidth[bp] = Math.ceil(this.context.measureText(bp).width) + 1;
       }
       
-      if (this.labelWidth[bp] < width - 1) {
+      if (drawLabels) {
         this.context.fillStyle = this.labelColors[bp] || this.labelColors['default'];
         this.context.fillText(bp, start + (width - this.labelWidth[bp]) / 2, labelY);
       }

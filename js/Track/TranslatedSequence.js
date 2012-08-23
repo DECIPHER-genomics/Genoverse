@@ -2,6 +2,7 @@ Genoverse.Track.TranslatedSequence = Genoverse.Track.Sequence.extend({
   constructor: function (config) {
     this.base(config);
     this.featuresHeight = (this.featureHeight + this.bumpSpacing) * 3 + this.spacing;
+    this.widestLabel    = this.lowerCase ? 'm' : 'M';
     this.chunkSize      = 600; // Must be divisible by 3 and 2
     this.buffer         = 2;
     this.codonTableId   = 1;
@@ -73,7 +74,7 @@ Genoverse.Track.TranslatedSequence = Genoverse.Track.Sequence.extend({
     16 : 'FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',  // Chlorophycean Mitochondrial
     21 : 'FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG',  // Trematode Mitochondrial
     22 : 'FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG',  // Scenedesmus obliquus Mitochondrial
-    22 : 'FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG'   // Thraustochytrium Mitochondrial
+    23 : 'FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG'   // Thraustochytrium Mitochondrial
   },
   
   parseFeatures: function (data, bounds) {
@@ -92,9 +93,10 @@ Genoverse.Track.TranslatedSequence = Genoverse.Track.Sequence.extend({
   drawSequence: function (image, feature) {
     var scaledStart = this.scale * feature.start - image.scaledStart;
     var width       = this.scale * 3;
+    var drawLabels  = this.labelWidth[this.widestLabel] < width - 1;
     var labelY      = (this.featureHeight + (this.lowerCase ? 0 : 1)) / 2;
     var phase       = 3;
-    var start, id, codon, sequence, seq, y, i;
+    var start, id, codon, sequence, y, i;
     
     while (phase--) {
       for (i = phase - 2; i < feature.sequence.length; i += 3) {
@@ -110,13 +112,13 @@ Genoverse.Track.TranslatedSequence = Genoverse.Track.Sequence.extend({
           continue;
         }
         
-        seq = feature.sequence.substr(i, 3);
+        sequence = feature.sequence.substr(i, 3);
         
         if (this.strand === -1) {
-          seq = seq.split('').reverse().join('');
+          sequence = sequence.split('').reverse().join('');
         }
         
-        codon = typeof this.codons[seq] === 'number' ? this.translate[this.codonTableId].charAt(this.codons[seq]) : this.lowerCase ? 'x' : 'X';
+        codon = typeof this.codons[sequence] === 'number' ? this.translate[this.codonTableId].charAt(this.codons[sequence]) : this.lowerCase ? 'x' : 'X';
         y     = phase * (this.featureHeight + this.bumpSpacing);
         
         this.context.fillStyle = this.colors[codon] || this.colors['default'];
@@ -126,7 +128,7 @@ Genoverse.Track.TranslatedSequence = Genoverse.Track.Sequence.extend({
           this.labelWidth[codon] = Math.ceil(this.context.measureText(codon).width) + 1;
         }
         
-        if (this.labelWidth[codon] < width - 1) {
+        if (drawLabels) {
           this.context.fillStyle = this.labelColors[codon] || this.labelColors['default'];
           this.context.fillText(codon, start + (width - this.labelWidth[codon]) / 2, y + labelY);
         }
@@ -142,7 +144,7 @@ Genoverse.Track.TranslatedSequence = Genoverse.Track.Sequence.extend({
     var diff     = phase - (x % 3);
     var strand   = this.strand;
     var features = $.grep(this.features.search({ x: x, w: 1, y: 0, h: 1 }), function (f) { return f.strand === strand; });
-    var i        = features.length
+    var i        = features.length;
     var seq, codon, feature;
     
     while (i--) {

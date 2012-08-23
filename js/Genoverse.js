@@ -353,6 +353,14 @@ var Genoverse = Base.extend({
     
     this.left = e ? e.pageX - this.dragOffset : this.left + delta;
     
+    if (this.scale > 1) {
+      this.left = Math.round(this.left / this.scale) * this.scale; // Force stepping by base pair when in small regions
+      
+      if (delta) {
+        delta = Math.round(delta / this.scale) * this.scale;
+      }
+    }
+    
     if (this.left < this.minLeft) {
       this.left = this.minLeft;
       
@@ -478,8 +486,8 @@ var Genoverse = Base.extend({
   setRange: function (start, end, update, force) {
     this.prev.start = this.start;
     this.prev.end   = this.end;
-    this.start      = typeof start === 'number' ? Math.round(start) : parseInt(start, 10);
-    this.end        = typeof end   === 'number' ? Math.round(end)   : parseInt(end,   10);
+    this.start      = typeof start === 'number' ? Math.floor(start) : parseInt(start, 10);
+    this.end        = typeof end   === 'number' ? Math.floor(end)   : parseInt(end,   10);
     
     if (this.start < 1) {
       this.start = 1;
