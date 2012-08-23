@@ -42,7 +42,7 @@ Genoverse.Track = Base.extend({
     this.initialHeight  = this.height;
     this.minLabelHeight = 0;
     this.canvas         = $('<canvas>').appendTo(this.canvasContainer);
-    this.container      = $('<div class="track_container">').height(this.height).appendTo(this.canvasContainer);
+    this.container      = $('<div class="track_container">').appendTo(this.canvasContainer);
     this.imgContainer   = $('<div class="image_container">');
     this.label          = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('index', this.index);
     this.menus          = $();
@@ -84,6 +84,8 @@ Genoverse.Track = Base.extend({
       this.minLabelHeight = $('<span class="name">' + this.name + '</span>').appendTo(this.label).height();
       this.label.height(Math.max(this.height, this.minLabelHeight));
     }
+    
+    this.container.height(Math.max(this.height, this.minLabelHeight));
     
     if (!this.fixedHeight && this.resizable !== false) {
       this.heightToggler = $('<div class="height_toggler"><div class="auto">Set track to auto-adjust height</div><div class="fixed">Set track to fixed height</div></div>').on({
@@ -542,7 +544,7 @@ Genoverse.Track = Base.extend({
       height = Math.max(feature.bottom[scaleKey], height);
     }
     
-    this.featuresHeight      = Math.max(height, this.fixedHeight ? this.height : 0);
+    this.featuresHeight      = Math.max(height, this.fixedHeight ? Math.max(this.height, this.minLabelHeight) : 0);
     this.labelsHeight        = labelsHeight;
     this.fullHeight          = Math.max(height, this.initialHeight) + labelsHeight;
     this.heights.max         = Math.max(this.fullHeight, this.heights.max);
