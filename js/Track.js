@@ -83,6 +83,8 @@ Genoverse.Track = Base.extend({
       
       this.minLabelHeight = $('<span class="name">' + this.name + '</span>').appendTo(this.label).height();
       this.label.height(Math.max(this.height, this.minLabelHeight));
+    } else {
+      this.label.addClass('unsortable');
     }
     
     this.container.height(Math.max(this.height, this.minLabelHeight));
