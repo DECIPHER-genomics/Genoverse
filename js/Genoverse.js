@@ -720,13 +720,15 @@ var Genoverse = Base.extend({
       $.when.apply($, $.map($.map(arguments, function (a) {
         $(a.target).show();
         return a.img;
-      }), function (i) { 
+      }), function (i) {
         if (i.track.backgrounds && !allTracks) {
           i.track.scaleFeatures(i.track.backgrounds);
           redraw = true;
         }
         
-        return i.drawBackground();
+        // Maximum texture width is 32Kb. Above this, images will fail to load.
+        // FIXME: rewrite so that addTrack/setRenderer cannot create an image that is this wide
+        return width > 32 * 1024 ? false : i.drawBackground();
       })).done(removeOverlay);
       
       if (allTracks) {

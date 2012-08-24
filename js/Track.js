@@ -170,6 +170,10 @@ Genoverse.Track = Base.extend({
       height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.labelBottom[scale]; }).concat(0));
     }
     
+    if (!height && this.errorMessage) {
+      height = this.errorMessage.height;
+    }
+    
     this.fullVisibleHeight = height;
   },
   
@@ -572,6 +576,13 @@ Genoverse.Track = Base.extend({
     this.container.append(this.imgContainers);
     
     var deferred = image.makeImage();
+    
+    // Maximum texture width is 32Kb. Above this, images will fail to load.
+    // FIXME: rewrite so that addTrack/setRenderer cannot create an image that is this wide
+    if (width > 32 * 1024) {
+      this.showError(image, deferred, 'The image you are trying to load is too big. Please refresh your page to get it working.');
+      return deferred;
+    }
     
     this.getData(image, deferred);
     
