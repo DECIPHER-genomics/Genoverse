@@ -149,6 +149,7 @@ ul.label_container {
   overflow: hidden;
   position: absolute;
   background: #ccc;
+  margin: 0;
 }
 
 .canvas_container .image_container img {
@@ -311,10 +312,9 @@ li.sortHandle {
   box-shadow: 0px 0px 5px #FFFFFF;
 }
 
-
 .selector {
   position: absolute;
-  display: block;
+  display: none;
   height: 100%;
   border: 1px dashed red;
   background-color: rgba(229, 121, 5, 0.1);
