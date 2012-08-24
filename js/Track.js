@@ -579,13 +579,6 @@ Genoverse.Track = Base.extend({
     
     var deferred = image.makeImage();
     
-    // Maximum texture width is 32Kb. Above this, images will fail to load.
-    // FIXME: rewrite so that addTrack/setRenderer cannot create an image that is this wide
-    if (width > 32 * 1024) {
-      this.showError(image, deferred, 'The image you are trying to load is too big. Please refresh your page to get it working.');
-      return deferred;
-    }
-    
     this.getData(image, deferred);
     
     if (this.thresholdMessage) {

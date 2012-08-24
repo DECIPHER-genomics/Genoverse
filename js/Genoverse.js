@@ -740,6 +740,12 @@ var Genoverse = Base.extend({
     end   = end   || this.dataRegion.end;
     width = width || Math.round((end - start + 1) * this.scale);
     
+    // Maximum texture width is 32Kb. Above this, images will fail to load.
+    // FIXME: rewrite so that addTrack/setRenderer cannot create an image that is this wide
+    if (width > 32 * 1024) {
+      return this.reset();
+    }
+    
     var browser    = this;
     var left       = -this.left;
     var dataRegion = $.extend({}, this.dataRegion);
@@ -766,9 +772,7 @@ var Genoverse = Base.extend({
           redraw = true;
         }
         
-        // Maximum texture width is 32Kb. Above this, images will fail to load.
-        // FIXME: rewrite so that addTrack/setRenderer cannot create an image that is this wide
-        return width > 32 * 1024 ? false : i.drawBackground();
+        return i.drawBackground();
       })).done(removeOverlay);
       
       if (allTracks) {
