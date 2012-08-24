@@ -130,8 +130,12 @@ var Genoverse = Base.extend({
       }
     }, '.image_container, .overlay, .selector');
 
-    $(document).on('mouseup',   $.proxy(this.mouseup,   this));
-    $(document).on('mousemove', $.proxy(this.mousemove, this));
+    $(document).on({
+      mouseup   : $.proxy(this.mouseup,   this),
+      mousemove : $.proxy(this.mousemove, this),
+      keydown   : $.proxy(this.keydown,   this),
+      keyup     : $.proxy(this.keyup,     this)
+    });
     
     this.selectorControls.on('click', function (e) {
       var left  = browser.selector.position().left;
@@ -221,9 +225,9 @@ var Genoverse = Base.extend({
   stopDragScroll: function (e, update) {
     this.dragging = false;
     
-    $('.overlay', this.wrapper).add('.menu', this.menuContainer).css({
-      left       : function (i, left) { return parseInt(left, 10) + parseInt($(this).css('marginLeft'), 10); },
-      marginLeft : 0
+    $('.overlay', this.wrapper).add('.menu', this.menuContainer).add(this.selector).css({
+      left       : function (i, left) { return (this.className.indexOf('selector') === -1 ? 0 : 1) + parseFloat(left, 10) + parseFloat($(this).css('marginLeft'), 10); },
+      marginLeft : function ()        { return  this.className.indexOf('selector') === -1 ? 0 : -1 }
     });
     
     if (update !== false) {
@@ -276,6 +280,10 @@ var Genoverse = Base.extend({
     
     this.selector.addClass('crosshair').width(0);
     this.selectorControls.hide();
+    
+    if (this.dragAction === 'scroll') {
+      this.selector.hide();
+    }
   },
 
   dragSelect: function (e) {
@@ -294,22 +302,54 @@ var Genoverse = Base.extend({
     }    
   },
 
-  setDragAction: function (action) {
+  setDragAction: function (action, keepSelect) {
     this.dragAction = action;
     
     if (this.dragAction === 'select') {
-      this.selector.show();
+      this.selector.addClass('crosshair').width(0).show();
+    } else if (keepSelect && !this.selector.hasClass('crosshair')) {
+      this.selectorStalled = false;
     } else {
       this.cancelSelect();
       this.selector.hide();
     }
   },
-
+  
+  toggleSelect: function (on) {
+    if (on) {
+      this.prev.dragAction = 'scroll';
+      this.setDragAction('select');
+    } else {
+      this.setDragAction(this.prev.dragAction, true);
+      delete this.prev.dragAction;
+    }
+  },
+  
   setWheelAction: function (action) {
     this.wheelAction = action;
   },
-
+  
+  keydown: function (e) {
+    if (e.which === 16 && !this.prev.dragAction && this.dragAction === 'scroll') { // shift key
+      this.toggleSelect(true);
+    }
+  },
+  
+  keyup: function (e) {
+    if (e.which === 16 && this.prev.dragAction) { // shift key
+      this.toggleSelect();
+    }
+  },
+  
   mousedown: function (e) {
+    if (e.shiftKey) {
+      if (this.dragAction === 'scroll') {
+        this.toggleSelect(true);
+      }
+    } else if (this.prev.dragAction) {
+      this.toggleSelect();
+    }
+    
     switch (this.dragAction) {
       case 'select' : this.startDragSelect(e); break;
       case 'scroll' : this.startDragScroll(e); break;
@@ -378,7 +418,9 @@ var Genoverse = Base.extend({
     
     if (speed) {
       $.when($('.track_container', this.container).stop().animate({ left: this.left }, speed).add(
-        $('.overlay', this.wrapper).add('.menu', this.menuContainer).stop().animate({ marginLeft: this.left - this.prev.left }, speed)
+        $('.overlay', this.wrapper).add('.menu', this.menuContainer).stop().animate({ marginLeft: this.left - this.prev.left }, speed).add(
+          this.selector.stop().animate({ marginLeft: this.left - this.prev.left - 1 }, speed)
+        )
       )).done(function () {
         if (typeof callback === 'function') {
           callback();
@@ -387,6 +429,7 @@ var Genoverse = Base.extend({
     } else {
       $('.track_container', this.container).css('left', this.left);
       $('.overlay', this.wrapper).add('.menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
+      this.selector.css('marginLeft', this.left - this.prev.left - 1);
       
       if (typeof callback === 'function') {
         callback();
@@ -499,10 +542,6 @@ var Genoverse = Base.extend({
     
     this.length = this.end - this.start + 1;
     
-    if (this.dragAction === 'select') {
-      this.cancelSelect();
-    }
-    
     this.setScale(force);
     
     if (update === true && (this.prev.start !== this.start || this.prev.end !== this.end)) {
@@ -530,6 +569,7 @@ var Genoverse = Base.extend({
       if (this.prev.scale) {
         var i = this.tracks.length;
         
+        this.cancelSelect();
         this.menuContainer.children().hide();
         
         while (i--) {
@@ -800,7 +840,7 @@ var Genoverse = Base.extend({
     
     var delta = Math.round((this.start - this.prev.start) * this.scale);
     
-    $('.menu', this.menuContainer).css('left', function (i, left) { return parseInt(left, 10) - delta; });
+    $('.menu', this.menuContainer).css('left', function (i, left) { return parseFloat(left, 10) - delta; });
   },
   
   updateFromHistory: function () {
