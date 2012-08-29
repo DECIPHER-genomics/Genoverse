@@ -1,3 +1,8 @@
+.wrap {
+  margin: 10px auto;
+  width: 1000px;
+}
+
 .genoverse_panel div {
   white-space: nowrap;
 }
@@ -12,8 +17,6 @@
   vertical-align: top;
 }
 
-
-
 .genoverse_panel_right {
   height: 100%;
   background-color: #5F8CB0;
@@ -22,7 +25,6 @@
   border-radius: 0 5px 5px 0;
   border: 1px solid #1C5380;
   border-left: none;
-
   box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);        
   vertical-align: top;
 }
@@ -64,26 +66,9 @@
   box-shadow: 0 0 1px rgba(6, 54, 95, 0.8) inset !important;        
 }
 
-/*
-.genoverse_panel_right button:last-child {
-  box-shadow:  0 1px 1px rgba(255, 255, 255, 0.12) inset, 0 1px 0 0 rgba(255, 255, 255, 0.12);
-}
-
-.genoverse_panel_right button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-}
-
-.genoverse_panel_right button:active {
-  border-top: none;
-  background-color: rgba(6, 54, 95, 0.35);
-  box-shadow: 0 0 1px rgba(6, 54, 95, 0.8) inset;        
-}*/
-
 .genoverse td {
   padding: 0;
 }
-
 
 ul.label_container {
   background-color: #5F8CB0;
@@ -95,17 +80,9 @@ ul.label_container {
   box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);        
 }
 
-
-
-
-
-
-
-
-
-
 .canvas_container {
-
+  position: relative;
+  cursor: pointer;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -125,7 +102,7 @@ ul.label_container {
   position: absolute;
   height: 100%;
   z-index: 10;
-  background: url(/i/loadingBG.png) repeat #ccc;
+  background: url(../i/loadingBG.png) repeat #ccc;
 }
 
 .canvas_container .wrapper .overlay.track {
@@ -188,14 +165,13 @@ ul.label_container {
   overflow: hidden;
 }
 
-
 .canvas_container .label_container li .handle {
   position: relative;
-  background-image: url(/i/Grabbar.png);
+  background-image: url(../i/Grabbar.png);
   cursor: move;
   display: inline-block;
   height: 90%;
-  margin: 10px 0;
+  margin: 8px 0;
   width: 10px;
   opacity: 0.7;
 }
@@ -205,7 +181,6 @@ li.sortHandle {
 }
 
 .canvas_container .label_container li:not(:first-child):not(:last-child) {
-  /*border-bottom: 1px solid #1C5380;*/
   box-shadow: 0 2px 0 rgba(255, 255, 255, 0.12) inset, 0 1px 0 #1C5380 inset;
 }
 
@@ -214,13 +189,13 @@ li.sortHandle {
   position: relative; 
   overflow: hidden;
   vertical-align: top;
-  margin-top: 8px;
+  margin: 8px 0;
   left: 5px; 
   width: 90%;
   color: #F2F5F7;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.75);
   text-overflow: ellipsis;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: bold;
   font-family: Verdana;
 }
@@ -233,6 +208,7 @@ li.sortHandle {
   position: absolute;
   height: 100%;
   overflow: hidden;
+  padding-bottom: 100px;
 }
 
 .canvas_container .expander {
@@ -263,7 +239,6 @@ li.sortHandle {
 .canvas_zoom.o .l.v  { left:   8px;  }
 .canvas_zoom.o .r.v  { right:  8px;  }
 
-
 .menu {
   background-color: rgba(0, 0, 0, 0.7);
   border-radius: 0px 12px 12px 12px;
@@ -274,6 +249,10 @@ li.sortHandle {
   z-index: 10000;
   box-shadow: 3px 3px 10px #666666;
   margin-left: 5px;  
+}
+
+.menu a {
+  color: white;
 }
 
 .menu table {
@@ -340,4 +319,9 @@ li.sortHandle {
 .selector_controls button {
   display: block;
   width: 100%;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 12px;
+  box-shadow: 3px 3px 10px #666666;
+  color: white;
 }
