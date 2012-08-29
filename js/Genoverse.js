@@ -42,21 +42,23 @@ var Genoverse = Base.extend({
     var browser = this;
     var width   = this.width;
     
-    this.paramRegex = new RegExp('([?&;])' + this.urlParamTemplate
+    this.paramRegex = this.urlParamTemplate ? new RegExp('([?&;])' + this.urlParamTemplate
       .replace(/(\b(\w+=)?__CHR__(.)?)/,   '$2(\\w+)$3')
       .replace(/(\b(\w+=)?__START__(.)?)/, '$2(\\d+)$3')
       .replace(/(\b(\w+=)?__END__(.)?)/,   '$2(\\d+)$3') + '([;&])'
-    );
+    ) : '';
     
-    this.history        = {};
-    this.prev           = {};
-    this.backgrounds    = {};
-    this.useHash        = typeof window.history.pushState !== 'function';
-    this.wrapperLeft    = this.labelWidth - width;
-    this.width         -= this.labelWidth;
-    this.textWidth      = document.createElement('canvas').getContext('2d').measureText('W').width;
-    this.menuContainer  = $('<div class="menu_container">').css({ width: width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
-    this.labelContainer = $('<ul class="label_container">').width(this.labelWidth).appendTo(this.container).sortable({
+    this.history          = {};
+    this.prev             = {};
+    this.backgrounds      = {};
+    this.urlParamTemplate = this.urlParamTemplate || '';
+    this.useHash          = typeof window.history.pushState !== 'function';
+    this.proxy            = $.support.cors ? false : this.proxy;
+    this.wrapperLeft      = this.labelWidth - width;
+    this.width           -= this.labelWidth;
+    this.textWidth        = document.createElement('canvas').getContext('2d').measureText('W').width;
+    this.menuContainer    = $('<div class="menu_container">').css({ width: width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
+    this.labelContainer   = $('<ul class="label_container">').width(this.labelWidth).appendTo(this.container).sortable({
       items       : 'li:not(.unsortable)',
       handle      : '.handle',
       placeholder : 'label',
@@ -117,7 +119,8 @@ var Genoverse = Base.extend({
     
     this.container.on({
       mousedown: function (e) {
-        if (!e.which || e.which === 1) { // Only scroll on left click
+        // Only scroll on left click, and do nothing if clicking on a button in selectorControls
+        if ((!e.which || e.which === 1) && !(this === browser.selector[0] && e.target !== this)) {
           browser.mousedown(e);
         }
         
@@ -217,13 +220,15 @@ var Genoverse = Base.extend({
 
   startDragScroll: function (e) {
     this.dragging   = true;
+    this.scrolling  = !e;
     this.prev.left  = this.left;
     this.dragOffset = e ? e.pageX - this.left : 0;
     this.dragStart  = this.start;
   },
 
   stopDragScroll: function (e, update) {
-    this.dragging = false;
+    this.dragging  = false;
+    this.scrolling = false;
     
     $('.overlay', this.wrapper).add('.menu', this.menuContainer).add(this.selector).css({
       left       : function (i, left) { return (this.className.indexOf('selector') === -1 ? 0 : 1) + parseFloat(left, 10) + parseFloat($(this).css('marginLeft'), 10); },
@@ -370,7 +375,7 @@ var Genoverse = Base.extend({
   },
   
   mousemove: function (e) {
-    if (this.dragging) {
+    if (this.dragging && !this.scrolling) {
       switch (this.dragAction) {
         case 'scroll' : this.move(e);       break;
         case 'select' : this.dragSelect(e); break;
@@ -800,6 +805,10 @@ var Genoverse = Base.extend({
   },
   
   updateURL: function () {
+    if (!this.urlParamTemplate) {
+      return;
+    }
+    
     if (this.useHash) {
       window.location.hash = this.getQueryString();
     } else {

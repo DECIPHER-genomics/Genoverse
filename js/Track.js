@@ -72,6 +72,11 @@ Genoverse.Track = Base.extend({
       }
       
       this.url = this.url[0];
+      
+      if (this.browser.proxy) {
+        this.urlParams.url = this.url;
+        this.url = this.browser.proxy;
+      }
     }
     
     if (this.name) {
@@ -81,7 +86,7 @@ Genoverse.Track = Base.extend({
         $('<div class="handle"></div>').appendTo(this.label);
       }
       
-      this.minLabelHeight = $('<span class="name">' + this.name + '</span>').appendTo(this.label).height();
+      this.minLabelHeight = $('<span class="name">' + this.name + '</span>').appendTo(this.label).outerHeight(true);
       this.label.height(Math.max(this.height, this.minLabelHeight));
     } else {
       this.label.addClass('unsortable');
@@ -139,7 +144,7 @@ Genoverse.Track = Base.extend({
     var browser = this.browser;
     
     this.container.on('mouseup', '.image_container', function (e) {
-      if ((e.which && e.which !== 1) || (browser.prev.left !== browser.left) || (browser.selectorStalled)) {
+      if ((e.which && e.which !== 1) || (browser.prev.left !== browser.left) || (browser.dragAction === 'select' && browser.selector.outerWidth(true) > 2)) {
         return; // Only show menus on left click when not dragging and not selecting
       }
 

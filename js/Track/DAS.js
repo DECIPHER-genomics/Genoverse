@@ -2,6 +2,7 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
 
   init: function () {
     this.base();
+    this.urlTemplate = { segment: '__CHR__:__START__,__END__' }
     if (!this.url) this.url = this.source + '/features';
     if (this.display) {
       for (var key in this.display) {
@@ -21,23 +22,20 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
   },
 
 
-  getQueryString: function (start, end) {
-    var chr      = this.browser.chr;
-    var start    = this.allData ? 1 : start;
-    var end      = this.allData ? this.browser.chromosomeSize : end;
+  getQueryString: function () {    
+    var queryString = $.param(this.base.apply(this, arguments));
+    
+    if (this.filter && this.filter.type instanceof Array) {
+      queryString += '&' + $.param({ type: this.filter.type }, true);
+    }
 
-    return 'segment=' + chr + ':' + start + ',' + end +
-            (this.filter && this.filter.type instanceof Array ? '&' + jQuery.map(this.filter.type, function(type){ return "type=" + type }).join('&') : '');
-
-    return $.extend({ 
-      segment: chr + ':' + start + ',' + end, 
-    }, this.filter);
+    return decodeURIComponent(queryString);
   },
 
 
   getStylesheet: function () {
     this.stylesheetRequest = $.ajax({
-      url      : this.source + '/stylesheet',
+      url      : (this.browser.proxy ? this.browser.proxy + '?url=' : '') + this.source + '/stylesheet',
       dataType : 'xml',
       context  : this,
       timeout  : 5000,
