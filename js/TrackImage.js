@@ -16,7 +16,7 @@ Genoverse.TrackImage = Base.extend({
         var dfd = $.Deferred();
         $(this).load(dfd.resolve).data('deferred', dfd);
         return dfd;
-      })).done(function () {
+      }).toArray()).done(function () {
         deferred.resolve({ target: $.map(arguments, function (a) { return a.target; }), img: img });
       });
     } else {
@@ -134,7 +134,7 @@ Genoverse.TrackImage = Base.extend({
       var dfd = $.Deferred();
       $(this).load(dfd.resolve);
       return dfd;
-    })).done(deferred.resolve);
+    }).toArray()).done(deferred.resolve);
     
     return deferred;
   }
