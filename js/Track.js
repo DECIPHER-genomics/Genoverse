@@ -129,6 +129,7 @@ Genoverse.Track = Base.extend({
     
     this.dataRegion    = { start: 9e99, end: -9e99 };
     this.scaleSettings = {};
+    this.featureIds    = {};
   },
   
   reset: function () {
@@ -323,7 +324,11 @@ Genoverse.Track = Base.extend({
       data.features[i].visible     = {};
       data.features[i].bottom      = {};
       data.features[i].labelBottom = {};
-      this.features.insert({ x: data.features[i].start, y: 0, w: data.features[i].end - data.features[i].start + 1, h: 1 }, data.features[i]);
+      
+      if (!this.featureIds[data.features[i].id]) {
+        this.features.insert({ x: data.features[i].start, y: 0, w: data.features[i].end - data.features[i].start + 1, h: 1 }, data.features[i]);
+        this.featureIds[data.features[i].id] = 1;
+      }
     }
     
     if (this.allData) {
@@ -599,7 +604,7 @@ Genoverse.Track = Base.extend({
     if (this.threshold && this.browser.length > this.threshold) {
       return this.draw(image, []);
     }
-  
+    
     var bounds   = { x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 };
     var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search(bounds) : false;
     

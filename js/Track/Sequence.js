@@ -25,11 +25,6 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
     }
   },
   
-  init: function () {
-    this.base();
-    this.featureIds = {};
-  },
-  
   complement: function (sequence) {
     if (this.lowerCase) {
       return sequence.replace(/g/g, 'C').replace(/c/g, 'G').replace(/t/g, 'A').replace(/a/g, 'T').toLowerCase();

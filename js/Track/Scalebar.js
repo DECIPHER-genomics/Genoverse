@@ -48,10 +48,11 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       }
     }
     
-    this.minorUnit = this.browser.minorUnit = minorUnit;
-    this.majorUnit = this.browser.majorUnit = majorUnit;
-    this.seen      = {};
-    this.features  = new RTree();
+    this.minorUnit  = this.browser.minorUnit = minorUnit;
+    this.majorUnit  = this.browser.majorUnit = majorUnit;
+    this.seen       = {};
+    this.features   = new RTree();
+    this.featureIds = {};
     
     if (this.strand === 1) {
       if (!this.browser.guideLinesByScale) {
