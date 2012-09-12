@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+
+
+    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />  
+
+    <script type="text/javascript" src="js/lib/Base.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+    <script type="text/javascript" src="js/lib/rtree.js"></script>
+    <script type="text/javascript" src="js/lib/FRegion.js"></script>
+
+    <script type="text/javascript" src="js/Genoverse.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script> 
+    <script type="text/javascript" src="js/TrackImage.js"></script>
+
+    <script type="text/javascript" src="js/Track/Static.js"></script>
+    <script type="text/javascript" src="js/Track/Stranded.js"></script> 
+
+    <script type="text/javascript" src="js/Track/Scaleline.js"></script>
+    <script type="text/javascript" src="js/Track/Scalebar.js"></script>
+    <script type="text/javascript" src="js/Track/MicroArray.js"></script>
+    <script type="text/javascript" src="js/Track/MicroArray/SNP.js"></script>
+    <script type="text/javascript" src="js/Track/Gene.js"></script>
+    <script type="text/javascript" src="js/Track/DAS.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Sequence.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/GC.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
+    <script type="text/javascript" src="js/Track/Threshold.js"></script>
+    <script type="text/javascript" src="js/Track/Error.js"></script>
+
+    <script type="text/javascript" src="js/Track/SV.js"></script>
+    <script type="text/javascript" src="js/Track/SNP.js"></script>
+
+    <script type="text/javascript" src="js/plugins/overlap.js"></script>
+    <script type="text/javascript" src="js/plugins/resizer.js"></script>
+    <!--script type="text/javascript" src="js/plugins/scrollArrows.js"></script-->
+    <!--script type="text/javascript" src="js/plugins/toggleWheelZoom.js"></script-->
+    <!--script type="text/javascript" src="js/plugins/dblClickZoom.js"></script-->
+    <script type="text/javascript" src="js/plugins/toggleDragging.js"></script>
+    <!--script type="text/javascript" src="js/plugins/crosshairSelect.js"></script-->
+    <script type="text/javascript" src="js/plugins/fileDrop.js"></script>
+    <script type="text/javascript" src="js/plugins/portable.js">
+
+
+      {
+        container      : $('#genoverse'),
+        width          : 800,
+        chromosomeSize : 249250621, // chromosome 1, human
+        chr            : 1,
+        start          : 108865240,
+        end            : 108865280,
+
+        dragAction     : 'scroll',
+        wheelAction    : 'zoom',
+
+        tracks         : [
+          // {
+          //   type  : 'Scaleline'
+          // }, 
+          {
+            type  : 'Scalebar'
+          },
+
+          {
+            name      : 'Sequence',
+            threshold : 300000,
+            type      : 'DAS.Sequence',
+            height    : 200
+          }, 
+  
+          {
+            name      : 'Sequence Variation',
+            threshold : 200000,
+            type      : 'SV',
+            variations : [
+              {
+                chr   : 1,
+                start : 108865250,
+                end   : 108865251,
+                reference_allele : 'T',
+                alternate_allele : '',
+                type             : 'Deletion'
+              },
+              {
+                chr   : 1,
+                start : 108865260,
+                end   : 108865263,
+                reference_allele : '',
+                alternate_allele : 'TTTTTTT',
+                type             : 'InDel'
+              },
+              {
+                chr   : 1,
+                start : 108865268,
+                end   : 108865270,
+                reference_allele : 'CT',
+                alternate_allele : 'AA',
+                type             : 'Substitution'
+              },
+            ],
+
+          },
+
+        ]
+      }
+
+    </script>
+
+  </head>
+  <body>
+
+  <div id="genoverse"></div>
+ 
+  </body>
+</html>

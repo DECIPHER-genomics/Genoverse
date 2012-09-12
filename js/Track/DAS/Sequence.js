@@ -141,10 +141,10 @@ Genoverse.Track.DAS.Sequence = Genoverse.Track.extend({
     }
   },
 
-  drawSequence: function (image, feature, yOffset, complementary) {
+  drawSequence: function (image, feature, yOffset, xOffset, complementary) {
     var complementary = complementary !== undefined ? complementary : this.complementary;
     var yOffset       = yOffset !== undefined ? yOffset : this.yOffset;
-    var scaledStart   = feature.start * this.scale - image.scaledStart;
+    var scaledStart   = feature.start * this.scale - image.scaledStart + (xOffset || 0);
     var scaledWidth   = (feature.end - feature.start) * this.scale;    
     var bpWidth       = this.scale;
 
