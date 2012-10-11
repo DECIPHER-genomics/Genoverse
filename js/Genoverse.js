@@ -43,7 +43,7 @@ var Genoverse = Base.extend({
     var width   = this.width;
     
     this.paramRegex = this.urlParamTemplate ? new RegExp('([?&;])' + this.urlParamTemplate
-      .replace(/(\b(\w+=)?__CHR__(.)?)/,   '$2(\\w+)$3')
+      .replace(/(\b(\w+=)?__CHR__(.)?)/,   '$2([\\w\\.]+)$3')
       .replace(/(\b(\w+=)?__START__(.)?)/, '$2(\\d+)$3')
       .replace(/(\b(\w+=)?__END__(.)?)/,   '$2(\\d+)$3') + '([;&])'
     ) : '';
