@@ -10,6 +10,9 @@
     <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
     <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
     <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+    <script type="text/javascript" src="js/lib/lazyload.js"></script>
+
+
     <script type="text/javascript" src="js/lib/rtree.js"></script>
     <script type="text/javascript" src="js/lib/FRegion.js"></script>
 
@@ -31,7 +34,7 @@
     <script type="text/javascript" src="js/Track/Error.js"></script>
 
     <script type="text/javascript" src="js/plugins/overlap.js"></script>
-    <script type="text/javascript" src="js/plugins/resizer.js"></script>
+    <!--script type="text/javascript" src="js/plugins/resizer.js"></script-->
     <!--script type="text/javascript" src="js/plugins/scrollArrows.js"></script-->
     <!--script type="text/javascript" src="js/plugins/toggleWheelZoom.js"></script-->
     <!--script type="text/javascript" src="js/plugins/dblClickZoom.js"></script-->
@@ -91,10 +94,8 @@
   <script>
     jQuery.ajaxSettings.traditional = true;
     
-    var GenoVerse;
-
     $(function () {
-      GenoVerse = new Genoverse({
+      window.GenoVerse = new Genoverse({
         container      : $('.canvas_container'),
 
         chr            : 8,
@@ -117,13 +118,13 @@
         {
           name   : 'Genes',
           type   : 'DASTranscript',
-          source : 'http://www.derkholm.net:8080/das/mmu_58_37k',
+          source : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
           filter : {
             type : [ 'transcript', 'translation' ]
           },
-          display: {
-            group: 'transcript'
-          },
+          // display: {
+          //   group: 'transcript'
+          // },
           populateMenu: function (feature) {
             return {
               title: feature.label,
