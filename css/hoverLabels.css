@@ -1,0 +1,18 @@
+.canvas_container .label_container {
+  /*width: 20px;*/
+}
+
+.canvas_container .label_container li {
+  /*overflow: visible;*/
+}
+
+.canvas_container .label_container li .name {
+  background: rgba(0,0,0,0.7);
+  height: 30px;
+  padding: 5px;
+  margin: 0;
+  left: 10px;
+  position: absolute;
+  width: 150px;
+  z-index: 1000;
+}

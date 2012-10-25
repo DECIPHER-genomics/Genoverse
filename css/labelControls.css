@@ -1,0 +1,10 @@
+.label_container div.controls {
+}
+
+.label_container div.controls a {
+  color: white;
+}
+
+.label_container div.controls a:hover {
+  text-decoration: underline;
+}

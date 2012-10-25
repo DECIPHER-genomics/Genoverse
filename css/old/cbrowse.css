@@ -1,0 +1,259 @@
+.canvas_container {
+  position: relative; 
+  border: 1px solid black;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;  
+}
+
+.canvas_container .wrapper {
+  border-left: 1px solid black;
+  overflow: hidden;
+  position: relative;
+  background: #ccc;
+}
+
+.canvas_container .wrapper .overlay {
+  position: absolute;
+  height: 100%;
+  z-index: 10;
+  background: url(/i/loadingBG.png) repeat #ccc;
+}
+
+.canvas_container .wrapper .overlay.track {
+  background-position: center;
+  background-repeat: repeat-x;
+}
+
+.canvas_container canvas {
+  display: none;
+}
+
+.canvas_container .track_container,
+.canvas_container .track_container_static {
+  overflow: visible;
+  position: relative;
+  width: 0;
+}
+
+.canvas_container .image_container {
+  height: 100%;
+  overflow: hidden;
+  position: absolute;
+  background: #ccc;
+}
+
+.canvas_container .image_container img {
+  display: none;
+  position: absolute;
+}
+
+.canvas_container .image_container img.bg {
+  display: block;
+  width: 100%;
+}
+
+.canvas_container .image_container img.static {
+  display: block;
+  top: 50%;
+}
+
+.canvas_container .height_toggler {
+  position: absolute;
+  right: 0;
+  top: 16px;
+  font-size: 11px;
+  border: 1px solid #000;
+  background: #EAEEFF url(/i/autoHeightOn.png) no-repeat center center;
+  width: 16px;
+  height: 16px;
+  line-height: 11px;
+  text-align: center;
+  float: left;
+  margin-right: 5px;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.canvas_container .height_toggler.auto_height {
+  background-image: url(/i/autoHeightOff.png);
+}
+
+.canvas_container .height_toggler div {
+  display: none;
+  position: absolute;
+  left: 22px;
+  background: #EAEEFF;
+  border: 1px solid #000;
+  padding: 3px;
+  z-index: 5;
+}
+
+.canvas_container .label_container {
+  position: relative;
+  float: left;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.canvas_container .label_container li {
+  position: relative;
+  margin: 0;
+  color: #000;
+  font-size: 11px;
+  list-style-image: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.canvas_container .label_container li .name {
+  position: relative; 
+  left: 5px; 
+  vertical-align: top;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 90%;
+  display: inline-block;
+}
+
+.canvas_container .label_container li.unsortable .name {
+  left: 15px;
+}
+
+.canvas_container .menu_container {
+  position: absolute;
+  height: 100%;
+  overflow: hidden;
+}
+
+.canvas_container .expander {
+  position: absolute;
+  display: block;
+  height: 15px;
+  margin-left: -5px;
+  padding-right: 10px;
+  box-shadow: 0 -5px 7px -3px #000000 inset;
+  cursor: pointer;
+  z-index: 1;
+  bottom: 0;
+}
+
+.canvas_container .expander:hover {
+  box-shadow: 0 -5px 7px -3px #7D98B8 inset;
+}
+
+.canvas_zoom         { position: absolute; display: none; z-index: 20; }
+.canvas_zoom.i       { width: 40px; height: 40px; }
+.canvas_zoom.o       { width: 80px; height: 80px; }
+.canvas_zoom .h      { position: absolute; height: 2px;  width: 10px; background: red; }
+.canvas_zoom .v      { position: absolute; height: 10px; width: 2px;  background: red; }
+.canvas_zoom .r      { right:  0;    }
+.canvas_zoom .b      { bottom: 0;    }
+.canvas_zoom.o .t.h  { top:    10px; }
+.canvas_zoom.o .b.h  { bottom: 10px; }
+.canvas_zoom.o .l.v  { left:   8px;  }
+.canvas_zoom.o .r.v  { right:  8px;  }
+
+
+.menu {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 0px 12px 12px 12px;
+  color: white;
+  min-width: 200px;
+  padding: 0;
+  position: absolute;
+  z-index: 10000;
+  box-shadow: 3px 3px 10px #666666;
+  margin-left: 5px;  
+}
+
+.menu table {
+  width: 80%;
+  margin-right: 15%;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 10px;
+}
+
+.menu table .title {
+  font-weight: bold;
+}
+
+.menu .close {
+  background-color: #CCCCCC;
+  border-radius : 20px;
+  height        : 20px;
+  width         : 20px;
+  line-height   : 17px;
+  font-size     : 13px;
+  font-family   : Comic Sans MS;
+  font-weight   : bold;
+  color: #2E2E2E;
+  text-shadow : #F5F5F5 1px 1px 0px;
+  cursor: pointer;
+  float: right;
+  padding: 0 0 0 1px;
+  text-align: center;
+  margin: 3px;
+}
+
+.menu .close:hover {
+  background-color: #FFF;
+  box-shadow: 0px 0px 5px #FFFFFF;
+}
+
+.featureMenuContainer {
+  position: absolute;
+  display: none;
+}
+
+.featureMenu {
+  position: absolute;
+  display: block;
+  opacity: 0.8;
+  visibility: visible;  
+}
+
+.featureMenuInner {
+  background-color: black;
+  color: white;
+  width: 225px;
+  border-radius: 0 10px 10px 10px;  
+  box-shadow: 3px 3px 10px #666666;
+  margin: 5px;
+  padding: 5px;
+  text-align: center;  
+}
+
+.featureMenuInner table {
+  font-family: monospace;
+  font-size: 0.9em;
+  text-align: left;
+  margin: 5px;
+}
+
+.featureMenuClose {
+  background-color: #CCCCCC;
+  border-radius: 12px;
+  color: #000000;
+  cursor: pointer;
+  float: right;
+  font-family: Comic Sans MS;
+  height: 18px;
+  left: 212px;
+  line-height: 12px;
+  padding: 2px;
+  position: absolute;
+  text-align: center;
+  top: 10px;
+  width: 18px;
+  z-index: 10001;
+}
+
+.featureMenuClose:hover {
+  background-color: #FFF;
+}
