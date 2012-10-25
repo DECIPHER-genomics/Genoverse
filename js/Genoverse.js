@@ -8,6 +8,8 @@ var Genoverse = Base.extend({
     longestLabel     : 30,
     trackSpacing     : 2,
     tracks           : [],
+    tracksById       : {},
+    menus            : [],
     dragAction       : 'scroll', // options are: scroll, select, off
     wheelAction      : 'zoom',   // options are: zoom, off
     colors           : {
@@ -22,26 +24,72 @@ var Genoverse = Base.extend({
     if (!this.supported()) {
       this.die('Your browser does not support this functionality');
     }
-    
+
+    // Make sure container is a jquery thingy, jQuery recognises itself automatically
+    config.container = $(config.container);
+
     $.extend(this, this.defaults, config);
-    
-    if (!(this.container && this.container.length)) {
-      this.die('You must supply a ' + (this.container ? 'valid ' : '') + 'container element');
-    }
-    
-    for (var key in this) {
-      if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap|debugWrap)$/)) {
-        this.functionWrap(key);
+    var browser = this;
+
+    $.when(browser.loadPlugins()).always(function(){
+      for (var key in browser) {
+        if (typeof browser[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap|debugWrap)$/)) {
+          browser.functionWrap(key);
+        }
       }
-    }
-    
-    this.init();
+      browser.init();
+    });
+  },
+
+  loadPlugins: function () {
+    var browser = this;
+    var loadPluginsTask = $.Deferred();
+
+    // Load plugins css file
+    browser.plugins.every(function (plugin, index, array) {
+      LazyLoad.css(browser.origin + '/css/' + plugin + '.css');
+      return true;
+    });
+
+    $.when.apply(
+      $, 
+      $.map(browser.plugins, function (plugin) {
+        return $.ajax({
+          url      : browser.origin + '/js/plugins/' + plugin + '.js',
+          dataType : "text",
+        });
+      })
+    ).done(function () {
+      (function($, scripts){
+        // Localize variables
+        var $ = $;
+        for (var i=0; i<scripts.length; i++) {
+          try {
+            eval(scripts[i][0]);
+          } catch (e) {
+            // TODO: add plugin name to this message
+            console.log("Error evaluating plugin script: " + e);
+            console.log(scripts[i][0]);
+          };
+        }
+      })($, arguments);
+    }).always(function(){
+      loadPluginsTask.resolve();
+    });
+
+    return loadPluginsTask;
   },
 
   init: function () {
     var browser = this;
     var width   = this.width;
-    
+
+    if (!(this.container && this.container.length)) {
+      this.die('You must supply a ' + (this.container ? 'valid ' : '') + 'container element');
+    }
+
+    this.container.addClass('canvas_container');
+   
     this.paramRegex = this.urlParamTemplate ? new RegExp('([?&;])' + this.urlParamTemplate
       .replace(/(\b(\w+=)?__CHR__(.)?)/,   '$2(\\w+)$3')
       .replace(/(\b(\w+=)?__START__(.)?)/, '$2(\\d+)$3')
@@ -54,11 +102,12 @@ var Genoverse = Base.extend({
     this.urlParamTemplate = this.urlParamTemplate || '';
     this.useHash          = typeof window.history.pushState !== 'function';
     this.proxy            = $.support.cors ? false : this.proxy;
-    this.wrapperLeft      = this.labelWidth - width;
-    this.width           -= this.labelWidth;
+    this.wrapperLeft      = /*this.labelWidth*/ - width;
+    // this.width           -= this.labelWidth;
     this.textWidth        = document.createElement('canvas').getContext('2d').measureText('W').width;
-    this.menuContainer    = $('<div class="menu_container">').css({ width: width - this.labelWidth - 1, left: this.labelWidth + 1 }).appendTo(this.container);
-    this.labelContainer   = $('<ul class="label_container">').width(this.labelWidth).appendTo(this.container).sortable({
+    this.menuContainer    = $('<div class="menu_container">').css({ width: width - 1, left: 1 }).appendTo(this.container);
+
+    this.labelContainer   = $('<ul class="label_container">').appendTo(this.container).sortable({
       items       : 'li:not(.unsortable)',
       handle      : '.handle',
       placeholder : 'label',
@@ -156,8 +205,8 @@ var Genoverse = Base.extend({
       }
     });
     
-    this.menuContainer.on('click', '.menu .close', function () {
-      $(this).parent().fadeOut('fast');
+    this.container.on('click', '.menu .close', function () {
+      $(this).parent().fadeOut('fast', function () { $(this).remove() });
     });
     
     if (this.useHash) {
@@ -208,7 +257,7 @@ var Genoverse = Base.extend({
     }, 100);
     
     this.zoomTimeout = setTimeout(function () {
-      browser[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - browser.container.offset().left - browser.labelWidth);
+      browser[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - browser.container.offset().left/* - browser.labelWidth*/);
       
       if (browser.dragAction === 'select') {
         browser.moveSelector(e);
@@ -398,6 +447,8 @@ var Genoverse = Base.extend({
     
     this.left = e ? e.pageX - this.dragOffset : this.left + delta;
     
+    if (this.menus.length) this.closeMenus();
+
     if (this.scale > 1) {
       this.left = Math.round(this.left / this.scale) * this.scale; // Force stepping by base pair when in small regions
       
@@ -629,6 +680,10 @@ var Genoverse = Base.extend({
       
       if (tracks[i].strand === -1 && tracks[i].orderReverse) {
         tracks[i].order = tracks[i].orderReverse;
+      }
+
+      if (tracks[i].id) {
+        this.tracksById[tracks[i].id] = tracks[i];
       }
     }
     
@@ -927,27 +982,28 @@ var Genoverse = Base.extend({
     </div>                        \
   '),
   
-  // Creates a menu template only. Implement properly in a plugin
-  makeMenu: function (track, feature, position) {
-    var container = this.container;
-    var offset    = this.menuContainer.offset();
-    var menu      = this.menuTemplate.clone().appendTo(this.menuContainer);
+
+  makeMenu: function (feature, position, track) {
+    var wrapper = this.wrapper;
+    var offset  = wrapper.offset();
+    var menu    = this.menuTemplate.clone().appendTo(this.container);
+
+    //debugger;
+    //position.top  -= offset.top;
+    //position.left -= offset.left;
+    //position.left  = Math.min(position.left, this.width - menu.outerWidth());
+    //menu.css(position);
+
+    this.menus.push(menu);
     
-    position.top  -= offset.top;
-    position.left -= offset.left;
-    position.left  = Math.min(position.left, this.width - menu.outerWidth());
+    if (track) {
+      track.menus.push(menu[0]);
+    }
     
-    menu.css({
-      left : position.left,
-      top  : function () { return position.top - parseInt($(this).css('marginTop'), 10); }
-    });
-    
-    track.menus.push(menu[0]);
-    
-    $.when(track.populateMenu(feature)).done(function (items) {
+    $.when(track ? track.populateMenu(feature) : feature).done(function (feature) {
       $('table', menu).append(
-        (items.title ? '<tr class="header"><th colspan="2" class="title">' + items.title + '</th></tr>' : '') +
-        $.map(items, function (value, key) {
+        (feature.title ? '<tr class="header"><th colspan="2" class="title">' + feature.title + '</th></tr>' : '') +
+        $.map(feature, function (value, key) {
           if (key !== 'title') {
             return '<tr><td>'+ key +'</td><td>'+ value +'</td></tr>';
           }
@@ -955,9 +1011,24 @@ var Genoverse = Base.extend({
       );
       
       menu.show();
+      menu.css(
+        position || 
+        { 
+          top  : offset.top  + 100,
+          left : offset.left + (wrapper.outerWidth(true) - menu.outerWidth(true))/2
+        }
+      );
     });
     
     return menu;
+  },
+
+  closeMenus: function () {
+    var i = this.menus.length;
+    while (i--) {
+      this.menus[i].fadeOut('fast', function () { $(this).remove() });
+    }
+    this.menus = [];
   },
 
   // Provide summary of a region (as a popup menu)
