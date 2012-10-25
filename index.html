@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+
+    <script type="text/javascript" src="/js/beta.js">
+
+      // Genoverse configuration
+      {
+        container      : '#genoverse', // jQuery style selector
+        width          : 800,
+        chromosomeSize : 249250621,    // chromosome 1, human
+        chr            : 1,
+        start          : 10000000,
+        end            : 10010000,
+        dragAction     : 'scroll',
+        wheelAction    : 'off',
+
+        plugins        : [
+          'controlPanel', 
+          'labelControls', 
+          'resizer',
+          //'hoverLabels'
+        ],
+
+
+        tracks: [
+
+          {
+            type : 'Scalebar'
+          },
+
+          {
+            name      : 'Sequence',
+            threshold : 1e5,
+            type      : 'DAS.Sequence',
+            height    : 60,
+          }, 
+
+          {
+            name    : 'Transcript',
+            type    : 'DASTranscript',
+            source  : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
+            renderer: 'transcript',
+            filter  : {
+              type  : [ 'transcript', 'translation' ]
+            },
+            populateMenu: function (feature) {
+              return {
+                title: feature.label,
+                start: feature.start,
+                stop : feature.end,
+                Links: '<a href="#">e!</a>'
+              };
+            }
+          },
+
+        ]
+      }
+
+    </script>
+
+
+  </head>
+  <body>
+
+  <div id="genoverse"></div>
+ 
+  </body>
+</html>
