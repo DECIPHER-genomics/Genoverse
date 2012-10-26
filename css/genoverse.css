@@ -203,9 +203,8 @@ li.sortHandle {
   text-align: left;
 }
 
-.menu table td {
+.menu:not(.trackSelection) table td {
   width: 50%;
-
 }
 
 .menu .close {

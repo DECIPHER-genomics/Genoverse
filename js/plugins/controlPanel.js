@@ -98,10 +98,11 @@ Genoverse.on('beforeInit', function () {
     for (var i=0; i<browser.tracks.length; i++) {
       var track = browser.tracks[i];
       if (track.type == 'Scalebar') continue;
-      tracksMenu[i] = '<input class="trackSelection" type="checkbox" '+ (!track.hidden ? 'checked' : '') +' value="'+ i +'"> ' + track.name;
+      tracksMenu['<input class="trackSelection" type="checkbox" '+ (!track.hidden ? 'checked' : '') +' value="'+ i +'"> '] = track.name;
     }
 
-    browser.makeMenu(tracksMenu);
+    var menu = browser.makeMenu(tracksMenu);
+    menu.addClass('trackSelection');
   });
 
   $("input.trackSelection").live('change', function () {
