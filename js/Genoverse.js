@@ -3,13 +3,14 @@ var Genoverse = Base.extend({
     urlParamTemplate : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
     width            : 1000,
     height           : 200,
-    labelWidth       : 134,
+    labelWidth       : 90,
     buffer           : 1,
     longestLabel     : 30,
     trackSpacing     : 2,
     tracks           : [],
     tracksById       : {},
     menus            : [],
+    plugins          : [],
     dragAction       : 'scroll', // options are: scroll, select, off
     wheelAction      : 'zoom',   // options are: zoom, off
     colors           : {
@@ -102,8 +103,6 @@ var Genoverse = Base.extend({
     this.urlParamTemplate = this.urlParamTemplate || '';
     this.useHash          = typeof window.history.pushState !== 'function';
     this.proxy            = $.support.cors ? false : this.proxy;
-    this.wrapperLeft      = /*this.labelWidth*/ - width;
-    // this.width           -= this.labelWidth;
     this.textWidth        = document.createElement('canvas').getContext('2d').measureText('W').width;
     this.menuContainer    = $('<div class="menu_container">').css({ width: width - 1, left: 1 }).appendTo(this.container);
 
@@ -122,7 +121,11 @@ var Genoverse = Base.extend({
         browser.tracks[ui.item.data('index')].container[ui.item[0].previousSibling ? 'insertAfter' : 'insertBefore'](browser.tracks[$(ui.item[0].previousSibling || ui.item[0].nextSibling).data('index')].container);
       }
     });
-    
+
+    this.labelWidth       = this.labelContainer.outerWidth(true);
+    this.wrapperLeft      = this.labelWidth - width;
+    this.width           -= this.labelWidth;
+
     this.wrapper  = $('<div class="wrapper">').appendTo(this.container);
     this.selector = $('<div class="selector crosshair"></div>').appendTo(this.wrapper);
 
@@ -257,7 +260,7 @@ var Genoverse = Base.extend({
     }, 100);
     
     this.zoomTimeout = setTimeout(function () {
-      browser[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - browser.container.offset().left/* - browser.labelWidth*/);
+      browser[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - browser.container.offset().left - browser.labelWidth);
       
       if (browser.dragAction === 'select') {
         browser.moveSelector(e);
@@ -778,8 +781,8 @@ var Genoverse = Base.extend({
       start = left > 0 ? this.dataRegion.end   : this.dataRegion.start - (this.buffer * this.length);
       end   = left < 0 ? this.dataRegion.start : this.dataRegion.end   + (this.buffer * this.length);
     } else {
-      start = this.start - this.length;
-      end   = this.end   + this.length + 1;
+      start = Math.max(this.start - this.length, 1);
+      end   = Math.min(this.end   + this.length + 1, this.chromosomeSize);
     }
     
     var width = Math.round((end - start) * this.scale);
