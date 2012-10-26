@@ -203,6 +203,11 @@ li.sortHandle {
   text-align: left;
 }
 
+.menu table td {
+  width: 50%;
+
+}
+
 .menu .close {
   background-color: #CCCCCC;
   border-radius : 20px;
