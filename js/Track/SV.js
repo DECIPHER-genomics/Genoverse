@@ -3,20 +3,20 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
   constructor: function (config) {
 
     this.base($.extend({
-      complementary : true,
-      yOffset       : 50,
+      complementary : false,
+      yOffset       : 10,
       shadow        : {
         offsetX : 0,
         offsetY : 0,
         blur    : 5,
         color   : "black"
       },
-      height        : 150
-    }, config));
-  },
+      height        : 100,
+      yOffset       : 35,
 
-  init: function () {
-    this.base();
+      //featureHeight : 10,
+    }, config));
+
   },
 
   // I guess getData vould be different to get both sequence and variation
@@ -91,9 +91,9 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
 
     this.applyShadow();
     this.context.beginPath();
-    this.context.moveTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - 2*this.featureHeight);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - 2*this.featureHeight);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - this.featureHeight);
+    this.context.moveTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - 1.5*this.featureHeight);
+    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - 1.5*this.featureHeight);
+    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - 0.5*this.featureHeight);
     this.context.lineTo(variation.scaledStart + referenceScaledWidth, this.yOffset);
 
     if (this.complementary) {
@@ -105,8 +105,8 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
     }
 
     this.context.lineTo(variation.scaledStart, this.yOffset);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - this.featureHeight);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - 2*this.featureHeight);
+    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - 0.5*this.featureHeight);
+    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - 1.5*this.featureHeight);
     this.context.closePath();
 
     this.context.strokeStyle = '#1DD300';
@@ -120,7 +120,7 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
     this.drawSequence(
       image, 
       { start: variation.start, end: variation.end, sequence: variation.alternate_allele.toLowerCase() }, 
-      this.yOffset - 2*this.featureHeight, 
+      this.yOffset - 1.5*this.featureHeight, 
       (referenceScaledWidth - alternateScaledWidth)/2,
       false
     );
