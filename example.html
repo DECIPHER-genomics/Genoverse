@@ -51,8 +51,8 @@
         width          : 800,
         chromosomeSize : 249250621,    // chromosome 1, human
         chr            : 1,
-        start          : 10000000,
-        end            : 10010000,
+        start          : 100000,
+        end            : 200000,
         dragAction     : 'scroll',
         wheelAction    : 'off',
 
@@ -64,10 +64,73 @@
 
           {
             name      : 'Sequence',
-            threshold : 1e5,
+            threshold : 5000,
             type      : 'DAS.Sequence',
             height    : 60,
           }, 
+
+          {
+            name : 'DGV',
+            url  : 'data/DGVa_1_100000-1000000.xml',
+            dataType : 'xml',
+            allData  : true,
+            //depth    : 10,
+            height   : 200,
+            featureHeight : 6,
+            featureSpacing : 5,
+            //labelOverlay  : true,
+            bump          : true,
+            resizable     : true,
+            spacing       : 10,
+
+            populateMenu: function (feature) {
+              return {
+                title: feature.label,
+                start: feature.start,
+                end  : feature.end,
+                category : feature.category,
+              };
+            },
+
+            parseFeatures: function (data, bounds) {
+              var track = this;
+              var features = new Array();
+
+              $(data).find('FEATURE').each(function (i, FEATURE) {
+                var feature = {};
+                //debugger;
+                feature.id    = FEATURE.getAttribute('id');
+                feature.label = feature.id;
+
+                $(FEATURE).children().each(function (i, property) {
+                  feature[$(property).prop('tagName').toLowerCase()] = $(property).text();
+                });
+
+                feature.start = feature.start *1; // Converting to number with *1
+                feature.end   = feature.end   *1; // Converting to number with *1
+
+                var TYPE = $(FEATURE).find('TYPE')[0];
+                if (TYPE) {
+                  //debugger;
+                  feature.type = TYPE.getAttribute('id');
+                  feature.category = TYPE.getAttribute('category')
+                }
+
+                feature.bounds      = {};
+                feature.visible     = {};
+                feature.bottom      = {};
+                feature.labelBottom = {};
+                feature.color       = 'black';
+                feature.labelColor  = 'black';
+
+                track.features.insert({ x: feature.start, y: 0, w: feature.end - feature.start, h: 1 }, feature);
+              });
+
+              return this.features.search(bounds).sort(function (a, b) { return a.sort - b.sort; });
+            },
+
+          },
+
 
           {
             name    : 'Transcript',
