@@ -1,24 +1,24 @@
 var Genoverse = Base.extend({
-  defaults: {
-    urlParamTemplate : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
-    width            : 1000,
-    height           : 200,
-    labelWidth       : 90,
-    buffer           : 1,
-    longestLabel     : 30,
-    trackSpacing     : 2,
-    tracks           : [],
-    tracksById       : {},
-    menus            : [],
-    plugins          : [],
-    dragAction       : 'scroll', // options are: scroll, select, off
-    wheelAction      : 'zoom',   // options are: zoom, off
-    colors           : {
-      background     : '#FFFFFF',
-      majorGuideLine : '#CCCCCC',
-      minorGuideLine : '#E5E5E5',
-      sortHandle     : '#CFD4E7'
-    }
+
+  // Defaults
+  urlParamTemplate : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
+  width            : 1000,
+  height           : 200,
+  labelWidth       : 90,
+  buffer           : 1,
+  longestLabel     : 30,
+  trackSpacing     : 2,
+  tracks           : [],
+  tracksById       : {},
+  menus            : [],
+  plugins          : [],
+  dragAction       : 'scroll', // options are: scroll, select, off
+  wheelAction      : 'zoom',   // options are: zoom, off
+  colors           : {
+    background     : '#FFFFFF',
+    majorGuideLine : '#CCCCCC',
+    minorGuideLine : '#E5E5E5',
+    sortHandle     : '#CFD4E7'
   },
   
   constructor: function (config) {
@@ -29,7 +29,7 @@ var Genoverse = Base.extend({
     // Make sure container is a jquery thingy, jQuery recognises itself automatically
     config.container = $(config.container);
 
-    $.extend(this, this.defaults, config);
+    $.extend(this, config);
     var browser = this;
 
     $.when(browser.loadPlugins()).always(function(){
@@ -73,7 +73,7 @@ var Genoverse = Base.extend({
             console.log(scripts[i][0]);
           };
         }
-      })($, arguments);
+      })($, browser.plugins.length == 1 ? [ arguments ] : arguments);
     }).always(function(){
       loadPluginsTask.resolve();
     });
@@ -534,13 +534,12 @@ var Genoverse = Base.extend({
       track = this.tracks[i];
       
       if (track.resizable) {
-        track.autoHeight = !!([ (track.config || {}).autoHeight, track.defaults.autoHeight, this.autoHeight ].sort(function (a, b) {
-          return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
-        })[0]);
+        // track.autoHeight = !!([ (track.config || {}).autoHeight, track.defaults.autoHeight, this.autoHeight ].sort(function (a, b) {
+        //   return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
+        // })[0]);
         
         track.heightToggler[track.autoHeight ? 'addClass' : 'removeClass']('auto_height');
-        
-        track.resize(((track.config || {}).height || track.defaults.height) + track.spacing);
+        track.resize(track.height + track.spacing);
       }
     }
   },
@@ -676,7 +675,7 @@ var Genoverse = Base.extend({
       }
       
       tracks[i] = new Class($.extend(tracks[i], defaults, { index: i + index }));
-      
+
       if (push) {
         this.tracks.push(tracks[i]);
       }
