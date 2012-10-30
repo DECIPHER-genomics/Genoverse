@@ -1,0 +1,10497 @@
+<?xml version="1.0" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="/das/das.xsl"?>
+<!DOCTYPE DASGFF SYSTEM "http://www.biodas.org/dtd/dasgff.dtd">
+<DASGFF>
+<GFF href="http://localhost:9000/das/GRCh37/features">
+<SEGMENT id="1" start="100000" stop="1000000">
+<FEATURE id="nssv561014">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+412730
+</START>
+<END>
+2354787
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv559858">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+584087
+</START>
+<END>
+629744
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv10020">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+523261
+</START>
+<END>
+17598526
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv10029">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+136257
+</START>
+<END>
+28596542
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv10086">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+559969
+</START>
+<END>
+102252349
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv10097">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+649352
+</START>
+<END>
+81136892
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv2799">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+583216
+</START>
+<END>
+595582
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv11179">
+<TYPE id="variation" category="Inversion" />
+<METHOD id="GRCh37" />
+<START>
+132055
+</START>
+<END>
+156137
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv2982">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+655095
+</START>
+<END>
+161985881
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv4820">
+<TYPE id="variation" category="Inversion" />
+<METHOD id="GRCh37" />
+<START>
+846776
+</START>
+<END>
+848970
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1251">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+535468
+</START>
+<END>
+834288
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1648">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+490253
+</START>
+<END>
+971220
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1649">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+944167
+</START>
+<END>
+1010496
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv6627">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+225010
+</START>
+<END>
+47311356
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv3558">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+297078
+</START>
+<END>
+190182021
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv5317">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+526511
+</START>
+<END>
+8601061
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv2062">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+184873
+</START>
+<END>
+55227077
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv2293">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+30493
+</START>
+<END>
+173519
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv2578">
+<TYPE id="variation" category="Inversion" />
+<METHOD id="GRCh37" />
+<START>
+149541
+</START>
+<END>
+161642
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv6106">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+233255
+</START>
+<END>
+363306
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv10988">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+810707
+</START>
+<END>
+144913548
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv954">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+136040
+</START>
+<END>
+188911189
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv9338">
+<TYPE id="variation" category="Insertion" />
+<METHOD id="GRCh37" />
+<START>
+486374
+</START>
+<END>
+67874631
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv7767">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+351174
+</START>
+<END>
+180043554
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv14331">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+629590
+</START>
+<END>
+633331
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv14353">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+843664
+</START>
+<END>
+848319
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv14354">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+266280
+</START>
+<END>
+268104
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv15319">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+244863
+</START>
+<END>
+275628
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv15342">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+256415
+</START>
+<END>
+381993
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv12727">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+468059
+</START>
+<END>
+468427
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv12734">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+650028
+</START>
+<END>
+650478
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv12735">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+792051
+</START>
+<END>
+802519
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv13044">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+100930
+</START>
+<END>
+102274
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv13048">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+100930
+</START>
+<END>
+102274
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv13068">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+677880
+</START>
+<END>
+913797
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv15008">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+292978
+</START>
+<END>
+295278
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv15023">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+786076
+</START>
+<END>
+839653
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv13383">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+824651
+</START>
+<END>
+848319
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv13706">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+257232
+</START>
+<END>
+381993
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv13711">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+678185
+</START>
+<END>
+849127
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv22633">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+866803
+</START>
+<END>
+873950
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv17192">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+320139
+</START>
+<END>
+322407
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv17506">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+320139
+</START>
+<END>
+322740
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv17515">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+320139
+</START>
+<END>
+322407
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv19482">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+518540
+</START>
+<END>
+525712
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv21424">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+564452
+</START>
+<END>
+570259
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv23217">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+429473
+</START>
+<END>
+433111
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv17856">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+320139
+</START>
+<END>
+322407
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv21722">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+730155
+</START>
+<END>
+730955
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv20106">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+528900
+</START>
+<END>
+537885
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv20109">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+979976
+</START>
+<END>
+980737
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv22023">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+730155
+</START>
+<END>
+730955
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv22039">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+128306
+</START>
+<END>
+168972
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv16582">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+320139
+</START>
+<END>
+322407
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv20448">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+866803
+</START>
+<END>
+873950
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv16884">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+320139
+</START>
+<END>
+322407
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv18832">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+866803
+</START>
+<END>
+873950
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv26239">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+867921
+</START>
+<END>
+868457
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv24534">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+497815
+</START>
+<END>
+499178
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv24780">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+360142
+</START>
+<END>
+361913
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv26571">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+397915
+</START>
+<END>
+401236
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv26789">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+380822
+</START>
+<END>
+381310
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv26892">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+769449
+</START>
+<END>
+849727
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv27245">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+360142
+</START>
+<END>
+361913
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv25455">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+306699
+</START>
+<END>
+308661
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv27672">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+689069
+</START>
+<END>
+853602
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv24028">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+360142
+</START>
+<END>
+361913
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv24039">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+360142
+</START>
+<END>
+361913
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv26124">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+478268
+</START>
+<END>
+479006
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv28048">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+771329
+</START>
+<END>
+790182
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv28054">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+594032
+</START>
+<END>
+594032
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1500121">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+949370
+</START>
+<END>
+986737
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1500553">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+730022
+</START>
+<END>
+801172
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1507776">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+580643
+</START>
+<END>
+624196
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1506009">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+283928
+</START>
+<END>
+315273
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1506010">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+400040
+</START>
+<END>
+419906
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1506011">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+556785
+</START>
+<END>
+577534
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1506012">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+695955
+</START>
+<END>
+705404
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508056">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+572231
+</START>
+<END>
+588860
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1502269">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+201389
+</START>
+<END>
+233272
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1504181">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+730022
+</START>
+<END>
+801172
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1504340">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+717485
+</START>
+<END>
+793947
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1506359">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+329211
+</START>
+<END>
+333146
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1506360">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+769501
+</START>
+<END>
+781633
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508254">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+751873
+</START>
+<END>
+783705
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508302">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+329211
+</START>
+<END>
+333146
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1506425">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+264347
+</START>
+<END>
+425228
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1502663">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+209325
+</START>
+<END>
+362917
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508551">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+201389
+</START>
+<END>
+216738
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1506883">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+730022
+</START>
+<END>
+825338
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1501417">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+691601
+</START>
+<END>
+801172
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1507435">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+967588
+</START>
+<END>
+986737
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1507685">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+827993
+</START>
+<END>
+838619
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1505798">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+329211
+</START>
+<END>
+333146
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1505799">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+726189
+</START>
+<END>
+755175
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1505891">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+590600
+</START>
+<END>
+593661
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1511742">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+828748
+</START>
+<END>
+831461
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1515574">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+610847
+</START>
+<END>
+651852
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1515639">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+631041
+</START>
+<END>
+680475
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1509841">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+292170
+</START>
+<END>
+395634
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1509842">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+417727
+</START>
+<END>
+449358
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1513843">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+746864
+</START>
+<END>
+825338
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1514227">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+223618
+</START>
+<END>
+233272
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1510485">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+962606
+</START>
+<END>
+986737
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508761">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+821626
+</START>
+<END>
+839532
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508932">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+828748
+</START>
+<END>
+836864
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508934">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+950737
+</START>
+<END>
+1008404
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508937">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+691601
+</START>
+<END>
+825338
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508942">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+205035
+</START>
+<END>
+233272
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508952">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+329211
+</START>
+<END>
+337421
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508965">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+787679
+</START>
+<END>
+836864
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508976">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+954732
+</START>
+<END>
+1005806
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508981">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+593277
+</START>
+<END>
+637212
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1508990">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+816072
+</START>
+<END>
+866053
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1512883">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+699190
+</START>
+<END>
+825338
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1513022">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+218735
+</START>
+<END>
+233272
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1515004">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+730022
+</START>
+<END>
+801172
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1515102">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+581070
+</START>
+<END>
+582693
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1511342">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+672681
+</START>
+<END>
+683899
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1511372">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+673123
+</START>
+<END>
+679369
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1511373">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+906739
+</START>
+<END>
+922558
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1515277">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+733926
+</START>
+<END>
+816849
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1511444">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+356090
+</START>
+<END>
+449232
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1511565">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+984533
+</START>
+<END>
+1027797
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1513557">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+223121
+</START>
+<END>
+233272
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1519340">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+621520
+</START>
+<END>
+645336
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1519341">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+829539
+</START>
+<END>
+834597
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1517927">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+341063
+</START>
+<END>
+380856
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1516410">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+776546
+</START>
+<END>
+838555
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1516412">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+691601
+</START>
+<END>
+816849
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1516488">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+580333
+</START>
+<END>
+581956
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1518799">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+266034
+</START>
+<END>
+335946
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1517082">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+781258
+</START>
+<END>
+838555
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1519137">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+139367
+</START>
+<END>
+221057
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1519242">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+820268
+</START>
+<END>
+825777
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1531270">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+783512
+</START>
+<END>
+870446
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1527462">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+283468
+</START>
+<END>
+361547
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1529390">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+600729
+</START>
+<END>
+642357
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1538411">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+168027
+</START>
+<END>
+511043
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1536627">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+274847
+</START>
+<END>
+381918
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1538620">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+879441
+</START>
+<END>
+1009313
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1538650">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+592283
+</START>
+<END>
+633495
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1538660">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+729570
+</START>
+<END>
+870446
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1533163">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+267719
+</START>
+<END>
+706368
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1533577">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+561094
+</START>
+<END>
+637212
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1532451">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+976019
+</START>
+<END>
+1038110
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1536373">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+191843
+</START>
+<END>
+279149
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1542317">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+730235
+</START>
+<END>
+756985
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1542447">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+568846
+</START>
+<END>
+631605
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1542448">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+674275
+</START>
+<END>
+680102
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1542449">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+843382
+</START>
+<END>
+1064985
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1546416">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+341079
+</START>
+<END>
+372597
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1546417">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+810039
+</START>
+<END>
+847743
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1546421">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+866018
+</START>
+<END>
+955577
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1544039">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+614967
+</START>
+<END>
+651852
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1549957">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+734851
+</START>
+<END>
+752878
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1554260">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+711373
+</START>
+<END>
+820185
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1547257">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+384644
+</START>
+<END>
+417737
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1549594">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+943468
+</START>
+<END>
+1090557
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1549714">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+139113
+</START>
+<END>
+1166813
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1549808">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+766479
+</START>
+<END>
+898518
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1549809">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+976019
+</START>
+<END>
+1323564
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1549880">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+105320
+</START>
+<END>
+240280
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1549881">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+329671
+</START>
+<END>
+352736
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1549882">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+554458
+</START>
+<END>
+612698
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1549883">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+711905
+</START>
+<END>
+943361
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1549884">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+970598
+</START>
+<END>
+991872
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1562308">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+454732
+</START>
+<END>
+499071
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1559034">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+875368
+</START>
+<END>
+923206
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1563610">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+204228
+</START>
+<END>
+295876
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1567430">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+706009
+</START>
+<END>
+881476
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1569367">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+584354
+</START>
+<END>
+608821
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1563749">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+129063
+</START>
+<END>
+188318
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1566015">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+403980
+</START>
+<END>
+444628
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1566384">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+552815
+</START>
+<END>
+601485
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1568503">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+552815
+</START>
+<END>
+601485
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1566787">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+810039
+</START>
+<END>
+840769
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1563057">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+237087
+</START>
+<END>
+248181
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1563136">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+648943
+</START>
+<END>
+792777
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1576711">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+350917
+</START>
+<END>
+491725
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1574946">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+874596
+</START>
+<END>
+911294
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1573044">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+759709
+</START>
+<END>
+1024752
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1574977">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+846808
+</START>
+<END>
+1192515
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1576969">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+564100
+</START>
+<END>
+955577
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1577046">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+354241
+</START>
+<END>
+949196
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1573508">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+556632
+</START>
+<END>
+647251
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1573805">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+139113
+</START>
+<END>
+203326
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1573806">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+232484
+</START>
+<END>
+1360473
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1569998">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+604154
+</START>
+<END>
+651852
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1570105">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+670745
+</START>
+<END>
+820185
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1576292">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+909653
+</START>
+<END>
+943079
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1570645">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+782854
+</START>
+<END>
+817708
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1572559">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+188865
+</START>
+<END>
+253799
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1576433">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+378188
+</START>
+<END>
+470331
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1582668">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+579035
+</START>
+<END>
+621779
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1580878">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+403980
+</START>
+<END>
+620599
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1583380">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+618159
+</START>
+<END>
+661080
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1577684">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+403980
+</START>
+<END>
+444628
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1588238">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+561094
+</START>
+<END>
+606104
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1590145">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+588305
+</START>
+<END>
+618159
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1590479">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+368295
+</START>
+<END>
+393676
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1592796">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+713920
+</START>
+<END>
+1054159
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1587490">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+730235
+</START>
+<END>
+756985
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1587650">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+411185
+</START>
+<END>
+444628
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1591489">
+<TYPE id="variation" category="Copy number loss" />
+<METHOD id="GRCh37" />
+<START>
+730235
+</START>
+<END>
+756985
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="nssv1590037">
+<TYPE id="variation" category="Copy number gain" />
+<METHOD id="GRCh37" />
+<START>
+139346
+</START>
+<END>
+285471
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6666873">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869431
+</START>
+<END>
+870277
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6668864">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756298
+</START>
+<END>
+758838
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6668865">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869424
+</START>
+<END>
+870309
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6668867">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965971
+</START>
+<END>
+966273
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6668888">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869354
+</START>
+<END>
+870253
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6668899">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+899988
+</START>
+<END>
+900155
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6668912">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+823957
+</START>
+<END>
+5716319
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6668913">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+824498
+</START>
+<END>
+5716819
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6668915">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+825323
+</START>
+<END>
+5726039
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6668916">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+826307
+</START>
+<END>
+5726970
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6675156">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756034
+</START>
+<END>
+756424
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6675157">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756312
+</START>
+<END>
+756571
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6675158">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756312
+</START>
+<END>
+758841
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6675159">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869424
+</START>
+<END>
+870298
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6675160">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871516
+</START>
+<END>
+871717
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6675161">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+963923
+</START>
+<END>
+964448
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6675162">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965035
+</START>
+<END>
+965354
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6679102">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756013
+</START>
+<END>
+756635
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6679103">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756730
+</START>
+<END>
+758366
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6679104">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756730
+</START>
+<END>
+758840
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6679105">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869432
+</START>
+<END>
+870253
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6679106">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871503
+</START>
+<END>
+871957
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6679107">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932066
+</START>
+<END>
+932328
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6679108">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976912
+</START>
+<END>
+977334
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6679109">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+991582
+</START>
+<END>
+991723
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6686117">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869419
+</START>
+<END>
+870247
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6682789">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756034
+</START>
+<END>
+756428
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6682790">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869431
+</START>
+<END>
+870252
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6692699">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869434
+</START>
+<END>
+870301
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6692700">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965811
+</START>
+<END>
+966338
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6692701">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976981
+</START>
+<END>
+977311
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6689215">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976955
+</START>
+<END>
+977369
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6689216">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+992034
+</START>
+<END>
+992232
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6696964">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965622
+</START>
+<END>
+966378
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6695432">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+766413
+</START>
+<END>
+769112
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6699550">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756557
+</START>
+<END>
+758539
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6699551">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869409
+</START>
+<END>
+870255
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6699552">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932069
+</START>
+<END>
+932286
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6699553">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+952322
+</START>
+<END>
+952549
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6699555">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976985
+</START>
+<END>
+977317
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6703800">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+755967
+</START>
+<END>
+756632
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6703801">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+839824
+</START>
+<END>
+840137
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6703802">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869427
+</START>
+<END>
+870252
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6703803">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+911979
+</START>
+<END>
+912258
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6703804">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965614
+</START>
+<END>
+966072
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6703805">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976950
+</START>
+<END>
+977348
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6714176">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756009
+</START>
+<END>
+756479
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6714178">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756574
+</START>
+<END>
+758373
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6714179">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+757846
+</START>
+<END>
+757997
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6714180">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871498
+</START>
+<END>
+871729
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6714181">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932072
+</START>
+<END>
+932288
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6714182">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976952
+</START>
+<END>
+977355
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6718107">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869430
+</START>
+<END>
+870247
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6718108">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976960
+</START>
+<END>
+977325
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6718110">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+991624
+</START>
+<END>
+991795
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6710539">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756009
+</START>
+<END>
+756471
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6710540">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869424
+</START>
+<END>
+870255
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6710541">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932069
+</START>
+<END>
+932297
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6721946">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756296
+</START>
+<END>
+758838
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6721947">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869427
+</START>
+<END>
+870252
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6721948">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+899999
+</START>
+<END>
+900154
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6721949">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932071
+</START>
+<END>
+932280
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6721950">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965829
+</START>
+<END>
+966267
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6718542">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871447
+</START>
+<END>
+871920
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6718553">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+963994
+</START>
+<END>
+964438
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6729558">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756311
+</START>
+<END>
+758838
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6729559">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871488
+</START>
+<END>
+871928
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6729560">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+963923
+</START>
+<END>
+964438
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6729561">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965052
+</START>
+<END>
+965318
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6729562">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+991605
+</START>
+<END>
+991752
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6725789">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869430
+</START>
+<END>
+870248
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6725790">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+928428
+</START>
+<END>
+928532
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6725791">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932065
+</START>
+<END>
+932272
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6725792">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+991626
+</START>
+<END>
+991795
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6738770">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869431
+</START>
+<END>
+870253
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6733450">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756835
+</START>
+<END>
+758370
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6733451">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869407
+</START>
+<END>
+870247
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6735950">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+899729
+</START>
+<END>
+900555
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6742103">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+844478
+</START>
+<END>
+845112
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6742104">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869430
+</START>
+<END>
+870288
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6742105">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871466
+</START>
+<END>
+871965
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6742106">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932069
+</START>
+<END>
+932340
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6747954">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869414
+</START>
+<END>
+870276
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6747965">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+977034
+</START>
+<END>
+977229
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6744907">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756879
+</START>
+<END>
+758770
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6744908">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869643
+</START>
+<END>
+870255
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6747741">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+757019
+</START>
+<END>
+758765
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6747742">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869426
+</START>
+<END>
+870144
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6747744">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871487
+</START>
+<END>
+871946
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6750568">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869433
+</START>
+<END>
+870253
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6753462">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756924
+</START>
+<END>
+758372
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6753463">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+839721
+</START>
+<END>
+840188
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6753465">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869420
+</START>
+<END>
+870302
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6761830">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869434
+</START>
+<END>
+870287
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6756516">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869424
+</START>
+<END>
+870261
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6759010">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+766408
+</START>
+<END>
+769102
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6759011">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869434
+</START>
+<END>
+870249
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6759012">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+899471
+</START>
+<END>
+900400
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6769449">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869427
+</START>
+<END>
+870266
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6769450">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932072
+</START>
+<END>
+932311
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6769451">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+963945
+</START>
+<END>
+964449
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6769452">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976930
+</START>
+<END>
+977348
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6769454">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+992036
+</START>
+<END>
+992274
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6764139">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869413
+</START>
+<END>
+870267
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6764140">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+899830
+</START>
+<END>
+900513
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6766502">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869407
+</START>
+<END>
+870321
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6766503">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+977145
+</START>
+<END>
+977316
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6773385">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+757864
+</START>
+<END>
+758041
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6773386">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869427
+</START>
+<END>
+870249
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6773388">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871505
+</START>
+<END>
+871905
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6773389">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+963893
+</START>
+<END>
+964434
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6773390">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+964904
+</START>
+<END>
+965357
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6773391">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976933
+</START>
+<END>
+977384
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6789068">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756310
+</START>
+<END>
+758838
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6789069">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+839876
+</START>
+<END>
+840034
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6789070">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869429
+</START>
+<END>
+870271
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6789071">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932065
+</START>
+<END>
+932293
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6789072">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965612
+</START>
+<END>
+966264
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6789073">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976968
+</START>
+<END>
+977327
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6793229">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756404
+</START>
+<END>
+758840
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6793230">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869434
+</START>
+<END>
+870249
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6793231">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976978
+</START>
+<END>
+977314
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6799154">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869430
+</START>
+<END>
+870255
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6797388">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932069
+</START>
+<END>
+932288
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6797389">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+964011
+</START>
+<END>
+964409
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6797390">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965055
+</START>
+<END>
+965360
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6797391">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965614
+</START>
+<END>
+966343
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6784188">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+757135
+</START>
+<END>
+758845
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6784199">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869422
+</START>
+<END>
+870293
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6801582">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756498
+</START>
+<END>
+758766
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6801583">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869431
+</START>
+<END>
+870255
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6801584">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+899983
+</START>
+<END>
+900136
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6776868">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756311
+</START>
+<END>
+758779
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6776869">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869432
+</START>
+<END>
+870248
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6776870">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932071
+</START>
+<END>
+932295
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6776871">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965851
+</START>
+<END>
+966327
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6780792">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+755974
+</START>
+<END>
+756473
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6780793">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869434
+</START>
+<END>
+870250
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6780794">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+963902
+</START>
+<END>
+964437
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6780795">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965051
+</START>
+<END>
+966086
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6780796">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976970
+</START>
+<END>
+977325
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6784927">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756310
+</START>
+<END>
+758824
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6784928">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+839733
+</START>
+<END>
+840176
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6804367">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869426
+</START>
+<END>
+870248
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6810306">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869431
+</START>
+<END>
+870264
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6810307">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932068
+</START>
+<END>
+932264
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6816388">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869433
+</START>
+<END>
+870264
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6816399">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871472
+</START>
+<END>
+872106
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6816531">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869428
+</START>
+<END>
+870279
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6816564">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+825336
+</START>
+<END>
+5716473
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6816566">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+826196
+</START>
+<END>
+5726934
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6807339">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869425
+</START>
+<END>
+870248
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6807340">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932068
+</START>
+<END>
+932261
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6807341">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+977125
+</START>
+<END>
+977243
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6807343">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+992040
+</START>
+<END>
+992230
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6813123">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756012
+</START>
+<END>
+756465
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6813124">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869426
+</START>
+<END>
+870270
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6813125">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932069
+</START>
+<END>
+932299
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6832527">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756007
+</START>
+<END>
+756573
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6832528">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869422
+</START>
+<END>
+870252
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6832529">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871515
+</START>
+<END>
+871720
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6832530">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965643
+</START>
+<END>
+966326
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6832531">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976952
+</START>
+<END>
+977355
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6824921">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869430
+</START>
+<END>
+870256
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6821118">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756012
+</START>
+<END>
+756456
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6821119">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756551
+</START>
+<END>
+758839
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6821120">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+757830
+</START>
+<END>
+757960
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6821122">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869433
+</START>
+<END>
+870254
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6821123">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+963919
+</START>
+<END>
+964446
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6821124">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965041
+</START>
+<END>
+965339
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6828947">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756010
+</START>
+<END>
+756692
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6828948">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869430
+</START>
+<END>
+870250
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6828949">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976962
+</START>
+<END>
+977344
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6846985">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+823175
+</START>
+<END>
+5715151
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6846986">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+823958
+</START>
+<END>
+5715668
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6846988">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+825319
+</START>
+<END>
+5725962
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6846989">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+826314
+</START>
+<END>
+5727108
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6843421">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869433
+</START>
+<END>
+870252
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6853152">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756782
+</START>
+<END>
+758844
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6853155">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+774752
+</START>
+<END>
+774809
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6853156">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+839933
+</START>
+<END>
+840026
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6853157">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869434
+</START>
+<END>
+870268
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6853204">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+823956
+</START>
+<END>
+5715146
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6853205">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+823956
+</START>
+<END>
+5715664
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6853206">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+823956
+</START>
+<END>
+5715951
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6853207">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+825400
+</START>
+<END>
+5725930
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6853208">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+826360
+</START>
+<END>
+5726996
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6859129">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756340
+</START>
+<END>
+756432
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6859130">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756435
+</START>
+<END>
+758842
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6859132">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+757790
+</START>
+<END>
+758276
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6859162">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+823652
+</START>
+<END>
+5715946
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6859163">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+824873
+</START>
+<END>
+5716809
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6859164">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+825341
+</START>
+<END>
+5725852
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6859166">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+826418
+</START>
+<END>
+5726999
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6839905">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+755963
+</START>
+<END>
+756633
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6839906">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869432
+</START>
+<END>
+870253
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6839907">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871524
+</START>
+<END>
+871904
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6839908">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+931569
+</START>
+<END>
+931965
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6839910">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932060
+</START>
+<END>
+932308
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6836112">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+755963
+</START>
+<END>
+756695
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6836113">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756790
+</START>
+<END>
+758368
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6836114">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756790
+</START>
+<END>
+758794
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6836115">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869431
+</START>
+<END>
+870251
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6836116">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+911978
+</START>
+<END>
+912280
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6836117">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932067
+</START>
+<END>
+932256
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6836118">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965167
+</START>
+<END>
+966065
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6843845">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756781
+</START>
+<END>
+758541
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6843846">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869431
+</START>
+<END>
+870273
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6863879">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869424
+</START>
+<END>
+870253
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6863880">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965991
+</START>
+<END>
+966331
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6863929">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+823631
+</START>
+<END>
+5715139
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6863932">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+823631
+</START>
+<END>
+5715597
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6863933">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+824890
+</START>
+<END>
+5716796
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6863934">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+825449
+</START>
+<END>
+5726042
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6863935">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+826309
+</START>
+<END>
+5727081
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6846928">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756301
+</START>
+<END>
+756354
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6846929">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756301
+</START>
+<END>
+758839
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6846930">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+774767
+</START>
+<END>
+774883
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6846933">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+839927
+</START>
+<END>
+840031
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6846934">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871619
+</START>
+<END>
+871732
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6846935">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+899971
+</START>
+<END>
+900145
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6846936">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+977115
+</START>
+<END>
+977185
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6885945">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756520
+</START>
+<END>
+758369
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6885946">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869428
+</START>
+<END>
+870249
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6885947">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932071
+</START>
+<END>
+932269
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6876308">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+755720
+</START>
+<END>
+756686
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6876319">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+774767
+</START>
+<END>
+774923
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6876330">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869420
+</START>
+<END>
+870253
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6876341">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+964096
+</START>
+<END>
+964465
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6868690">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869422
+</START>
+<END>
+870279
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6874665">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869432
+</START>
+<END>
+870250
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6880393">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756553
+</START>
+<END>
+758768
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6880394">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869429
+</START>
+<END>
+870254
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6892259">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756015
+</START>
+<END>
+756686
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6892260">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756781
+</START>
+<END>
+758332
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6892261">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756781
+</START>
+<END>
+758838
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6892262">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+839791
+</START>
+<END>
+840153
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6892263">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869424
+</START>
+<END>
+870252
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6892264">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932072
+</START>
+<END>
+932243
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6892267">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965616
+</START>
+<END>
+966064
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6888962">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869411
+</START>
+<END>
+870251
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6883219">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756851
+</START>
+<END>
+758258
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6883221">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869431
+</START>
+<END>
+870259
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6883222">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932075
+</START>
+<END>
+932307
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6871679">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756575
+</START>
+<END>
+758325
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6871680">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869431
+</START>
+<END>
+870340
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6871681">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871525
+</START>
+<END>
+871720
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6871682">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+900042
+</START>
+<END>
+900230
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6877639">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756782
+</START>
+<END>
+758841
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6877640">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869430
+</START>
+<END>
+870248
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6877641">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871507
+</START>
+<END>
+871720
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6877642">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+963922
+</START>
+<END>
+964444
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6895803">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869434
+</START>
+<END>
+870256
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6895804">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932067
+</START>
+<END>
+932299
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6917364">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+755671
+</START>
+<END>
+756781
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6917365">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756876
+</START>
+<END>
+758840
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6917366">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869433
+</START>
+<END>
+870253
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6917367">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871328
+</START>
+<END>
+871940
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6917368">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932072
+</START>
+<END>
+932286
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6917369">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976949
+</START>
+<END>
+977341
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6909990">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756005
+</START>
+<END>
+756483
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6909991">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869430
+</START>
+<END>
+870254
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6921667">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+726725
+</START>
+<END>
+727137
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6921668">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869433
+</START>
+<END>
+870268
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6913942">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756007
+</START>
+<END>
+756688
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6913943">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756783
+</START>
+<END>
+758322
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6913944">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756783
+</START>
+<END>
+758840
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6913945">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869413
+</START>
+<END>
+870259
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6913946">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965181
+</START>
+<END>
+966030
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6921669">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976985
+</START>
+<END>
+977338
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6898571">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756576
+</START>
+<END>
+758769
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6898572">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869433
+</START>
+<END>
+870251
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6902471">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756016
+</START>
+<END>
+756487
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6902472">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869424
+</START>
+<END>
+870251
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6902473">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+899989
+</START>
+<END>
+900145
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6925638">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756005
+</START>
+<END>
+756689
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6916296">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756248
+</START>
+<END>
+758706
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6941722">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756008
+</START>
+<END>
+756461
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6941723">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869429
+</START>
+<END>
+870255
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6949784">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869428
+</START>
+<END>
+870251
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6949795">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965600
+</START>
+<END>
+966642
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6946436">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756005
+</START>
+<END>
+756691
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6946437">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756786
+</START>
+<END>
+758839
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6946438">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869432
+</START>
+<END>
+870247
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6946439">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+900015
+</START>
+<END>
+900144
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6946441">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965617
+</START>
+<END>
+966064
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6946442">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+977132
+</START>
+<END>
+977274
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6929009">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756403
+</START>
+<END>
+758541
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6929010">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756403
+</START>
+<END>
+758844
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6929011">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+774759
+</START>
+<END>
+774912
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6929012">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+964874
+</START>
+<END>
+966066
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6950479">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+755968
+</START>
+<END>
+756685
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6950480">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+788933
+</START>
+<END>
+789202
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6950481">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869433
+</START>
+<END>
+870253
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6950482">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871506
+</START>
+<END>
+871918
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6950483">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932068
+</START>
+<END>
+932310
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6950486">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965643
+</START>
+<END>
+966069
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6933241">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869423
+</START>
+<END>
+870250
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6933242">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+871634
+</START>
+<END>
+871836
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6933243">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+964013
+</START>
+<END>
+964447
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954638">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756307
+</START>
+<END>
+758841
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954639">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+774866
+</START>
+<END>
+774926
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954641">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869431
+</START>
+<END>
+870254
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954642">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+900071
+</START>
+<END>
+900128
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954643">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932071
+</START>
+<END>
+932313
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954644">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+963938
+</START>
+<END>
+964461
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954645">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965005
+</START>
+<END>
+965318
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954646">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+966005
+</START>
+<END>
+966084
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954647">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976943
+</START>
+<END>
+977357
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954709">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+823597
+</START>
+<END>
+5715949
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954710">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+824496
+</START>
+<END>
+5716565
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954711">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+825335
+</START>
+<END>
+5725963
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954712">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+826316
+</START>
+<END>
+5726999
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6954713">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+826316
+</START>
+<END>
+5727811
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6937615">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756007
+</START>
+<END>
+756485
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6937616">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869356
+</START>
+<END>
+870252
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6937617">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965840
+</START>
+<END>
+966264
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961443">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+726720
+</START>
+<END>
+727134
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961444">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+755976
+</START>
+<END>
+756687
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961445">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756782
+</START>
+<END>
+758840
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961446">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+839774
+</START>
+<END>
+840201
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961447">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869430
+</START>
+<END>
+870252
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961448">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+899938
+</START>
+<END>
+900164
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961449">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932067
+</START>
+<END>
+932285
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961450">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+964022
+</START>
+<END>
+964456
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961452">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+964945
+</START>
+<END>
+965367
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961453">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+965991
+</START>
+<END>
+966330
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961454">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976911
+</START>
+<END>
+977368
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961525">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+824490
+</START>
+<END>
+5716573
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961526">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+825313
+</START>
+<END>
+5725971
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6961527">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+826309
+</START>
+<END>
+5726932
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6967856">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756005
+</START>
+<END>
+756486
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6967857">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+774767
+</START>
+<END>
+774921
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6967858">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869427
+</START>
+<END>
+870256
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6967859">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+932088
+</START>
+<END>
+932327
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6967860">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+963916
+</START>
+<END>
+964432
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6967861">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+976950
+</START>
+<END>
+977347
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6972236">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+756011
+</START>
+<END>
+756823
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6972237">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+869429
+</START>
+<END>
+870247
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6972238">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+899989
+</START>
+<END>
+900163
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6972240">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+963905
+</START>
+<END>
+964431
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6972300">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+825358
+</START>
+<END>
+5714929
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6972301">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+825358
+</START>
+<END>
+5715949
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6972302">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+825358
+</START>
+<END>
+5725436
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6972303">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+826430
+</START>
+<END>
+5727100
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+<FEATURE id="essv6972304">
+<TYPE id="variation" category="Deletion" />
+<METHOD id="GRCh37" />
+<START>
+826430
+</START>
+<END>
+5727858
+</END>
+<SCORE>
+-
+</SCORE>
+<ORIENTATION>
+0
+</ORIENTATION>
+<PHASE>
+-
+</PHASE>
+</FEATURE>
+</SEGMENT>
+</GFF>
+</DASGFF>
