@@ -179,25 +179,26 @@ var FRegion=function(b){var c=new Array();var d=new Array();var a=false;if(b&&ty
   Genoverse.js
 */
 var Genoverse = Base.extend({
-  defaults: {
-    urlParamTemplate : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
-    width            : 1000,
-    height           : 200,
-    labelWidth       : 134,
-    buffer           : 1,
-    longestLabel     : 30,
-    trackSpacing     : 2,
-    tracks           : [],
-    tracksById       : {},
-    menus            : [],
-    dragAction       : 'scroll', // options are: scroll, select, off
-    wheelAction      : 'zoom',   // options are: zoom, off
-    colors           : {
-      background     : '#FFFFFF',
-      majorGuideLine : '#CCCCCC',
-      minorGuideLine : '#E5E5E5',
-      sortHandle     : '#CFD4E7'
-    }
+
+  // Defaults
+  urlParamTemplate : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
+  width            : 1000,
+  height           : 200,
+  labelWidth       : 90,
+  buffer           : 1,
+  longestLabel     : 30,
+  trackSpacing     : 2,
+  tracks           : [],
+  tracksById       : {},
+  menus            : [],
+  plugins          : [],
+  dragAction       : 'scroll', // options are: scroll, select, off
+  wheelAction      : 'zoom',   // options are: zoom, off
+  colors           : {
+    background     : '#FFFFFF',
+    majorGuideLine : '#CCCCCC',
+    minorGuideLine : '#E5E5E5',
+    sortHandle     : '#CFD4E7'
   },
   
   constructor: function (config) {
@@ -208,7 +209,7 @@ var Genoverse = Base.extend({
     // Make sure container is a jquery thingy, jQuery recognises itself automatically
     config.container = $(config.container);
 
-    $.extend(this, this.defaults, config);
+    $.extend(this, config);
     var browser = this;
 
     $.when(browser.loadPlugins()).always(function(){
@@ -252,7 +253,7 @@ var Genoverse = Base.extend({
             console.log(scripts[i][0]);
           };
         }
-      })($, arguments);
+      })($, browser.plugins.length == 1 ? [ arguments ] : arguments);
     }).always(function(){
       loadPluginsTask.resolve();
     });
@@ -282,8 +283,6 @@ var Genoverse = Base.extend({
     this.urlParamTemplate = this.urlParamTemplate || '';
     this.useHash          = typeof window.history.pushState !== 'function';
     this.proxy            = $.support.cors ? false : this.proxy;
-    this.wrapperLeft      = /*this.labelWidth*/ - width;
-    // this.width           -= this.labelWidth;
     this.textWidth        = document.createElement('canvas').getContext('2d').measureText('W').width;
     this.menuContainer    = $('<div class="menu_container">').css({ width: width - 1, left: 1 }).appendTo(this.container);
 
@@ -302,7 +301,11 @@ var Genoverse = Base.extend({
         browser.tracks[ui.item.data('index')].container[ui.item[0].previousSibling ? 'insertAfter' : 'insertBefore'](browser.tracks[$(ui.item[0].previousSibling || ui.item[0].nextSibling).data('index')].container);
       }
     });
-    
+
+    this.labelWidth       = this.labelContainer.outerWidth(true);
+    this.wrapperLeft      = this.labelWidth - width;
+    this.width           -= this.labelWidth;
+
     this.wrapper  = $('<div class="wrapper">').appendTo(this.container);
     this.selector = $('<div class="selector crosshair"></div>').appendTo(this.wrapper);
 
@@ -437,7 +440,7 @@ var Genoverse = Base.extend({
     }, 100);
     
     this.zoomTimeout = setTimeout(function () {
-      browser[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - browser.container.offset().left/* - browser.labelWidth*/);
+      browser[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - browser.container.offset().left - browser.labelWidth);
       
       if (browser.dragAction === 'select') {
         browser.moveSelector(e);
@@ -711,13 +714,12 @@ var Genoverse = Base.extend({
       track = this.tracks[i];
       
       if (track.resizable) {
-        track.autoHeight = !!([ (track.config || {}).autoHeight, track.defaults.autoHeight, this.autoHeight ].sort(function (a, b) {
-          return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
-        })[0]);
+        // track.autoHeight = !!([ (track.config || {}).autoHeight, track.defaults.autoHeight, this.autoHeight ].sort(function (a, b) {
+        //   return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
+        // })[0]);
         
         track.heightToggler[track.autoHeight ? 'addClass' : 'removeClass']('auto_height');
-        
-        track.resize(((track.config || {}).height || track.defaults.height) + track.spacing);
+        track.resize(track.height + track.spacing);
       }
     }
   },
@@ -853,7 +855,7 @@ var Genoverse = Base.extend({
       }
       
       tracks[i] = new Class($.extend(tracks[i], defaults, { index: i + index }));
-      
+
       if (push) {
         this.tracks.push(tracks[i]);
       }
@@ -958,8 +960,8 @@ var Genoverse = Base.extend({
       start = left > 0 ? this.dataRegion.end   : this.dataRegion.start - (this.buffer * this.length);
       end   = left < 0 ? this.dataRegion.start : this.dataRegion.end   + (this.buffer * this.length);
     } else {
-      start = this.start - this.length;
-      end   = this.end   + this.length + 1;
+      start = Math.max(this.start - this.length, 1);
+      end   = Math.min(this.end   + this.length + 1, this.chromosomeSize);
     }
     
     var width = Math.round((end - start) * this.scale);
@@ -1312,30 +1314,31 @@ window.Genoverse = Genoverse;
 
 
 
-
 /*
   Track.js
 */
 Genoverse.Track = Base.extend({
-  defaults: {
-    height         : 12,
-    dataType       : 'json',
-    bump           : false,
-    bumpSpacing    : 2,
-    featureSpacing : 1,
-    urlParams      : {},
-    urlTemplate    : {},
-    inherit        : [],
-    xhrFields      : {},
-  },
 
-  config: {
-  },
+  // Defaults
+  height         : 12,
+  dataType       : 'json',
+  fontSize       : 10,
+  fontFamily     : 'sans-serif',
+  fontWeight     : 'normal',
+  bump           : false,
+  bumpSpacing    : 2,
+  featureSpacing : 1,
+  urlParams      : {},
+  urlTemplate    : {},
+  inherit        : [],
+  xhrFields      : {},
 
   constructor: function (config) {
-    var track = this;
+    // Re-initialize (deep copy __proto__)
+    this.__proto__ = $.extend(true, {},  this.__proto__);
     
-    $.extend(true, this, this.defaults, this.config, config);
+    $.extend(true, this, this.__proto__, config);
+    var track = this;
     
     for (var i = 0; i < this.inherit.length; i++) {
       if (Genoverse.Track[this.inherit[i]]) {
@@ -1383,20 +1386,21 @@ Genoverse.Track = Base.extend({
     this.order          = typeof this.order          !== 'undefined' ? this.order          : this.index;
     this.separateLabels = typeof this.separateLabels !== 'undefined' ? this.separateLabels : !!this.depth;
     this.spacing        = typeof this.spacing        !== 'undefined' ? this.spacing        : this.browser.trackSpacing;
-    this.featureHeight  = typeof this.featureHeight  !== 'undefined' ? this.featureHeight  : (this.config && typeof this.config.height === 'number' ? this.config.height : this.defaults.height);
+    this.featureHeight  = typeof this.featureHeight  !== 'undefined' ? this.featureHeight  : this.height;
     this.fixedHeight    = typeof this.fixedHeight    !== 'undefined' ? this.fixedHeight    : this.featureHeight === this.height && !(this.bump || this.bumpLabels);
     this.autoHeight     = typeof this.autoHeight     !== 'undefined' ? this.autoHeight     : !this.fixedHeight && !config.height ? this.browser.autoHeight : false;
     this.resizable      = typeof this.resizable      !== 'undefined' ? this.resizable      : !this.fixedHeight;
     this.height        += this.spacing;
     this.initialHeight  = this.height;
     this.minLabelHeight = 0;
-    this.canvas         = $('<canvas>').appendTo(this.canvasContainer);
-    this.container      = $('<div class="track_container">').appendTo(this.canvasContainer);
+    this.canvas         = $('<canvas>').appendTo(this.browser.wrapper);
+    this.container      = $('<div class="track_container">').appendTo(this.browser.wrapper);
     this.imgContainer   = $('<div class="image_container">');
     this.label          = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('index', this.index);
     this.menus          = $();
     this.context        = this.canvas[0].getContext('2d');
-    this.fontHeight     = parseInt(this.context.font, 10);
+    this.context.font   = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
+    this.fontHeight     = this.fontSize;
     this.labelUnits     = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
 
     if (this.hidden) {
@@ -2096,15 +2100,16 @@ Genoverse.Track = Base.extend({
 
 
 
+
 /*
   Track/Threshold.js
 */
 Genoverse.Track.Threshold = Genoverse.Track.extend({
-  config: {
-    color   : '#FF0000',
-    spacing : 0,
-    inherit : [ 'Static' ]
-  },
+
+  // Dafaults
+  color   : '#FF0000',
+  spacing : 0,
+  inherit : [ 'Static' ],
   
   constructor: function (config) {
     this.base(config);
@@ -2145,11 +2150,11 @@ Genoverse.Track.Threshold = Genoverse.Track.extend({
   Track/Error.js
 */
 Genoverse.Track.Error = Genoverse.Track.extend({
-  config: {
-    color   : '#FF0000',
-    spacing : 0,
-    inherit : [ 'Static' ]
-  },
+
+  // Defaults 
+  color   : '#FF0000',
+  spacing : 0,
+  inherit : [ 'Static' ],
   
   constructor: function (config) {
     this.base(config);
@@ -2416,10 +2421,10 @@ Genoverse.Track.on('afterResize', function (height, userResize) {
 });
 
 Genoverse.Track.Legend = Genoverse.Track.extend({
-  config: {
-    textColor : '#000000',
-    inherit   : [ 'Static' ]
-  },
+
+  // Defaults
+  textColor : '#000000',
+  inherit   : [ 'Static' ],
   
   init: function () {
     this.imgContainer.css('background', this.browser.colors.background);
@@ -2585,12 +2590,12 @@ Genoverse.Track.Stranded = {
   Track/Scaleline.js
 */
 Genoverse.Track.Scaleline = Genoverse.Track.extend({
-  config: {
-    color          : '#000000',
-    height         : 12,
-    featuresHeight : 14,
-    inherit        : [ 'Static' ]
-  },
+
+  // Defaults
+  color          : '#000000',
+  height         : 12,
+  featuresHeight : 14,
+  inherit        : [ 'Static' ],
   
   resize: $.noop,
   
@@ -2641,21 +2646,20 @@ Genoverse.Track.Scaleline = Genoverse.Track.extend({
   Track/Scalebar.js
 */
 Genoverse.Track.Scalebar = Genoverse.Track.extend({
-  config: {
-    height        : 20,
-    featureHeight : 3,
-    spacing       : 0,
-    color         : '#000000',
-    autoHeight    : false,
-    unsortable    : true,
-    forceLabels   : true,
-    bump          : false,
-    fixedHeight   : true,
-    order         : 0,
-    orderReverse  : 1e5,
-    featureStrand : 1,
-    inherit       : [ 'Stranded' ]
-  },
+
+  height        : 20,
+  featureHeight : 3,
+  spacing       : 0,
+  color         : '#000000',
+  autoHeight    : false,
+  unsortable    : true,
+  forceLabels   : true,
+  bump          : false,
+  fixedHeight   : true,
+  order         : 0,
+  orderReverse  : 1e5,
+  featureStrand : 1,
+  inherit       : [ 'Stranded' ],
   
   reset: function () {
     this.container.children('.image_container').remove();
@@ -2826,18 +2830,17 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   Track/Gene.js
 */
 Genoverse.Track.Gene = Genoverse.Track.extend({ 
-  config: {
-    height : 50,
-    bump   : true
-  },
-  
+
+  // Config
+  height : 50,
+  bump   : true,
+
   init: function () {
     this.base();
     this.setRenderer(this.renderer, true);
   },
   
   setRenderer: function (renderer, permanent) {
-    renderer = 'transcript';
     if (renderer.match(/transcript/)) {
       this.separateLabels = false;
       this.maxLabelRegion = 1e5;
@@ -2877,7 +2880,7 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
   },
   
   scaleFeatures: function (features) {
-    if (this.urlParams.renderer && this.urlParams.renderer.match(/gene/)) {
+    if (this.urlParams.renderer.match(/gene/)) {
       return this.base(features);
     }
   
@@ -3154,6 +3157,9 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
   Track/DAS.js
 */
 Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
+
+  // Defualts 
+  dataType : 'xml',
 
   init: function () {
     this.base();
@@ -4188,14 +4194,13 @@ var DASColorMap = {
 */
 Genoverse.Track.DAS.Band = Genoverse.Track.DAS.extend({
 
-  config: {
-    name         : "Chromosome bands", 
-    labelOverlay : true, 
-    allData      : true, 
-    dataType     : 'xml',
-    depth        : null,
-    url          : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.karyotype/features?segment=__CHR__'
-  },
+  // Default config
+  name         : "Chromosome bands", 
+  labelOverlay : true, 
+  allData      : true, 
+  dataType     : 'xml',
+  depth        : null,
+  url          : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.karyotype/features?segment=__CHR__',
 
 
   colorMap : {
@@ -4271,26 +4276,18 @@ Genoverse.Track.DAS.Band = Genoverse.Track.DAS.extend({
 /*
   Track/DAS/Transcript.js
 */
-Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
+Genoverse.Track.DAS.Transcript = Genoverse.Track.DAS.extend({
 
-  config: {
-    name           : "Transcript (DAS)", 
-    dataType       : 'xml',
-    bump           : true,
-    height         : 200,
-    // source         : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
-    // url            : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript/features?segment=__CHR__:__START__,__END__',
-    renderer       : 'transcript_label',
-    featureHeight  : 10,
-    decorations    : {},
-    separateLabels : true,
-    //groups         : {}
-  },
-
-
-  setRenderer: function (renderer, permanent) {
-    return this.base(renderer || 'transcript', permanent);
-  },
+  name           : "Transcript (DAS)", 
+  dataType       : 'xml',
+  bump           : true,
+  height         : 200,
+  source         : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
+  renderer       : 'transcript_label',
+  featureHeight  : 10,
+  decorations    : {},
+  separateLabels : true,
+  groups         : {},
 
   
   parseFeatures: function (data, bounds) {
@@ -4303,7 +4300,7 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
 
 
   groupFeatures: function (features) {
-    if (!this.groups) this.groups = {};
+    //if (!this.groups) this.groups = {};
     
     for (var i=0; i<features.length; i++) {
 
@@ -4494,29 +4491,29 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
 */
 Genoverse.Track.DAS.Sequence = Genoverse.Track.extend({
 
-  config: {
-    name          : "Sequence",
-    height        : 45,
-    featureHeight : 20,
-    labelYOffset  : 13,
-    yOffset       : 2,
-    complementary : true,
-    chunkSize     : 1000,
-    threshold     : 2000,
-    labelOverlay  : true, 
-    allData       : false,
-    font          : "bold 8pt Verdana",
-    dataType      : 'xml',
-    textColor     : 'white',
-    colorMap : {
-      a : "#FFAA00",
-      t : "#FFDD73",
-      g : "#0772A1",
-      c : "#009999",
-      n : "grey",
-      default : "grey"
-    },
-    source       : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.reference'
+  // Defaults 
+  name          : "Sequence",
+  height        : 45,
+  featureHeight : 20,
+  yOffset       : 2,
+  complementary : true,
+  chunkSize     : 1000,
+  threshold     : 2000,
+  labelOverlay  : true, 
+  allData       : false,
+  fontSize      : 10,
+  fontFamily    : 'Verdana',
+  fontWeight    : 'bold',
+  dataType      : 'xml',
+  textColor     : 'white',
+  source        : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.reference',
+  colorMap      : {
+    a : "#FFAA00",
+    t : "#FFDD73",
+    g : "#0772A1",
+    c : "#009999",
+    n : "grey",
+    default : "grey"
   },
 
 
@@ -4555,6 +4552,8 @@ Genoverse.Track.DAS.Sequence = Genoverse.Track.extend({
       c : this.context.measureText('c').width,
       n : this.context.measureText('n').width
     };
+
+    this.labelYOffset = this.featureHeight/2 + this.fontHeight/4;
 
   },
 
@@ -4680,22 +4679,170 @@ Genoverse.Track.DAS.Sequence = Genoverse.Track.extend({
 
 
 
+
+/*
+  Track/DAS/SV.js (Sequence variation)
+*/
+Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
+
+  // defaults
+  complementary : false,
+  yOffset       : 10,
+  height        : 100,
+  distance      : 0.2,
+  yOffset       : 35,
+  featureHeight : 15,
+  shadow        : {
+    offsetX : 0,
+    offsetY : 0,
+    blur    : 5,
+    color   : "black"
+  },
+
+
+  // I guess getData vould be different to get both sequence and variation
+
+  drawFeatures: function (image, features) {
+    this.base(image, features);
+    // TODO: overlapping variations only
+    this.drawVariations(image, this.variations);
+  },
+
+
+  drawVariations: function (image, variations) {
+    for (var i = 0; i < variations.length; i++) {
+      var variation = variations[i];
+      variation.scaledStart = variation.start * this.scale - image.scaledStart;
+      variation.scaledWidth = (variation.end - variation.start) * this.scale; 
+
+      this['draw' + variations[i].type].call(this, image, variation);
+    }    
+  },
+
+
+  drawDeletion: function (image, variation) {
+    var featureHeight = this.complementary ? this.featureHeight * 2 : this.featureHeight;
+
+    this.applyShadow();
+    this.context.lineWidth = 3;
+    this.context.strokeStyle = 'red';
+    this.context.strokeRect(variation.scaledStart, this.yOffset, variation.scaledWidth, featureHeight);
+    this.repealShadow();
+
+    this.context.fillStyle = 'rgba(50,0,0,0.7)';
+    this.context.fillRect(variation.scaledStart, this.yOffset, variation.scaledWidth, featureHeight);
+  },
+
+
+  drawInDel: function (image, variation) {
+    var featuresHeight = this.complementary ? this.featureHeight * 2 : this.featureHeight;
+    var referenceScaledWidth = variation.reference_allele.length * this.scale; 
+    var alternateScaledWidth = variation.alternate_allele.length * this.scale; 
+
+    this.applyShadow();
+    this.context.beginPath();
+    this.context.moveTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - (1 + this.distance)*this.featureHeight);
+    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - (1 + this.distance)*this.featureHeight);
+    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - this.distance*this.featureHeight);
+    this.context.lineTo(variation.scaledStart + referenceScaledWidth, this.yOffset);
+
+    if (this.complementary) {
+      this.context.lineTo(variation.scaledStart + referenceScaledWidth, this.yOffset + 2*this.featureHeight);
+      this.context.lineTo(variation.scaledStart, this.yOffset + 2*this.featureHeight);
+    } else {
+      this.context.lineTo(variation.scaledStart + referenceScaledWidth, this.yOffset + this.featureHeight);
+      this.context.lineTo(variation.scaledStart, this.yOffset + this.featureHeight);
+    }
+
+    this.context.lineTo(variation.scaledStart, this.yOffset);
+    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - this.distance*this.featureHeight);
+    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - (1 + this.distance)*this.featureHeight);
+    this.context.closePath();
+
+    this.context.strokeStyle = '#1DD300';
+    this.context.stroke();
+    this.repealShadow();
+
+    this.context.fillStyle = 'rgba(0,0,0,0.7)';
+    this.context.fill();
+
+
+    this.drawSequence(
+      image, 
+      { start: variation.start, end: variation.end, sequence: variation.alternate_allele.toLowerCase() }, 
+      this.yOffset - (1 + this.distance)*this.featureHeight, 
+      (referenceScaledWidth - alternateScaledWidth)/2,
+      false
+    );
+
+    // if (this.complementary) {
+    //   var track = this;
+    //   this.drawSequence(
+    //     image, 
+    //     { start: variation.start, end: variation.end, sequence: this.complement(variation.alternate_allele) }, 
+    //     this.yOffset + featureHeight, 
+    //     false
+    //   );
+    // }    
+  },
+
+
+  click: function (e) {
+    var x = (e.pageX - this.container.parent().offset().left)/this.scale + this.browser.start;
+    var y = e.pageY - $(e.target).offset().top;    
+
+    for (var i = 0; i < this.variations.length; i++) {
+      var variation = this.variations[i];
+      if (x > variation.start && x < variation.start + Math.max(variation.reference_allele.length, variation.alternate_allele.length)) {
+        this.browser.makeMenu(this, variation, { left: e.pageX, top: e.pageY });
+      }
+    }
+  },
+
+
+  populateMenu: function (variation) {
+    return {
+      title : variation.type,
+      Start : variation.start,
+      End   : variation.end
+    };
+  },
+
+
+  applyShadow: function () {
+    if (this.shadow) {
+      this.context.shadowOffsetX = this.shadow.offsetX;
+      this.context.shadowOffsetY = this.shadow.offsetY;
+      this.context.shadowBlur    = this.shadow.blur;
+      this.context.shadowColor   = this.shadow.color;
+    }
+  },
+
+  repealShadow: function () {
+    this.context.shadowBlur = 0;
+  },
+
+});
+
+
+
+
+
 /*
   Track/DAS/GC.js
 */
 Genoverse.Track.DAS.Sequence.GC = Genoverse.Track.DAS.Sequence.extend({
 
-  config: {
-    name          : "GC content",
-    height        : 50,
-    chunkSize     : 1000,
-    threshold     : 10000,
-    chunks        : {},
-    labelOverlay  : true, 
-    allData       : false,
-    dataType      : 'xml',
-    source       : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.reference'
-  },
+  // Defaults
+  name         : "GC content",
+  height       : 50,
+  chunkSize    : 1000,
+  threshold    : 10000,
+  chunks       : {},
+  labelOverlay : true, 
+  allData      : false,
+  dataType     : 'xml',
+  source       : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.reference',
 
 
   init: function () {
@@ -4774,194 +4921,7 @@ Genoverse.Track.DAS.Sequence.GC = Genoverse.Track.DAS.Sequence.extend({
     this.context.closePath();
   },
 
-
-
 });
-
-
-
-
-
-
-/*
-  Track/SV.js
-*/
-Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
-
-  constructor: function (config) {
-
-    this.base($.extend({
-      complementary : true,
-      yOffset       : 50,
-      shadow        : {
-        offsetX : 0,
-        offsetY : 0,
-        blur    : 5,
-        color   : "black"
-      },
-      height        : 150
-    }, config));
-  },
-
-  init: function () {
-    this.base();
-  },
-
-  // I guess getData vould be different to get both sequence and variation
-
-  drawFeatures: function (image, features) {
-    this.base(image, features);
-    // TODO: overlapping variations only
-    this.drawVariations(image, this.variations);
-  },
-
-
-  drawVariations: function (image, variations) {
-    for (var i = 0; i < variations.length; i++) {
-      var variation = variations[i];
-      variation.scaledStart = variation.start * this.scale - image.scaledStart;
-      variation.scaledWidth = (variation.end - variation.start) * this.scale; 
-
-      this['draw' + variations[i].type].call(this, image, variation);
-    }    
-  },
-
-
-  drawDeletion: function (image, variation) {
-    var featureHeight = this.complementary ? this.featureHeight * 2 : this.featureHeight;
-
-    this.applyShadow();
-    this.context.lineWidth = 3;
-    this.context.strokeStyle = 'red';
-    this.context.strokeRect(variation.scaledStart, this.yOffset, variation.scaledWidth, featureHeight);
-    this.repealShadow();
-
-    this.context.fillStyle = 'rgba(50,0,0,0.7)';
-    this.context.fillRect(variation.scaledStart, this.yOffset, variation.scaledWidth, featureHeight);
-  },
-
-
-  drawSubstitution: function (image, variation) {
-    var featureHeight = this.complementary ? this.featureHeight * 2 : this.featureHeight;
-
-    this.applyShadow();
-    this.context.lineWidth = 3;
-    this.context.strokeStyle = '#1DD300';
-    this.context.strokeRect(variation.scaledStart, this.yOffset - this.featureHeight, variation.scaledWidth, featureHeight*2);
-    this.repealShadow();
-
-    this.context.fillStyle = 'rgba(0,0,0,0.7)';
-    this.context.fillRect(variation.scaledStart, this.yOffset, variation.scaledWidth, featureHeight);
-
-    this.drawSequence(
-      image, 
-      { start: variation.start, end: variation.end, sequence: variation.alternate_allele.toLowerCase() }, 
-      this.yOffset - this.featureHeight, 
-      false
-    );
-
-    if (this.complementary) {
-      var track = this;
-      this.drawSequence(
-        image, 
-        { start: variation.start, end: variation.end, sequence: this.complement(variation.alternate_allele) }, 
-        this.yOffset + featureHeight, 
-        false
-      );
-    }
-  },
-
-
-  drawInDel: function (image, variation) {
-    var featuresHeight = this.complementary ? this.featureHeight * 2 : this.featureHeight;
-    var referenceScaledWidth = variation.reference_allele.length * this.scale; 
-    var alternateScaledWidth = variation.alternate_allele.length * this.scale; 
-
-    this.applyShadow();
-    this.context.beginPath();
-    this.context.moveTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - 2*this.featureHeight);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - 2*this.featureHeight);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - this.featureHeight);
-    this.context.lineTo(variation.scaledStart + referenceScaledWidth, this.yOffset);
-
-    if (this.complementary) {
-      this.context.lineTo(variation.scaledStart + referenceScaledWidth, this.yOffset + 2*this.featureHeight);
-      this.context.lineTo(variation.scaledStart, this.yOffset + 2*this.featureHeight);
-    } else {
-      this.context.lineTo(variation.scaledStart + referenceScaledWidth, this.yOffset + this.featureHeight);
-      this.context.lineTo(variation.scaledStart, this.yOffset + this.featureHeight);
-    }
-
-    this.context.lineTo(variation.scaledStart, this.yOffset);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - this.featureHeight);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - 2*this.featureHeight);
-    this.context.closePath();
-
-    this.context.strokeStyle = '#1DD300';
-    this.context.stroke();
-    this.repealShadow();
-
-    this.context.fillStyle = 'rgba(0,0,0,0.7)';
-    this.context.fill();
-
-
-    this.drawSequence(
-      image, 
-      { start: variation.start, end: variation.end, sequence: variation.alternate_allele.toLowerCase() }, 
-      this.yOffset - 2*this.featureHeight, 
-      (referenceScaledWidth - alternateScaledWidth)/2,
-      false
-    );
-
-    // if (this.complementary) {
-    //   var track = this;
-    //   this.drawSequence(
-    //     image, 
-    //     { start: variation.start, end: variation.end, sequence: this.complement(variation.alternate_allele) }, 
-    //     this.yOffset + featureHeight, 
-    //     false
-    //   );
-    // }    
-  },
-
-
-  click: function (e) {
-    var x = (e.pageX - this.container.parent().offset().left)/this.scale + this.browser.start;
-    var y = e.pageY - $(e.target).offset().top;    
-
-    for (var i = 0; i < this.variations.length; i++) {
-      var variation = this.variations[i];
-      if (x > variation.start && x < variation.start + Math.max(variation.reference_allele.length, variation.alternate_allele.length)) {
-        this.browser.makeMenu(variation, { left: e.pageX, top: e.pageY }, this);
-      }
-    }
-  },
-
-
-  populateMenu: function (variation) {
-    return {
-      title : variation.type,
-      Start : variation.start,
-      End   : variation.end
-    };
-  },
-
-
-  applyShadow: function () {
-    if (this.shadow) {
-      this.context.shadowOffsetX = this.shadow.offsetX;
-      this.context.shadowOffsetY = this.shadow.offsetY;
-      this.context.shadowBlur    = this.shadow.blur;
-      this.context.shadowColor   = this.shadow.color;
-    }
-  },
-
-  repealShadow: function () {
-    this.context.shadowBlur = 0;
-  },
-
-});
-
 
 
 // Last script tag should always be this script
