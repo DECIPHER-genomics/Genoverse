@@ -1,9 +1,9 @@
 Genoverse.Track.Error = Genoverse.Track.extend({
-  config: {
-    color   : '#FF0000',
-    spacing : 0,
-    inherit : [ 'Static' ]
-  },
+
+  // Defaults 
+  color   : '#FF0000',
+  spacing : 0,
+  inherit : [ 'Static' ],
   
   constructor: function (config) {
     this.base(config);

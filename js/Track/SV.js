@@ -1,23 +1,19 @@
 Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
 
-  constructor: function (config) {
-
-    this.base($.extend({
-      complementary : false,
-      yOffset       : 10,
-      shadow        : {
-        offsetX : 0,
-        offsetY : 0,
-        blur    : 5,
-        color   : "black"
-      },
-      height        : 100,
-      yOffset       : 35,
-
-      //featureHeight : 10,
-    }, config));
-
+  // defaults
+  complementary : false,
+  yOffset       : 10,
+  height        : 100,
+  distance      : 0.2,
+  yOffset       : 35,
+  featureHeight : 15,
+  shadow        : {
+    offsetX : 0,
+    offsetY : 0,
+    blur    : 5,
+    color   : "black"
   },
+
 
   // I guess getData vould be different to get both sequence and variation
 
@@ -53,37 +49,6 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
   },
 
 
-  drawSubstitution: function (image, variation) {
-    var featureHeight = this.complementary ? this.featureHeight * 2 : this.featureHeight;
-
-    this.applyShadow();
-    this.context.lineWidth = 3;
-    this.context.strokeStyle = '#1DD300';
-    this.context.strokeRect(variation.scaledStart, this.yOffset - this.featureHeight, variation.scaledWidth, featureHeight*2);
-    this.repealShadow();
-
-    this.context.fillStyle = 'rgba(0,0,0,0.7)';
-    this.context.fillRect(variation.scaledStart, this.yOffset, variation.scaledWidth, featureHeight);
-
-    this.drawSequence(
-      image, 
-      { start: variation.start, end: variation.end, sequence: variation.alternate_allele.toLowerCase() }, 
-      this.yOffset - this.featureHeight, 
-      false
-    );
-
-    if (this.complementary) {
-      var track = this;
-      this.drawSequence(
-        image, 
-        { start: variation.start, end: variation.end, sequence: this.complement(variation.alternate_allele) }, 
-        this.yOffset + featureHeight, 
-        false
-      );
-    }
-  },
-
-
   drawInDel: function (image, variation) {
     var featuresHeight = this.complementary ? this.featureHeight * 2 : this.featureHeight;
     var referenceScaledWidth = variation.reference_allele.length * this.scale; 
@@ -91,9 +56,9 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
 
     this.applyShadow();
     this.context.beginPath();
-    this.context.moveTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - 1.5*this.featureHeight);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - 1.5*this.featureHeight);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - 0.5*this.featureHeight);
+    this.context.moveTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - (1 + this.distance)*this.featureHeight);
+    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - (1 + this.distance)*this.featureHeight);
+    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - this.distance*this.featureHeight);
     this.context.lineTo(variation.scaledStart + referenceScaledWidth, this.yOffset);
 
     if (this.complementary) {
@@ -105,8 +70,8 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
     }
 
     this.context.lineTo(variation.scaledStart, this.yOffset);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - 0.5*this.featureHeight);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - 1.5*this.featureHeight);
+    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - this.distance*this.featureHeight);
+    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - (1 + this.distance)*this.featureHeight);
     this.context.closePath();
 
     this.context.strokeStyle = '#1DD300';
@@ -120,7 +85,7 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
     this.drawSequence(
       image, 
       { start: variation.start, end: variation.end, sequence: variation.alternate_allele.toLowerCase() }, 
-      this.yOffset - 1.5*this.featureHeight, 
+      this.yOffset - (1 + this.distance)*this.featureHeight, 
       (referenceScaledWidth - alternateScaledWidth)/2,
       false
     );

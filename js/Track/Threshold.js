@@ -1,9 +1,9 @@
 Genoverse.Track.Threshold = Genoverse.Track.extend({
-  config: {
-    color   : '#FF0000',
-    spacing : 0,
-    inherit : [ 'Static' ]
-  },
+
+  // Dafaults
+  color   : '#FF0000',
+  spacing : 0,
+  inherit : [ 'Static' ],
   
   constructor: function (config) {
     this.base(config);
