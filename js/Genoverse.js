@@ -651,7 +651,6 @@ var Genoverse = Base.extend({
   setTracks: function (tracks, index) {
     var defaults = {
       browser         : this,
-      canvasContainer : this.wrapper,
       width           : this.width
     };
     
