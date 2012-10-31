@@ -1,9 +1,9 @@
 Genoverse.Track.Gene = Genoverse.Track.extend({ 
-  config: {
-    height : 50,
-    bump   : true
-  },
-  
+
+  // Config
+  height : 50,
+  bump   : true,
+
   init: function () {
     this.base();
     this.setRenderer(this.renderer, true);

@@ -1,5 +1,8 @@
 Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
 
+  // Defualts 
+  dataType : 'xml',
+
   init: function () {
     this.base();
     this.urlTemplate = { segment: '__CHR__:__START__,__END__' }

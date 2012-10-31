@@ -1,19 +1,18 @@
 Genoverse.Track.Scalebar = Genoverse.Track.extend({
-  config: {
-    height        : 20,
-    featureHeight : 3,
-    spacing       : 0,
-    color         : '#000000',
-    autoHeight    : false,
-    unsortable    : true,
-    forceLabels   : true,
-    bump          : false,
-    fixedHeight   : true,
-    order         : 0,
-    orderReverse  : 1e5,
-    featureStrand : 1,
-    inherit       : [ 'Stranded' ]
-  },
+
+  height        : 20,
+  featureHeight : 3,
+  spacing       : 0,
+  color         : '#000000',
+  autoHeight    : false,
+  unsortable    : true,
+  forceLabels   : true,
+  bump          : false,
+  fixedHeight   : true,
+  order         : 0,
+  orderReverse  : 1e5,
+  featureStrand : 1,
+  inherit       : [ 'Stranded' ],
   
   reset: function () {
     this.container.children('.image_container').remove();

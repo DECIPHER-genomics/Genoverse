@@ -1,28 +1,28 @@
 Genoverse.Track.DAS.Sequence = Genoverse.Track.extend({
 
-  config: {
-    name          : "Sequence",
-    height        : 45,
-    featureHeight : 20,
-    labelYOffset  : 13,
-    yOffset       : 2,
-    complementary : true,
-    chunkSize     : 1000,
-    threshold     : 2000,
-    labelOverlay  : true, 
-    allData       : false,
-    font          : "bold 8pt Verdana",
-    dataType      : 'xml',
-    textColor     : 'white',
-    colorMap : {
-      a : "#FFAA00",
-      t : "#FFDD73",
-      g : "#0772A1",
-      c : "#009999",
-      n : "grey",
-      default : "grey"
-    },
-    source       : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.reference'
+  // Defaults 
+  name          : "Sequence",
+  height        : 45,
+  featureHeight : 20,
+  yOffset       : 2,
+  complementary : true,
+  chunkSize     : 1000,
+  threshold     : 2000,
+  labelOverlay  : true, 
+  allData       : false,
+  fontSize      : 10,
+  fontFamily    : 'Verdana',
+  fontWeight    : 'bold',
+  dataType      : 'xml',
+  textColor     : 'white',
+  source        : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.reference',
+  colorMap      : {
+    a : "#FFAA00",
+    t : "#FFDD73",
+    g : "#0772A1",
+    c : "#009999",
+    n : "grey",
+    default : "grey"
   },
 
 
@@ -61,6 +61,8 @@ Genoverse.Track.DAS.Sequence = Genoverse.Track.extend({
       c : this.context.measureText('c').width,
       n : this.context.measureText('n').width
     };
+
+    this.labelYOffset = this.featureHeight/2 + this.fontHeight/4;
 
   },
 
@@ -141,10 +143,10 @@ Genoverse.Track.DAS.Sequence = Genoverse.Track.extend({
     }
   },
 
-  drawSequence: function (image, feature, yOffset, complementary) {
+  drawSequence: function (image, feature, yOffset, xOffset, complementary) {
     var complementary = complementary !== undefined ? complementary : this.complementary;
     var yOffset       = yOffset !== undefined ? yOffset : this.yOffset;
-    var scaledStart   = feature.start * this.scale - image.scaledStart;
+    var scaledStart   = feature.start * this.scale - image.scaledStart + (xOffset || 0);
     var scaledWidth   = (feature.end - feature.start) * this.scale;    
     var bpWidth       = this.scale;
 

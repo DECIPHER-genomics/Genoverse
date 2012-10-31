@@ -1,24 +1,20 @@
-Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
+Genoverse.Track.DAS.Transcript = Genoverse.Track.DAS.extend({
 
-  config: {
-    name           : "Transcript (DAS)", 
-    dataType       : 'xml',
-    bump           : true,
-    height         : 200,
-    // source         : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
-    // url            : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript/features?segment=__CHR__:__START__,__END__',
-    renderer       : 'transcript_label',
-    featureHeight  : 10,
-    decorations    : {},
-    separateLabels : true,
-    //groups         : {}
-  },
+  name           : "Transcript (DAS)", 
+  dataType       : 'xml',
+  bump           : true,
+  height         : 200,
+  source         : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
+  renderer       : 'transcript_label',
+  featureHeight  : 10,
+  decorations    : {},
+  separateLabels : true,
+  groups         : {},
 
   
   parseFeatures: function (data, bounds) {
     var track = this;
     var features = track.base(data, bounds);
-
     this.groupFeatures(features);
 
     return this.features.search(bounds);
@@ -26,7 +22,7 @@ Genoverse.Track.DASTranscript = Genoverse.Track.DAS.extend({
 
 
   groupFeatures: function (features) {
-    if (!this.groups) this.groups = {};
+    //if (!this.groups) this.groups = {};
     
     for (var i=0; i<features.length; i++) {
 

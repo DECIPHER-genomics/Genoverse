@@ -1,0 +1,54 @@
+js/Genoverse.js
+
+* container can be a string now (jQuery style)
++ load plugins function (in a deferred way)
+* class .canvas_container is added to container automatically
+* labelWidth is removed (commented out for now) - moved to CSS
+* menuContainer was causing lots of problems, so menus are rendered in container for now
++ closeMenus function
++ tracksById hash
+* makeMenu doesn't require track now (for general popups, like tracks selection), also order of arguments changed
+
+
+
+js/Track.js
+
++ xhrFields hash for cross-origin requests that require credentials
+* $.extend in the constructor is making deepcopy (to avoid different tracks sharing nested settings)
++ construction of the DOM elements for the track is moved to a separate function .addDomElements(config)
++ 'hidden' setting for the track (hides the track, while keeping it rendered and ready to show)
++ .show() and .hide() functions for 'hidden' setting
+
+
+
+css/genoverse.css
+
+- main css file is cleared of control panel stuff (it has been moved to the controlPanel plugin css)
++ labels width is added (moved from js config to CSS)
+
+
+Plugins:
+
+* plugins can now be specified in the main config as array
+* css moved from plugin javascript to separate css files and LazyLoaded
+
+DAS tracks
+
+js/Track/DAS/Band.js
+Track type renamed from DASBand to DAS.Band
+
+
+* general cleanup (lots of old code moved to 'old' folders)
+
+
+js/beta.js
+
+All genoverse code combined and wrapped in a function to avoid jQuery conflicts for 3rd party users
+Config can be placed now inside tag of the script
+
+
+Couple of examples of how it could be integrated into the page:
+
+example.html - all js files included separately, genoverse instantiated explicitly
+index.html - one combined js file, config placed inside the script tag
+

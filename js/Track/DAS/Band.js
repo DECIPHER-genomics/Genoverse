@@ -1,13 +1,12 @@
-Genoverse.Track.DASBand = Genoverse.Track.DAS.extend({
+Genoverse.Track.DAS.Band = Genoverse.Track.DAS.extend({
 
-  config: {
-    name         : "Chromosome bands", 
-    labelOverlay : true, 
-    allData      : true, 
-    dataType     : 'xml',
-    depth        : null,
-    url          : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.karyotype/features?segment=__CHR__'
-  },
+  // Defaults
+  name         : "Chromosome bands", 
+  labelOverlay : true, 
+  allData      : true, 
+  dataType     : 'xml',
+  depth        : null,
+  url          : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.karyotype/features?segment=__CHR__',
 
 
   colorMap : {

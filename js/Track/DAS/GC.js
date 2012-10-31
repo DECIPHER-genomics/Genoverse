@@ -1,16 +1,15 @@
 Genoverse.Track.DAS.Sequence.GC = Genoverse.Track.DAS.Sequence.extend({
 
-  config: {
-    name          : "GC content",
-    height        : 50,
-    chunkSize     : 1000,
-    threshold     : 10000,
-    chunks        : {},
-    labelOverlay  : true, 
-    allData       : false,
-    dataType      : 'xml',
-    source       : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.reference'
-  },
+  // Defaults
+  name         : "GC content",
+  height       : 50,
+  chunkSize    : 1000,
+  threshold    : 10000,
+  chunks       : {},
+  labelOverlay : true, 
+  allData      : false,
+  dataType     : 'xml',
+  source       : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.reference',
 
 
   init: function () {

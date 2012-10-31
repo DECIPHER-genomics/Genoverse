@@ -156,7 +156,7 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
     var feature = $.grep(this.features.search({ x: x, w: 1, y: 0, h: 1 }), function (f) { return f.strand === strand; })[0];
     
     if (feature) {
-      this.browser.makeMenu(this, this.menuFeature(feature, x), { left: e.pageX, top: e.pageY });
+      this.browser.makeMenu(this.menuFeature(feature, x), { left: e.pageX, top: e.pageY }, this);
     }
   },
   

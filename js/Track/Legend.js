@@ -17,10 +17,10 @@ Genoverse.Track.on('afterResize', function (height, userResize) {
 });
 
 Genoverse.Track.Legend = Genoverse.Track.extend({
-  config: {
-    textColor : '#000000',
-    inherit   : [ 'Static' ]
-  },
+
+  // Defaults
+  textColor : '#000000',
+  inherit   : [ 'Static' ],
   
   init: function () {
     this.imgContainer.css('background', this.browser.colors.background);

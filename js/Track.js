@@ -1,19 +1,31 @@
 Genoverse.Track = Base.extend({
-  defaults: {
-    height         : 12,
-    dataType       : 'json',
-    bump           : false,
-    bumpSpacing    : 2,
-    featureSpacing : 1,
-    urlParams      : {},
-    urlTemplate    : {},
-    inherit        : []
-  },
-  
+
+  // Defaults
+  height         : 12,
+  dataType       : 'json',
+  fontSize       : 10,
+  fontFamily     : 'sans-serif',
+  fontWeight     : 'normal',
+  bump           : false,
+  bumpSpacing    : 2,
+  featureSpacing : 1,
+  urlParams      : {},
+  urlTemplate    : {},
+  inherit        : [],
+  xhrFields      : {},
+
   constructor: function (config) {
+    // Deep clone all [..] and {..} objects in this to prevent sharing between instances
+    var deepCopy = {};
+    for (var key in this) {
+      if (typeof this[key] === 'object') deepCopy[key] = this[key];
+    }
+    // Use jQuery.extend to deep-copy
+    $.extend(true, this, deepCopy);
+
+    // Use Base.extend to make any funciton in config have this.base
+    this.extend(config);
     var track = this;
-    
-    $.extend(this, this.defaults, this.config, config);
     
     for (var i = 0; i < this.inherit.length; i++) {
       if (Genoverse.Track[this.inherit[i]]) {
@@ -30,36 +42,6 @@ Genoverse.Track = Base.extend({
         this.browser.functionWrap(key, this);
       }
     }
-    
-    this.order          = typeof this.order          !== 'undefined' ? this.order          : this.index;
-    this.separateLabels = typeof this.separateLabels !== 'undefined' ? this.separateLabels : !!this.depth;
-    this.spacing        = typeof this.spacing        !== 'undefined' ? this.spacing        : this.browser.trackSpacing;
-    this.featureHeight  = typeof this.featureHeight  !== 'undefined' ? this.featureHeight  : (this.config && typeof this.config.height === 'number' ? this.config.height : this.defaults.height);
-    this.fixedHeight    = typeof this.fixedHeight    !== 'undefined' ? this.fixedHeight    : this.featureHeight === this.height && !(this.bump || this.bumpLabels);
-    this.autoHeight     = typeof this.autoHeight     !== 'undefined' ? this.autoHeight     : !this.fixedHeight && !config.height ? this.browser.autoHeight : false;
-    this.resizable      = typeof this.resizable      !== 'undefined' ? this.resizable      : !this.fixedHeight;
-    this.height        += this.spacing;
-    this.initialHeight  = this.height;
-    this.minLabelHeight = 0;
-    this.canvas         = $('<canvas>').appendTo(this.canvasContainer);
-    this.container      = $('<div class="track_container">').appendTo(this.canvasContainer);
-    this.imgContainer   = $('<div class="image_container">');
-    this.label          = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('index', this.index);
-    this.menus          = $();
-    this.context        = this.canvas[0].getContext('2d');
-    this.fontHeight     = parseInt(this.context.font, 10);
-    this.labelUnits     = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
-    
-    if (this.autoHeight === 'force') {
-      this.autoHeight  = true;
-      this.fixedHeight = false;
-      this.resizable   = false;
-    } else if (this.threshold) {
-      this.thresholdMessage = this.browser.setTracks([{ type: 'Threshold', track: this }], this.browser.tracks.length)[0];
-    }
-    
-    this.init();
-    this.setScale();
     
     if (this.url) {
       this.url = this.url.split('?');
@@ -79,6 +61,48 @@ Genoverse.Track = Base.extend({
       }
     }
     
+    this.addDomElements(config);
+    this.addUserEventHandlers();
+    this.init();
+    this.setScale();
+  },
+
+  addDomElements: function (config) {
+    var track = this;
+
+    this.order          = typeof this.order          !== 'undefined' ? this.order          : this.index;
+    this.separateLabels = typeof this.separateLabels !== 'undefined' ? this.separateLabels : !!this.depth;
+    this.spacing        = typeof this.spacing        !== 'undefined' ? this.spacing        : this.browser.trackSpacing;
+    this.featureHeight  = typeof this.featureHeight  !== 'undefined' ? this.featureHeight  : this.height;
+    this.fixedHeight    = typeof this.fixedHeight    !== 'undefined' ? this.fixedHeight    : this.featureHeight === this.height && !(this.bump || this.bumpLabels);
+    this.autoHeight     = typeof this.autoHeight     !== 'undefined' ? this.autoHeight     : !this.fixedHeight && !config.height ? this.browser.autoHeight : false;
+    this.resizable      = typeof this.resizable      !== 'undefined' ? this.resizable      : !this.fixedHeight;
+    this.height        += this.spacing;
+    this.initialHeight  = this.height;
+    this.minLabelHeight = 0;
+    this.canvas         = $('<canvas>').appendTo(this.browser.wrapper);
+    this.container      = $('<div class="track_container">').appendTo(this.browser.wrapper);
+    this.imgContainer   = $('<div class="image_container">');
+    this.label          = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('index', this.index);
+    this.menus          = $();
+    this.context        = this.canvas[0].getContext('2d');
+    this.context.font   = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
+    this.fontHeight     = this.fontSize;
+    this.labelUnits     = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
+
+    if (this.hidden) {
+      this.height  = 0;
+    }
+    
+    if (this.autoHeight === 'force') {
+      this.autoHeight  = true;
+      this.fixedHeight = false;
+      this.resizable   = false;
+    } else if (this.threshold) {
+      this.thresholdMessage = this.browser.setTracks([{ type: 'Threshold', track: this }], this.browser.tracks.length)[0];
+    }
+    
+   
     if (this.name) {
       if (this.unsortable) {
         this.label.addClass('unsortable');
@@ -87,12 +111,12 @@ Genoverse.Track = Base.extend({
       }
       
       this.minLabelHeight = $('<span class="name">' + this.name + '</span>').appendTo(this.label).outerHeight(true);
-      this.label.height(Math.max(this.height, this.minLabelHeight));
+      this.label.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
     } else {
       this.label.addClass('unsortable');
     }
     
-    this.container.height(Math.max(this.height, this.minLabelHeight));
+    this.container.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
     
     if (!this.fixedHeight && this.resizable !== false) {
       this.heightToggler = $('<div class="height_toggler"><div class="auto">Set track to auto-adjust height</div><div class="fixed">Set track to fixed height</div></div>').on({
@@ -114,8 +138,6 @@ Genoverse.Track = Base.extend({
         }
       }).addClass(this.autoHeight ? 'auto_height' : '').appendTo(this.label);
     }
-    
-    this.addUserEventHandlers();
   },
   
   init: function () {
@@ -159,7 +181,7 @@ Genoverse.Track = Base.extend({
     var feature = this[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
     
     if (feature) {
-      this.browser.makeMenu(this, feature, { left: e.pageX, top: e.pageY });
+      this.browser.makeMenu(feature, { left: e.pageX, top: e.pageY }, this);
     }
   },
   
@@ -189,7 +211,7 @@ Genoverse.Track = Base.extend({
     if (arguments[1] !== true && height < this.featureHeight) {
       height = 0;
     } else {
-      height = Math.max(height, this.minLabelHeight);
+      height = this.hidden ? 0 : Math.max(height, this.minLabelHeight);
     }
     
     this.height = height;
@@ -199,7 +221,7 @@ Genoverse.Track = Base.extend({
     }
     
     this.container.height(height);
-    this.label.height(height)[height ? 'show' : 'hide']();
+    this.label.height(height);//[height ? 'show' : 'hide']();
     this.toggleExpander();
   },
   
@@ -616,10 +638,10 @@ Genoverse.Track = Base.extend({
         data     : this.getQueryString(image.bufferedStart, image.end),
         dataType : this.dataType,
         context  : this,
+        xhrFields: this.xhrFields,
         success  : function (data) {
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
-          
           try {
             this.draw(image, this.parseFeatures(data, bounds));
           } catch (e) {
@@ -668,7 +690,7 @@ Genoverse.Track = Base.extend({
   draw: function (image, features) {
     this.colorOrder  = [];
     this.decorations = {};
-    
+
     image.draw(this.positionFeatures(this.scaleFeatures(features), image.scaledStart, image.width));
   },
   
@@ -733,6 +755,17 @@ Genoverse.Track = Base.extend({
     };
   },
   
+  show: function () {
+    this.hidden = false; 
+    this.resize(this.initialHeight);
+  },
+
+  hide: function () {
+    this.hidden = true; 
+    this.resize(0);
+  },
+
+
   beforeDraw          : $.noop, // decoration for the track, drawn before the features
   decorateFeatures    : $.noop, // decoration for the features
   afterDraw           : $.noop, // decoration for the track, drawn after the features
