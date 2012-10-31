@@ -20,8 +20,7 @@ Genoverse.Track = Base.extend({
     for (var key in this) {
       if (typeof this[key] === 'object') deepCopy[key] = this[key];
     }
-    // Use jQuery.extend to deep-copy
-    $.extend(true, this, deepCopy);
+    this.extend($.extend(true, {}, deepCopy));
 
     // Use Base.extend to make any funciton in config have this.base
     this.extend(config);
