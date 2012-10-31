@@ -15,10 +15,16 @@ Genoverse.Track = Base.extend({
   xhrFields      : {},
 
   constructor: function (config) {
-    // Re-initialize (deep copy __proto__)
-    this.__proto__ = $.extend(true, {},  this.__proto__);
-    
-    $.extend(true, this, this.__proto__, config);
+    // Deep clone all [..] and {..} objects in this to prevent sharing between instances
+    var deepCopy = {};
+    for (var key in this) {
+      if (typeof this[key] === 'object') deepCopy[key] = this[key];
+    }
+    // Use jQuery.extend to deep-copy
+    $.extend(true, this, deepCopy);
+
+    // Use Base.extend to make any funciton in config have this.base
+    this.extend(config);
     var track = this;
     
     for (var i = 0; i < this.inherit.length; i++) {
