@@ -1002,14 +1002,19 @@ var Genoverse = Base.extend({
     }
     
     $.when(track ? track.populateMenu(feature) : feature).done(function (feature) {
-      $('table', menu).append(
-        (feature.title ? '<tr class="header"><th colspan="2" class="title">' + feature.title + '</th></tr>' : '') +
-        $.map(feature, function (value, key) {
-          if (key !== 'title') {
-            return '<tr><td>'+ key +'</td><td>'+ value +'</td></tr>';
-          }
-        }).join()
-      );
+      if (Object.prototype.toString.call(feature) !== "[object Array]") feature = [ feature ];
+
+      feature.every(function(feature) {
+        $('table', menu).append(
+          (feature.title ? '<tr class="header"><th colspan="2" class="title">' + feature.title + '</th></tr>' : '') +
+          $.map(feature, function (value, key) {
+            if (key !== 'title') {
+              return '<tr><td>'+ key +'</td><td>'+ value +'</td></tr>';
+            }
+          }).join()
+        );
+        return true;
+      });
       
       menu.show();
       menu.css(
