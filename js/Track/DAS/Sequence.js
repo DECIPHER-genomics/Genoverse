@@ -74,7 +74,7 @@ Genoverse.Track.DAS.Sequence = Genoverse.Track.extend({
   },
 
 
-  parseFeatures: function (data, bounds) {
+  parseData: function (data, bounds) {
     var track = this;
     var features = new Array();
     //debugger;

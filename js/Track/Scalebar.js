@@ -117,7 +117,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       }
     }
     
-    return this.parseFeatures({ features: features });
+    return this.parseData({ features: features });
   },
   
   positionFeatures: function (features, startOffset, imageWidth) {

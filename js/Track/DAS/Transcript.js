@@ -12,7 +12,7 @@ Genoverse.Track.DAS.Transcript = Genoverse.Track.DAS.extend({
   groups         : {},
 
   
-  parseFeatures: function (data, bounds) {
+  parseData: function (data, bounds) {
     var track = this;
     var features = track.base(data, bounds);
     this.groupFeatures(features);

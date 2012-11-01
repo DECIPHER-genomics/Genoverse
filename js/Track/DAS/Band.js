@@ -45,7 +45,7 @@ Genoverse.Track.DAS.Band = Genoverse.Track.DAS.extend({
   },
 
   
-  parseFeatures: function (data, bounds) {
+  parseData: function (data, bounds) {
     var features = this.base(data, bounds);
     var i = features.length;
     

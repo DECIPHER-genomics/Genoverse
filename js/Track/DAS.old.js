@@ -17,7 +17,7 @@ CBrowse.Track.DAS = CBrowse.Track.Gene.extend({
     this.urlParams.type = [ 'transcript', 'translation' ];
   },
 
-  parseFeatures: function (data, bounds) {
+  parseData: function (data, bounds) {
     var track = this;
     var features = new Array();
     var groups = {};

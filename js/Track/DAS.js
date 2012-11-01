@@ -192,7 +192,7 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
   },
 
 
-  parseFeatures: function (data, bounds) {
+  parseData: function (data, bounds) {
     var features = new Array();
 
     $(data).find('FEATURE').each(function (i, FEATURE) {

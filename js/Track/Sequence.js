@@ -33,7 +33,7 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
     }
   },
   
-  parseFeatures: function (data, bounds) {
+  parseData: function (data, bounds) {
     var i       = data.features.length;
     var strands = [ 1, -1 ];
     var sequence, start, complement, strand, seq, feature, id, j, k;

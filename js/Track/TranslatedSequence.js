@@ -77,7 +77,7 @@ Genoverse.Track.TranslatedSequence = Genoverse.Track.Sequence.extend({
     23 : 'FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG'   // Thraustochytrium Mitochondrial
   },
   
-  parseFeatures: function (data, bounds) {
+  parseData: function (data, bounds) {
     if (data.codonTableId) {
       this.codonTableId = data.codonTableId;
     }

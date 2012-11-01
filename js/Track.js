@@ -337,7 +337,7 @@ Genoverse.Track = Base.extend({
     return this.urlParams.renderer;
   },
   
-  parseFeatures: function (data, bounds) {
+  parseData: function (data, bounds) {
     var i = data.features.length;
     
     while (i--) {
@@ -643,7 +643,7 @@ Genoverse.Track = Base.extend({
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
           try {
-            this.draw(image, this.parseFeatures(data, bounds));
+            this.draw(image, this.parseData(data, bounds));
           } catch (e) {
             this.showError(image, deferred, e + ' ' + e.fileName + ':' + e.lineNumber);
           }
