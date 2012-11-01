@@ -608,64 +608,67 @@ Genoverse.Track = Base.extend({
     
     this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
     this.container.append(this.imgContainers);
-    
-    var deferred = image.makeImage();
-    
-    this.getData(image, deferred);
-    
-    if (this.thresholdMessage) {
-      this.thresholdMessage.draw(div);
-    }
-    
-    div = prev = null;
-    
-    return deferred;
-  },
-  
-  getData: function (image, deferred) {
-    if (this.threshold && this.browser.length > this.threshold) {
-      return this.draw(image, []);
-    }
-    
-    var bounds   = { x: image.bufferedStart, y: 0, w: image.end - image.bufferedStart, h: 1 };
-    var features = !this.url || (image.start >= this.dataRegion.start && image.end <= this.dataRegion.end) ? this.features.search(bounds) : false;
+
+    var bufferedStart = Math.max(start - (this.labelOverlay ? 0 : this.browser.labelBuffer), 1);
+    var bounds = { x: bufferedStart, y: 0, w: end - bufferedStart, h: 1 };
+
+    var features = !this.url || (start >= this.dataRegion.start && end <= this.dataRegion.end) ? this.features.search(bounds) : false;
+
     
     if (features) {
-      this.draw(image, features.sort(function (a, b) { return a.sort - b.sort; }));
-    } else {
-      $.ajax({
-        url      : this.url,
-        data     : this.getQueryString(image.bufferedStart, image.end),
-        dataType : this.dataType,
-        context  : this,
-        xhrFields: this.xhrFields,
-        success  : function (data) {
-          this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
-          this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
-          try {
-            this.draw(image, this.parseData(data, bounds));
-          } catch (e) {
-            this.showError(image, deferred, e + ' ' + e.fileName + ':' + e.lineNumber);
-          }
-          
-          if (this.allData) {
-            this.url = false;
-          }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-          this.showError(image, deferred, errorThrown.message);
-        }
-      });
+      this.render(features, image);
     }
+
+    $.when(this.getData(bufferedStart, end))
+    .done(function (data) {
+      this.dataRegion.start = Math.min(start, this.dataRegion.start);
+      this.dataRegion.end   = Math.max(end,   this.dataRegion.end);
+      try {
+        this.parseData(data);
+        this.render(this.features.search(bounds), image);
+      } catch (e) {
+        this.showError(e);
+      }
+      
+      if (this.allData) {
+        this.url = false;
+      }
+    })
+    .fail(function (jqXHR, textStatus, errorThrown) {
+      this.showError(image, deferred, errorThrown.message);
+    });
+    
+    div = prev = null;
   },
   
+  getData: function (start, end) {
+    return $.ajax({
+      url      : this.url,
+      data     : this.getQueryString(start, end),
+      dataType : this.dataType,
+      context  : this,
+      xhrFields: this.xhrFields,
+    });
+  },
+  
+  render: function (features, image) {
+    this.scaleFeatures(features);
+    this.positionFeatures(features, image.scaledStart, image.width);
+    // prepare canvas
+    // ...
+    var canvas = $('canvas').attr({ width: this.width, height: this.featuresHeight });
+    this.draw(features, canvas);
+    image.container.append($('<img />').attr('src', canvas.toDataURL()));
+  },
+
   showError: function (image, deferred, error) {
-    if (!this.errorMessage) {
-      this.errorMessage = this.browser.setTracks([{ type: 'Error', track: this }], this.browser.tracks.length)[0];
-    }
+    console.log(arguments);
+    // if (!this.errorMessage) {
+    //   this.errorMessage = this.browser.setTracks([{ type: 'Error', track: this }], this.browser.tracks.length)[0];
+    // }
     
-    this.errorMessage.draw(this.imgContainers[0], error);
-    deferred.resolve({ target: image.images, img: image }); 
+    // this.errorMessage.draw(this.imgContainers[0], error);
+    // deferred.resolve({ target: image.images, img: image }); 
   },
   
   getQueryString: function (start, end) {
