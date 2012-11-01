@@ -54,6 +54,8 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
     var referenceScaledWidth = variation.reference_allele.length * this.scale; 
     var alternateScaledWidth = variation.alternate_allele.length * this.scale; 
 
+    this.context.strokeStyle = this.variationColor(variation);
+
     this.applyShadow();
     this.context.beginPath();
     this.context.moveTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - (1 + this.distance)*this.featureHeight);
@@ -74,12 +76,13 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
     this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - (1 + this.distance)*this.featureHeight);
     this.context.closePath();
 
-    this.context.strokeStyle = '#1DD300';
     this.context.stroke();
     this.repealShadow();
 
-    this.context.fillStyle = 'rgba(0,0,0,0.7)';
+    this.context.fillStyle   = this.variationColor(variation);
+    this.context.globalAlpha = 0.7;
     this.context.fill();
+    this.context.globalAlpha = 1;
 
 
     this.drawSequence(
@@ -102,6 +105,10 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
   },
 
 
+  variationColor: function (variation) {
+    return '#1DD300';
+  },
+
   click: function (e) {
     var x = (e.pageX - this.container.parent().offset().left)/this.scale + this.browser.start;
     var y = e.pageY - $(e.target).offset().top;    
@@ -109,7 +116,7 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
     for (var i = 0; i < this.variations.length; i++) {
       var variation = this.variations[i];
       if (x > variation.start && x < variation.start + Math.max(variation.reference_allele.length, variation.alternate_allele.length)) {
-        this.browser.makeMenu(this, variation, { left: e.pageX, top: e.pageY });
+        this.browser.makeMenu(variation, { left: e.pageX, top: e.pageY }, this);
       }
     }
   },
