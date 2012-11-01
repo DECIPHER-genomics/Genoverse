@@ -128,8 +128,9 @@ Genoverse.Track.DAS.Sequence = Genoverse.Track.extend({
     var track = this;
 
     track.canvas.attr({ width: image.width, height: track.height });
+    // TODO: apply this to all tracks somewhere
+    track.context.font = track.font;
     track.beforeDraw(image);
-
     track.drawFeatures(image, features);
 
     track.afterDraw(image);

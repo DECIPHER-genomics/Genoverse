@@ -85,7 +85,8 @@ Genoverse.Track = Base.extend({
     this.label          = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('index', this.index);
     this.menus          = $();
     this.context        = this.canvas[0].getContext('2d');
-    this.context.font   = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
+    this.font           = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
+    this.context.font   = this.font;
     this.fontHeight     = this.fontSize;
     this.labelUnits     = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
 
