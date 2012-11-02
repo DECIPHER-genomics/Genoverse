@@ -9,8 +9,6 @@ Genoverse.Track = Base.extend({
   bump           : false,
   bumpSpacing    : 2,
   featureSpacing : 1,
-  urlParams      : {},
-  urlTemplate    : {},
   inherit        : [],
   xhrFields      : {},
 
@@ -39,24 +37,6 @@ Genoverse.Track = Base.extend({
     for (var key in this) {
       if (typeof this[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap|debugWrap)$/)) {
         this.browser.functionWrap(key, this);
-      }
-    }
-    
-    if (this.url) {
-      this.url = this.url.split('?');
-      
-      if (this.url[1]) {
-        $.each(this.url[1].split(/[;&]/), function () {
-          var tmp = this.split('=');
-          track[tmp[1].match(/__(CHR|START|END)__/) ? 'urlTemplate' : 'urlParams'][tmp[0]] = tmp[1];
-        });
-      }
-      
-      this.url = this.url[0];
-      
-      if (this.browser.proxy) {
-        this.urlParams.url = this.url;
-        this.url = this.browser.proxy;
       }
     }
     
@@ -141,17 +121,10 @@ Genoverse.Track = Base.extend({
   },
   
   init: function () {
-    if (this.renderer) {
-      this.urlParams.renderer = this.renderer;
-      this.featuresByRenderer = {};
-      this.features           = this.featuresByRenderer[this.renderer] = new RTree();
-    } else {
-      this.features = new RTree();
-    }
+    this.features = new RTree();
     
     this.dataRegion    = { start: 9e99, end: -9e99 };
     this.scaleSettings = {};
-    this.featureIds    = {};
   },
   
   reset: function () {
@@ -307,303 +280,35 @@ Genoverse.Track = Base.extend({
     this.container.css('left', this.browser.left).children('.image_container').hide();
   },
   
-  setRenderer: function (renderer, permanent) {
-    if (this.urlParams.renderer !== renderer) {
-      this.urlParams.renderer = renderer;
-      this.dataRegion = { start: 9e99, end: -9e99 };
-      
-      if (!this.featuresByRenderer[renderer]) {
-        this.featuresByRenderer[renderer] = new RTree();
-      }
-      
-      this.features = this.featuresByRenderer[renderer];
-    }
-    
-    if (permanent && this.renderer !== renderer) {
-      this.renderer = renderer;
-      
-      var browser = this.browser;
-      var img     = $(this.imgContainers).filter(browser.left > 0 ? ':first' : ':last').data('img');
-      
-      if (img) {
-        this.reset();
-        this.setScale();
-        browser.makeTrackImages([ this ]);
-      }
+  parseData: function (data) {
+    // Example of parseData function when data is an array of hashes like {start:..., end...}
+    for (var i=0; i<data.length; i++) {
+      this.insertFeature(data[i], data[i].start, data[i].end);
     }
   },
-  
-  getRenderer: function () {
-    return this.urlParams.renderer;
-  },
-  
-  parseData: function (data, bounds) {
-    var i = data.features.length;
-    
-    while (i--) {
-      data.features[i].sort        = i;
-      data.features[i].bounds      = {};
-      data.features[i].visible     = {};
-      data.features[i].bottom      = {};
-      data.features[i].labelBottom = {};
-      
-      if (!this.featureIds[data.features[i].id]) {
-        this.features.insert({ x: data.features[i].start, y: 0, w: data.features[i].end - data.features[i].start + 1, h: 1 }, data.features[i]);
-        this.featureIds[data.features[i].id] = 1;
-      }
-    }
-    
-    if (this.allData) {
-      return this.features.search(bounds).sort(function (a, b) { return a.sort - b.sort; });
-    } else {
-      return data.features;
-    }
-  },
-  
-  scaleFeatures: function (features) {
-    var i = features.length;
-    
-    while (i--) {
-      features[i].scaledStart = features[i].start * this.scale;
-      features[i].scaledEnd   = features[i].end   * this.scale;
-    }
-    
-    return features;
-  },
-  
-  positionFeatures: function (features, startOffset, imageWidth) {
-    var feature, start, end, x, y, width, originalWidth, bounds, bump, depth, j, k, labelStart, labelWidth, maxIndex;
-    var showLabels   = this.forceLabels === true || !(this.maxLabelRegion && this.browser.length > this.maxLabelRegion);
-    var height       = 0;
-    var labelsHeight = 0;
-    var scale        = this.scale > 1 ? this.scale : 1;
-    var scaleKey     = this.scale;
-    var seen         = {};
-    var draw         = { fill: {}, border: {}, label: {}, highlight: {}, labelHighlight: {} };
-    
-    for (var i = 0; i < features.length; i++) {
-      feature = features[i];
-      
-      if (seen[feature.id]) {
-        continue;
-      }
-      
-      seen[feature.id] = 1;
-      
-      start      = feature.scaledStart - startOffset;
-      end        = feature.scaledEnd   - startOffset;
-      bounds     = feature.bounds[scaleKey];
-      labelStart = start;
-      labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
-      
-      if (bounds) {
-        width      = bounds[0].w   - this.featureSpacing;
-        maxIndex   = bounds.length - 1;
-      } else {
-        width = end - start + scale;
-        
-        if (end < start) {
-          width = 1;
-        } else if (width < scale) {
-          width = scale;
-        }
-        
-        x      = feature.scaledStart;
-        y      = feature.y ? feature.y * (this.featureHeight + this.bumpSpacing) : 0;
-        bounds = [{ x: x, y: y, w: width + this.featureSpacing, h: this.featureHeight + this.bumpSpacing }];
-        
-        if (feature.label && showLabels && !this.labelOverlay && this.forceLabels !== 'off' && !(scale > 1 && start < -this.browser.labelBuffer)) {
-          if (this.separateLabels) {
-            bounds.push({ x: x, y: y, w: labelWidth, h: this.fontHeight + 2 });
-          } else {
-            bounds.push({ x: x, y: y + this.featureHeight + this.bumpSpacing + 1, w: Math.max(labelWidth, width + this.featureSpacing), h: this.fontHeight + 2 });
-          }
-        }
-        
-        maxIndex = bounds.length - 1;
-        
-        bounds[0].h += this.separateLabels ? 0 : maxIndex;
-        
-        if (this.bump) {
-          depth = 0;
-          
-          if (this.separateLabels) { // labels are drawn on a separate image, below the features
-            j = bounds.length;
-            
-            while (j--) {
-              do {
-                if (j === 0 && this.depth && ++depth >= this.depth) {
-                  if ($.grep(this.featurePositions.search(bounds[0]), function (f) { return f.visible[scaleKey] !== false; }).length) {
-                    feature.visible[scaleKey] = false;
-                  }
-                  
-                  break;
-                }
-                
-                bump = false;
-                
-                if ((this[j ? 'labelPositions' : 'featurePositions'].search(bounds[j])[0] || feature).id !== feature.id) {
-                  bounds[j].y += bounds[j].h;
-                  bump      = true;
-                }
-              } while (bump);
-            }
-          } else { // labels and features drawn on the same image
-            do {
-              if (this.depth && ++depth >= this.depth) {
-                if ($.grep(this.featurePositions.search(bounds[0]), function (f) { return f.visible[scaleKey] !== false; }).length) {
-                  feature.visible[scaleKey] = false;
-                }
-                
-                break;
-              }
-            
-              bump = false;
-              j    = bounds.length;
-              
-              while (j--) {              
-                if ((this.featurePositions.search(bounds[j])[0] || feature).id !== feature.id) {
-                  k = bounds.length;
-                  
-                  while (k--) {
-                    bounds[k].y += bounds[j].h; // bump both feature and label by the height of the current bounds
-                  }
-                  
-                  bump = true;
-                }
-              }
-            } while (bump);
-          }
-        } else if (this.bumpLabels && bounds[1]) { // labels are bumped, but features aren't
-          do {
-            bump = false;
-            
-            if ((this.labelPositions.search(bounds[1])[0] || feature).id !== feature.id) {
-              bounds[1].y++;
-              bump = true;
-            }
-          } while (bump);
-        }
-        
-        this.featurePositions.insert(bounds[0], feature);
-        
-        if (bounds[1]) {
-          this.labelPositions.insert(bounds[1], feature);
-        }
 
-        feature.bounds[scaleKey] = bounds;
-      }
-      
-      if (feature.visible[scaleKey] === false) {
-        continue;
-      }
-      
-      if (!draw.fill[feature.color]) {
-        draw.fill[feature.color] = [];
-        
-        if (feature.order) {
-          this.colorOrder[feature.order] = feature.color;
-        }
-      }
-      
-      if (feature.borderColor && !draw.border[feature.borderColor]) {
-        draw.border[feature.borderColor] = [];
-      }
-      
-      if (feature.labelColor) {
-        if ((this.separateLabels || this.labelOverlay) && !draw.label[feature.labelColor]) {
-          draw.label[feature.labelColor] = [];
-        } else if (feature.labelColor !== feature.color && !draw.fill[feature.labelColor]) {
-          draw.fill[feature.labelColor] = [];
-        }
-      }
-      
-      originalWidth = width;
-      
-      // truncate features in very small regions (where scale > 1) - make the features start at 1px outside the canvas to ensure no lines are drawn at the borders incorrectly
-      if (scale > 1 && start < end && (start < 0 || end > imageWidth)) {
-        start = Math.max(start, -1);
-        end   = Math.min(end, imageWidth + 1);
-        width = end - start + scale;
-      }
-      
-      if (width > 0) {
-        draw.fill[feature.color].push([ 'fillRect', [ start, bounds[0].y, width, this.featureHeight ] ]);
-        
-        if (feature.borderColor) {
-          draw.border[feature.borderColor].push([ 'strokeRect', [ start, bounds[0].y + 0.5, width, this.featureHeight ] ]);
-        }
-      }
-      
-      if (this.labelOverlay && feature.label && labelWidth < originalWidth - 1) { // Don't show overlaid labels on features which aren't wider than the label
-        draw.label[feature.labelColor].push([ 'fillText', [ feature.label, labelStart + (originalWidth - labelWidth) / 2, bounds[0].y + bounds[0].h / 2 ] ]);
-      } else if (bounds[1]) {
-        draw[this.separateLabels ? 'label' : 'fill'][feature.labelColor].push([ 'fillText', [ feature.label, labelStart, bounds[1].y ] ]);
-      }
-      
-      if (this.separateLabels && bounds[1]) {
-        feature.bottom[scaleKey]      = bounds[0].y + bounds[0].h + this.spacing;
-        feature.labelBottom[scaleKey] = bounds[1].y + bounds[1].h + this.spacing;
-        labelsHeight                  = Math.max(feature.labelBottom[scaleKey], labelsHeight);
-      } else {
-        feature.bottom[scaleKey] = bounds[maxIndex].y + bounds[maxIndex].h + this.spacing;
-      }
-      
-      if (feature.decorations) {
-        for (j = 0; j < feature.decorations.length; j++) {
-          if (!this.decorations[feature.decorations[j].color]) {
-            this.decorations[feature.decorations[j].color] = [];
-          }
-          
-          this.decorations[feature.decorations[j].color].push([ feature, feature.decorations[j] ]);
-        }
-      }
-      
-      if (feature.highlight) {
-        if (!draw.highlight[feature.highlight]) {
-          draw.highlight[feature.highlight] = [];
-        }
-        
-        if (bounds[1]) {
-          if (this.separateLabels) {
-            if (!draw.labelHighlight[feature.highlight]) {
-              draw.labelHighlight[feature.highlight] = [];
-            }
-            
-            draw.labelHighlight[feature.highlight].push([ 'fillRect', [ start, bounds[1].y, labelWidth, this.fontHeight ] ]);
-          } else {
-            draw.highlight[feature.highlight].push([ 'fillRect', [ start - 1, bounds[0].y - 1, Math.max(labelWidth, width + 1) + 1, bounds[0].h + bounds[1].h ] ]);
-          }
-        } else {
-          draw.highlight[feature.highlight].push([ 'fillRect', [ start - 1, bounds[0].y - 1, width + 2, bounds[0].h + 1] ]);
-        }
-      }
-      
-      height = Math.max(feature.bottom[scaleKey], height);
-    }
-    
-    this.featuresHeight      = Math.max(height, this.fixedHeight ? Math.max(this.height, this.minLabelHeight) : 0);
-    this.labelsHeight        = labelsHeight;
-    this.fullHeight          = Math.max(height, this.initialHeight) + labelsHeight;
-    this.heights.max         = Math.max(this.fullHeight, this.heights.max);
-    this.heights.maxFeatures = Math.max(height, this.heights.maxFeatures);
-    
-    return draw;
-  },
-  
   makeImage: function (start, end, width, moved, cls) {
     var div   = this.imgContainer.clone().width(width).addClass(cls);
     var prev  = $(this.imgContainers).filter('.' + this.browser.scrollStart + ':' + (moved < 0 ? 'first' : 'last'));
-    var image = new Genoverse.TrackImage({
-      track       : this,
-      container   : div,
-      start       : start, 
-      end         : end,
-      width       : width,
-      scaledStart : start * this.scale,
-      background  : this.browser.colors.background
-    });
+
+    var bgImage = $('<img class="bg" />')
+                  .width(width)
+                  .data({width : width})
+                  .prependTo(div);
+                  
+    this.drawBackground(bgImage);
     
+    var image = $('<img />')
+                .width(width)
+                .data({ 
+                  start : start, 
+                  end   : end, 
+                  width : width, 
+                  scale : this.scale,
+                  scaledStart : start * this.scale
+                })
+                .appendTo(div);
+
     div.css('left', prev.length ? prev.position().left + (moved < 0 ? -this.width : prev.width()) : -this.browser.offsets.right);
     
     this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
@@ -611,10 +316,7 @@ Genoverse.Track = Base.extend({
 
     var bufferedStart = Math.max(start - (this.labelOverlay ? 0 : this.browser.labelBuffer), 1);
     var bounds = { x: bufferedStart, y: 0, w: end - bufferedStart, h: 1 };
-
     var features = !this.url || (start >= this.dataRegion.start && end <= this.dataRegion.end) ? this.features.search(bounds) : false;
-
-    
     if (features) {
       this.render(features, image);
     }
@@ -635,33 +337,72 @@ Genoverse.Track = Base.extend({
       }
     })
     .fail(function (jqXHR, textStatus, errorThrown) {
-      this.showError(image, deferred, errorThrown.message);
+      this.showError(jqXHR, textStatus, errorThrown);
     });
     
     div = prev = null;
   },
   
+
   getData: function (start, end) {
     return $.ajax({
-      url      : this.url,
-      data     : this.getQueryString(start, end),
+      url      : this.parseUrl(start, end),
       dataType : this.dataType,
       context  : this,
       xhrFields: this.xhrFields,
     });
   },
+
   
-  render: function (features, image) {
-    this.scaleFeatures(features);
-    this.positionFeatures(features, image.scaledStart, image.width);
-    // prepare canvas
-    // ...
-    var canvas = $('canvas').attr({ width: this.width, height: this.featuresHeight });
-    this.draw(features, canvas);
-    image.container.append($('<img />').attr('src', canvas.toDataURL()));
+  insertFeature: function (feature, start, end) {
+    // RTree stuff
+    this.features.insert({ x: start, y: 0, w: end - start + 1, h: 1 }, feature);
   },
 
-  showError: function (image, deferred, error) {
+
+  scaleFeatures: function (features) {
+    var i = features.length;
+    
+    while (i--) {
+      features[i].scaledStart = features[i].start * this.scale;
+      features[i].scaledEnd   = features[i].end   * this.scale;
+    }
+    return features;
+  },
+
+
+  positionFeatures: function (features, scaledStart) {
+    for (var i=0; i<features.length; i++) {
+      features[i].scaledStart += - scaledStart;
+      features[i].scaledEnd   += - scaledStart;
+    }
+  },
+
+
+  render: function (features, img) {
+    this.scaleFeatures(features);
+    this.positionFeatures(features, img.data('scaledStart'));
+    // prepare canvas
+    // ...
+    //debugger;
+    var canvas = $('<canvas />').attr({ width: img.data('width'), height: this.featureHeight })[0];
+    this.draw(features, canvas.getContext('2d'));
+    img.attr('src', canvas.toDataURL());
+    $(canvas).remove();
+    //image.drawBackground();
+  },
+
+
+  draw: function(features, context) {
+    for (var i=0; i<features.length; i++) {
+      var feature = features[i];
+      context.fillStyle = feature.color;
+      context.fillRect(feature.scaledStart, 0, feature.scaledEnd - feature.scaledStart, this.featureHeight);
+    }
+  },
+
+
+  showError: function () {
     console.log(arguments);
     // if (!this.errorMessage) {
     //   this.errorMessage = this.browser.setTracks([{ type: 'Error', track: this }], this.browser.tracks.length)[0];
@@ -671,48 +412,37 @@ Genoverse.Track = Base.extend({
     // deferred.resolve({ target: image.images, img: image }); 
   },
   
-  getQueryString: function (start, end) {
-    var chr      = this.browser.chr;
-    var data     = {};
-    var template = false;
-        start    = this.allData ? 1 : Math.max(start, 1);
-        end      = this.allData ? this.browser.chromosomeSize : Math.min(end, this.browser.chromosomeSize);
-    
-    $.each(this.urlTemplate, function (key, val) {
-      data[key] = val.replace(/__CHR__/, chr).replace(/__START__/, start).replace(/__END__/, end);
-      template  = true;
-    });
-    
-    if (!template) {
-      data = { chr: chr, start: start, end: end };
-    }
-    
-    return $.extend(data, this.urlParams);
-  },
-  
-  draw: function (image, features) {
-    this.colorOrder  = [];
-    this.decorations = {};
 
-    image.draw(this.positionFeatures(this.scaleFeatures(features), image.scaledStart, image.width));
+  parseUrl: function (start, end) {
+    var chr = this.browser.chr;
+    var url = this.url;
+
+    return url.replace(/__CHR__/, chr).replace(/__START__/, start).replace(/__END__/, end);
   },
   
-  drawBackground: function (image, height) {
-    var guideLines  = { major: [ this.browser.colors.majorGuideLine, this.browser.majorUnit ], minor: [ this.browser.colors.minorGuideLine, this.browser.minorUnit ] };
-    var scaledStart = Math.round(image.scaledStart);
-    var x;
+  drawBackground: function (img) {
+    var canvas  = $('<canvas />').attr({ width: img.data('width'), height: 1 })[0];
+    var context = canvas.getContext('2d');
+    context.fillStyle = this.background || this.browser.colors.background;
+    context.fillRect(0, 0, img.data('width'), 1);
+    img.attr('src', canvas.toDataURL());
+    $(canvas).remove();
+
+    // var guideLines  = { major: [ this.browser.colors.majorGuideLine, this.browser.majorUnit ], minor: [ this.browser.colors.minorGuideLine, this.browser.minorUnit ] };
+    // var scaledStart = Math.round(image.scaledStart);
+    // var x;
     
-    if (this.browser.backgrounds) {
-      this.drawBackgroundColor(image, height, scaledStart);
-    }
+    // if (this.browser.backgrounds) {
+    //   this.drawBackgroundColor(image, height, scaledStart);
+    // }
     
-    for (var c in guideLines) {
-      this.context.fillStyle = guideLines[c][0];
+    // for (var c in guideLines) {
+    //   this.context.fillStyle = guideLines[c][0];
       
-      for (x = Math.max(image.start - (image.start % guideLines[c][1]), 0); x < image.end + this.browser.minorUnit; x += guideLines[c][1]) {
-        this.context.fillRect((this.browser.guideLines[c][x] || 0) - scaledStart, 0, 1, height);
-      }
-    }
+    //   for (x = Math.max(image.start - (image.start % guideLines[c][1]), 0); x < image.end + this.browser.minorUnit; x += guideLines[c][1]) {
+    //     this.context.fillRect((this.browser.guideLines[c][x] || 0) - scaledStart, 0, 1, height);
+    //   }
+    // }
   },
   
   drawBackgroundColor: function (image, height, scaledStart) {
@@ -751,11 +481,7 @@ Genoverse.Track = Base.extend({
   },
   
   populateMenu: function (feature) {
-    return {
-      title : feature.label || feature.id,
-      Start : feature.start,
-      End   : feature.end
-    };
+    return feature;
   },
   
   show: function () {

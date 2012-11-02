@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+
+
+    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
+    
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/lib/lazyload.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+
+    <script type="text/javascript" src="js/lib/Base.js"></script>
+    <script type="text/javascript" src="js/lib/rtree.js"></script>
+    
+    <script type="text/javascript" src="js/Genoverse.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script> 
+    <script type="text/javascript" src="js/TrackImage.js"></script>
+
+    <script type="text/javascript">
+
+      // Genoverse configuration
+      var genoverseConfig = {
+        container      : '#genoverse', // jQuery style selector
+        chr            : 1,
+        chromosomeSize : 249250621,    // chromosome 1, human
+        start          : 100000,
+        end            : 200000,
+        tracks: [
+
+          {
+            name    : "Sequence variation", 
+            url     : "https://decipher.sandbox.sanger.ac.uk/sequence_variant;json?region=__CHR__:__START__-__END__",
+            height  : 30,
+
+            parseData : function (data) {
+              for (var i=0; i<data.length; i++) {
+                data[i].id    = data[i].id_patient + '-' + data[i].chr_start;
+                data[i].label = data[i].id;
+                data[i].color = 'black';
+                data[i].start = parseFloat(data[i].chr_start);
+                data[i].end   = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i], data[i].start, data[i].end);
+              }
+            }
+
+          },
+
+        ]
+      };
+
+      $(document).ready(function(){ window.genoverse = new Genoverse(genoverseConfig) });
+
+    </script>
+
+
+  </head>
+  <body>
+
+  <div id="genoverse"></div>
+ 
+  </body>
+</html>

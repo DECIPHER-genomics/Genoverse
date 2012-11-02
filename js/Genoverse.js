@@ -13,7 +13,7 @@ var Genoverse = Base.extend({
   menus            : [],
   plugins          : [],
   dragAction       : 'scroll', // options are: scroll, select, off
-  wheelAction      : 'zoom',   // options are: zoom, off
+  wheelAction      : 'off',    // options are: zoom, off
   colors           : {
     background     : '#FFFFFF',
     majorGuideLine : '#CCCCCC',
@@ -812,39 +812,44 @@ var Genoverse = Base.extend({
     var dataRegion = $.extend({}, this.dataRegion);
     var offsets    = $.extend({}, this.offsets);
     var allTracks  = tracks.length === this.tracks.length;
-    var overlay    = this.makeOverlays(width, allTracks ? false : tracks);
+
+
+    // var overlay    = this.makeOverlays(width, allTracks ? false : tracks);
+    // function removeOverlay() {
+    //   if (overlay) {
+    //     overlay.remove();
+    //     overlay = null;
+    //   }
+    // }
     
-    function removeOverlay() {
-      if (overlay) {
-        overlay.remove();
-        overlay = null;
-      }
+    for (var i=0; i<tracks.length; i++) {
+      tracks[i].makeImage(start, end, width, left, browser.scrollStart);
     }
-    
-    $.when.apply($, $.map(tracks, function (track) { return track.makeImage(start, end, width, left, browser.scrollStart); })).done(function () {
-      var redraw = false;
+
+    // $.when.apply($, $.map(tracks, function (track) { return track.makeImage(start, end, width, left, browser.scrollStart); })).done(function () {
+    //   var redraw = false;
       
-      $.when.apply($, $.map($.map(arguments, function (a) {
-        $(a.target).show();
-        return a.img;
-      }), function (i) {
-        if (i.track.backgrounds && !allTracks) {
-          i.track.scaleFeatures(i.track.backgrounds);
-          redraw = true;
-        }
+    //   $.when.apply($, $.map($.map(arguments, function (a) {
+    //     $(a.target).show();
+    //     return a.img;
+    //   }), function (i) {
+    //     if (i.track.backgrounds && !allTracks) {
+    //       i.track.scaleFeatures(i.track.backgrounds);
+    //       redraw = true;
+    //     }
         
-        return i.drawBackground();
-      })).done(removeOverlay);
+    //     return i.drawBackground();
+    //   })).done(removeOverlay);
       
-      if (allTracks) {
-        browser.prev.history = browser.start + '-' + browser.end;
-        browser.setHistory(dataRegion, offsets);
-      } else {
-        browser.updateTracks(redraw);
-      }
+    //   if (allTracks) {
+    //     browser.prev.history = browser.start + '-' + browser.end;
+    //     browser.setHistory(dataRegion, offsets);
+    //   } else {
+    //     browser.updateTracks(redraw);
+    //   }
       
-      browser.checkTrackSize();
-    }).fail(removeOverlay);
+    //   browser.checkTrackSize();
+    // }).fail(removeOverlay);
   },
   
   makeOverlays: function (width, tracks) {
