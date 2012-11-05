@@ -12,6 +12,7 @@ var Genoverse = Base.extend({
   tracksById       : {},
   menus            : [],
   plugins          : [],
+  guideLinesByScale: {},
   dragAction       : 'scroll', // options are: scroll, select, off
   wheelAction      : 'off',    // options are: zoom, off
   colors           : {
@@ -608,7 +609,8 @@ var Genoverse = Base.extend({
       this.makeImage();
     }
   },
-  
+
+
   setScale: function (force) {
     this.prev.scale  = this.scale;
     this.scale       = this.width / this.length;
@@ -623,7 +625,9 @@ var Genoverse = Base.extend({
       this.maxLeft     = Math.round((this.start - 1) * this.scale);
       this.scrollStart = 'ss_' + this.start + '_' + this.end;
       this.labelBuffer = Math.ceil(this.textWidth / this.scale) * this.longestLabel;
-      
+
+      this.setGuideLineUnits();
+
       if (this.prev.scale) {
         var i = this.tracks.length;
         
@@ -647,7 +651,45 @@ var Genoverse = Base.extend({
       }
     }
   },
+
   
+  setGuideLineUnits: function() {
+    var length = this.length;
+    var majorUnit, minorUnit, exponent, mantissa;
+    
+    if (length <= 51) {
+      majorUnit = 10;
+      minorUnit = 1;
+    } else {
+      exponent = Math.pow(10, Math.floor(Math.log(length) / Math.log(10)));
+      mantissa = length / exponent;
+      
+      if (mantissa < 1.2) {
+        majorUnit = exponent  / 10;
+        minorUnit = majorUnit / 5;
+      } else if (mantissa < 2.5) {
+        majorUnit = exponent  / 5;
+        minorUnit = majorUnit / 4;
+      } else if (mantissa < 5) {
+        majorUnit = exponent  / 2;
+        minorUnit = majorUnit / 5;
+      } else {
+        majorUnit = exponent;
+        minorUnit = majorUnit / 5;
+      }
+    }
+    
+    this.minorUnit = minorUnit;
+    this.majorUnit = majorUnit;
+
+    if (!this.guideLinesByScale[this.scale]) {
+      this.guideLinesByScale[this.scale] = { major: {}, minor: {} };
+    }
+    
+    this.guideLines = this.guideLinesByScale[this.scale];
+  },
+
+
   setTracks: function (tracks, index) {
     var defaults = {
       browser         : this,
