@@ -321,23 +321,25 @@ Genoverse.Track = Base.extend({
       this.render(features, image);
     }
 
+    var track = this;
+
     $.when(this.getData(bufferedStart, end))
     .done(function (data) {
-      this.dataRegion.start = Math.min(start, this.dataRegion.start);
-      this.dataRegion.end   = Math.max(end,   this.dataRegion.end);
+      track.dataRegion.start = Math.min(start, track.dataRegion.start);
+      track.dataRegion.end   = Math.max(end,   track.dataRegion.end);
       try {
-        this.parseData(data);
-        this.render(this.features.search(bounds), image);
+        track.parseData(data);
+        track.render(track.features.search(bounds), image);
       } catch (e) {
-        this.showError(e);
+        track.showError(e);
       }
       
-      if (this.allData) {
-        this.url = false;
+      if (track.allData) {
+        track.url = false;
       }
     })
     .fail(function (jqXHR, textStatus, errorThrown) {
-      this.showError(jqXHR, textStatus, errorThrown);
+      track.showError(jqXHR, textStatus, errorThrown);
     });
     
     div = prev = null;
@@ -385,7 +387,7 @@ Genoverse.Track = Base.extend({
     // prepare canvas
     // ...
     //debugger;
-    var canvas = $('<canvas />').attr({ width: img.data('width'), height: this.featureHeight })[0];
+    var canvas = $('<canvas />').attr({ width: img.data('width'), height: this.featureHeight + this.fontHeight })[0];
     this.draw(features, canvas.getContext('2d'));
     img.attr('src', canvas.toDataURL());
     $(canvas).remove();
@@ -424,7 +426,7 @@ Genoverse.Track = Base.extend({
     var canvas  = $('<canvas />').attr({ width: img.data('width'), height: 1 })[0];
     var context = canvas.getContext('2d');
     context.fillStyle = this.background || this.browser.colors.background;
-    context.fillRect(0, 0, img.data('width'), 1);
+    context.fillRect(0, 0, context.canvas.width, 1);
     img.attr('src', canvas.toDataURL());
     $(canvas).remove();
 
