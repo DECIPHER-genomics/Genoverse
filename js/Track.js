@@ -288,26 +288,18 @@ Genoverse.Track = Base.extend({
   },
 
   makeImage: function (start, end, width, moved, cls) {
-    var div   = this.imgContainer.clone().width(width).addClass(cls);
-    var prev  = $(this.imgContainers).filter('.' + this.browser.scrollStart + ':' + (moved < 0 ? 'first' : 'last'));
+    var div  = this.imgContainer.clone().width(width).addClass(cls);
+    var prev = $(this.imgContainers).filter('.' + this.browser.scrollStart + ':' + (moved < 0 ? 'first' : 'last'));
 
-    var bgImage = $('<img class="bg" />')
-                  .width(width)
-                  .data({width : width})
-                  .prependTo(div);
-                  
-    this.drawBackground(bgImage);
-    
-    var image = $('<img />')
-                .width(width)
-                .data({ 
-                  start : start, 
-                  end   : end, 
-                  width : width, 
-                  scale : this.scale,
-                  scaledStart : start * this.scale
-                })
-                .appendTo(div);
+    var data = { 
+      start : start, 
+      end   : end, 
+      width : width, 
+      scale : this.scale,
+      scaledStart : start * this.scale
+    };
+
+    var image = $('<img />').width(width).data(data).appendTo(div);
 
     div.css('left', prev.length ? prev.position().left + (moved < 0 ? -this.width : prev.width()) : -this.browser.offsets.right);
     
@@ -341,6 +333,9 @@ Genoverse.Track = Base.extend({
     .fail(function (jqXHR, textStatus, errorThrown) {
       track.showError(jqXHR, textStatus, errorThrown);
     });
+
+    var bgImage = $('<img class="bg" />').width(width).data(data).prependTo(div);
+    this.renderBackground(bgImage);
     
     div = prev = null;
   },
@@ -421,30 +416,33 @@ Genoverse.Track = Base.extend({
 
     return url.replace(/__CHR__/, chr).replace(/__START__/, start).replace(/__END__/, end);
   },
-  
-  drawBackground: function (img) {
+
+
+  renderBackground: function (img) {
     var canvas  = $('<canvas />').attr({ width: img.data('width'), height: 1 })[0];
-    var context = canvas.getContext('2d');
-    context.fillStyle = this.background || this.browser.colors.background;
-    context.fillRect(0, 0, context.canvas.width, 1);
+    this.drawBackground(img.data(), canvas.getContext('2d'));
     img.attr('src', canvas.toDataURL());
     $(canvas).remove();
+  },
 
-    // var guideLines  = { major: [ this.browser.colors.majorGuideLine, this.browser.majorUnit ], minor: [ this.browser.colors.minorGuideLine, this.browser.minorUnit ] };
-    // var scaledStart = Math.round(image.scaledStart);
-    // var x;
+
+  drawBackground: function (data, context) {
+    // Draw background color
+    context.fillStyle = this.background || this.browser.colors.background;
+    context.fillRect(0, 0, context.canvas.width, 1);
+
+    // Draw guidelines
+    var guideLines  = { major: [ this.browser.colors.majorGuideLine, this.browser.majorUnit ], minor: [ this.browser.colors.minorGuideLine, this.browser.minorUnit ] };
+    var scaledStart = Math.round(data.scaledStart);
+    var x;
     
-    // if (this.browser.backgrounds) {
-    //   this.drawBackgroundColor(image, height, scaledStart);
-    // }
-    
-    // for (var c in guideLines) {
-    //   this.context.fillStyle = guideLines[c][0];
+    for (var c in guideLines) {
+      context.fillStyle = guideLines[c][0];
       
-    //   for (x = Math.max(image.start - (image.start % guideLines[c][1]), 0); x < image.end + this.browser.minorUnit; x += guideLines[c][1]) {
-    //     this.context.fillRect((this.browser.guideLines[c][x] || 0) - scaledStart, 0, 1, height);
-    //   }
-    // }
+      for (x = Math.max(data.start - (data.start % guideLines[c][1]), 0); x < data.end + this.browser.minorUnit; x += guideLines[c][1]) {
+        context.fillRect((this.browser.guideLines[c][x] || 0) - scaledStart, 0, 1, context.canvas.height);
+      }
+    }
   },
   
   drawBackgroundColor: function (image, height, scaledStart) {
