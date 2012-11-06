@@ -176,13 +176,13 @@ Genoverse.Track = Base.extend({
     
     var bounds = { x: this.browser.scaledStart, w: this.width, y: 0, h: this.heights.max };
     var scale  = this.scale;
-    var height = Math.max.apply(Math, $.map(this.featurePositions.search(bounds), function (feature) { return feature.bottom[scale]; }).concat(0));
-    
-    if (this.separateLabels) {
-      this.labelTop = height;
-      height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.labelBottom[scale]; }).concat(0));
-    }
-    
+    var height = Math.max.apply(
+      Math, 
+      $('img:visible', this.container).map(function(){
+        return $(this).outerHeight(true);
+      })
+    );
+
     if (!height && this.errorMessage) {
       height = this.errorMessage.height;
     }
@@ -451,7 +451,7 @@ Genoverse.Track = Base.extend({
     }
 
     if (this.bump) {
-      height = this.bumpFeatures(scale);
+      height = this.bumpFeatures(features, scale);
     } else {
       height = this.featureHeight + this.featureSpacing + (showLabels ? this.fontHeight + this.featureSpacing : 0);
     }
@@ -462,7 +462,7 @@ Genoverse.Track = Base.extend({
 
 
   bumpFeatures: function (features, scale) {
-    var scale = scale > 1 ? scale : 1;
+    //var scale = scale > 1 ? scale : 1;
     var height = 0;
     var seen = {};
 
@@ -514,20 +514,27 @@ Genoverse.Track = Base.extend({
 
 
   draw: function(features, context, scale) {
-    context.fillStyle = this.color;
-    debugger;
+    var color = this.color;
+
+    context.fillStyle = color;
+    context.font = this.font;
+    context.textBaseline = 'top';
+
+
     for (var i=0; i<features.length; i++) {
       var feature = features[i];
-      if (feature.color && feature.color != context.fillStyle) {
-        context.fillStyle = feature.color;
+      if (feature.color && feature.color != color) {
+        color = feature.color;
+        context.fillStyle = color;
       }
 
       context.fillRect(feature.position[scale].x, feature.position[scale].y, feature.position[scale].w, feature.position[scale].h);
       if (this.toShowLabels(scale)) {
-        if (feature.labelColor && feature.labelColor != context.fillStyle) {
-          context.fillStyle = feature.labelColor;
-          context.fillText(feature.label, feature.position[scale].x, feature.position[scale].labelY);
+        if (feature.labelColor && feature.labelColor != color) {
+          color = feature.labelColor
+          context.fillStyle = color;
         }
+        context.fillText(feature.label, feature.position[scale].x, feature.position[scale].y + this.featureHeight + this.featureSpacing);
       }
     }
   },
