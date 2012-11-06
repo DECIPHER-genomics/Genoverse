@@ -362,31 +362,32 @@ Genoverse.Track = Base.extend({
 
     var bufferedStart = Math.max(start - (this.labelOverlay ? 0 : this.browser.labelBuffer), 1);
     var bounds = { x: bufferedStart, y: 0, w: end - bufferedStart, h: 1 };
-    var features = !this.url || (start >= this.dataRegion.start && end <= this.dataRegion.end) ? this.features.search(bounds) : false;
-    if (features) {
+
+    if (start >= this.dataRegion.start && end <= this.dataRegion.end) {
+      var features = this.features.search(bounds);
       this.render(features, image);
+    } else {
+      var track = this;
+
+      $.when(this.getData(bufferedStart, end))
+       .done(function (data) {
+         track.dataRegion.start = Math.min(start, track.dataRegion.start);
+         track.dataRegion.end   = Math.max(end,   track.dataRegion.end);
+         try {
+           track.parseData(data);
+           track.render(track.features.search(bounds), image);
+         } catch (e) {
+           track.showError(e);
+         }
+        
+         if (track.allData) {
+           track.url = false;
+         }
+       })
+       .fail(function (jqXHR, textStatus, errorThrown) {
+         track.showError(jqXHR, textStatus, errorThrown);
+       });
     }
-
-    var track = this;
-
-    $.when(this.getData(bufferedStart, end))
-    .done(function (data) {
-      track.dataRegion.start = Math.min(start, track.dataRegion.start);
-      track.dataRegion.end   = Math.max(end,   track.dataRegion.end);
-      try {
-        track.parseData(data);
-        track.render(track.features.search(bounds), image);
-      } catch (e) {
-        track.showError(e);
-      }
-      
-      if (track.allData) {
-        track.url = false;
-      }
-    })
-    .fail(function (jqXHR, textStatus, errorThrown) {
-      track.showError(jqXHR, textStatus, errorThrown);
-    });
 
     var bgImage = $('<img class="bg" />').width(width).data(data).prependTo(div);
     this.renderBackground(bgImage);
