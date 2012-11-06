@@ -6,7 +6,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   color         : '#000000',
   autoHeight    : false,
   unsortable    : true,
-  forceLabels   : true,
+  showLabels    : true,
   bump          : false,
   fixedHeight   : true,
   order         : 0,
@@ -38,7 +38,6 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     var flip     = (start / this.minorUnit) % 2 ? 1 : -1;
     var features = [];
     var feature, major, label;
-    debugger;;
     for (var x = start; x < end + this.minorUnit; x += this.minorUnit) {
       flip *= -1;
       
@@ -78,7 +77,6 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
   draw: function (features, context, scale) {
     var i = features.length;
-    debugger;
     context.textBaseline = 'top';
 
     while (i--) {
@@ -86,7 +84,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       context.fillRect(Math.round(feature.position[scale].x), 0, Math.ceil(feature.position[scale].w), this.featureHeight/2);
       if (feature.major) {
         context.fillRect(Math.round(feature.position[scale].x), 0, 1, this.featureHeight);
-        context.fillText(feature.label, feature.scaledStart, this.featureHeight);
+        context.fillText(feature.label, feature.position[scale].x, this.featureHeight);
       }
     }
     
