@@ -54,51 +54,47 @@
             }
           },
 
-          // {
-          //   name : 'DGV',
-          //   url  : 'data/DGVa_1_100000-1000000.xml',
-          //   dataType : 'xml',
-          //   allData  : true,
-          //   //depth    : 10,
-          //   height   : 200,
-          //   featureHeight : 6,
-          //   featureSpacing : 5,
-          //   //labelOverlay  : true,
-          //   bump          : true,
-          //   resizable     : true,
-          //   spacing       : 10,
+          {
+            name : 'DGV',
+            url  : 'data/DGVa_1_100000-1000000.xml',
+            dataType      : 'xml',
+            allData       : true,
+            height        : 200,
+            featureHeight : 6,
+            featureSpacing: 2,
+            bump          : true,
+            resizable     : true,
+            spacing       : 10,
+            showLabels    : true,
 
-          //   parseData: function (data) {
-          //     var track = this;
-          //     var features = new Array();
+            parseData: function (data) {
+              var track = this;
+              var features = new Array();
 
-          //     $(data).find('FEATURE').each(function (i, FEATURE) {
-          //       var feature = {};
-          //       //debugger;
-          //       feature.id    = FEATURE.getAttribute('id');
-          //       feature.label = feature.id;
+              $(data).find('FEATURE').each(function (i, FEATURE) {
+                var feature = {};
+                feature.id    = FEATURE.getAttribute('id');
+                feature.label = feature.id;
 
-          //       $(FEATURE).children().each(function (i, property) {
-          //         feature[$(property).prop('tagName').toLowerCase()] = $(property).text();
-          //       });
+                $(FEATURE).children().each(function (i, property) {
+                  feature[$(property).prop('tagName').toLowerCase()] = $(property).text();
+                });
 
-          //       feature.start = feature.start *1; // Converting to number with *1
-          //       feature.end   = feature.end   *1; // Converting to number with *1
+                feature.start = feature.start *1; // Converting to number with *1
+                feature.end   = feature.end   *1; // Converting to number with *1
 
-          //       var TYPE = $(FEATURE).find('TYPE')[0];
-          //       if (TYPE) {
-          //         //debugger;
-          //         feature.type = TYPE.getAttribute('id');
-          //         feature.category = TYPE.getAttribute('category')
-          //       }
+                var TYPE = $(FEATURE).find('TYPE')[0];
+                if (TYPE) {
+                  feature.type = TYPE.getAttribute('id');
+                  feature.category = TYPE.getAttribute('category')
+                }
 
-          //       feature.color       = 'black';
-          //       feature.labelColor  = 'black';
-
-          //       track.insertFeature(feature);
-          //     });
-          //   },
-          // },
+                feature.color       = 'black';
+                feature.labelColor  = 'black';
+                track.insertFeature(feature);
+              });
+            },
+          },
 
 
         ]
