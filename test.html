@@ -5,6 +5,7 @@
 
 
     <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
+    <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
     
     <script type="text/javascript" src="js/lib/jquery.js"></script>
     <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
@@ -18,6 +19,8 @@
     <script type="text/javascript" src="js/Genoverse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script> 
     <script type="text/javascript" src="js/Track/Scalebar.js"></script> 
+
+    <script type="text/javascript" src="js/plugins/controlPanel.js"></script>
 
     <script type="text/javascript">
 
@@ -46,11 +49,57 @@
                 data[i].color = 'black';
                 data[i].start = parseFloat(data[i].chr_start);
                 data[i].end   = parseFloat(data[i].chr_end);
-                this.insertFeature(data[i], data[i].start, data[i].end);
+                this.insertFeature(data[i]);
               }
             }
-
           },
+
+          // {
+          //   name : 'DGV',
+          //   url  : 'data/DGVa_1_100000-1000000.xml',
+          //   dataType : 'xml',
+          //   allData  : true,
+          //   //depth    : 10,
+          //   height   : 200,
+          //   featureHeight : 6,
+          //   featureSpacing : 5,
+          //   //labelOverlay  : true,
+          //   bump          : true,
+          //   resizable     : true,
+          //   spacing       : 10,
+
+          //   parseData: function (data) {
+          //     var track = this;
+          //     var features = new Array();
+
+          //     $(data).find('FEATURE').each(function (i, FEATURE) {
+          //       var feature = {};
+          //       //debugger;
+          //       feature.id    = FEATURE.getAttribute('id');
+          //       feature.label = feature.id;
+
+          //       $(FEATURE).children().each(function (i, property) {
+          //         feature[$(property).prop('tagName').toLowerCase()] = $(property).text();
+          //       });
+
+          //       feature.start = feature.start *1; // Converting to number with *1
+          //       feature.end   = feature.end   *1; // Converting to number with *1
+
+          //       var TYPE = $(FEATURE).find('TYPE')[0];
+          //       if (TYPE) {
+          //         //debugger;
+          //         feature.type = TYPE.getAttribute('id');
+          //         feature.category = TYPE.getAttribute('category')
+          //       }
+
+          //       feature.color       = 'black';
+          //       feature.labelColor  = 'black';
+
+          //       track.insertFeature(feature);
+          //     });
+          //   },
+          // },
+
 
         ]
       };

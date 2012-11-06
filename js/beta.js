@@ -4929,6 +4929,7 @@ Genoverse.Track.DAS.Sequence.GC = Genoverse.Track.DAS.Sequence.extend({
 });
 
 
+// TODO: move this to Genoverse.js
 // Last script tag should always be this script
 var thisScriptTag = $('script:last');
 var config = thisScriptTag.text();

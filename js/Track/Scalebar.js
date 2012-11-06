@@ -38,7 +38,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     var flip     = (start / this.minorUnit) % 2 ? 1 : -1;
     var features = [];
     var feature, major, label;
-    
+    debugger;;
     for (var x = start; x < end + this.minorUnit; x += this.minorUnit) {
       flip *= -1;
       
@@ -48,7 +48,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       
       this.seen[x] = 1;
       
-      feature = { start: x, strand: 1 };
+      feature = { id: x, start: x, strand: 1 };
       major   = x && !(x % this.majorUnit);
       
       if (flip === 1) {
@@ -62,29 +62,11 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
         feature.label = this.formatLabel(x);
       }
 
-      this.insertFeature(feature, feature.start, feature.end);
+      this.insertFeature(feature);
       this.browser.guideLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
     }
   },
 
-
-  makeReverseImage: function (start, end, width, moved, cls, img) {
-    var div      = this.imgContainer.clone().width(width).addClass(cls).css('left', img.container.position().left).data('img', img);
-    var deferred = $.Deferred();
-    
-    this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
-    this.container.append(this.imgContainers);
-    
-    img.track     = this;
-    img.container = div;
-    
-    img.images.clone().appendTo(div).load(function (e) { deferred.resolve({ target: e.target, img: img }); }).data('deferred', deferred);
-    
-    div = null;
-    
-    return deferred;
-  },
-  
 
   getData: function (start, end) {
     this.setFeatures(start, end);
@@ -94,18 +76,16 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   parseData: function () {},
 
 
-  draw: function (features, context) {
+  draw: function (features, context, scale) {
     var i = features.length;
-
+    debugger;
     context.textBaseline = 'top';
 
     while (i--) {
       var feature = features[i];
-      if (feature.end > feature.start) {
-        context.fillRect(Math.round(feature.scaledStart), 0, Math.ceil(feature.scaledEnd - feature.scaledStart), this.featureHeight/2);
-      }
+      context.fillRect(Math.round(feature.position[scale].x), 0, Math.ceil(feature.position[scale].w), this.featureHeight/2);
       if (feature.major) {
-        context.fillRect(Math.round(feature.scaledStart), 0, 1, this.featureHeight);
+        context.fillRect(Math.round(feature.position[scale].x), 0, 1, this.featureHeight);
         context.fillText(feature.label, feature.scaledStart, this.featureHeight);
       }
     }
