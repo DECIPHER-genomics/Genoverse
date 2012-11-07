@@ -159,7 +159,7 @@ Genoverse.Track = Base.extend({
   click: function (e) {
     var x = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
     var y = e.pageY - $(e.target).offset().top;
-    var feature = this[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
+    var feature = this.featurePositions.search({ x: x, y: y, w: 1, h: 1 })[0];
     
     if (feature) {
       this.browser.makeMenu(feature, { left: e.pageX, top: e.pageY }, this);
@@ -472,7 +472,7 @@ Genoverse.Track = Base.extend({
       }
     } while (bump);
 
-    this.featurePositions.insert(bounds, feature.id);
+    this.featurePositions.insert(bounds, feature);
     feature.position[scale].Y = bounds.y;
     feature.position[scale].bumped = true;
   },
