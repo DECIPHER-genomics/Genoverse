@@ -371,8 +371,9 @@ Genoverse.Track = Base.extend({
 
       $.when(this.getData(bufferedStart, end))
        .done(function (data) {
-         track.dataRegion.start = Math.min(start, track.dataRegion.start);
-         track.dataRegion.end   = Math.max(end,   track.dataRegion.end);
+         track.dataRegion.start = this.allData ? 0    : Math.min(start, track.dataRegion.start);
+         track.dataRegion.end   = this.allData ? 9e99 : Math.max(end,   track.dataRegion.end);
+
          try {
            track.parseData(data);
            track.render(track.features.search(bounds), image);
@@ -414,6 +415,7 @@ Genoverse.Track = Base.extend({
       if (!feature.position[scale]) {
         feature.position[scale] = {};
         feature.position[scale].x = feature.start * scale;
+        feature.position[scale].y = feature.y || this.featureSpacing;
         feature.position[scale].w = feature.width * scale;
         feature.position[scale].h = this.featureHeight;
 
@@ -437,8 +439,6 @@ Genoverse.Track = Base.extend({
     for (var i=0; i<features.length; i++) {
       var feature = features[i];
       feature.position[scale].x += - imgScaledStart;
-      feature.position[scale].y = feature.y || this.featureSpacing;
-
       feature.position[scale].H = feature.position[scale].h + this.featureSpacing;
       feature.position[scale].W = feature.position[scale].w + this.featureSpacing;
 
@@ -464,13 +464,11 @@ Genoverse.Track = Base.extend({
   bumpFeatures: function (features, scale) {
     //var scale = scale > 1 ? scale : 1;
     var height = 0;
-    var seen = {};
 
     for (var i = 0; i < features.length; i++) {
       var feature = features[i];
       
-      if (seen[feature.id]) continue;
-      seen[feature.id] = 1;
+      if (feature.position[scale].bumped) continue;
 
       var bounds = { 
         x: feature.position[scale].x, 
@@ -490,7 +488,8 @@ Genoverse.Track = Base.extend({
 
       this.featurePositions.insert(bounds, feature.id);
       feature.position[scale].y = bounds.y;
-      
+      feature.position[scale].bumped = true;
+
       height = Math.max(height, feature.position[scale].y + feature.position[scale].H);
     }
 
