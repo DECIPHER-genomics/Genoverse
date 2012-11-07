@@ -1,0 +1,553 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+
+
+    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
+    <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
+    <link rel="stylesheet" type="text/css" href="css/labelControls.css" />
+    <link rel="stylesheet" type="text/css" href="css/resizer.css" />
+    <!--link rel="stylesheet" type="text/css" href="css/hoverLabels.css" /-->
+    
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/lib/lazyload.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+
+    <script type="text/javascript" src="js/lib/Base.js"></script>
+    <script type="text/javascript" src="js/lib/rtree.js"></script>
+    <script type="text/javascript" src="js/lib/FRegion.js"></script>
+    
+    <script type="text/javascript" src="js/Genoverse.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script> 
+
+    <script type="text/javascript" src="js/Track/Scalebar.js"></script>
+    <script type="text/javascript" src="js/Track/Sequence.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Sequence.js"></script>
+
+    <script type="text/javascript" src="js/Track/SV.js"></script>
+    
+    <script type="text/javascript" src="js/plugins/controlPanel.js"></script>
+    <script type="text/javascript" src="js/plugins/labelControls.js"></script>
+    <script type="text/javascript" src="js/plugins/resizer.js"></script>
+    <!--script type="text/javascript" src="js/plugins/hoverLabels.js"></script-->
+
+
+    <script type="text/javascript">
+
+      var variationColorMap = {
+        'Likely LOF' : '#FF3B0B',
+        'Protein Altering' : '#E8810C',
+        'In mRNA, not protein altering' : 'grey',
+        'In annotated regulatory region' : '#008B00',
+        'ncRNA' : 'black',
+        'In UTR' : '#FF69B4',
+        'Transcript amplification' : '#02599C',
+        'Not in mRNA or annotation regulatory region' : '#48D048'
+      };
+
+      // Genoverse configuration
+      var genoverseConfig = {
+      
+        container      : '#genoverse',
+        width          : 825,
+        chromosomeSize : 249250621, // chromosome 1, human
+        chr            : 5,
+        start          : 45414613,
+        end            : 45424613,
+
+        tracks         : [
+          {
+            type : 'Scalebar'
+          },
+
+          {
+            name    : "Sequence variation", 
+            url     : "https://decipher.sandbox.sanger.ac.uk/sequence_variant;json?region=__CHR__:__START__-__END__",
+            height  : 30,
+
+            parseData : function (data) {
+              for (var i=0; i<data.length; i++) {
+                data[i].id    = data[i].id_patient + '-' + data[i].chr_start;
+                data[i].label = data[i].id;
+                data[i].color = 'black';
+                data[i].start = parseFloat(data[i].chr_start);
+                data[i].end   = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i]);
+              }
+            }
+          },
+
+          // {
+          //   name      : 'Sequence',
+          //   type      : 'Sequence.DAS',
+          //   // threshold : 1e5,
+          //   height    : 60,
+          // },
+
+          {
+            name      : 'Sequence',
+            //threshold : 1e5,
+            type      : 'SV',
+            height    : 60,
+            variations: [
+              {
+                start : 45419000,
+                end   : 45419003,
+                type  : 'InDel',
+                reference_allele: 'atcat',
+                alternate_allele: 'gtag',
+                vep_category : 'In UTR'
+              }
+            ],
+            variationColor: function (variation) {
+              return variationColorMap[variation.vep_category]
+            },
+            populateMenu: function (variation) {
+              return {
+                "title"      : variation.vep_category,
+                "Ref allele" : variation.reference_allele,
+                "Alt allele" : variation.alternate_allele,
+                "Start"      : variation.start,
+                "End"        : variation.end
+              };
+            }
+          }, 
+
+          // {
+          //   name    : "Sequence variation", 
+          //   url     : "https://decipher.sandbox.sanger.ac.uk/sequence_variant;json?region=__CHR__:__START__-__END__",
+          //   //depth : "0.5",
+          //   id      : 'sequence_variation_patients',
+          //   height  : 30,
+          //   labelOverlay : true,
+          //   separateLabels : false,
+          //   //autoHeight: 'force',
+          //   //threshold : 1e10,
+          //   parseFeatures : function (data, bounds) {
+          //     var i = data.length;
+
+          //     while (i--) {
+          //       data[i].sort        = i;
+          //       data[i].bounds      = {};
+          //       data[i].visible     = {};
+          //       data[i].bottom      = {};
+          //       data[i].labelBottom = {};
+          //       data[i].id          = data[i].id_patient + '-' + data[i].chr_start;
+          //       data[i].label       = data[i].id;
+          //       data[i].color       = variationColorMap[data[i].vep_category];
+          //       data[i].legend      = data[i].vep_category;
+
+          //       data[i].start       = parseFloat(data[i].chr_start);
+          //       data[i].end         = parseFloat(data[i].chr_end);
+          //       this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
+          //     }
+
+          //     return data;
+          //   }
+
+          // },
+
+          // {
+          //   type:"Legend",
+          //   name:"Seq. variation Legend", 
+          //   setTracks: function () {
+          //     this.tracks = [ this.browser.tracksById['sequence_variation_patients'] ];
+          //   },            
+          // },
+
+          // {
+          //   name          : 'Patient',
+          //   url           : 'https://decipher.sandbox.sanger.ac.uk/patient_features;json?region=__CHR__:__START__-__END__&id_patient=262231',
+          //   height        : 30,
+          //   featureHeight : 10,
+          //   labelOverlay  : true,
+          //   separateLabels: false,
+          //   resizable     : true,
+          //   spacing       : 10,
+          //   xhrFields     : { withCredentials: true },
+          //   parseFeatures : function (data, bounds) {
+          //     var i = data.length;
+
+          //     while (i--) {
+          //       data[i].sort        = i;
+          //       data[i].bounds      = {};
+          //       data[i].visible     = {};
+          //       data[i].bottom      = {};
+          //       data[i].labelBottom = {};
+          //       data[i].id          = data[i].id_patient;
+          //       data[i].label       = 'Affected patient';
+          //       data[i].color       = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
+          //       data[i].labelColor  = 'white';
+          //       data[i].start       = parseFloat(data[i].chr_start);
+          //       data[i].end         = parseFloat(data[i].chr_end);
+          //       this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
+          //     }
+
+          //     return data;
+          //   },
+          //   populateMenu : function (feature) {
+          //     return {
+          //       title : feature.id_patient,
+          //       title : '<a href="/patient/'+ feature.id_patient +'">'+ feature.id_patient +'</a>',
+          //       Start : feature.chr_start,
+          //       End   : feature.chr_end,
+          //       Class : feature.classification_type
+          //     };
+          //   }
+          // },
+
+          // {
+          //   name          : 'Syndromes',
+          //   url           : 'https://decipher.sandbox.sanger.ac.uk/syndrome_features;json?region=__CHR__:__START__-__END__',
+          //   height        : 50,
+          //   //hidden        : true,
+
+          //   featureHeight : 6,
+          //   featureSpacing : 5,
+
+          //   bump          : true,
+          //   separateLabels: false,
+          //   resizable     : true,
+          //   spacing       : 10,
+          //   parseFeatures : function (data, bounds) {
+          //     var i = data.length;
+
+          //     while (i--) {
+          //       data[i].sort        = i;
+          //       data[i].bounds      = {};
+          //       data[i].visible     = {};
+          //       data[i].bottom      = {};
+          //       data[i].labelBottom = {};
+          //       data[i].id          = data[i].id_syndrome;
+          //       data[i].label       = data[i].name;
+          //       data[i].color       = data[i].copy_number > 2 ? "#0052FF" : "#FF2F00";
+          //       data[i].labelColor  = data[i].copy_number > 2 ? "#0052FF" : "#FF2F00";
+          //       data[i].start       = parseFloat(data[i].chr_start);
+          //       data[i].end         = parseFloat(data[i].chr_end);
+          //       this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
+          //     }
+
+          //     return data;
+          //   },
+          //   populateMenu : function (feature) {
+          //     return {
+          //       title : feature.id_patient,
+          //       title : '<a href="/syndrome/'+ feature.id_syndrome +'">'+ feature.id_syndrome +'</a>',
+          //       Start : feature.chr_start,
+          //       End   : feature.chr_end
+          //     };
+          //   }
+          // },
+
+          // {
+          //   name          : 'Other patients',
+          //   url           : 'https://decipher.sandbox.sanger.ac.uk/patient_features;json?region=__CHR__:__START__-__END__',
+          //   height        : 200,
+          //   //hidden      : true,
+          //   xhrFields     : { withCredentials: true },
+          //   featureHeight : 6,
+          //   featureSpacing: 5,
+          //   forceLabels   : 'off',
+          //   bump          : true,
+          //   separateLabels: false,
+          //   resizable     : true,
+          //   spacing       : 10,
+          //   parseFeatures : function (data, bounds) {
+          //     var i = data.length;
+
+          //     while (i--) {
+          //       data[i].sort        = i;
+          //       data[i].bounds      = {};
+          //       data[i].visible     = {};
+          //       data[i].bottom      = {};
+          //       data[i].labelBottom = {};
+          //       data[i].id          = data[i].id_patient;
+          //       data[i].label       = data[i].id_patient;
+          //       data[i].color       = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
+          //       data[i].labelColor  = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
+          //       data[i].start       = parseFloat(data[i].chr_start);
+          //       data[i].end         = parseFloat(data[i].chr_end);
+          //       this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
+          //     }
+
+          //     return data;
+          //   },
+          //   populateMenu : function (feature) {
+          //     return {
+          //       title : feature.id_patient,
+          //       title : '<a href="/patient/'+ feature.id_patient +'">'+ feature.id_patient +'</a>',
+          //       Start : feature.chr_start,
+          //       End   : feature.chr_end,
+          //       Class : feature.classification_type
+          //     };
+          //   }
+          // },
+
+
+          // {
+          //   name          : 'Genes',
+          //   url           : 'https://decipher.sandbox.sanger.ac.uk/gene;json?region=__CHR__:__START__-__END__',
+          //   height        : 200,
+          //   featureHeight : 6,
+          //   featureSpacing : 5,
+            
+          //   bump          : true,
+          //   separateLabels: false,
+          //   resizable     : true,
+          //   spacing       : 10,
+          //   parseFeatures : function (data, bounds) {
+          //     var i = data.length;
+
+          //     while (i--) {
+          //       data[i].sort        = i;
+          //       data[i].bounds      = {};
+          //       data[i].visible     = {};
+          //       data[i].bottom      = {};
+          //       data[i].labelBottom = {};
+          //       data[i].id          = data[i].name;
+          //       data[i].label       = data[i].name;
+          //       data[i].color       = "rgb(" + (data[i].hi_rgb || '0,0,0') + ")";
+          //       data[i].labelColor  = "rgb(" + (data[i].hi_rgb || '0,0,0') + ")";
+          //       data[i].start       = parseFloat(data[i].chr_start);
+          //       data[i].end         = parseFloat(data[i].chr_end);
+          //       this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
+          //     }
+
+          //     return data;
+          //   }
+          // },
+
+          // {
+          //   name           : 'DDGenes',
+          //   url            : 'https://decipher.sandbox.sanger.ac.uk/gene;json?region=__CHR__:__START__-__END__&filter=ddgenes',
+          //   height         : 50,
+          //   featureHeight  : 6,
+          //   featureSpacing : 5,
+          //   colorMap: {
+          //     Y: 'red',
+          //     P: 'yellow'
+          //   },
+          //   bump          : true,
+          //   separateLabels: false,
+          //   resizable     : true,
+          //   spacing       : 10,
+          //   parseFeatures : function (data, bounds) {
+          //     var i = data.length;
+
+          //     while (i--) {
+          //       data[i].sort        = i;
+          //       data[i].bounds      = {};
+          //       data[i].visible     = {};
+          //       data[i].bottom      = {};
+          //       data[i].labelBottom = {};
+          //       data[i].id          = data[i].name;
+          //       data[i].label       = data[i].name;
+          //       data[i].color       = this.colorMap[data[i].ddgene_code];
+          //       data[i].labelColor  = this.colorMap[data[i].ddgene_code];
+          //       data[i].start       = parseFloat(data[i].chr_start);
+          //       data[i].end         = parseFloat(data[i].chr_end);
+          //       this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
+          //     }
+
+          //     return data;
+          //   },
+          //   populateMenu : function (gene) {
+          //     var deferred = $.Deferred();
+          //     $.ajax({
+          //       url      : 'https://decipher.sandbox.sanger.ac.uk/gene/'+ gene.name +';ddgene_info',
+          //       dataType : 'json',
+          //       success  : function (data) {
+          //         deferred.resolve(data);
+          //       }
+          //     });
+          //     return deferred;
+          //   }
+          // },
+
+          // {
+          //   name           : 'CNV',
+          //   url            : 'https://decipher.sandbox.sanger.ac.uk/cnv;json?region=__CHR__:__START__-__END__',
+          //   height         : 100,
+          //   featureHeight  : 10,
+          //   featureSpacing : 5,
+          //   bump           : true,
+          //   resizable      : true,
+          //   spacing        : 10,
+          //   colors         : { 
+          //     1: {
+          //       "-1" : "#FFD6D6",
+          //       "0"  : "#DEDEDE",
+          //       "1"  : "#E0E0FF"
+          //     },
+          //     2: {
+          //       "-1" : "#FFA3A3",
+          //       "0"  : "#ABABAB",
+          //       "1"  : "#ADADFF"
+          //     },
+          //     3: {
+          //       "-1" : "#FF7070",
+          //       "0"  : "#919191",
+          //       "1"  : "#7A7AFF"
+          //     },
+          //     4: {
+          //       "-1" : "#FF3D3D",
+          //       "0"  : "#5E5E5E",
+          //       "1"  : "#4747FF"
+          //     }
+          //   },
+          //   parseFeatures : function (data, bounds) {
+          //     var i = data.length;
+
+          //     while (i--) {
+          //       var cnv = data[i];
+          //       cnv.sort        = i;
+          //       cnv.bounds      = {};
+          //       cnv.visible     = {};
+          //       cnv.bottom      = {};
+          //       cnv.labelBottom = {};
+          //       cnv.color       = this.colors[cnv.proof][cnv.type];
+          //       cnv.start       = parseFloat(cnv.chr_start);
+          //       cnv.end         = parseFloat(cnv.chr_end);
+          //       this.features.insert({ x: cnv.start, y: 0, w: cnv.end - cnv.start, h: 1 }, cnv);
+          //     }
+
+          //     return data;
+          //   }
+          // },
+
+
+          // {
+          //   name      : "dbSNP", 
+          //   id        : "dbSNP", 
+          //   url       : "http://beta.ensembl.org/Homo_sapiens/Genoverse/fetch_features/_variation?r=__CHR__:__START__-__END__&id=variation_feature_variation&db=core",
+          //   depth     : "0.5",
+          //   height    : 30,
+            
+          //   labelOverlay : true,
+          //   separateLabels : false,
+          //   //autoHeight: 'force',
+          //   threshold : 1e5,
+
+          //   // Add triangles at the bottom of inserts
+          //   decorateFeatures: function (image) {
+          //     var c = this.colorOrder.length;
+          //     var startOffset = image.scaledStart;
+          //     var color, i, start;
+              
+          //     while (c--) {
+              
+          //       color = this.colorOrder[c];
+                
+          //       if (color && this.decorations[color]) {
+                
+          //         this.context.fillStyle = color;
+          //         i = this.decorations[color].length;
+                  
+          //         while (i--) {
+          //           if (this.decorations[color][i][1].style === 'insertion') {
+          //             start = this.decorations[color][i][0].scaledStart - startOffset;
+                      
+          //             this.context.beginPath();
+          //             this.context.moveTo(start - 3, this.featureHeight + 1);
+          //             this.context.lineTo(start, this.featureHeight - 3);
+          //             this.context.lineTo(start + 3, this.featureHeight + 1);
+          //             this.context.fill();
+          //           }
+          //         }
+          //       }
+          //     }
+          //   }         
+
+          // },
+
+          // {
+          //   type:"Legend",
+          //   name:"dbSNP Legend", 
+          //   setTracks: function () {
+          //     this.tracks = [ this.browser.tracksById['dbSNP'] ];
+          //   },            
+          // },
+
+
+
+          // {
+          //   name   : 'Transcript',
+          //   type   : 'DASTranscript',
+          //   source : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
+          //   renderer : 'transcript',
+          //   filter : {
+          //     type : [ 'transcript', 'translation' ]
+          //   },
+          //   // display: {
+          //   //   group: 'transcript'
+          //   // },
+          //   populateMenu: function (feature) {
+          //     return {
+          //       title: feature.label,
+          //       start: feature.start,
+          //       stop: feature.end,
+          //       Links: '<a href="#">e!</a>'
+
+          //     };
+          //   }
+          // },
+
+
+          // {
+          //   name      : 'Sequence',
+          //   threshold : 300000,
+          //   type      : 'DAS.Sequence',
+          //   height    : 200,
+          // }, 
+  
+          // {
+          //   name      : 'Sequence Variation',
+          //   threshold : 200000,
+          //   type      : 'SV',
+          //   variations : [
+          //     {
+          //       chr   : 1,
+          //       start : 108865250,
+          //       end   : 108865251,
+          //       reference_allele : 'T',
+          //       alternate_allele : '',
+          //       type             : 'Deletion'
+          //     },
+          //     {
+          //       chr   : 1,
+          //       start : 108865260,
+          //       end   : 108865263,
+          //       reference_allele : '',
+          //       alternate_allele : 'TTTTTTT',
+          //       type             : 'InDel'
+          //     },
+          //     {
+          //       chr   : 1,
+          //       start : 108865268,
+          //       end   : 108865270,
+          //       reference_allele : 'CT',
+          //       alternate_allele : 'AA',
+          //       type             : 'Substitution'
+          //     },
+          //   ],
+
+          // },
+
+        ]
+      };
+
+      $(document).ready(function(){ window.genoverse = new Genoverse(genoverseConfig) });
+
+    </script>
+
+
+  </head>
+  <body>
+
+  <div id="genoverse"></div>
+ 
+  </body>
+</html>

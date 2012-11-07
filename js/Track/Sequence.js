@@ -4,7 +4,8 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
   name          : "Sequence",
   height        : 45,
   featureHeight : 20,
-  featureSpacing: 2,
+  featureSpacing: 0,
+  yOffset       : 5,
   complementary : true,
   chunkSize     : 1000,
   //threshold     : 2000,
@@ -60,6 +61,7 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
       n : this.context.measureText('n').width
     };
 
+    if (this.featureSpacing > 0) this.yOffset = this.featureSpacing;
     this.labelYOffset = this.featureHeight/2 - this.fontHeight/2;
   },
 
@@ -93,6 +95,7 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
         id    : start + i,
         start : start + i,
         end   : start + i + this.chunkSize,
+        y     : this.yOffset,
         sequence : sequence.substr(i, this.chunkSize),
       }
       this.chunks[feature.start] = feature;

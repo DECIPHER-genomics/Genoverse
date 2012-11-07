@@ -480,8 +480,6 @@ Genoverse.Track = Base.extend({
 
   render: function (features, img) {
     var scale = img.data('scale');
-    var features = features.sort(function (a, b) { a.width - b.width });
-
     this.scaleFeatures(features, scale);
     this.positionFeatures(features, img);
 
