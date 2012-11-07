@@ -23,12 +23,13 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
   setScale: function () {
     this.base();
+    this.dataRegion = { start: 9e99, end: -9e99 };
     
-    this.minorUnit  = this.browser.minorUnit;
-    this.majorUnit  = this.browser.majorUnit;
-    this.seen       = {};
-    this.features   = new RTree();
-    this.featureIds = {};
+    this.minorUnit = this.browser.minorUnit;
+    this.majorUnit = this.browser.majorUnit;
+    this.seen      = {};
+    this.features  = new RTree();
+    this.featuresById = {};
   },
 
 
@@ -76,6 +77,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
 
   draw: function (features, context, scale) {
+
     var i = features.length;
     context.textBaseline = 'top';
 

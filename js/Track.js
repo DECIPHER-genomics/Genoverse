@@ -14,7 +14,6 @@ Genoverse.Track = Base.extend({
   inherit        : [],
   xhrFields      : {},
   featuresById   : {},
-  featurePositions : {},
 
   constructor: function (config) {
     // Deep clone all [..] and {..} objects in this to prevent sharing between instances
@@ -367,7 +366,7 @@ Genoverse.Track = Base.extend({
          track.dataRegion.end   = this.allData ? 9e99 : Math.max(end,   track.dataRegion.end);
 
          try {
-           track.parseData(data);
+           track.parseData(data, bufferedStart, end);
            track.render(track.features.search(bounds), image);
          } catch (e) {
            track.showError(e);
@@ -486,9 +485,12 @@ Genoverse.Track = Base.extend({
     this.scaleFeatures(features, scale);
     this.positionFeatures(features, img);
 
-    var canvas = $('<canvas />').attr({ width: img.data('width'), height: img.data('height') })[0];
+    var canvas  = $('<canvas />').attr({ width: img.data('width'), height: img.data('height') })[0];
+    var context = canvas.getContext('2d');
+    context.font = this.font;
+    context.textBaseline = 'top';
 
-    this.draw(features, canvas.getContext('2d'), scale);
+    this.draw(features, context, scale);
 
     img.attr('src', canvas.toDataURL());
     $(canvas).remove();
@@ -497,11 +499,7 @@ Genoverse.Track = Base.extend({
 
   draw: function(features, context, scale) {
     var color = this.color;
-
     context.fillStyle = color;
-    context.font = this.font;
-    context.textBaseline = 'top';
-
 
     for (var i=0; i<features.length; i++) {
       var feature = features[i];
