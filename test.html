@@ -89,8 +89,10 @@
                   feature.category = TYPE.getAttribute('category')
                 }
 
-                feature.color       = 'black';
-                feature.labelColor  = 'black';
+                var color = get_random_color();
+                feature.color       = color;
+                feature.labelColor  = color;
+
                 track.insertFeature(feature);
               });
             },
@@ -101,6 +103,15 @@
       };
 
       $(document).ready(function(){ window.genoverse = new Genoverse(genoverseConfig) });
+
+      function get_random_color() {
+          var letters = '0123456789ABCDEF'.split('');
+          var color = '#';
+          for (var i = 0; i < 6; i++ ) {
+              color += letters[Math.round(Math.random() * 15)];
+          }
+          return color;
+      }
 
     </script>
 
