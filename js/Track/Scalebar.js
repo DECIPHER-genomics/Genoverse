@@ -81,10 +81,10 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
     while (i--) {
       var feature = features[i];
-      context.fillRect(Math.round(feature.position[scale].x), 0, Math.ceil(feature.position[scale].w), this.featureHeight/2);
+      context.fillRect(Math.round(feature.position[scale].X), 0, Math.ceil(feature.position[scale].width), this.featureHeight/2);
       if (feature.major) {
-        context.fillRect(Math.round(feature.position[scale].x), 0, 1, this.featureHeight);
-        context.fillText(feature.label, feature.position[scale].x, this.featureHeight);
+        context.fillRect(Math.round(feature.position[scale].X), 0, 1, this.featureHeight);
+        context.fillText(feature.label, feature.position[scale].X, this.featureHeight);
       }
     }
     

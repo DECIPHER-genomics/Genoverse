@@ -283,14 +283,6 @@ Genoverse.Track = Base.extend({
       track[this] = scaleSettings[this];
     });
     
-    if (this.renderer) {
-      var renderer = this.getRenderer();
-      
-      if (renderer !== this.urlParams.renderer) {
-        this.setRenderer(renderer);
-      }
-    }
-    
     this.container.css('left', this.browser.left).children('.image_container').hide();
   },
 
@@ -414,13 +406,14 @@ Genoverse.Track = Base.extend({
 
       if (!feature.position[scale]) {
         feature.position[scale] = {};
-        feature.position[scale].x = feature.start * scale;
-        feature.position[scale].y = feature.y || this.featureSpacing;
-        feature.position[scale].w = feature.width * scale;
-        feature.position[scale].h = this.featureHeight;
+        feature.position[scale].start  = feature.start * scale;
+        feature.position[scale].width  = feature.width * scale;
+        feature.position[scale].height = this.featureHeight;
 
-        if (feature.position[scale].w < scale) feature.position[scale].w = scale;
+        if (feature.position[scale].width < scale) feature.position[scale].width = scale;
       }
+
+
     }
   },
 
@@ -438,22 +431,22 @@ Genoverse.Track = Base.extend({
 
     for (var i=0; i<features.length; i++) {
       var feature = features[i];
-      feature.position[scale].x += - imgScaledStart;
-      feature.position[scale].H = feature.position[scale].h + this.featureSpacing;
-      feature.position[scale].W = feature.position[scale].w + this.featureSpacing;
+      feature.position[scale].H = feature.position[scale].H || feature.position[scale].height + this.featureSpacing;
+      feature.position[scale].W = feature.position[scale].W || feature.position[scale].width + this.featureSpacing;
+      feature.position[scale].Y = feature.position[scale].Y || feature.y || this.featureSpacing;
+      feature.position[scale].X = feature.position[scale].start - imgScaledStart;
 
       if (showLabels && feature.label) {
-        feature.position[scale].labelY = feature.position[scale].H;
         feature.position[scale].H += this.fontHeight + this.featureSpacing;
         var labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
         if (labelWidth > feature.position[scale].W) feature.position[scale].W = labelWidth;
       }
-    }
 
-    if (this.bump) {
-      height = this.bumpFeatures(features, scale);
-    } else {
-      height = this.featureHeight + this.featureSpacing + (showLabels ? this.fontHeight + this.featureSpacing : 0);
+      if (this.bump && !feature.position[scale].bumped) {
+        this.bumpFeature(feature, scale);
+      }
+
+      height = Math.max(height, feature.position[scale].Y + feature.position[scale].H);
     }
 
     img.data({height : height});
@@ -461,44 +454,34 @@ Genoverse.Track = Base.extend({
   },
 
 
-  bumpFeatures: function (features, scale) {
-    //var scale = scale > 1 ? scale : 1;
-    var height = 0;
+  bumpFeature: function (feature, scale) {
+    var bounds = { 
+      x: feature.position[scale].start,
+      w: feature.position[scale].W, 
+      y: feature.position[scale].Y, 
+      h: feature.position[scale].H
+    };
+    
+    var bump;
 
-    for (var i = 0; i < features.length; i++) {
-      var feature = features[i];
-      
-      if (feature.position[scale].bumped) continue;
+    do {
+      bump = false;
 
-      var bounds = { 
-        x: feature.position[scale].x, 
-        w: feature.position[scale].W, 
-        y: feature.position[scale].y, 
-        h: feature.position[scale].H
-      };
-        
-      do {
-        bump = false;
+      if (this.featurePositions.search(bounds).length) {
+        bounds.y += bounds.h;
+        bump = true;
+      }
+    } while (bump);
 
-        if (this.featurePositions.search(bounds).length) {
-          bounds.y += bounds.h;
-          bump = true;
-        }
-      } while (bump);
-
-      this.featurePositions.insert(bounds, feature.id);
-      feature.position[scale].y = bounds.y;
-      feature.position[scale].bumped = true;
-
-      height = Math.max(height, feature.position[scale].y + feature.position[scale].H);
-    }
-
-    return height;
+    this.featurePositions.insert(bounds, feature.id);
+    feature.position[scale].Y = bounds.y;
+    feature.position[scale].bumped = true;
   },
 
 
   render: function (features, img) {
     var scale = img.data('scale');
+    var features = features.sort(function (a, b) { a.width - b.width });
 
     this.scaleFeatures(features, scale);
     this.positionFeatures(features, img);
@@ -527,13 +510,13 @@ Genoverse.Track = Base.extend({
         context.fillStyle = color;
       }
 
-      context.fillRect(feature.position[scale].x, feature.position[scale].y, feature.position[scale].w, feature.position[scale].h);
+      context.fillRect(feature.position[scale].X, feature.position[scale].Y, feature.position[scale].width, feature.position[scale].height);
       if (this.toShowLabels(scale)) {
         if (feature.labelColor && feature.labelColor != color) {
           color = feature.labelColor
           context.fillStyle = color;
         }
-        context.fillText(feature.label, feature.position[scale].x, feature.position[scale].y + this.featureHeight + this.featureSpacing);
+        context.fillText(feature.label, feature.position[scale].X, feature.position[scale].Y + this.featureHeight + this.featureSpacing);
       }
     }
   },
