@@ -11,6 +11,7 @@ Genoverse.Track = Base.extend({
   bump           : false,
   bumpSpacing    : 2,
   featureSpacing : 1,
+  minScaledWidth : 0.5,
   inherit        : [],
   xhrFields      : {},
   featuresById   : {},
@@ -332,6 +333,29 @@ Genoverse.Track = Base.extend({
   },
 
 
+  resetFeaturePositions: function () {
+    this.scaleSettings = {};
+    this.featurePositions = new RTree();
+    for (id in this.featuresById) {
+      var feature = this.featuresById[id];
+      delete feature.position;
+    }
+  },
+
+
+  reDraw: function () {
+    this.resetFeaturePositions();
+
+    for (var i=0; i<this.imgContainers.length; i++) {
+      var image = $('img.data', this.imgContainers[i]);
+      var data  = $(image).data();
+
+      var features = this.features.search({ x: data.start, y: 0, w: data.end - data.start, h:1 });
+      this.render(features, image);
+    }
+  },
+
+
   makeImage: function (start, end, width, moved, cls) {
     var div  = this.imgContainer.clone().width(width).addClass(cls);
     var prev = $(this.imgContainers).filter('.' + this.browser.scrollStart + ':' + (moved < 0 ? 'first' : 'last'));
@@ -344,7 +368,7 @@ Genoverse.Track = Base.extend({
       scaledStart : start * this.scale
     };
 
-    var image = $('<img />').width(width).data(data).appendTo(div);
+    var image = $('<img class="data" />').width(width).data(data).appendTo(div);
 
     div.css('left', prev.length ? prev.position().left + (moved < 0 ? -this.width : prev.width()) : -this.browser.offsets.right);
     
@@ -409,7 +433,7 @@ Genoverse.Track = Base.extend({
         feature.position[scale].width  = feature.width * scale;
         feature.position[scale].height = this.featureHeight;
 
-        if (feature.position[scale].width < scale) feature.position[scale].width = scale;
+        if (feature.position[scale].width < this.minScaledWidth) feature.position[scale].width = this.minScaledWidth;
       }
 
 

@@ -6,7 +6,7 @@
 
     <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
     <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
-    <link rel="stylesheet" type="text/css" href="css/labelControls.css" />
+    <link rel="stylesheet" type="text/css" href="css/trackControls.css" />
     <link rel="stylesheet" type="text/css" href="css/resizer.css" />
     <!--link rel="stylesheet" type="text/css" href="css/hoverLabels.css" /-->
     
@@ -30,7 +30,7 @@
     <script type="text/javascript" src="js/Track/SV.js"></script>
     
     <script type="text/javascript" src="js/plugins/controlPanel.js"></script>
-    <script type="text/javascript" src="js/plugins/labelControls.js"></script>
+    <script type="text/javascript" src="js/plugins/trackControls.js"></script>
     <script type="text/javascript" src="js/plugins/resizer.js"></script>
     <!--script type="text/javascript" src="js/plugins/hoverLabels.js"></script-->
 
@@ -61,23 +61,6 @@
         tracks         : [
           {
             type : 'Scalebar'
-          },
-
-          {
-            name    : "Sequence variation", 
-            url     : "https://decipher.sandbox.sanger.ac.uk/sequence_variant;json?region=__CHR__:__START__-__END__",
-            height  : 30,
-
-            parseData : function (data) {
-              for (var i=0; i<data.length; i++) {
-                data[i].id    = data[i].id_patient + '-' + data[i].chr_start;
-                data[i].label = data[i].id;
-                data[i].color = 'black';
-                data[i].start = parseFloat(data[i].chr_start);
-                data[i].end   = parseFloat(data[i].chr_end);
-                this.insertFeature(data[i]);
-              }
-            }
           },
 
           // {
@@ -116,39 +99,23 @@
             }
           }, 
 
-          // {
-          //   name    : "Sequence variation", 
-          //   url     : "https://decipher.sandbox.sanger.ac.uk/sequence_variant;json?region=__CHR__:__START__-__END__",
-          //   //depth : "0.5",
-          //   id      : 'sequence_variation_patients',
-          //   height  : 30,
-          //   labelOverlay : true,
-          //   separateLabels : false,
-          //   //autoHeight: 'force',
-          //   //threshold : 1e10,
-          //   parseFeatures : function (data, bounds) {
-          //     var i = data.length;
+          {
+            name    : "Sequence variation", 
+            url     : "https://decipher.sandbox.sanger.ac.uk/sequence_variant;json?region=__CHR__:__START__-__END__",
+            height  : 30,
 
-          //     while (i--) {
-          //       data[i].sort        = i;
-          //       data[i].bounds      = {};
-          //       data[i].visible     = {};
-          //       data[i].bottom      = {};
-          //       data[i].labelBottom = {};
-          //       data[i].id          = data[i].id_patient + '-' + data[i].chr_start;
-          //       data[i].label       = data[i].id;
-          //       data[i].color       = variationColorMap[data[i].vep_category];
-          //       data[i].legend      = data[i].vep_category;
+            parseData : function (data) {
+              for (var i=0; i<data.length; i++) {
+                data[i].id    = data[i].id_patient + '-' + data[i].chr_start;
+                data[i].label = data[i].id;
+                data[i].color = variationColorMap[data[i].vep_category];
+                data[i].start = parseFloat(data[i].chr_start);
+                data[i].end   = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i]);
+              }
+            }
+          },
 
-          //       data[i].start       = parseFloat(data[i].chr_start);
-          //       data[i].end         = parseFloat(data[i].chr_end);
-          //       this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
-          //     }
-
-          //     return data;
-          //   }
-
-          // },
 
           // {
           //   type:"Legend",
@@ -158,46 +125,95 @@
           //   },            
           // },
 
-          // {
-          //   name          : 'Patient',
-          //   url           : 'https://decipher.sandbox.sanger.ac.uk/patient_features;json?region=__CHR__:__START__-__END__&id_patient=262231',
-          //   height        : 30,
-          //   featureHeight : 10,
-          //   labelOverlay  : true,
-          //   separateLabels: false,
-          //   resizable     : true,
-          //   spacing       : 10,
-          //   xhrFields     : { withCredentials: true },
-          //   parseFeatures : function (data, bounds) {
-          //     var i = data.length;
+          {
+            name          : 'Patient',
+            url           : 'https://decipher.sandbox.sanger.ac.uk/patient_features;json?region=__CHR__:__START__-__END__&id_patient=262231',
+            height        : 30,
+            featureHeight : 10,
+            labelOverlay  : true,
+            separateLabels: false,
+            resizable     : true,
+            spacing       : 10,
+            xhrFields     : { withCredentials: true },
+            parseData : function (data) {
+              var i = data.length;
 
-          //     while (i--) {
-          //       data[i].sort        = i;
-          //       data[i].bounds      = {};
-          //       data[i].visible     = {};
-          //       data[i].bottom      = {};
-          //       data[i].labelBottom = {};
-          //       data[i].id          = data[i].id_patient;
-          //       data[i].label       = 'Affected patient';
-          //       data[i].color       = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
-          //       data[i].labelColor  = 'white';
-          //       data[i].start       = parseFloat(data[i].chr_start);
-          //       data[i].end         = parseFloat(data[i].chr_end);
-          //       this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
-          //     }
+              while (i--) {
+                data[i].id         = data[i].id_patient;
+                data[i].label      = 'Affected patient';
+                data[i].color      = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
+                data[i].labelColor = 'white';
+                data[i].start      = parseFloat(data[i].chr_start);
+                data[i].end        = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i]);
+              }
 
-          //     return data;
-          //   },
-          //   populateMenu : function (feature) {
-          //     return {
-          //       title : feature.id_patient,
-          //       title : '<a href="/patient/'+ feature.id_patient +'">'+ feature.id_patient +'</a>',
-          //       Start : feature.chr_start,
-          //       End   : feature.chr_end,
-          //       Class : feature.classification_type
-          //     };
-          //   }
-          // },
+              return data;
+            },
+            populateMenu : function (feature) {
+              return {
+                title : feature.id_patient,
+                title : '<a href="/patient/'+ feature.id_patient +'">'+ feature.id_patient +'</a>',
+                Start : feature.chr_start,
+                End   : feature.chr_end,
+                Class : feature.classification_type
+              };
+            }
+          },
+
+          {
+            name          : 'Other patients',
+            url           : 'https://decipher.sandbox.sanger.ac.uk/patient_features;json?region=__CHR__:__START__-__END__',
+            height        : 200,
+            //hidden      : true,
+            xhrFields     : { withCredentials: true },
+            featureHeight : 6,
+            featureSpacing: 2,
+            showLabels    : true,
+            bump          : true,
+            resizable     : true,
+            parseData     : function (data) {
+              var i = data.length;
+
+              while (i--) {
+                data[i].id         = data[i].id_patient;
+                data[i].label      = data[i].id_patient;
+                data[i].color      = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
+                data[i].labelColor = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
+                data[i].start      = parseFloat(data[i].chr_start);
+                data[i].end        = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i]);
+              }
+            },
+            populateMenu : function (feature) {
+              return {
+                title : feature.id_patient,
+                title : '<a href="/patient/'+ feature.id_patient +'">'+ feature.id_patient +'</a>',
+                Start : feature.chr_start,
+                End   : feature.chr_end,
+                Class : feature.classification_type
+              };
+            },
+            controls: [
+              {
+                icon: 'squish',
+                name: 'squish',
+                action: function () {
+                  if (this.squished) {
+                    this.featureHeight = 6;
+                    this.showLabels = true;
+                    this.reDraw();
+                    this.squished = false;
+                  } else {
+                    this.featureHeight = 1;
+                    this.showLabels = false;
+                    this.reDraw();
+                    this.squished = true;
+                  }
+                }                
+              }
+            ],
+          },
 
           // {
           //   name          : 'Syndromes',
@@ -241,51 +257,6 @@
           //     };
           //   }
           // },
-
-          // {
-          //   name          : 'Other patients',
-          //   url           : 'https://decipher.sandbox.sanger.ac.uk/patient_features;json?region=__CHR__:__START__-__END__',
-          //   height        : 200,
-          //   //hidden      : true,
-          //   xhrFields     : { withCredentials: true },
-          //   featureHeight : 6,
-          //   featureSpacing: 5,
-          //   forceLabels   : 'off',
-          //   bump          : true,
-          //   separateLabels: false,
-          //   resizable     : true,
-          //   spacing       : 10,
-          //   parseFeatures : function (data, bounds) {
-          //     var i = data.length;
-
-          //     while (i--) {
-          //       data[i].sort        = i;
-          //       data[i].bounds      = {};
-          //       data[i].visible     = {};
-          //       data[i].bottom      = {};
-          //       data[i].labelBottom = {};
-          //       data[i].id          = data[i].id_patient;
-          //       data[i].label       = data[i].id_patient;
-          //       data[i].color       = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
-          //       data[i].labelColor  = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
-          //       data[i].start       = parseFloat(data[i].chr_start);
-          //       data[i].end         = parseFloat(data[i].chr_end);
-          //       this.features.insert({ x: data[i].start, y: 0, w: data[i].end - data[i].start, h: 1 }, data[i]);
-          //     }
-
-          //     return data;
-          //   },
-          //   populateMenu : function (feature) {
-          //     return {
-          //       title : feature.id_patient,
-          //       title : '<a href="/patient/'+ feature.id_patient +'">'+ feature.id_patient +'</a>',
-          //       Start : feature.chr_start,
-          //       End   : feature.chr_end,
-          //       Class : feature.classification_type
-          //     };
-          //   }
-          // },
-
 
           // {
           //   name          : 'Genes',
