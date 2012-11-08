@@ -23,7 +23,7 @@ Genoverse.Track.SV = Genoverse.Track.Sequence.DAS.extend({
     for (var i = 0; i < this.variations.length; i++) {
       var variation = this.variations[i];
       variation.sequence = variation.alternate_allele;
-      variation.width = variation.start - variation.end + 1;
+      variation.width = variation.end - variation.start + 1;
     }
 
     this.scaleFeatures(this.variations, scale);
@@ -47,8 +47,9 @@ Genoverse.Track.SV = Genoverse.Track.Sequence.DAS.extend({
 
       var referenceScaledWidth = scale * variation.reference_allele.length;
       var alternateScaledWidth = scale * variation.alternate_allele.length;
+      var halfDelta = (referenceScaledWidth - alternateScaledWidth)/2;
 
-      position.X += (referenceScaledWidth - alternateScaledWidth)/2;
+      position.X += halfDelta;
       position.Y = this.yOffset - (1 + this.distance)*this.featureHeight;
 
       var referenceScaledWidth = variation.reference_allele.length * this.scale; 
@@ -62,10 +63,10 @@ Genoverse.Track.SV = Genoverse.Track.Sequence.DAS.extend({
       context.lineTo(position.X + position.width, position.Y);
       context.lineTo(position.X + position.width, position.Y + this.featureHeight);
 
-      context.lineTo(position.X + referenceScaledWidth + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset);
-      context.lineTo(position.X + referenceScaledWidth + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset + this.featureHeight);
-      context.lineTo(position.X + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset + this.featureHeight);
-      context.lineTo(position.X + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset);
+      context.lineTo(position.X + position.width + halfDelta, this.yOffset);
+      context.lineTo(position.X + position.width + halfDelta, this.yOffset + this.featureHeight);
+      context.lineTo(position.X - halfDelta, this.yOffset + this.featureHeight);
+      context.lineTo(position.X - halfDelta, this.yOffset);
 
       context.lineTo(position.X, position.Y + this.featureHeight);
       context.lineTo(position.X, position.Y);
@@ -75,12 +76,10 @@ Genoverse.Track.SV = Genoverse.Track.Sequence.DAS.extend({
       this.repealShadow(context);
 
       context.fillStyle   = this.variationColor(variation);
-      context.globalAlpha = 0.7;
+      context.globalAlpha = 0.5;
       context.fill();
       context.globalAlpha = 1;
 
-
-      position.X += (referenceScaledWidth - alternateScaledWidth)/2;
       this.drawSequence(
         variation,
         context,
