@@ -18,7 +18,6 @@ Genoverse.Track.SV = Genoverse.Track.Sequence.DAS.extend({
 
   render: function (features, img) {
     var scale = img.data('scale');
-
     // tmp fix
     for (var i = 0; i < this.variations.length; i++) {
       var variation = this.variations[i];

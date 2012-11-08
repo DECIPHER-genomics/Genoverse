@@ -55,6 +55,21 @@ ul.label_container {
   width: 0;
 }
 
+.track_message {
+  display: block;
+  position: absolute;
+  color: black;
+  left: 0;
+  top: 0;
+  color: red;
+  font-family: Verdana;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 5px;
+  width: 200px;
+  z-index: 5;
+}
+
 .canvas_container .image_container {
   height: 100%;
   overflow: hidden;
@@ -264,4 +279,5 @@ li.sortHandle {
   border-radius: 12px;
   box-shadow: 3px 3px 10px #666666;
   color: white;
+  z-index: 11;
 }

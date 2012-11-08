@@ -67,6 +67,8 @@ Genoverse.Track = Base.extend({
     this.canvas         = $('<canvas>').appendTo(this.browser.wrapper);
     this.container      = $('<div class="track_container">').appendTo(this.browser.wrapper);
     this.imgContainer   = $('<div class="image_container">');
+    this.messageContainer = $('<div class="track_message static" />').appendTo(this.container);
+
     this.label          = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('index', this.index);
     this.menus          = $();
     this.context        = this.canvas[0].getContext('2d');
@@ -83,8 +85,6 @@ Genoverse.Track = Base.extend({
       this.autoHeight  = true;
       this.fixedHeight = false;
       this.resizable   = false;
-    } else if (this.threshold) {
-      this.thresholdMessage = this.browser.setTracks([{ type: 'Threshold', track: this }], this.browser.tracks.length)[0];
     }
     
    
@@ -224,7 +224,7 @@ Genoverse.Track = Base.extend({
     // this.fullVisibleHeight - ([there are labels in this region] ? (this.separateLabels ? 0 : this.bumpSpacing + 1) + 2 : this.bumpSpacing)
     //                                                                ^ padding on label y-position                     ^ margin on label height
     if (this.fullVisibleHeight - this.bumpSpacing > this.height) {
-      this.expander = (this.expander || $('<div class="expander">').width(this.width).appendTo(this.container).on('click', function () {
+      this.expander = (this.expander || $('<div class="expander static">').width(this.width).appendTo(this.container).on('click', function () {
         track.resize(track.fullVisibleHeight);
       })).css('left', -this.browser.left)[this.height === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
@@ -234,13 +234,6 @@ Genoverse.Track = Base.extend({
 
 
   remove: function () {
-    var thresholdMessage = this.thresholdMessage;
-    
-    if (thresholdMessage) {
-      delete this.thresholdMessage;
-      return this.browser.removeTracks([ this, thresholdMessage ]);
-    }
-    
     this.container.add(this.label).add(this.menus).remove();
     this.browser.tracks.splice(this.index, 1);
   },
@@ -251,6 +244,8 @@ Genoverse.Track = Base.extend({
     var featurePositions, labelPositions;
     
     this.scale = this.browser.scale;
+
+    this.messageContainer.empty();
     
     // Reset scaleSettings if the user has zoomed back to a previously existent zoom level, but has scrolled to a new region.
     // This is needed to get the newly created images in the right place.
@@ -368,17 +363,28 @@ Genoverse.Track = Base.extend({
       scaledStart : start * this.scale
     };
 
-    var image = $('<img class="data" />').width(width).data(data).appendTo(div);
+    var bgImage = $('<img class="bg" />').css({ opacity: 0.9 }).width(width).data(data).prependTo(div);
+
+    var image = $('<img class="data" />')
+      .width(width)
+      .data(data)
+      .load(function(){ bgImage.css({ opacity: 1 }) })
+      .appendTo(div);
 
     div.css('left', prev.length ? prev.position().left + (moved < 0 ? -this.width : prev.width()) : -this.browser.offsets.right);
-    
     this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
     this.container.append(this.imgContainers);
+
 
     var bufferedStart = Math.max(start - (this.labelOverlay ? 0 : this.browser.labelBuffer), 1);
     var bounds = { x: bufferedStart, y: 0, w: end - bufferedStart, h: 1 };
 
-    if (start >= this.dataRegion.start && end <= this.dataRegion.end) {
+    this.renderBackground(bgImage);
+
+    if (this.threshold && this.threshold < this.browser.length) {
+      this.render([], image);
+      this.messageContainer.text('Threshold reached');
+    } else if (start >= this.dataRegion.start && end <= this.dataRegion.end) {
       var features = this.features.search(bounds);
       this.render(features, image);
     } else {
@@ -405,9 +411,9 @@ Genoverse.Track = Base.extend({
        });
     }
 
-    var bgImage = $('<img class="bg" />').width(width).data(data).prependTo(div);
-    this.renderBackground(bgImage);
-    
+    // TMP hack
+    if (this.type == 'Scalebar') this.renderBackground(bgImage);
+
     div = prev = null;
   },
   
@@ -472,7 +478,7 @@ Genoverse.Track = Base.extend({
       height = Math.max(height, feature.position[scale].Y + feature.position[scale].H);
     }
 
-    img.data({height : height});
+    img.data({height : Math.max(height, img.data('height'))});
     return height;
   },
 
@@ -621,6 +627,10 @@ Genoverse.Track = Base.extend({
     this.resize(0);
   },
 
+
+  message: function (text) {
+    this.messageContainer.append(text);
+  },
 
   beforeDraw          : $.noop, // decoration for the track, drawn before the features
   decorateFeatures    : $.noop, // decoration for the features

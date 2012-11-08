@@ -184,7 +184,7 @@ var Genoverse = Base.extend({
           return browser.mousewheelZoom(e, delta);
         }
       }
-    }, '.image_container, .overlay, .selector');
+    }, '.image_container, .overlay, .selector, .track_message');
 
     $(document).on({
       mouseup   : $.proxy(this.mouseup,   this),
@@ -497,6 +497,7 @@ var Genoverse = Base.extend({
     }
     
     $('.expander', this.wrapper).css('left', -this.left);
+    //$('.track_message', this.wrapper).css('left', -this.left);
     $('.image_container img.static', this.container).css('marginLeft', function () { return wrapperOffset - $(this.parentNode).offset().left; });
     
     this.setRange(start, end);
@@ -555,7 +556,7 @@ var Genoverse = Base.extend({
     
     this.setRange(start, end, true);
   },
-  
+
   zoomOut: function (x) {
     if (!x) {
       x = this.width / 2;
@@ -1097,14 +1098,21 @@ var Genoverse = Base.extend({
    * functionWrap - wraps event handlers and adds debugging functionality
    **/
   functionWrap: function (key, obj) {
+    obj = obj || this;
+
+    if ((key.indexOf('after') === 0) || (key.indexOf('before') === 0)) {
+      if (!obj.systemEventHandlers[key]) obj.systemEventHandlers[key] = [];
+      obj.systemEventHandlers[key].push(obj[key]);
+      return;
+    }
+
     var func = key.substring(0, 1).toUpperCase() + key.substring(1);
         name = (obj ? (obj.name || '') + '(' + (obj.type || 'Track.') + ')' : 'Genoverse.') + key;
-        obj  = obj || this;
     
     if (obj.debug) {
       this.debugWrap(obj, key, name, func);
     }
-    
+
     // turn function into system event, enabling eventHandlers for before/after the event
     if (obj.systemEventHandlers['before' + func] || obj.systemEventHandlers['after' + func]) {
       obj['__original' + func] = obj[key];
@@ -1179,5 +1187,11 @@ var Genoverse = Base.extend({
     });
   }
 });
+
+
+Genoverse.on('afterMove afterZoomIn afterZoomOut', function () {
+  $('.static', this.wrapper).css('left', -this.left);
+});
+
 
 window.Genoverse = Genoverse;
