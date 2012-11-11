@@ -525,7 +525,13 @@ Genoverse.Track = Base.extend({
           color = feature.labelColor
           context.fillStyle = color;
         }
-        context.fillText(feature.label, Math.max(feature.position[scale].X + 1, 1), this.labels === 'overlay' ? feature.position[scale].Y :feature.position[scale].Y + this.featureHeight + this.featureSpacing);
+        if (this.labels === 'overlay') {
+          if (context.measureText(feature.label).width < feature.position[scale].width)
+            context.fillText(feature.label, Math.max(feature.position[scale].X + 1, 1), feature.position[scale].Y);
+        } else {
+          context.fillText(feature.label, Math.max(feature.position[scale].X + 1, 1), feature.position[scale].Y + this.featureHeight + this.featureSpacing);
+        }
+        
       }
     }
   },
