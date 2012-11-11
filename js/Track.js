@@ -95,7 +95,7 @@ Genoverse.Track = Base.extend({
         $('<div class="handle"></div>').appendTo(this.label);
       }
       
-      this.minLabelHeight = $('<span class="name">' + this.name + '</span>').appendTo(this.label).outerHeight(true);
+      this.minLabelHeight = $('<span class="name" title="' + this.name + '">' + this.name + '</span>').appendTo(this.label).outerHeight(true);
       this.label.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
     } else {
       this.label.addClass('unsortable');
@@ -340,6 +340,8 @@ Genoverse.Track = Base.extend({
 
 
   makeImage: function (start, end, width, moved, cls) {
+    if (this.disabled) return;
+
     var div  = this.imgContainer.clone().width(width).addClass(cls);
     var prev = $(this.imgContainers).filter('.' + this.browser.scrollStart + ':' + (moved < 0 ? 'first' : 'last'));
 
@@ -617,13 +619,28 @@ Genoverse.Track = Base.extend({
   },
 
 
+  disable: function () {
+    this.hide();
+    $(this.imgContainers).remove();
+    this.reset();    
+    this.disabled = true;
+  },
+
+
+  enable: function () {
+    this.show(); 
+    this.disabled = false;
+
+    this.makeImage(this.browser.start, this.browser.end, this.width, -this.browser.left);
+  },
+
+
+
   message: function (text) {
     this.messageContainer.append(text);
   },
 
-  beforeDraw          : $.noop, // decoration for the track, drawn before the features
   decorateFeatures    : $.noop, // decoration for the features
-  afterDraw           : $.noop, // decoration for the track, drawn after the features
   systemEventHandlers : {}
 
 }, {
