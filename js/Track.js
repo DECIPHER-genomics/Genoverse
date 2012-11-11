@@ -354,7 +354,7 @@ Genoverse.Track = Base.extend({
       scaledStart : start * this.scale
     };
 
-    var bgImage = $('<img class="bg" />').css({ opacity: 0.5 }).width(width).data(data).prependTo(div);
+    var bgImage = $('<img class="bg" />').css({ opacity: 0.8 }).width(width).data(data).prependTo(div);
 
     var image = $('<img class="data" />')
       .width(width)
