@@ -25,6 +25,8 @@ Genoverse.Track.SV = Genoverse.Track.Sequence.DAS.extend({
       variation.width = variation.end - variation.start + 1;
     }
 
+    img.data({ height: this.yOffset + this.featureHeight + this.shadow.blur });
+
     this.scaleFeatures(this.variations, scale);
     this.positionFeatures(this.variations, img);
     this.base(features, img);

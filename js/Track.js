@@ -168,26 +168,15 @@ Genoverse.Track = Base.extend({
   },
 
 
-  checkSize: function () {
-    if (this.threshold && this.browser.length > this.threshold) {
-      this.fullVisibleHeight = 0;
-      return;
-    }
-    
-    var bounds = { x: this.browser.scaledStart, w: this.width, y: 0, h: this.heights.max };
-    var scale  = this.scale;
-    var height = Math.max.apply(
+  checkHeight: function () {
+    this.fullVisibleHeight = Math.max.apply(
       Math, 
       $('img:visible', this.container).map(function(){
         return $(this).outerHeight(true);
       })
     );
 
-    if (!height && this.errorMessage) {
-      height = this.errorMessage.height;
-    }
-    
-    this.fullVisibleHeight = height;
+    this.toggleExpander();
   },
 
 
@@ -214,7 +203,6 @@ Genoverse.Track = Base.extend({
     if (!this.resizable) {
       return;
     }
-    
     var track = this;
     
     // Note: this.fullVisibleHeight - this.bumpSpacing is not actually the correct value to test against, but it's the easiest best guess to obtain.
@@ -223,7 +211,7 @@ Genoverse.Track = Base.extend({
     // The correct value (for a track using the default positionFeatures code) is:
     // this.fullVisibleHeight - ([there are labels in this region] ? (this.separateLabels ? 0 : this.bumpSpacing + 1) + 2 : this.bumpSpacing)
     //                                                                ^ padding on label y-position                     ^ margin on label height
-    if (this.fullVisibleHeight - this.bumpSpacing > this.height) {
+    if (this.fullVisibleHeight > this.container.height()) {
       this.expander = (this.expander || $('<div class="expander static">').width(this.width).appendTo(this.container).on('click', function () {
         track.resize(track.fullVisibleHeight);
       })).css('left', -this.browser.left)[this.height === 0 ? 'hide' : 'show']();
@@ -364,7 +352,7 @@ Genoverse.Track = Base.extend({
       scaledStart : start * this.scale
     };
 
-    var bgImage = $('<img class="bg" />').css({ opacity: 0.9 }).width(width).data(data).prependTo(div);
+    var bgImage = $('<img class="bg" />').css({ opacity: 0.5 }).width(width).data(data).prependTo(div);
 
     var image = $('<img class="data" />')
       .width(width)
@@ -514,7 +502,7 @@ Genoverse.Track = Base.extend({
     this.scaleFeatures(features, scale);
     this.positionFeatures(features, img);
 
-    var canvas  = $('<canvas />').attr({ width: img.data('width'), height: img.data('height') })[0];
+    var canvas  = $('<canvas />').attr({ width: img.data('width'), height: img.data('height') || 1 })[0];
     var context = canvas.getContext('2d');
     context.font = this.font;
     context.textBaseline = 'top';
@@ -648,6 +636,11 @@ Genoverse.Track = Base.extend({
       Genoverse.Track.prototype.systemEventHandlers[this].push(handler);
     });
   }
+});
+
+
+Genoverse.Track.on('afterRender', function () {
+  this.checkHeight();
 });
 
 

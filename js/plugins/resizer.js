@@ -26,11 +26,7 @@ Genoverse.Track.on('afterInit', function () {
 });
 
 Genoverse.Track.on('afterToggleExpander', function () {
-  if (this.resizer) {
-    this.resizer.css('left', -this.browser.left);
-    
-    if (this.expander) {
-      this.resizer[this.expander.filter(':visible').hide().length ? 'addClass' : 'removeClass']('shadow');
-    }
+  if (this.resizer && this.expander) {
+    this.resizer[this.expander.filter(':visible').hide().length ? 'addClass' : 'removeClass']('shadow');
   }
 });

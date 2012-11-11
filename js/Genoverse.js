@@ -294,8 +294,6 @@ var Genoverse = Base.extend({
         this.setHistory();
         this.redraw();
       }
-      
-      this.checkTrackSize();
     }
   },
 
@@ -511,20 +509,22 @@ var Genoverse = Base.extend({
     }
   },
   
-  checkTrackSize: function () {
+  checkHeights: function () {
     if (this.dragging) {
       return;
     }
     
     for (var i = 0; i < this.tracks.length; i++) {
       if (!this.tracks[i].fixedHeight) {
-        this.tracks[i].checkSize();
+        this.tracks[i].checkHeight();
         
-        if (this.tracks[i].autoHeight || this.tracks[i].separateLabels) {
-          this.tracks[i].resize(this.tracks[i][this.tracks[i].autoHeight ? 'fullVisibleHeight' : 'height'], this.tracks[i].labelTop);
-        } else {
-          this.tracks[i].toggleExpander();
-        }
+        // This should be in track!
+        // if (this.tracks[i].autoHeight || this.tracks[i].separateLabels) {
+        //   this.tracks[i].resize(this.tracks[i][this.tracks[i].autoHeight ? 'fullVisibleHeight' : 'height'], this.tracks[i].labelTop);
+        // } else {
+        //   this.tracks[i].toggleExpander();
+        // }
+
       }
     }
   },
@@ -1191,7 +1191,9 @@ var Genoverse = Base.extend({
 
 Genoverse.on('afterMove afterZoomIn afterZoomOut', function () {
   $('.static', this.wrapper).css('left', -this.left);
+  this.checkHeights();
 });
+
 
 
 window.Genoverse = Genoverse;
