@@ -359,6 +359,7 @@ Genoverse.Track = Base.extend({
       start : start, 
       end   : end, 
       width : width, 
+      height: 0, 
       scale : this.scale,
       scaledStart : start * this.scale
     };
