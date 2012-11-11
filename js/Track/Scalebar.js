@@ -6,7 +6,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   color         : '#000000',
   autoHeight    : false,
   unsortable    : true,
-  showLabels    : true,
+  labels        : true,
   bump          : false,
   fixedHeight   : true,
   order         : 0,

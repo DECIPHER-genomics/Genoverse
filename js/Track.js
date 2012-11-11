@@ -436,16 +436,10 @@ Genoverse.Track = Base.extend({
   },
 
   
-  toShowLabels: function (scale) {
-    return this.showLabels;
-  },
-
-
   positionFeatures: function (features, img) {
     var imgScaledStart = img.data('scaledStart');
     var scale  = img.data('scale');
     var height = 0;
-    var showLabels = this.toShowLabels(scale);
 
     for (var i=0; i<features.length; i++) {
       var feature = features[i];
@@ -454,7 +448,7 @@ Genoverse.Track = Base.extend({
       feature.position[scale].Y = feature.position[scale].Y || feature.y || this.featureSpacing;
       feature.position[scale].X = feature.position[scale].start - imgScaledStart;
 
-      if (showLabels && feature.label) {
+      if (this.labels && this.labels !== 'overlay' && feature.label) {
         feature.position[scale].H += this.fontHeight + this.featureSpacing;
         var labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
         if (labelWidth > feature.position[scale].W) feature.position[scale].W = labelWidth;
@@ -526,12 +520,12 @@ Genoverse.Track = Base.extend({
       }
 
       context.fillRect(feature.position[scale].X, feature.position[scale].Y, feature.position[scale].width, feature.position[scale].height);
-      if (this.toShowLabels(scale)) {
+      if (this.labels) {
         if (feature.labelColor && feature.labelColor != color) {
           color = feature.labelColor
           context.fillStyle = color;
         }
-        context.fillText(feature.label, feature.position[scale].X, feature.position[scale].Y + this.featureHeight + this.featureSpacing);
+        context.fillText(feature.label, Math.max(feature.position[scale].X + 1, 1), this.labels === 'overlay' ? feature.position[scale].Y :feature.position[scale].Y + this.featureHeight + this.featureSpacing);
       }
     }
   },
