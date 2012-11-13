@@ -160,7 +160,7 @@ Genoverse.Track = Base.extend({
   click: function (e) {
     var x = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
     var y = e.pageY - $(e.target).offset().top;
-    var feature = this.featurePositions.search({ x: x, y: y, w: 1, h: 1 })[0];
+    var feature = this.featurePositions.search({ x: x, y: (this.bump ? y : 0), w: 1, h: 1 })[0];
     
     if (feature) {
       this.browser.makeMenu(feature, { left: e.pageX, top: e.pageY }, this);
@@ -458,6 +458,8 @@ Genoverse.Track = Base.extend({
 
       if (this.bump && !feature.position[scale].bumped) {
         this.bumpFeature(feature, scale);
+      } else if (!this.bump) {
+        this.featurePositions.insert({x: feature.position[scale].start, y:0, w: feature.position[scale].W, h:1}, feature);
       }
 
       height = Math.max(height, feature.position[scale].Y + feature.position[scale].H);
@@ -531,7 +533,7 @@ Genoverse.Track = Base.extend({
           if (context.measureText(feature.label).width < feature.position[scale].width)
             context.fillText(feature.label, Math.max(feature.position[scale].X + 1, 1), feature.position[scale].Y);
         } else {
-          context.fillText(feature.label, Math.max(feature.position[scale].X + 1, 1), feature.position[scale].Y + this.featureHeight + this.featureSpacing);
+          context.fillText(feature.label, feature.position[scale].X, feature.position[scale].Y + this.featureHeight + this.featureSpacing);
         }
         
       }

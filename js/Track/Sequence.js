@@ -18,10 +18,10 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
   fontColor     : '#FFFFFF',
   source        : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.reference',
   colorMap      : {
-    a : "#FFAA00",
-    t : "#FFDD73",
-    g : "#0772A1",
-    c : "#009999",
+    a : "green",
+    t : "blue",
+    g : "red",
+    c : "orange",
     n : "grey",
     default : "grey"
   },

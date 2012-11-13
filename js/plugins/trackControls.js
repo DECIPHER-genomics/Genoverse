@@ -5,6 +5,16 @@ var defaultControls = [
     action : function () {
       this.hide();
     }
+  },
+  {
+    icon   : '?',
+    name   : 'Information',
+    action : function () {
+      this.browser.makeMenu({
+        title : this.name,
+        ' ' : this.info
+      }).addClass('track_info');
+    }    
   }
 ];
 
