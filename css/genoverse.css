@@ -220,7 +220,8 @@ li.sortHandle {
 }
 
 .menu:not(.trackSelection) table td {
-  width: 50%;
+  /*width: 50%;*/
+  padding: 0 1em 0 0;
 }
 
 .menu .close {
