@@ -12,6 +12,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   order         : 0,
   orderReverse  : 1e5,
   featureStrand : 1,
+  controls      : 'off',
   //inherit       : [ 'Stranded' ],
 
 

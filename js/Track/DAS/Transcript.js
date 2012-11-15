@@ -5,19 +5,13 @@ Genoverse.Track.DAS.Transcript = Genoverse.Track.DAS.extend({
   bump           : true,
   height         : 200,
   source         : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
-  renderer       : 'transcript_label',
   featureHeight  : 10,
-  decorations    : {},
-  separateLabels : true,
   groups         : {},
-
   
-  parseData: function (data, bounds) {
+  parseData: function (data) {
     var track = this;
-    var features = track.base(data, bounds);
+    var features = track.base(data);
     this.groupFeatures(features);
-
-    return this.features.search(bounds);
   },
 
 
@@ -45,19 +39,11 @@ Genoverse.Track.DAS.Transcript = Genoverse.Track.DAS.extend({
 
             if (!group.new) {
               this.redraw       = true;
-              group.bounds      = {};
-              group.bottom      = {};
-              group.labelBottom = {};
               group.new         = true;
             }
 
           } else {
             this.groups[feature.groups[j].id] = $.extend({
-              sort        : i,
-              bounds      : {},
-              visible     : {},
-              bottom      : {},
-              labelBottom : {},
               exons       : [],
               start       : feature.start,
               end         : feature.end,
@@ -76,66 +62,49 @@ Genoverse.Track.DAS.Transcript = Genoverse.Track.DAS.extend({
         if (!group.label) group.label = group.id;
         group.exons.sort(function (a, b) { var s = a.start - b.start; return s ? s : a.width - b.width });
         group.type = 'group';
-        this.features.insert({ x: group.start, w: group.end - group.start, y:0, h:1 }, group.id);
+        this.features.insert({ x: group.start, w: group.end - group.start, y:0, h:1 }, group);
       }
     }
   },
 
 
-  reDraw: function () {
-    var browser = this.browser;
-    //this.reset();
-    //this.dataRegion    = { start: 9e99, end: -9e99 };
-    this.scaleSettings = {};    
-    this.setScale();
+  // reDraw: function () {
+  //   var browser = this.browser;
+  //   //this.reset();
+  //   //this.dataRegion    = { start: 9e99, end: -9e99 };
+  //   this.scaleSettings = {};    
+  //   this.setScale();
     
-    var start   = browser.dataRegion.start;
-    var end     = browser.dataRegion.end;
-    var width   = Math.round((end - start + 1) * this.scale);
-    //var overlay = browser.makeOverlays(width, [ this ]);
+  //   var start   = browser.dataRegion.start;
+  //   var end     = browser.dataRegion.end;
+  //   var width   = Math.round((end - start + 1) * this.scale);
+  //   //var overlay = browser.makeOverlays(width, [ this ]);
     
-    $.when(this.makeImage(start, end, width, -browser.left, browser.scrollStart)).done(function (a) {
-      $(a.target).show()
-      a.img.drawBackground();
-      browser.checkTrackSize();
-    });
-  },
+  //   $.when(this.makeImage(start, end, width, -browser.left, browser.scrollStart)).done(function (a) {
+  //     $(a.target).show()
+  //     a.img.drawBackground();
+  //     browser.checkTrackSize();
+  //   });
+  // },
 
 
-  draw: function (image, features) {
+  draw: function (features, context) {
 
-    if (this.redraw) {
-      this.canvas.attr({ width: image.width, height: this.fullHeight });
-      this.context.textBaseline = 'top';
-      this.beforeDraw(image);
-      this.redraw = false; 
-      this.afterDraw(image);
-      image.container.append(image.images.attr('src', this.canvas[0].toDataURL()));
-      return this.reDraw(); 
-    } 
+    // if (this.redraw) {
+    //   this.canvas.attr({ width: image.width, height: this.fullHeight });
+    //   this.context.textBaseline = 'top';
+    //   this.beforeDraw(image);
+    //   this.redraw = false; 
+    //   this.afterDraw(image);
+    //   image.container.append(image.images.attr('src', this.canvas[0].toDataURL()));
+    //   return this.reDraw(); 
+    // } 
 
     var track = this;
 
     $.when(track.stylesheetRequest).always(function(){
-      features.every(function(element, index, array){
-          array[index] = track.groups[element];
-          array[index].bounds = {};
-          return true;
-      });
-
-      track.positionFeatures(track.scaleFeatures(features), image.scaledStart, image.width);
-
-      track.canvas.attr({ width: image.width, height: track.fullHeight });
-      track.context.textBaseline = 'top';
-      track.beforeDraw(image);
-
-      track.drawFeatures(image, features);
-
-
-      track.afterDraw(image);
-      image.container.append(image.images.attr('src', track.canvas[0].toDataURL()));    
+      track.drawFeatures(features, context);
     });
-
   },
 
 

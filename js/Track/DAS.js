@@ -1,12 +1,13 @@
-Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
+Genoverse.Track.DAS = Genoverse.Track.extend({
 
   // Defualts 
   dataType : 'xml',
 
   init: function () {
     this.base();
-    this.urlTemplate = { segment: '__CHR__:__START__,__END__' }
-    if (!this.url) this.url = this.source + '/features';
+
+    if (!this.url) this.url = this.source + '/features?segment=__CHR__:__START__,__END__';
+
     if (this.display) {
       for (var key in this.display) {
         if (this.display[key] instanceof Array) {
@@ -192,7 +193,7 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
   },
 
 
-  parseData: function (data, bounds) {
+  parseData: function (data) {
     var features = new Array();
 
     $(data).find('FEATURE').each(function (i, FEATURE) {

@@ -1072,6 +1072,9 @@ var Genoverse = Base.extend({
           left : offset.left + (wrapper.outerWidth(true) - menu.outerWidth(true))/2
         }
       );
+      if (track && track.id) {
+        menu.addClass(track.id);
+      }
     });
     
     return menu;
