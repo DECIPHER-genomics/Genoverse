@@ -42,6 +42,11 @@
       .track_info>table tr:not(:first-child) td:first-child {
         width: 0px;
       }
+
+      .menu.ddgenes tr.header:not(:first-child)>th {
+        padding-top: 1em;
+      }
+
     </style>
 
     <script type="text/javascript">
@@ -110,6 +115,37 @@
         'Transcript amplification' : '#02599C',
       };
 
+      var commonCNVType  = {
+        "-1": 'Loss',
+        "0" : 'Complex',
+        "1" : 'Gain',
+      };
+
+      var commonCNVProof = {
+        1 : 'Singleton',
+        2 : 'Doubleton 1%',
+        3 : '1%-5%',
+        4 : '>5%',
+      };
+
+      var squishControl = {
+        icon: 'squish',
+        name: 'squish',
+        action: function () {
+          if (this.squished) {
+            this.featureHeight = 6;
+            this.labels = true;
+            this.reDraw();
+            this.squished = false;
+          } else {
+            this.featureHeight = 1;
+            this.labels = false;
+            this.reDraw();
+            this.squished = true;
+          }
+        }                
+      };
+
       // Genoverse configuration
       var genoverseConfig = {
       
@@ -122,7 +158,8 @@
 
         tracks         : [
           {
-            type : 'Scalebar'
+            type : 'Scalebar',
+            name : 'Chr 5',
           },
 
           // {
@@ -140,26 +177,31 @@
             info      : 'Sequence variant(s) observed in the current patient',
             variations: [
               {
+                chr   : 5,
                 start : 45419000,
                 end   : 45419003,
                 type  : 'InDel',
                 reference_allele: 'atcat',
                 alternate_allele: 'gtag',
-                vep_category : 'In UTR'
+                vep_category : 'In UTR',
+                genotype     : 'Homozygous',
+                variant_type : 'InDel',
+                id_patient   : 262231,
               }
             ],
             variationColor: function (variation) {
               return variationColorMap[variation.vep_category]
             },
-            populateMenu: function (variation) {
+            populateMenu : function (feature) {
               return {
-                "title"      : variation.vep_category,
-                "Ref allele" : variation.reference_allele,
-                "Alt allele" : variation.alternate_allele,
-                "Start"      : variation.start,
-                "End"        : variation.end
+                title    : feature.reference_allele + '/' + feature.alternate_allele,
+                Patient  : '<a href="/patient/'+ feature.id_patient +'">' + feature.id_patient + '</a>',
+                Location : feature.chr + ':' + feature.start + '-' + feature.end,
+                Genotype : feature.genotype,
+                Type     : feature.variant_type,
+                Consequence : feature.vep_category,
               };
-            }
+            },
           }, 
 
           {
@@ -178,7 +220,17 @@
                 data[i].end   = parseFloat(data[i].chr_end);
                 this.insertFeature(data[i]);
               }
-            }
+            },
+            populateMenu : function (feature) {
+              return {
+                title    : feature.reference_allele + '/' + feature.alternate_allele,
+                Patient  : '<a href="/patient/'+ feature.id_patient +'">' + feature.id_patient + '</a>',
+                Location : feature.chr + ':' + feature.start + '-' + feature.end,
+                Genotype : feature.genotype,
+                Type     : feature.variant_type,
+                Consequence : feature.vep_category,
+              };
+            },
           },
 
           {
@@ -195,6 +247,33 @@
                 snps[i].color = dbSNPColorMap[snps[i].legend];
                 this.insertFeature(snps[i]);
               }
+            },
+            populateMenu: function (feature) {
+              var v = (feature.menu.match(/v=(\w+)/))[1];
+
+              // return {
+              //   title: '<a target=_blank href="http://www.ensembl.org/Homo_sapiens/Variation/Summary?v='+ v +'">'+ v +'</a>',
+              //   Consequence: feature.legend,
+              //   Location: this.browser.chr + ':' + feature.start + '-' + feature.end,
+              // };
+
+              var deferred = $.Deferred();
+
+              $.ajax({
+                url      : 'http://beta.ensembl.org'+ feature.menu,
+                dataType : 'json',
+                success  : function (data) {
+                  var menu = { title: '<a target=_blank href="http://www.ensembl.org/Homo_sapiens/Variation/Summary?v='+ v +'">'+ v +'</a>' };
+
+                  for (var i=0; i<data.entries.length; i++) {
+                    var type = data.entries[i].type;
+                    if (type) menu[type] = data.entries[i].link;
+                  }
+
+                  deferred.resolve(menu);
+                }
+              });
+              return deferred;
             }
           },
 
@@ -231,11 +310,12 @@
             },
             populateMenu : function (feature) {
               return {
-                title : feature.id_patient,
-                title : '<a href="/patient/'+ feature.id_patient +'">'+ feature.id_patient +'</a>',
-                Start : feature.chr_start,
-                End   : feature.chr_end,
-                Class : feature.classification_type
+                title    : '('+ this.browser.chr +':'+ feature.start +'-'+ feature.end +')'+ (feature.mean_ratio > 0 ? 'Dup' : 'Del'),
+                Patient  : '<a href="/patient/'+ feature.id_patient +'">'+ feature.id_patient +'</a>',
+                Length   : (feature.end - feature.start + 1) + ' bp',
+                Location : this.browser.chr +':'+ feature.start +'-'+ feature.end,
+                'Mean ratio' : feature.mean_ratio,
+                Inheritance  : feature.classification_type,
               };
             }
           },
@@ -267,32 +347,15 @@
             },
             populateMenu : function (feature) {
               return {
-                title : feature.id_patient,
-                title : '<a href="/patient/'+ feature.id_patient +'">'+ feature.id_patient +'</a>',
-                Start : feature.chr_start,
-                End   : feature.chr_end,
-                Class : feature.classification_type
+                title    : '('+ this.browser.chr +':'+ feature.start +'-'+ feature.end +')'+ (feature.mean_ratio > 0 ? 'Dup' : 'Del'),
+                Patient  : '<a href="/patient/'+ feature.id_patient +'">'+ feature.id_patient +'</a>',
+                Length   : (feature.end - feature.start + 1) + ' bp',
+                Location : this.browser.chr +':'+ feature.start +'-'+ feature.end,
+                'Mean ratio' : feature.mean_ratio,
+                Inheritance  : feature.classification_type,
               };
             },
-            controls: [
-              {
-                icon: 'squish',
-                name: 'squish',
-                action: function () {
-                  if (this.squished) {
-                    this.featureHeight = 6;
-                    this.labels = true;
-                    this.reDraw();
-                    this.squished = false;
-                  } else {
-                    this.featureHeight = 1;
-                    this.labels = false;
-                    this.reDraw();
-                    this.squished = true;
-                  }
-                }                
-              }
-            ],
+            controls: [ squishControl ],
           },
 
           {
@@ -303,7 +366,7 @@
             featureSpacing : 2,
             bump           : true,
             resizable      : true,
-            info          : 'Common copy-number variants observed in the general population',
+            info           : 'Common copy-number variants observed in the general population<br /><a target=_blank href="https://decipher.sanger.ac.uk/pdfs/CNV_Consensus_Track.pdf">What is the CNV Consensus Track</a>',
             colors         : { 
               1: {
                 "-1" : "#FFD6D6",
@@ -335,20 +398,30 @@
                 cnv.end   = parseFloat(cnv.chr_end);
                 this.insertFeature(cnv);
               }
+            },
+            populateMenu : function (feature) {
+              return {
+                title   : 'Consensus CNV',
+                Type    : commonCNVType[feature.type],
+                Proof   : commonCNVProof[feature.proof],
+                Location: this.browser.chr +':'+ feature.start +'-'+ feature.end,
+                Length  : (feature.end - feature.start + 1) + ' bp',
+              };
             }
           },
 
           {
-            name          : 'Genes (HI)',
-            url           : 'https://decipher.sandbox.sanger.ac.uk/gene;json?region=__CHR__:__START__-__END__',
-            height        : 100,
-            featureHeight : 6,
-            featureSpacing: 2,
-            bump          : true,
-            labels        : true,
-            resizable     : true,
-            info          : 'Genes, coloured by haplo-insufficiency index (HI)',
-            parseData     : function (data) {
+            name           : 'Genes (HI)',
+            url            : 'https://decipher.sandbox.sanger.ac.uk/gene;json?region=__CHR__:__START__-__END__',
+            height         : 100,
+            featureHeight  : 6,
+            featureSpacing : 2,
+            bump           : true,
+            labels         : true,
+            resizable      : true,
+            info           : 'Genes, coloured by haplo-insufficiency index (HI)',
+            controls       : [ squishControl ],
+            parseData      : function (data) {
               var i = data.length;
               while (i--) {
                 data[i].id         = data[i].name;
@@ -360,6 +433,19 @@
                 this.insertFeature(data[i]);
               }
             },
+            populateMenu : function (gene) {
+              return {
+                title : '<a target=_blank href="http://www.genenames.org/data/hgnc_data.php?match='+ gene.name+ '">' + gene.name + '</a>',
+                Name  : gene.description,
+                Synonyms : gene.synonyms,
+                Location : gene.chr + ':' + gene.start + '-' + gene.end,
+                OMIM     : gene.id_omim ? '<a target=_blank href="http://omim.org/'+ gene.id_omim +'">'+ gene.id_omim +'</a>' : '-',
+                Morbid   : gene.id_morbid ? '<a target=_blank href="http://omim.org/'+ gene.id_morbid +'">'+ gene.id_morbid +'</a>' : '-',
+                'UCSC ID': gene.id_ucsc ? '<a target=_blank href="http://genome.cse.ucsc.edu/cgi-bin/hgGene?hgg_gene='+ gene.id_ucsc +'">'+ gene.id_ucsc +'</a>' : '-',
+                Ensembl  : gene.id_ensembl ? '<a target=_blank href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?g='+ gene.id_ensembl +'">'+ gene.id_ensembl +'</a>' : '-',
+                Protein  : gene.id_uniprot ? '<a target=_blank href="http://www.uniprot.org/uniprot/'+ gene.id_uniprot +'">'+ gene.id_uniprot +'</a>' : '-',
+              };
+            }            
           },
 
           {
@@ -388,16 +474,17 @@
             },
             populateMenu : function (feature) {
               return {
-                title : feature.id_patient,
-                title : '<a href="/syndrome/'+ feature.id_syndrome +'">'+ feature.id_syndrome +'</a>',
-                Start : feature.chr_start,
-                End   : feature.chr_end
+                title : feature.label,
+                Location : feature.chr + ':' + feature.start + '-' + feature.end,
+                Length   : (feature.end - feature.start + 1) + ' bp',
+                'Copy Number' : feature.copy_number,
               };
             }
           },
 
           {
             name          : 'Pathogenic:<br />DD Genes',
+            id            : 'ddgenes',
             url           : 'https://decipher.sandbox.sanger.ac.uk/gene;json?region=__CHR__:__START__-__END__&filter=ddgenes',
             height        : 50,
             featureHeight : 6,
@@ -409,7 +496,7 @@
             bump          : true,
             labels        : true,
             resizable     : true,
-            info          : 'Genes identified as being implicated in developmental disorders (curated by the DDD project)',
+            info          : 'Genes identified as being implicated in developmental disorders (curated by the DDD project)<br / ><a target=_blank href="https://decipher.sanger.ac.uk/ddd/ddd_genes">Development Disorder Genotype - Phenotype Database (DDG2P)</a>',
             background    : '#FFF9F0',
             parseData     : function (data) {
               var i = data.length;
@@ -424,14 +511,32 @@
               }
             },
             populateMenu : function (gene) {
+
+              var menu = [{
+                title       : 'Developmental Disorder Gene',
+                'Gene name' : '<a target=_blank href="http://www.genenames.org/data/hgnc_data.php?match='+ gene.name+ '">' + gene.name + '</a>',
+              }];
+
               var deferred = $.Deferred();
+
               $.ajax({
                 url      : 'https://decipher.sandbox.sanger.ac.uk/gene/'+ gene.name +';ddgene_info',
                 dataType : 'json',
                 success  : function (data) {
-                  deferred.resolve(data);
+                  for (var i=0; i<data.length; i++) {
+                    var disease = {
+                      title : data[i].disease,
+                      Mode  : data[i].mode,
+                      Consequence : data[i].consequence,
+                      Category : data[i].category,
+                    };
+                    menu.push(disease);
+                  }
+
+                  deferred.resolve(menu);
                 }
               });
+
               return deferred;
             }
           },
@@ -462,9 +567,8 @@
             },
             populateMenu : function (gene) {
               return {
-                Start: gene.start,
-                Stop : gene.stop,
-                URL  : gene.lsdb_url
+                title : gene.name,
+                LSDB  : '<a target=_blank href="'+ gene.lsdb_url +'">' + gene.lsdb_url + '</a>',
               };
             }
           },
@@ -486,6 +590,14 @@
                 data[i].end        = parseFloat(data[i].chr_end);
                 this.insertFeature(data[i]);
               }
+            },
+            populateMenu : function (feature) {
+              return {
+                title     : feature.feature,
+                'HGMD ID' : '<a target=_blank href="http://www.hgmd.cf.ac.uk/ac/gene.php?gene='+ feature.gene_name +'&accession='+ feature.id_hgmd +'">'+ feature.id_hgmd + '</a>',
+                Location  : feature.chr + ':' + feature.start + '-' + feature.end,
+                Gene      : feature.gene_name,
+              };
             },
           },
 
