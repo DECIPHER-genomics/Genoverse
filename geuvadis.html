@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+
+
+    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
+    <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
+    <link rel="stylesheet" type="text/css" href="css/trackControls.css" />
+    <link rel="stylesheet" type="text/css" href="css/resizer.css" />
+    <!--link rel="stylesheet" type="text/css" href="css/hoverLabels.css" /-->
+    
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/lib/lazyload.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+
+    <script type="text/javascript" src="js/lib/Base.js"></script>
+    <script type="text/javascript" src="js/lib/rtree.js"></script>
+    <script type="text/javascript" src="js/lib/FRegion.js"></script>
+    
+    <script type="text/javascript" src="js/Genoverse.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script> 
+
+    <script type="text/javascript" src="js/Track/Scalebar.js"></script>
+    <script type="text/javascript" src="js/Track/Sequence.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Sequence.js"></script>
+
+    <script type="text/javascript" src="js/Track/DAS.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
+
+    <script type="text/javascript" src="js/Track/SV.js"></script>
+    
+    <script type="text/javascript" src="js/plugins/controlPanel.js"></script>
+    <script type="text/javascript" src="js/plugins/trackControls.js"></script>
+    <script type="text/javascript" src="js/plugins/resizer.js"></script>
+    <!--script type="text/javascript" src="js/plugins/hoverLabels.js"></script-->
+
+    <style>
+      ul.label_container {
+        width: 100px;
+      }
+
+      .track_info>table tr:not(:first-child) td:first-child {
+        width: 0px;
+      }
+    </style>
+
+    <script type="text/javascript">
+
+      // Genoverse configuration
+      var genoverseConfig = {
+      
+        container      : '#genoverse',
+        width          : 825,
+        chromosomeSize : 59373566, // chromosome Y, human
+        chr            : 'Y',
+        start          : 14700000,
+        end            : 15000000,
+
+        tracks         : [
+          {
+            type : 'Scalebar',
+            name : 'Chr Y',
+          },
+
+          {
+            type : 'DAS.Transcript',
+          },
+
+          {
+            name : 'Geuvadis',
+            url  : 'http://wwwdev.ebi.ac.uk/Tools/geuvadis-das/range?r=__CHR__:__START__-__END__',
+            height : 300,
+            dataType : 'text',
+            parseData : function (data) {
+              var lines = data.split("\r\n");
+              for (var i=0; i<lines.length-2; i+=3) {
+
+                var values = lines[i].split(' ');
+                var feature = {
+                  start : values[1]*1,
+                  end   : values[2]*1,
+                  y     : Math.log(values[3]<0.00001 ? 0.00001 : values[3]),
+                  color : 'rgba(250,0,0,0.5)',
+                };
+                this.insertFeature(feature);
+
+                values = lines[i+1].split(' ');
+                feature = {
+                  start : values[1]*1,
+                  end   : values[2]*1,
+                  y     : Math.log(values[3]<0.00001 ? 0.00001 : values[3]),
+                  color : 'rgba(0,250,0,0.5)',
+                };
+                this.insertFeature(feature);
+
+                values = lines[i+2].split(' ');
+                feature = {
+                  start : values[1]*1,
+                  end   : values[2]*1,
+                  y     : Math.log(values[3]<0.00001 ? 0.00001 : values[3]),
+                  color : 'rgba(0,0,250,0.5)',
+                };
+                this.insertFeature(feature);
+
+              }
+            },
+            drawFeature: function (feature, context, scale) {
+              context.fillStyle = feature.color;
+              context.fillRect(feature.x, this.height-10 , feature.width,  -5*(feature.y+10));              
+            }
+          }
+
+        ]
+      };
+
+      $(document).ready(function(){ window.genoverse = new Genoverse(genoverseConfig) });
+
+    </script>
+
+
+  </head>
+  <body>
+
+  <div id="genoverse"></div>
+ 
+  </body>
+</html>
