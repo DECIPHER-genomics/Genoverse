@@ -292,11 +292,6 @@ Genoverse.Track = Base.extend({
     for (var i=0; i<data.length; i++) {
       var feature = data[i];
 
-      // Make sure we have a unique ID, this method is not efficient, 
-      // so better suppy your own id
-      if (!feature.id) {
-        feature.id = JSON.stringify(feature).hashCode();
-      }
       feature.width = feature.end - feature.start + 1;
       if (feature.width > 0) {
         this.insertFeature(feature);
@@ -306,7 +301,16 @@ Genoverse.Track = Base.extend({
 
 
   insertFeature: function (feature) {
-    if (!this.featuresById[feature.id]) {
+    // Make sure we have a unique ID, this method is not efficient, 
+    // so better suppy your own id
+    if (!feature.id) {
+      feature.id = JSON.stringify(feature).hashCode();
+    }
+    if (!feature.width) {
+      feature.width = feature.end - feature.start + 1;
+    }
+
+    if (!this.featuresById[feature.id] && feature.width > 0) {
       if (!feature.width) feature.width = feature.end - feature.start + 1;
 
       // RTree stuff
@@ -349,7 +353,7 @@ Genoverse.Track = Base.extend({
       start : start, 
       end   : end, 
       width : width, 
-      height: 0, 
+      height: this.height || 0, 
       scale : this.scale,
       scaledStart : start * this.scale
     };
@@ -444,29 +448,32 @@ Genoverse.Track = Base.extend({
     var height = 0;
 
     for (var i=0; i<features.length; i++) {
-      var feature = features[i];
-      feature.position[scale].H = feature.position[scale].H || feature.position[scale].height + this.featureSpacing;
-      feature.position[scale].W = feature.position[scale].W || feature.position[scale].width + this.featureSpacing;
-      feature.position[scale].Y = feature.position[scale].Y || feature.y || this.featureSpacing;
-      feature.position[scale].X = feature.position[scale].start - imgScaledStart;
-
-      if (this.labels && this.labels !== 'overlay' && feature.label) {
-        feature.position[scale].H += this.fontHeight + this.featureSpacing;
-        var labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
-        if (labelWidth > feature.position[scale].W) feature.position[scale].W = labelWidth;
-      }
-
-      if (this.bump && !feature.position[scale].bumped) {
-        this.bumpFeature(feature, scale);
-      } else if (!this.bump) {
-        this.featurePositions.insert({x: feature.position[scale].start, y:0, w: feature.position[scale].W, h:1}, feature);
-      }
-
-      height = Math.max(height, feature.position[scale].Y + feature.position[scale].H);
+      this.positionFeature(features[i], scale, -imgScaledStart);
+      height = Math.max(height, features[i].position[scale].Y + features[i].position[scale].H);
     }
 
     img.data({height : Math.max(height, img.data('height'))});
     return height;
+  },
+
+
+  positionFeature: function (feature, scale, xOffset) {
+    feature.position[scale].H = feature.position[scale].H || feature.position[scale].height + this.featureSpacing;
+    feature.position[scale].W = feature.position[scale].W || feature.position[scale].width + this.featureSpacing;
+    feature.position[scale].Y = feature.position[scale].Y || feature.y || this.featureSpacing;
+    feature.position[scale].X = feature.position[scale].start + xOffset;
+
+    if (this.labels && this.labels !== 'overlay' && feature.label) {
+      feature.position[scale].H += this.fontHeight + this.featureSpacing;
+      var labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
+      if (labelWidth > feature.position[scale].W) feature.position[scale].W = labelWidth;
+    }
+
+    if (this.bump && !feature.position[scale].bumped) {
+      this.bumpFeature(feature, scale);
+    } else if (!this.bump) {
+      this.featurePositions.insert({x: feature.position[scale].start, y:0, w: feature.position[scale].W, h:1}, feature);
+    }
   },
 
 
@@ -513,29 +520,33 @@ Genoverse.Track = Base.extend({
 
 
   draw: function(features, context, scale) {
-    var color = this.color;
-    context.fillStyle = color;
-
     for (var i=0; i<features.length; i++) {
       var feature = features[i];
-      if (feature.color && feature.color != color) {
-        color = feature.color;
-        context.fillStyle = color;
-      }
+      this.drawFeature(
+        $.extend({}, feature, {
+          x      : feature.position[scale].X,
+          y      : feature.position[scale].Y,
+          width  : feature.position[scale].width,
+          height : feature.position[scale].height
+        }), 
+        context,
+        scale
+      );
+    }
+  },
 
-      context.fillRect(feature.position[scale].X, feature.position[scale].Y, feature.position[scale].width, feature.position[scale].height);
-      if (this.labels) {
-        if (feature.labelColor && feature.labelColor != color) {
-          color = feature.labelColor
-          context.fillStyle = color;
-        }
-        if (this.labels === 'overlay') {
-          if (context.measureText(feature.label).width < feature.position[scale].width)
-            context.fillText(feature.label, Math.max(feature.position[scale].X + 1, 1), feature.position[scale].Y);
-        } else {
-          context.fillText(feature.label, feature.position[scale].X, feature.position[scale].Y + this.featureHeight + this.featureSpacing);
-        }
-        
+
+  drawFeature: function(feature, context, scale) {
+    context.fillStyle = feature.color || this.color;
+    context.fillRect(feature.x, feature.y, feature.width, feature.height);
+
+    if (this.labels) {
+      context.fillStyle = feature.labelColor || feature.color || this.color;
+      if (this.labels === 'overlay') {
+        if (context.measureText(feature.label).width < feature.width)
+          context.fillText(feature.label, feature.x, feature.y);
+      } else {
+        context.fillText(feature.label, feature.x, feature.y + feature.height);
       }
     }
   },
