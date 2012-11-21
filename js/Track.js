@@ -128,7 +128,7 @@ Genoverse.Track = Base.extend({
 
   init: function () {
     this.features = new RTree();
-    
+    this.featuresById  = {};
     this.dataRegion    = { start: 9e99, end: -9e99 };
     this.scaleSettings = {};
   },

@@ -1,3 +1,6 @@
+// Make sure we have local $ (this is for combined script in a function)
+var $ = jQuery;
+
 var Genoverse = Base.extend({
 
   // Defaults
@@ -977,7 +980,7 @@ var Genoverse = Base.extend({
           this.makeTrackImages(newTracks);
         }
         
-        this.checkTrackSize();
+        this.checkHeights();
         
         images.show();
         images = null;
@@ -1197,6 +1200,7 @@ Genoverse.on('afterMove afterZoomIn afterZoomOut', function () {
   this.checkHeights();
 });
 
-
-
 window.Genoverse = Genoverse;
+
+Genoverse.prototype.origin = $('script:last').attr('src').split("/").slice(0, -2).join("/") || '.';
+LazyLoad.css(Genoverse.prototype.origin + '/css/genoverse.css');
