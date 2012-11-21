@@ -179,9 +179,14 @@ var Genoverse = Base.extend({
         
         return false;
       },
-      mousewheel: function (e, delta) {
+
+      mousewheel: function (e, delta, deltaX, deltaY) {
         if (browser.wheelAction === 'zoom') {
           return browser.mousewheelZoom(e, delta);
+        }
+
+        if(deltaY === 0 && deltaX !== 0) {
+          browser.move(null, deltaX * 10);
         }
       }
     }, '.image_container, .overlay, .selector, .track_message');
