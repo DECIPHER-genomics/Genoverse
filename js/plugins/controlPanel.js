@@ -21,10 +21,15 @@ Genoverse.on('beforeInit', function () {
     <div class="button_set">\
     <button class="trackSelection" style="width: 100%">...</button>\
     </div>\
-    <div class="button_set">\
-    <button class="share" style="width: 100%">share</button>\
-    </div>\
   ');
+
+  if (browser.enableSharing) {
+      $('td.genoverse_panel_right').append('\
+        <div class="button_set">\
+        <button class="share" style="width: 100%">share</button>\
+        </div>\
+      ');
+  }
 
   browser.container = $('td.canvas_container');
 
@@ -116,16 +121,19 @@ Genoverse.on('beforeInit', function () {
     }
   });
 
-  $(".genoverse_panel button.share").click(function(){
-    var shareMenu = {
-        title  : 'Link:',
-        ' ' : window.location.href.split('?')[0] +
-            "?chr=" + browser.chr + "&start=" + browser.start + "&end=" + browser.end
-    };
+  if (browser.enableSharing) {
+    $(".genoverse_panel button.share").click(function(){
+      var link = window.location.href.split('?')[0] +
+                    "?chr=" + browser.chr + "&start=" + browser.start + "&end=" + browser.end;
 
-    var menu = browser.makeMenu(shareMenu);
-    menu.addClass('track_info');
-  });
+      var shareMenu = {
+          title  : 'Link:',
+          ' ' : "<a style='color: #FFFFFF' href="+link+">" + link + "</a>"
+      };
 
+      var menu = browser.makeMenu(shareMenu);
+      menu.addClass('track_info');
+    });
+  }
 
 });

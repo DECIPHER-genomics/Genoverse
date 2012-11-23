@@ -22,7 +22,8 @@ var Genoverse = Base.extend({
     sortHandle     : '#CFD4E7'
   },
   defaultCoordSpan : 5000,
-  
+  enableSharing    : false,
+
   constructor: function (config) {
     if (!this.supported()) {
       this.die('Your browser does not support this functionality');
