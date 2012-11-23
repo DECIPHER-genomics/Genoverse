@@ -21,6 +21,7 @@ var Genoverse = Base.extend({
     minorGuideLine : '#E5E5E5',
     sortHandle     : '#CFD4E7'
   },
+  defaultCoordSpan : 5000,
   
   constructor: function (config) {
     if (!this.supported()) {
@@ -155,7 +156,10 @@ var Genoverse = Base.extend({
     ').appendTo('body');
     
     this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('i o').appendTo('body');
-    
+
+    // fix the end
+    this.end = this.makeValidEnd(this.start, this.end, this.defaultCoordSpan);
+
     var coords = this.chr && this.start && this.end ? { chr: this.chr, start: this.start, end: this.end } : this.getCoords();
     
     this.chr = coords.chr;
@@ -165,6 +169,10 @@ var Genoverse = Base.extend({
     this.setTracks();
     this.makeImage();
     this.addUserEventHandlers();
+  },
+
+  makeValidEnd: function (start, end) {
+      return (end > start ? end : start + 5000);
   },
 
   addUserEventHandlers: function () {
@@ -181,12 +189,12 @@ var Genoverse = Base.extend({
       },
 
       mousewheel: function (e, delta, deltaX, deltaY) {
-        if (browser.wheelAction === 'zoom') {
-          return browser.mousewheelZoom(e, delta);
-        }
-
         if(deltaY === 0 && deltaX !== 0) {
-          browser.move(null, deltaX * 10);
+          browser.move(null, -deltaX * 10);
+        } else {
+            if (browser.wheelAction === 'zoom') {
+              return browser.mousewheelZoom(e, delta);
+            }
         }
       }
     }, '.image_container, .overlay, .selector, .track_message');
