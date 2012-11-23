@@ -1654,7 +1654,7 @@ Genoverse.Track = Base.extend({
     return this.urlParams.renderer;
   },
   
-  parseFeatures: function (data, bounds) {
+  parseData: function (data, bounds) {
     var i = data.features.length;
     
     while (i--) {
@@ -1960,7 +1960,7 @@ Genoverse.Track = Base.extend({
           this.dataRegion.start = Math.min(image.start, this.dataRegion.start);
           this.dataRegion.end   = Math.max(image.end,   this.dataRegion.end);
           try {
-            this.draw(image, this.parseFeatures(data, bounds));
+            this.draw(image, this.parseData(data, bounds));
           } catch (e) {
             this.showError(image, deferred, e + ' ' + e.fileName + ':' + e.lineNumber);
           }
@@ -2769,7 +2769,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       }
     }
     
-    return this.parseFeatures({ features: features });
+    return this.parseData({ features: features });
   },
   
   positionFeatures: function (features, startOffset, imageWidth) {
@@ -3355,7 +3355,7 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
   },
 
 
-  parseFeatures: function (data, bounds) {
+  parseData: function (data, bounds) {
     var features = new Array();
 
     $(data).find('FEATURE').each(function (i, FEATURE) {
@@ -4244,7 +4244,7 @@ Genoverse.Track.DAS.Band = Genoverse.Track.DAS.extend({
   },
 
   
-  parseFeatures: function (data, bounds) {
+  parseData: function (data, bounds) {
     var features = this.base(data, bounds);
     var i = features.length;
     
@@ -4295,7 +4295,7 @@ Genoverse.Track.DAS.Transcript = Genoverse.Track.DAS.extend({
   groups         : {},
 
   
-  parseFeatures: function (data, bounds) {
+  parseData: function (data, bounds) {
     var track = this;
     var features = track.base(data, bounds);
     this.groupFeatures(features);
@@ -4570,7 +4570,7 @@ Genoverse.Track.DAS.Sequence = Genoverse.Track.extend({
   },
 
 
-  parseFeatures: function (data, bounds) {
+  parseData: function (data, bounds) {
     var track = this;
     var features = new Array();
     //debugger;
@@ -4929,6 +4929,7 @@ Genoverse.Track.DAS.Sequence.GC = Genoverse.Track.DAS.Sequence.extend({
 });
 
 
+// TODO: move this to Genoverse.js
 // Last script tag should always be this script
 var thisScriptTag = $('script:last');
 var config = thisScriptTag.text();

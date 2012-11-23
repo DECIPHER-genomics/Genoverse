@@ -1,8 +1,7 @@
-Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
+Genoverse.Track.SV = Genoverse.Track.Sequence.DAS.extend({
 
   // defaults
   complementary : false,
-  yOffset       : 10,
   height        : 100,
   distance      : 0.2,
   yOffset       : 35,
@@ -17,97 +16,86 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
 
   // I guess getData vould be different to get both sequence and variation
 
-  drawFeatures: function (image, features) {
-    this.base(image, features);
-    // TODO: overlapping variations only
-    this.drawVariations(image, this.variations);
+  render: function (features, img) {
+    var scale = img.data('scale');
+    // tmp fix
+    for (var i = 0; i < this.variations.length; i++) {
+      var variation = this.variations[i];
+      variation.sequence = variation.alternate_allele;
+      variation.width = variation.end - variation.start + 1;
+    }
+
+    img.data({ height: this.yOffset + this.featureHeight + this.shadow.blur });
+
+    this.scaleFeatures(this.variations, scale);
+    this.positionFeatures(this.variations, img);
+    this.base(features, img);
   },
 
 
-  drawVariations: function (image, variations) {
+  draw: function (features, context, scale) {
+    this.base(features, context, scale);
+
+    // TODO: overlapping variations only
+    this.drawVariations(this.variations, context, scale);
+  },
+
+
+  drawVariations: function (variations, context, scale) {
     for (var i = 0; i < variations.length; i++) {
       var variation = variations[i];
-      variation.scaledStart = variation.start * this.scale - image.scaledStart;
-      variation.scaledWidth = (variation.end - variation.start) * this.scale; 
+      var position  = variation.position[scale];
 
-      this['draw' + variations[i].type].call(this, image, variation);
+      var referenceScaledWidth = scale * variation.reference_allele.length;
+      var alternateScaledWidth = scale * variation.alternate_allele.length;
+      var halfDelta = (referenceScaledWidth - alternateScaledWidth)/2;
+
+      position.X += halfDelta;
+      position.Y = this.yOffset - (1 + this.distance)*this.featureHeight;
+
+      var referenceScaledWidth = variation.reference_allele.length * this.scale; 
+      var alternateScaledWidth = variation.alternate_allele.length * this.scale; 
+
+      context.strokeStyle = this.variationColor(variation);
+      this.applyShadow(context);
+
+      context.beginPath();
+      context.moveTo(position.X, position.Y);
+      context.lineTo(position.X + position.width, position.Y);
+      context.lineTo(position.X + position.width, position.Y + this.featureHeight);
+
+      context.lineTo(position.X + position.width + halfDelta, this.yOffset);
+      context.lineTo(position.X + position.width + halfDelta, this.yOffset + this.featureHeight);
+      context.lineTo(position.X - halfDelta, this.yOffset + this.featureHeight);
+      context.lineTo(position.X - halfDelta, this.yOffset);
+
+      context.lineTo(position.X, position.Y + this.featureHeight);
+      context.lineTo(position.X, position.Y);
+      context.closePath();
+
+      context.stroke();
+      this.repealShadow(context);
+
+      context.fillStyle   = this.variationColor(variation);
+      context.globalAlpha = 0.5;
+      context.fill();
+      context.globalAlpha = 1;
+
+      this.drawSequence(
+        variation,
+        context,
+        scale
+      );
+
     }    
   },
 
-
-  drawDeletion: function (image, variation) {
-    var featureHeight = this.complementary ? this.featureHeight * 2 : this.featureHeight;
-
-    this.applyShadow();
-    this.context.lineWidth = 3;
-    this.context.strokeStyle = 'red';
-    this.context.strokeRect(variation.scaledStart, this.yOffset, variation.scaledWidth, featureHeight);
-    this.repealShadow();
-
-    this.context.fillStyle = 'rgba(50,0,0,0.7)';
-    this.context.fillRect(variation.scaledStart, this.yOffset, variation.scaledWidth, featureHeight);
-  },
-
-
-  drawInDel: function (image, variation) {
-    var featuresHeight = this.complementary ? this.featureHeight * 2 : this.featureHeight;
-    var referenceScaledWidth = variation.reference_allele.length * this.scale; 
-    var alternateScaledWidth = variation.alternate_allele.length * this.scale; 
-
-    this.context.strokeStyle = this.variationColor(variation);
-
-    this.applyShadow();
-    this.context.beginPath();
-    this.context.moveTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - (1 + this.distance)*this.featureHeight);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - (1 + this.distance)*this.featureHeight);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth + alternateScaledWidth)/2, this.yOffset - this.distance*this.featureHeight);
-    this.context.lineTo(variation.scaledStart + referenceScaledWidth, this.yOffset);
-
-    if (this.complementary) {
-      this.context.lineTo(variation.scaledStart + referenceScaledWidth, this.yOffset + 2*this.featureHeight);
-      this.context.lineTo(variation.scaledStart, this.yOffset + 2*this.featureHeight);
-    } else {
-      this.context.lineTo(variation.scaledStart + referenceScaledWidth, this.yOffset + this.featureHeight);
-      this.context.lineTo(variation.scaledStart, this.yOffset + this.featureHeight);
-    }
-
-    this.context.lineTo(variation.scaledStart, this.yOffset);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - this.distance*this.featureHeight);
-    this.context.lineTo(variation.scaledStart + (referenceScaledWidth - alternateScaledWidth)/2, this.yOffset - (1 + this.distance)*this.featureHeight);
-    this.context.closePath();
-
-    this.context.stroke();
-    this.repealShadow();
-
-    this.context.fillStyle   = this.variationColor(variation);
-    this.context.globalAlpha = 0.7;
-    this.context.fill();
-    this.context.globalAlpha = 1;
-
-
-    this.drawSequence(
-      image, 
-      { start: variation.start, end: variation.end, sequence: variation.alternate_allele.toLowerCase() }, 
-      this.yOffset - (1 + this.distance)*this.featureHeight, 
-      (referenceScaledWidth - alternateScaledWidth)/2,
-      false
-    );
-
-    // if (this.complementary) {
-    //   var track = this;
-    //   this.drawSequence(
-    //     image, 
-    //     { start: variation.start, end: variation.end, sequence: this.complement(variation.alternate_allele) }, 
-    //     this.yOffset + featureHeight, 
-    //     false
-    //   );
-    // }    
-  },
 
 
   variationColor: function (variation) {
     return '#1DD300';
   },
+
 
   click: function (e) {
     var x = (e.pageX - this.container.parent().offset().left)/this.scale + this.browser.start;
@@ -131,17 +119,18 @@ Genoverse.Track.SV = Genoverse.Track.DAS.Sequence.extend({
   },
 
 
-  applyShadow: function () {
+  applyShadow: function (context) {
     if (this.shadow) {
-      this.context.shadowOffsetX = this.shadow.offsetX;
-      this.context.shadowOffsetY = this.shadow.offsetY;
-      this.context.shadowBlur    = this.shadow.blur;
-      this.context.shadowColor   = this.shadow.color;
+      context.shadowOffsetX = this.shadow.offsetX;
+      context.shadowOffsetY = this.shadow.offsetY;
+      context.shadowBlur    = this.shadow.blur;
+      context.shadowColor   = this.shadow.color;
     }
   },
 
-  repealShadow: function () {
-    this.context.shadowBlur = 0;
+
+  repealShadow: function (context) {
+    context.shadowBlur = 0;
   },
 
 });

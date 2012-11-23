@@ -55,6 +55,21 @@ ul.label_container {
   width: 0;
 }
 
+.track_message {
+  display: block;
+  position: absolute;
+  color: black;
+  left: 0;
+  top: 0;
+  color: red;
+  font-family: Verdana;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 5px;
+  width: 200px;
+  z-index: 5;
+}
+
 .canvas_container .image_container {
   height: 100%;
   overflow: hidden;
@@ -64,13 +79,14 @@ ul.label_container {
 }
 
 .canvas_container .image_container img {
-  display: none;
+  /*display: none;*/
   position: absolute;
 }
 
 .canvas_container .image_container img.bg {
   display: block;
   width: 100%;
+  height: 100%;
 }
 
 .canvas_container .image_container img.static {
@@ -204,7 +220,8 @@ li.sortHandle {
 }
 
 .menu:not(.trackSelection) table td {
-  width: 50%;
+  /*width: 50%;*/
+  padding: 0 1em 0 0;
 }
 
 .menu .close {
@@ -263,4 +280,5 @@ li.sortHandle {
   border-radius: 12px;
   box-shadow: 3px 3px 10px #666666;
   color: white;
+  z-index: 11;
 }

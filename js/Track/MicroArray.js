@@ -125,7 +125,7 @@ Genoverse.Track.MicroArray = Genoverse.Track.extend({
     });
   },
 
-  parseFeatures: function (json, bounds) {
+  parseData: function (json, bounds) {
     var features = new Array();
 
     var halfHeight = this.height/2;

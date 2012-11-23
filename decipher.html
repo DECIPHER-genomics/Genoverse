@@ -1,0 +1,691 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+
+
+    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
+    <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
+    <link rel="stylesheet" type="text/css" href="css/trackControls.css" />
+    <link rel="stylesheet" type="text/css" href="css/resizer.css" />
+    <!--link rel="stylesheet" type="text/css" href="css/hoverLabels.css" /-->
+    
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/lib/lazyload.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+
+    <script type="text/javascript" src="js/lib/Base.js"></script>
+    <script type="text/javascript" src="js/lib/rtree.js"></script>
+    <script type="text/javascript" src="js/lib/FRegion.js"></script>
+    
+    <script type="text/javascript" src="js/Genoverse.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script> 
+
+    <script type="text/javascript" src="js/Track/Scalebar.js"></script>
+    <script type="text/javascript" src="js/Track/Sequence.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Sequence.js"></script>
+
+    <script type="text/javascript" src="js/Track/SV.js"></script>
+    
+    <script type="text/javascript" src="js/plugins/controlPanel.js"></script>
+    <script type="text/javascript" src="js/plugins/trackControls.js"></script>
+    <script type="text/javascript" src="js/plugins/resizer.js"></script>
+    <!--script type="text/javascript" src="js/plugins/hoverLabels.js"></script-->
+
+    <style>
+      ul.label_container {
+        width: 100px;
+      }
+
+      .track_info>table tr:not(:first-child) td:first-child {
+        width: 0px;
+      }
+
+      .menu.ddgenes tr.header:not(:first-child)>th {
+        padding-top: 1em;
+      }
+
+    </style>
+
+    <script type="text/javascript">
+
+      var variationColorMap = {
+        'Likely LOF' : '#FF3B0B',
+        'Protein Altering' : '#E8810C',
+        'In mRNA, not protein altering' : 'grey',
+        'In annotated regulatory region' : '#008B00',
+        'ncRNA' : 'black',
+        'In UTR' : '#FF69B4',
+        'Transcript amplification' : '#02599C',
+        'Not in mRNA or annotation regulatory region' : '#48D048'
+      };
+
+      var dbSNPColorMap = {
+         // Likely LOF
+        'Transcript ablation' : '#FF3B0B',
+        'Splice donor'        : '#FF3B0B',
+        'Splice acceptor'     : '#FF3B0B',
+        'Stop gained'         : '#FF3B0B',
+        'Frameshift'          : '#FF3B0B',
+
+         // Protein Altering
+        'Stop lost' : '#E8810C',
+        'Initiator codon' : '#E8810C',
+        'Inframe insertion' : '#E8810C',
+        'Inframe deletion' : '#E8810C',
+        'Missense' : '#E8810C',
+
+         // Transcript amplification
+        'Transcript amplification' : '#02599C',
+
+         // In annotated regulatory region
+        'Splice region' : '#008B00',
+        'Tfbs ablation' : '#008B00',
+        'Regularoty region' : '#008B00',
+        'Regulatory region ablation' : '#008B00',
+        'Regulatory region amplification' : '#008B00',
+        'Feature elongation' : '#008B00',
+        'Feature truncation' : '#008B00',
+
+
+
+         // In mRNA, not protein altering
+        'Partial codon' : 'grey',
+        'Synonymous' : 'grey',
+        'Coding sequence' : 'grey',
+        'NMD transcript'  : 'grey',
+
+         // ncRNA        
+        'Within mature miRNA' : 'black',
+        'Non-coding exon' : 'black',
+        'Within non coding gene' : 'black',
+
+         // Not in mRNA or annotation regulatory region
+        'Intronic'  : '#48D048',
+        'Upstream'  : '#48D048',
+        'Downstream': '#48D048',
+        'Intergenic': '#48D048',
+
+         // In UTR
+        '5 prime UTR' : '#FF69B4',
+        '3 prime UTR' : '#FF69B4',
+
+        'Transcript amplification' : '#02599C',
+      };
+
+      var commonCNVType  = {
+        "-1": 'Loss',
+        "0" : 'Complex',
+        "1" : 'Gain',
+      };
+
+      var commonCNVProof = {
+        1 : 'Singleton',
+        2 : 'Doubleton 1%',
+        3 : '1%-5%',
+        4 : '>5%',
+      };
+
+      var squishControl = {
+        icon: 'squish',
+        name: 'squish',
+        action: function () {
+          if (this.squished) {
+            this.featureHeight = 6;
+            this.labels = true;
+            this.reDraw();
+            this.squished = false;
+          } else {
+            this.featureHeight = 1;
+            this.labels = false;
+            this.reDraw();
+            this.squished = true;
+          }
+        }                
+      };
+
+      // Genoverse configuration
+      var genoverseConfig = {
+      
+        container      : '#genoverse',
+        width          : 825,
+        chromosomeSize : 249250621, // chromosome 1, human
+        chr            : 5,
+        start          : 45414613,
+        end            : 45424613,
+
+        tracks         : [
+          {
+            type : 'Scalebar',
+            name : 'Chr 5',
+          },
+
+          // {
+          //   name      : 'Sequence',
+          //   type      : 'Sequence.DAS',
+          //   // threshold : 1e5,
+          //   height    : 60,
+          // },
+
+          {
+            name      : 'My Patient:<br />SNVs, InDels',
+            threshold : 5000,
+            type      : 'SV',
+            height    : 60,
+            info      : 'Sequence variant(s) observed in the current patient',
+            variations: [
+              {
+                chr   : 5,
+                start : 45419000,
+                end   : 45419003,
+                type  : 'InDel',
+                reference_allele: 'atcat',
+                alternate_allele: 'gtag',
+                vep_category : 'In UTR',
+                genotype     : 'Homozygous',
+                variant_type : 'InDel',
+                id_patient   : 262231,
+              }
+            ],
+            variationColor: function (variation) {
+              return variationColorMap[variation.vep_category]
+            },
+            populateMenu : function (feature) {
+              return {
+                title    : feature.reference_allele + '/' + feature.alternate_allele,
+                Patient  : '<a href="/patient/'+ feature.id_patient +'">' + feature.id_patient + '</a>',
+                Location : feature.chr + ':' + feature.start + '-' + feature.end,
+                Genotype : feature.genotype,
+                Type     : feature.variant_type,
+                Consequence : feature.vep_category,
+              };
+            },
+          }, 
+
+          {
+            name    : "DECIPHER:<br />SNVs, InDels", 
+            url     : "https://decipher.sandbox.sanger.ac.uk/sequence_variant;json?region=__CHR__:__START__-__END__",
+            height  : 50,
+            featureHeight : 30,
+            threshold : 100000,
+            info      : 'Sequence variants observed in other DECIPHER patients',
+            parseData : function (data) {
+              for (var i=0; i<data.length; i++) {
+                data[i].id    = data[i].id_patient + '-' + data[i].chr_start;
+                data[i].label = data[i].id;
+                data[i].color = variationColorMap[data[i].vep_category];
+                data[i].start = parseFloat(data[i].chr_start);
+                data[i].end   = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i]);
+              }
+            },
+            populateMenu : function (feature) {
+              return {
+                title    : feature.reference_allele + '/' + feature.alternate_allele,
+                Patient  : '<a href="/patient/'+ feature.id_patient +'">' + feature.id_patient + '</a>',
+                Location : feature.chr + ':' + feature.start + '-' + feature.end,
+                Genotype : feature.genotype,
+                Type     : feature.variant_type,
+                Consequence : feature.vep_category,
+              };
+            },
+          },
+
+          {
+            name      : "Population:<br />SNVs, InDels", 
+            id        : "dbSNP", 
+            url       : "http://beta.ensembl.org/Homo_sapiens/Genoverse/fetch_features/_variation?r=__CHR__:__START__-__END__&id=variation_feature_variation&db=core",
+            height    : 50,
+            featureHeight : 30,
+            threshold : 1e5,
+            info      : 'All sequence variants observed in the general population (example: dbSNP)',
+            parseData : function (data) {
+              var snps = data.features;
+              for (var i=0; i<snps.length; i++) {
+                snps[i].color = dbSNPColorMap[snps[i].legend];
+                this.insertFeature(snps[i]);
+              }
+            },
+            populateMenu: function (feature) {
+              var v = (feature.menu.match(/v=(\w+)/))[1];
+
+              // return {
+              //   title: '<a target=_blank href="http://www.ensembl.org/Homo_sapiens/Variation/Summary?v='+ v +'">'+ v +'</a>',
+              //   Consequence: feature.legend,
+              //   Location: this.browser.chr + ':' + feature.start + '-' + feature.end,
+              // };
+
+              var deferred = $.Deferred();
+
+              $.ajax({
+                url      : 'http://beta.ensembl.org'+ feature.menu,
+                dataType : 'json',
+                success  : function (data) {
+                  var menu = { title: '<a target=_blank href="http://www.ensembl.org/Homo_sapiens/Variation/Summary?v='+ v +'">'+ v +'</a>' };
+
+                  for (var i=0; i<data.entries.length; i++) {
+                    var type = data.entries[i].type;
+                    if (type) menu[type] = data.entries[i].link;
+                  }
+
+                  deferred.resolve(menu);
+                }
+              });
+              return deferred;
+            }
+          },
+
+          // {
+          //   type:"Legend",
+          //   name:"Seq. variation Legend", 
+          //   setTracks: function () {
+          //     this.tracks = [ this.browser.tracksById['sequence_variation_patients'] ];
+          //   },            
+          // },
+
+          {
+            name          : 'My Patient:<br /> CNVs',
+            url           : 'https://decipher.sandbox.sanger.ac.uk/patient_features;json?region=__CHR__:__START__-__END__&id_patient=262231',
+            height        : 50,
+            featureHeight : 10,
+            labels        : 'overlay',
+            resizable     : true,
+            featureSpacing: 5,
+            xhrFields     : { withCredentials: true },
+            info          : 'Copy-number variant(s) observed in the current patient',
+            parseData : function (data) {
+              var i = data.length;
+
+              while (i--) {
+                data[i].id         = data[i].id_patient;
+                data[i].label      = 'Affected patient';
+                data[i].color      = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
+                data[i].labelColor = 'white';
+                data[i].start      = parseFloat(data[i].chr_start);
+                data[i].end        = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i]);
+              }
+            },
+            populateMenu : function (feature) {
+              return {
+                title    : '('+ this.browser.chr +':'+ feature.start +'-'+ feature.end +')'+ (feature.mean_ratio > 0 ? 'Dup' : 'Del'),
+                Patient  : '<a href="/patient/'+ feature.id_patient +'">'+ feature.id_patient +'</a>',
+                Length   : (feature.end - feature.start + 1) + ' bp',
+                Location : this.browser.chr +':'+ feature.start +'-'+ feature.end,
+                'Mean ratio' : feature.mean_ratio,
+                Inheritance  : feature.classification_type,
+              };
+            }
+          },
+
+          {
+            name          : 'DECIPHER:<br /> CNVs',
+            url           : 'https://decipher.sandbox.sanger.ac.uk/patient_features;json?region=__CHR__:__START__-__END__',
+            height        : 200,
+            //hidden      : true,
+            xhrFields     : { withCredentials: true },
+            featureHeight : 6,
+            featureSpacing: 2,
+            labels        : true,
+            bump          : true,
+            resizable     : true,
+            info          : 'Copy-number variants observed in other DECIPHER patients',
+            parseData     : function (data) {
+              var i = data.length;
+
+              while (i--) {
+                data[i].id         = data[i].id_patient;
+                data[i].label      = data[i].id_patient;
+                data[i].color      = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
+                data[i].labelColor = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
+                data[i].start      = parseFloat(data[i].chr_start);
+                data[i].end        = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i]);
+              }
+            },
+            populateMenu : function (feature) {
+              return {
+                title    : '('+ this.browser.chr +':'+ feature.start +'-'+ feature.end +')'+ (feature.mean_ratio > 0 ? 'Dup' : 'Del'),
+                Patient  : '<a href="/patient/'+ feature.id_patient +'">'+ feature.id_patient +'</a>',
+                Length   : (feature.end - feature.start + 1) + ' bp',
+                Location : this.browser.chr +':'+ feature.start +'-'+ feature.end,
+                'Mean ratio' : feature.mean_ratio,
+                Inheritance  : feature.classification_type,
+              };
+            },
+            controls: [ squishControl ],
+          },
+
+          {
+            name           : 'Population:<br /> CNVs',
+            url            : 'https://decipher.sandbox.sanger.ac.uk/cnv;json?region=__CHR__:__START__-__END__',
+            height         : 50,
+            featureHeight  : 10,
+            featureSpacing : 2,
+            bump           : true,
+            resizable      : true,
+            info           : 'Common copy-number variants observed in the general population<br /><a target=_blank href="https://decipher.sanger.ac.uk/pdfs/CNV_Consensus_Track.pdf">What is the CNV Consensus Track</a>',
+            colors         : { 
+              1: {
+                "-1" : "#FFD6D6",
+                "0"  : "#DEDEDE",
+                "1"  : "#E0E0FF"
+              },
+              2: {
+                "-1" : "#FFA3A3",
+                "0"  : "#ABABAB",
+                "1"  : "#ADADFF"
+              },
+              3: {
+                "-1" : "#FF7070",
+                "0"  : "#919191",
+                "1"  : "#7A7AFF"
+              },
+              4: {
+                "-1" : "#FF3D3D",
+                "0"  : "#5E5E5E",
+                "1"  : "#4747FF"
+              }
+            },
+            parseData : function (data) {
+              var i = data.length;
+              while (i--) {
+                var cnv = data[i];
+                cnv.color = this.colors[cnv.proof][cnv.type];
+                cnv.start = parseFloat(cnv.chr_start);
+                cnv.end   = parseFloat(cnv.chr_end);
+                this.insertFeature(cnv);
+              }
+            },
+            populateMenu : function (feature) {
+              return {
+                title   : 'Consensus CNV',
+                Type    : commonCNVType[feature.type],
+                Proof   : commonCNVProof[feature.proof],
+                Location: this.browser.chr +':'+ feature.start +'-'+ feature.end,
+                Length  : (feature.end - feature.start + 1) + ' bp',
+              };
+            }
+          },
+
+          {
+            name           : 'Genes (HI)',
+            url            : 'https://decipher.sandbox.sanger.ac.uk/gene;json?region=__CHR__:__START__-__END__',
+            height         : 100,
+            featureHeight  : 6,
+            featureSpacing : 2,
+            bump           : true,
+            labels         : true,
+            resizable      : true,
+            info           : 'Genes, coloured by haplo-insufficiency index (HI)',
+            controls       : [ squishControl ],
+            parseData      : function (data) {
+              var i = data.length;
+              while (i--) {
+                data[i].id         = data[i].name;
+                data[i].label      = data[i].name;
+                data[i].color      = "rgb(" + (data[i].hi_rgb || '0,0,0') + ")";
+                data[i].labelColor = "rgb(" + (data[i].hi_rgb || '0,0,0') + ")";
+                data[i].start      = parseFloat(data[i].chr_start);
+                data[i].end        = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i]);
+              }
+            },
+            populateMenu : function (gene) {
+              return {
+                title : '<a target=_blank href="http://www.genenames.org/data/hgnc_data.php?match='+ gene.name+ '">' + gene.name + '</a>',
+                Name  : gene.description,
+                Synonyms : gene.synonyms,
+                Location : gene.chr + ':' + gene.start + '-' + gene.end,
+                OMIM     : gene.id_omim ? '<a target=_blank href="http://omim.org/'+ gene.id_omim +'">'+ gene.id_omim +'</a>' : '-',
+                Morbid   : gene.id_morbid ? '<a target=_blank href="http://omim.org/'+ gene.id_morbid +'">'+ gene.id_morbid +'</a>' : '-',
+                'UCSC ID': gene.id_ucsc ? '<a target=_blank href="http://genome.cse.ucsc.edu/cgi-bin/hgGene?hgg_gene='+ gene.id_ucsc +'">'+ gene.id_ucsc +'</a>' : '-',
+                Ensembl  : gene.id_ensembl ? '<a target=_blank href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?g='+ gene.id_ensembl +'">'+ gene.id_ensembl +'</a>' : '-',
+                Protein  : gene.id_uniprot ? '<a target=_blank href="http://www.uniprot.org/uniprot/'+ gene.id_uniprot +'">'+ gene.id_uniprot +'</a>' : '-',
+              };
+            }            
+          },
+
+          {
+            name          : 'Pathogenic:<br />Syndromes',
+            url           : 'https://decipher.sandbox.sanger.ac.uk/syndrome_features;json?region=__CHR__:__START__-__END__',
+            height        : 50,
+            featureHeight : 6,
+            featureSpacing: 2,
+            labels        : true,
+            bump          : true,
+            resizable     : true,
+            spacing       : 10,
+            background    : '#FFF9F0',
+            info          : 'Micro deletion/duplication syndromes (curated by the DECIPHER consortium)',
+            parseData     : function (data) {
+              var i = data.length;
+              while (i--) {
+                data[i].id         = data[i].id_syndrome;
+                data[i].label      = data[i].name;
+                data[i].color      = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
+                data[i].labelColor = data[i].mean_ratio > 0 ? "#0052FF" : "#FF2F00";
+                data[i].start      = parseFloat(data[i].chr_start);
+                data[i].end        = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i]);
+              }
+            },
+            populateMenu : function (feature) {
+              return {
+                title : feature.label,
+                Location : feature.chr + ':' + feature.start + '-' + feature.end,
+                Length   : (feature.end - feature.start + 1) + ' bp',
+                'Copy Number' : feature.copy_number,
+              };
+            }
+          },
+
+          {
+            name          : 'Pathogenic:<br />DD Genes',
+            id            : 'ddgenes',
+            url           : 'https://decipher.sandbox.sanger.ac.uk/gene;json?region=__CHR__:__START__-__END__&filter=ddgenes',
+            height        : 50,
+            featureHeight : 6,
+            featureSpacing: 2,
+            colorMap: {
+              Y: 'red',
+              P: 'orange'
+            },
+            bump          : true,
+            labels        : true,
+            resizable     : true,
+            info          : 'Genes identified as being implicated in developmental disorders (curated by the DDD project)<br / ><a target=_blank href="https://decipher.sanger.ac.uk/ddd/ddd_genes">Development Disorder Genotype - Phenotype Database (DDG2P)</a>',
+            background    : '#FFF9F0',
+            parseData     : function (data) {
+              var i = data.length;
+              while (i--) {
+                data[i].id         = data[i].name;
+                data[i].label      = data[i].name;
+                data[i].color      = this.colorMap[data[i].ddgene_code];
+                data[i].labelColor = this.colorMap[data[i].ddgene_code];
+                data[i].start      = parseFloat(data[i].chr_start);
+                data[i].end        = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i]);
+              }
+            },
+            populateMenu : function (gene) {
+
+              var menu = [{
+                title       : 'Developmental Disorder Gene',
+                'Gene name' : '<a target=_blank href="http://www.genenames.org/data/hgnc_data.php?match='+ gene.name+ '">' + gene.name + '</a>',
+              }];
+
+              var deferred = $.Deferred();
+
+              $.ajax({
+                url      : 'https://decipher.sandbox.sanger.ac.uk/gene/'+ gene.name +';ddgene_info',
+                dataType : 'json',
+                success  : function (data) {
+                  for (var i=0; i<data.length; i++) {
+                    var disease = {
+                      title : data[i].disease,
+                      Mode  : data[i].mode,
+                      Consequence : data[i].consequence,
+                      Category : data[i].category,
+                    };
+                    menu.push(disease);
+                  }
+
+                  deferred.resolve(menu);
+                }
+              });
+
+              return deferred;
+            }
+          },
+
+          {
+            name          : 'Pathogenic:<br />LSDB',
+            url           : 'https://decipher.sandbox.sanger.ac.uk/gene;json?region=__CHR__:__START__-__END__&filter=lsdb',
+            height        : 50,
+            featureHeight : 6,
+            featureSpacing: 2,
+            bump          : true,
+            labels        : true,
+            resizable     : true,
+            info          : 'Genes having locus-specific database entries (LSDB)',
+            background    : '#FFF9F0',
+
+            parseData     : function (data) {
+              var i = data.length;
+              while (i--) {
+                data[i].id         = data[i].name;
+                data[i].label      = data[i].name;
+                data[i].color      = 'black';
+                data[i].labelColor = 'black';
+                data[i].start      = parseFloat(data[i].chr_start);
+                data[i].end        = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i]);
+              }
+            },
+            populateMenu : function (gene) {
+              return {
+                title : gene.name,
+                LSDB  : '<a target=_blank href="'+ gene.lsdb_url +'">' + gene.lsdb_url + '</a>',
+              };
+            }
+          },
+
+          {
+            name          : "Pathogenic:<br />HGMD", 
+            url           : 'https://decipher.sandbox.sanger.ac.uk/hgmd;json?region=__CHR__:__START__-__END__',
+            height        : 50,
+            featureHeight : 30,
+            info          : 'Human Gene Mutation Database (public)',
+            background    : '#FFF9F0',
+            parseData     : function (data) {
+              var i = data.length;
+              while (i--) {
+                data[i].id         = data[i].id_variant;
+                data[i].label      = data[i].id_hgmd;
+                data[i].color      = 'black';
+                data[i].start      = parseFloat(data[i].chr_start);
+                data[i].end        = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i]);
+              }
+            },
+            populateMenu : function (feature) {
+              return {
+                title     : feature.feature,
+                'HGMD ID' : '<a target=_blank href="http://www.hgmd.cf.ac.uk/ac/gene.php?gene='+ feature.gene_name +'&accession='+ feature.id_hgmd +'">'+ feature.id_hgmd + '</a>',
+                Location  : feature.chr + ':' + feature.start + '-' + feature.end,
+                Gene      : feature.gene_name,
+              };
+            },
+          },
+
+          // {
+          //   type:"Legend",
+          //   name:"dbSNP Legend", 
+          //   setTracks: function () {
+          //     this.tracks = [ this.browser.tracksById['dbSNP'] ];
+          //   },            
+          // },
+
+
+
+          // {
+          //   name   : 'Transcript',
+          //   type   : 'DASTranscript',
+          //   source : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
+          //   renderer : 'transcript',
+          //   filter : {
+          //     type : [ 'transcript', 'translation' ]
+          //   },
+          //   // display: {
+          //   //   group: 'transcript'
+          //   // },
+          //   populateMenu: function (feature) {
+          //     return {
+          //       title: feature.label,
+          //       start: feature.start,
+          //       stop: feature.end,
+          //       Links: '<a href="#">e!</a>'
+
+          //     };
+          //   }
+          // },
+
+
+          // {
+          //   name      : 'Sequence',
+          //   threshold : 300000,
+          //   type      : 'DAS.Sequence',
+          //   height    : 200,
+          // }, 
+  
+          // {
+          //   name      : 'Sequence Variation',
+          //   threshold : 200000,
+          //   type      : 'SV',
+          //   variations : [
+          //     {
+          //       chr   : 1,
+          //       start : 108865250,
+          //       end   : 108865251,
+          //       reference_allele : 'T',
+          //       alternate_allele : '',
+          //       type             : 'Deletion'
+          //     },
+          //     {
+          //       chr   : 1,
+          //       start : 108865260,
+          //       end   : 108865263,
+          //       reference_allele : '',
+          //       alternate_allele : 'TTTTTTT',
+          //       type             : 'InDel'
+          //     },
+          //     {
+          //       chr   : 1,
+          //       start : 108865268,
+          //       end   : 108865270,
+          //       reference_allele : 'CT',
+          //       alternate_allele : 'AA',
+          //       type             : 'Substitution'
+          //     },
+          //   ],
+
+          // },
+
+        ]
+      };
+
+      $(document).ready(function(){ window.genoverse = new Genoverse(genoverseConfig) });
+
+    </script>
+
+
+  </head>
+  <body>
+
+  <div id="genoverse"></div>
+ 
+  </body>
+</html>

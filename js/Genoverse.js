@@ -12,15 +12,18 @@ var Genoverse = Base.extend({
   tracksById       : {},
   menus            : [],
   plugins          : [],
+  guideLinesByScale: {},
   dragAction       : 'scroll', // options are: scroll, select, off
-  wheelAction      : 'zoom',   // options are: zoom, off
+  wheelAction      : 'off',    // options are: zoom, off
   colors           : {
     background     : '#FFFFFF',
     majorGuideLine : '#CCCCCC',
     minorGuideLine : '#E5E5E5',
     sortHandle     : '#CFD4E7'
   },
-  
+  defaultCoordSpan : 5000,
+  enableSharing    : false,
+
   constructor: function (config) {
     if (!this.supported()) {
       this.die('Your browser does not support this functionality');
@@ -154,7 +157,10 @@ var Genoverse = Base.extend({
     ').appendTo('body');
     
     this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('i o').appendTo('body');
-    
+
+    // fix the end
+    this.end = this.makeValidEnd(this.start, this.end, this.defaultCoordSpan);
+
     var coords = this.chr && this.start && this.end ? { chr: this.chr, start: this.start, end: this.end } : this.getCoords();
     
     this.chr = coords.chr;
@@ -164,6 +170,10 @@ var Genoverse = Base.extend({
     this.setTracks();
     this.makeImage();
     this.addUserEventHandlers();
+  },
+
+  makeValidEnd: function (start, end) {
+      return (end > start ? end : start + 5000);
   },
 
   addUserEventHandlers: function () {
@@ -178,12 +188,17 @@ var Genoverse = Base.extend({
         
         return false;
       },
-      mousewheel: function (e, delta) {
-        if (browser.wheelAction === 'zoom') {
-          return browser.mousewheelZoom(e, delta);
+
+      mousewheel: function (e, delta, deltaX, deltaY) {
+        if(deltaY === 0 && deltaX !== 0) {
+          browser.move(null, -deltaX * 10);
+        } else {
+            if (browser.wheelAction === 'zoom') {
+              return browser.mousewheelZoom(e, delta);
+            }
         }
       }
-    }, '.image_container, .overlay, .selector');
+    }, '.image_container, .overlay, .selector, .track_message');
 
     $(document).on({
       mouseup   : $.proxy(this.mouseup,   this),
@@ -293,8 +308,6 @@ var Genoverse = Base.extend({
         this.setHistory();
         this.redraw();
       }
-      
-      this.checkTrackSize();
     }
   },
 
@@ -496,6 +509,7 @@ var Genoverse = Base.extend({
     }
     
     $('.expander', this.wrapper).css('left', -this.left);
+    //$('.track_message', this.wrapper).css('left', -this.left);
     $('.image_container img.static', this.container).css('marginLeft', function () { return wrapperOffset - $(this.parentNode).offset().left; });
     
     this.setRange(start, end);
@@ -509,20 +523,22 @@ var Genoverse = Base.extend({
     }
   },
   
-  checkTrackSize: function () {
+  checkHeights: function () {
     if (this.dragging) {
       return;
     }
     
     for (var i = 0; i < this.tracks.length; i++) {
       if (!this.tracks[i].fixedHeight) {
-        this.tracks[i].checkSize();
+        this.tracks[i].checkHeight();
         
-        if (this.tracks[i].autoHeight || this.tracks[i].separateLabels) {
-          this.tracks[i].resize(this.tracks[i][this.tracks[i].autoHeight ? 'fullVisibleHeight' : 'height'], this.tracks[i].labelTop);
-        } else {
-          this.tracks[i].toggleExpander();
-        }
+        // This should be in track!
+        // if (this.tracks[i].autoHeight || this.tracks[i].separateLabels) {
+        //   this.tracks[i].resize(this.tracks[i][this.tracks[i].autoHeight ? 'fullVisibleHeight' : 'height'], this.tracks[i].labelTop);
+        // } else {
+        //   this.tracks[i].toggleExpander();
+        // }
+
       }
     }
   },
@@ -554,7 +570,7 @@ var Genoverse = Base.extend({
     
     this.setRange(start, end, true);
   },
-  
+
   zoomOut: function (x) {
     if (!x) {
       x = this.width / 2;
@@ -608,7 +624,8 @@ var Genoverse = Base.extend({
       this.makeImage();
     }
   },
-  
+
+
   setScale: function (force) {
     this.prev.scale  = this.scale;
     this.scale       = this.width / this.length;
@@ -623,7 +640,9 @@ var Genoverse = Base.extend({
       this.maxLeft     = Math.round((this.start - 1) * this.scale);
       this.scrollStart = 'ss_' + this.start + '_' + this.end;
       this.labelBuffer = Math.ceil(this.textWidth / this.scale) * this.longestLabel;
-      
+
+      this.setGuideLineUnits();
+
       if (this.prev.scale) {
         var i = this.tracks.length;
         
@@ -647,7 +666,45 @@ var Genoverse = Base.extend({
       }
     }
   },
+
   
+  setGuideLineUnits: function() {
+    var length = this.length;
+    var majorUnit, minorUnit, exponent, mantissa;
+    
+    if (length <= 51) {
+      majorUnit = 10;
+      minorUnit = 1;
+    } else {
+      exponent = Math.pow(10, Math.floor(Math.log(length) / Math.log(10)));
+      mantissa = length / exponent;
+      
+      if (mantissa < 1.2) {
+        majorUnit = exponent  / 10;
+        minorUnit = majorUnit / 5;
+      } else if (mantissa < 2.5) {
+        majorUnit = exponent  / 5;
+        minorUnit = majorUnit / 4;
+      } else if (mantissa < 5) {
+        majorUnit = exponent  / 2;
+        minorUnit = majorUnit / 5;
+      } else {
+        majorUnit = exponent;
+        minorUnit = majorUnit / 5;
+      }
+    }
+    
+    this.minorUnit = minorUnit;
+    this.majorUnit = majorUnit;
+
+    if (!this.guideLinesByScale[this.scale]) {
+      this.guideLinesByScale[this.scale] = { major: {}, minor: {} };
+    }
+    
+    this.guideLines = this.guideLinesByScale[this.scale];
+  },
+
+
   setTracks: function (tracks, index) {
     var defaults = {
       browser         : this,
@@ -812,39 +869,44 @@ var Genoverse = Base.extend({
     var dataRegion = $.extend({}, this.dataRegion);
     var offsets    = $.extend({}, this.offsets);
     var allTracks  = tracks.length === this.tracks.length;
-    var overlay    = this.makeOverlays(width, allTracks ? false : tracks);
+
+
+    // var overlay    = this.makeOverlays(width, allTracks ? false : tracks);
+    // function removeOverlay() {
+    //   if (overlay) {
+    //     overlay.remove();
+    //     overlay = null;
+    //   }
+    // }
     
-    function removeOverlay() {
-      if (overlay) {
-        overlay.remove();
-        overlay = null;
-      }
+    for (var i=0; i<tracks.length; i++) {
+      tracks[i].makeImage(start, end, width, left, browser.scrollStart);
     }
-    
-    $.when.apply($, $.map(tracks, function (track) { return track.makeImage(start, end, width, left, browser.scrollStart); })).done(function () {
-      var redraw = false;
+
+    // $.when.apply($, $.map(tracks, function (track) { return track.makeImage(start, end, width, left, browser.scrollStart); })).done(function () {
+    //   var redraw = false;
       
-      $.when.apply($, $.map($.map(arguments, function (a) {
-        $(a.target).show();
-        return a.img;
-      }), function (i) {
-        if (i.track.backgrounds && !allTracks) {
-          i.track.scaleFeatures(i.track.backgrounds);
-          redraw = true;
-        }
+    //   $.when.apply($, $.map($.map(arguments, function (a) {
+    //     $(a.target).show();
+    //     return a.img;
+    //   }), function (i) {
+    //     if (i.track.backgrounds && !allTracks) {
+    //       i.track.scaleFeatures(i.track.backgrounds);
+    //       redraw = true;
+    //     }
         
-        return i.drawBackground();
-      })).done(removeOverlay);
+    //     return i.drawBackground();
+    //   })).done(removeOverlay);
       
-      if (allTracks) {
-        browser.prev.history = browser.start + '-' + browser.end;
-        browser.setHistory(dataRegion, offsets);
-      } else {
-        browser.updateTracks(redraw);
-      }
+    //   if (allTracks) {
+    //     browser.prev.history = browser.start + '-' + browser.end;
+    //     browser.setHistory(dataRegion, offsets);
+    //   } else {
+    //     browser.updateTracks(redraw);
+    //   }
       
-      browser.checkTrackSize();
-    }).fail(removeOverlay);
+    //   browser.checkTrackSize();
+    // }).fail(removeOverlay);
   },
   
   makeOverlays: function (width, tracks) {
@@ -1024,6 +1086,9 @@ var Genoverse = Base.extend({
           left : offset.left + (wrapper.outerWidth(true) - menu.outerWidth(true))/2
         }
       );
+      if (track && track.id) {
+        menu.addClass(track.id);
+      }
     });
     
     return menu;
@@ -1050,14 +1115,21 @@ var Genoverse = Base.extend({
    * functionWrap - wraps event handlers and adds debugging functionality
    **/
   functionWrap: function (key, obj) {
+    obj = obj || this;
+
+    if ((key.indexOf('after') === 0) || (key.indexOf('before') === 0)) {
+      if (!obj.systemEventHandlers[key]) obj.systemEventHandlers[key] = [];
+      obj.systemEventHandlers[key].push(obj[key]);
+      return;
+    }
+
     var func = key.substring(0, 1).toUpperCase() + key.substring(1);
         name = (obj ? (obj.name || '') + '(' + (obj.type || 'Track.') + ')' : 'Genoverse.') + key;
-        obj  = obj || this;
     
     if (obj.debug) {
       this.debugWrap(obj, key, name, func);
     }
-    
+
     // turn function into system event, enabling eventHandlers for before/after the event
     if (obj.systemEventHandlers['before' + func] || obj.systemEventHandlers['after' + func]) {
       obj['__original' + func] = obj[key];
@@ -1132,5 +1204,13 @@ var Genoverse = Base.extend({
     });
   }
 });
+
+
+Genoverse.on('afterMove afterZoomIn afterZoomOut', function () {
+  $('.static', this.wrapper).css('left', -this.left);
+  this.checkHeights();
+});
+
+
 
 window.Genoverse = Genoverse;

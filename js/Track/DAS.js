@@ -1,12 +1,13 @@
-Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
+Genoverse.Track.DAS = Genoverse.Track.extend({
 
   // Defualts 
   dataType : 'xml',
 
   init: function () {
     this.base();
-    this.urlTemplate = { segment: '__CHR__:__START__,__END__' }
-    if (!this.url) this.url = this.source + '/features';
+
+    if (!this.url) this.url = this.source + '/features?segment=__CHR__:__START__,__END__';
+
     if (this.display) {
       for (var key in this.display) {
         if (this.display[key] instanceof Array) {
@@ -25,17 +26,6 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
   },
 
 
-  getQueryString: function () {    
-    var queryString = $.param(this.base.apply(this, arguments));
-    
-    if (this.filter && this.filter.type instanceof Array) {
-      queryString += '&' + $.param({ type: this.filter.type }, true);
-    }
-
-    return decodeURIComponent(queryString);
-  },
-
-
   getStylesheet: function () {
     this.stylesheetRequest = $.ajax({
       url      : (this.browser.proxy ? this.browser.proxy + '?url=' : '') + this.source + '/stylesheet',
@@ -49,10 +39,6 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
     });
   },
 
-
-  // getQueryString: function (start, end) {
-  //   return this.base(start - (end-start)*10, end + (end-start)*10);
-  // },
 
   parseStylesheet: function (XML) {
     var stylesheet = {};
@@ -89,76 +75,76 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
   },
 
 
-  drawFeature: function (feature, bounds) {
+  drawFeature: function (feature, context, scale) {
     var style = feature.style || this.stylesheet[feature.type] || this.stylesheet.default;
-    bounds.x  = Math.floor(bounds.x) + 0.5;
-    bounds.y  = Math.floor(bounds.y) + 0.5;
-    bounds.w  = Math.floor(bounds.w);
+
+    feature.x = Math.floor(feature.x) + 0.5;
+    feature.y = Math.floor(feature.y) + 0.5;
+    feature.width = Math.floor(feature.width);
 
     // controlY and middleY for line, hat and bezierCurve
-    bounds.controlY = (feature.orientation == '-') ? bounds.y + this.featureHeight : bounds.y;
-    bounds.middleY  = bounds.y + this.featureHeight/2;
+    feature.controlY = (feature.orientation == '-') ? feature.y + this.featureHeight : feature.y;
+    feature.middleY  = feature.y + this.featureHeight/2;
 
 
-    this.context.lineWidth = 1;
+    context.lineWidth = 1;
 
     switch (style.type) {
 
-      case 'line' :
-        this.context.strokeStyle = style.fgcolor;
-        this.context.strokeRect(bounds.x, bounds.middleY, bounds.w, 0);
-      break;
+      // case 'line' :
+      //   this.context.strokeStyle = style.fgcolor;
+      //   this.context.strokeRect(bounds.x, bounds.middleY, bounds.w, 0);
+      // break;
 
       case 'hat' :
-        this.context.strokeStyle = style.fgcolor;
-        this.context.lineWidth = 0.5;
-        this.context.beginPath();
-        this.context.moveTo(bounds.x, bounds.middleY);
-        this.context.lineTo(bounds.x + bounds.w/2, bounds.controlY);
-        this.context.lineTo(bounds.x + bounds.w, bounds.middleY);
-        this.context.stroke();
-        this.context.closePath();
+        context.strokeStyle = style.fgcolor;
+        context.lineWidth = 0.5;
+        context.beginPath();
+        context.moveTo(feature.x, feature.middleY);
+        context.lineTo(feature.x + feature.width/2, feature.controlY);
+        context.lineTo(feature.x + feature.width, feature.middleY);
+        context.stroke();
+        context.closePath();
       break;
 
       case 'bezierCurve' :
-        this.context.strokeStyle = style.fgcolor;
-        this.context.lineWidth   = 0.4;
-        
-        this.context.beginPath();
-        this.context.moveTo(bounds.x, bounds.middleY);
-        this.context.bezierCurveTo(bounds.x, bounds.controlY, bounds.x+bounds.w, bounds.controlY, bounds.x+bounds.w, bounds.middleY);
-        this.context.stroke();
-        this.context.closePath();
+        context.strokeStyle = style.fgcolor;
+        context.lineWidth   = 0.4;
+        context.beginPath();
+        context.moveTo(feature.x, feature.middleY);
+        context.bezierCurveTo(feature.x, feature.controlY, feature.x + feature.width, feature.controlY, feature.x + feature.width, feature.middleY);
+        context.stroke();
+        context.closePath();
       break;
 
       case 'triangle' :
-        this.context.strokeStyle = style.fgcolor;
-        this.context.beginPath();
-        this.context.moveTo(bounds.x, bounds.y);
-        this.context.lineTo(bounds.x, bounds.y + this.featureHeight);
-        this.context.lineTo(bounds.x + bounds.w, bounds.middleY);
-        this.context.lineTo(bounds.x, bounds.y);
-        this.context.stroke();
-        this.context.closePath();
+        context.strokeStyle = style.fgcolor;
+        context.beginPath();
+        context.moveTo(feature.x, feature.y);
+        context.lineTo(feature.x, feature.y + this.featureHeight);
+        context.lineTo(feature.x + feature.width, feature.middleY);
+        context.lineTo(feature.x, feature.y);
+        context.stroke();
+        context.closePath();
       break;
 
       case 'box':
         if (!style.bgcolor || style.bgcolor == this.mapColor('white')) {
-          this.context.strokeStyle = style.fgcolor;
-          this.context.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
+          context.strokeStyle = style.fgcolor;
+          context.strokeRect(feature.x, feature.y, feature.width, feature.height);
         } else {
-          this.context.fillStyle = style.bgcolor;
-          this.context.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+          context.fillStyle = style.bgcolor;
+          context.fillRect(feature.x, feature.y, feature.width, feature.height);
           if (style.fgcolor) {
-            this.context.strokeStyle = style.fgcolor;
-            this.context.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
+            context.strokeStyle = style.fgcolor;
+            context.strokeRect(feature.x, feature.y, feature.width, feature.height);
           }
         }
       break;
 
       default:
-        this.context.strokeStyle = style.fgcolor;
-        this.context.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
+        context.strokeStyle = style.fgcolor;
+        context.strokeRect(feature.x, feature.y, feature.width, feature.height);
       break;
     }
   },
@@ -192,7 +178,7 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
   },
 
 
-  parseFeatures: function (data, bounds) {
+  parseData: function (data) {
     var features = new Array();
 
     $(data).find('FEATURE').each(function (i, FEATURE) {
@@ -207,7 +193,7 @@ Genoverse.Track.DAS = Genoverse.Track.Gene.extend({
 
       feature.start = feature.start *1; // Converting to number with *1
       feature.end   = feature.end   *1; // Converting to number with *1
-      feature.width = feature.end - feature.start;
+      feature.width = feature.end - feature.start + 1;
 
       feature.links  = {};
       feature.notes  = [];

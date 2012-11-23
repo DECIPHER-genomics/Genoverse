@@ -1,0 +1,125 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+
+
+    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
+    <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
+    
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/lib/lazyload.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+
+    <script type="text/javascript" src="js/lib/Base.js"></script>
+    <script type="text/javascript" src="js/lib/rtree.js"></script>
+    
+    <script type="text/javascript" src="js/Genoverse.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script> 
+    <script type="text/javascript" src="js/Track/Scalebar.js"></script> 
+
+    <script type="text/javascript" src="js/plugins/controlPanel.js"></script>
+
+    <script type="text/javascript">
+
+      // Genoverse configuration
+      var genoverseConfig = {
+        container      : '#genoverse', // jQuery style selector
+        chr            : 1,
+        chromosomeSize : 249250621,    // chromosome 1, human
+        start          : 100000,
+        end            : 200000,
+        tracks: [
+
+          {
+            type : 'Scalebar'
+          },
+
+          {
+            name    : "Sequence variation", 
+            url     : "https://decipher.sandbox.sanger.ac.uk/sequence_variant;json?region=__CHR__:__START__-__END__",
+            height  : 30,
+
+            parseData : function (data) {
+              for (var i=0; i<data.length; i++) {
+                data[i].id    = data[i].id_patient + '-' + data[i].chr_start;
+                data[i].label = data[i].id;
+                data[i].color = 'black';
+                data[i].start = parseFloat(data[i].chr_start);
+                data[i].end   = parseFloat(data[i].chr_end);
+                this.insertFeature(data[i]);
+              }
+            }
+          },
+
+          {
+            name : 'DGV',
+            url  : 'data/DGVa_1_100000-1000000.xml',
+            dataType      : 'xml',
+            allData       : true,
+            height        : 200,
+            featureHeight : 6,
+            featureSpacing: 2,
+            bump          : true,
+            resizable     : true,
+            spacing       : 10,
+            showLabels    : true,
+
+            parseData: function (data) {
+              var track = this;
+              var features = new Array();
+
+              $(data).find('FEATURE').each(function (i, FEATURE) {
+                var feature = {};
+                feature.id    = FEATURE.getAttribute('id');
+                feature.label = feature.id;
+
+                $(FEATURE).children().each(function (i, property) {
+                  feature[$(property).prop('tagName').toLowerCase()] = $(property).text();
+                });
+
+                feature.start = feature.start *1; // Converting to number with *1
+                feature.end   = feature.end   *1; // Converting to number with *1
+
+                var TYPE = $(FEATURE).find('TYPE')[0];
+                if (TYPE) {
+                  feature.type = TYPE.getAttribute('id');
+                  feature.category = TYPE.getAttribute('category')
+                }
+
+                var color = get_random_color();
+                feature.color       = color;
+                feature.labelColor  = color;
+
+                track.insertFeature(feature);
+              });
+            },
+          },
+
+
+        ]
+      };
+
+      $(document).ready(function(){ window.genoverse = new Genoverse(genoverseConfig) });
+
+      function get_random_color() {
+          var letters = '0123456789ABCDEF'.split('');
+          var color = '#';
+          for (var i = 0; i < 6; i++ ) {
+              color += letters[Math.round(Math.random() * 15)];
+          }
+          return color;
+      }
+
+    </script>
+
+
+  </head>
+  <body>
+
+  <div id="genoverse"></div>
+ 
+  </body>
+</html>

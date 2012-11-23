@@ -5,7 +5,7 @@ Genoverse.Track.on('afterInit', function () {
 
   var track = this;
   //debugger;
-  this.resizer = (this.resizer || $('<div class="resizer"><div class="handle"></div></div>').appendTo(this.container).draggable({ 
+  this.resizer = (this.resizer || $('<div class="resizer static"><div class="handle"></div></div>').appendTo(this.container).draggable({ 
     axis   : 'y',
     start  : function () { $('body').addClass('dragging'); },
     stop   : function (e, ui) {
@@ -26,15 +26,7 @@ Genoverse.Track.on('afterInit', function () {
 });
 
 Genoverse.Track.on('afterToggleExpander', function () {
-  if (this.resizer) {
-    this.resizer.css('left', -this.browser.left);
-    
-    if (this.expander) {
-      this.resizer[this.expander.filter(':visible').hide().length ? 'addClass' : 'removeClass']('shadow');
-    }
+  if (this.resizer && this.expander) {
+    this.resizer[this.expander.filter(':visible').hide().length ? 'addClass' : 'removeClass']('shadow');
   }
-});
-
-Genoverse.on('afterMove afterZoomIn afterZoomOut', function () {
-  $('.resizer', this.wrapper).css('left', -this.left);
 });
