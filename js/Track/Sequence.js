@@ -18,10 +18,10 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
   fontColor     : '#FFFFFF',
   source        : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.reference',
   colorMap      : {
-    a : "green",
-    t : "blue",
-    g : "red",
-    c : "orange",
+    a : "#00996B",
+    t : "#0772A1",
+    g : "#FF4D00",
+    c : "#FFDD73",
     n : "grey",
     default : "grey"
   },
@@ -134,7 +134,7 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
 
       if (drawLabels) {
         context.fillStyle = this.fontColor;
-        context.fillText(bp, feature.position[scale].X + i*bpWidth + labelsOffset[bp], feature.position[scale].Y + this.labelYOffset);
+        context.fillText(bp, feature.position[scale].X + i*bpWidth + (labelsOffset[bp] || labelsOffset.n), feature.position[scale].Y + this.labelYOffset);
         // if (complementary) {
         //   this.context.fillText(this.complementaryMap[bp], scaledStart + i*bpWidth + labelsOffset[this.complementaryMap[bp]], this.featureHeight + yOffset + this.labelYOffset);
         // }

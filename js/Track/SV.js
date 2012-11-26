@@ -14,23 +14,47 @@ Genoverse.Track.SV = Genoverse.Track.Sequence.DAS.extend({
   },
 
 
-  // I guess getData vould be different to get both sequence and variation
+  getVariationData: function (start, end) {
+    return $.ajax({
+      url      : Genoverse.Track.prototype.parseUrl.apply(this, [start, end, this.variationUrl]),
+      dataType : 'json',
+      xhrFields: this.xhrFields,
+    });
+  },
 
-  render: function (features, img) {
-    var scale = img.data('scale');
-    // tmp fix
-    for (var i = 0; i < this.variations.length; i++) {
-      var variation = this.variations[i];
+
+  parseVariationData: function (data) {
+    this.variations = [];
+    for (var i=0; i<data.length; i++) {
+      var variation   = data[i];
+      variation.start = variation.chr_start *1;
+      variation.end   = variation.chr_end *1;
+      variation.type  = 'InDel';
+      variation.reference_allele = variation.reference_allele.toLowerCase();
+      variation.alternate_allele = variation.alternate_allele.toLowerCase();
       variation.sequence = variation.alternate_allele;
       variation.width = variation.end - variation.start + 1;
-    }
 
+      this.variations.push(variation);
+    }
+  },
+
+
+  render: function (features, img) {
+    var track   = this;
+    var imgData = img.data();
+    var base    = this.base;
     img.data({ height: this.yOffset + this.featureHeight + this.shadow.blur });
 
-    this.scaleFeatures(this.variations, scale);
-    this.positionFeatures(this.variations, img);
-    this.base(features, img);
+    $.when(this.getVariationData(imgData.start, imgData.end))
+     .done(function(data){
+      track.parseVariationData(data);
+      track.scaleFeatures(track.variations, imgData.scale);
+      track.positionFeatures(track.variations, img);
+      base.call(track, features, img);
+     });
   },
+
 
 
   draw: function (features, context, scale) {
@@ -44,6 +68,8 @@ Genoverse.Track.SV = Genoverse.Track.Sequence.DAS.extend({
   drawVariations: function (variations, context, scale) {
     for (var i = 0; i < variations.length; i++) {
       var variation = variations[i];
+      if (variation.chr != this.browser.chr) continue;
+
       var position  = variation.position[scale];
 
       var referenceScaledWidth = scale * variation.reference_allele.length;
@@ -61,11 +87,11 @@ Genoverse.Track.SV = Genoverse.Track.Sequence.DAS.extend({
 
       context.beginPath();
       context.moveTo(position.X, position.Y);
-      context.lineTo(position.X + position.width, position.Y);
-      context.lineTo(position.X + position.width, position.Y + this.featureHeight);
+      context.lineTo(position.X + alternateScaledWidth, position.Y);
+      context.lineTo(position.X + alternateScaledWidth, position.Y + this.featureHeight);
 
-      context.lineTo(position.X + position.width + halfDelta, this.yOffset);
-      context.lineTo(position.X + position.width + halfDelta, this.yOffset + this.featureHeight);
+      context.lineTo(position.X + alternateScaledWidth + halfDelta, this.yOffset);
+      context.lineTo(position.X + alternateScaledWidth + halfDelta, this.yOffset + this.featureHeight);
       context.lineTo(position.X - halfDelta, this.yOffset + this.featureHeight);
       context.lineTo(position.X - halfDelta, this.yOffset);
 

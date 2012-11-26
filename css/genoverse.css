@@ -190,7 +190,7 @@ li.sortHandle {
 .canvas_zoom.o .l.v  { left:   8px;  }
 .canvas_zoom.o .r.v  { right:  8px;  }
 
-.menu {
+.gv_menu {
   background-color: rgba(0, 0, 0, 0.7);
   border-radius: 0px 12px 12px 12px;
   color: white;
@@ -202,11 +202,15 @@ li.sortHandle {
   margin-left: 5px;  
 }
 
-.menu a {
+.gv_menu table td {
   color: white;
 }
 
-.menu table {
+.gv_menu a {
+  color: white;
+}
+
+.gv_menu table {
   width: 80%;
   margin-right: 15%;
   font-family: monospace;
@@ -214,17 +218,17 @@ li.sortHandle {
   padding: 10px;
 }
 
-.menu table .title {
+.gv_menu table .title {
   font-weight: bold;
   text-align: left;
 }
 
-.menu:not(.trackSelection) table td {
+.gv_menu:not(.trackSelection) table td {
   /*width: 50%;*/
   padding: 0 1em 0 0;
 }
 
-.menu .close {
+.gv_menu .close {
   background-color: #CCCCCC;
   border-radius : 20px;
   height        : 20px;
@@ -242,7 +246,7 @@ li.sortHandle {
   margin: 3px;
 }
 
-.menu .close:hover {
+.gv_menu .close:hover {
   background-color: #FFF;
   box-shadow: 0px 0px 5px #FFFFFF;
 }

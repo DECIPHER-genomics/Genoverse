@@ -88,18 +88,14 @@ Genoverse.Track = Base.extend({
     }
     
    
-    if (this.name) {
-      if (this.unsortable) {
-        this.label.addClass('unsortable');
-      } else {
-        $('<div class="handle"></div>').appendTo(this.label);
-      }
-      
-      this.minLabelHeight = $('<span class="name" title="' + this.name + '">' + this.name + '</span>').appendTo(this.label).outerHeight(true);
-      this.label.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
-    } else {
+    if (this.unsortable) {
       this.label.addClass('unsortable');
+    } else {
+      $('<div class="handle"></div>').appendTo(this.label);
     }
+    
+    this.minLabelHeight = $('<span class="name" title="' + this.name + '">' + this.name + '</span>').appendTo(this.label).outerHeight(true);
+    this.label.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
     
     this.container.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
     
@@ -563,9 +559,9 @@ Genoverse.Track = Base.extend({
   },
   
 
-  parseUrl: function (start, end) {
+  parseUrl: function (start, end, url) {
     var chr = this.browser.chr;
-    var url = this.url;
+    var url = url || this.url;
 
     return url.replace(/__CHR__/, chr).replace(/__START__/, start).replace(/__END__/, end);
   },
