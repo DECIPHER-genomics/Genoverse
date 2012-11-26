@@ -8,7 +8,6 @@
     <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
     <link rel="stylesheet" type="text/css" href="css/trackControls.css" />
     <link rel="stylesheet" type="text/css" href="css/resizer.css" />
-    <!--link rel="stylesheet" type="text/css" href="css/hoverLabels.css" /-->
     
     <script type="text/javascript" src="js/lib/jquery.js"></script>
     <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
@@ -27,12 +26,17 @@
     <script type="text/javascript" src="js/Track/Sequence.js"></script>
     <script type="text/javascript" src="js/Track/DAS/Sequence.js"></script>
 
+    <script type="text/javascript" src="js/Track/DAS.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
+
     <script type="text/javascript" src="js/Track/SV.js"></script>
     
     <script type="text/javascript" src="js/plugins/controlPanel.js"></script>
     <script type="text/javascript" src="js/plugins/trackControls.js"></script>
     <script type="text/javascript" src="js/plugins/resizer.js"></script>
-    <!--script type="text/javascript" src="js/plugins/hoverLabels.js"></script-->
+
+    <!--script type="text/javascript" src="js/jsCombinator.js"></script-->
 
     <style>
       ul.label_container {
@@ -46,7 +50,6 @@
       .menu.ddgenes tr.header:not(:first-child)>th {
         padding-top: 1em;
       }
-
     </style>
 
     <script type="text/javascript">
@@ -159,7 +162,7 @@
         tracks         : [
           {
             type : 'Scalebar',
-            name : 'Chr 5',
+            height : 25,
           },
 
           // {
@@ -602,16 +605,6 @@
           },
 
           // {
-          //   type:"Legend",
-          //   name:"dbSNP Legend", 
-          //   setTracks: function () {
-          //     this.tracks = [ this.browser.tracksById['dbSNP'] ];
-          //   },            
-          // },
-
-
-
-          // {
           //   name   : 'Transcript',
           //   type   : 'DASTranscript',
           //   source : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
@@ -633,53 +626,14 @@
           //   }
           // },
 
-
-          // {
-          //   name      : 'Sequence',
-          //   threshold : 300000,
-          //   type      : 'DAS.Sequence',
-          //   height    : 200,
-          // }, 
-  
-          // {
-          //   name      : 'Sequence Variation',
-          //   threshold : 200000,
-          //   type      : 'SV',
-          //   variations : [
-          //     {
-          //       chr   : 1,
-          //       start : 108865250,
-          //       end   : 108865251,
-          //       reference_allele : 'T',
-          //       alternate_allele : '',
-          //       type             : 'Deletion'
-          //     },
-          //     {
-          //       chr   : 1,
-          //       start : 108865260,
-          //       end   : 108865263,
-          //       reference_allele : '',
-          //       alternate_allele : 'TTTTTTT',
-          //       type             : 'InDel'
-          //     },
-          //     {
-          //       chr   : 1,
-          //       start : 108865268,
-          //       end   : 108865270,
-          //       reference_allele : 'CT',
-          //       alternate_allele : 'AA',
-          //       type             : 'Substitution'
-          //     },
-          //   ],
-
-          // },
-
         ]
       };
 
       $(document).ready(function(){ window.genoverse = new Genoverse(genoverseConfig) });
 
     </script>
+
+
 
 
   </head>
