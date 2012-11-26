@@ -23,6 +23,14 @@ Genoverse.on('beforeInit', function () {
     </div>\
   ');
 
+  if (browser.enableSharing) {
+      $('td.genoverse_panel_right').append('\
+        <div class="button_set">\
+        <button class="share" style="width: 100%">share</button>\
+        </div>\
+      ');
+  }
+
   browser.container = $('td.canvas_container');
 
   $(".genoverse_panel button.scrollLeft").mousehold(50, function () {
@@ -112,5 +120,20 @@ Genoverse.on('beforeInit', function () {
       browser.tracks[$(this).val()].hide();
     }
   });
+
+  if (browser.enableSharing) {
+    $(".genoverse_panel button.share").click(function(){
+      var link = window.location.href.split('?')[0] +
+                    "?chr=" + browser.chr + "&start=" + browser.start + "&end=" + browser.end;
+
+      var shareMenu = {
+          title  : 'Link:',
+          ' ' : "<a style='color: #FFFFFF' href="+link+">" + link + "</a>"
+      };
+
+      var menu = browser.makeMenu(shareMenu);
+      menu.addClass('track_info');
+    });
+  }
 
 });
