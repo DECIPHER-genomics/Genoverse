@@ -32,8 +32,8 @@
     <script type="text/javascript" src="js/Track/Scalebar.js"></script>
     <script type="text/javascript" src="js/Track/Sequence.js"></script>
     <script type="text/javascript" src="js/Track/Gene.js"></script>
+
     <script type="text/javascript" src="js/Track/DAS.js"></script>
-    <script type="text/javascript" src="js/Track/DAS/Sequence.js"></script>
     <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
     <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
     
@@ -65,23 +65,21 @@
           {
             name      : 'Sequence',
             threshold : 5000,
-            type      : 'DAS.Sequence',
-            height    : 60,
+            type      : 'Sequence',
           }, 
 
           {
             name : 'DGV',
             url  : 'data/DGVa_1_100000-1000000.xml',
-            dataType : 'xml',
-            allData  : true,
-            //depth    : 10,
-            height   : 200,
-            featureHeight : 6,
-            featureSpacing : 5,
-            //labelOverlay  : true,
-            bump          : true,
-            resizable     : true,
-            spacing       : 10,
+            dataType       : 'xml',
+            allData        : true,
+            height         : 200,
+            featureHeight  : 6,
+            featureSpacing : 2,
+            bump           : true,
+            resizable      : true,
+            spacing        : 10,
+            labels         : true,
 
             populateMenu: function (feature) {
               return {
@@ -92,7 +90,7 @@
               };
             },
 
-            parseData: function (data, bounds) {
+            parseData: function (data) {
               var track = this;
               var features = new Array();
 
@@ -116,17 +114,11 @@
                   feature.category = TYPE.getAttribute('category')
                 }
 
-                feature.bounds      = {};
-                feature.visible     = {};
-                feature.bottom      = {};
-                feature.labelBottom = {};
                 feature.color       = 'black';
                 feature.labelColor  = 'black';
 
-                track.features.insert({ x: feature.start, y: 0, w: feature.end - feature.start, h: 1 }, feature);
+                track.insertFeature(feature);
               });
-
-              return this.features.search(bounds).sort(function (a, b) { return a.sort - b.sort; });
             },
 
           },
