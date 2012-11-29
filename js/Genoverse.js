@@ -1093,7 +1093,7 @@ var Genoverse = Base.extend({
   makeMenu: function (feature, position, track) {
     var wrapper = this.wrapper;
     var offset  = wrapper.offset();
-    var menu    = this.menuTemplate.clone().appendTo($('body'));
+    var menu    = this.menuTemplate.clone(true).appendTo($('body'));
 
     //debugger;
     //position.top  -= offset.top;
