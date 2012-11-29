@@ -244,6 +244,12 @@ li.sortHandle {
   padding: 0 0 0 1px;
   text-align: center;
   margin: 3px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;    
 }
 
 .gv_menu .close:hover {
