@@ -6,21 +6,22 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
   featureHeight : 20,
   featureSpacing: 0,
   yOffset       : 5,
-  complementary : true,
-  chunkSize     : 1000,
-  //threshold     : 2000,
-  labelOverlay  : true, 
-  allData       : false,
-  fontSize      : 10,
-  fontFamily    : 'Verdana',
-  fontWeight    : 'bold',
-  dataType      : 'xml',
-  fontColor     : '#FFFFFF',
-  source        : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.reference',
+  //complementary : true,
+  chunkSize   : 1000,
+  //threshold : 2000,
+  labelOverlay: true, 
+  allData     : false,
+  fontSize    : 10,
+  fontFamily  : 'Verdana',
+  fontWeight  : 'bold',
+  dataType    : 'xml',
+  fontColor   : '#FFFFFF',
+  url         : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.reference/sequence?segment=__CHR__:__START__,__END__',
+
   colorMap      : {
-    a : "#00996B",
+    a : "#00986A",
     t : "#0772A1",
-    g : "#FF4D00",
+    g : "#FF8E00",
     c : "#FFDD73",
     n : "grey",
     default : "grey"
@@ -73,34 +74,42 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
   },
 
 
-  parseData: function (data, start, end) {
-    var sequence = data;
+  parseData: function (data) {
+    var track = this;
 
-    // Check if the sequence is multi-line or not
-    if (this.multiLine === undefined) {
-      if (sequence.indexOf("\n") !== -1) {
-        this.multiLine = true;
-      } else {
-        this.multiLine = false;
+    $(data).find('SEQUENCE').each(function (index, SEQUENCE) {
+
+      var sequence = $(SEQUENCE).text();
+      var start = parseInt(SEQUENCE.getAttribute('start'));
+
+      // Check if the sequence is multi-line or not
+      if (track.multiLine === undefined) {
+        if (sequence.indexOf("\n") !== -1) {
+          track.multiLine = true;
+        } else {
+          track.multiLine = false;
+        }
       }
-    }
 
-    if (this.multiLine) {
-      sequence = sequence.replace(/\n/g, "");
-    }
-
-    for (var i=0; i<sequence.length; i+=this.chunkSize) {
-      if (this.chunks[start+i]) continue;
-      var feature = {
-        id    : start + i,
-        start : start + i,
-        end   : start + i + this.chunkSize,
-        y     : this.yOffset,
-        sequence : sequence.substr(i, this.chunkSize),
+      if (track.multiLine) {
+        sequence = sequence.replace(/\n/g, "");
       }
-      this.chunks[feature.start] = feature;
-      this.features.insert({ x: feature.start, w: this.chunkSize, y:0, h:1 }, feature);
-    }
+
+      for (var i=0; i<sequence.length; i+=track.chunkSize) {
+        if (track.chunks[start+i]) continue;
+        var feature = {
+          id    : start + i,
+          start : start + i,
+          end   : start + i + track.chunkSize,
+          y     : track.yOffset,
+          sequence : sequence.substr(i, track.chunkSize),
+        }
+        track.chunks[feature.start] = feature;
+        track.features.insert({ x: feature.start, w: track.chunkSize, y:0, h:1 }, feature);
+      }
+
+    });
+
   },
 
 
