@@ -191,10 +191,10 @@ li.sortHandle {
 .canvas_zoom.o .r.v  { right:  8px;  }
 
 .menu {
-  background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 0px 12px 12px 12px;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 12px 0px 12px 12px;
   color: white;
-  min-width: 200px;
+  min-width: 150px;
   padding: 0;
   position: absolute;
   z-index: 10000;
@@ -207,7 +207,7 @@ li.sortHandle {
 }
 
 .menu table {
-  width: 80%;
+  width: 50%;
   margin-right: 15%;
   font-family: monospace;
   font-size: 12px;
@@ -236,7 +236,7 @@ li.sortHandle {
   color: #2E2E2E;
   text-shadow : #F5F5F5 1px 1px 0px;
   cursor: pointer;
-  float: right;
+  float: left;
   padding: 0 0 0 1px;
   text-align: center;
   margin: 3px;
