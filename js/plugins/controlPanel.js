@@ -1,3 +1,32 @@
+Genoverse.prototype.controls = [
+  {
+    icon   : '...',
+    name   : 'Tracks Selection',
+    init   : function () {
+      var browser = this;
+      $("input.trackSelection").live('change', function () {
+        if ($(this).is(':checked')) {
+          browser.tracks[$(this).val()].show();
+        } else {
+          browser.tracks[$(this).val()].hide();
+        }
+      });
+    },
+    action : function () {
+      var tracksMenu = { title  : 'Tracks selection:' };
+
+      for (var i=0; i<this.tracks.length; i++) {
+        var track = this.tracks[i];
+        if (track.type == 'Scalebar') continue;
+        tracksMenu['<input class="trackSelection" type="checkbox" '+ (!track.hidden ? 'checked' : '') +' value="'+ i +'"> '] = track.name.replace('<br />', ' ');
+      }
+
+      var menu = this.makeMenu(tracksMenu);
+      menu.addClass('trackSelection');
+    }
+  }
+];
+
 Genoverse.on('beforeInit', function () {
   var browser = this;
 
@@ -17,9 +46,6 @@ Genoverse.on('beforeInit', function () {
     </div>\
     <div class="button_set">\
     <button class="wheelOff">&#8597;</button><button class="wheelZoom">&#177;</button>\
-    </div>\
-    <div class="button_set">\
-    <button class="trackSelection" style="width: 100%">...</button>\
     </div>\
   ');
 
@@ -100,39 +126,17 @@ Genoverse.on('beforeInit', function () {
     $(".genoverse_panel button.wheelOff").addClass('active');    
   });
 
-  $(".genoverse_panel button.trackSelection").click(function(){
-    var tracksMenu = { title  : 'Tracks selection:' };
-
-    for (var i=0; i<browser.tracks.length; i++) {
-      var track = browser.tracks[i];
-      if (track.type == 'Scalebar') continue;
-      tracksMenu['<input class="trackSelection" type="checkbox" '+ (!track.hidden ? 'checked' : '') +' value="'+ i +'"> '] = track.name.replace('<br />', ' ');
-    }
-
-    var menu = browser.makeMenu(tracksMenu);
-    menu.addClass('trackSelection');
-  });
-
-  $("input.trackSelection").live('change', function () {
-    if ($(this).is(':checked')) {
-      browser.tracks[$(this).val()].show();
-    } else {
-      browser.tracks[$(this).val()].hide();
-    }
-  });
-
-  if (browser.enableSharing) {
-    $(".genoverse_panel button.share").click(function(){
-      var link = window.location.href.split('?')[0] + browser.getQueryString();
-
-      var shareMenu = {
-          title  : 'Link:',
-          ' ' : "<a style='color: #FFFFFF' href="+link+">" + link + "</a>"
-      };
-
-      var menu = browser.makeMenu(shareMenu);
-      menu.addClass('track_info');
-    });
+  for (var i=0; i<browser.controls.length; i++) {
+    (function(control){
+      var $control = $('<div class="button_set" />')
+        .html('<button>'+ control.icon +'</button>')
+        .attr({title: control.name})
+        .on('click', function () {
+          control.action.apply(browser);
+        });
+      $('td.genoverse_panel_right').append($control);
+      if (control.init) control.init.apply(browser);
+    })(browser.controls[i])
   }
 
 });

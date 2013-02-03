@@ -636,7 +636,7 @@ var Genoverse = Base.extend({
       this.end = this.chromosomeSize;
     }
 
-    if (!this.end || !(this.end > this.start) {
+    if (!this.end || !(this.end > this.start)) {
       this.end = this.start + this.defaultLength;
     }
     
