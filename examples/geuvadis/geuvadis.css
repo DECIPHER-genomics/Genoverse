@@ -1,0 +1,19 @@
+.gv_menu {
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 12px 0px 12px 12px;
+  min-width: 150px;
+}
+
+
+.gv_menu table {
+  width: 50%;
+  float: left;
+}
+
+
+.gv_menu .close {
+  float: left;
+}
+ 
+
+

@@ -1,7 +1,6 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="eng">
-<head>
-
+<!DOCTYPE HTML>
+<html>
+  <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="description" content="The European Bioinformatics Institute" />
     <meta name="author" content="EBI Web Team" />
@@ -19,39 +18,39 @@
 <!--  start meta tags, css , javascript here   -->
     <link rel="stylesheet"  href="http://www.ebi.ac.uk/inc/css/sidebars.css"   type="text/css" />
 
-    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
-    <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
-    <link rel="stylesheet" type="text/css" href="css/labelControls.css" />
-    <link rel="stylesheet" type="text/css" href="css/resizer.css" />
+    <link rel="stylesheet" type="text/css" href="/css/genoverse.css" />
+    <link rel="stylesheet" type="text/css" href="/css/controlPanel.css" />
+    <link rel="stylesheet" type="text/css" href="/css/labelControls.css" />
+    <link rel="stylesheet" type="text/css" href="/css/resizer.css" />
     <!--link rel="stylesheet" type="text/css" href="css/hoverLabels.css" /-->
 
-    <script type="text/javascript" src="js/lib/jquery.js"></script>
-    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
-    <script type="text/javascript" src="js/lib/lazyload.js"></script>
-    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
-    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+    <script type="text/javascript" src="/js/lib/jquery.js"></script>
+    <script type="text/javascript" src="/js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="/js/lib/lazyload.js"></script>
+    <script type="text/javascript" src="/js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="/js/lib/jquery.mousehold.js"></script>
 
-    <script type="text/javascript" src="js/lib/Base.js"></script>
-    <script type="text/javascript" src="js/lib/rtree.js"></script>
-    <script type="text/javascript" src="js/lib/FRegion.js"></script>
-    <script type="text/javascript" src="js/lib/url.js"></script>
+    <script type="text/javascript" src="/js/lib/Base.js"></script>
+    <script type="text/javascript" src="/js/lib/rtree.js"></script>
+    <script type="text/javascript" src="/js/lib/FRegion.js"></script>
+    <script type="text/javascript" src="/js/lib/url.js"></script>
 
-    <script type="text/javascript" src="js/Genoverse.js"></script>
-    <script type="text/javascript" src="js/Track.js"></script>
+    <script type="text/javascript" src="/js/Genoverse.js"></script>
+    <script type="text/javascript" src="/js/Track.js"></script>
 
-    <script type="text/javascript" src="js/Track/Scalebar.js"></script>
-    <script type="text/javascript" src="js/Track/Sequence.js"></script>
-    <script type="text/javascript" src="js/Track/DAS/Sequence.js"></script>
+    <script type="text/javascript" src="/js/Track/Scalebar.js"></script>
+    <script type="text/javascript" src="/js/Track/Sequence.js"></script>
+    <script type="text/javascript" src="/js/Track/DAS/Sequence.js"></script>
 
-    <script type="text/javascript" src="js/Track/DAS.js"></script>
-    <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
-    <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
+    <script type="text/javascript" src="/js/Track/DAS.js"></script>
+    <script type="text/javascript" src="/js/Track/DAS/colorMap.js"></script>
+    <script type="text/javascript" src="/js/Track/DAS/Transcript.js"></script>
 
-    <script type="text/javascript" src="js/Track/SV.js"></script>
+    <script type="text/javascript" src="/js/Track/SV.js"></script>
 
-    <script type="text/javascript" src="js/plugins/controlPanel.js"></script>
-    <script type="text/javascript" src="js/plugins/trackControls.js"></script>
-    <script type="text/javascript" src="js/plugins/resizer.js"></script>
+    <script type="text/javascript" src="/js/plugins/controlPanel.js"></script>
+    <script type="text/javascript" src="/js/plugins/trackControls.js"></script>
+    <script type="text/javascript" src="/js/plugins/resizer.js"></script>
 
 
     <style type="text/css">
@@ -165,7 +164,37 @@
             end            : getURLParameter("end", 920000),    // 920000,
             dragAction     : 'scroll',
             wheelAction    : 'off',
-			enableSharing  : true,
+
+            setChrAndRange: function (chr, start, end, update, force) {
+                // TODO:
+                // get proper browser boundaries
+                // get chromosome length
+
+                this.chr = chr;
+
+                this.setRange(start, end, update, force);
+            },
+
+            controls : Genoverse.controls.concat([
+              {
+                icon   : 'share',
+                name   : 'Share this view',
+                action : function () {
+                  var browser = this;
+                  $(".genoverse_panel button.share").click(function(){
+                    var link = window.location.href.split('?')[0] + browser.getQueryString();
+
+                    var shareMenu = {
+                        title  : 'Link:',
+                        ' ' : "<a style='color: #FFFFFF' href="+link+">" + link + "</a>"
+                    };
+
+                    var menu = browser.makeMenu(shareMenu);
+                    menu.addClass('track_info');
+                  });
+                }
+              }
+            ]),
 
             tracks: [
                 {
