@@ -123,8 +123,7 @@ Genoverse.on('beforeInit', function () {
 
   if (browser.enableSharing) {
     $(".genoverse_panel button.share").click(function(){
-      var link = window.location.href.split('?')[0] +
-                    "?chr=" + browser.chr + "&start=" + browser.start + "&end=" + browser.end;
+      var link = window.location.href.split('?')[0] + browser.getQueryString();
 
       var shareMenu = {
           title  : 'Link:',

@@ -11,6 +11,7 @@ var Genoverse = Base.extend({
   buffer           : 1,
   longestLabel     : 30,
   trackSpacing     : 2,
+  defaultLength    : 5000,
   tracks           : [],
   tracksById       : {},
   menus            : [],
@@ -24,8 +25,6 @@ var Genoverse = Base.extend({
     minorGuideLine : '#E5E5E5',
     sortHandle     : '#CFD4E7'
   },
-  defaultCoordSpan : 5000,
-  enableSharing    : false,
 
 
   constructor: function (config) {
@@ -89,7 +88,7 @@ var Genoverse = Base.extend({
     return loadPluginsTask;
   },
 
-  
+
   init: function () {
     var browser = this;
     var width   = this.width;
@@ -164,12 +163,11 @@ var Genoverse = Base.extend({
     
     this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('i o').appendTo('body');
 
-    // @andrewtikhonov: getCoords might be better place for this as we check this.end
-    // fix the end
-    this.end = this.makeValidEnd(this.start, this.end, this.defaultCoordSpan);
+    var urlCoords = this.getURLCoords();
+    var coords    = urlCoords.chr && urlCoords.start && urlCoords.end 
+                     ? urlCoords 
+                     : { chr: this.chr, start: this.start, end: this.end };
 
-    var coords = this.chr && this.start && this.end ? { chr: this.chr, start: this.start, end: this.end } : this.getCoords();
-    
     this.chr = coords.chr;
     
     this.setRange(coords.start, coords.end);
@@ -177,11 +175,6 @@ var Genoverse = Base.extend({
     this.setTracks();
     this.makeImage();
     this.addUserEventHandlers();
-  },
-
-
-  makeValidEnd: function (start, end) {
-      return (end > start ? end : start + 5000);
   },
 
 
@@ -627,8 +620,8 @@ var Genoverse = Base.extend({
     
     return true;
   },
-  
-  
+
+
   setRange: function (start, end, update, force) {
     this.prev.start = this.start;
     this.prev.end   = this.end;
@@ -641,6 +634,10 @@ var Genoverse = Base.extend({
     
     if (this.end > this.chromosomeSize) {
       this.end = this.chromosomeSize;
+    }
+
+    if (!this.end || !(this.end > this.start) {
+      this.end = this.start + this.defaultLength;
     }
     
     this.length = this.end - this.start + 1;
@@ -754,12 +751,25 @@ var Genoverse = Base.extend({
       // Well, this is probably ugly, there could be a nicer way of doing it.
       hierarchy = (tracks[i].type || '').split('.');
       Class     = Genoverse.Track;
-      
+
       while (subClass = hierarchy.shift()) {
         Class = Class[subClass];
       }
-      
+
       tracks[i] = new Class($.extend(tracks[i], defaults, { index: i + index }));
+
+      // set the reference to the browser
+      //
+      // andrewtikhonov:
+      // tracks might accidentally create
+      // their own 'browser' variable, which
+      // will be silently overridden, which
+      // is obviously not perfect
+      //
+      // EugeneBragin:
+      // Hmm, not sure about this one, 
+      // could you give one example?
+      tracks[i].browser = this;
 
       if (push) {
         this.tracks.push(tracks[i]);
@@ -998,7 +1008,7 @@ var Genoverse = Base.extend({
   
   
   popState: function () {
-    var coords = this.getCoords();
+    var coords = this.getURLCoords();
     
     if (coords.start && !(parseInt(coords.start, 10) === this.start && parseInt(coords.end, 10) === this.end)) {
       this.setRange(coords.start, coords.end);
@@ -1044,10 +1054,18 @@ var Genoverse = Base.extend({
   },
   
   
-  getCoords: function () {
-    var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') || window.location.search : window.location.search) + '&').match(this.paramRegex).slice(2, -1);
-    var coords = {};
-    var i      = 0;
+  getURLCoords: function () {
+    var coords = { chr: null, start:null, end:null };
+
+    // check url parameters are not empty
+    if (window.location.hash == "" && window.location.search == "") {
+        return coords;
+    }
+
+    var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') ||
+        window.location.search : window.location.search) + '&').match(this.paramRegex).slice(2, -1);
+
+    var i = 0;
     
     $.each(this.urlParamTemplate.split('__'), function () {
       var tmp = this.match(/^(CHR|START|END)$/);
@@ -1066,8 +1084,19 @@ var Genoverse = Base.extend({
       .replace('__CHR__',   this.chr)
       .replace('__START__', this.start)
       .replace('__END__',   this.end);
-    
-    return this.useHash ? location : (window.location.search + '&').replace(this.paramRegex, '$1' + location + '$5').slice(0, -1);
+
+    if (this.useHash) {
+        return location;
+    }
+
+    // no parameters
+    if (window.location.search == "") {
+        return "?" + location;
+    }
+
+    // otherwise
+    return (window.location.search + '&').
+        replace(this.paramRegex, '$1' + location + '$5').slice(0, -1);
   },
     
 
@@ -1095,12 +1124,6 @@ var Genoverse = Base.extend({
     var offset  = wrapper.offset();
     var menu    = this.menuTemplate.clone(true).appendTo($('body'));
 
-    //debugger;
-    //position.top  -= offset.top;
-    //position.left -= offset.left;
-    //position.left  = Math.min(position.left, this.width - menu.outerWidth());
-    //menu.css(position);
-
     this.menus.push(menu);
     
     if (track) {
@@ -1121,7 +1144,7 @@ var Genoverse = Base.extend({
         );
         return true;
       });
-      
+
       menu.show();
       menu.css(
         position || 
@@ -1130,6 +1153,7 @@ var Genoverse = Base.extend({
           left : offset.left + (wrapper.outerWidth(true) - menu.outerWidth(true))/2
         }
       );
+
       if (track && track.id) {
         menu.addClass(track.id);
       }
@@ -1186,7 +1210,7 @@ var Genoverse = Base.extend({
         
         if (this.systemEventHandlers['before' + func]) {
           for (i = 0; i < this.systemEventHandlers['before' + func].length; i++) {
-            // TODO: Should it stop once beforeFunc returned false or something??
+            // TODO: Should it end when beforeFunc returned false??
             this.systemEventHandlers['before' + func][i].apply(this, arguments);
           }
         }
@@ -1195,7 +1219,7 @@ var Genoverse = Base.extend({
         
         if (this.systemEventHandlers['after' + func]) {
           for (i = 0; i < this.systemEventHandlers['after' + func].length; i++) {
-            // TODO: Should it stop once afterFunc returned false or something??
+            // TODO: Should it end when afterFunc returned false??
             this.systemEventHandlers['after' + func][i].apply(this, arguments);
           }
         }

@@ -33,5 +33,5 @@ div.resizer {
 }
 
 .canvas_container .resizer:hover, .canvas_container .resizer.ui-draggable-dragging { 
-  box-shadow: 0 -5px 7px -3px #000000 inset!important; 
+  box-shadow: 0 -5px 7px -3px #000000 inset!important;
 }
