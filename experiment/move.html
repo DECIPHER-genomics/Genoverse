@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.event.move.js"></script>
+
+
+  </head>
+  <body>
+
+  <div id="genoverse" style="border: 1px black solid; width: 100px; height: 50px; position: absolute;"></div>
+
+<script>
+var start;
+$('#genoverse').on('movestart', function(e){
+  // Only listen to one finger
+  if (e.targetTouches && e.targetTouches.length > 1) {
+    e.preventDefault();
+    return;
+  }
+  if (e.target == e.currentTarget) {
+    start = $(this).position().left;
+  }
+}).on('move', function(e) {
+  // move .mydiv horizontally
+  console.log(start);
+  $(this).css({ left: start + e.distX });
+}).on('moveend', function() {
+  // move is complete!
+});
+
+</script>
+ 
+  </body>
+</html>

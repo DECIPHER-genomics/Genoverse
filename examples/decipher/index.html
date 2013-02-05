@@ -4,37 +4,37 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
 
 
-    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
-    <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
-    <link rel="stylesheet" type="text/css" href="css/trackControls.css" />
-    <link rel="stylesheet" type="text/css" href="css/resizer.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/genoverse.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/controlPanel.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/trackControls.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/resizer.css" />
     
-    <script type="text/javascript" src="js/lib/jquery.js"></script>
-    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
-    <script type="text/javascript" src="js/lib/lazyload.js"></script>
-    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
-    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+    <script type="text/javascript" src="../../js/lib/jquery.js"></script>
+    <script type="text/javascript" src="../../js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="../../js/lib/lazyload.js"></script>
+    <script type="text/javascript" src="../../js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="../../js/lib/jquery.mousehold.js"></script>
 
-    <script type="text/javascript" src="js/lib/Base.js"></script>
-    <script type="text/javascript" src="js/lib/rtree.js"></script>
-    <script type="text/javascript" src="js/lib/FRegion.js"></script>
+    <script type="text/javascript" src="../../js/lib/Base.js"></script>
+    <script type="text/javascript" src="../../js/lib/rtree.js"></script>
+    <script type="text/javascript" src="../../js/lib/FRegion.js"></script>
     
-    <script type="text/javascript" src="js/Genoverse.js"></script>
-    <script type="text/javascript" src="js/Track.js"></script> 
+    <script type="text/javascript" src="../../js/Genoverse.js"></script>
+    <script type="text/javascript" src="../../js/Track.js"></script> 
 
-    <script type="text/javascript" src="js/Track/Scalebar.js"></script>
-    <script type="text/javascript" src="js/Track/Sequence.js"></script>
-    <script type="text/javascript" src="js/Track/DAS/Sequence.js"></script>
+    <script type="text/javascript" src="../../js/Track/Scalebar.js"></script>
+    <script type="text/javascript" src="../../js/Track/Sequence.js"></script>
+    <script type="text/javascript" src="../../js/Track/DAS/Sequence.js"></script>
 
-    <script type="text/javascript" src="js/Track/DAS.js"></script>
-    <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
-    <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
+    <script type="text/javascript" src="../../js/Track/DAS.js"></script>
+    <script type="text/javascript" src="../../js/Track/DAS/colorMap.js"></script>
+    <script type="text/javascript" src="../../js/Track/DAS/Transcript.js"></script>
 
-    <script type="text/javascript" src="js/Track/SV.js"></script>
+    <script type="text/javascript" src="../../js/Track/SV.js"></script>
     
-    <script type="text/javascript" src="js/plugins/controlPanel.js"></script>
-    <script type="text/javascript" src="js/plugins/trackControls.js"></script>
-    <script type="text/javascript" src="js/plugins/resizer.js"></script>
+    <script type="text/javascript" src="../../js/plugins/controlPanel.js"></script>
+    <script type="text/javascript" src="../../js/plugins/trackControls.js"></script>
+    <script type="text/javascript" src="../../js/plugins/resizer.js"></script>
 
     <!--script type="text/javascript" src="js/jsCombinator.js"></script-->
 
@@ -172,40 +172,40 @@
           //   height    : 60,
           // },
 
-          {
-            name      : 'My Patient:<br />SNVs, InDels',
-            threshold : 5000,
-            type      : 'SV',
-            height    : 60,
-            info      : 'Sequence variant(s) observed in the current patient',
-            variations: [
-              {
-                chr   : 5,
-                start : 45419000,
-                end   : 45419003,
-                type  : 'InDel',
-                reference_allele: 'atcat',
-                alternate_allele: 'gtag',
-                vep_category : 'In UTR',
-                genotype     : 'Homozygous',
-                variant_type : 'InDel',
-                id_patient   : 262231,
-              }
-            ],
-            variationColor: function (variation) {
-              return variationColorMap[variation.vep_category]
-            },
-            populateMenu : function (feature) {
-              return {
-                title    : feature.reference_allele + '/' + feature.alternate_allele,
-                Patient  : '<a href="/patient/'+ feature.id_patient +'">' + feature.id_patient + '</a>',
-                Location : feature.chr + ':' + feature.start + '-' + feature.end,
-                Genotype : feature.genotype,
-                Type     : feature.variant_type,
-                Consequence : feature.vep_category,
-              };
-            },
-          }, 
+          // {
+          //   name      : 'My Patient:<br />SNVs, InDels',
+          //   threshold : 5000,
+          //   type      : 'SV',
+          //   height    : 60,
+          //   info      : 'Sequence variant(s) observed in the current patient',
+          //   variations: [
+          //     {
+          //       chr   : 5,
+          //       start : 45419000,
+          //       end   : 45419003,
+          //       type  : 'InDel',
+          //       reference_allele: 'atcat',
+          //       alternate_allele: 'gtag',
+          //       vep_category : 'In UTR',
+          //       genotype     : 'Homozygous',
+          //       variant_type : 'InDel',
+          //       id_patient   : 262231,
+          //     }
+          //   ],
+          //   variationColor: function (variation) {
+          //     return variationColorMap[variation.vep_category]
+          //   },
+          //   populateMenu : function (feature) {
+          //     return {
+          //       title    : feature.reference_allele + '/' + feature.alternate_allele,
+          //       Patient  : '<a href="/patient/'+ feature.id_patient +'">' + feature.id_patient + '</a>',
+          //       Location : feature.chr + ':' + feature.start + '-' + feature.end,
+          //       Genotype : feature.genotype,
+          //       Type     : feature.variant_type,
+          //       Consequence : feature.vep_category,
+          //     };
+          //   },
+          // }, 
 
           {
             name    : "DECIPHER:<br />SNVs, InDels", 
@@ -633,13 +633,12 @@
 
     </script>
 
-
-
-
   </head>
   <body>
 
+
   <div id="genoverse"></div>
- 
+
+
   </body>
 </html>

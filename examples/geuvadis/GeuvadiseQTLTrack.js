@@ -2,29 +2,29 @@ Genoverse.Track.GeuvadiseQTLTrack = Genoverse.Track.extend({
 
     // Defaults
     name           : 'eQTL',
-    url            : 'eQTL?r=__CHR__:__START__-__END__',
-    height         : 100,
-    featureHeight  : 98,
-    resizable      : false,
-    normColor      : 'rgba(250,0,0,0.8)',
-    bestColor      : 'rgba(0,0,250,0.8)',
-    info           : 'eQTL',
+    url            : 'eQTL?r=__CHR__:__START__-__END__',
+    height         : 100,
+    featureHeight  : 98,
+    resizable      : false,
+    normColor      : 'rgba(250,0,0,0.8)',
+    bestColor      : 'rgba(0,0,250,0.8)',
+    info           : 'eQTL',
     browser        : null,
 
-    parseData      : function (data) {
+    parseData      : function (data) {
         //alert("eQTL parseData data.length=" + data.length);
 
         var i = data.length;
         while (i--) {
-            data[i].start      = parseInt(data[i].start, 10);
-            data[i].end        = parseInt(data[i].end, 10);
-            data[i].score      = parseFloat(data[i].score);
+            data[i].start      = parseInt(data[i].start, 10);
+            data[i].end        = parseInt(data[i].end, 10);
+            data[i].score      = parseFloat(data[i].score);
             data[i].color      = this.normColor;
 
             var j = data[i].linked.length;
             while (j--) {
                 if (data[i].linked[j].best == "true") {
-                    data[i].color  = this.bestColor;
+                    data[i].color  = this.bestColor;
                     break;
                 }
             }

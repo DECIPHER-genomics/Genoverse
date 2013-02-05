@@ -16,11 +16,11 @@ Genoverse.Track.GeuvadisExonJsonTrack = Genoverse.Track.extend({
         // link + protein coding
         // http://browser.1000genomes.org/Homo_sapiens/Location/View?db=core;r=1:1177739-1178131
 
-        data.gene       = data.id;
-        data.id         = data.gene + "_" + data.start + "_" + data.end + "_" + data.score;
-        data.start      = parseInt(data.start, 10);
-        data.end        = parseInt(data.end, 10);
-        data.score      = parseFloat(data.score);
+        data.gene       = data.id;
+        data.id         = data.gene + "_" + data.start + "_" + data.end + "_" + data.score;
+        data.start      = parseInt(data.start, 10);
+        data.end        = parseInt(data.end, 10);
+        data.score      = parseFloat(data.score);
         data.logx10     = Math.log(data.score + 1) * 10;
         data.color      = this.featureColor;
 
@@ -80,16 +80,16 @@ Genoverse.Track.GeuvadisExonJsonTrack = Genoverse.Track.extend({
             Min           : feature.min,
             'Log(x+1)*10' : feature.logx10,
             Score         : feature.score,
-            Ensembl       : feature.gene ? '<a target=_blank href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?g='+ feature.gene +'">'+ feature.gene +'</a>' : '-'
+            Ensembl       : feature.gene ? '<a target=_blank href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?g='+ feature.gene +'">'+ feature.gene +'</a>' : '-'
         };
 
         /*
                 Synonyms : gene.synonyms,
-                OMIM     : gene.id_omim ? '<a target=_blank href="http://omim.org/'+ gene.id_omim +'">'+ gene.id_omim +'</a>' : '-',
-                Morbid   : gene.id_morbid ? '<a target=_blank href="http://omim.org/'+ gene.id_morbid +'">'+ gene.id_morbid +'</a>' : '-',
+                OMIM     : gene.id_omim ? '<a target=_blank href="http://omim.org/'+ gene.id_omim +'">'+ gene.id_omim +'</a>' : '-',
+                Morbid   : gene.id_morbid ? '<a target=_blank href="http://omim.org/'+ gene.id_morbid +'">'+ gene.id_morbid +'</a>' : '-',
                 'UCSC ID': gene.id_ucsc ? '<a target=_blank href="http://genome.cse.ucsc.edu/cgi-bin/hgGene?hgg_gene='+ gene.id_ucsc +'">'+ gene.id_ucsc +'</a>' : '-',
-                Ensembl  : gene.id_ensembl ? '<a target=_blank href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?g='+ gene.id_ensembl +'">'+ gene.id_ensembl +'</a>' : '-',
-                Protein  : gene.id_uniprot ? '<a target=_blank href="http://www.uniprot.org/uniprot/'+ gene.id_uniprot +'">'+ gene.id_uniprot +'</a>' : '-'
+                Ensembl  : gene.id_ensembl ? '<a target=_blank href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?g='+ gene.id_ensembl +'">'+ gene.id_ensembl +'</a>' : '-',
+                Protein  : gene.id_uniprot ? '<a target=_blank href="http://www.uniprot.org/uniprot/'+ gene.id_uniprot +'">'+ gene.id_uniprot +'</a>' : '-'
         */
-    }            
+    }            
 });

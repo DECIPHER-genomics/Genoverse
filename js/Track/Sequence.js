@@ -8,7 +8,7 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
   yOffset       : 5,
   //complementary : true,
   chunkSize   : 1000,
-  //threshold : 2000,
+  threshold   : 1e5,
   labelOverlay: true, 
   allData     : false,
   fontSize    : 10,
