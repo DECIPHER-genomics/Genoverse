@@ -2949,7 +2949,7 @@ Genoverse.Track = Base.extend({
       $('<div class="handle"></div>').appendTo(this.label);
     }
     
-    this.minLabelHeight = $('<span class="name" title="' + this.name + '">' + this.name + '</span>').appendTo(this.label).outerHeight(true);
+    this.minLabelHeight = $('<span class="name" title="' + (this.name || '') + '">' + (this.name || '') + '</span>').appendTo(this.label).outerHeight(true);
     this.label.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
     
     this.container.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
