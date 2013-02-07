@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+
+    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
+    
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/lib/lazyload.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+
+    <script type="text/javascript" src="js/lib/Base.js"></script>
+    <script type="text/javascript" src="js/lib/rtree.js"></script>
+    <script type="text/javascript" src="js/lib/FRegion.js"></script>
+    
+    <script type="text/javascript" src="js/Genoverse.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script> 
+
+    <script type="text/javascript" src="js/Track/Static.js"></script>
+    <script type="text/javascript" src="js/Track/Stranded.js"></script> 
+    <script type="text/javascript" src="js/Track/Threshold.js"></script>
+    <script type="text/javascript" src="js/Track/Error.js"></script>
+    
+    <script type="text/javascript" src="js/Track/Scalebar.js"></script>
+    <script type="text/javascript" src="js/Track/Sequence.js"></script>
+    <script type="text/javascript" src="js/Track/Gene.js"></script>
+
+    <script type="text/javascript" src="js/Track/DAS.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
+    
+    <script type="text/javascript" src="js/jsCombinator.js"></script>
+
+
+    <script>
+
+      var genoverseConfig = {
+        container      : '#genoverse',
+        width          : 756,
+        chromosomeSize : 249250621, // chromosome 1, human
+        chr            : 1,
+        start          : 45467084,
+        end            : 45473455,
+
+        plugins        : [
+          'controlPanel',
+          'trackControls',
+          'resizer',
+        ],
+
+        tracks         : [
+          {
+            type : 'Scalebar',
+            height : 25,
+          },
+
+          {
+            type : 'Sequence',
+          },          
+
+          {
+            name    : 'Transcript',
+            type    : 'DAS.Transcript',
+            renderer: 'transcript',
+            filter  : {
+              type  : [ 'transcript', 'translation' ]
+            },
+            populateMenu: function (feature) {
+              return {
+                title: feature.label,
+                start: feature.start,
+                stop : feature.end,
+                Links: '<a href="#">e!</a>'
+              };
+            }
+          },
+
+        ]
+      }
+
+      $(document).ready(function(){ window.genoverse = new Genoverse(genoverseConfig) });
+
+    </script>
+
+  </head>
+  <body>
+
+  <div id="genoverse"></div>
+ 
+  </body>
+</html>

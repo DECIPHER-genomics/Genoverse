@@ -25,21 +25,21 @@ ul.label_container {
   user-select: none;  
 }
 
-.canvas_container .wrapper {
+.canvas_container .gv_wrapper {
   border: 1px solid black;
   overflow: hidden;
   position: relative;
   background: #ccc;
 }
 
-.canvas_container .wrapper .overlay {
+.canvas_container .gv_wrapper .overlay {
   position: absolute;
   height: 100%;
   z-index: 10;
   background: url(../i/loadingBG.png) repeat #ccc;
 }
 
-.canvas_container .wrapper .overlay.track {
+.canvas_container .gv_wrapper .overlay.track {
   background-position: center;
   background-repeat: repeat-x;
 }
