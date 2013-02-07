@@ -38,6 +38,10 @@
   font-family: Tahoma;
 }
 
+.genoverse_panel button:only-child {
+  width: 100%;
+}
+
 .genoverse_panel div.button_set>button:not(:first-child) {
   border-left: 1px solid #1C5380;
 }
