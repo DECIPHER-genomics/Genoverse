@@ -2925,6 +2925,8 @@ Genoverse.Track = Base.extend({
     this.label          = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('index', this.index);
     this.menus          = $();
     this.context        = this.canvas[0].getContext('2d');
+    this.context.webkitImageSmoothingEnabled = false;
+
     this.font           = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
     this.context.font   = this.font;
     this.fontHeight     = this.fontSize;
@@ -3358,6 +3360,7 @@ Genoverse.Track = Base.extend({
 
     var canvas  = $('<canvas />').attr({ width: img.data('width'), height: img.data('height') || 1 })[0];
     var context = canvas.getContext('2d');
+    context.webkitImageSmoothingEnabled = false;
     context.font = this.font;
     context.textBaseline = 'top';
 
