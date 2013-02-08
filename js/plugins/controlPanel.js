@@ -35,16 +35,16 @@ Genoverse.on('beforeInit', function () {
   .appendTo(browser.container);
 
   $('td.genoverse_panel_right').append('\
-    <div class="button_set">\
+    <div class="button_set scroll" title="Scroll left and right by pressing and holding these buttons">\
     <button class="scrollLeft" title="Scroll left">&#9668;</button><button class="scrollRight" title="Scroll right">&#9658;</button>\
     </div>\
-    <div class="button_set">\
-    <button class="zoomIn" title="Zoom in">+</button><button class="zoomOut" title="Zoom out">&#8722;</button>\
+    <div class="button_set zoom" title="Zoom-in and zoom-out">\
+    <button class="zoomIn">+</button><button class="zoomOut">&#8722;</button>\
     </div>\
-    <div class="button_set">\
+    <div class="button_set toggleDrag" title="Toggle your mouse drag action between scroll left/right and select region">\
     <button class="dragScroll">&#8596;</button><button class="dragSelect">&#9482;</button>\
     </div>\
-    <div class="button_set">\
+    <div class="button_set toggleWheel" title="Toggle your mouse wheel action between zoom in/out and default page scroll">\
     <button class="wheelOff">&#8597;</button><button class="wheelZoom">&#177;</button>\
     </div>\
   ');
