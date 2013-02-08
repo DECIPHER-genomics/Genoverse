@@ -255,32 +255,33 @@
     }
   };
     
-})(jQuery);
+})($);
 
 
 Genoverse.on('afterInit', function () {
+  setTimeout(function(){
+    $('.genoverse_panel .button_set').each(function(){
+      $(this)
+        .addClass('tooltip')
+        .tipsy({ gravity: 'w', fade: true, trigger: 'manual' })
+        .tipsy('show');
+    });
 
-  $('.genoverse_panel .button_set').each(function(){
-    $(this)
+    $('.gv_wrapper')
       .addClass('tooltip')
-      .tipsy({ gravity: 'w', fade: true, trigger: 'manual' })
+      .tipsy({ gravity: 's', fade: true, trigger: 'manual', fallback: "Scroll left and right by dragging with your mouse, click on any feature in any track for more info" })
       .tipsy('show');
-  });
 
-  $('.gv_wrapper')
-    .addClass('tooltip')
-    .tipsy({ gravity: 's', fade: true, trigger: 'manual', fallback: "Scroll left and right by dragging with your mouse, click on any feature in any track for more info" })
-    .tipsy('show');
+    $('.resizer:last')
+      .addClass('tooltip')
+      .tipsy({ gravity: 'n', fade: true, trigger: 'manual', fallback: "Resize track by dragging this handle" })
+      .tipsy('show');
 
-  $('.resizer:last')
-    .addClass('tooltip')
-    .tipsy({ gravity: 'n', fade: true, trigger: 'manual', fallback: "Resize track by dragging this handle" })
-    .tipsy('show');
-
-  $('ul.label_container')
-    .addClass('tooltip')
-    .tipsy({ gravity: 'e', fade: true, trigger: 'manual', fallback: "Reorder tracks by dragging this handle" })
-    .tipsy('show');
+    $('ul.label_container')
+      .addClass('tooltip')
+      .tipsy({ gravity: 'e', fade: true, trigger: 'manual', fallback: "Reorder tracks by dragging this handle" })
+      .tipsy('show');
+  }, 1000);
 });
 
 

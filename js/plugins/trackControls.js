@@ -18,7 +18,7 @@ var defaultControls = [
   }
 ];
 
-Genoverse.Track.on('afterAddDomElements', function() {
+Genoverse.Track.on('afterAddDomElements afterRename', function() {
   var track = this;
   if (track.controls === 'off') return;
   var controls = (track.controls || []).concat(defaultControls);

@@ -139,6 +139,12 @@ Genoverse.Track = Base.extend({
   },
 
 
+  rename: function (newName) {
+    this.name = newName;
+    $('span.name', this.label).html(this.name);
+  },
+
+
   addUserEventHandlers: function () {
     var track   = this;
     var browser = this.browser;

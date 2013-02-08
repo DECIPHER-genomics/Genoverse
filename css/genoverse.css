@@ -131,7 +131,7 @@ li.sortHandle {
   background-color: rgba(6, 54, 95, 0.35);
 }
 
-.canvas_container .label_container li:not(:first-child):not(:last-child) {
+.canvas_container .label_container li:not(:first-child) {
   box-shadow: 0 2px 0 rgba(255, 255, 255, 0.12) inset, 0 1px 0 #1C5380 inset;
 }
 
@@ -156,6 +156,7 @@ li.sortHandle {
 }
 
 .canvas_container .menu_container {
+  display: none;
   position: absolute;
   height: 100%;
   overflow: hidden;
@@ -212,10 +213,18 @@ li.sortHandle {
 
 .gv_menu table {
   width: 80%;
-  margin-right: 15%;
+  margin: 0 15% 0 0;
+  color: white;
   font-family: monospace;
   font-size: 12px;
   padding: 10px;
+  border: none;
+}
+
+.gv_menu table th, .gv_menu table td {
+  color: white;
+  padding: 0;
+  border: none
 }
 
 .gv_menu table .title {
