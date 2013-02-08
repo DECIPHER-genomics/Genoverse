@@ -70,3 +70,7 @@
   padding: 0;
   color: white;
 }
+
+.genoverse>table {
+  width: auto;
+}

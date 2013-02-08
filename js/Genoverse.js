@@ -299,10 +299,10 @@ var Genoverse = Base.extend({
     this.dragging  = false;
     this.scrolling = false;
     
-    // $('.overlay', this.wrapper).add('.gv-menu', this.menuContainer).add(this.selector).css({
-    //   left       : function (i, left) { return (this.className.indexOf('selector') === -1 ? 0 : 1) + parseFloat(left, 10) + parseFloat($(this).css('marginLeft'), 10); },
-    //   marginLeft : function ()        { return  this.className.indexOf('selector') === -1 ? 0 : -1 }
-    // });
+    $('.overlay', this.wrapper).add('.gv-menu', this.menuContainer).add(this.selector).css({
+      left       : function (i, left) { return (this.className.indexOf('selector') === -1 ? 0 : 1) + parseFloat(left, 10) + parseFloat($(this).css('marginLeft'), 10); },
+      marginLeft : function ()        { return  this.className.indexOf('selector') === -1 ? 0 : -1 }
+    });
     
     if (update !== false) {
       if (this.start !== this.dragStart) {

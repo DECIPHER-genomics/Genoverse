@@ -59,20 +59,20 @@ Genoverse.on('beforeInit', function () {
 
   browser.container = $('td.canvas_container');
 
-  $(".genoverse_panel button.scrollLeft").mousehold(50, function () {
+  $(".genoverse_panel button.scrollLeft").mousehold(10, function () {
     $('.track_container .resizer').hide();
-    browser.move(NaN, 100, 100);
+    browser.move(NaN, 10);
   });
 
   $(".genoverse_panel button.scrollLeft,button.scrollRight").mouseup(function () {
     $('.track_container .resizer').show();
     browser.updateURL();
-    browser.checkTrackSize();
+    browser.checkHeights();
   });
 
-  $(".genoverse_panel button.scrollRight").mousehold(50, function () {
+  $(".genoverse_panel button.scrollRight").mousehold(10, function () {
     $('.track_container .resizer').hide();
-    browser.move(NaN, -100, 100);
+    browser.move(NaN, -10);
   });
 
   $(".genoverse_panel button.zoomIn").click(function () {
@@ -138,5 +138,16 @@ Genoverse.on('beforeInit', function () {
       if (control.init) control.init.apply(browser);
     })(browser.controls[i])
   }
+
+  // ESC key to toggle crosshair select to drag mode and close menues
+  $(document).keydown(function(e) {
+    if (e.keyCode == 27) {
+      if ($(".genoverse_panel button.dragSelect").hasClass('active')) {
+        $(".genoverse_panel button.dragScroll").trigger('click');
+      }
+
+      $('.gv_menu .close').trigger('click');
+    }
+  });
 
 });

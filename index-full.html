@@ -4,6 +4,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
 
     <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
+    <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
+    <link rel="stylesheet" type="text/css" href="css/trackControls.css" />
+    <link rel="stylesheet" type="text/css" href="css/resizer.css" />
     
     <script type="text/javascript" src="js/lib/jquery.js"></script>
     <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
@@ -30,8 +33,14 @@
     <script type="text/javascript" src="js/Track/DAS.js"></script>
     <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
     <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
+
+    <script type="text/javascript" src="js/plugins/controlPanel.js"></script>
+    <script type="text/javascript" src="js/plugins/trackControls.js"></script>
+    <script type="text/javascript" src="js/plugins/resizer.js"></script>
+
+
     
-    <script type="text/javascript" src="js/jsCombinator.js"></script>
+    <!--script type="text/javascript" src="js/jsCombinator.js"></script-->
 
 
     <script>
@@ -44,11 +53,7 @@
         start          : 45467084,
         end            : 45473455,
 
-        plugins        : [
-          'controlPanel',
-          'trackControls',
-          'resizer',
-        ],
+
 
         tracks         : [
           {
