@@ -281,7 +281,7 @@ Genoverse.on('afterInit', function () {
       .addClass('tooltip')
       .tipsy({ gravity: 'e', fade: true, trigger: 'manual', fallback: "Reorder tracks by dragging this handle" })
       .tipsy('show');
-  }, 1000);
+  }, 5000);
 });
 
 

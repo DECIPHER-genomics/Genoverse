@@ -1062,19 +1062,23 @@ var Genoverse = Base.extend({
         return coords;
     }
 
-    var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') ||
-        window.location.search : window.location.search) + '&').match(this.paramRegex).slice(2, -1);
+    try {
+      var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') ||
+          window.location.search : window.location.search) + '&').match(this.paramRegex).slice(2, -1);
 
-    var i = 0;
-    
-    $.each(this.urlParamTemplate.split('__'), function () {
-      var tmp = this.match(/^(CHR|START|END)$/);
+      var i = 0;
       
-      if (tmp) {
-        coords[tmp[1].toLowerCase()] = match[i++];
-      }
-    });
-    
+      $.each(this.urlParamTemplate.split('__'), function () {
+        var tmp = this.match(/^(CHR|START|END)$/);
+        
+        if (tmp) {
+          coords[tmp[1].toLowerCase()] = match[i++];
+        }
+      });
+    } catch(e) {
+
+    }
+
     return coords;
   },
   

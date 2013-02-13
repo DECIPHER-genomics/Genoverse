@@ -1858,10 +1858,10 @@ var Genoverse = Base.extend({
     this.dragging  = false;
     this.scrolling = false;
     
-    // $('.overlay', this.wrapper).add('.gv-menu', this.menuContainer).add(this.selector).css({
-    //   left       : function (i, left) { return (this.className.indexOf('selector') === -1 ? 0 : 1) + parseFloat(left, 10) + parseFloat($(this).css('marginLeft'), 10); },
-    //   marginLeft : function ()        { return  this.className.indexOf('selector') === -1 ? 0 : -1 }
-    // });
+    $('.overlay', this.wrapper).add('.gv-menu', this.menuContainer).add(this.selector).css({
+      left       : function (i, left) { return (this.className.indexOf('selector') === -1 ? 0 : 1) + parseFloat(left, 10) + parseFloat($(this).css('marginLeft'), 10); },
+      marginLeft : function ()        { return  this.className.indexOf('selector') === -1 ? 0 : -1 }
+    });
     
     if (update !== false) {
       if (this.start !== this.dragStart) {
@@ -2621,18 +2621,23 @@ var Genoverse = Base.extend({
         return coords;
     }
 
-    var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') ||
-        window.location.search : window.location.search) + '&').match(this.paramRegex).slice(2, -1);
+    try {
+      var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') ||
+          window.location.search : window.location.search) + '&').match(this.paramRegex).slice(2, -1);
 
-    var i = 0;
-    
-    $.each(this.urlParamTemplate.split('__'), function () {
-      var tmp = this.match(/^(CHR|START|END)$/);
+      var i = 0;
       
-      if (tmp) {
-        coords[tmp[1].toLowerCase()] = match[i++];
-      }
-    });
+      $.each(this.urlParamTemplate.split('__'), function () {
+        var tmp = this.match(/^(CHR|START|END)$/);
+        
+        if (tmp) {
+          coords[tmp[1].toLowerCase()] = match[i++];
+        }
+      });
+    } catch(e) {
+
+    }
+
     
     return coords;
   },
