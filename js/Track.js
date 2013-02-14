@@ -345,32 +345,149 @@ Genoverse.Track = Base.extend({
   },
 
 
-  makeImage: function (start, end, width, moved, cls) {
-    if (this.disabled) return;
+  // makeImage: function (start, end, width, moved, scale) {
+  //   if (this.disabled) return;
 
-    var div  = this.imgContainer.clone().width(width).addClass(cls);
-    var prev = $(this.imgContainers).filter('.' + this.browser.scrollStart + ':' + (moved < 0 ? 'first' : 'last'));
+  //   var cls  = ("scale_" + scale).replace('.','_');
+  //   var div  = this.imgContainer.clone().width(width).addClass(cls);
+  //   var prev = $(this.imgContainers).filter('.' + cls + ':' + (moved < 0 ? 'first' : 'last'));
 
-    var data = { 
-      start : start, 
-      end   : end, 
-      width : width, 
-      height: this.height || 0, 
-      scale : this.scale,
-      scaledStart : start * this.scale
-    };
+  //   var data = { 
+  //     start : start, 
+  //     end   : end, 
+  //     width : width, 
+  //     height: this.height || 0, 
+  //     scale : scale,
+  //     scaledStart : start * scale
+  //   };
 
-    var bgImage = $('<img class="bg" />').css({ opacity: 0.8 }).width(width).data(data).prependTo(div);
+  //   var bgImage = $('<img class="bg" />').css({ opacity: 0.8 }).width(width).data(data).prependTo(div);
 
-    var image = $('<img class="data" />')
-      .width(width)
-      .data(data)
-      .load(function(){ bgImage.css({ opacity: 1 }) })
-      .appendTo(div);
+  //   var image = $('<img class="data" />')
+  //     .width(width)
+  //     .data(data)
+  //     .load(function(){ bgImage.css({ opacity: 1 }) })
+  //     .appendTo(div);
 
-    div.css('left', prev.length ? prev.position().left + (moved < 0 ? -this.width : prev.width()) : -this.browser.offsets.right);
-    this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
-    this.container.append(this.imgContainers);
+  //   div.css('left', prev.length ? prev.position().left + (moved < 0 ? -this.width : prev.width()) : 0);
+  //   this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
+  //   this.container.append(this.imgContainers);
+
+
+  //   var bufferedStart = Math.max(start - (this.labelOverlay ? 0 : this.browser.labelBuffer), 1);
+  //   var bounds = { x: bufferedStart, y: 0, w: end - bufferedStart, h: 1 };
+
+  //   this.renderBackground(bgImage);
+
+  //   if (this.threshold && this.threshold < this.browser.length) {
+  //     this.render([], image);
+  //     this.messageContainer.text('Threshold reached');
+  //   } else if (start >= this.dataRegion.start && end <= this.dataRegion.end) {
+  //     var features = this.features.search(bounds);
+  //     this.render(features, image);
+  //   } else {
+  //     var track = this;
+
+  //     $.when(this.getData(bufferedStart, end))
+  //      .done(function (data) {
+  //        track.dataRegion.start = this.allData ? 0    : Math.min(start, track.dataRegion.start);
+  //        track.dataRegion.end   = this.allData ? 9e99 : Math.max(end,   track.dataRegion.end);
+
+  //        try {
+  //          track.parseData(data, bufferedStart, end);
+  //          track.render(track.features.search(bounds), image);
+  //        } catch (e) {
+  //          track.showError(e);
+  //        }
+        
+  //        if (track.allData) {
+  //          track.url = false;
+  //        }
+  //      })
+  //      .fail(function (jqXHR, textStatus, errorThrown) {
+  //        track.showError(jqXHR, textStatus, errorThrown);
+  //      });
+  //   }
+
+  //   // TMP hack
+  //   if (this.type == 'Scalebar') this.renderBackground(bgImage);
+
+  //   div = prev = null;
+  // },
+
+
+  checkRange
+  
+
+  makeImage: function (scale) {
+    var cls = ("scale_" + scale).replace('.','_');
+
+    var first = $('.image_container.'+ cls, this.container).first();
+    var last  = $('.image_container.'+ cls, this.container).last();
+
+    if (first.position().left > -0.5*this.width) {
+      var div = this.imgContainer.clone().width(buffer).addClass(cls);      
+      var bgImage = $('<img class="bg" />').css({ opacity: 0.8 }).width(width).data(data).prependTo(div);
+      var image = $('<img class="data" />')
+        .width(width)
+        .data(data)
+        .load(function(){ bgImage.css({ opacity: 1 }) })
+        .appendTo(div);
+
+    }
+
+    if (last.position().left + this.width < 1.5*this.width) {
+      var div = this.imgContainer.clone().width(buffer).addClass(cls);      
+
+    }
+
+    return false;
+
+    if (first.position().left > -buffer/2) {
+
+    var start, end;
+
+    if (Math.abs(delta) > buffer/2) {
+
+      if (delta < 0) {
+        start = this.dataRange.end;
+        end   = this.dataRange.end + buffer;
+      } else {
+        start = this.dataRange.start - buffer;
+        end   = this.dataRange.end;
+      }
+
+      var data = { 
+        start : start, 
+        end   : end,
+        width : buffer,
+        height: this.height || 0, 
+        scale : scale,
+        scaledStart : start * scale
+      };
+
+      var cls  = ("scale_" + scale).replace('.','_');
+      var div  = this.imgContainer.clone().width(buffer).addClass(cls);
+      var prev = $(this.imgContainers).filter('.' + cls + ':' + (delta > 0 ? 'first' : 'last'));
+
+      var bgImage = $('<img class="bg" />').css({ opacity: 0.8 }).width(width).data(data).prependTo(div);
+      var image = $('<img class="data" />')
+        .width(width)
+        .data(data)
+        .load(function(){ bgImage.css({ opacity: 1 }) })
+        .appendTo(div);
+
+      div.css('left', prev.length ? prev.position().left + (delta > 0 ? -this.width : prev.width()) : 0);
+      this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
+      this.container.append(this.imgContainers);
+
+    }
+
+
+
+
+
+
 
 
     var bufferedStart = Math.max(start - (this.labelOverlay ? 0 : this.browser.labelBuffer), 1);
@@ -413,7 +530,7 @@ Genoverse.Track = Base.extend({
 
     div = prev = null;
   },
-  
+
 
   getData: function (start, end) {
     return $.ajax({
