@@ -15,6 +15,8 @@ Genoverse.Track = Base.extend({
   inherit        : [],
   xhrFields      : {},
   featuresById   : {},
+  imgRange       : {},
+  dataRange      : {},
 
   constructor: function (config) {
     // Deep clone all [..] and {..} objects in this to prevent sharing between instances
@@ -48,6 +50,7 @@ Genoverse.Track = Base.extend({
     this.addUserEventHandlers();
     this.init();
     this.setScale();
+    this.makeFirstImage();
   },
 
 
@@ -125,7 +128,7 @@ Genoverse.Track = Base.extend({
   init: function () {
     this.features = new RTree();
     this.featuresById  = {};
-    this.dataRegion    = { start: 9e99, end: -9e99 };
+    this.dataRange     = { start: 9e99, end: -9e99 };
     this.scaleSettings = {};
   },
 
@@ -322,6 +325,12 @@ Genoverse.Track = Base.extend({
   },
 
 
+  findFeatures: function (start, end) {
+    var bounds = { x: start, y: 0, w: end - start, h: 1 };
+    return this.features.search(bounds);
+  },
+
+
   resetFeaturePositions: function () {
     this.scaleSettings = {};
     this.featurePositions = new RTree();
@@ -416,102 +425,74 @@ Genoverse.Track = Base.extend({
   // },
 
 
-  checkRange
-  
+  move: function (delta, scale, left) {
+    this.container.css('left', left);
+    this.imgRange[scale].left  += delta;
+    this.imgRange[scale].right += delta;
 
-  makeImage: function (scale) {
-    var cls = ("scale_" + scale).replace('.','_');
 
-    var first = $('.image_container.'+ cls, this.container).first();
-    var last  = $('.image_container.'+ cls, this.container).last();
-
-    if (first.position().left > -0.5*this.width) {
-      var div = this.imgContainer.clone().width(buffer).addClass(cls);      
-      var bgImage = $('<img class="bg" />').css({ opacity: 0.8 }).width(width).data(data).prependTo(div);
-      var image = $('<img class="data" />')
-        .width(width)
-        .data(data)
-        .load(function(){ bgImage.css({ opacity: 1 }) })
-        .appendTo(div);
-
+    if (this.imgRange[scale].left > -0.5*this.width) {
+      this.imgRange[scale].left -= this.width;
+      this.makeImage({
+        scale : scale,
+        start : this.dataRange.start - this.width/scale,
+        end   : this.dataRange.start,
+        left  : this.imgRange[scale].left - left,
+      });
     }
-
-    if (last.position().left + this.width < 1.5*this.width) {
-      var div = this.imgContainer.clone().width(buffer).addClass(cls);      
-
+    if (this.imgRange[scale].right < 1.5*this.width) {
+      this.imgRange[scale].right += this.width;
+      this.makeImage({
+        scale : scale,
+        start : this.dataRange.end,
+        end   : this.dataRange.end + this.width/scale,
+        left  : this.imgRange[scale].right - this.width - left,
+      });      
     }
 
     return false;
+  },
+  
 
-    if (first.position().left > -buffer/2) {
+  makeImage: function (params) {
 
-    var start, end;
+    // TODO: check params
+    params.scaledStart = params.start*params.scale;
+    params.height      = this.height || 0;
 
-    if (Math.abs(delta) > buffer/2) {
+    var cls     = ("scale_" + params.scale).replace('.','_');
+    var div     = this.imgContainer.clone().width(this.width).addClass(cls).css('left', params.left);      
+    var bgImage = $('<img class="bg" />').css({ opacity: 0.8 }).width(this.width).data(params).prependTo(div);
+    var image   = $('<img class="data" />')
+                  .width(this.width)
+                  .data(params)
+                  .load(function(){ bgImage.css({ opacity: 1 }) })
+                  .appendTo(div);
 
-      if (delta < 0) {
-        start = this.dataRange.end;
-        end   = this.dataRange.end + buffer;
-      } else {
-        start = this.dataRange.start - buffer;
-        end   = this.dataRange.end;
-      }
-
-      var data = { 
-        start : start, 
-        end   : end,
-        width : buffer,
-        height: this.height || 0, 
-        scale : scale,
-        scaledStart : start * scale
-      };
-
-      var cls  = ("scale_" + scale).replace('.','_');
-      var div  = this.imgContainer.clone().width(buffer).addClass(cls);
-      var prev = $(this.imgContainers).filter('.' + cls + ':' + (delta > 0 ? 'first' : 'last'));
-
-      var bgImage = $('<img class="bg" />').css({ opacity: 0.8 }).width(width).data(data).prependTo(div);
-      var image = $('<img class="data" />')
-        .width(width)
-        .data(data)
-        .load(function(){ bgImage.css({ opacity: 1 }) })
-        .appendTo(div);
-
-      div.css('left', prev.length ? prev.position().left + (delta > 0 ? -this.width : prev.width()) : 0);
-      this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
-      this.container.append(this.imgContainers);
-
-    }
-
-
-
-
-
-
-
-
-    var bufferedStart = Math.max(start - (this.labelOverlay ? 0 : this.browser.labelBuffer), 1);
-    var bounds = { x: bufferedStart, y: 0, w: end - bufferedStart, h: 1 };
+    this.imgContainers[params.start == this.dataRange.end ? 'push' : 'unshift'](div[0]);
+    this.container.append(this.imgContainers);
 
     this.renderBackground(bgImage);
 
     if (this.threshold && this.threshold < this.browser.length) {
       this.render([], image);
       this.messageContainer.text('Threshold reached');
-    } else if (start >= this.dataRegion.start && end <= this.dataRegion.end) {
+    } else if (params.start >= this.dataRange.start && params.end <= this.dataRange.end) {
       var features = this.features.search(bounds);
-      this.render(features, image);
+      this.render(this.findFeatures(params.start, params.end), image);
     } else {
+
       var track = this;
 
-      $.when(this.getData(bufferedStart, end))
+      track.dataRange.start = track.allData ? 0    : Math.min(params.start, track.dataRange.start);
+      track.dataRange.end   = track.allData ? 9e99 : Math.max(params.end,   track.dataRange.end);
+
+      $.when(this.getData(params.start, params.end))
        .done(function (data) {
-         track.dataRegion.start = this.allData ? 0    : Math.min(start, track.dataRegion.start);
-         track.dataRegion.end   = this.allData ? 9e99 : Math.max(end,   track.dataRegion.end);
 
          try {
-           track.parseData(data, bufferedStart, end);
-           track.render(track.features.search(bounds), image);
+           track.parseData(data, params.start, params.end);
+           track.render(track.findFeatures(params.start, params.end), image);
          } catch (e) {
            track.showError(e);
          }
@@ -529,6 +510,23 @@ Genoverse.Track = Base.extend({
     if (this.type == 'Scalebar') this.renderBackground(bgImage);
 
     div = prev = null;
+  },
+
+
+  makeFirstImage: function() {
+    var params = {
+      start : this.browser.start,
+      end   : this.browser.end,
+      scale : this.browser.scale,
+      left  : 0,
+    };
+
+    this.imgRange[params.scale] = {};
+    this.imgRange[params.scale].left  = 0;
+    this.imgRange[params.scale].right = this.width-1;
+
+    this.makeImage(params);
+    this.move(0, params.scale, 0);
   },
 
 
@@ -626,7 +624,7 @@ Genoverse.Track = Base.extend({
     this.scaleFeatures(features, scale);
     this.positionFeatures(features, img);
 
-    var canvas  = $('<canvas />').attr({ width: img.data('width'), height: img.data('height') || 1 })[0];
+    var canvas  = $('<canvas />').attr({ width: this.width, height: img.data('height') || 1 })[0];
     var context = canvas.getContext('2d');
     context.font = this.font;
     context.textBaseline = 'top';
@@ -691,7 +689,7 @@ Genoverse.Track = Base.extend({
 
 
   renderBackground: function (img) {
-    var canvas  = $('<canvas />').attr({ width: img.data('width'), height: 1 })[0];
+    var canvas  = $('<canvas />').attr({ width: this.width, height: 1 })[0];
     this.drawBackground(img.data(), canvas.getContext('2d'));
     img.attr('src', canvas.toDataURL());
     $(canvas).remove();

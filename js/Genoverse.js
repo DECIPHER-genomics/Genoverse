@@ -173,7 +173,7 @@ var Genoverse = Base.extend({
     this.setRange(coords.start, coords.end);
     this.setHistory();
     this.setTracks();
-    this.makeImage();
+    //this.makeImage();
     this.addUserEventHandlers();
   },
 
@@ -248,7 +248,7 @@ var Genoverse = Base.extend({
     this.history = {};
     
     this.setRange(this.start, this.end);
-    this.makeImage();
+    //this.makeImage();
   },
 
   
@@ -496,41 +496,42 @@ var Genoverse = Base.extend({
       start = this.chromosomeSize - this.length + 1;
       end   = this.chromosomeSize;
     } else if (this.left > this.maxLeft) {
+      debugger;
       this.left = this.maxLeft;
       
       start = 1;
       end   = this.length;
     } else {
-      start = e ? this.dragStart - (this.left - this.prev.left) / scale : this.start - delta / scale;
+      start = this.start - delta / scale;
       end   = start + this.length - 1;
     }
     
-    if (speed) {
-      $.when($('.track_container', this.container).stop().animate({ left: this.left }, speed).add(
-        $('.overlay', this.wrapper).add('.gv-menu', this.menuContainer).stop().animate({ marginLeft: this.left - this.prev.left }, speed).add(
-          this.selector.stop().animate({ marginLeft: this.left - this.prev.left - 1 }, speed)
-        )
-      )).done(function () {
-        if (typeof callback === 'function') {
-          callback();
-        }
-      });
-    } else {
-      $('.track_container', this.container).css('left', this.left);
-      $('.overlay', this.wrapper).add('.gv-menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
-      this.selector.css('marginLeft', this.left - this.prev.left - 1);
+    // if (speed) {
+    //   $.when($('.track_container', this.container).stop().animate({ left: this.left }, speed).add(
+    //     $('.overlay', this.wrapper).add('.gv-menu', this.menuContainer).stop().animate({ marginLeft: this.left - this.prev.left }, speed).add(
+    //       this.selector.stop().animate({ marginLeft: this.left - this.prev.left - 1 }, speed)
+    //     )
+    //   )).done(function () {
+    //     if (typeof callback === 'function') {
+    //       callback();
+    //     }
+    //   });
+    // } else {
+      //$('.track_container', this.container).css('left', this.left);
+      // $('.overlay', this.wrapper).add('.gv-menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
+      // this.selector.css('marginLeft', this.left - this.prev.left - 1);
       
-      if (typeof callback === 'function') {
-        callback();
-      }
-    }
+      // if (typeof callback === 'function') {
+      //   callback();
+      // }
+    // }
     
-    $('.expander', this.wrapper).css('left', -this.left);
+    //$('.expander', this.wrapper).css('left', -this.left);
     //$('.track_message', this.wrapper).css('left', -this.left);
-    $('.image_container img.static', this.container).css('marginLeft', function () { return wrapperOffset - $(this.parentNode).offset().left; });
+    //$('.image_container img.static', this.container).css('marginLeft', function () { return wrapperOffset - $(this.parentNode).offset().left; });
     
     for (var i=0; i < this.tracks.length; i++) {
-      this.tracks[i].checkRange(scale)
+      this.tracks[i].move(delta, scale, this.left)
     }
 
     this.setRange(start, end);
@@ -621,7 +622,7 @@ var Genoverse = Base.extend({
       return false;
     }
     
-    this.makeImage();
+    //this.makeImage();
     
     return true;
   },
@@ -877,87 +878,91 @@ var Genoverse = Base.extend({
   
   
   makeImage: function () {
-    //debugger;
-    var left = -this.left;
-    var dir  = left < 0 ? 'right' : 'left';
-    var start, end;
-    
-    if (left) {
-      start = left > 0 ? this.dataRegion.end   : this.dataRegion.start - (this.buffer * this.length);
-      end   = left < 0 ? this.dataRegion.start : this.dataRegion.end   + (this.buffer * this.length);
-    } else {
-      start = Math.max(this.start, 1);
-      end   = Math.min(this.end + 1, this.chromosomeSize);
-    }
-    
-    var width = Math.round((end - start) * this.scale);
-    
-    this.dataRegion.start = Math.min(start, this.dataRegion.start);
-    this.dataRegion.end   = Math.max(end,   this.dataRegion.end);
-    this.offsets[dir]    += width;
-    
-    if (this.updateFromHistory()) {
-      return;
-    }
-    
-    this.makeTrackImages(this.tracks, start, end, width);
   },
+
+
+  // makeImage: function () {
+  //   //debugger;
+  //   var left = -this.left;
+  //   var dir  = left < 0 ? 'right' : 'left';
+  //   var start, end;
+    
+  //   if (left) {
+  //     start = left > 0 ? this.dataRegion.end   : this.dataRegion.start - (this.buffer * this.length);
+  //     end   = left < 0 ? this.dataRegion.start : this.dataRegion.end   + (this.buffer * this.length);
+  //   } else {
+  //     start = Math.max(this.start, 1);
+  //     end   = Math.min(this.end + 1, this.chromosomeSize);
+  //   }
+    
+  //   var width = Math.round((end - start) * this.scale);
+    
+  //   this.dataRegion.start = Math.min(start, this.dataRegion.start);
+  //   this.dataRegion.end   = Math.max(end,   this.dataRegion.end);
+  //   this.offsets[dir]    += width;
+    
+  //   if (this.updateFromHistory()) {
+  //     return;
+  //   }
+    
+  //   this.makeTrackImages(this.tracks, start, end, width);
+  // },
   
   
-  makeTrackImages: function (tracks, start, end, width) {
-    start = start || this.dataRegion.start;
-    end   = end   || this.dataRegion.end;
-    width = width || Math.round((end - start + 1) * this.scale);
+  // makeTrackImages: function (tracks, start, end, width) {
+  //   start = start || this.dataRegion.start;
+  //   end   = end   || this.dataRegion.end;
+  //   width = width || Math.round((end - start + 1) * this.scale);
     
-    // Maximum texture width is 32Kb. Above this, images will fail to load.
-    // FIXME: rewrite so that addTrack/setRenderer cannot create an image that is this wide
-    if (width > 32 * 1024) {
-      return this.reset();
-    }
+  //   // Maximum texture width is 32Kb. Above this, images will fail to load.
+  //   // FIXME: rewrite so that addTrack/setRenderer cannot create an image that is this wide
+  //   if (width > 32 * 1024) {
+  //     return this.reset();
+  //   }
     
-    var left       = -this.left;
-    var dataRegion = $.extend({}, this.dataRegion);
-    var offsets    = $.extend({}, this.offsets);
-    var allTracks  = tracks.length === this.tracks.length;
+  //   var left       = -this.left;
+  //   var dataRegion = $.extend({}, this.dataRegion);
+  //   var offsets    = $.extend({}, this.offsets);
+  //   var allTracks  = tracks.length === this.tracks.length;
 
 
-    // var overlay    = this.makeOverlays(width, allTracks ? false : tracks);
-    // function removeOverlay() {
-    //   if (overlay) {
-    //     overlay.remove();
-    //     overlay = null;
-    //   }
-    // }
+  //   // var overlay    = this.makeOverlays(width, allTracks ? false : tracks);
+  //   // function removeOverlay() {
+  //   //   if (overlay) {
+  //   //     overlay.remove();
+  //   //     overlay = null;
+  //   //   }
+  //   // }
     
-    for (var i=0; i<tracks.length; i++) {
-      tracks[i].makeImage(start, end, width, left, this.scale);
-    }
+  //   for (var i=0; i<tracks.length; i++) {
+  //     tracks[i].makeImage(start, end, width, left, this.scale);
+  //   }
 
-    // $.when.apply($, $.map(tracks, function (track) { return track.makeImage(start, end, width, left, browser.scrollStart); })).done(function () {
-    //   var redraw = false;
+  //   // $.when.apply($, $.map(tracks, function (track) { return track.makeImage(start, end, width, left, browser.scrollStart); })).done(function () {
+  //   //   var redraw = false;
       
-    //   $.when.apply($, $.map($.map(arguments, function (a) {
-    //     $(a.target).show();
-    //     return a.img;
-    //   }), function (i) {
-    //     if (i.track.backgrounds && !allTracks) {
-    //       i.track.scaleFeatures(i.track.backgrounds);
-    //       redraw = true;
-    //     }
+  //   //   $.when.apply($, $.map($.map(arguments, function (a) {
+  //   //     $(a.target).show();
+  //   //     return a.img;
+  //   //   }), function (i) {
+  //   //     if (i.track.backgrounds && !allTracks) {
+  //   //       i.track.scaleFeatures(i.track.backgrounds);
+  //   //       redraw = true;
+  //   //     }
         
-    //     return i.drawBackground();
-    //   })).done(removeOverlay);
+  //   //     return i.drawBackground();
+  //   //   })).done(removeOverlay);
       
-    //   if (allTracks) {
-    //     browser.prev.history = browser.start + '-' + browser.end;
-    //     browser.setHistory(dataRegion, offsets);
-    //   } else {
-    //     browser.updateTracks(redraw);
-    //   }
+  //   //   if (allTracks) {
+  //   //     browser.prev.history = browser.start + '-' + browser.end;
+  //   //     browser.setHistory(dataRegion, offsets);
+  //   //   } else {
+  //   //     browser.updateTracks(redraw);
+  //   //   }
       
-    //   browser.checkTrackSize();
-    // }).fail(removeOverlay);
-  },
+  //   //   browser.checkTrackSize();
+  //   // }).fail(removeOverlay);
+  // },
   
   
   makeOverlays: function (width, tracks) {

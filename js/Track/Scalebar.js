@@ -78,7 +78,6 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
 
   draw: function (features, context, scale) {
-
     var i = features.length;
     context.textBaseline = 'top';
 
