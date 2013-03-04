@@ -61,7 +61,7 @@ Genoverse.on('beforeInit', function () {
 
   $(".genoverse_panel button.scrollLeft").mousehold(10, function () {
     $('.track_container .resizer').hide();
-    browser.move(NaN, 10);
+    browser.move(10, NaN);
   });
 
   $(".genoverse_panel button.scrollLeft,button.scrollRight").mouseup(function () {
@@ -72,7 +72,7 @@ Genoverse.on('beforeInit', function () {
 
   $(".genoverse_panel button.scrollRight").mousehold(10, function () {
     $('.track_container .resizer').hide();
-    browser.move(NaN, -10);
+    browser.move(-10, NaN);
   });
 
   $(".genoverse_panel button.zoomIn").click(function () {

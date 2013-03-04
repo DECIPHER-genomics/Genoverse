@@ -4,9 +4,10 @@ Genoverse.Track.DAS.Transcript = Genoverse.Track.DAS.extend({
   dataType       : 'xml',
   bump           : true,
   height         : 200,
+  dataBuffer     : 30000,
   source         : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
   featureHeight  : 10,
-  featureSpacing : 2,
+  featureSpacing : 3,
   labels         : true,
   intronStyle    : { 
     type: 'bezierCurve',
@@ -89,8 +90,10 @@ Genoverse.Track.DAS.Transcript = Genoverse.Track.DAS.extend({
     }
 
     var track = this;
+    var base  = this.base;
+
     $.when(track.stylesheetRequest).always(function(){
-      track.base(features, img);
+      base.apply(track, [features, img]);
     });
   },
 

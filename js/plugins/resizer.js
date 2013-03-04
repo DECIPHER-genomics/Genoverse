@@ -17,7 +17,7 @@ Genoverse.Track.on('afterInit', function () {
     if (track.fullVisibleHeight) {
       track.resize(track.fullVisibleHeight, true);
     }
-  })).css({ width: this.width, left: -this.browser.left, position: 'absolute' }).show();
+  })).css({ width: this.width, left: 0, position: 'absolute' }).show();
   
   if (this.height - this.spacing === this.featureHeight) {
     this.resize(this.height + this.resizer.height());

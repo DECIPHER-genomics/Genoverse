@@ -473,78 +473,109 @@ var Genoverse = Base.extend({
   },
 
   
-  move: function (delta, speed, callback) {
+  move: function (delta, callback) {
     var wrapperOffset = this.wrapper.offset().left;
     var start, end, step;
     var scale = this.scale;
-    
-    this.left += delta;
-    
+
     if (this.menus.length) this.closeMenus();
 
+    // Force stepping by base pair when in small regions
     if (scale > 1) {
-      this.left = Math.round(this.left / scale) * scale; // Force stepping by base pair when in small regions
-      
+      this.left = Math.round(this.left / scale) * scale; 
       if (delta) {
         delta = Math.round(delta / scale) * scale;
       }
     }
     
-    if (this.left < this.minLeft) {
-      this.left = this.minLeft;
-      
-      start = this.chromosomeSize - this.length + 1;
-      end   = this.chromosomeSize;
+    if (this.left + delta < this.minLeft) {
+      delta = this.minLeft - this.left;
     } else if (this.left > this.maxLeft) {
-      debugger;
-      this.left = this.maxLeft;
-      
-      start = 1;
-      end   = this.length;
-    } else {
-      start = this.start - delta / scale;
-      end   = start + this.length - 1;
+      delta = this.maxLeft - this.left;
     }
-    
-    // if (speed) {
-    //   $.when($('.track_container', this.container).stop().animate({ left: this.left }, speed).add(
-    //     $('.overlay', this.wrapper).add('.gv-menu', this.menuContainer).stop().animate({ marginLeft: this.left - this.prev.left }, speed).add(
-    //       this.selector.stop().animate({ marginLeft: this.left - this.prev.left - 1 }, speed)
-    //     )
-    //   )).done(function () {
-    //     if (typeof callback === 'function') {
-    //       callback();
-    //     }
-    //   });
-    // } else {
-      //$('.track_container', this.container).css('left', this.left);
-      // $('.overlay', this.wrapper).add('.gv-menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
-      // this.selector.css('marginLeft', this.left - this.prev.left - 1);
-      
-      // if (typeof callback === 'function') {
-      //   callback();
-      // }
-    // }
-    
-    //$('.expander', this.wrapper).css('left', -this.left);
-    //$('.track_message', this.wrapper).css('left', -this.left);
-    //$('.image_container img.static', this.container).css('marginLeft', function () { return wrapperOffset - $(this.parentNode).offset().left; });
+
+    this.left += delta;
+    start = this.start - delta / scale;
+    if (start < 1) start = 1;
+    end   = start + this.length - 1;
     
     for (var i=0; i < this.tracks.length; i++) {
-      this.tracks[i].move(delta, scale, this.left)
+      this.tracks[i].move(delta, scale)
     }
 
     this.setRange(start, end);
-    
-    // if (this.redraw()) {
-    //   step = this.left - this.prev.left > 0 ? 1 : -1;
-      
-    //   this.stopDragScroll(e, false);
-    //   this.startDragScroll(e);
-    //   this.move(false, step); // Force the scroll on 1px in order to ensure the URL updates correctly (otherwise it might not if scrolling a very small amount on the boundary)
-    // }
   },
   
+
+  setRange: function (start, end, update, force) {
+    this.prev.start = this.start;
+    this.prev.end   = this.end;
+    this.start      = typeof start === 'number' ? Math.floor(start) : parseInt(start, 10);
+    this.end        = typeof end   === 'number' ? Math.floor(end)   : parseInt(end,   10);
+    
+    if (this.start < 1) {
+      this.start = 1;
+    }
+    
+    if (this.end > this.chromosomeSize) {
+      this.end = this.chromosomeSize;
+    }
+
+    if (!this.end || !(this.end > this.start)) {
+      this.end = this.start + this.defaultLength;
+    }
+    
+    this.length = this.end - this.start + 1;
+    
+    this.setScale(force);
+
+    if (update === true && (this.prev.start !== this.start || this.prev.end !== this.end)) {
+      this.updateURL();
+      this.setHistory();
+      this.makeImage();
+    }
+  },
+
+
+  setScale: function (force) {
+    this.prev.scale  = this.scale;
+    this.scale       = this.width / this.length;
+    this.scaledStart = this.start * this.scale;
+    
+    if (force || this.prev.scale !== this.scale) {
+      this.dataRegion  = { start: 9e99, end: -9e99 };
+      this.offsets     = { right: this.width, left: -this.width };
+      this.left        = 0;
+      this.prev.left   = 0;
+      this.minLeft     = Math.round((this.end   - this.chromosomeSize) * this.scale);
+      this.maxLeft     = Math.round((this.start - 1) * this.scale);
+      this.scrollStart = 'ss_' + this.start + '_' + this.end;
+      this.labelBuffer = Math.ceil(this.textWidth / this.scale) * this.longestLabel;
+
+      if (this.prev.scale) {
+        var i = this.tracks.length;
+        
+        this.cancelSelect();
+        this.menuContainer.children().hide();
+        
+        while (i--) {
+          this.tracks[i].setScale(this.scale);
+        }
+        
+        if (this.backgrounds) {
+          for (var c in this.backgrounds) {
+            i = this.backgrounds[c].length;
+            
+            while (i--) {
+              this.backgrounds[c][i].scaledStart = this.backgrounds[c][i].start * this.scale;
+              this.backgrounds[c][i].scaledEnd   = this.backgrounds[c][i].end   * this.scale;
+            }
+          }
+        }
+      }
+    }
+  },
+
   
   checkHeights: function () {
     if (this.dragging) {
@@ -628,115 +659,6 @@ var Genoverse = Base.extend({
   },
 
 
-  setRange: function (start, end, update, force) {
-    this.prev.start = this.start;
-    this.prev.end   = this.end;
-    this.start      = typeof start === 'number' ? Math.floor(start) : parseInt(start, 10);
-    this.end        = typeof end   === 'number' ? Math.floor(end)   : parseInt(end,   10);
-    
-    if (this.start < 1) {
-      this.start = 1;
-    }
-    
-    if (this.end > this.chromosomeSize) {
-      this.end = this.chromosomeSize;
-    }
-
-    if (!this.end || !(this.end > this.start)) {
-      this.end = this.start + this.defaultLength;
-    }
-    
-    this.length = this.end - this.start + 1;
-    
-    this.setScale(force);
-    
-    if (update === true && (this.prev.start !== this.start || this.prev.end !== this.end)) {
-      this.updateURL();
-      this.setHistory();
-      this.makeImage();
-    }
-  },
-
-
-  setScale: function (force) {
-    this.prev.scale  = this.scale;
-    this.scale       = this.width / this.length;
-    this.scaledStart = this.start * this.scale;
-    
-    if (force || this.prev.scale !== this.scale) {
-      this.dataRegion  = { start: 9e99, end: -9e99 };
-      this.offsets     = { right: this.width, left: -this.width };
-      this.left        = 0;
-      this.prev.left   = 0;
-      this.minLeft     = Math.round((this.end   - this.chromosomeSize) * this.scale);
-      this.maxLeft     = Math.round((this.start - 1) * this.scale);
-      this.scrollStart = 'ss_' + this.start + '_' + this.end;
-      this.labelBuffer = Math.ceil(this.textWidth / this.scale) * this.longestLabel;
-
-      this.setGuideLineUnits();
-
-      if (this.prev.scale) {
-        var i = this.tracks.length;
-        
-        this.cancelSelect();
-        this.menuContainer.children().hide();
-        
-        while (i--) {
-          this.tracks[i].setScale();
-        }
-        
-        if (this.backgrounds) {
-          for (var c in this.backgrounds) {
-            i = this.backgrounds[c].length;
-            
-            while (i--) {
-              this.backgrounds[c][i].scaledStart = this.backgrounds[c][i].start * this.scale;
-              this.backgrounds[c][i].scaledEnd   = this.backgrounds[c][i].end   * this.scale;
-            }
-          }
-        }
-      }
-    }
-  },
-
-  
-  setGuideLineUnits: function() {
-    var length = this.length;
-    var majorUnit, minorUnit, exponent, mantissa;
-    
-    if (length <= 51) {
-      majorUnit = 10;
-      minorUnit = 1;
-    } else {
-      exponent = Math.pow(10, Math.floor(Math.log(length) / Math.log(10)));
-      mantissa = length / exponent;
-      
-      if (mantissa < 1.2) {
-        majorUnit = exponent  / 10;
-        minorUnit = majorUnit / 5;
-      } else if (mantissa < 2.5) {
-        majorUnit = exponent  / 5;
-        minorUnit = majorUnit / 4;
-      } else if (mantissa < 5) {
-        majorUnit = exponent  / 2;
-        minorUnit = majorUnit / 5;
-      } else {
-        majorUnit = exponent;
-        minorUnit = majorUnit / 5;
-      }
-    }
-    
-    this.minorUnit = minorUnit;
-    this.majorUnit = majorUnit;
-
-    if (!this.guideLinesByScale[this.scale]) {
-      this.guideLinesByScale[this.scale] = { major: {}, minor: {} };
-    }
-    
-    this.guideLines = this.guideLinesByScale[this.scale];
-  },
-
-
   setTracks: function (tracks, index) {
     var defaults = {
       browser         : this,
@@ -801,7 +723,7 @@ var Genoverse = Base.extend({
   addTracks: function (tracks) {
     this.setTracks(tracks, this.tracks.length);
     this.sortTracks();
-    this.makeTrackImages(tracks);
+    //this.makeTrackImages(tracks);
   },
   
   
@@ -1200,7 +1122,7 @@ var Genoverse = Base.extend({
    * functionWrap - wraps event handlers and adds debugging functionality
    **/
   functionWrap: function (key, obj) {
-    var name = (obj ? (obj.name || 'Track.' + obj.type) : 'Genoverse.') + key;
+    var name = (obj ? (obj.name || 'Track' + obj.type) : 'Genoverse') + '.' + key;
     obj = obj || this;
 
     if ((key.indexOf('after') === 0) || (key.indexOf('before') === 0)) {
@@ -1269,7 +1191,7 @@ var Genoverse = Base.extend({
       }
       
       obj.systemEventHandlers['before' + func].unshift(function () {
-        console.log(name, arguments);        
+        //console.log(name, arguments);        
         console.time('time: ' + name);
       });
       
@@ -1293,10 +1215,10 @@ var Genoverse = Base.extend({
 });
 
 
-Genoverse.on('afterMove afterZoomIn afterZoomOut', function () {
-  $('.static', this.wrapper).css('left', -this.left);
-  this.checkHeights();
-});
+// Genoverse.on('afterMove afterZoomIn afterZoomOut', function () {
+//   $('.static', this.wrapper).css('left', -this.left);
+//   this.checkHeights();
+// });
 
 window.Genoverse = Genoverse;
 

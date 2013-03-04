@@ -29,7 +29,7 @@ ul.label_container {
   border: 1px solid black;
   overflow: hidden;
   position: relative;
-  background: #ccc;
+  /*background: #ccc;*/
 }
 
 .canvas_container .gv_wrapper .overlay {
@@ -55,6 +55,13 @@ ul.label_container {
   width: 0;
 }
 
+.canvas_container .track_container .scroll_container {
+  overflow: visible;
+  position: relative;
+  width: 0;
+  height: 100%;
+}
+
 .track_message {
   display: block;
   position: absolute;
@@ -72,19 +79,29 @@ ul.label_container {
 
 .canvas_container .image_container {
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
   position: absolute;
-  background: #ccc;
+  /*background: #ccc;*/
   margin: 0;
+}
+
+.canvas_container .image_container.loading {
+  background: rgba(204,204,204,0.4);
 }
 
 .canvas_container .image_container img {
   /*display: none;*/
   position: absolute;
+  z-index: 1;
 }
+
+/*.canvas_container .image_container img.data {
+  display:none;
+}*/
 
 .canvas_container .image_container img.bg {
   display: block;
+  z-index: 0;
   width: 100%;
   height: 100%;
 }

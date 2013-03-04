@@ -13,8 +13,15 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   orderReverse  : 1e5,
   featureStrand : 1,
   controls      : 'off',
+  guideLines    : {},
+  guideLinesByScale : {},
   //inherit       : [ 'Stranded' ],
-
+  colors           : {
+    background     : '#FFFFFF',
+    majorGuideLine : '#CCCCCC',
+    minorGuideLine : '#E5E5E5',
+    sortHandle     : '#CFD4E7'
+  },
 
   reset: function () {
     this.container.children('.image_container').remove();
@@ -23,18 +30,75 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
 
   setScale: function () {
-    this.base();
+    var length = this.browser.length;
+    var majorUnit, minorUnit, exponent, mantissa;
+    
+    if (length <= 51) {
+      majorUnit = 10;
+      minorUnit = 1;
+    } else {
+      exponent = Math.pow(10, Math.floor(Math.log(length) / Math.log(10)));
+      mantissa = length / exponent;
+      
+      if (mantissa < 1.2) {
+        majorUnit = exponent  / 10;
+        minorUnit = majorUnit / 5;
+      } else if (mantissa < 2.5) {
+        majorUnit = exponent  / 5;
+        minorUnit = majorUnit / 4;
+      } else if (mantissa < 5) {
+        majorUnit = exponent  / 2;
+        minorUnit = majorUnit / 5;
+      } else {
+        majorUnit = exponent;
+        minorUnit = majorUnit / 5;
+      }
+    }
+
     this.dataRegion = { start: 9e99, end: -9e99 };
     
-    this.minorUnit = this.browser.minorUnit;
-    this.majorUnit = this.browser.majorUnit;
+    this.minorUnit = minorUnit;
+    this.majorUnit = majorUnit;
     this.seen      = {};
     this.features  = new RTree();
     this.featuresById = {};
+
+    if (!this.guideLinesByScale[this.scale]) {
+      this.guideLinesByScale[this.scale] = { major: {}, minor: {} };
+    }
+    
+    this.guideLines = this.guideLinesByScale[this.scale];
+    this.base();
   },
 
 
-  setFeatures: function (start, end) {
+  makeImage: function (params) {
+
+    // TODO: check params
+    params.scaledStart = params.start*params.scale;
+    params.height      = this.height || 0;
+    params.width       = this.width;
+
+    var cls     = ("scale_" + params.scale).replace('.','_');
+    var div     = this.imgContainer.clone().width(this.width).addClass(cls).css('left', params.left);      
+    var bgImage = $('<img class="bg guidelines" />')
+                    .width(this.width)
+                    .height(this.browser.wrapper.outerHeight(true))
+                    .data(params)
+                    .prependTo(div);
+    var image   = $('<img class="data" />').data(params).appendTo(div);
+
+    this.imgContainers.push(div[0]);
+    this.scrollContainer.append(this.imgContainers);
+
+    this.setGuideLines(params.start, params.end);
+
+    this.render(this.findFeatures(params.start, params.end), image);
+    this.renderBackground(bgImage);
+  },
+
+
+  setGuideLines: function (start, end) {
     var start = Math.max(start - (start % this.minorUnit) - this.majorUnit, 0);
     
     var flip     = (start / this.minorUnit) % 2 ? 1 : -1;
@@ -64,17 +128,12 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       }
 
       this.insertFeature(feature);
-      this.browser.guideLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
+      features.push(feature);
+      this.guideLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
     }
+
+    return features;
   },
-
-
-  getData: function (start, end) {
-    this.setFeatures(start, end);
-  },
-
-
-  parseData: function () {},
 
 
   draw: function (features, context, scale) {
@@ -95,4 +154,29 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   },
 
 
+  drawBackground: function (data, context) {
+    // Draw background color
+    // context.fillStyle = this.background || this.browser.colors.background;
+    // context.fillRect(0, 0, context.canvas.width, 1);
+
+    // Draw guidelines
+    var guideLines  = { major: [ this.colors.majorGuideLine, this.majorUnit ], minor: [ this.colors.minorGuideLine, this.minorUnit ] };
+    var scaledStart = Math.round(data.scaledStart);
+    var x;
+    
+    for (var c in guideLines) {
+      context.fillStyle = guideLines[c][0];
+      
+      for (x = Math.max(data.start - (data.start % guideLines[c][1]), 0); x < data.end + this.minorUnit; x += guideLines[c][1]) {
+        context.fillRect((this.guideLines[c][x] || 0) - scaledStart, 0, 1, context.canvas.height);
+      }
+    }
+  },
+
+
+});
+
+
+Genoverse.Track.on('afterInit afterResize', function () {
+  $('.guidelines', this.browser.container).height(this.browser.wrapper.outerHeight(true));
 });

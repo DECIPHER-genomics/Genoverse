@@ -35,7 +35,7 @@
     <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
     <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
 
-    <!--script type="text/javascript" src="js/plugins/controlPanel.js"></script>
+    <script type="text/javascript" src="js/plugins/controlPanel.js"></script>
     <script type="text/javascript" src="js/plugins/trackControls.js"></script>
     <script type="text/javascript" src="js/plugins/resizer.js"></script>
     
@@ -72,22 +72,22 @@
             type : 'Sequence',
           },          
 
-          {
-            name    : 'Transcript',
-            type    : 'DAS.Transcript',
-            renderer: 'transcript',
-            filter  : {
-              type  : [ 'transcript', 'translation' ]
-            },
-            populateMenu: function (feature) {
-              return {
-                title: feature.label,
-                start: feature.start,
-                stop : feature.end,
-                Links: '<a href="#">e!</a>'
-              };
-            }
-          },
+          // {
+          //   name    : 'Transcript',
+          //   type    : 'DAS.Transcript',
+          //   renderer: 'transcript',
+          //   filter  : {
+          //     type  : [ 'transcript', 'translation' ]
+          //   },
+          //   populateMenu: function (feature) {
+          //     return {
+          //       title: feature.label,
+          //       start: feature.start,
+          //       stop : feature.end,
+          //       Links: '<a href="#">e!</a>'
+          //     };
+          //   }
+          // },
 
         ]
       }

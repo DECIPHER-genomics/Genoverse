@@ -5,6 +5,8 @@ Genoverse.Track = Base.extend({
   dataType       : 'json',
   color          : '#000000',
   fontSize       : 10,
+  buffer         : 1.2,          // number of widths, if left of right closer to the edges of viewpoint than the buffer, start making more images
+  dataBuffer     : 0,            // basepairs, extend data region for, when getting data from the origin 
   fontFamily     : 'sans-serif',
   fontWeight     : 'normal',
   fontColor      : '#000000',
@@ -17,6 +19,7 @@ Genoverse.Track = Base.extend({
   featuresById   : {},
   imgRange       : {},
   dataRange      : {},
+
 
   constructor: function (config) {
     // Deep clone all [..] and {..} objects in this to prevent sharing between instances
@@ -50,7 +53,7 @@ Genoverse.Track = Base.extend({
     this.addUserEventHandlers();
     this.init();
     this.setScale();
-    this.makeFirstImage();
+    //this.makeFirstImage();
   },
 
 
@@ -69,6 +72,7 @@ Genoverse.Track = Base.extend({
     this.minLabelHeight = 0;
     this.canvas         = $('<canvas>').appendTo(this.browser.wrapper);
     this.container      = $('<div class="track_container">').appendTo(this.browser.wrapper);
+    this.scrollContainer= $('<div class="scroll_container">').appendTo(this.container);
     this.imgContainer   = $('<div class="image_container">');
     this.messageContainer = $('<div class="track_message static" />').appendTo(this.container);
 
@@ -134,7 +138,7 @@ Genoverse.Track = Base.extend({
 
 
   reset: function () {
-    this.container.children('.image_container').remove();
+    this.scrollContainer.children('.image_container').remove();
     
     if (this.url !== false) {
       this.init();
@@ -236,7 +240,15 @@ Genoverse.Track = Base.extend({
     var track = this;
     var featurePositions, labelPositions;
     
+    this.left  = 0;
     this.scale = this.browser.scale;
+    this.imgRange[this.scale] = {};
+    this.imgRange[this.scale].left  = 0;
+    this.imgRange[this.scale].right = this.width-1;
+
+    this.dataRange[this.scale] = {};
+    this.dataRange[this.scale].start = this.browser.start;
+    this.dataRange[this.scale].end = this.browser.end;
 
     this.messageContainer.empty();
     
@@ -271,7 +283,8 @@ Genoverse.Track = Base.extend({
       track[this] = scaleSettings[this];
     });
     
-    this.container.css('left', this.browser.left).children('.image_container').hide();
+    this.scrollContainer.css('left', this.browser.left).children('.image_container').hide();
+    this.makeFirstImage();
   },
 
 
@@ -425,29 +438,38 @@ Genoverse.Track = Base.extend({
   // },
 
 
-  move: function (delta, scale, left) {
-    this.container.css('left', left);
-    this.imgRange[scale].left  += delta;
-    this.imgRange[scale].right += delta;
+  move: function (delta, scale) {
+    this.left += delta;
+    this.scrollContainer.css('left', this.left);
 
+    // this.imgRange[scale].left  += delta;
+    // this.imgRange[scale].right += delta;
+    //debugger;
 
-    if (this.imgRange[scale].left > -0.5*this.width) {
-      this.imgRange[scale].left -= this.width;
+    if (this.imgRange[scale].left + this.left > -this.buffer*this.width) {
+      this.imgRange[scale].left   -= this.width;
+      this.dataRange[scale].start -= this.width/scale;
+
       this.makeImage({
         scale : scale,
-        start : this.dataRange.start - this.width/scale,
-        end   : this.dataRange.start,
-        left  : this.imgRange[scale].left - left,
+        start : this.dataRange[scale].start,
+        end   : this.dataRange[scale].start + this.width/scale,
+        left  : this.imgRange[scale].left,
       });
+
+      this.move(0, scale);
     }
-    if (this.imgRange[scale].right < 1.5*this.width) {
+    if (this.imgRange[scale].right + this.left < (1+this.buffer)*this.width) {
       this.imgRange[scale].right += this.width;
+      this.dataRange[scale].end  += this.width/scale;
       this.makeImage({
         scale : scale,
-        start : this.dataRange.end,
-        end   : this.dataRange.end + this.width/scale,
-        left  : this.imgRange[scale].right - this.width - left,
+        start : this.dataRange[scale].end  - this.width/scale,
+        end   : this.dataRange[scale].end,
+        left  : this.imgRange[scale].right - this.width + 1,
       });      
+
+      this.move(0, scale);
     }
 
     return false;
@@ -455,39 +477,45 @@ Genoverse.Track = Base.extend({
   
 
   makeImage: function (params) {
+    var track = this;
+    var defer = $.Deferred();
 
     // TODO: check params
     params.scaledStart = params.start*params.scale;
     params.height      = this.height || 0;
+    params.width       = this.width;
 
-    var cls     = ("scale_" + params.scale).replace('.','_');
-    var div     = this.imgContainer.clone().width(this.width).addClass(cls).css('left', params.left);      
-    var bgImage = $('<img class="bg" />').css({ opacity: 0.8 }).width(this.width).data(params).prependTo(div);
-    var image   = $('<img class="data" />')
+    var div     = this.imgContainer
+                  .clone()
                   .width(this.width)
+                  .addClass(("scale_" + params.scale + " loading").replace('.','_'))
+                  .css('left', params.left);
+
+    var image   = $('<img class="data" />')
+                  .hide()
                   .data(params)
-                  .load(function(){ bgImage.css({ opacity: 1 }) })
+                  .load(function(){ div.removeClass('loading'); image.fadeIn('fast'); })
                   .appendTo(div);
 
-    this.imgContainers[params.start == this.dataRange.end ? 'push' : 'unshift'](div[0]);
-    this.container.append(this.imgContainers);
-
-    this.renderBackground(bgImage);
+    this.imgContainers.push(div[0]);
+    this.scrollContainer.append(this.imgContainers);
 
     if (this.threshold && this.threshold < this.browser.length) {
       this.render([], image);
-      this.messageContainer.text('Threshold reached');
+      this.messageContainer.text('Data for this track is not displayed for this zoom level');
     } else if (params.start >= this.dataRange.start && params.end <= this.dataRange.end) {
-      var features = this.features.search(bounds);
-      this.render(this.findFeatures(params.start, params.end), image);
+      // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
+      var defer = $.Deferred().then(function(){
+        track.render(track.findFeatures(params.start, params.end), image);
+      });
+
+      setTimeout(function(){ defer.resolve() }, 1);
     } else {
 
-      var track = this;
+      track.dataRange.start = track.allData ? 0    : Math.min(params.start - track.dataBuffer, track.dataRange.start);
+      track.dataRange.end   = track.allData ? 9e99 : Math.max(params.end + track.dataBuffer, track.dataRange.end);
 
-      track.dataRange.start = track.allData ? 0    : Math.min(params.start, track.dataRange.start);
-      track.dataRange.end   = track.allData ? 9e99 : Math.max(params.end,   track.dataRange.end);
-
-      $.when(this.getData(params.start, params.end))
+      $.when(this.getData(params.start - track.dataBuffer, params.end + track.dataBuffer))
        .done(function (data) {
 
          try {
@@ -505,11 +533,6 @@ Genoverse.Track = Base.extend({
          track.showError(jqXHR, textStatus, errorThrown);
        });
     }
-
-    // TMP hack
-    if (this.type == 'Scalebar') this.renderBackground(bgImage);
-
-    div = prev = null;
   },
 
 
@@ -521,12 +544,8 @@ Genoverse.Track = Base.extend({
       left  : 0,
     };
 
-    this.imgRange[params.scale] = {};
-    this.imgRange[params.scale].left  = 0;
-    this.imgRange[params.scale].right = this.width-1;
-
     this.makeImage(params);
-    this.move(0, params.scale, 0);
+    this.move(0, params.scale);
   },
 
 
@@ -553,37 +572,33 @@ Genoverse.Track = Base.extend({
 
         if (feature.position[scale].width < this.minScaledWidth) feature.position[scale].width = this.minScaledWidth;
       }
-
-
     }
   },
 
   
-  positionFeatures: function (features, img) {
-    var imgScaledStart = img.data('scaledStart');
-    var scale  = img.data('scale');
-    var height = 0;
-
+  positionFeatures: function (features, params) {
     for (var i=0; i<features.length; i++) {
-      this.positionFeature(features[i], scale, -imgScaledStart);
-      height = Math.max(height, features[i].position[scale].Y + features[i].position[scale].H);
+      this.positionFeature(features[i], params);
     }
-
-    img.data({height : Math.max(height, img.data('height'))});
-    return height;
+    params.width = Math.ceil(params.width);
+    params.height = Math.ceil(params.height);
   },
 
 
-  positionFeature: function (feature, scale, xOffset) {
-    feature.position[scale].H = feature.position[scale].H || feature.position[scale].height + this.featureSpacing;
+  positionFeature: function (feature, params) {
+    var scale = params.scale;
+
+    feature.position[scale].H = feature.position[scale].H || feature.position[scale].height;
     feature.position[scale].W = feature.position[scale].W || feature.position[scale].width + this.featureSpacing;
     feature.position[scale].Y = feature.position[scale].Y || feature.y || this.featureSpacing;
-    feature.position[scale].X = feature.position[scale].start + xOffset;
+    feature.position[scale].X = feature.position[scale].start - params.scaledStart;
 
     if (this.labels && this.labels !== 'overlay' && feature.label) {
-      feature.position[scale].H += this.fontHeight + this.featureSpacing;
+      feature.position[scale].H += this.fontHeight + 2*this.featureSpacing;
       var labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
-      if (labelWidth > feature.position[scale].W) feature.position[scale].W = labelWidth;
+
+      feature.position[scale].W  = Math.max(labelWidth, feature.position[scale].W);
+      params.width               = Math.max(feature.position[scale].X + labelWidth, params.width);
     }
 
     if (this.bump && !feature.position[scale].bumped) {
@@ -591,6 +606,8 @@ Genoverse.Track = Base.extend({
     } else if (!this.bump) {
       this.featurePositions.insert({x: feature.position[scale].start, y:0, w: feature.position[scale].W, h:1}, feature);
     }
+
+    params.height = Math.max(params.height, feature.position[params.scale].Y + feature.position[params.scale].H);
   },
 
 
@@ -620,18 +637,19 @@ Genoverse.Track = Base.extend({
 
 
   render: function (features, img) {
-    var scale = img.data('scale');
-    this.scaleFeatures(features, scale);
-    this.positionFeatures(features, img);
+    var params = img.data();
 
-    var canvas  = $('<canvas />').attr({ width: this.width, height: img.data('height') || 1 })[0];
+    this.scaleFeatures(features, params.scale);
+    this.positionFeatures(features, params);
+
+    var canvas  = $('<canvas />').attr({ width: params.width, height: params.height || 1 })[0];
     var context = canvas.getContext('2d');
     context.font = this.font;
     context.textBaseline = 'top';
 
-    this.draw(features, context, scale);
+    this.draw(features, context, params.scale);
 
-    img.attr('src', canvas.toDataURL());
+    img.width(params.width).attr('src', canvas.toDataURL());
     $(canvas).remove();
   },
 
@@ -641,8 +659,8 @@ Genoverse.Track = Base.extend({
       var feature = features[i];
       this.drawFeature(
         $.extend({}, feature, {
-          x      : feature.position[scale].X,
-          y      : feature.position[scale].Y,
+          x      : Math.floor(feature.position[scale].X) + 0.5,
+          y      : Math.floor(feature.position[scale].Y) + 0.5,
           width  : feature.position[scale].width,
           height : feature.position[scale].height
         }), 
@@ -697,22 +715,22 @@ Genoverse.Track = Base.extend({
 
 
   drawBackground: function (data, context) {
-    // Draw background color
-    context.fillStyle = this.background || this.browser.colors.background;
-    context.fillRect(0, 0, context.canvas.width, 1);
+    // // Draw background color
+    // context.fillStyle = this.background || this.browser.colors.background;
+    // context.fillRect(0, 0, context.canvas.width, 1);
 
-    // Draw guidelines
-    var guideLines  = { major: [ this.browser.colors.majorGuideLine, this.browser.majorUnit ], minor: [ this.browser.colors.minorGuideLine, this.browser.minorUnit ] };
-    var scaledStart = Math.round(data.scaledStart);
-    var x;
+    // // Draw guidelines
+    // var guideLines  = { major: [ this.browser.colors.majorGuideLine, this.browser.majorUnit ], minor: [ this.browser.colors.minorGuideLine, this.browser.minorUnit ] };
+    // var scaledStart = Math.round(data.scaledStart);
+    // var x;
     
-    for (var c in guideLines) {
-      context.fillStyle = guideLines[c][0];
+    // for (var c in guideLines) {
+    //   context.fillStyle = guideLines[c][0];
       
-      for (x = Math.max(data.start - (data.start % guideLines[c][1]), 0); x < data.end + this.browser.minorUnit; x += guideLines[c][1]) {
-        context.fillRect((this.browser.guideLines[c][x] || 0) - scaledStart, 0, 1, context.canvas.height);
-      }
-    }
+    //   for (x = Math.max(data.start - (data.start % guideLines[c][1]), 0); x < data.end + this.browser.minorUnit; x += guideLines[c][1]) {
+    //     context.fillRect((this.browser.guideLines[c][x] || 0) - scaledStart, 0, 1, context.canvas.height);
+    //   }
+    // }
   },
 
 
