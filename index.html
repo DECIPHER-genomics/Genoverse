@@ -3,50 +3,26 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
 
-    <script type="text/javascript" src="js/combined.js">
+    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
+    <link rel="stylesheet" type="text/css" href="examples/genoverse.org/styles.css" />
+
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+
+    <script type="text/javascript" src="examples/genoverse.org/config/constants.js"></script>
+    <script type="text/javascript" src="examples/genoverse.org/config/tracks.js"></script>
+
+    <script type="text/javascript" src="js/combined.28.03.2013.1615.js">
 
       {
-        container      : '#genoverse',
-        width          : 756,
-        chromosomeSize : 249250621, // chromosome 1, human
-        chr            : 1,
-        start          : 45467000,
-        end            : 45470000,
-
-        plugins        : [
-          'controlPanel',
-          'trackControls',
-          'resizer',
-        ],
-
-        tracks         : [
-          {
-            type : 'Scalebar',
-            height : 25,
-          },
-
-          {
-            type : 'Sequence',
-          },          
-
-          {
-            name    : 'Transcript',
-            type    : 'DAS.Transcript',
-            renderer: 'transcript',
-            filter  : {
-              type  : [ 'transcript', 'translation' ]
-            },
-            populateMenu: function (feature) {
-              return {
-                title: feature.label,
-                start: feature.start,
-                stop : feature.end,
-                Links: '<a href="#">e!</a>'
-              };
-            }
-          },
-
-        ]
+        container      : '#genoverse',  // Specify container element with css/jquery selector style
+        width          : 930,           // width in pixels on the page
+        chromosomeSize : 249250621,     // chromosome 1, human
+        chr            : 1,             // default chr number
+        start          : 145454171,     // start bp
+        end            : 145482971,     // end bp
+        plugins        : [ 'controlPanel', 'trackControls', 'resizer', 'tooltips' ],
+        tracks         : defaultTracks, // Array of tracks
+        tracksLibrary  : tracksLibrary, // Additional array of tracks for tracks menu
       }
 
     </script>
@@ -54,7 +30,39 @@
   </head>
   <body>
 
+<a href="https://github.com/eugenebragin/Genoverse"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+
+    <div class="container">
+      <div class="head"><h1>Genoverse - interactive HTML5 genome browser</h1></div>
+      <div class="wrap">
+
+        <div id="genoverse"></div>
+
+      </div>
+      <div class="info">
+        <p>Genoverse is a portable, customizable, back-end independent JavaScript and HTML5 based genome browser which allows the user to explore data interactively.</p>
+        <p>Data is visualized in the browser, meaning Genoverse can be installed on any website and show data from a wide range of online or local sources.</p>
+        <p>Genoverse works with a variety of formats, such as XML, JSON or delimited text files, and can be customized to parse and display any data source as required.</p>
+        <p>For more information, examples and source code, check out our <a href="http://eugenebragin.github.com/Genoverse">github page</a></p>
+        <p style="font-weight:bold; text-align:center;">If you have any questions or need help, please contact us <a href="mailto:info@genoverse.org">info@genoverse.org</a></p>
+      </div>
+    </div>
+
   <div id="genoverse"></div>
+
+  <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-34315286-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
  
   </body>
 </html>

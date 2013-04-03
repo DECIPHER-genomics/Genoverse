@@ -1,0 +1,236 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Genoverse</title>
+    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
+    
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+    <script type="text/javascript" src="js/lib/Base.js"></script>
+    <script type="text/javascript" src="js/lib/rtree.js"></script>
+    <script type="text/javascript" src="js/lib/FRegion.js"></script>
+    
+    <script type="text/javascript" src="js/Genoverse.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script> 
+    <script type="text/javascript" src="js/TrackImage.js"></script>
+
+    <script type="text/javascript" src="js/Track/Static.js"></script>
+    <script type="text/javascript" src="js/Track/Stranded.js"></script> 
+    <script type="text/javascript" src="js/Track/Threshold.js"></script>
+    <script type="text/javascript" src="js/Track/Error.js"></script>
+    
+    <script type="text/javascript" src="js/Track/Scalebar.js"></script>
+    <script type="text/javascript" src="js/Track/Sequence.js"></script>
+    <script type="text/javascript" src="js/Track/MicroArray.js"></script>
+    <script type="text/javascript" src="js/Track/Gene.js"></script>
+    <script type="text/javascript" src="js/Track/DAS.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
+    
+    <script type="text/javascript" src="js/plugins/overlap.js"></script>
+    <script type="text/javascript" src="js/plugins/resizer.js"></script>
+    
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-34315286-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </head>
+  <body>
+
+		<a href="https://github.com/eugenebragin/Genoverse"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+
+    <div class="container">
+      <div class="head"><h1>Genoverse - interactive HTML5 genome browser</h1></div>
+      <div class="wrap">
+        <table cellspacing=0 cellpadding=0 class="genoverse">
+          <tr>
+            <td class="canvas_container"></td>
+            <td class="genoverse_panel genoverse_panel_right">
+              <div class="button_set">
+                <button class="scroll scroll_left" title="Scroll left">&#9668;</button><button class="scroll scroll_right" title="Scroll right">&#9658;</button>
+              </div>
+              <div class="button_set">
+                <button class="zoom_in" title="Zoom in">+</button><button class="zoom_out" title="Zoom out">&#8722;</button>
+              </div>
+              <div class="button_set">
+                <button class="drag_scroll">&#8596;</button><button class="drag_select">&#9482;</button>
+              </div>
+              <div class="button_set">
+                <button class="wheel_off">&#8597;</button><button class="wheel_zoom">&#177;</button>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="info">
+        <p>Genoverse is a portable, customizable, back-end independent JavaScript and HTML5 based genome browser which allows the user to explore data in a dynamic and interactive manner.</p>
+        <p>Data is visualized in the browser, meaning Genoverse can be installed on any website and show data from a wide range of online or local sources.</p>
+        <p>Genoverse works with a variety of formats, such as XML, JSON or delimited text files, and can be customized to parse and display any data source as required.</p>
+        <p>The example above shows a region of mouse chromosome 8, with sequence, variation and gene data from <a href="http://www.ensembl.org" target="_blank">Ensembl</a> using the GRCm38 assembly, and addition gene data from the NCBIm37 assembly via a DAS source.</p>
+        <p>For more information, examples and source code, check out our <a href="http://eugenebragin.github.com/Genoverse">github page</a>. If you have any questions, please contact <a class="mail"></a>.</p>
+      </div>
+    </div>
+    <script>
+      var genoverse;
+      
+      $(function () {
+        $('a.mail').attr('href', 'mailto:info@genoverse.org').html('info@genoverse.org');
+        
+        $.ajaxSettings.traditional = true;
+        
+        Genoverse.on('afterSetTracks', function (tracks) {
+          $.each(tracks || this.tracks, function () {
+            if (this.strand && !this.strandLabel) {
+              $('.name', this.label).append(this.strand === 1 ? ' (+)' : ' (-)');
+              this.strandLabel = true;
+            }
+          });
+        });
+        
+        genoverse = new Genoverse({
+          width            : 1000,
+          container        : $('.canvas_container'),
+          chr              : 8,
+          chromosomeSize   : 131738871, // chromosome 8, mouse, NCBIm37/mm9
+          start            : 109592593,
+          end              : 109597184,
+          labelWidth       : 115,
+          dragAction       : 'scroll',
+          wheelAction      : 'zoom',
+          urlParamTemplate : false,
+          proxy            : '/proxy.php',
+          tracks           : [{
+            type: 'Scalebar'
+          }, {
+            name          : 'Sequence',
+            type          : 'Sequence',
+            threshold     : 5000,
+            order         : 1,
+            orderReverse  : 1,
+            featureHeight : 27,
+            url           : 'http://beta.ensembl.org/Mus_musculus/Genoverse/fetch_features/sequence',
+            urlTemplate   : { r: '__CHR__:__START__-__END__' },
+            urlParams     : { id: 'seq' },
+            populateMenu  : function (feature) {
+              return {
+                title    : feature.title.split(';')[0],
+                Position : feature.title.split('Position:')[1]
+              };
+            }
+          }, {
+            name           : 'Variations',
+            labelOverlay   : true,
+            separateLabels : false,
+            autoHeight     : 'force',
+            threshold      : 1e5,
+            url            : 'http://beta.ensembl.org/Mus_musculus/Genoverse/fetch_features/_variation',
+            urlTemplate    : { r: '__CHR__:__START__-__END__' },
+            urlParams      : { id: 'variation_feature_variation_dbSNP' },
+            populateMenu   : function (feature) {
+              return {
+                title : feature.label,
+                Start : feature.start,
+                End   : feature.end,
+                Link  : '<a href="http://www.ensembl.org/Mus_musculus/Variation/Explore?' + feature.menu.match(/v=[^;&]+(;&)?/)[0] + '" target="_blank">Ensembl</a>'
+              };
+            }
+          }, {
+            name         : 'Genes<br>(Ensembl)',
+            type         : 'Gene',
+            height       : 200,
+            renderer     : 'transcript_label',
+            url          : 'http://beta.ensembl.org/Mus_musculus/Genoverse/fetch_features/_transcript',
+            urlTemplate  : { r: '__CHR__:__START__-__END__' },
+            urlParams    : { id: 'transcript_core_ensembl' },
+            populateMenu : function (feature) {
+              return {
+                title : feature.label,
+                Start : feature.start,
+                End   : feature.end,
+                Link  : '<a href="http://www.ensembl.org/Mus_musculus/Transcript/Summary?' + feature.menu.match(/t=[^;&]+(;&)?/)[0] + '" target="_blank">Ensembl</a>'
+              };
+            }
+          }, {
+            name         : 'Genes<br>(DAS)',
+            type         : 'DASTranscript',
+            source       : 'http://www.ensembl.org/das/Mus_musculus.GRCm38.transcript',
+            filter       : { type: [ 'transcript', 'translation' ] },
+            height       : 200,
+            populateMenu : function (feature) {
+              return {
+                title : feature.label,
+                Start : feature.start,
+                End   : feature.end,
+                Link  : '<a href="http://www.ensembl.org/Mus_musculus/Transcript/Summary?t=' + feature.label + '" target="_blank">Ensembl</a>'
+              };
+            }
+          } ]
+        });
+        
+        genoverse.menuContainer.width(function (i, width) { return width - $('.genoverse_panel').outerWidth(); });
+        
+        $('.genoverse_panel button.scroll').on({
+          mousedown : function () { genoverse.startDragScroll(); },
+          mouseup   : function () { genoverse.stopDragScroll();  }
+        });
+        
+        $('.genoverse_panel button.scroll_right').mousehold(50, function () { genoverse.move(false, -100); });
+        $('.genoverse_panel button.scroll_left').mousehold(50,  function () { genoverse.move(false,  100); });
+        
+        $('.genoverse_panel button.zoom_in').on('click',  function () { genoverse.zoomIn();  });
+        $('.genoverse_panel button.zoom_out').on('click', function () { genoverse.zoomOut(); });
+        
+        if (genoverse.dragAction === 'select') {
+          $('.genoverse_panel button.drag_select').addClass('active');
+          $('.genoverse_panel button.drag_scroll').removeClass('active');
+        } else {
+          $('.genoverse_panel button.drag_select').removeClass('active');
+          $('.genoverse_panel button.drag_scroll').addClass('active');
+        }
+
+        $('.genoverse_panel button.drag_select').click(function () {
+          genoverse.setDragAction('select');
+          $('.genoverse_panel button.drag_select').addClass('active');
+          $('.genoverse_panel button.drag_scroll').removeClass('active');        
+        });
+
+        $('.genoverse_panel button.drag_scroll').click(function () {
+          genoverse.setDragAction('scroll');
+          $('.genoverse_panel button.drag_select').removeClass('active');
+          $('.genoverse_panel button.drag_scroll').addClass('active');     
+        });
+
+        if (genoverse.wheelAction === 'zoom') {
+          $('.genoverse_panel button.wheel_zoom').addClass('active');
+          $('.genoverse_panel button.wheel_0ff').removeClass('active');
+        } else {
+          $('.genoverse_panel button.wheel_zoom').removeClass('active');
+          $('.genoverse_panel button.wheel_off').addClass('active');
+        }
+
+        $('.genoverse_panel button.wheel_zoom').click(function () {
+          genoverse.setWheelAction('zoom');
+          $('.genoverse_panel button.wheel_zoom').addClass('active');
+          $('.genoverse_panel button.wheel_off').removeClass('active');
+        });
+
+        $('.genoverse_panel button.wheel_off').click(function () {
+          genoverse.setWheelAction('off');
+          $('.genoverse_panel button.wheel_zoom').removeClass('active');
+          $('.genoverse_panel button.wheel_off').addClass('active');    
+        });
+      });
+    </script>
+  </body>
+</html>
