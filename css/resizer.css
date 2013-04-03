@@ -6,7 +6,7 @@ div.resizer {
   position: absolute; 
   bottom: 0; 
   opacity: 0.8; 
-  background-color: #F0F0F0; 
+  /*background-color: #F0F0F0; */
   height: 5px; 
   cursor: n-resize; 
   z-index: 2; 
@@ -19,8 +19,8 @@ div.resizer {
 }
 
 .canvas_container .resizer .handle { 
-  background-color: white; 
-  border: 1px solid #5A5A5A; 
+  background-color: #5A5A5A; 
+  border: 1px solid white; 
   border-width: 1px 0; 
   height: 1px;
   margin: 1px 48%; 
@@ -33,5 +33,5 @@ div.resizer {
 }
 
 .canvas_container .resizer:hover, .canvas_container .resizer.ui-draggable-dragging { 
-  box-shadow: 0 -5px 7px -3px #000000 inset!important;
+  box-shadow: -1px -3px 6px -3px #000000 inset !important;
 }

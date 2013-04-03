@@ -140,7 +140,7 @@ $.when.apply($,
   })
 ).done(function () {
   var src = "(function () {\n";
-
+console.dir(arguments);
   for (var i=0; i<arguments.length; i++) {
     src = src + arguments[i][0] + "\n\n\n\n\n";
   }

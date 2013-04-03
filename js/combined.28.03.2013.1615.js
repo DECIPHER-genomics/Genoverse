@@ -1686,6 +1686,14 @@ var Genoverse = Base.extend({
       },
       update      : function (e, ui) {
         browser.tracks[ui.item.data('index')].container[ui.item[0].previousSibling ? 'insertAfter' : 'insertBefore'](browser.tracks[$(ui.item[0].previousSibling || ui.item[0].nextSibling).data('index')].container);
+        // Correct the order
+        var newOrderTracks = [];
+        // Well, this is dodgy, but hopefully .children will always give us LIs in order of appearence
+        browser.labelContainer.children('li').each(function (i) {
+          newOrderTracks.push(browser.tracks[$(this).data('index')]);
+          $(this).data({ index: newOrderTracks.length - 1 });
+        });
+        browser.tracks = newOrderTracks;
       }
     });
 
@@ -1732,7 +1740,7 @@ var Genoverse = Base.extend({
     this.setRange(coords.start, coords.end);
     this.setHistory();
     this.setTracks();
-    this.makeImage();
+    //this.makeImage();
     this.addUserEventHandlers();
   },
 
@@ -1800,14 +1808,13 @@ var Genoverse = Base.extend({
     var i = this.tracks.length;
     
     while (i--) {
-      this.tracks[i].reset();
+      this.tracks[i].reset(false);
     }
     
     this.scale   = 9e99; // arbitrary value so that setScale resets track scales as well
     this.history = {};
     
     this.setRange(this.start, this.end);
-    this.makeImage();
   },
 
   
@@ -1893,7 +1900,7 @@ var Genoverse = Base.extend({
     if (!e) {
       return false;
     }
-    
+
     this.dragging        = false;
     this.selectorStalled = true;
     
@@ -1901,9 +1908,11 @@ var Genoverse = Base.extend({
       return this.cancelSelect();
     }
     
+    var top = Math.min(e.pageY - this.wrapper.offset().top, this.wrapper.outerHeight(true) - 1.2*this.selectorControls.outerHeight(true));
+
     this.selectorControls.css({
-      marginTop : -this.selectorControls.outerHeight() / 2,
-      left      : this.selector.outerWidth(true) / 2 - this.selectorControls.outerWidth(true) / 2
+      top  : top,
+      left : this.selector.outerWidth(true) / 2 - this.selectorControls.outerWidth(true) / 2
     }).show();
   },
 
@@ -2015,7 +2024,7 @@ var Genoverse = Base.extend({
   mousemove: function (e) {
     if (this.dragging && !this.scrolling) {
       switch (this.dragAction) {
-        case 'scroll' : this.move(e);       break;
+        case 'scroll' : this.move(e.pageX - this.dragOffset - this.left); break;
         case 'select' : this.dragSelect(e); break;
         default       : break;
       }
@@ -2032,72 +2041,109 @@ var Genoverse = Base.extend({
   },
 
   
-  move: function (e, delta, speed, callback) {
+  move: function (delta, callback) {
     var wrapperOffset = this.wrapper.offset().left;
     var start, end, step;
-    
-    this.left = e ? e.pageX - this.dragOffset : this.left + delta;
-    
+    var scale = this.scale;
+
     if (this.menus.length) this.closeMenus();
 
-    if (this.scale > 1) {
-      this.left = Math.round(this.left / this.scale) * this.scale; // Force stepping by base pair when in small regions
-      
+    // Force stepping by base pair when in small regions
+    if (scale > 1) {
+      this.left = Math.round(this.left / scale) * scale; 
       if (delta) {
-        delta = Math.round(delta / this.scale) * this.scale;
+        delta = Math.round(delta / scale) * scale;
       }
     }
     
-    if (this.left < this.minLeft) {
-      this.left = this.minLeft;
-      
-      start = this.chromosomeSize - this.length + 1;
-      end   = this.chromosomeSize;
-    } else if (this.left > this.maxLeft) {
-      this.left = this.maxLeft;
-      
-      start = 1;
-      end   = this.length;
-    } else {
-      start = e ? this.dragStart - (this.left - this.prev.left) / this.scale : this.start - delta / this.scale;
-      end   = start + this.length - 1;
+    if (this.left + delta < this.minLeft) {
+      delta = this.minLeft - this.left;
+    } else if (this.left + delta > this.maxLeft) {
+      delta = this.maxLeft - this.left;
     }
+
+    this.left += delta;
+    start = this.start - delta / scale;
+    if (start < 1) start = 1;
+    end   = start + this.length - 1;
     
-    if (speed) {
-      $.when($('.track_container', this.container).stop().animate({ left: this.left }, speed).add(
-        $('.overlay', this.wrapper).add('.gv-menu', this.menuContainer).stop().animate({ marginLeft: this.left - this.prev.left }, speed).add(
-          this.selector.stop().animate({ marginLeft: this.left - this.prev.left - 1 }, speed)
-        )
-      )).done(function () {
-        if (typeof callback === 'function') {
-          callback();
-        }
-      });
-    } else {
-      $('.track_container', this.container).css('left', this.left);
-      $('.overlay', this.wrapper).add('.gv-menu', this.menuContainer).css('marginLeft', this.left - this.prev.left);
-      this.selector.css('marginLeft', this.left - this.prev.left - 1);
-      
-      if (typeof callback === 'function') {
-        callback();
-      }
+    for (var i=0; i < this.tracks.length; i++) {
+      this.tracks[i].move(delta, scale)
     }
-    
-    $('.expander', this.wrapper).css('left', -this.left);
-    //$('.track_message', this.wrapper).css('left', -this.left);
-    $('.image_container img.static', this.container).css('marginLeft', function () { return wrapperOffset - $(this.parentNode).offset().left; });
-    
+
     this.setRange(start, end);
-    
-    if (this.redraw()) {
-      step = this.left - this.prev.left > 0 ? 1 : -1;
-      
-      this.stopDragScroll(e, false);
-      this.startDragScroll(e);
-      this.move(false, step); // Force the scroll on 1px in order to ensure the URL updates correctly (otherwise it might not if scrolling a very small amount on the boundary)
-    }
   },
   
+
+  setRange: function (start, end, update, force) {
+    this.prev.start = this.start;
+    this.prev.end   = this.end;
+    this.start      = typeof start === 'number' ? Math.floor(start) : parseInt(start, 10);
+    this.end        = typeof end   === 'number' ? Math.floor(end)   : parseInt(end,   10);
+    
+    if (this.start < 1) {
+      this.start = 1;
+    }
+    
+    if (this.end > this.chromosomeSize) {
+      this.end = this.chromosomeSize;
+    }
+
+    if (!this.end || !(this.end > this.start)) {
+      this.end = this.start + this.defaultLength;
+    }
+    
+    this.length = this.end - this.start + 1;
+    
+    this.setScale(force);
+
+    if (update === true && (this.prev.start !== this.start || this.prev.end !== this.end)) {
+      this.updateURL();
+      this.setHistory();
+      this.makeImage();
+    }
+  },
+
+
+  setScale: function (force) {
+    this.prev.scale  = this.scale;
+    this.scale       = this.width / this.length;
+    this.scaledStart = this.start * this.scale;
+    
+    if (force || this.prev.scale !== this.scale) {
+      this.dataRegion  = { start: 9e99, end: -9e99 };
+      this.offsets     = { right: this.width, left: -this.width };
+      this.left        = 0;
+      this.prev.left   = 0;
+      this.minLeft     = Math.round((this.end   - this.chromosomeSize) * this.scale);
+      this.maxLeft     = Math.round((this.start - 1) * this.scale);
+      this.scrollStart = 'ss_' + this.start + '_' + this.end;
+      this.labelBuffer = Math.ceil(this.textWidth / this.scale) * this.longestLabel;
+
+      if (this.prev.scale) {
+        var i = this.tracks.length;
+        
+        this.cancelSelect();
+        this.menuContainer.children().hide();
+        
+        while (i--) {
+          this.tracks[i].setScale(this.scale);
+        }
+        
+        if (this.backgrounds) {
+          for (var c in this.backgrounds) {
+            i = this.backgrounds[c].length;
+            
+            while (i--) {
+              this.backgrounds[c][i].scaledStart = this.backgrounds[c][i].start * this.scale;
+              this.backgrounds[c][i].scaledEnd   = this.backgrounds[c][i].end   * this.scale;
+            }
+          }
+        }
+      }
+    }
+  },
+
   
   checkHeights: function () {
     if (this.dragging) {
@@ -2175,118 +2221,9 @@ var Genoverse = Base.extend({
       return false;
     }
     
-    this.makeImage();
+    //this.makeImage();
     
     return true;
-  },
-
-
-  setRange: function (start, end, update, force) {
-    this.prev.start = this.start;
-    this.prev.end   = this.end;
-    this.start      = typeof start === 'number' ? Math.floor(start) : parseInt(start, 10);
-    this.end        = typeof end   === 'number' ? Math.floor(end)   : parseInt(end,   10);
-    
-    if (this.start < 1) {
-      this.start = 1;
-    }
-    
-    if (this.end > this.chromosomeSize) {
-      this.end = this.chromosomeSize;
-    }
-
-    if (!this.end || !(this.end > this.start)) {
-      this.end = this.start + this.defaultLength;
-    }
-    
-    this.length = this.end - this.start + 1;
-    
-    this.setScale(force);
-    
-    if (update === true && (this.prev.start !== this.start || this.prev.end !== this.end)) {
-      this.updateURL();
-      this.setHistory();
-      this.makeImage();
-    }
-  },
-
-
-  setScale: function (force) {
-    this.prev.scale  = this.scale;
-    this.scale       = this.width / this.length;
-    this.scaledStart = this.start * this.scale;
-    
-    if (force || this.prev.scale !== this.scale) {
-      this.dataRegion  = { start: 9e99, end: -9e99 };
-      this.offsets     = { right: this.width, left: -this.width };
-      this.left        = 0;
-      this.prev.left   = 0;
-      this.minLeft     = Math.round((this.end   - this.chromosomeSize) * this.scale);
-      this.maxLeft     = Math.round((this.start - 1) * this.scale);
-      this.scrollStart = 'ss_' + this.start + '_' + this.end;
-      this.labelBuffer = Math.ceil(this.textWidth / this.scale) * this.longestLabel;
-
-      this.setGuideLineUnits();
-
-      if (this.prev.scale) {
-        var i = this.tracks.length;
-        
-        this.cancelSelect();
-        this.menuContainer.children().hide();
-        
-        while (i--) {
-          this.tracks[i].setScale();
-        }
-        
-        if (this.backgrounds) {
-          for (var c in this.backgrounds) {
-            i = this.backgrounds[c].length;
-            
-            while (i--) {
-              this.backgrounds[c][i].scaledStart = this.backgrounds[c][i].start * this.scale;
-              this.backgrounds[c][i].scaledEnd   = this.backgrounds[c][i].end   * this.scale;
-            }
-          }
-        }
-      }
-    }
-  },
-
-  
-  setGuideLineUnits: function() {
-    var length = this.length;
-    var majorUnit, minorUnit, exponent, mantissa;
-    
-    if (length <= 51) {
-      majorUnit = 10;
-      minorUnit = 1;
-    } else {
-      exponent = Math.pow(10, Math.floor(Math.log(length) / Math.log(10)));
-      mantissa = length / exponent;
-      
-      if (mantissa < 1.2) {
-        majorUnit = exponent  / 10;
-        minorUnit = majorUnit / 5;
-      } else if (mantissa < 2.5) {
-        majorUnit = exponent  / 5;
-        minorUnit = majorUnit / 4;
-      } else if (mantissa < 5) {
-        majorUnit = exponent  / 2;
-        minorUnit = majorUnit / 5;
-      } else {
-        majorUnit = exponent;
-        minorUnit = majorUnit / 5;
-      }
-    }
-    
-    this.minorUnit = minorUnit;
-    this.majorUnit = majorUnit;
-
-    if (!this.guideLinesByScale[this.scale]) {
-      this.guideLinesByScale[this.scale] = { major: {}, minor: {} };
-    }
-    
-    this.guideLines = this.guideLinesByScale[this.scale];
   },
 
 
@@ -2315,7 +2252,7 @@ var Genoverse = Base.extend({
         Class = Class[subClass];
       }
 
-      tracks[i] = new Class($.extend(tracks[i], defaults, { index: i + index }));
+      tracks[i] = new Class($.extend(true, {}, tracks[i], defaults, { index: i + index }));
 
       // set the reference to the browser
       //
@@ -2351,10 +2288,14 @@ var Genoverse = Base.extend({
   },
   
   
+  addTrack: function (track) {
+    this.addTracks([ track ]);
+  },
+  
+  
   addTracks: function (tracks) {
     this.setTracks(tracks, this.tracks.length);
     this.sortTracks();
-    this.makeTrackImages(tracks);
   },
   
   
@@ -2420,7 +2361,7 @@ var Genoverse = Base.extend({
     
     for (var i = 0; i < sorted.length; i++) {
       labels.push(sorted[i].label[0]);
-      containers.push(sorted[i].canvas[0], sorted[i].container.detach()[0]);
+      containers.push(sorted[i].container.detach()[0]);
     }
     
     this.labelContainer.append(labels);
@@ -2431,87 +2372,91 @@ var Genoverse = Base.extend({
   
   
   makeImage: function () {
-    var left = -this.left;
-    var dir  = left < 0 ? 'right' : 'left';
-    var start, end;
-    
-    if (left) {
-      start = left > 0 ? this.dataRegion.end   : this.dataRegion.start - (this.buffer * this.length);
-      end   = left < 0 ? this.dataRegion.start : this.dataRegion.end   + (this.buffer * this.length);
-    } else {
-      start = Math.max(this.start - this.length, 1);
-      end   = Math.min(this.end   + this.length + 1, this.chromosomeSize);
-    }
-    
-    var width = Math.round((end - start) * this.scale);
-    
-    this.dataRegion.start = Math.min(start, this.dataRegion.start);
-    this.dataRegion.end   = Math.max(end,   this.dataRegion.end);
-    this.offsets[dir]    += width;
-    
-    if (this.updateFromHistory()) {
-      return;
-    }
-    
-    this.makeTrackImages(this.tracks, start, end, width);
   },
+
+
+  // makeImage: function () {
+  //   //debugger;
+  //   var left = -this.left;
+  //   var dir  = left < 0 ? 'right' : 'left';
+  //   var start, end;
+    
+  //   if (left) {
+  //     start = left > 0 ? this.dataRegion.end   : this.dataRegion.start - (this.buffer * this.length);
+  //     end   = left < 0 ? this.dataRegion.start : this.dataRegion.end   + (this.buffer * this.length);
+  //   } else {
+  //     start = Math.max(this.start, 1);
+  //     end   = Math.min(this.end + 1, this.chromosomeSize);
+  //   }
+    
+  //   var width = Math.round((end - start) * this.scale);
+    
+  //   this.dataRegion.start = Math.min(start, this.dataRegion.start);
+  //   this.dataRegion.end   = Math.max(end,   this.dataRegion.end);
+  //   this.offsets[dir]    += width;
+    
+  //   if (this.updateFromHistory()) {
+  //     return;
+  //   }
+    
+  //   this.makeTrackImages(this.tracks, start, end, width);
+  // },
   
   
-  makeTrackImages: function (tracks, start, end, width) {
-    start = start || this.dataRegion.start;
-    end   = end   || this.dataRegion.end;
-    width = width || Math.round((end - start + 1) * this.scale);
+  // makeTrackImages: function (tracks, start, end, width) {
+  //   start = start || this.dataRegion.start;
+  //   end   = end   || this.dataRegion.end;
+  //   width = width || Math.round((end - start + 1) * this.scale);
     
-    // Maximum texture width is 32Kb. Above this, images will fail to load.
-    // FIXME: rewrite so that addTrack/setRenderer cannot create an image that is this wide
-    if (width > 32 * 1024) {
-      return this.reset();
-    }
+  //   // Maximum texture width is 32Kb. Above this, images will fail to load.
+  //   // FIXME: rewrite so that addTrack/setRenderer cannot create an image that is this wide
+  //   if (width > 32 * 1024) {
+  //     return this.reset();
+  //   }
     
-    var browser    = this;
-    var left       = -this.left;
-    var dataRegion = $.extend({}, this.dataRegion);
-    var offsets    = $.extend({}, this.offsets);
-    var allTracks  = tracks.length === this.tracks.length;
+  //   var left       = -this.left;
+  //   var dataRegion = $.extend({}, this.dataRegion);
+  //   var offsets    = $.extend({}, this.offsets);
+  //   var allTracks  = tracks.length === this.tracks.length;
 
 
-    // var overlay    = this.makeOverlays(width, allTracks ? false : tracks);
-    // function removeOverlay() {
-    //   if (overlay) {
-    //     overlay.remove();
-    //     overlay = null;
-    //   }
-    // }
+  //   // var overlay    = this.makeOverlays(width, allTracks ? false : tracks);
+  //   // function removeOverlay() {
+  //   //   if (overlay) {
+  //   //     overlay.remove();
+  //   //     overlay = null;
+  //   //   }
+  //   // }
     
-    for (var i=0; i<tracks.length; i++) {
-      tracks[i].makeImage(start, end, width, left, browser.scrollStart);
-    }
+  //   for (var i=0; i<tracks.length; i++) {
+  //     tracks[i].makeImage(start, end, width, left, this.scale);
+  //   }
 
-    // $.when.apply($, $.map(tracks, function (track) { return track.makeImage(start, end, width, left, browser.scrollStart); })).done(function () {
-    //   var redraw = false;
+  //   // $.when.apply($, $.map(tracks, function (track) { return track.makeImage(start, end, width, left, browser.scrollStart); })).done(function () {
+  //   //   var redraw = false;
       
-    //   $.when.apply($, $.map($.map(arguments, function (a) {
-    //     $(a.target).show();
-    //     return a.img;
-    //   }), function (i) {
-    //     if (i.track.backgrounds && !allTracks) {
-    //       i.track.scaleFeatures(i.track.backgrounds);
-    //       redraw = true;
-    //     }
+  //   //   $.when.apply($, $.map($.map(arguments, function (a) {
+  //   //     $(a.target).show();
+  //   //     return a.img;
+  //   //   }), function (i) {
+  //   //     if (i.track.backgrounds && !allTracks) {
+  //   //       i.track.scaleFeatures(i.track.backgrounds);
+  //   //       redraw = true;
+  //   //     }
         
-    //     return i.drawBackground();
-    //   })).done(removeOverlay);
+  //   //     return i.drawBackground();
+  //   //   })).done(removeOverlay);
       
-    //   if (allTracks) {
-    //     browser.prev.history = browser.start + '-' + browser.end;
-    //     browser.setHistory(dataRegion, offsets);
-    //   } else {
-    //     browser.updateTracks(redraw);
-    //   }
+  //   //   if (allTracks) {
+  //   //     browser.prev.history = browser.start + '-' + browser.end;
+  //   //     browser.setHistory(dataRegion, offsets);
+  //   //   } else {
+  //   //     browser.updateTracks(redraw);
+  //   //   }
       
-    //   browser.checkTrackSize();
-    // }).fail(removeOverlay);
-  },
+  //   //   browser.checkTrackSize();
+  //   // }).fail(removeOverlay);
+  // },
   
   
   makeOverlays: function (width, tracks) {
@@ -2638,7 +2583,6 @@ var Genoverse = Base.extend({
 
     }
 
-    
     return coords;
   },
   
@@ -2708,12 +2652,11 @@ var Genoverse = Base.extend({
         );
         return true;
       });
-
-      menu.show();
-      menu.css(
+      
+      menu.show().css(
         position || 
         { 
-          top  : offset.top  + 100,
+          top  : Math.max(offset.top, $(document).scrollTop()) + menu.outerHeight(true)/10,
           left : offset.left + (wrapper.outerWidth(true) - menu.outerWidth(true))/2
         }
       );
@@ -2750,6 +2693,7 @@ var Genoverse = Base.extend({
    * functionWrap - wraps event handlers and adds debugging functionality
    **/
   functionWrap: function (key, obj) {
+    var name = (obj ? (obj.name || 'Track' + obj.type) : 'Genoverse') + '.' + key;
     obj = obj || this;
 
     if ((key.indexOf('after') === 0) || (key.indexOf('before') === 0)) {
@@ -2759,7 +2703,6 @@ var Genoverse = Base.extend({
     }
 
     var func = key.substring(0, 1).toUpperCase() + key.substring(1);
-        name = (obj ? (obj.name || '') + '(' + (obj.type || 'Track.') + ')' : 'Genoverse.') + key;
     
     if (obj.debug) {
       this.debugWrap(obj, key, name, func);
@@ -2804,7 +2747,7 @@ var Genoverse = Base.extend({
       }
       
       obj.systemEventHandlers['before' + func].unshift(function () {
-        console.log(name + ' is called');
+        console.log(name);
       });
     }
     
@@ -2819,11 +2762,12 @@ var Genoverse = Base.extend({
       }
       
       obj.systemEventHandlers['before' + func].unshift(function () {
-        console.time(name);
+        //console.log(name, arguments);        
+        console.time('time: ' + name);
       });
       
       obj.systemEventHandlers['after' + func].push(function () {
-        console.timeEnd(name);
+        console.timeEnd('time: ' + name);
       });
     }
   },
@@ -2843,7 +2787,7 @@ var Genoverse = Base.extend({
 
 
 Genoverse.on('afterMove afterZoomIn afterZoomOut', function () {
-  $('.static', this.wrapper).css('left', -this.left);
+  // $('.static', this.wrapper).css('left', -this.left);
   this.checkHeights();
 });
 
@@ -2863,6 +2807,8 @@ Genoverse.Track = Base.extend({
   dataType       : 'json',
   color          : '#000000',
   fontSize       : 10,
+  buffer         : 1.2,          // number of widths, if left of right closer to the edges of viewpoint than the buffer, start making more images
+  dataBuffer     : 0,            // basepairs, extend data region for, when getting data from the origin 
   fontFamily     : 'sans-serif',
   fontWeight     : 'normal',
   fontColor      : '#000000',
@@ -2873,6 +2819,10 @@ Genoverse.Track = Base.extend({
   inherit        : [],
   xhrFields      : {},
   featuresById   : {},
+  imgRange       : {},
+  dataRange      : {},
+  thresholdWarning : 'Data for this track is not displayed for this zoom level',
+
 
   constructor: function (config) {
     // Deep clone all [..] and {..} objects in this to prevent sharing between instances
@@ -2905,35 +2855,39 @@ Genoverse.Track = Base.extend({
     this.addDomElements(config);
     this.addUserEventHandlers();
     this.init();
-    this.setScale();
+    //this.setScale();
+    //this.makeFirstImage();
   },
 
 
   addDomElements: function (config) {
     var track = this;
 
-    this.order          = typeof this.order          !== 'undefined' ? this.order          : this.index;
-    this.separateLabels = typeof this.separateLabels !== 'undefined' ? this.separateLabels : !!this.depth;
-    this.spacing        = typeof this.spacing        !== 'undefined' ? this.spacing        : this.browser.trackSpacing;
-    this.featureHeight  = typeof this.featureHeight  !== 'undefined' ? this.featureHeight  : this.height;
-    this.fixedHeight    = typeof this.fixedHeight    !== 'undefined' ? this.fixedHeight    : this.featureHeight === this.height && !(this.bump || this.bumpLabels);
-    this.autoHeight     = typeof this.autoHeight     !== 'undefined' ? this.autoHeight     : !this.fixedHeight && !config.height ? this.browser.autoHeight : false;
-    this.resizable      = typeof this.resizable      !== 'undefined' ? this.resizable      : !this.fixedHeight;
-    this.height        += this.spacing;
-    this.initialHeight  = this.height;
-    this.minLabelHeight = 0;
-    this.canvas         = $('<canvas>').appendTo(this.browser.wrapper);
-    this.container      = $('<div class="track_container">').appendTo(this.browser.wrapper);
-    this.imgContainer   = $('<div class="image_container">');
-    this.messageContainer = $('<div class="track_message static" />').appendTo(this.container);
+    this.order            = typeof this.order          !== 'undefined' ? this.order          : this.index;
+    this.separateLabels   = typeof this.separateLabels !== 'undefined' ? this.separateLabels : !!this.depth;
+    this.spacing          = typeof this.spacing        !== 'undefined' ? this.spacing        : this.browser.trackSpacing;
+    this.featureHeight    = typeof this.featureHeight  !== 'undefined' ? this.featureHeight  : this.height;
+    this.fixedHeight      = typeof this.fixedHeight    !== 'undefined' ? this.fixedHeight    : this.featureHeight === this.height && !(this.bump || this.bumpLabels);
+    this.autoHeight       = typeof this.autoHeight     !== 'undefined' ? this.autoHeight     : !this.fixedHeight && !config.height ? this.browser.autoHeight : false;
+    this.resizable        = typeof this.resizable      !== 'undefined' ? this.resizable      : !this.fixedHeight;
+    this.height          += this.spacing;
+    this.initialHeight    = this.height;
+    this.minLabelHeight   = 0;
+    this.container        = $('<div class="track_container">').appendTo(this.browser.wrapper);
+    this.messageContainer = $('<div class="track_message" />').appendTo(this.container);
+    this.scrollContainer  = $('<div class="scroll_container">').appendTo(this.container);
+    this.imgContainer     = $('<div class="image_container">');
+    this.border           = $('<div class="track_border">').appendTo(this.container);
 
-    this.label          = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('index', this.index);
-    this.menus          = $();
-    this.context        = this.canvas[0].getContext('2d');
-    this.font           = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
-    this.context.font   = this.font;
-    this.fontHeight     = this.fontSize;
-    this.labelUnits     = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
+    this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('index', this.index);
+    this.menus            = $();
+
+    this.canvas           = $('<canvas>').css({display: 'none'});
+    this.context          = this.canvas[0].getContext('2d');
+    this.font             = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
+    this.context.font     = this.font;
+    this.fontHeight       = this.fontSize;
+    this.labelUnits       = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
 
     if (this.hidden) {
       this.height  = 0;
@@ -2956,6 +2910,7 @@ Genoverse.Track = Base.extend({
     this.label.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
     
     this.container.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
+    this.container.width(this.browser.width);
     
     if (!this.fixedHeight && this.resizable !== false) {
       this.heightToggler = $('<div class="height_toggler"><div class="auto">Set track to auto-adjust height</div><div class="fixed">Set track to fixed height</div></div>').on({
@@ -2981,19 +2936,62 @@ Genoverse.Track = Base.extend({
 
 
   init: function () {
+    this.resetData();
+    this.setScale();
+  },
+
+
+  // Reset does init by default, unless init == false
+  reset: function (init) {
+    this.resetImages();
+    this.resetData();
+
+    if (typeof(init) == 'undefined' || init) {
+      this.init();
+    }
+  },
+
+
+  resetData: function () {
     this.features = new RTree();
     this.featuresById  = {};
-    this.dataRegion    = { start: 9e99, end: -9e99 };
+    this.dataRange     = { start: 9e99, end: -9e99 };
     this.scaleSettings = {};
   },
 
 
-  reset: function () {
-    this.container.children('.image_container').remove();
-    
-    if (this.url !== false) {
-      this.init();
+  resetImages: function () {
+    this.imgRange = {};
+    this.scrollContainer.children('.image_container').remove();
+  },
+
+
+  resetFeaturePositions: function () {
+    this.scaleSettings = {};
+    this.featurePositions = new RTree();
+    for (id in this.featuresById) {
+      var feature = this.featuresById[id];
+      delete feature.position;
     }
+  },
+
+
+  reDraw: function () {
+    this.resetFeaturePositions();
+
+    for (var i=0; i<this.imgContainers.length; i++) {
+      var image = $('img.data', this.imgContainers[i]);
+      var data  = image.data();
+
+      var features = this.findFeatures(data.start, data.end);
+      this.render(features, image);
+    }
+  },
+
+
+  rename: function (newName) {
+    this.name = newName;
+    $('span.name', this.label).html(this.name);
   },
 
 
@@ -3011,6 +3009,16 @@ Genoverse.Track = Base.extend({
   },
 
 
+  showMessage: function (message) {
+    this.messageContainer.html(message).show();
+  },
+
+
+  hideMessage: function () {
+    this.messageContainer.hide();
+  },
+  
+
   click: function (e) {
     var x = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
     var y = e.pageY - $(e.target).offset().top;
@@ -3023,12 +3031,10 @@ Genoverse.Track = Base.extend({
 
 
   checkHeight: function () {
-    this.fullVisibleHeight = Math.max.apply(
-      Math, 
-      $('img:visible', this.container).map(function(){
-        return $(this).outerHeight(true);
-      })
-    );
+    var bounds = { x: this.browser.scaledStart, w: this.width, y: 0, h: 10000 };
+    var scale  = this.scale;
+    var height = Math.max.apply(Math, $.map(this.featurePositions.search(bounds), function (feature) { return feature.position[scale].Y + feature.position[scale].H; }).concat(0));
+    this.fullVisibleHeight = height;
 
     this.toggleExpander();
   },
@@ -3066,10 +3072,12 @@ Genoverse.Track = Base.extend({
     // this.fullVisibleHeight - ([there are labels in this region] ? (this.separateLabels ? 0 : this.bumpSpacing + 1) + 2 : this.bumpSpacing)
     //                                                                ^ padding on label y-position                     ^ margin on label height
     if (this.fullVisibleHeight > this.container.height()) {
-      this.expander = (this.expander || $('<div class="expander static">').width(this.width).appendTo(this.container).on('click', function () {
+      this.showMessage('Not all features displayed, resize to see all.');
+      this.expander = (this.expander || $('<div class="expander">').width(this.width).appendTo(this.container).on('click', function () {
         track.resize(track.fullVisibleHeight);
-      })).css('left', -this.browser.left)[this.height === 0 ? 'hide' : 'show']();
+      }))[this.height === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
+      this.hideMessage();
       this.expander.hide();
     }    
   },
@@ -3085,9 +3093,17 @@ Genoverse.Track = Base.extend({
     var track = this;
     var featurePositions, labelPositions;
     
+    this.left  = 0;
     this.scale = this.browser.scale;
+    this.imgRange[this.scale] = {};
+    this.imgRange[this.scale].left  = 0;
+    this.imgRange[this.scale].right = this.width-1;
 
-    this.messageContainer.empty();
+    this.dataRange[this.scale] = {};
+    this.dataRange[this.scale].start = this.browser.start;
+    this.dataRange[this.scale].end = this.browser.end;
+
+    this.hideMessage();
     
     // Reset scaleSettings if the user has zoomed back to a previously existent zoom level, but has scrolled to a new region.
     // This is needed to get the newly created images in the right place.
@@ -3120,7 +3136,8 @@ Genoverse.Track = Base.extend({
       track[this] = scaleSettings[this];
     });
     
-    this.container.css('left', this.browser.left).children('.image_container').hide();
+    this.scrollContainer.css('left', this.browser.left).children('.image_container').hide();
+    this.makeFirstImage();
   },
 
 
@@ -3174,98 +3191,121 @@ Genoverse.Track = Base.extend({
   },
 
 
-  resetFeaturePositions: function () {
-    this.scaleSettings = {};
-    this.featurePositions = new RTree();
-    for (id in this.featuresById) {
-      var feature = this.featuresById[id];
-      delete feature.position;
-    }
+  findFeatures: function (start, end) {
+    var bounds = { x: start, y: 0, w: end - start, h: 1 };
+    return this.features.search(bounds);
   },
 
 
-  reDraw: function () {
-    this.resetFeaturePositions();
+  move: function (delta, scale) {
+    this.left += delta;
+    this.scrollContainer.css('left', this.left);
 
-    for (var i=0; i<this.imgContainers.length; i++) {
-      var image = $('img.data', this.imgContainers[i]);
-      var data  = $(image).data();
+    if (this.imgRange[scale].left + this.left > -this.buffer*this.width) {
+      this.imgRange[scale].left   -= this.width;
+      this.dataRange[scale].start -= this.width/scale;
 
-      var features = this.features.search({ x: data.start, y: 0, w: data.end - data.start, h:1 });
-      this.render(features, image);
+      this.makeImage({
+        scale : scale,
+        start : this.dataRange[scale].start,
+        end   : this.dataRange[scale].start + this.width/scale,
+        left  : this.imgRange[scale].left,
+      });
+
+      this.move(0, scale);
     }
+    if (this.imgRange[scale].right + this.left < (1+this.buffer)*this.width) {
+      this.imgRange[scale].right += this.width;
+      this.dataRange[scale].end  += this.width/scale;
+      this.makeImage({
+        scale : scale,
+        start : this.dataRange[scale].end  - this.width/scale,
+        end   : this.dataRange[scale].end,
+        left  : this.imgRange[scale].right - this.width + 1,
+      });      
+
+      this.move(0, scale);
+    }
+
+    return false;
   },
+  
 
+  makeImage: function (params) {
+    var track = this;
+    var defer = $.Deferred();
 
-  makeImage: function (start, end, width, moved, cls) {
-    if (this.disabled) return;
+    // TODO: check params
+    params.scaledStart = params.start*params.scale;
+    params.height      = this.height || 0;
+    params.width       = this.width;
 
-    var div  = this.imgContainer.clone().width(width).addClass(cls);
-    var prev = $(this.imgContainers).filter('.' + this.browser.scrollStart + ':' + (moved < 0 ? 'first' : 'last'));
+    var div     = this.imgContainer
+                  .clone()
+                  .width(this.width)
+                  .addClass(("scale_" + params.scale + " loading").replace('.','_'))
+                  .css('left', params.left);
 
-    var data = { 
-      start : start, 
-      end   : end, 
-      width : width, 
-      height: this.height || 0, 
-      scale : this.scale,
-      scaledStart : start * this.scale
-    };
+    var image   = $('<img class="data" />')
+                  .css({ opacity : 0 })
+                  .data(params)
+                  .load(function(){ div.removeClass('loading'); $(this).animate({ opacity : 1 }, 100); })
+                  .appendTo(div);
 
-    var bgImage = $('<img class="bg" />').css({ opacity: 0.8 }).width(width).data(data).prependTo(div);
-
-    var image = $('<img class="data" />')
-      .width(width)
-      .data(data)
-      .load(function(){ bgImage.css({ opacity: 1 }) })
-      .appendTo(div);
-
-    div.css('left', prev.length ? prev.position().left + (moved < 0 ? -this.width : prev.width()) : -this.browser.offsets.right);
-    this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
-    this.container.append(this.imgContainers);
-
-
-    var bufferedStart = Math.max(start - (this.labelOverlay ? 0 : this.browser.labelBuffer), 1);
-    var bounds = { x: bufferedStart, y: 0, w: end - bufferedStart, h: 1 };
-
-    this.renderBackground(bgImage);
+    this.imgContainers.push(div[0]);
+    this.scrollContainer.append(this.imgContainers);
 
     if (this.threshold && this.threshold < this.browser.length) {
       this.render([], image);
-      this.messageContainer.text('Threshold reached');
-    } else if (start >= this.dataRegion.start && end <= this.dataRegion.end) {
-      var features = this.features.search(bounds);
-      this.render(features, image);
+      this.showMessage(this.thresholdWarning);
+    } else if (params.start >= this.dataRange.start && params.end <= this.dataRange.end) {
+      // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
+      var defer = $.Deferred().then(function(){
+        track.render(track.findFeatures(params.start, params.end), image);
+      });
+
+      setTimeout(function(){ defer.resolve() }, 1);
     } else {
-      var track = this;
 
-      $.when(this.getData(bufferedStart, end))
+      track.dataRange.start = track.allData ? 0    : Math.min(params.start - track.dataBuffer, track.dataRange.start);
+      track.dataRange.end   = track.allData ? 9e99 : Math.max(params.end + track.dataBuffer, track.dataRange.end);
+
+      $.when(this.getData(params.start - track.dataBuffer, params.end + track.dataBuffer))
        .done(function (data) {
-         track.dataRegion.start = this.allData ? 0    : Math.min(start, track.dataRegion.start);
-         track.dataRegion.end   = this.allData ? 9e99 : Math.max(end,   track.dataRegion.end);
-
-         try {
-           track.parseData(data, bufferedStart, end);
-           track.render(track.features.search(bounds), image);
-         } catch (e) {
-           track.showError(e);
-         }
-        
-         if (track.allData) {
-           track.url = false;
+         if (data) {
+           try {
+             track.parseData(data, params.start, params.end);
+             track.render(track.findFeatures(params.start, params.end), image);
+           } catch (e) {
+             track.showError(e.message);
+           }
+          
+           if (track.allData) {
+             track.url = false;
+           }
+         } else {
+           track.showError('No data received');
          }
        })
        .fail(function (jqXHR, textStatus, errorThrown) {
-         track.showError(jqXHR, textStatus, errorThrown);
+         track.showError(errorThrown.message);
        });
     }
-
-    // TMP hack
-    if (this.type == 'Scalebar') this.renderBackground(bgImage);
-
-    div = prev = null;
   },
-  
+
+
+  makeFirstImage: function() {
+    var params = {
+      start : this.browser.start,
+      end   : this.browser.end,
+      scale : this.browser.scale,
+      left  : 0,
+    };
+
+    this.makeImage(params);
+    this.move(0, params.scale);
+  },
+
 
   getData: function (start, end) {
     return $.ajax({
@@ -3290,44 +3330,45 @@ Genoverse.Track = Base.extend({
 
         if (feature.position[scale].width < this.minScaledWidth) feature.position[scale].width = this.minScaledWidth;
       }
-
-
     }
   },
 
   
-  positionFeatures: function (features, img) {
-    var imgScaledStart = img.data('scaledStart');
-    var scale  = img.data('scale');
-    var height = 0;
-
+  positionFeatures: function (features, params) {
     for (var i=0; i<features.length; i++) {
-      this.positionFeature(features[i], scale, -imgScaledStart);
-      height = Math.max(height, features[i].position[scale].Y + features[i].position[scale].H);
+      //if (!features[i].position[params.scale].X)
+        this.positionFeature(features[i], params);
     }
-
-    img.data({height : Math.max(height, img.data('height'))});
-    return height;
+    params.width = Math.ceil(params.width);
+    params.height = Math.ceil(params.height);
   },
 
 
-  positionFeature: function (feature, scale, xOffset) {
-    feature.position[scale].H = feature.position[scale].H || feature.position[scale].height + this.featureSpacing;
-    feature.position[scale].W = feature.position[scale].W || feature.position[scale].width + this.featureSpacing;
-    feature.position[scale].Y = feature.position[scale].Y || feature.y || this.featureSpacing;
-    feature.position[scale].X = feature.position[scale].start + xOffset;
+  positionFeature: function (feature, params) {
+    var scale = params.scale;
 
-    if (this.labels && this.labels !== 'overlay' && feature.label) {
-      feature.position[scale].H += this.fontHeight + this.featureSpacing;
-      var labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
-      if (labelWidth > feature.position[scale].W) feature.position[scale].W = labelWidth;
+    feature.position[scale].X = feature.position[scale].start - params.scaledStart;
+    feature.position[scale].Y = feature.position[scale].Y || feature.y || this.featureSpacing;
+    feature.position[scale].labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
+
+    if (!feature.position[scale].H || !feature.position[scale].W) {
+      feature.position[scale].H = feature.position[scale].height + this.featureSpacing;
+      feature.position[scale].W = feature.position[scale].width + this.featureSpacing;
+      if (this.labels && this.labels !== 'overlay' && feature.label) {
+        feature.position[scale].H += this.fontHeight + this.featureSpacing;
+        feature.position[scale].W  = Math.max(feature.position[scale].labelWidth, feature.position[scale].W);
+        params.width               = Math.max(feature.position[scale].X + feature.position[scale].labelWidth, params.width);
+      }
     }
+
 
     if (this.bump && !feature.position[scale].bumped) {
       this.bumpFeature(feature, scale);
     } else if (!this.bump) {
       this.featurePositions.insert({x: feature.position[scale].start, y:0, w: feature.position[scale].W, h:1}, feature);
     }
+
+    params.height = Math.max(params.height, feature.position[params.scale].Y + feature.position[params.scale].H);
   },
 
 
@@ -3357,18 +3398,20 @@ Genoverse.Track = Base.extend({
 
 
   render: function (features, img) {
-    var scale = img.data('scale');
-    this.scaleFeatures(features, scale);
-    this.positionFeatures(features, img);
+    var params = img.data();
+    params.features = features;
 
-    var canvas  = $('<canvas />').attr({ width: img.data('width'), height: img.data('height') || 1 })[0];
+    this.scaleFeatures(features, params.scale);
+    this.positionFeatures(features, params);
+
+    var canvas  = $('<canvas />').attr({ width: params.width, height: params.height || 1 })[0];
     var context = canvas.getContext('2d');
     context.font = this.font;
     context.textBaseline = 'top';
 
-    this.draw(features, context, scale);
+    this.draw(features, context, params.scale);
 
-    img.attr('src', canvas.toDataURL());
+    img.width(params.width).attr('src', canvas.toDataURL());
     $(canvas).remove();
   },
 
@@ -3378,10 +3421,11 @@ Genoverse.Track = Base.extend({
       var feature = features[i];
       this.drawFeature(
         $.extend({}, feature, {
-          x      : feature.position[scale].X,
-          y      : feature.position[scale].Y,
-          width  : feature.position[scale].width,
-          height : feature.position[scale].height
+          x          : feature.position[scale].X,
+          y          : feature.position[scale].Y,
+          width      : feature.position[scale].width,
+          height     : feature.position[scale].height,
+          labelWidth : feature.position[scale].labelWidth,
         }), 
         context,
         scale
@@ -3392,26 +3436,27 @@ Genoverse.Track = Base.extend({
 
   drawFeature: function(feature, context, scale) {
     context.fillStyle = feature.color || this.color;
-    context.fillRect(feature.x, feature.y, feature.width, feature.height);
+    context.fillRect(Math.floor(feature.x), feature.y, Math.max(1, Math.floor(feature.width)), feature.height);
 
     if (this.labels) {
       context.fillStyle = feature.labelColor || feature.color || this.color;
       if (this.labels === 'overlay') {
-        if (context.measureText(feature.label).width < feature.width)
-          context.fillText(feature.label, feature.x, feature.y);
+        if (feature.labelWidth < feature.width)
+          context.fillText(feature.label, (feature.x < -feature.labelWidth && feature.x + feature.width > feature.labelWidth) ? 0 : feature.x, feature.y);
       } else {
-        context.fillText(feature.label, feature.x, feature.y + feature.height);
+        context.fillText(feature.label, (feature.x < -feature.labelWidth && feature.x + feature.width > feature.labelWidth) ? 0 : feature.x, feature.y + feature.height);
       }
     }
   },
 
 
-  showError: function () {
-    console.log(arguments);
+  showError: function (error) {
+    this.showMessage(error);
+
+    //console.log(arguments);
     // if (!this.errorMessage) {
     //   this.errorMessage = this.browser.setTracks([{ type: 'Error', track: this }], this.browser.tracks.length)[0];
     // }
-    
     // this.errorMessage.draw(this.imgContainers[0], error);
     // deferred.resolve({ target: image.images, img: image }); 
   },
@@ -3426,7 +3471,7 @@ Genoverse.Track = Base.extend({
 
 
   renderBackground: function (img) {
-    var canvas  = $('<canvas />').attr({ width: img.data('width'), height: 1 })[0];
+    var canvas  = $('<canvas />').attr({ width: this.width, height: 1 })[0];
     this.drawBackground(img.data(), canvas.getContext('2d'));
     img.attr('src', canvas.toDataURL());
     $(canvas).remove();
@@ -3434,22 +3479,22 @@ Genoverse.Track = Base.extend({
 
 
   drawBackground: function (data, context) {
-    // Draw background color
-    context.fillStyle = this.background || this.browser.colors.background;
-    context.fillRect(0, 0, context.canvas.width, 1);
+    // // Draw background color
+    // context.fillStyle = this.background || this.browser.colors.background;
+    // context.fillRect(0, 0, context.canvas.width, 1);
 
-    // Draw guidelines
-    var guideLines  = { major: [ this.browser.colors.majorGuideLine, this.browser.majorUnit ], minor: [ this.browser.colors.minorGuideLine, this.browser.minorUnit ] };
-    var scaledStart = Math.round(data.scaledStart);
-    var x;
+    // // Draw guidelines
+    // var guideLines  = { major: [ this.browser.colors.majorGuideLine, this.browser.majorUnit ], minor: [ this.browser.colors.minorGuideLine, this.browser.minorUnit ] };
+    // var scaledStart = Math.round(data.scaledStart);
+    // var x;
     
-    for (var c in guideLines) {
-      context.fillStyle = guideLines[c][0];
+    // for (var c in guideLines) {
+    //   context.fillStyle = guideLines[c][0];
       
-      for (x = Math.max(data.start - (data.start % guideLines[c][1]), 0); x < data.end + this.browser.minorUnit; x += guideLines[c][1]) {
-        context.fillRect((this.browser.guideLines[c][x] || 0) - scaledStart, 0, 1, context.canvas.height);
-      }
-    }
+    //   for (x = Math.max(data.start - (data.start % guideLines[c][1]), 0); x < data.end + this.browser.minorUnit; x += guideLines[c][1]) {
+    //     context.fillRect((this.browser.guideLines[c][x] || 0) - scaledStart, 0, 1, context.canvas.height);
+    //   }
+    // }
   },
 
 
@@ -3542,213 +3587,6 @@ String.prototype.hashCode = function(){
 
 
 
-Genoverse.Track.Static = {
-  init: function () {
-    this['static']   = true;
-    this.unsortable  = true;
-    this.fixedHeight = true;
-    this.url         = false;
-    
-    this.base();
-    
-    this.image = new Genoverse.TrackImage({
-      track       : this,
-      container   : this.imgContainer.width(this.width),
-      width       : this.width,
-      background  : this.browser.colors.background,
-      start       : 0, 
-      scaledStart : 0
-    });
-    
-    this.container.toggleClass('track_container track_container_static').html(this.imgContainer);
-  },
-  
-  reset: $.noop,
-  
-  setScale: function () {
-    this.base();
-    this.container.css('left', 0);
-    this.imgContainer.show();
-  },
-  
-  makeImage: function (force) {
-    var features = this.getFeatures();
-    
-    if (force || this.stringified !== features.toString()) {
-      this.image.makeImage().done(function (a) { $(a.target).prev().remove(); });
-      this.draw(this.image, features);
-      this.imgContainer.children(':last').show();
-      this.resize(this.featuresHeight);
-    }
-    
-    this.stringified = features.toString();
-    
-    return true;
-  },
-  
-  getFeatures: function () {
-    return this.base.apply(this, arguments) || []; // drops through to plugin
-  },
-  
-  scaleFeatures: function (features) {
-    return features;
-  }
-};
-
-
-
-
-
-Genoverse.Track.Stranded = {
-  inheritedConstructor: function (config) {
-    if (typeof this._makeImage === 'function') {
-      return;
-    }
-    
-    this.base(config);
-    
-    if (this.strand === -1) {
-      this.url        = false;
-      this._makeImage = this.makeReverseImage || this.makeImage;
-      this.makeImage  = $.noop;
-    } else {
-      this.strand       = 1;
-      this._makeImage   = this.makeImage;
-      this.makeImage    = this.makeForwardImage;
-      this.reverseTrack = this.browser.setTracks([ $.extend({}, config, { strand: -1, forwardTrack: this }) ], this.browser.tracks.length)[0];
-    }
-    
-    if (!this.featureStrand) {
-      this.featureStrand = this.strand;
-    }
-    
-    this.urlParams.strand = this.featureStrand;
-  },
-  
-  init: function () {
-    this.base();
-    
-    if (this.strand === 1) {
-      this.reverseTrack.features = this.features;
-    } else {
-      this.features = this.forwardTrack.features;
-    }
-  },
-  
-  positionFeatures: function (features, startOffset, imageWidth) {
-    var strand = this.featureStrand;
-    return this.base($.grep(features, function (feature) { return feature.strand === strand; }), startOffset, imageWidth);
-  },
-  
-  makeForwardImage: function () {
-    var args         = [].splice.call(arguments, 0);
-    var deferred     = $.Deferred();
-    var reverseTrack = this.reverseTrack;
-    
-    $.when(this._makeImage.apply(this, args)).done(function (dfd) {
-      $.when(reverseTrack._makeImage.apply(reverseTrack, args.concat($.extend(true, {}, dfd.img)))).done(function (dfd2) {
-        deferred.resolve({ target: $.map([ dfd.target, dfd2.target ], function (t) { return t; }), img: [ dfd.img, dfd2.img ] }); // map flattens arrays if targets have labels and features
-      });
-    });
-    
-    return deferred;
-  },
-  
-  remove: function () {
-    if (!this.removing) {
-      var track = this.forwardTrack || this.reverseTrack;
-      
-      track.removing = true;
-      this.browser.removeTracks([ track ]);
-    }
-    
-    this.base();
-  }
-};
-
-
-
-
-Genoverse.Track.Threshold = Genoverse.Track.extend({
-
-  // Dafaults
-  color   : '#FF0000',
-  spacing : 0,
-  inherit : [ 'Static' ],
-  
-  constructor: function (config) {
-    this.base(config);
-    
-    this.container.hide();
-    this.label.hide();
-    
-    this.height = this.featuresHeight = this.fontHeight + 2;
-  },
-  
-  resize: $.noop,
-  
-  positionFeatures: function () {
-    if (this.browser.length <= this.track.threshold) {
-      return false;
-    }
-    
-    var text  = 'This data is not displayed in regions greater than ' + this.formatLabel(this.track.threshold);
-    var width = this.context.measureText(text).width;
-    var fill  = {};
-    
-    fill[this.color] = [[ 'fillText', [ text, (this.width - width) / 2, 0 ] ]];
-    
-    return { fill: fill };
-  },
-  
-  draw: function (trackImgContainer) {
-    this.image.makeImage();
-    this.base(this.image);
-    this.image.container.children().addClass('static').appendTo(trackImgContainer).css({ marginTop: -this.height / 2, marginLeft: this.width - this.browser.left });
-  }
-});
-
-
-
-
-Genoverse.Track.Error = Genoverse.Track.extend({
-
-  // Defaults 
-  color   : '#FF0000',
-  spacing : 0,
-  inherit : [ 'Static' ],
-  
-  constructor: function (config) {
-    this.base(config);
-    
-    this.container.hide();
-    this.label.hide();
-    
-    this.height = this.featuresHeight = this.fontHeight + 2;
-  },
-  
-  resize: $.noop,
-  
-  positionFeatures: function () {
-    var width = this.context.measureText(this.message).width;
-    var fill  = {};
-    fill[this.color] = [[ 'fillText', [ this.message, (this.width - width) / 2, 0 ] ]];
-    
-    return { fill: fill };
-  },
-  
-  draw: function (trackImgContainer, message) {
-    this.message = message || 'Unknown error';
-
-    this.image.makeImage();
-    this.base(this.image);
-    this.image.container.children().addClass('static').appendTo(trackImgContainer).css({ marginTop: -this.height / 2, marginLeft: this.width - this.browser.left });
-  }
-});
-
-
-
-
 Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
   height        : 20,
@@ -3764,28 +3602,93 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   orderReverse  : 1e5,
   featureStrand : 1,
   controls      : 'off',
+  guideLines    : {},
+  guideLinesByScale : {},
   //inherit       : [ 'Stranded' ],
+  colors           : {
+    background     : '#FFFFFF',
+    majorGuideLine : '#CCCCCC',
+    minorGuideLine : '#E5E5E5',
+    sortHandle     : '#CFD4E7'
+  },
 
 
-  reset: function () {
-    this.container.children('.image_container').remove();
-    this.init();
+  addDomElements: function () {
+    this.base();
+    this.container.css({ overflow: 'visible' });
   },
 
 
   setScale: function () {
-    this.base();
+    var length = this.browser.length;
+    var majorUnit, minorUnit, exponent, mantissa;
+    
+    if (length <= 51) {
+      majorUnit = 10;
+      minorUnit = 1;
+    } else {
+      exponent = Math.pow(10, Math.floor(Math.log(length) / Math.log(10)));
+      mantissa = length / exponent;
+      
+      if (mantissa < 1.2) {
+        majorUnit = exponent  / 10;
+        minorUnit = majorUnit / 5;
+      } else if (mantissa < 2.5) {
+        majorUnit = exponent  / 5;
+        minorUnit = majorUnit / 4;
+      } else if (mantissa < 5) {
+        majorUnit = exponent  / 2;
+        minorUnit = majorUnit / 5;
+      } else {
+        majorUnit = exponent;
+        minorUnit = majorUnit / 5;
+      }
+    }
+
     this.dataRegion = { start: 9e99, end: -9e99 };
     
-    this.minorUnit = this.browser.minorUnit;
-    this.majorUnit = this.browser.majorUnit;
+    this.minorUnit = minorUnit;
+    this.majorUnit = majorUnit;
     this.seen      = {};
     this.features  = new RTree();
     this.featuresById = {};
+
+    if (!this.guideLinesByScale[this.scale]) {
+      this.guideLinesByScale[this.scale] = { major: {}, minor: {} };
+    }
+    
+    this.guideLines = this.guideLinesByScale[this.scale];
+    this.base();
   },
 
 
-  setFeatures: function (start, end) {
+  makeImage: function (params) {
+
+    // TODO: check params
+    params.scaledStart = params.start*params.scale;
+    params.height      = this.height || 0;
+    params.width       = this.width;
+
+    var cls     = ("scale_" + params.scale).replace('.','_');
+    var div     = this.imgContainer.clone().width(this.width).addClass(cls).css('left', params.left);      
+    var bgImage = $('<img class="bg guidelines" />')
+                    .width(this.width)
+                    .height(this.browser.wrapper.outerHeight(true))
+                    .data(params)
+                    .prependTo(div);
+    var image   = $('<img class="data" />').data(params).appendTo(div);
+
+    this.imgContainers.push(div[0]);
+    this.scrollContainer.append(this.imgContainers);
+
+    this.setGuideLines(params.start, params.end);
+
+    this.render(this.findFeatures(params.start, params.end), image);
+    this.renderBackground(bgImage);
+  },
+
+
+  setGuideLines: function (start, end) {
     var start = Math.max(start - (start % this.minorUnit) - this.majorUnit, 0);
     
     var flip     = (start / this.minorUnit) % 2 ? 1 : -1;
@@ -3815,21 +3718,15 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       }
 
       this.insertFeature(feature);
-      this.browser.guideLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
+      features.push(feature);
+      this.guideLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
     }
+
+    return features;
   },
-
-
-  getData: function (start, end) {
-    this.setFeatures(start, end);
-  },
-
-
-  parseData: function () {},
 
 
   draw: function (features, context, scale) {
-
     var i = features.length;
     context.textBaseline = 'top';
 
@@ -3847,6 +3744,36 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   },
 
 
+  drawBackground: function (data, context) {
+    // Draw background color
+    // context.fillStyle = this.background || this.browser.colors.background;
+    // context.fillRect(0, 0, context.canvas.width, 1);
+
+    // Draw guidelines
+    var guideLines  = { major: [ this.colors.majorGuideLine, this.majorUnit ], minor: [ this.colors.minorGuideLine, this.minorUnit ] };
+    var scaledStart = Math.round(data.scaledStart);
+    var x;
+    
+    for (var c in guideLines) {
+      context.fillStyle = guideLines[c][0];
+      
+      for (x = Math.max(data.start - (data.start % guideLines[c][1]), 0); x < data.end + this.minorUnit; x += guideLines[c][1]) {
+        context.fillRect((this.guideLines[c][x] || 0) - scaledStart, 0, 1, context.canvas.height);
+      }
+    }
+  },
+
+
+});
+
+
+Genoverse.Track.on('afterInit afterResize', function () {
+  var height = 0;
+  for (var i=0; i<this.browser.tracks.length; i++) {
+    height += this.browser.tracks[i].height;
+  }
+
+  $('.guidelines', this.browser.container).height(Math.max(height, this.browser.wrapper.outerHeight(true)));
 });
 
 
@@ -4011,335 +3938,12 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
 
 
 
-Genoverse.Track.Gene = Genoverse.Track.extend({ 
-
-  // Config
-  height : 50,
-  bump   : true,
-
-  init: function () {
-    this.base();
-    this.setRenderer(this.renderer, true);
-  },
-  
-  setRenderer: function (renderer, permanent) {
-    if (renderer.match(/transcript/)) {
-      this.separateLabels = false;
-      this.maxLabelRegion = 1e5;
-      this.featureHeight  = 8;
-      this.bumpSpacing    = 2;
-    } else if (renderer.match(/collapsed/)) {
-      this.separateLabels = false;
-      this.maxLabelRegion = 1e6;
-      this.featureHeight  = 8;
-      this.bumpSpacing    = 2;
-    } else {
-      this.separateLabels = true;
-      this.maxLabelRegion = 1e7;
-      this.featureHeight  = 6;
-      this.bumpSpacing    = 1;
-    }
-    
-    if (renderer.match(/nolabel/)) {
-      this.maxLabelRegion = -1;
-    }
-    
-    if (this.urlParams.renderer !== renderer || permanent) {
-      this.base(renderer, permanent);
-    }
-  },
-  
-  getRenderer: function () {
-    var renderer = this.renderer.split('_');
-    
-    if (this.browser.length > 1e7) {
-      renderer[0] = 'gene';
-    } else if (this.browser.length > 1e6 && this.renderer.match(/transcript/)) {
-      renderer[0] = 'collapsed';
-    }
-    
-    return renderer.join('_');
-  },
-  
-  scaleFeatures: function (features) {
-    if (this.urlParams.renderer.match(/gene/)) {
-      return this.base(features);
-    }
-  
-    var i = features.length;
-    var j;
-        
-    while (i--) {
-      features[i].scaledStart = features[i].start * this.scale;
-      features[i].scaledEnd   = features[i].end   * this.scale;
-      
-      for (j = 0; j < features[i].exons.length; j++) {
-        features[i].exons[j].scaledStart = features[i].exons[j].start * this.scale;
-        features[i].exons[j].scaledEnd   = features[i].exons[j].end   * this.scale;
-      }
-    }
-    
-    return features;
-  },
-  
-  positionFeatures: function (features, startOffset, imageWidth) {
-    if (this.urlParams.renderer.match(/gene/)) {
-      return this.base(features, startOffset, imageWidth);
-    }
-    
-    var transcript, start, end, x, width, bounds, bump, j, k, label, labelStart, labelHeight, maxIndex, exon, exonStart, exonEnd, exonWidth, introns, intronY1, intronY2;
-    var expanded   = this.urlParams.renderer.match(/transcript/);
-    var context    = this.context;
-    var showLabels = this.browser.length <= this.maxLabelRegion;
-    var height     = 0;
-    var scale      = this.scale > 1 ? this.scale : 1;
-    var scaleKey   = this.scale;
-    var intronY    = this.featureHeight / 2;
-    var seen       = {};
-    var draw       = { fill: {}, border: {}, highlight: {} };
-    
-    for (var i = 0; i < features.length; i++) {
-      transcript = features[i];
-      
-      if (seen[transcript.id]) {
-        continue;
-      }
-      
-      seen[transcript.id] = 1;
-      
-      start   = transcript.scaledStart - startOffset;
-      end     = transcript.scaledEnd   - startOffset;
-      bounds  = transcript.bounds[scaleKey];
-      introns = [];
-      
-      if (transcript.label && showLabels) {
-        label       = transcript.label.split('\n');
-        labelStart  = start;
-        labelHeight = (this.fontHeight + 2) * label.length;
-      } else {
-        label       = false;
-        labelHeight = 0;
-      }
-      
-      if (bounds) {
-        width      = bounds[0].w   - 1;
-        maxIndex   = bounds.length - 1;
-      } else {
-        width = end - start;
-        
-        if (width < 1) {
-          width = scale;
-        }
-        
-        x      = transcript.scaledStart;
-        bounds = [{ x: x, y: 0, w: width + 1, h: this.featureHeight + this.bumpSpacing }];
-        
-        if (label) {
-          if (expanded && scale > 1 && start < -this.browser.labelBuffer) {
-            bounds[0].h += labelHeight + 1;
-          } else {
-            bounds.push({ x: x, y: this.featureHeight + this.bumpSpacing + 1, w: Math.max.apply(Math, $.map(label, function (l) { return Math.ceil(context.measureText(l).width); }).concat(width)) + 1, h: labelHeight });
-          }
-        }
-        
-        maxIndex = bounds.length - 1;
-        
-        bounds[0].h += maxIndex;
-        
-        do {
-          bump = false;
-          j    = bounds.length;
-          
-          while (j--) {
-            if ((this.featurePositions.search(bounds[j])[0] || transcript).id !== transcript.id) {
-              k = bounds.length;
-              
-              while (k--) {
-                bounds[k].y += bounds[j].h; // bump both transcript and label by the height of the current bounds
-              }
-              
-              bump = true;
-            }
-          }
-        } while (bump);
-        
-        this.featurePositions.insert(bounds[0], transcript);
-        
-        if (bounds[1]) {
-          this.featurePositions.insert(bounds[1], transcript);
-        }
-        
-        transcript.bounds[scaleKey] = bounds;
-      }
-      
-      if (!draw.fill[transcript.color]) {
-        draw.fill[transcript.color]   = [];
-        draw.border[transcript.color] = [];
-        
-        if (transcript.order) {
-          this.colorOrder[transcript.order] = transcript.color;
-        }
-      }
-      
-      if (scale > 1 && start < end) {
-        start = Math.max(start, -1);
-        end   = Math.min(end, imageWidth + 1);
-        width = end - start;
-      }
-      
-      if (bounds[1]) {
-        for (j = 0; j < label.length; j++) {
-          draw.fill[transcript.color].push([ 'fillText', [ label[j], labelStart, bounds[1].y + j * (this.fontHeight + 2) ], transcript.color ]);
-        }
-      }
-      
-      transcript.bottom[scaleKey] = bounds[maxIndex].y + bounds[maxIndex].h + this.spacing;
-      
-      height = Math.max(transcript.bottom[scaleKey], height);
-      
-      intronY1 = bounds[0].y + intronY;
-      intronY2 = bounds[0].y + (transcript.strand > 0 ? 0 : this.featureHeight);
-      
-      for (j = 0; j < transcript.exons.length; j++) {
-        exon      = transcript.exons[j];
-        exonStart = exon.scaledStart - startOffset;
-        exonEnd   = exon.scaledEnd   - startOffset;
-        exonWidth = exonEnd - exonStart;
-        
-        if (exonWidth < 1) {
-          exonWidth = scale;
-        }
-        
-        if (scale > 1 && exonStart < exonEnd) {
-          exonStart = Math.max(exonStart, -1);
-          exonEnd   = Math.min(exonEnd, imageWidth + 1);
-          exonWidth = exonEnd - exonStart;
-        }
-        
-        if (exonWidth > 0) {
-          if (exon.style === 'strokeRect') {
-            draw.border[transcript.color].push([ 'strokeRect', [ exonStart, bounds[0].y + 1.5, exonWidth, this.featureHeight - 3 ] ]);
-          } else {
-            draw.fill[transcript.color].push([ 'fillRect', [ exonStart, bounds[0].y, exonWidth, this.featureHeight ] ]);
-          }
-        }
-        
-        if (this.urlParams.renderer.match(/transcript/)) {
-          introns.push({ id: exon.id, x: exonStart, y1: intronY1, y2: intronY2, w: exonWidth });
-        }
-      }
-      
-      if (this.urlParams.renderer.match(/collapsed/)) {
-        draw.fill[transcript.color].push([ 'fillRect', [ start, intronY1, width, 1 ] ]);
-      } else if (introns.length > 1) {
-        if (!this.decorations[transcript.color]) {
-          this.decorations[transcript.color] = [];
-        }
-        
-        this.decorations[transcript.color].push(introns);
-      }
-      
-      if (transcript.highlight) {
-        if (!draw.highlight[transcript.highlight]) {
-          draw.highlight[transcript.highlight] = [];
-        }
-        
-        draw.highlight[transcript.highlight].push([ 'fillRect', [ start, bounds[0].y, bounds[maxIndex].w, bounds[0].h + labelHeight ] ]);
-      }
-    }
-    
-    this.featuresHeight      = height;
-    this.labelsHeight        = 0;
-    this.fullHeight          = Math.max(height, this.initialHeight);
-    this.heights.max         = Math.max(this.fullHeight, this.heights.max);
-    this.heights.maxFeatures = Math.max(height, this.heights.maxFeatures);
-    
-    return draw;
-  },
-  
-  // Draw intron "hats"
-  decorateFeatures: function (image) {
-    var i, j, exons, x, x1, x2, x3, xMid, y, y1, y2, y3, yScale;
-    var xMax = image.width;
-    
-    for (var color in this.decorations) {
-      this.context.strokeStyle = color;
-      
-      i = this.decorations[color].length;
-      
-      while (i--) {
-        exons = this.decorations[color][i];
-        
-        for (j = 0; j < exons.length - 1; j++) {
-          // For partially coding exons, the exon is duplicated in the decorations array, with one strokeRect and one fillRect
-          // In this case, this exon can the same as the next one, in which case skip decoration - lines are only drawn from the edges of the exon boxes
-          // and drawing this one would create an internal line
-          if (exons[j].id === exons[j+1].id) {
-            continue;
-          }
-          
-          // If this is a partially coding exon, get x and y from the first bit of the exon
-          if (j && exons[j].id === exons[j-1].id) {
-            x = exons[j-1].x + exons[j-1].w;
-            y = exons[j-1].y1;
-          } else {
-            x = exons[j].x + exons[j].w;
-            y = exons[j].y1;
-          }
-          
-          x1 = x;             // x coord of the right edge of the first exon
-          x3 = exons[j+1].x;  // x coord of the left edge of the second exon
-          
-          // Skip if completely outside the image's region
-          if (x3 < 0 || x1 > xMax) {
-            continue;
-          }
-          
-          xMid   = (x1 + x3) / 2;
-          x2     = xMid;                     // x coord of the peak of the hat
-          y1     = y3 = y;                   // y coord of the ends of the line (half way down the exon box)
-          y2     = exons[j].y2;              // y coord of the peak of the hat  (level with the top (forward strand) or bottom (reverse strand) of the exon box)
-          yScale = (y2 - y1) / (xMid - x1);  // Scale factor for recalculating coords if points lie outside the image region
-          
-          if (xMid < 0) {
-            y2 = y + (yScale * x3);
-            x2 = 0;
-          } else if (xMid > xMax) {
-            y2 = y + (yScale * (xMax - x));
-            x2 = xMax;
-          }
-          
-          if (x1 < 0) {
-            y1 = xMid < 0 ? y2 : y - (yScale * x);
-            x1 = 0;
-          }
-          
-          if (x3 > xMax) {
-            y3 = xMid > xMax ? y2 : y2 - (yScale * (xMax - x2));
-            x3 = xMax;
-          }
-          
-          this.context.beginPath();
-          this.context.moveTo(x1, y1);
-          this.context.lineTo(x2, y2);
-          this.context.lineTo(x3, y3);
-          this.context.stroke();
-        }
-      }
-    }
-  }
-});
-
-
-
-
 Genoverse.Track.DAS = Genoverse.Track.extend({
 
   // Defualts 
   dataType : 'xml',
 
   init: function () {
-    this.base();
 
     if (!this.url) this.url = this.source + '/features?segment=__CHR__:__START__,__END__';
 
@@ -4358,6 +3962,7 @@ Genoverse.Track.DAS = Genoverse.Track.extend({
     }
 
     this.getStylesheet();
+    this.base();
   },
 
 
@@ -4581,144 +4186,6 @@ Genoverse.Track.DAS = Genoverse.Track.extend({
       fgcolor: 'black',
       type: 'line'
     },
-  },
-
-});
-
-
-
-
-Genoverse.Track.DAS.Transcript = Genoverse.Track.DAS.extend({
-
-  name           : "Transcript (DAS)", 
-  dataType       : 'xml',
-  bump           : true,
-  height         : 200,
-  source         : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
-  featureHeight  : 10,
-  featureSpacing : 2,
-  labels         : true,
-  intronStyle    : { 
-    type: 'bezierCurve',
-    fgcolor: 'black',
-  },
-
-
-  parseData: function (data) {
-    var track = this;
-    var exons = track.base(data);
-    this.groupExons(exons);
-  },
-
-
-  groupExons: function (exons) {
-    //if (!this.groups) this.groups = {};
-    
-    for (var i=0; i<exons.length; i++) {
-
-      var exon = exons[i];
-      if (!exon.start || !exon.end) continue;
-
-      //this.setFeatureStyle(exon);
-
-      if (exon.groups) {
-
-        for (var j=0; j<exon.groups.length; j++) {
-          if (this.display && this.display.group && !this.display.group[exon.groups[j].type]) continue;
-
-          if (this.featuresById[exon.groups[j].id]) {
-            var transcript  = this.featuresById[exon.groups[j].id];
-
-            //if (!transcript.new) {
-              this.features.remove({ x: transcript.start, w: transcript.width, y:0, h:1 }, transcript);
-              this.redraw    = true;
-              transcript.new = true;
-            //}
-
-            transcript.start = Math.min(transcript.start, exon.start);
-            transcript.end   = Math.max(transcript.end,   exon.end);
-            transcript.width = transcript.end - transcript.start + 1;
-          } else {
-            this.featuresById[exon.groups[j].id] = $.extend({
-              exons       : [],
-              start       : exon.start,
-              end         : exon.end,
-              new         : true
-            }, exon.groups[j]);
-          }
-
-          this.featuresById[exon.groups[j].id].exons.push(exon);
-        }
-
-      }
-    }
-
-    for (id in this.featuresById) {
-      var transcript = this.featuresById[id];
-      if (transcript.new) {
-        transcript.new = false;
-        if (!transcript.label) transcript.label = transcript.id;
-        transcript.exons.sort(function (a, b) { var s = a.start - b.start; return s ? s : a.width - b.width });
-        for (var i=0; i<transcript.exons.length; i++) {
-          transcript.exons[i].localStart = transcript.exons[i].start - transcript.start;
-          transcript.exons[i].localEnd   = transcript.exons[i].end - transcript.start;
-        }
-        //transcript.type = 'group';
-
-        delete this.featuresById[transcript.id];
-        this.insertFeature(transcript);
-      }
-    }
-  },
-
-
-  render: function (features, img) {
-    if (this.redraw) {
-      this.redraw = false;
-      return this.reDraw();
-    }
-
-    var track = this;
-    $.when(track.stylesheetRequest).always(function(){
-      track.base(features, img);
-    });
-  },
-
-
-  drawFeature: function(transcript, context, scale) {
-    if (!transcript.exons || !transcript.exons.length) return;
-
-    for (var i=0; i<transcript.exons.length; i++) {
-      var exon = transcript.exons[i];
-      this.base(
-        $.extend({}, exon, {
-          x: transcript.x + (exon.localStart * scale), 
-          y: transcript.y,
-          width: exon.width * scale,
-          height: transcript.height
-        }),
-        context, 
-        scale
-      );
-
-      // Introns (connections between exons)
-      if (transcript.exons[i+1] && exon.end < transcript.exons[i+1].start) {
-        this.base(
-          {
-            x: transcript.x + (exon.localStart + exon.width)*scale,
-            y: transcript.y,
-            width: (transcript.exons[i+1].start - exon.end)*scale,
-            orientation: exon.orientation,
-            style: this.intronStyle
-          },
-          context, 
-          scale
-        );
-      }
-
-      context.fillStyle = 'black';
-      context.fillText(transcript.label, transcript.x, transcript.y + transcript.height + 2);
-    }
   },
 
 });
@@ -5480,6 +4947,313 @@ var DASColorMap = {
 "light green" : "rgb(144, 238, 144)",
 "lightgreen" : "rgb(144, 238, 144)"
 }
+
+
+
+
+Genoverse.Track.DAS.Transcript = Genoverse.Track.DAS.extend({
+
+  name           : "Transcript (DAS)", 
+  dataType       : 'xml',
+  bump           : true,
+  height         : 200,
+  dataBuffer     : 30000,
+  source         : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.transcript',
+  featureHeight  : 10,
+  featureSpacing : 3,
+  labels         : true,
+  intronStyle    : { 
+    type: 'bezierCurve',
+    fgcolor: 'black',
+  },
+
+
+  parseData: function (data) {
+    var track = this;
+    var exons = track.base(data);
+    this.groupExons(exons);
+  },
+
+
+  groupExons: function (exons) {
+    //if (!this.groups) this.groups = {};
+    
+    for (var i=0; i<exons.length; i++) {
+
+      var exon = exons[i];
+      if (!exon.start || !exon.end) continue;
+
+      //this.setFeatureStyle(exon);
+
+      if (exon.groups) {
+
+        for (var j=0; j<exon.groups.length; j++) {
+          if (this.display && this.display.group && !this.display.group[exon.groups[j].type]) continue;
+
+          if (this.featuresById[exon.groups[j].id]) {
+            var transcript  = this.featuresById[exon.groups[j].id];
+
+            //if (!transcript.new) {
+              this.features.remove({ x: transcript.start, w: transcript.width, y:0, h:1 }, transcript);
+              this.redraw    = true;
+              transcript.new = true;
+            //}
+
+            transcript.start = Math.min(transcript.start, exon.start);
+            transcript.end   = Math.max(transcript.end,   exon.end);
+            transcript.width = transcript.end - transcript.start + 1;
+          } else {
+            this.featuresById[exon.groups[j].id] = $.extend({
+              exons       : [],
+              start       : exon.start,
+              end         : exon.end,
+              new         : true
+            }, exon.groups[j]);
+          }
+
+          this.featuresById[exon.groups[j].id].exons.push(exon);
+        }
+
+      }
+    }
+
+    for (id in this.featuresById) {
+      var transcript = this.featuresById[id];
+      if (transcript.new) {
+        transcript.new = false;
+        if (!transcript.label) transcript.label = transcript.id;
+        transcript.exons.sort(function (a, b) { var s = a.start - b.start; return s ? s : a.width - b.width });
+        for (var i=0; i<transcript.exons.length; i++) {
+          transcript.exons[i].localStart = transcript.exons[i].start - transcript.start;
+          transcript.exons[i].localEnd   = transcript.exons[i].end - transcript.start;
+        }
+        //transcript.type = 'group';
+
+        delete this.featuresById[transcript.id];
+        this.insertFeature(transcript);
+      }
+    }
+  },
+
+
+  render: function (features, img) {
+    if (this.redraw) {
+      this.redraw = false;
+      return this.reDraw();
+    }
+
+    var track = this;
+    var base  = this.base;
+
+    $.when(track.stylesheetRequest).always(function(){
+      base.apply(track, [features, img]);
+    });
+  },
+
+
+  drawFeature: function(transcript, context, scale) {
+    if (!transcript.exons || !transcript.exons.length) return;
+
+    for (var i=0; i<transcript.exons.length; i++) {
+      var exon = transcript.exons[i];
+      this.base(
+        $.extend({}, exon, {
+          x: transcript.x + (exon.localStart * scale), 
+          y: transcript.y,
+          width: exon.width * scale,
+          height: transcript.height
+        }),
+        context, 
+        scale
+      );
+
+      // Introns (connections between exons)
+      if (transcript.exons[i+1] && exon.end < transcript.exons[i+1].start) {
+        this.base(
+          {
+            x: transcript.x + (exon.localStart + exon.width)*scale,
+            y: transcript.y,
+            width: (transcript.exons[i+1].start - exon.end)*scale,
+            orientation: exon.orientation,
+            style: this.intronStyle
+          },
+          context, 
+          scale
+        );
+      }
+
+      context.fillStyle = 'black';
+      context.fillText(transcript.label, transcript.x, transcript.y + transcript.height + 2);
+    }
+  },
+
+});
+
+
+
+
+Genoverse.Track.SV = Genoverse.Track.Sequence.extend({
+
+  // defaults
+  complementary : false,
+  height        : 100,
+  distance      : 0.2,
+  yOffset       : 35,
+  featureHeight : 15,
+  shadow        : {
+    offsetX : 0,
+    offsetY : 0,
+    blur    : 5,
+    color   : "black"
+  },
+  thresholdWarning : 'Reference sequence is not displayed at this zoom level',
+
+  getVariationData: function (start, end) {
+    return $.ajax({
+      url      : Genoverse.Track.prototype.parseUrl.apply(this, [start, end, this.variationUrl]),
+      dataType : 'json',
+      xhrFields: this.xhrFields,
+    });
+  },
+
+
+  parseVariationData: function (data) {
+    this.variations = [];
+    for (var i=0; i<data.length; i++) {
+      var variation   = data[i];
+      variation.start = variation.chr_start *1;
+      variation.end   = variation.chr_end *1;
+      variation.type  = 'InDel';
+      variation.reference_allele = variation.reference_allele.toLowerCase();
+      variation.alternate_allele = variation.alternate_allele.toLowerCase();
+      variation.sequence = variation.alternate_allele;
+      variation.width = variation.end - variation.start + 1;
+
+      this.variations.push(variation);
+    }
+  },
+
+
+  render: function (features, img) {
+    var track  = this;
+    var params = img.data();
+    var base   = this.base;
+    img.data({ height: this.yOffset + this.featureHeight + this.shadow.blur });
+
+    $.when(this.getVariationData(params.start, params.end))
+     .done(function(data){
+      track.parseVariationData(data);
+      track.scaleFeatures(track.variations, params.scale);
+      track.positionFeatures(track.variations, params);
+      base.call(track, features, img);
+     });
+  },
+
+
+
+  draw: function (features, context, scale) {
+    this.base(features, context, scale);
+
+    // TODO: overlapping variations only
+    this.drawVariations(this.variations, context, scale);
+  },
+
+
+  drawVariations: function (variations, context, scale) {
+    for (var i = 0; i < variations.length; i++) {
+      var variation = variations[i];
+      if (variation.chr != this.browser.chr) continue;
+
+      var position  = variation.position[scale];
+
+      var referenceScaledWidth = scale * variation.reference_allele.length;
+      var alternateScaledWidth = scale * variation.alternate_allele.length;
+      var halfDelta = (referenceScaledWidth - alternateScaledWidth)/2;
+
+      position.X += halfDelta;
+      position.Y = this.yOffset - (1 + this.distance)*this.featureHeight;
+
+      var referenceScaledWidth = variation.reference_allele.length * this.scale; 
+      var alternateScaledWidth = variation.alternate_allele.length * this.scale; 
+
+      context.strokeStyle = this.variationColor(variation);
+      this.applyShadow(context);
+
+      context.beginPath();
+      context.moveTo(position.X, position.Y);
+      context.lineTo(position.X + alternateScaledWidth, position.Y);
+      context.lineTo(position.X + alternateScaledWidth, position.Y + this.featureHeight);
+
+      context.lineTo(position.X + alternateScaledWidth + halfDelta, this.yOffset);
+      context.lineTo(position.X + alternateScaledWidth + halfDelta, this.yOffset + this.featureHeight);
+      context.lineTo(position.X - halfDelta, this.yOffset + this.featureHeight);
+      context.lineTo(position.X - halfDelta, this.yOffset);
+
+      context.lineTo(position.X, position.Y + this.featureHeight);
+      context.lineTo(position.X, position.Y);
+      context.closePath();
+
+      context.stroke();
+      this.repealShadow(context);
+
+      context.fillStyle   = this.variationColor(variation);
+      context.globalAlpha = 0.5;
+      context.fill();
+      context.globalAlpha = 1;
+
+      this.drawSequence(
+        variation,
+        context,
+        scale
+      );
+
+    }    
+  },
+
+
+
+  variationColor: function (variation) {
+    return '#1DD300';
+  },
+
+
+  click: function (e) {
+    var x = (e.pageX - this.container.parent().offset().left)/this.scale + this.browser.start;
+    var y = e.pageY - $(e.target).offset().top;    
+
+    for (var i = 0; i < this.variations.length; i++) {
+      var variation = this.variations[i];
+      if (x > variation.start && x < variation.start + Math.max(variation.reference_allele.length, variation.alternate_allele.length)) {
+        this.browser.makeMenu(variation, { left: e.pageX, top: e.pageY }, this);
+      }
+    }
+  },
+
+
+  populateMenu: function (variation) {
+    return {
+      title : variation.type,
+      Start : variation.start,
+      End   : variation.end
+    };
+  },
+
+
+  applyShadow: function (context) {
+    if (this.shadow) {
+      context.shadowOffsetX = this.shadow.offsetX;
+      context.shadowOffsetY = this.shadow.offsetY;
+      context.shadowBlur    = this.shadow.blur;
+      context.shadowColor   = this.shadow.color;
+    }
+  },
+
+
+  repealShadow: function (context) {
+    context.shadowBlur = 0;
+  },
+
+});
 
 
 

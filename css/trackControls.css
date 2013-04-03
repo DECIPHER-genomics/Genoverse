@@ -1,11 +1,42 @@
-.label_container div.controls {
-}
-
-.label_container div.controls a {
+.track_container div.track_controls {
+  display: block;
+  white-space: nowrap;
+  position: relative;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 0 0 0 2px;
+/*  left: 0;
+  top: 0;*/
   color: white;
-  margin: 0 5px 0 0;
+  float: right;
+  text-align: right;
+  font-family: Verdana;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 5px;
+  z-index: 5;  
 }
 
-.label_container div.controls a:hover {
+.track_container div.track_controls:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.track_container div.track_controls>* {
+  margin: 0 5px;
+  display: inline;
+}
+
+.track_container div.track_controls a {
+  color: white;
+}
+
+.track_container div.track_controls a:hover {
   text-decoration: underline;
+}
+
+.track_container:hover>div.track_controls {
+  display: block;
+}
+
+.track_container:not(:hover)>div.track_controls:not(.maximized) {
+  display: none;
 }

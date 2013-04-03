@@ -72,11 +72,11 @@
                     $tip.addClass(maybeCall(this.options.className, this.$element[0]));
                 }
                 
-                if (this.options.fade) {
-                    $tip.stop().css({opacity: 0, display: 'block', visibility: 'visible'}).animate({opacity: this.options.opacity});
-                } else {
+                // if (this.options.fade) {
+                //     $tip.stop().css({opacity: 0, display: 'block', visibility: 'visible'}).animate({opacity: this.options.opacity});
+                // } else {
                     $tip.css({visibility: 'visible', opacity: this.options.opacity});
-                }
+                // }
             }
         },
         
@@ -258,30 +258,60 @@
 })($);
 
 
+Genoverse.prototype.controls.push({
+  icon   : '?',
+  name   : 'Tooltips',
+  class  : 'tooltip',
+  init   : function (browser) {
+  },
+  action : function (browser) {
+    if ($(this).hasClass('active')) {
+      $(this).removeClass('active');
+      $('.tooltip').each(function(){ $(this).tipsy('hide') });
+    } else {
+      $('.tooltip').each(function(){ $(this).tipsy('show') });
+      $(this).addClass('active');
+    }
+  }
+});
+
+
 Genoverse.on('afterInit', function () {
-  setTimeout(function(){
-    $('.genoverse_panel .button_set').each(function(){
+    // $('.tooltip').each(function(){
+    //   $(this).tipsy({ gravity: 'w', fade: true, trigger: 'manual' })
+    // });
+
+    $('.genoverse_panel .button_set[title],.genoverse_panel .button_set>button[title]').each(function(){
       $(this)
         .addClass('tooltip')
         .tipsy({ gravity: 'w', fade: true, trigger: 'manual' })
-        .tipsy('show');
+        //.tipsy('show');
     });
 
     $('.gv_wrapper')
       .addClass('tooltip')
       .tipsy({ gravity: 's', fade: true, trigger: 'manual', fallback: "Scroll left and right by dragging with your mouse, click on any feature in any track for more info" })
-      .tipsy('show');
+      //.tipsy('show');
 
     $('.resizer:last')
       .addClass('tooltip')
       .tipsy({ gravity: 'n', fade: true, trigger: 'manual', fallback: "Resize track by dragging this handle" })
-      .tipsy('show');
+      //.tipsy('show');
 
     $('ul.label_container')
       .addClass('tooltip')
       .tipsy({ gravity: 'e', fade: true, trigger: 'manual', fallback: "Reorder tracks by dragging this handle" })
-      .tipsy('show');
-  }, 5000);
+      //.tipsy('show');
+
+    $('ul.label_container')
+      .addClass('tooltip')
+      .tipsy({ gravity: 'e', fade: true, trigger: 'manual', fallback: "Reorder tracks by dragging this handle" })
+      //.tipsy('show');
+
+    // $('div.expander')
+    //   .addClass('tooltip')
+    //   .tipsy({ gravity: 's', fade: true, trigger: 'manual', fade: true, fallback: "This shadow indicates that there is more contect, drag handle-bar down or click on the shadow to reveal" })
+    //   .tipsy('show');
 });
 
 

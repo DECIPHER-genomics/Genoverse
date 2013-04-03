@@ -4,7 +4,6 @@ Genoverse.Track.DAS = Genoverse.Track.extend({
   dataType : 'xml',
 
   init: function () {
-    this.base();
 
     if (!this.url) this.url = this.source + '/features?segment=__CHR__:__START__,__END__';
 
@@ -23,6 +22,7 @@ Genoverse.Track.DAS = Genoverse.Track.extend({
     }
 
     this.getStylesheet();
+    this.base();
   },
 
 

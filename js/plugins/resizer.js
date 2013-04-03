@@ -25,8 +25,8 @@ Genoverse.Track.on('afterInit', function () {
   }
 });
 
-Genoverse.Track.on('afterToggleExpander', function () {
-  if (this.resizer && this.expander) {
-    this.resizer[this.expander.filter(':visible').hide().length ? 'addClass' : 'removeClass']('shadow');
-  }
-});
+// Genoverse.Track.on('afterToggleExpander', function () {
+//   if (this.resizer && this.expander) {
+//     this.resizer[this.expander.filter(':visible').hide().length ? 'addClass' : 'removeClass']('shadow');
+//   }
+// });

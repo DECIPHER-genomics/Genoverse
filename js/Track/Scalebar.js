@@ -23,9 +23,10 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     sortHandle     : '#CFD4E7'
   },
 
-  reset: function () {
-    this.container.children('.image_container').remove();
-    this.init();
+
+  addDomElements: function () {
+    this.base();
+    this.container.css({ overflow: 'visible' });
   },
 
 
@@ -178,5 +179,10 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
 
 Genoverse.Track.on('afterInit afterResize', function () {
-  $('.guidelines', this.browser.container).height(this.browser.wrapper.outerHeight(true));
+  var height = 0;
+  for (var i=0; i<this.browser.tracks.length; i++) {
+    height += this.browser.tracks[i].height;
+  }
+
+  $('.guidelines', this.browser.container).height(Math.max(height, this.browser.wrapper.outerHeight(true)));
 });

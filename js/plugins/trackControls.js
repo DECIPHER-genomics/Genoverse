@@ -1,43 +1,47 @@
 var defaultControls = [
-  {
-    icon   : 'x',
-    name   : 'close',
-    action : function () {
-      this.hide();
-    }
-  },
-  {
-    icon   : '?',
-    name   : 'Information',
-    action : function () {
-      this.browser.makeMenu({
-        title : this.name,
-        ' ' : this.info
-      }).addClass('track_info');
-    }    
-  }
+
+  $('<a />').html('?').click(function(){
+    var track  = $(this).data('track');
+    var offset = track.container.offset();
+
+    track.browser.makeMenu({
+      title : track.name,
+      ' '   : track.info
+    }).css({ top: offset.top }).addClass('track_info');
+  }),
+
+  $('<a />').html('x').click(function(){
+    var track = $(this).data('track');
+    track.remove();    
+  }),
+
 ];
 
-Genoverse.Track.on('afterAddDomElements afterRename', function() {
+var toggle = $('<a />').html('&laquo;').click(function(){
+  if ($(this).parent().hasClass('maximized')) {
+    $(this)
+      .parent().removeClass('maximized').end()
+      .siblings().css({ display: 'none' }).end()
+      .html('&laquo;');
+  } else {
+    $(this)
+      .parent().addClass('maximized').end()
+      .siblings().css({ display: 'inline' }).end()
+      .html('&raquo;');
+  }
+});
+
+
+Genoverse.Track.on('afterAddDomElements', function() {
   var track = this;
   if (track.controls === 'off') return;
-  var controls = (track.controls || []).concat(defaultControls);
 
-  //debugger;
-  var $div = $('<div class="controls" />');
+  var controls = (track.controls || []).concat(defaultControls);
+  var div = $('<div class="track_controls" />').prependTo(track.container);
 
   for (var i=0; i<controls.length; i++) {
-    (function(control){
-      var $control = $('<a />')
-        .html(control.icon)
-        .attr({title: control.name})
-        .on('click', function () {
-          control.action.apply(track);
-        });
-
-      $div.append($control);
-    })(controls[i])
+    controls[i].clone(true).css({ display: 'none' }).data({track : track}).appendTo(div);
   }
 
-  this.label.children('span.name').append($div);
+  toggle.clone(true).data({track : track}).prependTo(div);
 });

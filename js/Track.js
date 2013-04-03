@@ -19,6 +19,7 @@ Genoverse.Track = Base.extend({
   featuresById   : {},
   imgRange       : {},
   dataRange      : {},
+  thresholdWarning : 'Data for this track is not displayed for this zoom level',
 
 
   constructor: function (config) {
@@ -52,7 +53,7 @@ Genoverse.Track = Base.extend({
     this.addDomElements(config);
     this.addUserEventHandlers();
     this.init();
-    this.setScale();
+    //this.setScale();
     //this.makeFirstImage();
   },
 
@@ -60,29 +61,31 @@ Genoverse.Track = Base.extend({
   addDomElements: function (config) {
     var track = this;
 
-    this.order          = typeof this.order          !== 'undefined' ? this.order          : this.index;
-    this.separateLabels = typeof this.separateLabels !== 'undefined' ? this.separateLabels : !!this.depth;
-    this.spacing        = typeof this.spacing        !== 'undefined' ? this.spacing        : this.browser.trackSpacing;
-    this.featureHeight  = typeof this.featureHeight  !== 'undefined' ? this.featureHeight  : this.height;
-    this.fixedHeight    = typeof this.fixedHeight    !== 'undefined' ? this.fixedHeight    : this.featureHeight === this.height && !(this.bump || this.bumpLabels);
-    this.autoHeight     = typeof this.autoHeight     !== 'undefined' ? this.autoHeight     : !this.fixedHeight && !config.height ? this.browser.autoHeight : false;
-    this.resizable      = typeof this.resizable      !== 'undefined' ? this.resizable      : !this.fixedHeight;
-    this.height        += this.spacing;
-    this.initialHeight  = this.height;
-    this.minLabelHeight = 0;
-    this.canvas         = $('<canvas>').appendTo(this.browser.wrapper);
-    this.container      = $('<div class="track_container">').appendTo(this.browser.wrapper);
-    this.scrollContainer= $('<div class="scroll_container">').appendTo(this.container);
-    this.imgContainer   = $('<div class="image_container">');
-    this.messageContainer = $('<div class="track_message static" />').appendTo(this.container);
+    this.order            = typeof this.order          !== 'undefined' ? this.order          : this.index;
+    this.separateLabels   = typeof this.separateLabels !== 'undefined' ? this.separateLabels : !!this.depth;
+    this.spacing          = typeof this.spacing        !== 'undefined' ? this.spacing        : this.browser.trackSpacing;
+    this.featureHeight    = typeof this.featureHeight  !== 'undefined' ? this.featureHeight  : this.height;
+    this.fixedHeight      = typeof this.fixedHeight    !== 'undefined' ? this.fixedHeight    : this.featureHeight === this.height && !(this.bump || this.bumpLabels);
+    this.autoHeight       = typeof this.autoHeight     !== 'undefined' ? this.autoHeight     : !this.fixedHeight && !config.height ? this.browser.autoHeight : false;
+    this.resizable        = typeof this.resizable      !== 'undefined' ? this.resizable      : !this.fixedHeight;
+    this.height          += this.spacing;
+    this.initialHeight    = this.height;
+    this.minLabelHeight   = 0;
+    this.container        = $('<div class="track_container">').appendTo(this.browser.wrapper);
+    this.messageContainer = $('<div class="track_message" />').appendTo(this.container);
+    this.scrollContainer  = $('<div class="scroll_container">').appendTo(this.container);
+    this.imgContainer     = $('<div class="image_container">');
+    this.border           = $('<div class="track_border">').appendTo(this.container);
 
-    this.label          = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('index', this.index);
-    this.menus          = $();
-    this.context        = this.canvas[0].getContext('2d');
-    this.font           = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
-    this.context.font   = this.font;
-    this.fontHeight     = this.fontSize;
-    this.labelUnits     = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
+    this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('index', this.index);
+    this.menus            = $();
+
+    this.canvas           = $('<canvas>').css({display: 'none'});
+    this.context          = this.canvas[0].getContext('2d');
+    this.font             = this.fontWeight + ' ' + this.fontSize + 'px ' + this.fontFamily;
+    this.context.font     = this.font;
+    this.fontHeight       = this.fontSize;
+    this.labelUnits       = [ 'bp', 'Kb', 'Mb', 'Gb', 'Tb' ];
 
     if (this.hidden) {
       this.height  = 0;
@@ -105,6 +108,7 @@ Genoverse.Track = Base.extend({
     this.label.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
     
     this.container.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
+    this.container.width(this.browser.width);
     
     if (!this.fixedHeight && this.resizable !== false) {
       this.heightToggler = $('<div class="height_toggler"><div class="auto">Set track to auto-adjust height</div><div class="fixed">Set track to fixed height</div></div>').on({
@@ -130,6 +134,23 @@ Genoverse.Track = Base.extend({
 
 
   init: function () {
+    this.resetData();
+    this.setScale();
+  },
+
+
+  // Reset does init by default, unless init == false
+  reset: function (init) {
+    this.resetImages();
+    this.resetData();
+
+    if (typeof(init) == 'undefined' || init) {
+      this.init();
+    }
+  },
+
+
+  resetData: function () {
     this.features = new RTree();
     this.featuresById  = {};
     this.dataRange     = { start: 9e99, end: -9e99 };
@@ -137,11 +158,31 @@ Genoverse.Track = Base.extend({
   },
 
 
-  reset: function () {
+  resetImages: function () {
+    this.imgRange = {};
     this.scrollContainer.children('.image_container').remove();
-    
-    if (this.url !== false) {
-      this.init();
+  },
+
+
+  resetFeaturePositions: function () {
+    this.scaleSettings = {};
+    this.featurePositions = new RTree();
+    for (id in this.featuresById) {
+      var feature = this.featuresById[id];
+      delete feature.position;
+    }
+  },
+
+
+  reDraw: function () {
+    this.resetFeaturePositions();
+
+    for (var i=0; i<this.imgContainers.length; i++) {
+      var image = $('img.data', this.imgContainers[i]);
+      var data  = image.data();
+
+      var features = this.findFeatures(data.start, data.end);
+      this.render(features, image);
     }
   },
 
@@ -166,6 +207,16 @@ Genoverse.Track = Base.extend({
   },
 
 
+  showMessage: function (message) {
+    this.messageContainer.html(message).show();
+  },
+
+
+  hideMessage: function () {
+    this.messageContainer.hide();
+  },
+  
+
   click: function (e) {
     var x = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
     var y = e.pageY - $(e.target).offset().top;
@@ -178,12 +229,10 @@ Genoverse.Track = Base.extend({
 
 
   checkHeight: function () {
-    this.fullVisibleHeight = Math.max.apply(
-      Math, 
-      $('img:visible', this.container).map(function(){
-        return $(this).outerHeight(true);
-      })
-    );
+    var bounds = { x: this.browser.scaledStart, w: this.width, y: 0, h: 10000 };
+    var scale  = this.scale;
+    var height = Math.max.apply(Math, $.map(this.featurePositions.search(bounds), function (feature) { return feature.position[scale].Y + feature.position[scale].H; }).concat(0));
+    this.fullVisibleHeight = height;
 
     this.toggleExpander();
   },
@@ -221,10 +270,12 @@ Genoverse.Track = Base.extend({
     // this.fullVisibleHeight - ([there are labels in this region] ? (this.separateLabels ? 0 : this.bumpSpacing + 1) + 2 : this.bumpSpacing)
     //                                                                ^ padding on label y-position                     ^ margin on label height
     if (this.fullVisibleHeight > this.container.height()) {
-      this.expander = (this.expander || $('<div class="expander static">').width(this.width).appendTo(this.container).on('click', function () {
+      this.showMessage('Not all features displayed, resize to see all.');
+      this.expander = (this.expander || $('<div class="expander">').width(this.width).appendTo(this.container).on('click', function () {
         track.resize(track.fullVisibleHeight);
-      })).css('left', -this.browser.left)[this.height === 0 ? 'hide' : 'show']();
+      }))[this.height === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
+      this.hideMessage();
       this.expander.hide();
     }    
   },
@@ -250,7 +301,7 @@ Genoverse.Track = Base.extend({
     this.dataRange[this.scale].start = this.browser.start;
     this.dataRange[this.scale].end = this.browser.end;
 
-    this.messageContainer.empty();
+    this.hideMessage();
     
     // Reset scaleSettings if the user has zoomed back to a previously existent zoom level, but has scrolled to a new region.
     // This is needed to get the newly created images in the right place.
@@ -344,107 +395,9 @@ Genoverse.Track = Base.extend({
   },
 
 
-  resetFeaturePositions: function () {
-    this.scaleSettings = {};
-    this.featurePositions = new RTree();
-    for (id in this.featuresById) {
-      var feature = this.featuresById[id];
-      delete feature.position;
-    }
-  },
-
-
-  reDraw: function () {
-    this.resetFeaturePositions();
-
-    for (var i=0; i<this.imgContainers.length; i++) {
-      var image = $('img.data', this.imgContainers[i]);
-      var data  = $(image).data();
-
-      var features = this.features.search({ x: data.start, y: 0, w: data.end - data.start, h:1 });
-      this.render(features, image);
-    }
-  },
-
-
-  // makeImage: function (start, end, width, moved, scale) {
-  //   if (this.disabled) return;
-
-  //   var cls  = ("scale_" + scale).replace('.','_');
-  //   var div  = this.imgContainer.clone().width(width).addClass(cls);
-  //   var prev = $(this.imgContainers).filter('.' + cls + ':' + (moved < 0 ? 'first' : 'last'));
-
-  //   var data = { 
-  //     start : start, 
-  //     end   : end, 
-  //     width : width, 
-  //     height: this.height || 0, 
-  //     scale : scale,
-  //     scaledStart : start * scale
-  //   };
-
-  //   var bgImage = $('<img class="bg" />').css({ opacity: 0.8 }).width(width).data(data).prependTo(div);
-
-  //   var image = $('<img class="data" />')
-  //     .width(width)
-  //     .data(data)
-  //     .load(function(){ bgImage.css({ opacity: 1 }) })
-  //     .appendTo(div);
-
-  //   div.css('left', prev.length ? prev.position().left + (moved < 0 ? -this.width : prev.width()) : 0);
-  //   this.imgContainers[moved < 0 ? 'unshift' : 'push'](div[0]);
-  //   this.container.append(this.imgContainers);
-
-
-  //   var bufferedStart = Math.max(start - (this.labelOverlay ? 0 : this.browser.labelBuffer), 1);
-  //   var bounds = { x: bufferedStart, y: 0, w: end - bufferedStart, h: 1 };
-
-  //   this.renderBackground(bgImage);
-
-  //   if (this.threshold && this.threshold < this.browser.length) {
-  //     this.render([], image);
-  //     this.messageContainer.text('Threshold reached');
-  //   } else if (start >= this.dataRegion.start && end <= this.dataRegion.end) {
-  //     var features = this.features.search(bounds);
-  //     this.render(features, image);
-  //   } else {
-  //     var track = this;
-
-  //     $.when(this.getData(bufferedStart, end))
-  //      .done(function (data) {
-  //        track.dataRegion.start = this.allData ? 0    : Math.min(start, track.dataRegion.start);
-  //        track.dataRegion.end   = this.allData ? 9e99 : Math.max(end,   track.dataRegion.end);
-
-  //        try {
-  //          track.parseData(data, bufferedStart, end);
-  //          track.render(track.features.search(bounds), image);
-  //        } catch (e) {
-  //          track.showError(e);
-  //        }
-        
-  //        if (track.allData) {
-  //          track.url = false;
-  //        }
-  //      })
-  //      .fail(function (jqXHR, textStatus, errorThrown) {
-  //        track.showError(jqXHR, textStatus, errorThrown);
-  //      });
-  //   }
-
-  //   // TMP hack
-  //   if (this.type == 'Scalebar') this.renderBackground(bgImage);
-
-  //   div = prev = null;
-  // },
-
-
   move: function (delta, scale) {
     this.left += delta;
     this.scrollContainer.css('left', this.left);
-
-    // this.imgRange[scale].left  += delta;
-    // this.imgRange[scale].right += delta;
-    //debugger;
 
     if (this.imgRange[scale].left + this.left > -this.buffer*this.width) {
       this.imgRange[scale].left   -= this.width;
@@ -492,9 +445,9 @@ Genoverse.Track = Base.extend({
                   .css('left', params.left);
 
     var image   = $('<img class="data" />')
-                  .hide()
+                  .css({ opacity : 0 })
                   .data(params)
-                  .load(function(){ div.removeClass('loading'); image.fadeIn('fast'); })
+                  .load(function(){ div.removeClass('loading'); $(this).animate({ opacity : 1 }, 100); })
                   .appendTo(div);
 
     this.imgContainers.push(div[0]);
@@ -502,7 +455,7 @@ Genoverse.Track = Base.extend({
 
     if (this.threshold && this.threshold < this.browser.length) {
       this.render([], image);
-      this.messageContainer.text('Data for this track is not displayed for this zoom level');
+      this.showMessage(this.thresholdWarning);
     } else if (params.start >= this.dataRange.start && params.end <= this.dataRange.end) {
       // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
       var defer = $.Deferred().then(function(){
@@ -517,20 +470,23 @@ Genoverse.Track = Base.extend({
 
       $.when(this.getData(params.start - track.dataBuffer, params.end + track.dataBuffer))
        .done(function (data) {
-
-         try {
-           track.parseData(data, params.start, params.end);
-           track.render(track.findFeatures(params.start, params.end), image);
-         } catch (e) {
-           track.showError(e);
-         }
-        
-         if (track.allData) {
-           track.url = false;
+         if (data) {
+           try {
+             track.parseData(data, params.start, params.end);
+             track.render(track.findFeatures(params.start, params.end), image);
+           } catch (e) {
+             track.showError(e.message);
+           }
+          
+           if (track.allData) {
+             track.url = false;
+           }
+         } else {
+           track.showError('No data received');
          }
        })
        .fail(function (jqXHR, textStatus, errorThrown) {
-         track.showError(jqXHR, textStatus, errorThrown);
+         track.showError(errorThrown.message);
        });
     }
   },
@@ -578,7 +534,8 @@ Genoverse.Track = Base.extend({
   
   positionFeatures: function (features, params) {
     for (var i=0; i<features.length; i++) {
-      this.positionFeature(features[i], params);
+      //if (!features[i].position[params.scale].X)
+        this.positionFeature(features[i], params);
     }
     params.width = Math.ceil(params.width);
     params.height = Math.ceil(params.height);
@@ -588,18 +545,20 @@ Genoverse.Track = Base.extend({
   positionFeature: function (feature, params) {
     var scale = params.scale;
 
-    feature.position[scale].H = feature.position[scale].H || feature.position[scale].height;
-    feature.position[scale].W = feature.position[scale].W || feature.position[scale].width + this.featureSpacing;
-    feature.position[scale].Y = feature.position[scale].Y || feature.y || this.featureSpacing;
     feature.position[scale].X = feature.position[scale].start - params.scaledStart;
+    feature.position[scale].Y = feature.position[scale].Y || feature.y || this.featureSpacing;
+    feature.position[scale].labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
 
-    if (this.labels && this.labels !== 'overlay' && feature.label) {
-      feature.position[scale].H += this.fontHeight + 2*this.featureSpacing;
-      var labelWidth = feature.label ? Math.ceil(this.context.measureText(feature.label).width) + 1 : 0;
-
-      feature.position[scale].W  = Math.max(labelWidth, feature.position[scale].W);
-      params.width               = Math.max(feature.position[scale].X + labelWidth, params.width);
+    if (!feature.position[scale].H || !feature.position[scale].W) {
+      feature.position[scale].H = feature.position[scale].height + this.featureSpacing;
+      feature.position[scale].W = feature.position[scale].width + this.featureSpacing;
+      if (this.labels && this.labels !== 'overlay' && feature.label) {
+        feature.position[scale].H += this.fontHeight + this.featureSpacing;
+        feature.position[scale].W  = Math.max(feature.position[scale].labelWidth, feature.position[scale].W);
+        params.width               = Math.max(feature.position[scale].X + feature.position[scale].labelWidth, params.width);
+      }
     }
+
 
     if (this.bump && !feature.position[scale].bumped) {
       this.bumpFeature(feature, scale);
@@ -638,6 +597,7 @@ Genoverse.Track = Base.extend({
 
   render: function (features, img) {
     var params = img.data();
+    params.features = features;
 
     this.scaleFeatures(features, params.scale);
     this.positionFeatures(features, params);
@@ -659,10 +619,11 @@ Genoverse.Track = Base.extend({
       var feature = features[i];
       this.drawFeature(
         $.extend({}, feature, {
-          x      : Math.floor(feature.position[scale].X) + 0.5,
-          y      : Math.floor(feature.position[scale].Y) + 0.5,
-          width  : feature.position[scale].width,
-          height : feature.position[scale].height
+          x          : feature.position[scale].X,
+          y          : feature.position[scale].Y,
+          width      : feature.position[scale].width,
+          height     : feature.position[scale].height,
+          labelWidth : feature.position[scale].labelWidth,
         }), 
         context,
         scale
@@ -673,26 +634,27 @@ Genoverse.Track = Base.extend({
 
   drawFeature: function(feature, context, scale) {
     context.fillStyle = feature.color || this.color;
-    context.fillRect(feature.x, feature.y, feature.width, feature.height);
+    context.fillRect(Math.floor(feature.x), feature.y, Math.max(1, Math.floor(feature.width)), feature.height);
 
     if (this.labels) {
       context.fillStyle = feature.labelColor || feature.color || this.color;
       if (this.labels === 'overlay') {
-        if (context.measureText(feature.label).width < feature.width)
-          context.fillText(feature.label, feature.x, feature.y);
+        if (feature.labelWidth < feature.width)
+          context.fillText(feature.label, (feature.x < -feature.labelWidth && feature.x + feature.width > feature.labelWidth) ? 0 : feature.x, feature.y);
       } else {
-        context.fillText(feature.label, feature.x, feature.y + feature.height);
+        context.fillText(feature.label, (feature.x < -feature.labelWidth && feature.x + feature.width > feature.labelWidth) ? 0 : feature.x, feature.y + feature.height);
       }
     }
   },
 
 
-  showError: function () {
-    console.log(arguments);
+  showError: function (error) {
+    this.showMessage(error);
+
+    //console.log(arguments);
     // if (!this.errorMessage) {
     //   this.errorMessage = this.browser.setTracks([{ type: 'Error', track: this }], this.browser.tracks.length)[0];
     // }
-    
     // this.errorMessage.draw(this.imgContainers[0], error);
     // deferred.resolve({ target: image.images, img: image }); 
   },

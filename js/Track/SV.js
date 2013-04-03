@@ -1,4 +1,4 @@
-Genoverse.Track.SV = Genoverse.Track.Sequence.DAS.extend({
+Genoverse.Track.SV = Genoverse.Track.Sequence.extend({
 
   // defaults
   complementary : false,
@@ -12,7 +12,7 @@ Genoverse.Track.SV = Genoverse.Track.Sequence.DAS.extend({
     blur    : 5,
     color   : "black"
   },
-
+  thresholdWarning : 'Reference sequence is not displayed at this zoom level',
 
   getVariationData: function (start, end) {
     return $.ajax({
@@ -41,16 +41,16 @@ Genoverse.Track.SV = Genoverse.Track.Sequence.DAS.extend({
 
 
   render: function (features, img) {
-    var track   = this;
-    var imgData = img.data();
-    var base    = this.base;
+    var track  = this;
+    var params = img.data();
+    var base   = this.base;
     img.data({ height: this.yOffset + this.featureHeight + this.shadow.blur });
 
-    $.when(this.getVariationData(imgData.start, imgData.end))
+    $.when(this.getVariationData(params.start, params.end))
      .done(function(data){
       track.parseVariationData(data);
-      track.scaleFeatures(track.variations, imgData.scale);
-      track.positionFeatures(track.variations, img);
+      track.scaleFeatures(track.variations, params.scale);
+      track.positionFeatures(track.variations, params);
       base.call(track, features, img);
      });
   },

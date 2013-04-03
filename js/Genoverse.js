@@ -127,6 +127,14 @@ var Genoverse = Base.extend({
       },
       update      : function (e, ui) {
         browser.tracks[ui.item.data('index')].container[ui.item[0].previousSibling ? 'insertAfter' : 'insertBefore'](browser.tracks[$(ui.item[0].previousSibling || ui.item[0].nextSibling).data('index')].container);
+        // Correct the order
+        var newOrderTracks = [];
+        // Well, this is dodgy, but hopefully .children will always give us LIs in order of appearence
+        browser.labelContainer.children('li').each(function (i) {
+          newOrderTracks.push(browser.tracks[$(this).data('index')]);
+          $(this).data({ index: newOrderTracks.length - 1 });
+        });
+        browser.tracks = newOrderTracks;
       }
     });
 
@@ -241,14 +249,13 @@ var Genoverse = Base.extend({
     var i = this.tracks.length;
     
     while (i--) {
-      this.tracks[i].reset();
+      this.tracks[i].reset(false);
     }
     
     this.scale   = 9e99; // arbitrary value so that setScale resets track scales as well
     this.history = {};
     
     this.setRange(this.start, this.end);
-    //this.makeImage();
   },
 
   
@@ -334,7 +341,7 @@ var Genoverse = Base.extend({
     if (!e) {
       return false;
     }
-    
+
     this.dragging        = false;
     this.selectorStalled = true;
     
@@ -342,9 +349,11 @@ var Genoverse = Base.extend({
       return this.cancelSelect();
     }
     
+    var top = Math.min(e.pageY - this.wrapper.offset().top, this.wrapper.outerHeight(true) - 1.2*this.selectorControls.outerHeight(true));
+
     this.selectorControls.css({
-      marginTop : -this.selectorControls.outerHeight() / 2,
-      left      : this.selector.outerWidth(true) / 2 - this.selectorControls.outerWidth(true) / 2
+      top  : top,
+      left : this.selector.outerWidth(true) / 2 - this.selectorControls.outerWidth(true) / 2
     }).show();
   },
 
@@ -490,7 +499,7 @@ var Genoverse = Base.extend({
     
     if (this.left + delta < this.minLeft) {
       delta = this.minLeft - this.left;
-    } else if (this.left > this.maxLeft) {
+    } else if (this.left + delta > this.maxLeft) {
       delta = this.maxLeft - this.left;
     }
 
@@ -684,7 +693,7 @@ var Genoverse = Base.extend({
         Class = Class[subClass];
       }
 
-      tracks[i] = new Class($.extend(tracks[i], defaults, { index: i + index }));
+      tracks[i] = new Class($.extend(true, {}, tracks[i], defaults, { index: i + index }));
 
       // set the reference to the browser
       //
@@ -720,10 +729,14 @@ var Genoverse = Base.extend({
   },
   
   
+  addTrack: function (track) {
+    this.addTracks([ track ]);
+  },
+  
+  
   addTracks: function (tracks) {
     this.setTracks(tracks, this.tracks.length);
     this.sortTracks();
-    //this.makeTrackImages(tracks);
   },
   
   
@@ -789,7 +802,7 @@ var Genoverse = Base.extend({
     
     for (var i = 0; i < sorted.length; i++) {
       labels.push(sorted[i].label[0]);
-      containers.push(sorted[i].canvas[0], sorted[i].container.detach()[0]);
+      containers.push(sorted[i].container.detach()[0]);
     }
     
     this.labelContainer.append(labels);
@@ -1080,12 +1093,11 @@ var Genoverse = Base.extend({
         );
         return true;
       });
-
-      menu.show();
-      menu.css(
+      
+      menu.show().css(
         position || 
         { 
-          top  : offset.top  + 100,
+          top  : Math.max(offset.top, $(document).scrollTop()) + menu.outerHeight(true)/10,
           left : offset.left + (wrapper.outerWidth(true) - menu.outerWidth(true))/2
         }
       );
@@ -1215,10 +1227,10 @@ var Genoverse = Base.extend({
 });
 
 
-// Genoverse.on('afterMove afterZoomIn afterZoomOut', function () {
-//   $('.static', this.wrapper).css('left', -this.left);
-//   this.checkHeights();
-// });
+Genoverse.on('afterMove afterZoomIn afterZoomOut', function () {
+  // $('.static', this.wrapper).css('left', -this.left);
+  this.checkHeights();
+});
 
 window.Genoverse = Genoverse;
 

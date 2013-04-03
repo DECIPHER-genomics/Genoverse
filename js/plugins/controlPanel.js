@@ -1,31 +1,93 @@
 Genoverse.prototype.controls = [
   {
     icon   : '...',
-    name   : 'Tracks Selection',
-    init   : function () {
-      var browser = this;
-      $("input.trackSelection").live('change', function () {
-        if ($(this).is(':checked')) {
-          browser.tracks[$(this).val()].show();
-        } else {
-          browser.tracks[$(this).val()].hide();
-        }
-      });
+    name   : 'Tracks Menu',
+    init   : function (browser) {
     },
-    action : function () {
-      var tracksMenu = { title  : 'Tracks selection:' };
+    action : function (browser) {
+      var css     = browser.wrapper.offset();
+      css.top     = Math.max(css.top, $(document).scrollTop()) + 20;
+      css.left   += 50;
+      css.width   = browser.wrapper.width() - 100;
 
-      for (var i=0; i<this.tracks.length; i++) {
-        var track = this.tracks[i];
-        if (track.type == 'Scalebar') continue;
-        tracksMenu['<input class="trackSelection" type="checkbox" '+ (!track.hidden ? 'checked' : '') +' value="'+ i +'"> '] = track.name.replace('<br />', ' ');
+      var menu    = browser.makeMenu({
+        'Currently enabled tracks:'         : 'Available tracks:', 
+        '<div class="currentTracks"></div>' : '<input placeholder="Search"><div class="availableTracks"></div>'
+      }).css(css).addClass('tracksMenu');
+
+
+      var currentTracks   = $('.currentTracks', menu);
+      var availableTracks = $('.availableTracks', menu);
+
+      currentTracks.reload = function() {
+        this.html('');
+        this.listTracks();
+      };
+
+      currentTracks.listTracks = function() {
+        for (var i=1; i<browser.tracks.length; i++) {
+          var track = browser.tracks[i];
+
+          (function(track){
+            $('<div>')
+            .append($('<div class="removeTrack">x</div> ').click(function(){
+              $(this).parent().remove();
+              track.remove();
+            }))
+            .append('<span>'+ track.name +'</span>')
+            .appendTo(currentTracks);
+          })(browser.tracks[i]);
+
+        }
+      };
+
+      currentTracks.listTracks();
+
+      for (var i=0; i<browser.tracksLibrary.length; i++) {
+        var track = browser.tracks[i];
+        (function(track){
+          $('<div class="tracksLibraryItem">')
+          .append($('<div class="addTrack">+</div> ').click(function(){
+            browser.addTrack(track);
+            currentTracks.reload();
+          }))
+          .append('<span>'+ track.name +'</span>')
+          .appendTo(availableTracks)
+          .data({ track: track });
+        })(browser.tracksLibrary[i]);
       }
 
-      var menu = this.makeMenu(tracksMenu);
-      menu.addClass('trackSelection');
     }
   }
 ];
+
+
+$('.tracksMenu input[placeholder=Search]').live('keyup', function(){
+  var str = $(this).val().toLowerCase();
+  $('.tracksMenu .tracksLibraryItem').each(function(){
+    var track = $(this).data('track');
+    var match = false;
+    
+    if (track.name.toLowerCase().indexOf(str) >= 0) {
+      match = true;
+    } else if (track.tags.length) {
+      for (var i=0; i<track.tags.length; i++) {
+        if (track.tags[i].toLowerCase().indexOf(str) >= 0) {
+          match = true;
+          break;
+        }
+      }
+    }
+
+    if (match) {
+      $(this).show();
+    } else {
+      $(this).hide();
+    }
+
+  })
+});
+
 
 Genoverse.on('beforeInit', function () {
   var browser = this;
@@ -35,8 +97,8 @@ Genoverse.on('beforeInit', function () {
   .appendTo(browser.container);
 
   $('td.genoverse_panel_right').append('\
-    <div class="button_set scroll" title="Scroll left and right by pressing and holding these buttons">\
-    <button class="scrollLeft" title="Scroll left">&#9668;</button><button class="scrollRight" title="Scroll right">&#9658;</button>\
+    <div class="button_set" title="Scroll left and right by pressing and holding these buttons">\
+    <button class="scrollLeft">&#9668;</button><button class="scrollRight">&#9658;</button>\
     </div>\
     <div class="button_set zoom" title="Zoom-in and zoom-out">\
     <button class="zoomIn">+</button><button class="zoomOut">&#8722;</button>\
@@ -60,18 +122,15 @@ Genoverse.on('beforeInit', function () {
   browser.container = $('td.canvas_container');
 
   $(".genoverse_panel button.scrollLeft").mousehold(10, function () {
-    $('.track_container .resizer').hide();
     browser.move(10, NaN);
   });
 
   $(".genoverse_panel button.scrollLeft,button.scrollRight").mouseup(function () {
-    $('.track_container .resizer').show();
     browser.updateURL();
     browser.checkHeights();
   });
 
   $(".genoverse_panel button.scrollRight").mousehold(10, function () {
-    $('.track_container .resizer').hide();
     browser.move(-10, NaN);
   });
 
@@ -128,14 +187,14 @@ Genoverse.on('beforeInit', function () {
 
   for (var i=0; i<browser.controls.length; i++) {
     (function(control){
-      var $control = $('<div class="button_set" />')
-        .html('<button>'+ control.icon +'</button>')
+      var $control = $('<button>'+ control.icon +'</button>')
         .attr({title: control.name})
+        .addClass(control.class)
         .on('click', function () {
-          control.action.apply(browser);
-        });
-      $('td.genoverse_panel_right').append($control);
-      if (control.init) control.init.apply(browser);
+          control.action.apply(this, [browser]);
+        })
+        .appendTo($('<div class="button_set" />').appendTo($('td.genoverse_panel_right')));
+      if (control.init) control.init.apply(this, [browser]);
     })(browser.controls[i])
   }
 
