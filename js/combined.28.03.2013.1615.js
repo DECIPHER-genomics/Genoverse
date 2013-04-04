@@ -1710,7 +1710,6 @@ var Genoverse = Base.extend({
       <div class="selector_controls">                \
         <button class="zoomHere">Zoom here</button>  \
         <button class="center">Center</button>       \
-        <button class="summary">Summary</button>     \
         <button class="cancel">Cancel</button>       \
       </div>                                         \
     ').appendTo(this.selector);
@@ -1785,7 +1784,7 @@ var Genoverse = Base.extend({
       
       switch (e.target.className) {
         case 'zoomHere' : browser.setRange(start, end, true); break;
-        case 'center'   : browser.startDragScroll(); browser.move(null, browser.width / 2 - (left + width / 2), 'fast', $.proxy(browser.stopDragScroll, browser)); break;
+        case 'center'   : var delta = browser.width / 2 - (left + width / 2); browser.move(delta); browser.selector.css({ left: left+delta }); break;
         case 'summary'  : browser.summary(start, end); break;
         case 'cancel'   : browser.cancelSelect(); break;
         default         : break;
@@ -1931,12 +1930,12 @@ var Genoverse = Base.extend({
 
   
   dragSelect: function (e) {
-    var x = e.pageX - this.wrapper.offset().left - 2;
+    var x = e.pageX - this.wrapper.offset().left;
 
     if (x > this.selectorStart) {
       this.selector.css({ 
         left  : this.selectorStart, 
-        width : Math.min(x - this.selectorStart, this.width - this.selectorStart) - 4
+        width : Math.min(x - this.selectorStart, this.width - this.selectorStart - 1)
       });
     } else {
       this.selector.css({ 
