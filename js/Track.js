@@ -77,7 +77,7 @@ Genoverse.Track = Base.extend({
     this.imgContainer     = $('<div class="image_container">');
     this.border           = $('<div class="track_border">').appendTo(this.container);
 
-    this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('index', this.index);
+    this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('track', this);
     this.menus            = $();
 
     this.canvas           = $('<canvas>').css({display: 'none'});
@@ -282,8 +282,13 @@ Genoverse.Track = Base.extend({
 
 
   remove: function () {
+    this.browser.removeTrack(this);
+  },
+
+  
+  destroy: function () {
     this.container.add(this.label).add(this.menus).remove();
-    this.browser.tracks.splice(this.index, 1);
+    delete this;
   },
 
 

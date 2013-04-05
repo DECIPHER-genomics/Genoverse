@@ -18,7 +18,7 @@
   background-image: -webkit-linear-gradient(left, #5F8CB0, #4A7496);
   background-image: -moz-linear-gradient(left center, #5F8CB0, #4A7496);
   border-radius: 0 5px 5px 0;
-  border: 1px solid #1C5380;
+  border: 1px solid #1C5380!important;
   border-left: none;
   box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);        
   vertical-align: top;
@@ -36,6 +36,10 @@
   line-height: 20px;
   padding: 2px;
   font-family: Tahoma;
+}
+
+.canvas_container .gv_wrapper {
+  border-width: 1px 0 1px 1px;
 }
 
 .genoverse_panel button:only-child {
@@ -69,10 +73,12 @@
 .genoverse td {
   padding: 0;
   color: white;
+  border: none;
 }
 
 .genoverse>table {
   width: auto;
+  border: none;
 }
 
 .tracksMenu td {

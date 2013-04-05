@@ -29,7 +29,7 @@ ul.label_container {
   border: 1px solid black;
   overflow: hidden;
   position: relative;
-  /*background: #ccc;*/
+  background-color: white;
 }
 
 .canvas_container .gv_wrapper .overlay {
@@ -100,6 +100,10 @@ ul.label_container {
   /*display: none;*/
   position: absolute;
   z-index: 1;
+}
+
+.canvas_container .image_container img.data {
+  max-width: none;
 }
 
 /*.canvas_container .image_container img.data {
