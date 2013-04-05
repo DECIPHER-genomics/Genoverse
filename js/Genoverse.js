@@ -126,13 +126,12 @@ var Genoverse = Base.extend({
         ui.helper.hide();
       },
       update      : function (e, ui) {
-        browser.tracks[ui.item.data('index')].container[ui.item[0].previousSibling ? 'insertAfter' : 'insertBefore'](browser.tracks[$(ui.item[0].previousSibling || ui.item[0].nextSibling).data('index')].container);
+        ui.item.data('track').container[ui.item[0].previousSibling ? 'insertAfter' : 'insertBefore']($(ui.item[0].previousSibling || ui.item[0].nextSibling).data('track').container);
         // Correct the order
         var newOrderTracks = [];
         // Well, this is dodgy, but hopefully .children will always give us LIs in order of appearence
         browser.labelContainer.children('li').each(function (i) {
-          newOrderTracks.push(browser.tracks[$(this).data('index')]);
-          $(this).data({ index: newOrderTracks.length - 1 });
+          newOrderTracks.push($(this).data('track'));
         });
         browser.tracks = newOrderTracks;
       }
@@ -692,7 +691,7 @@ var Genoverse = Base.extend({
         Class = Class[subClass];
       }
 
-      tracks[i] = new Class($.extend(true, {}, tracks[i], defaults, { index: i + index }));
+      tracks[i] = new Class($.extend(true, {}, tracks[i], defaults));
 
       // set the reference to the browser
       //
@@ -720,9 +719,9 @@ var Genoverse = Base.extend({
       }
     }
     
-    if (!push) {
-      this.sortTracks(); // initial sort
-    }
+    // if (!push) {
+    //   this.sortTracks(); // initial sort
+    // }
     
     return tracks;
   },
@@ -735,42 +734,21 @@ var Genoverse = Base.extend({
   
   addTracks: function (tracks) {
     this.setTracks(tracks, this.tracks.length);
-    this.sortTracks();
+    //this.sortTracks();
   },
   
   
-  removeTracks: function (tracks) {
-    var i      = tracks.length;
-    var redraw = false;
-    var track, j, k, bg;
-    
-    tracks.sort(function (a, b) { return a.index - b.index; }); // tracks must be ordered low to high by index for splice to work correctly (splice is done in track.remove())
-    
-    while (i--) {
-      track = tracks[i];
-      j     = track.backgrounds ? track.backgrounds.length : 0;
-      
-      while (j--) {
-        bg = this.backgrounds[track.backgrounds[j].background];
-        k  = bg.length;
-        
-        while (k--) {
-          if (bg[k] === track.backgrounds[j]) {
-            bg.splice(k, 1);
-            redraw = true;
-            break;
-          }
-        }
-        
-        if (bg.length === 0) {
-          delete this.backgrounds[track.backgrounds[j].background];
-        }
+  removeTrack: function (track) {
+    // splice tracks array
+    for (var i=0; i<this.tracks.length; i++) {
+      if (track == this.tracks[i]) {
+        this.tracks.splice(i, 1);
+        break;
       }
-      
-      track.remove();
     }
-    
-    this.updateTracks(redraw);
+
+    // Destroy DOM elements and track itself
+    track.destroy();
   },
   
   
@@ -784,12 +762,7 @@ var Genoverse = Base.extend({
           $(this).children('.bg').remove().end().data('img').drawBackground();
         });
       }
-      
-      // correct track index
-      if (this.tracks[i].index !== i) {
-        this.tracks[i].index = i;
-        this.tracks[i].label.data('index', i);
-      }
+
     }
   },
   
