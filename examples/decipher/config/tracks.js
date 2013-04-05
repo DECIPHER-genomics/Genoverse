@@ -41,7 +41,7 @@ var myPatientSeqVar = {
     return $.ajax({
       url      : Genoverse.Track.prototype.parseUrl.apply(this, [start, end, this.variationUrl]),
       dataType : 'json',
-      xhrFields: this.xhrFields,
+      xhrFields: this.xhrFields
     });
   },
 
@@ -65,16 +65,28 @@ var myPatientSeqVar = {
   render: function (features, img) {
     var track  = this;
     var params = img.data();
-    var base   = this.base;
     img.data({ height: this.yOffset + this.featureHeight + this.shadow.blur });
 
-    $.when(this.getVariationData(params.start, params.end))
-     .done(function(data){
+    var base   = this.base;
+    var render = function (data) {
       track.parseVariationData(data);
       track.scaleFeatures(track.variations, params.scale);
       track.positionFeatures(track.variations, params);
       base.call(track, features, img);
-     });
+    };
+
+    if (!!$.when) {
+      $.when(this.getVariationData(params.start, params.end))
+       .done(render);
+    } else {
+      $.ajax({
+        url       : Genoverse.Track.prototype.parseUrl.apply(this, [params.start, params.end, this.variationUrl]),
+        dataType  : 'json',
+        xhrFields : this.xhrFields,
+        async     : true,
+        success   : render
+      });
+    }
   },
 
   draw: function (features, context, scale) {
