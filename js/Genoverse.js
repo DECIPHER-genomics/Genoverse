@@ -19,6 +19,7 @@ var Genoverse = Base.extend({
   guideLinesByScale: {},
   dragAction       : 'scroll', // options are: scroll, select, off
   wheelAction      : 'off',    // options are: zoom, off
+  messages         : {},
   colors           : {
     background     : '#FFFFFF',
     majorGuideLine : '#CCCCCC',
@@ -206,7 +207,7 @@ var Genoverse = Base.extend({
             }
         }
       }
-    }, '.image_container, .overlay, .selector, .track_message');
+    }, '.image_container, .overlay, .selector, .message_container');
 
     $(document).on({
       mouseup   : $.proxy(this.mouseup,   this),

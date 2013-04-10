@@ -67,7 +67,7 @@ ul.label_container {
   height: 100%;
 }
 
-.track_message {
+.message_container {
   display: none;
   position: relative;
   background: none repeat scroll 0 0 rgba(221, 221, 221, 0.9);
@@ -80,8 +80,29 @@ ul.label_container {
   font-size: 10px;
   font-weight: bold;
   padding: 5px 10px;
-  max-width: 200px;
+  min-height: 12px;
   z-index: 5;
+}
+
+.message_container>div {
+  margin-right: 10px;
+}
+
+.message_container_control {
+  font-size: 11px;
+  color: black;
+  display: inline-block;
+  position: absolute;
+  right: 5px;
+  top: 5px;  
+}
+
+.message_container_control:hover {
+  text-decoration: underline;
+}
+
+.message_container.collapsed :not(.message_container_control) {
+  display: none;
 }
 
 .canvas_container .image_container {

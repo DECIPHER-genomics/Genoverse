@@ -1,6 +1,6 @@
 var myPatientSeqVar = {
 
-  name             : 'My Patient: SNVs, InDels',
+  name             : 'Sequence',
   id               : 'myPatientSeqVar',
   category         : 'My Patient',
   tags             : ['My patient', 'DECIPHER', 'Sequence', 'Variants'],
@@ -35,7 +35,9 @@ var myPatientSeqVar = {
     blur    : 5,
     color   : "black"
   },
-  thresholdWarning : 'Reference sequence is not displayed at this zoom level',
+  messages  : {
+    thresholdWarning : 'Reference sequence is not displayed at this zoom level',
+  },
 
   getVariationData: function (start, end) {
     return $.ajax({

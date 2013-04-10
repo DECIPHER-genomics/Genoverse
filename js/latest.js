@@ -1570,6 +1570,7 @@ var Genoverse = Base.extend({
   guideLinesByScale: {},
   dragAction       : 'scroll', // options are: scroll, select, off
   wheelAction      : 'off',    // options are: zoom, off
+  messages         : {},
   colors           : {
     background     : '#FFFFFF',
     majorGuideLine : '#CCCCCC',
@@ -1757,7 +1758,7 @@ var Genoverse = Base.extend({
             }
         }
       }
-    }, '.image_container, .overlay, .selector, .track_message');
+    }, '.image_container, .overlay, .selector, .message_container');
 
     $(document).on({
       mouseup   : $.proxy(this.mouseup,   this),
@@ -2784,7 +2785,13 @@ Genoverse.Track = Base.extend({
   featuresById   : {},
   imgRange       : {},
   dataRange      : {},
-  thresholdWarning : 'Data for this track is not displayed for this zoom level',
+
+  messages       : {
+    ERROR            : 'ERROR: ',
+    thresholdWarning : 'Data for this track is not displayed for this zoom level',
+    resizeToSeeAll   : 'Not all features displayed, resize to see all'
+  },
+  
 
 
   constructor: function (config) {
@@ -2837,7 +2844,19 @@ Genoverse.Track = Base.extend({
     this.initialHeight    = this.height;
     this.minLabelHeight   = 0;
     this.container        = $('<div class="track_container">').appendTo(this.browser.wrapper);
-    this.messageContainer = $('<div class="track_message" />').appendTo(this.container);
+
+    this.messageContainer = $('<div class="message_container" />').append(
+      $('<a class="message_container_control">&laquo;</a>').click(function(){
+        if ($(this).parent().hasClass('collapsed')) {
+          $(this).html('&laquo;');
+          $(this).parent().removeClass('collapsed');
+        } else {
+          $(this).html('&raquo;');
+          $(this).parent().addClass('collapsed');
+        }
+      })
+    ).appendTo(this.container);
+
     this.scrollContainer  = $('<div class="scroll_container">').appendTo(this.container);
     this.imgContainer     = $('<div class="image_container">');
     this.border           = $('<div class="track_border">').appendTo(this.container);
@@ -2972,13 +2991,25 @@ Genoverse.Track = Base.extend({
   },
 
 
-  showMessage: function (message) {
-    this.messageContainer.html(message).show();
+  showMessage: function (code, additionalText) {
+    if (!$('.' + code, this.messageContainer).length) {
+      this.messageContainer.prepend(
+        '<div class="'+ code +'">'+ (this.messages[code] || this.browser.messages[code]) + (additionalText || '') +'</div>'
+      ).show();
+    }
   },
 
 
-  hideMessage: function () {
-    this.messageContainer.hide();
+  hideMessage: function (code) {
+    if (code) {
+      $('.' + code, this.messageContainer).remove();
+      if (!$('div', this.messageContainer).length) {
+        this.messageContainer.hide();
+      }
+    } else {
+      $('div', this.messageContainer).remove();
+      this.messageContainer.hide();
+    }
   },
   
 
@@ -3035,12 +3066,12 @@ Genoverse.Track = Base.extend({
     // this.fullVisibleHeight - ([there are labels in this region] ? (this.separateLabels ? 0 : this.bumpSpacing + 1) + 2 : this.bumpSpacing)
     //                                                                ^ padding on label y-position                     ^ margin on label height
     if (this.fullVisibleHeight > this.container.height()) {
-      this.showMessage('Not all features displayed, resize to see all.');
+      this.showMessage('resizeToSeeAll');
       this.expander = (this.expander || $('<div class="expander">').width(this.width).appendTo(this.container).on('click', function () {
         track.resize(track.fullVisibleHeight);
       }))[this.height === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
-      this.hideMessage();
+      this.hideMessage('resizeToSeeAll');
       this.expander.hide();
     }    
   },
@@ -3225,7 +3256,7 @@ Genoverse.Track = Base.extend({
 
     if (this.threshold && this.threshold < this.browser.length) {
       this.render([], image);
-      this.showMessage(this.thresholdWarning);
+      this.showMessage('thresholdWarning');
     } else if (params.start >= this.dataRange.start && params.end <= this.dataRange.end) {
       // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
       var defer = $.Deferred().then(function(){
@@ -3419,7 +3450,7 @@ Genoverse.Track = Base.extend({
 
 
   showError: function (error) {
-    this.showMessage(error);
+    this.showMessage('ERROR', error);
 
     //console.log(arguments);
     // if (!this.errorMessage) {
