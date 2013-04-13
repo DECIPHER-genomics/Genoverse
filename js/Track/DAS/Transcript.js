@@ -128,10 +128,10 @@ Genoverse.Track.DAS.Transcript = Genoverse.Track.DAS.extend({
           scale
         );
       }
-
-      context.fillStyle = 'black';
-      context.fillText(transcript.label, transcript.x, transcript.y + transcript.height + 2);
     }
+
+    context.fillStyle = 'black';
+    context.fillText(transcript.label, transcript.x, transcript.y + transcript.height + 2);
   },
 
 });
