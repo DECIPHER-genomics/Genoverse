@@ -421,6 +421,11 @@ var Genoverse = Base.extend({
     if (e.which === 16 && !this.prev.dragAction && this.dragAction === 'scroll') { // shift key
       this.toggleSelect(true);
     }
+
+    if (e.which === 27) {
+      this.cancelSelect();
+      this.closeMenus();
+    }
   },
   
   
