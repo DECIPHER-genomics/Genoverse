@@ -181,7 +181,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 Genoverse.Track.on('afterInit afterResize', function () {
   var height = 0;
   for (var i=0; i<this.browser.tracks.length; i++) {
-    height += this.browser.tracks[i].height;
+    height += this.browser.tracks[i].height || 0;
   }
 
   $('.guidelines', this.browser.container).height(Math.max(height, this.browser.wrapper.outerHeight(true)));
