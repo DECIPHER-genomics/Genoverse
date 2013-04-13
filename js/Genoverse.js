@@ -1041,15 +1041,21 @@ var Genoverse = Base.extend({
 
   menuTemplate: $('<div class="gv_menu"> <div class="close">x</div> <table></table> </div>').on('click', function (e) {
     if ($(e.target).hasClass('close')) {
-      $(this).fadeOut('fast', function () { $(this).remove() });
+      $(this).fadeOut('fast', function () {
+        var feature = $(this).data('feature');
+        if (feature && feature['menu']) delete feature['menu'];
+        $(this).remove();
+      });
     }
   }),  
 
 
   makeMenu: function (feature, position, track) {
+    if (feature.menu) return feature.menu;
+
     var wrapper = this.wrapper;
     var offset  = wrapper.offset();
-    var menu    = this.menuTemplate.clone(true).appendTo($('body'));
+    var menu    = this.menuTemplate.clone(true).data({ feature: feature }).appendTo($('body'));
 
     this.menus.push(menu);
     
@@ -1085,6 +1091,7 @@ var Genoverse = Base.extend({
       }
     });
     
+    feature.menu = menu;
     return menu;
   },
 
@@ -1092,7 +1099,7 @@ var Genoverse = Base.extend({
   closeMenus: function () {
     var i = this.menus.length;
     while (i--) {
-      this.menus[i].fadeOut('fast', function () { $(this).remove() });
+      $('.close', this.menus[i]).click();
     }
     this.menus = [];
   },
