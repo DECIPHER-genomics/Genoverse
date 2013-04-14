@@ -22,24 +22,17 @@
     <script type="text/javascript" src="js/Genoverse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script> 
 
-    <script type="text/javascript" src="js/Track/Static.js"></script>
-    <script type="text/javascript" src="js/Track/Stranded.js"></script> 
-    <script type="text/javascript" src="js/Track/Threshold.js"></script>
-    <script type="text/javascript" src="js/Track/Error.js"></script>
-    
     <script type="text/javascript" src="js/Track/Scalebar.js"></script>
     <script type="text/javascript" src="js/Track/Sequence.js"></script>
-    <script type="text/javascript" src="js/Track/Gene.js"></script>
+    <script type="text/javascript" src="js/Track/VCF.js"></script>
 
     <script type="text/javascript" src="js/Track/DAS.js"></script>
-    <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
     <script type="text/javascript" src="js/Track/DAS/colorMap.js"></script>
+    <script type="text/javascript" src="js/Track/DAS/Transcript.js"></script>
 
-    <script type="text/javascript" src="js/plugins/controlPanel.js"></script>
-    <script type="text/javascript" src="js/plugins/trackControls.js"></script>
-    <script type="text/javascript" src="js/plugins/resizer.js"></script>
-    
-    <!--script type="text/javascript" src="js/jsCombinator.js"></script-->
+    <script type="text/javascript" src="examples/genoverse.org/config/constants.js"></script>
+    <script type="text/javascript" src="examples/genoverse.org/config/tracks.js"></script>
+
 
     <style>
       #genoverse {
@@ -61,7 +54,7 @@
         //   makeImage      : true,
         //   makeTrackImages: true,
         // },
-
+        plugins        : [ 'controlPanel', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
         tracks         : [
           {
             type : 'Scalebar',
@@ -71,6 +64,16 @@
           {
             type : 'Sequence',
           },          
+
+          {
+            type : 'VCF',
+            url  : 'http://genoverse/data/Son_s_VCF_file.vcf',
+            allData: 1,
+          },          
+
+          dbSNP,
+          genes,
+          transcripts
 
           // {
           //   name    : 'Transcript',
