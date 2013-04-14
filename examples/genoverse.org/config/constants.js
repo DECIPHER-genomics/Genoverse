@@ -115,7 +115,6 @@ var genesHI = {
     }
   },
   populateMenu : function (gene) {
-    console.log(gene);
     return {
       title     : '<a target=_blank href="http://www.genenames.org/data/hgnc_data.php?match='+ gene.name+ '">' + gene.name + '</a>',
       Name      : gene.description,
