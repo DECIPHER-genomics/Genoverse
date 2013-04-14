@@ -1043,7 +1043,7 @@ var Genoverse = Base.extend({
     if ($(e.target).hasClass('close')) {
       $(this).fadeOut('fast', function () {
         var feature = $(this).data('feature');
-        if (feature && feature['menu']) delete feature['menu'];
+        if (feature && feature['_menu']) delete feature['_menu'];
         $(this).remove();
       });
     }
@@ -1051,7 +1051,7 @@ var Genoverse = Base.extend({
 
 
   makeMenu: function (feature, position, track) {
-    if (feature.menu) return feature.menu;
+    if (feature._menu) return feature._menu;
 
     var wrapper = this.wrapper;
     var offset  = wrapper.offset();
@@ -1091,7 +1091,7 @@ var Genoverse = Base.extend({
       }
     });
     
-    feature.menu = menu;
+    feature._menu = menu;
     return menu;
   },
 
