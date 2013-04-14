@@ -472,6 +472,8 @@ Genoverse.Track = Base.extend({
     params.scaledStart = params.start*params.scale;
     params.height      = this.height || 0;
     params.width       = this.width;
+    params.start       = Math.max(params.start, 0);
+    params.end         = Math.min(params.end, this.browser.chromosomeSize);
 
     var div     = this.imgContainer
                   .clone()
