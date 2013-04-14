@@ -1972,6 +1972,11 @@ var Genoverse = Base.extend({
     if (e.which === 16 && !this.prev.dragAction && this.dragAction === 'scroll') { // shift key
       this.toggleSelect(true);
     }
+
+    if (e.which === 27) {
+      this.cancelSelect();
+      this.closeMenus();
+    }
   },
   
   
@@ -2587,15 +2592,21 @@ var Genoverse = Base.extend({
 
   menuTemplate: $('<div class="gv_menu"> <div class="close">x</div> <table></table> </div>').on('click', function (e) {
     if ($(e.target).hasClass('close')) {
-      $(this).fadeOut('fast', function () { $(this).remove() });
+      $(this).fadeOut('fast', function () {
+        var feature = $(this).data('feature');
+        if (feature && feature['_menu']) delete feature['_menu'];
+        $(this).remove();
+      });
     }
   }),  
 
 
   makeMenu: function (feature, position, track) {
+    if (feature._menu) return feature._menu;
+
     var wrapper = this.wrapper;
     var offset  = wrapper.offset();
-    var menu    = this.menuTemplate.clone(true).appendTo($('body'));
+    var menu    = this.menuTemplate.clone(true).data({ feature: feature }).appendTo($('body'));
 
     this.menus.push(menu);
     
@@ -2631,6 +2642,7 @@ var Genoverse = Base.extend({
       }
     });
     
+    feature._menu = menu;
     return menu;
   },
 
@@ -2638,7 +2650,7 @@ var Genoverse = Base.extend({
   closeMenus: function () {
     var i = this.menus.length;
     while (i--) {
-      this.menus[i].fadeOut('fast', function () { $(this).remove() });
+      $('.close', this.menus[i]).click();
     }
     this.menus = [];
   },
@@ -3238,6 +3250,8 @@ Genoverse.Track = Base.extend({
     params.scaledStart = params.start*params.scale;
     params.height      = this.height || 0;
     params.width       = this.width;
+    params.start       = Math.max(params.start, 0);
+    params.end         = Math.min(params.end, this.browser.chromosomeSize);
 
     var div     = this.imgContainer
                   .clone()
@@ -3768,7 +3782,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 Genoverse.Track.on('afterInit afterResize', function () {
   var height = 0;
   for (var i=0; i<this.browser.tracks.length; i++) {
-    height += this.browser.tracks[i].height;
+    height += this.browser.tracks[i].height || 0;
   }
 
   $('.guidelines', this.browser.container).height(Math.max(height, this.browser.wrapper.outerHeight(true)));
@@ -5075,10 +5089,10 @@ Genoverse.Track.DAS.Transcript = Genoverse.Track.DAS.extend({
           scale
         );
       }
-
-      context.fillStyle = 'black';
-      context.fillText(transcript.label, transcript.x, transcript.y + transcript.height + 2);
     }
+
+    context.fillStyle = 'black';
+    context.fillText(transcript.label, transcript.x, transcript.y + transcript.height + 2);
   },
 
 });
