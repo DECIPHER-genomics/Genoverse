@@ -4,57 +4,73 @@ Genoverse.prototype.controls = [
     name   : 'Tracks Menu',
     init   : function (browser) {
     },
+
     action : function (browser) {
-      var css     = browser.wrapper.offset();
-      css.top     = Math.max(css.top, $(document).scrollTop()) + 20;
-      css.left   += 50;
-      css.width   = browser.wrapper.width() - 100;
 
-      var menu    = browser.makeMenu({
-        'Currently enabled tracks:'         : 'Available tracks:', 
-        '<div class="currentTracks"></div>' : '<input placeholder="Search"><div class="availableTracks"></div>'
-      }).css(css).addClass('tracksMenu');
+      if ($(this).hasClass('active')) {
+
+        $('.gv_menu.tracksMenu .close').click();
+        $(this).removeClass('active');
+
+      } else {
+
+        var css     = browser.wrapper.offset();
+        css.top     = Math.max(css.top, $(document).scrollTop()) + 20;
+        css.left   += 50;
+        css.width   = browser.wrapper.width() - 100;
+
+        var menu    = browser.makeMenu({
+          'Currently enabled tracks:'         : 'Available tracks:', 
+          '<div class="currentTracks"></div>' : '<input placeholder="Search"><div class="availableTracks"></div>'
+        }).css(css).addClass('tracksMenu');
 
 
-      var currentTracks   = $('.currentTracks', menu);
-      var availableTracks = $('.availableTracks', menu);
+        var currentTracks   = $('.currentTracks', menu);
+        var availableTracks = $('.availableTracks', menu);
 
-      currentTracks.reload = function() {
-        this.html('');
-        this.listTracks();
-      };
+        currentTracks.reload = function() {
+          this.html('');
+          this.listTracks();
+        };
 
-      currentTracks.listTracks = function() {
-        for (var i=1; i<browser.tracks.length; i++) {
-          var track = browser.tracks[i];
+        currentTracks.listTracks = function() {
+          for (var i=1; i<browser.tracks.length; i++) {
+            var track = browser.tracks[i];
 
-          (function(track){
-            $('<div>')
-            .append($('<div class="removeTrack">x</div> ').click(function(){
-              $(this).parent().remove();
-              track.remove();
-            }))
-            .append('<span>'+ track.name +'</span>')
-            .appendTo(currentTracks);
-          })(browser.tracks[i]);
+            (function(track){
+              $('<div>')
+              .append($('<div class="removeTrack">x</div> ').click(function(){
+                $(this).parent().remove();
+                track.remove();
+              }))
+              .append('<span>'+ track.name +'</span>')
+              .appendTo(currentTracks);
+            })(browser.tracks[i]);
 
+          }
+        };
+
+        currentTracks.listTracks();
+
+        if (browser.tracksLibrary && browser.tracksLibrary.length) {
+          for (var i=0; i<browser.tracksLibrary.length; i++) {
+            var track = browser.tracks[i];
+            (function(track){
+              $('<div class="tracksLibraryItem">')
+              .append($('<div class="addTrack">+</div> ').click(function(){
+                browser.addTrack(track);
+                currentTracks.reload();
+              }))
+              .append('<span>'+ track.name +'</span>')
+              .appendTo(availableTracks)
+              .data({ track: track });
+            })(browser.tracksLibrary[i]);
+          }
         }
-      };
 
-      currentTracks.listTracks();
+        $(this).addClass('active');
 
-      for (var i=0; i<browser.tracksLibrary.length; i++) {
-        var track = browser.tracks[i];
-        (function(track){
-          $('<div class="tracksLibraryItem">')
-          .append($('<div class="addTrack">+</div> ').click(function(){
-            browser.addTrack(track);
-            currentTracks.reload();
-          }))
-          .append('<span>'+ track.name +'</span>')
-          .appendTo(availableTracks)
-          .data({ track: track });
-        })(browser.tracksLibrary[i]);
+      
       }
 
     }
