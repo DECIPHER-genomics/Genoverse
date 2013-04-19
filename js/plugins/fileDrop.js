@@ -1,46 +1,76 @@
 Genoverse.on('afterInit', function() {
-  var fileDropDiv = $('<div class="gv_file_drop" />').appendTo(this.wrapper);
-  var container = this.container[0];
+  var browser = this;
+  var wrapper = this.wrapper;
 
-  container.addEventListener("dragenter", function (e) { 
-    fileDropDiv.addClass('hover'); 
-    return false; 
-  }, true);
+  $(window).on("dragenter", function (e) {
+    if (e.originalEvent.dataTransfer && e.originalEvent.dataTransfer.types && (e.originalEvent.dataTransfer.types[2] == 'Files' || e.originalEvent.dataTransfer.types[0] == 'Files') && !$('.gv_file_drop_total_overlay').length) {
 
-  document.addEventListener("dragover", function( event ) {
-      // prevent default to allow drop
-      event.preventDefault();
-  }, false);
+      var fileDropDiv  = $('<div class="gv_file_drop" />').appendTo(wrapper);
+      var totalDropOverlay = $('<div class="gv_file_drop_total_overlay" />').prependTo($('body'));
 
-  document.addEventListener("dragenter", function (e) { 
-    if (!$.contains(container, e.target)) 
-      fileDropDiv.removeClass('hover'); 
-    return false; 
-  }, false);
+      var dragleave = function (e) {
+        fileDropDiv.remove();
+        totalDropOverlay.remove();
+      }
 
-  document.addEventListener("dragleave", function (e) {
-      // reset background of potential drop target when the draggable element leaves it
-      console.log(e);
-      //fileDropDiv.removeClass('hover'); 
- 
-  }, false);
+      totalDropOverlay.on("dragenter", function (e) { e.preventDefault(); e.stopPropagation(); });
+      totalDropOverlay.on("dragover", function (e) { e.preventDefault(); e.stopPropagation(); });
 
-  container.ondrop      = function (e) {
-    fileDropDiv.removeClass('hover');
-    e.preventDefault();
+      totalDropOverlay.on("dragleave", dragleave);
+      totalDropOverlay.on("drop", function (e) {
+        dragleave();
+        e.preventDefault();
+        e.stopPropagation();
+        var files = e.originalEvent.dataTransfer.files;
 
-    console.log(e.dataTransfer.files);
+        for (var i=0; i<files.length; i++) {
+          var file = files[i], reader = new FileReader();
+          console.log(file);
+          reader.onload = function (event) {
+            var track = {
+              type    : file.name.slice(-3).toUpperCase(),
+              name    : file.name,
+              allData : true,
+              url     : false,
+              data    : event.target.result,
+              getData : function () {
+                return $.Deferred().resolve(this.data);
+              }
+            };
 
-    var file = e.dataTransfer.files[0], reader = new FileReader();
+            browser.addTrack(track);
+          };
 
-    reader.onload = function (event) {
-      console.log(event.target);
-      holder.style.background = 'url(' + event.target.result + ') no-repeat center';
-    };
+          reader.readAsText(file);
+        }
+        return false;
+      });
 
-    //reader.readAsDataURL(file);
+    }
+  });
 
-    return false;
-  };
+
+  // $(window).on("dragleave", function (e) { 
+  //   console.log(e);
+  // });
+
+
+  // container.ondrop      = function (e) {
+  //   fileDropDiv.removeClass('hover');
+  //   e.preventDefault();
+
+  //   console.log(e.dataTransfer.files);
+
+  //   var file = e.dataTransfer.files[0], reader = new FileReader();
+
+  //   reader.onload = function (event) {
+  //     console.log(event.target);
+  //     holder.style.background = 'url(' + event.target.result + ') no-repeat center';
+  //   };
+
+  //   //reader.readAsDataURL(file);
+
+  //   return false;
+  // };
 
 });

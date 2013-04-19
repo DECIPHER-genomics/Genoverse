@@ -1,9 +1,5 @@
 .gv_file_drop {
   position: absolute;
-  display: none;
-}
-
-.gv_file_drop.hover {
   display: block;
   background-color: rgba(255,255,255,0.7);
   border: 10px dashed rgb(111,111,111);
@@ -13,4 +9,14 @@
   bottom: 0;
   top: 0;
   left: 0;
+}
+
+.gv_file_drop_total_overlay {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1000000;
 }
