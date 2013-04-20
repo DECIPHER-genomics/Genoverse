@@ -201,11 +201,13 @@ var Genoverse = Base.extend({
       mousewheel: function (e, delta, deltaX, deltaY) {
         if(deltaY === 0 && deltaX !== 0) {
           browser.move(null, -deltaX * 10);
-        } else {
-            if (browser.wheelAction === 'zoom') {
-              return browser.mousewheelZoom(e, delta);
-            }
+        } else if (browser.wheelAction === 'zoom') {
+          return browser.mousewheelZoom(e, delta);
         }
+      },
+
+      dblclick: function (e) {
+        browser.mousewheelZoom(e, +1);
       }
     }, '.image_container, .overlay, .selector, .message_container');
 
