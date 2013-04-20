@@ -6,6 +6,7 @@ Genoverse.prototype.controls = [
     },
 
     action : function (browser) {
+      var button = this;
 
       if ($(this).hasClass('active')) {
 
@@ -24,6 +25,9 @@ Genoverse.prototype.controls = [
           '<div class="currentTracks"></div>' : '<input placeholder="Search"><div class="availableTracks"></div>'
         }).css(css).addClass('tracksMenu');
 
+        $('.close', menu).click(function(){
+          $(button).removeClass('active');          
+        });
 
         var currentTracks   = $('.currentTracks', menu);
         var availableTracks = $('.availableTracks', menu);
