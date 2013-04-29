@@ -118,3 +118,9 @@
   background-color: #FFF;
   box-shadow: 0px 0px 5px #FFFFFF;
 }
+
+.gv_karyotype_container {
+  height:50px;
+  overflow:hidden;
+  box-shadow: inset 1px 1px 1px black;
+}

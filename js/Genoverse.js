@@ -177,12 +177,10 @@ var Genoverse = Base.extend({
                      : { chr: this.chr, start: this.start, end: this.end };
 
     this.chr = coords.chr;
+    if (!this.chromosomeSize && this.genome) {
+      this.chromosomeSize = this.genome[this.chr].size;
+    }    
 
-    if (this.genome) {
-      if (!this.chromosomeSize) this.chromosomeSize = this.genome[this.chr].size;
-      this.buildKaryotype();
-    }
-    
     this.setRange(coords.start, coords.end);
     this.setHistory();
     this.setTracks();
@@ -252,18 +250,6 @@ var Genoverse = Base.extend({
   },
 
 
-  buildKaryotype: function () {
-    this.karyotype = $('<div class="gv_chromosome" />');
-    var chromosome = this.genome[this.chr];
-
-    for (var i=0; i<chromosome.bands.length; i++) {
-      var left  = 100 * chromosome.bands[i].start / chromosome.size;
-      var width = (100 * chromosome.bands[i].end / chromosome.size) - left;
-      this.karyotype.append('<div title="'+ chromosome.bands[i].id +'" class="gv_band '+ chromosome.bands[i].type +'" style="left:'+ left +'%;width:'+ width +'%" />');
-    }
-  },
-
-  
   reset: function () {
     var i = this.tracks.length;
     

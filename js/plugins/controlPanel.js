@@ -111,9 +111,7 @@ $('.tracksMenu input[placeholder=Search]').live('keyup', function(){
 
 Genoverse.on('afterInit', function () {
   this.labelContainer.prepend('<li class="genoverse_panel"><div class="button_set"><button title="Tracks menu">Tracks</button></div></li>');
-  $('<div class="gv_karyotype_container" />')
-    .append(this.karyotype)
-    .insertAfter(this.labelContainer);
+  this.karyotypeContainer = $('<div class="gv_karyotype_container" />').insertAfter(this.labelContainer);
 });
 
 Genoverse.on('beforeInit', function () {
