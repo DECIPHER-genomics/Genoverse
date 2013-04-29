@@ -109,6 +109,13 @@ $('.tracksMenu input[placeholder=Search]').live('keyup', function(){
 });
 
 
+Genoverse.on('afterInit', function () {
+  this.labelContainer.prepend('<li class="genoverse_panel"><div class="button_set"><button title="Tracks menu">Tracks</button></div></li>');
+  $('<div class="gv_karyotype_container" />')
+    .append(this.karyotype)
+    .insertAfter(this.labelContainer);
+});
+
 Genoverse.on('beforeInit', function () {
   var browser = this;
 
@@ -230,3 +237,14 @@ Genoverse.on('beforeInit', function () {
   });
 
 });
+
+
+function showKaryotype (browser) {
+  var chromosome = karyotype[browser.chr];
+
+  for (var i=0; i<chromosome.bands.length; i++) {
+
+  }
+  $('gv_chromosome');
+}
+
