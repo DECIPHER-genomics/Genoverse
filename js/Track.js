@@ -523,7 +523,8 @@ Genoverse.Track = Base.extend({
          }
        })
        .fail(function (jqXHR, textStatus, errorThrown) {
-         track.showError(errorThrown.message);
+         //debugger;
+         track.showError('error while getting the data, check console');
        });
     }
   },

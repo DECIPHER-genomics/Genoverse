@@ -28,10 +28,8 @@ Genoverse.on('afterInit', function() {
           console.log(file);
           reader.onload = function (event) {
             var track = {
-              type    : file.name.slice(-3).toUpperCase(),
+              type    : 'File.' + file.name.slice(-3).toUpperCase(),
               name    : file.name,
-              allData : true,
-              url     : false,
               data    : event.target.result,
               getData : function () {
                 return $.Deferred().resolve(this.data);

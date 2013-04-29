@@ -20,6 +20,7 @@ var Genoverse = Base.extend({
   dragAction       : 'scroll', // options are: scroll, select, off
   wheelAction      : 'off',    // options are: zoom, off
   messages         : {},
+  genome           : grch37,   // Default genome
   colors           : {
     background     : '#FFFFFF',
     majorGuideLine : '#CCCCCC',
@@ -91,7 +92,7 @@ var Genoverse = Base.extend({
 
 
   init: function () {
-    var browser = this;
+    var browser = this;    
     var width   = this.width;
 
     if (!(this.container && this.container.length)) {
@@ -176,6 +177,11 @@ var Genoverse = Base.extend({
                      : { chr: this.chr, start: this.start, end: this.end };
 
     this.chr = coords.chr;
+
+    if (this.genome) {
+      if (!this.chromosomeSize) this.chromosomeSize = this.genome[this.chr].size;
+      this.buildKaryotype();
+    }
     
     this.setRange(coords.start, coords.end);
     this.setHistory();
@@ -201,11 +207,13 @@ var Genoverse = Base.extend({
       mousewheel: function (e, delta, deltaX, deltaY) {
         if(deltaY === 0 && deltaX !== 0) {
           browser.move(null, -deltaX * 10);
-        } else {
-            if (browser.wheelAction === 'zoom') {
-              return browser.mousewheelZoom(e, delta);
-            }
+        } else if (browser.wheelAction === 'zoom') {
+          return browser.mousewheelZoom(e, delta);
         }
+      },
+
+      dblclick: function (e) {
+        browser.mousewheelZoom(e, +1);
       }
     }, '.image_container, .overlay, .selector, .message_container');
 
@@ -242,7 +250,19 @@ var Genoverse = Base.extend({
       };
     }
   },
-  
+
+
+  buildKaryotype: function () {
+    this.karyotype = $('<div class="gv_chromosome" />');
+    var chromosome = this.genome[this.chr];
+
+    for (var i=0; i<chromosome.bands.length; i++) {
+      var left  = 100 * chromosome.bands[i].start / chromosome.size;
+      var width = (100 * chromosome.bands[i].end / chromosome.size) - left;
+      this.karyotype.append('<div title="'+ chromosome.bands[i].id +'" class="gv_band '+ chromosome.bands[i].type +'" style="left:'+ left +'%;width:'+ width +'%" />');
+    }
+  },
+
   
   reset: function () {
     var i = this.tracks.length;
