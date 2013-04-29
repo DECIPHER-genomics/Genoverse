@@ -13,6 +13,8 @@ my @files = qw(
   lib/rtree.js 
   lib/FRegion.js
 
+  genomes/grch37.js
+
   Genoverse.js
   Track.js
   Track/Scalebar.js

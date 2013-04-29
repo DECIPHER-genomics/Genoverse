@@ -6,27 +6,12 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
 
 
 
-/*! jQuery UI - v1.8.20 - 2012-04-30
-* https://github.com/jquery/jquery-ui
-* Includes: jquery.ui.core.js
-* Copyright (c) 2012 AUTHORS.txt; Licensed MIT, GPL */
-(function(a,b){function c(b,c){var e=b.nodeName.toLowerCase();if("area"===e){var f=b.parentNode,g=f.name,h;return!b.href||!g||f.nodeName.toLowerCase()!=="map"?!1:(h=a("img[usemap=#"+g+"]")[0],!!h&&d(h))}return(/input|select|textarea|button|object/.test(e)?!b.disabled:"a"==e?b.href||c:c)&&d(b)}function d(b){return!a(b).parents().andSelf().filter(function(){return a.curCSS(this,"visibility")==="hidden"||a.expr.filters.hidden(this)}).length}a.ui=a.ui||{};if(a.ui.version)return;a.extend(a.ui,{version:"1.8.20",keyCode:{ALT:18,BACKSPACE:8,CAPS_LOCK:20,COMMA:188,COMMAND:91,COMMAND_LEFT:91,COMMAND_RIGHT:93,CONTROL:17,DELETE:46,DOWN:40,END:35,ENTER:13,ESCAPE:27,HOME:36,INSERT:45,LEFT:37,MENU:93,NUMPAD_ADD:107,NUMPAD_DECIMAL:110,NUMPAD_DIVIDE:111,NUMPAD_ENTER:108,NUMPAD_MULTIPLY:106,NUMPAD_SUBTRACT:109,PAGE_DOWN:34,PAGE_UP:33,PERIOD:190,RIGHT:39,SHIFT:16,SPACE:32,TAB:9,UP:38,WINDOWS:91}}),a.fn.extend({propAttr:a.fn.prop||a.fn.attr,_focus:a.fn.focus,focus:function(b,c){return typeof b=="number"?this.each(function(){var d=this;setTimeout(function(){a(d).focus(),c&&c.call(d)},b)}):this._focus.apply(this,arguments)},scrollParent:function(){var b;return a.browser.msie&&/(static|relative)/.test(this.css("position"))||/absolute/.test(this.css("position"))?b=this.parents().filter(function(){return/(relative|absolute|fixed)/.test(a.curCSS(this,"position",1))&&/(auto|scroll)/.test(a.curCSS(this,"overflow",1)+a.curCSS(this,"overflow-y",1)+a.curCSS(this,"overflow-x",1))}).eq(0):b=this.parents().filter(function(){return/(auto|scroll)/.test(a.curCSS(this,"overflow",1)+a.curCSS(this,"overflow-y",1)+a.curCSS(this,"overflow-x",1))}).eq(0),/fixed/.test(this.css("position"))||!b.length?a(document):b},zIndex:function(c){if(c!==b)return this.css("zIndex",c);if(this.length){var d=a(this[0]),e,f;while(d.length&&d[0]!==document){e=d.css("position");if(e==="absolute"||e==="relative"||e==="fixed"){f=parseInt(d.css("zIndex"),10);if(!isNaN(f)&&f!==0)return f}d=d.parent()}}return 0},disableSelection:function(){return this.bind((a.support.selectstart?"selectstart":"mousedown")+".ui-disableSelection",function(a){a.preventDefault()})},enableSelection:function(){return this.unbind(".ui-disableSelection")}}),a.each(["Width","Height"],function(c,d){function h(b,c,d,f){return a.each(e,function(){c-=parseFloat(a.curCSS(b,"padding"+this,!0))||0,d&&(c-=parseFloat(a.curCSS(b,"border"+this+"Width",!0))||0),f&&(c-=parseFloat(a.curCSS(b,"margin"+this,!0))||0)}),c}var e=d==="Width"?["Left","Right"]:["Top","Bottom"],f=d.toLowerCase(),g={innerWidth:a.fn.innerWidth,innerHeight:a.fn.innerHeight,outerWidth:a.fn.outerWidth,outerHeight:a.fn.outerHeight};a.fn["inner"+d]=function(c){return c===b?g["inner"+d].call(this):this.each(function(){a(this).css(f,h(this,c)+"px")})},a.fn["outer"+d]=function(b,c){return typeof b!="number"?g["outer"+d].call(this,b):this.each(function(){a(this).css(f,h(this,b,!0,c)+"px")})}}),a.extend(a.expr[":"],{data:function(b,c,d){return!!a.data(b,d[3])},focusable:function(b){return c(b,!isNaN(a.attr(b,"tabindex")))},tabbable:function(b){var d=a.attr(b,"tabindex"),e=isNaN(d);return(e||d>=0)&&c(b,!e)}}),a(function(){var b=document.body,c=b.appendChild(c=document.createElement("div"));c.offsetHeight,a.extend(c.style,{minHeight:"100px",height:"auto",padding:0,borderWidth:0}),a.support.minHeight=c.offsetHeight===100,a.support.selectstart="onselectstart"in c,b.removeChild(c).style.display="none"}),a.extend(a.ui,{plugin:{add:function(b,c,d){var e=a.ui[b].prototype;for(var f in d)e.plugins[f]=e.plugins[f]||[],e.plugins[f].push([c,d[f]])},call:function(a,b,c){var d=a.plugins[b];if(!d||!a.element[0].parentNode)return;for(var e=0;e<d.length;e++)a.options[d[e][0]]&&d[e][1].apply(a.element,c)}},contains:function(a,b){return document.compareDocumentPosition?a.compareDocumentPosition(b)&16:a!==b&&a.contains(b)},hasScroll:function(b,c){if(a(b).css("overflow")==="hidden")return!1;var d=c&&c==="left"?"scrollLeft":"scrollTop",e=!1;return b[d]>0?!0:(b[d]=1,e=b[d]>0,b[d]=0,e)},isOverAxis:function(a,b,c){return a>b&&a<b+c},isOver:function(b,c,d,e,f,g){return a.ui.isOverAxis(b,d,f)&&a.ui.isOverAxis(c,e,g)}})})(jQuery);;/*! jQuery UI - v1.8.20 - 2012-04-30
-* https://github.com/jquery/jquery-ui
-* Includes: jquery.ui.widget.js
-* Copyright (c) 2012 AUTHORS.txt; Licensed MIT, GPL */
-(function(a,b){if(a.cleanData){var c=a.cleanData;a.cleanData=function(b){for(var d=0,e;(e=b[d])!=null;d++)try{a(e).triggerHandler("remove")}catch(f){}c(b)}}else{var d=a.fn.remove;a.fn.remove=function(b,c){return this.each(function(){return c||(!b||a.filter(b,[this]).length)&&a("*",this).add([this]).each(function(){try{a(this).triggerHandler("remove")}catch(b){}}),d.call(a(this),b,c)})}}a.widget=function(b,c,d){var e=b.split(".")[0],f;b=b.split(".")[1],f=e+"-"+b,d||(d=c,c=a.Widget),a.expr[":"][f]=function(c){return!!a.data(c,b)},a[e]=a[e]||{},a[e][b]=function(a,b){arguments.length&&this._createWidget(a,b)};var g=new c;g.options=a.extend(!0,{},g.options),a[e][b].prototype=a.extend(!0,g,{namespace:e,widgetName:b,widgetEventPrefix:a[e][b].prototype.widgetEventPrefix||b,widgetBaseClass:f},d),a.widget.bridge(b,a[e][b])},a.widget.bridge=function(c,d){a.fn[c]=function(e){var f=typeof e=="string",g=Array.prototype.slice.call(arguments,1),h=this;return e=!f&&g.length?a.extend.apply(null,[!0,e].concat(g)):e,f&&e.charAt(0)==="_"?h:(f?this.each(function(){var d=a.data(this,c),f=d&&a.isFunction(d[e])?d[e].apply(d,g):d;if(f!==d&&f!==b)return h=f,!1}):this.each(function(){var b=a.data(this,c);b?b.option(e||{})._init():a.data(this,c,new d(e,this))}),h)}},a.Widget=function(a,b){arguments.length&&this._createWidget(a,b)},a.Widget.prototype={widgetName:"widget",widgetEventPrefix:"",options:{disabled:!1},_createWidget:function(b,c){a.data(c,this.widgetName,this),this.element=a(c),this.options=a.extend(!0,{},this.options,this._getCreateOptions(),b);var d=this;this.element.bind("remove."+this.widgetName,function(){d.destroy()}),this._create(),this._trigger("create"),this._init()},_getCreateOptions:function(){return a.metadata&&a.metadata.get(this.element[0])[this.widgetName]},_create:function(){},_init:function(){},destroy:function(){this.element.unbind("."+this.widgetName).removeData(this.widgetName),this.widget().unbind("."+this.widgetName).removeAttr("aria-disabled").removeClass(this.widgetBaseClass+"-disabled "+"ui-state-disabled")},widget:function(){return this.element},option:function(c,d){var e=c;if(arguments.length===0)return a.extend({},this.options);if(typeof c=="string"){if(d===b)return this.options[c];e={},e[c]=d}return this._setOptions(e),this},_setOptions:function(b){var c=this;return a.each(b,function(a,b){c._setOption(a,b)}),this},_setOption:function(a,b){return this.options[a]=b,a==="disabled"&&this.widget()[b?"addClass":"removeClass"](this.widgetBaseClass+"-disabled"+" "+"ui-state-disabled").attr("aria-disabled",b),this},enable:function(){return this._setOption("disabled",!1)},disable:function(){return this._setOption("disabled",!0)},_trigger:function(b,c,d){var e,f,g=this.options[b];d=d||{},c=a.Event(c),c.type=(b===this.widgetEventPrefix?b:this.widgetEventPrefix+b).toLowerCase(),c.target=this.element[0],f=c.originalEvent;if(f)for(e in f)e in c||(c[e]=f[e]);return this.element.trigger(c,d),!(a.isFunction(g)&&g.call(this.element[0],c,d)===!1||c.isDefaultPrevented())}}})(jQuery);;/*! jQuery UI - v1.8.20 - 2012-04-30
-* https://github.com/jquery/jquery-ui
-* Includes: jquery.ui.mouse.js
-* Copyright (c) 2012 AUTHORS.txt; Licensed MIT, GPL */
-(function(a,b){var c=!1;a(document).mouseup(function(a){c=!1}),a.widget("ui.mouse",{options:{cancel:":input,option",distance:1,delay:0},_mouseInit:function(){var b=this;this.element.bind("mousedown."+this.widgetName,function(a){return b._mouseDown(a)}).bind("click."+this.widgetName,function(c){if(!0===a.data(c.target,b.widgetName+".preventClickEvent"))return a.removeData(c.target,b.widgetName+".preventClickEvent"),c.stopImmediatePropagation(),!1}),this.started=!1},_mouseDestroy:function(){this.element.unbind("."+this.widgetName),a(document).unbind("mousemove."+this.widgetName,this._mouseMoveDelegate).unbind("mouseup."+this.widgetName,this._mouseUpDelegate)},_mouseDown:function(b){if(c)return;this._mouseStarted&&this._mouseUp(b),this._mouseDownEvent=b;var d=this,e=b.which==1,f=typeof this.options.cancel=="string"&&b.target.nodeName?a(b.target).closest(this.options.cancel).length:!1;if(!e||f||!this._mouseCapture(b))return!0;this.mouseDelayMet=!this.options.delay,this.mouseDelayMet||(this._mouseDelayTimer=setTimeout(function(){d.mouseDelayMet=!0},this.options.delay));if(this._mouseDistanceMet(b)&&this._mouseDelayMet(b)){this._mouseStarted=this._mouseStart(b)!==!1;if(!this._mouseStarted)return b.preventDefault(),!0}return!0===a.data(b.target,this.widgetName+".preventClickEvent")&&a.removeData(b.target,this.widgetName+".preventClickEvent"),this._mouseMoveDelegate=function(a){return d._mouseMove(a)},this._mouseUpDelegate=function(a){return d._mouseUp(a)},a(document).bind("mousemove."+this.widgetName,this._mouseMoveDelegate).bind("mouseup."+this.widgetName,this._mouseUpDelegate),b.preventDefault(),c=!0,!0},_mouseMove:function(b){return!a.browser.msie||document.documentMode>=9||!!b.button?this._mouseStarted?(this._mouseDrag(b),b.preventDefault()):(this._mouseDistanceMet(b)&&this._mouseDelayMet(b)&&(this._mouseStarted=this._mouseStart(this._mouseDownEvent,b)!==!1,this._mouseStarted?this._mouseDrag(b):this._mouseUp(b)),!this._mouseStarted):this._mouseUp(b)},_mouseUp:function(b){return a(document).unbind("mousemove."+this.widgetName,this._mouseMoveDelegate).unbind("mouseup."+this.widgetName,this._mouseUpDelegate),this._mouseStarted&&(this._mouseStarted=!1,b.target==this._mouseDownEvent.target&&a.data(b.target,this.widgetName+".preventClickEvent",!0),this._mouseStop(b)),!1},_mouseDistanceMet:function(a){return Math.max(Math.abs(this._mouseDownEvent.pageX-a.pageX),Math.abs(this._mouseDownEvent.pageY-a.pageY))>=this.options.distance},_mouseDelayMet:function(a){return this.mouseDelayMet},_mouseStart:function(a){},_mouseDrag:function(a){},_mouseStop:function(a){},_mouseCapture:function(a){return!0}})})(jQuery);;/*! jQuery UI - v1.8.20 - 2012-04-30
-* https://github.com/jquery/jquery-ui
-* Includes: jquery.ui.draggable.js
-* Copyright (c) 2012 AUTHORS.txt; Licensed MIT, GPL */
-(function(a,b){a.widget("ui.draggable",a.ui.mouse,{widgetEventPrefix:"drag",options:{addClasses:!0,appendTo:"parent",axis:!1,connectToSortable:!1,containment:!1,cursor:"auto",cursorAt:!1,grid:!1,handle:!1,helper:"original",iframeFix:!1,opacity:!1,refreshPositions:!1,revert:!1,revertDuration:500,scope:"default",scroll:!0,scrollSensitivity:20,scrollSpeed:20,snap:!1,snapMode:"both",snapTolerance:20,stack:!1,zIndex:!1},_create:function(){this.options.helper=="original"&&!/^(?:r|a|f)/.test(this.element.css("position"))&&(this.element[0].style.position="relative"),this.options.addClasses&&this.element.addClass("ui-draggable"),this.options.disabled&&this.element.addClass("ui-draggable-disabled"),this._mouseInit()},destroy:function(){if(!this.element.data("draggable"))return;return this.element.removeData("draggable").unbind(".draggable").removeClass("ui-draggable ui-draggable-dragging ui-draggable-disabled"),this._mouseDestroy(),this},_mouseCapture:function(b){var c=this.options;return this.helper||c.disabled||a(b.target).is(".ui-resizable-handle")?!1:(this.handle=this._getHandle(b),this.handle?(c.iframeFix&&a(c.iframeFix===!0?"iframe":c.iframeFix).each(function(){a('<div class="ui-draggable-iframeFix" style="background: #fff;"></div>').css({width:this.offsetWidth+"px",height:this.offsetHeight+"px",position:"absolute",opacity:"0.001",zIndex:1e3}).css(a(this).offset()).appendTo("body")}),!0):!1)},_mouseStart:function(b){var c=this.options;return this.helper=this._createHelper(b),this._cacheHelperProportions(),a.ui.ddmanager&&(a.ui.ddmanager.current=this),this._cacheMargins(),this.cssPosition=this.helper.css("position"),this.scrollParent=this.helper.scrollParent(),this.offset=this.positionAbs=this.element.offset(),this.offset={top:this.offset.top-this.margins.top,left:this.offset.left-this.margins.left},a.extend(this.offset,{click:{left:b.pageX-this.offset.left,top:b.pageY-this.offset.top},parent:this._getParentOffset(),relative:this._getRelativeOffset()}),this.originalPosition=this.position=this._generatePosition(b),this.originalPageX=b.pageX,this.originalPageY=b.pageY,c.cursorAt&&this._adjustOffsetFromHelper(c.cursorAt),c.containment&&this._setContainment(),this._trigger("start",b)===!1?(this._clear(),!1):(this._cacheHelperProportions(),a.ui.ddmanager&&!c.dropBehaviour&&a.ui.ddmanager.prepareOffsets(this,b),this.helper.addClass("ui-draggable-dragging"),this._mouseDrag(b,!0),a.ui.ddmanager&&a.ui.ddmanager.dragStart(this,b),!0)},_mouseDrag:function(b,c){this.position=this._generatePosition(b),this.positionAbs=this._convertPositionTo("absolute");if(!c){var d=this._uiHash();if(this._trigger("drag",b,d)===!1)return this._mouseUp({}),!1;this.position=d.position}if(!this.options.axis||this.options.axis!="y")this.helper[0].style.left=this.position.left+"px";if(!this.options.axis||this.options.axis!="x")this.helper[0].style.top=this.position.top+"px";return a.ui.ddmanager&&a.ui.ddmanager.drag(this,b),!1},_mouseStop:function(b){var c=!1;a.ui.ddmanager&&!this.options.dropBehaviour&&(c=a.ui.ddmanager.drop(this,b)),this.dropped&&(c=this.dropped,this.dropped=!1);var d=this.element[0],e=!1;while(d&&(d=d.parentNode))d==document&&(e=!0);if(!e&&this.options.helper==="original")return!1;if(this.options.revert=="invalid"&&!c||this.options.revert=="valid"&&c||this.options.revert===!0||a.isFunction(this.options.revert)&&this.options.revert.call(this.element,c)){var f=this;a(this.helper).animate(this.originalPosition,parseInt(this.options.revertDuration,10),function(){f._trigger("stop",b)!==!1&&f._clear()})}else this._trigger("stop",b)!==!1&&this._clear();return!1},_mouseUp:function(b){return this.options.iframeFix===!0&&a("div.ui-draggable-iframeFix").each(function(){this.parentNode.removeChild(this)}),a.ui.ddmanager&&a.ui.ddmanager.dragStop(this,b),a.ui.mouse.prototype._mouseUp.call(this,b)},cancel:function(){return this.helper.is(".ui-draggable-dragging")?this._mouseUp({}):this._clear(),this},_getHandle:function(b){var c=!this.options.handle||!a(this.options.handle,this.element).length?!0:!1;return a(this.options.handle,this.element).find("*").andSelf().each(function(){this==b.target&&(c=!0)}),c},_createHelper:function(b){var c=this.options,d=a.isFunction(c.helper)?a(c.helper.apply(this.element[0],[b])):c.helper=="clone"?this.element.clone().removeAttr("id"):this.element;return d.parents("body").length||d.appendTo(c.appendTo=="parent"?this.element[0].parentNode:c.appendTo),d[0]!=this.element[0]&&!/(fixed|absolute)/.test(d.css("position"))&&d.css("position","absolute"),d},_adjustOffsetFromHelper:function(b){typeof b=="string"&&(b=b.split(" ")),a.isArray(b)&&(b={left:+b[0],top:+b[1]||0}),"left"in b&&(this.offset.click.left=b.left+this.margins.left),"right"in b&&(this.offset.click.left=this.helperProportions.width-b.right+this.margins.left),"top"in b&&(this.offset.click.top=b.top+this.margins.top),"bottom"in b&&(this.offset.click.top=this.helperProportions.height-b.bottom+this.margins.top)},_getParentOffset:function(){this.offsetParent=this.helper.offsetParent();var b=this.offsetParent.offset();this.cssPosition=="absolute"&&this.scrollParent[0]!=document&&a.ui.contains(this.scrollParent[0],this.offsetParent[0])&&(b.left+=this.scrollParent.scrollLeft(),b.top+=this.scrollParent.scrollTop());if(this.offsetParent[0]==document.body||this.offsetParent[0].tagName&&this.offsetParent[0].tagName.toLowerCase()=="html"&&a.browser.msie)b={top:0,left:0};return{top:b.top+(parseInt(this.offsetParent.css("borderTopWidth"),10)||0),left:b.left+(parseInt(this.offsetParent.css("borderLeftWidth"),10)||0)}},_getRelativeOffset:function(){if(this.cssPosition=="relative"){var a=this.element.position();return{top:a.top-(parseInt(this.helper.css("top"),10)||0)+this.scrollParent.scrollTop(),left:a.left-(parseInt(this.helper.css("left"),10)||0)+this.scrollParent.scrollLeft()}}return{top:0,left:0}},_cacheMargins:function(){this.margins={left:parseInt(this.element.css("marginLeft"),10)||0,top:parseInt(this.element.css("marginTop"),10)||0,right:parseInt(this.element.css("marginRight"),10)||0,bottom:parseInt(this.element.css("marginBottom"),10)||0}},_cacheHelperProportions:function(){this.helperProportions={width:this.helper.outerWidth(),height:this.helper.outerHeight()}},_setContainment:function(){var b=this.options;b.containment=="parent"&&(b.containment=this.helper[0].parentNode);if(b.containment=="document"||b.containment=="window")this.containment=[b.containment=="document"?0:a(window).scrollLeft()-this.offset.relative.left-this.offset.parent.left,b.containment=="document"?0:a(window).scrollTop()-this.offset.relative.top-this.offset.parent.top,(b.containment=="document"?0:a(window).scrollLeft())+a(b.containment=="document"?document:window).width()-this.helperProportions.width-this.margins.left,(b.containment=="document"?0:a(window).scrollTop())+(a(b.containment=="document"?document:window).height()||document.body.parentNode.scrollHeight)-this.helperProportions.height-this.margins.top];if(!/^(document|window|parent)$/.test(b.containment)&&b.containment.constructor!=Array){var c=a(b.containment),d=c[0];if(!d)return;var e=c.offset(),f=a(d).css("overflow")!="hidden";this.containment=[(parseInt(a(d).css("borderLeftWidth"),10)||0)+(parseInt(a(d).css("paddingLeft"),10)||0),(parseInt(a(d).css("borderTopWidth"),10)||0)+(parseInt(a(d).css("paddingTop"),10)||0),(f?Math.max(d.scrollWidth,d.offsetWidth):d.offsetWidth)-(parseInt(a(d).css("borderLeftWidth"),10)||0)-(parseInt(a(d).css("paddingRight"),10)||0)-this.helperProportions.width-this.margins.left-this.margins.right,(f?Math.max(d.scrollHeight,d.offsetHeight):d.offsetHeight)-(parseInt(a(d).css("borderTopWidth"),10)||0)-(parseInt(a(d).css("paddingBottom"),10)||0)-this.helperProportions.height-this.margins.top-this.margins.bottom],this.relative_container=c}else b.containment.constructor==Array&&(this.containment=b.containment)},_convertPositionTo:function(b,c){c||(c=this.position);var d=b=="absolute"?1:-1,e=this.options,f=this.cssPosition=="absolute"&&(this.scrollParent[0]==document||!a.ui.contains(this.scrollParent[0],this.offsetParent[0]))?this.offsetParent:this.scrollParent,g=/(html|body)/i.test(f[0].tagName);return{top:c.top+this.offset.relative.top*d+this.offset.parent.top*d-(a.browser.safari&&a.browser.version<526&&this.cssPosition=="fixed"?0:(this.cssPosition=="fixed"?-this.scrollParent.scrollTop():g?0:f.scrollTop())*d),left:c.left+this.offset.relative.left*d+this.offset.parent.left*d-(a.browser.safari&&a.browser.version<526&&this.cssPosition=="fixed"?0:(this.cssPosition=="fixed"?-this.scrollParent.scrollLeft():g?0:f.scrollLeft())*d)}},_generatePosition:function(b){var c=this.options,d=this.cssPosition=="absolute"&&(this.scrollParent[0]==document||!a.ui.contains(this.scrollParent[0],this.offsetParent[0]))?this.offsetParent:this.scrollParent,e=/(html|body)/i.test(d[0].tagName),f=b.pageX,g=b.pageY;if(this.originalPosition){var h;if(this.containment){if(this.relative_container){var i=this.relative_container.offset();h=[this.containment[0]+i.left,this.containment[1]+i.top,this.containment[2]+i.left,this.containment[3]+i.top]}else h=this.containment;b.pageX-this.offset.click.left<h[0]&&(f=h[0]+this.offset.click.left),b.pageY-this.offset.click.top<h[1]&&(g=h[1]+this.offset.click.top),b.pageX-this.offset.click.left>h[2]&&(f=h[2]+this.offset.click.left),b.pageY-this.offset.click.top>h[3]&&(g=h[3]+this.offset.click.top)}if(c.grid){var j=c.grid[1]?this.originalPageY+Math.round((g-this.originalPageY)/c.grid[1])*c.grid[1]:this.originalPageY;g=h?j-this.offset.click.top<h[1]||j-this.offset.click.top>h[3]?j-this.offset.click.top<h[1]?j+c.grid[1]:j-c.grid[1]:j:j;var k=c.grid[0]?this.originalPageX+Math.round((f-this.originalPageX)/c.grid[0])*c.grid[0]:this.originalPageX;f=h?k-this.offset.click.left<h[0]||k-this.offset.click.left>h[2]?k-this.offset.click.left<h[0]?k+c.grid[0]:k-c.grid[0]:k:k}}return{top:g-this.offset.click.top-this.offset.relative.top-this.offset.parent.top+(a.browser.safari&&a.browser.version<526&&this.cssPosition=="fixed"?0:this.cssPosition=="fixed"?-this.scrollParent.scrollTop():e?0:d.scrollTop()),left:f-this.offset.click.left-this.offset.relative.left-this.offset.parent.left+(a.browser.safari&&a.browser.version<526&&this.cssPosition=="fixed"?0:this.cssPosition=="fixed"?-this.scrollParent.scrollLeft():e?0:d.scrollLeft())}},_clear:function(){this.helper.removeClass("ui-draggable-dragging"),this.helper[0]!=this.element[0]&&!this.cancelHelperRemoval&&this.helper.remove(),this.helper=null,this.cancelHelperRemoval=!1},_trigger:function(b,c,d){return d=d||this._uiHash(),a.ui.plugin.call(this,b,[c,d]),b=="drag"&&(this.positionAbs=this._convertPositionTo("absolute")),a.Widget.prototype._trigger.call(this,b,c,d)},plugins:{},_uiHash:function(a){return{helper:this.helper,position:this.position,originalPosition:this.originalPosition,offset:this.positionAbs}}}),a.extend(a.ui.draggable,{version:"1.8.20"}),a.ui.plugin.add("draggable","connectToSortable",{start:function(b,c){var d=a(this).data("draggable"),e=d.options,f=a.extend({},c,{item:d.element});d.sortables=[],a(e.connectToSortable).each(function(){var c=a.data(this,"sortable");c&&!c.options.disabled&&(d.sortables.push({instance:c,shouldRevert:c.options.revert}),c.refreshPositions(),c._trigger("activate",b,f))})},stop:function(b,c){var d=a(this).data("draggable"),e=a.extend({},c,{item:d.element});a.each(d.sortables,function(){this.instance.isOver?(this.instance.isOver=0,d.cancelHelperRemoval=!0,this.instance.cancelHelperRemoval=!1,this.shouldRevert&&(this.instance.options.revert=!0),this.instance._mouseStop(b),this.instance.options.helper=this.instance.options._helper,d.options.helper=="original"&&this.instance.currentItem.css({top:"auto",left:"auto"})):(this.instance.cancelHelperRemoval=!1,this.instance._trigger("deactivate",b,e))})},drag:function(b,c){var d=a(this).data("draggable"),e=this,f=function(b){var c=this.offset.click.top,d=this.offset.click.left,e=this.positionAbs.top,f=this.positionAbs.left,g=b.height,h=b.width,i=b.top,j=b.left;return a.ui.isOver(e+c,f+d,i,j,g,h)};a.each(d.sortables,function(f){this.instance.positionAbs=d.positionAbs,this.instance.helperProportions=d.helperProportions,this.instance.offset.click=d.offset.click,this.instance._intersectsWith(this.instance.containerCache)?(this.instance.isOver||(this.instance.isOver=1,this.instance.currentItem=a(e).clone().removeAttr("id").appendTo(this.instance.element).data("sortable-item",!0),this.instance.options._helper=this.instance.options.helper,this.instance.options.helper=function(){return c.helper[0]},b.target=this.instance.currentItem[0],this.instance._mouseCapture(b,!0),this.instance._mouseStart(b,!0,!0),this.instance.offset.click.top=d.offset.click.top,this.instance.offset.click.left=d.offset.click.left,this.instance.offset.parent.left-=d.offset.parent.left-this.instance.offset.parent.left,this.instance.offset.parent.top-=d.offset.parent.top-this.instance.offset.parent.top,d._trigger("toSortable",b),d.dropped=this.instance.element,d.currentItem=d.element,this.instance.fromOutside=d),this.instance.currentItem&&this.instance._mouseDrag(b)):this.instance.isOver&&(this.instance.isOver=0,this.instance.cancelHelperRemoval=!0,this.instance.options.revert=!1,this.instance._trigger("out",b,this.instance._uiHash(this.instance)),this.instance._mouseStop(b,!0),this.instance.options.helper=this.instance.options._helper,this.instance.currentItem.remove(),this.instance.placeholder&&this.instance.placeholder.remove(),d._trigger("fromSortable",b),d.dropped=!1)})}}),a.ui.plugin.add("draggable","cursor",{start:function(b,c){var d=a("body"),e=a(this).data("draggable").options;d.css("cursor")&&(e._cursor=d.css("cursor")),d.css("cursor",e.cursor)},stop:function(b,c){var d=a(this).data("draggable").options;d._cursor&&a("body").css("cursor",d._cursor)}}),a.ui.plugin.add("draggable","opacity",{start:function(b,c){var d=a(c.helper),e=a(this).data("draggable").options;d.css("opacity")&&(e._opacity=d.css("opacity")),d.css("opacity",e.opacity)},stop:function(b,c){var d=a(this).data("draggable").options;d._opacity&&a(c.helper).css("opacity",d._opacity)}}),a.ui.plugin.add("draggable","scroll",{start:function(b,c){var d=a(this).data("draggable");d.scrollParent[0]!=document&&d.scrollParent[0].tagName!="HTML"&&(d.overflowOffset=d.scrollParent.offset())},drag:function(b,c){var d=a(this).data("draggable"),e=d.options,f=!1;if(d.scrollParent[0]!=document&&d.scrollParent[0].tagName!="HTML"){if(!e.axis||e.axis!="x")d.overflowOffset.top+d.scrollParent[0].offsetHeight-b.pageY<e.scrollSensitivity?d.scrollParent[0].scrollTop=f=d.scrollParent[0].scrollTop+e.scrollSpeed:b.pageY-d.overflowOffset.top<e.scrollSensitivity&&(d.scrollParent[0].scrollTop=f=d.scrollParent[0].scrollTop-e.scrollSpeed);if(!e.axis||e.axis!="y")d.overflowOffset.left+d.scrollParent[0].offsetWidth-b.pageX<e.scrollSensitivity?d.scrollParent[0].scrollLeft=f=d.scrollParent[0].scrollLeft+e.scrollSpeed:b.pageX-d.overflowOffset.left<e.scrollSensitivity&&(d.scrollParent[0].scrollLeft=f=d.scrollParent[0].scrollLeft-e.scrollSpeed)}else{if(!e.axis||e.axis!="x")b.pageY-a(document).scrollTop()<e.scrollSensitivity?f=a(document).scrollTop(a(document).scrollTop()-e.scrollSpeed):a(window).height()-(b.pageY-a(document).scrollTop())<e.scrollSensitivity&&(f=a(document).scrollTop(a(document).scrollTop()+e.scrollSpeed));if(!e.axis||e.axis!="y")b.pageX-a(document).scrollLeft()<e.scrollSensitivity?f=a(document).scrollLeft(a(document).scrollLeft()-e.scrollSpeed):a(window).width()-(b.pageX-a(document).scrollLeft())<e.scrollSensitivity&&(f=a(document).scrollLeft(a(document).scrollLeft()+e.scrollSpeed))}f!==!1&&a.ui.ddmanager&&!e.dropBehaviour&&a.ui.ddmanager.prepareOffsets(d,b)}}),a.ui.plugin.add("draggable","snap",{start:function(b,c){var d=a(this).data("draggable"),e=d.options;d.snapElements=[],a(e.snap.constructor!=String?e.snap.items||":data(draggable)":e.snap).each(function(){var b=a(this),c=b.offset();this!=d.element[0]&&d.snapElements.push({item:this,width:b.outerWidth(),height:b.outerHeight(),top:c.top,left:c.left})})},drag:function(b,c){var d=a(this).data("draggable"),e=d.options,f=e.snapTolerance,g=c.offset.left,h=g+d.helperProportions.width,i=c.offset.top,j=i+d.helperProportions.height;for(var k=d.snapElements.length-1;k>=0;k--){var l=d.snapElements[k].left,m=l+d.snapElements[k].width,n=d.snapElements[k].top,o=n+d.snapElements[k].height;if(!(l-f<g&&g<m+f&&n-f<i&&i<o+f||l-f<g&&g<m+f&&n-f<j&&j<o+f||l-f<h&&h<m+f&&n-f<i&&i<o+f||l-f<h&&h<m+f&&n-f<j&&j<o+f)){d.snapElements[k].snapping&&d.options.snap.release&&d.options.snap.release.call(d.element,b,a.extend(d._uiHash(),{snapItem:d.snapElements[k].item})),d.snapElements[k].snapping=!1;continue}if(e.snapMode!="inner"){var p=Math.abs(n-j)<=f,q=Math.abs(o-i)<=f,r=Math.abs(l-h)<=f,s=Math.abs(m-g)<=f;p&&(c.position.top=d._convertPositionTo("relative",{top:n-d.helperProportions.height,left:0}).top-d.margins.top),q&&(c.position.top=d._convertPositionTo("relative",{top:o,left:0}).top-d.margins.top),r&&(c.position.left=d._convertPositionTo("relative",{top:0,left:l-d.helperProportions.width}).left-d.margins.left),s&&(c.position.left=d._convertPositionTo("relative",{top:0,left:m}).left-d.margins.left)}var t=p||q||r||s;if(e.snapMode!="outer"){var p=Math.abs(n-i)<=f,q=Math.abs(o-j)<=f,r=Math.abs(l-g)<=f,s=Math.abs(m-h)<=f;p&&(c.position.top=d._convertPositionTo("relative",{top:n,left:0}).top-d.margins.top),q&&(c.position.top=d._convertPositionTo("relative",{top:o-d.helperProportions.height,left:0}).top-d.margins.top),r&&(c.position.left=d._convertPositionTo("relative",{top:0,left:l}).left-d.margins.left),s&&(c.position.left=d._convertPositionTo("relative",{top:0,left:m-d.helperProportions.width}).left-d.margins.left)}!d.snapElements[k].snapping&&(p||q||r||s||t)&&d.options.snap.snap&&d.options.snap.snap.call(d.element,b,a.extend(d._uiHash(),{snapItem:d.snapElements[k].item})),d.snapElements[k].snapping=p||q||r||s||t}}}),a.ui.plugin.add("draggable","stack",{start:function(b,c){var d=a(this).data("draggable").options,e=a.makeArray(a(d.stack)).sort(function(b,c){return(parseInt(a(b).css("zIndex"),10)||0)-(parseInt(a(c).css("zIndex"),10)||0)});if(!e.length)return;var f=parseInt(e[0].style.zIndex)||0;a(e).each(function(a){this.style.zIndex=f+a}),this[0].style.zIndex=f+e.length}}),a.ui.plugin.add("draggable","zIndex",{start:function(b,c){var d=a(c.helper),e=a(this).data("draggable").options;d.css("zIndex")&&(e._zIndex=d.css("zIndex")),d.css("zIndex",e.zIndex)},stop:function(b,c){var d=a(this).data("draggable").options;d._zIndex&&a(c.helper).css("zIndex",d._zIndex)}})})(jQuery);;/*! jQuery UI - v1.8.20 - 2012-04-30
-* https://github.com/jquery/jquery-ui
-* Includes: jquery.ui.sortable.js
-* Copyright (c) 2012 AUTHORS.txt; Licensed MIT, GPL */
-(function(a,b){a.widget("ui.sortable",a.ui.mouse,{widgetEventPrefix:"sort",ready:!1,options:{appendTo:"parent",axis:!1,connectWith:!1,containment:!1,cursor:"auto",cursorAt:!1,dropOnEmpty:!0,forcePlaceholderSize:!1,forceHelperSize:!1,grid:!1,handle:!1,helper:"original",items:"> *",opacity:!1,placeholder:!1,revert:!1,scroll:!0,scrollSensitivity:20,scrollSpeed:20,scope:"default",tolerance:"intersect",zIndex:1e3},_create:function(){var a=this.options;this.containerCache={},this.element.addClass("ui-sortable"),this.refresh(),this.floating=this.items.length?a.axis==="x"||/left|right/.test(this.items[0].item.css("float"))||/inline|table-cell/.test(this.items[0].item.css("display")):!1,this.offset=this.element.offset(),this._mouseInit(),this.ready=!0},destroy:function(){a.Widget.prototype.destroy.call(this),this.element.removeClass("ui-sortable ui-sortable-disabled"),this._mouseDestroy();for(var b=this.items.length-1;b>=0;b--)this.items[b].item.removeData(this.widgetName+"-item");return this},_setOption:function(b,c){b==="disabled"?(this.options[b]=c,this.widget()[c?"addClass":"removeClass"]("ui-sortable-disabled")):a.Widget.prototype._setOption.apply(this,arguments)},_mouseCapture:function(b,c){var d=this;if(this.reverting)return!1;if(this.options.disabled||this.options.type=="static")return!1;this._refreshItems(b);var e=null,f=this,g=a(b.target).parents().each(function(){if(a.data(this,d.widgetName+"-item")==f)return e=a(this),!1});a.data(b.target,d.widgetName+"-item")==f&&(e=a(b.target));if(!e)return!1;if(this.options.handle&&!c){var h=!1;a(this.options.handle,e).find("*").andSelf().each(function(){this==b.target&&(h=!0)});if(!h)return!1}return this.currentItem=e,this._removeCurrentsFromItems(),!0},_mouseStart:function(b,c,d){var e=this.options,f=this;this.currentContainer=this,this.refreshPositions(),this.helper=this._createHelper(b),this._cacheHelperProportions(),this._cacheMargins(),this.scrollParent=this.helper.scrollParent(),this.offset=this.currentItem.offset(),this.offset={top:this.offset.top-this.margins.top,left:this.offset.left-this.margins.left},this.helper.css("position","absolute"),this.cssPosition=this.helper.css("position"),a.extend(this.offset,{click:{left:b.pageX-this.offset.left,top:b.pageY-this.offset.top},parent:this._getParentOffset(),relative:this._getRelativeOffset()}),this.originalPosition=this._generatePosition(b),this.originalPageX=b.pageX,this.originalPageY=b.pageY,e.cursorAt&&this._adjustOffsetFromHelper(e.cursorAt),this.domPosition={prev:this.currentItem.prev()[0],parent:this.currentItem.parent()[0]},this.helper[0]!=this.currentItem[0]&&this.currentItem.hide(),this._createPlaceholder(),e.containment&&this._setContainment(),e.cursor&&(a("body").css("cursor")&&(this._storedCursor=a("body").css("cursor")),a("body").css("cursor",e.cursor)),e.opacity&&(this.helper.css("opacity")&&(this._storedOpacity=this.helper.css("opacity")),this.helper.css("opacity",e.opacity)),e.zIndex&&(this.helper.css("zIndex")&&(this._storedZIndex=this.helper.css("zIndex")),this.helper.css("zIndex",e.zIndex)),this.scrollParent[0]!=document&&this.scrollParent[0].tagName!="HTML"&&(this.overflowOffset=this.scrollParent.offset()),this._trigger("start",b,this._uiHash()),this._preserveHelperProportions||this._cacheHelperProportions();if(!d)for(var g=this.containers.length-1;g>=0;g--)this.containers[g]._trigger("activate",b,f._uiHash(this));return a.ui.ddmanager&&(a.ui.ddmanager.current=this),a.ui.ddmanager&&!e.dropBehaviour&&a.ui.ddmanager.prepareOffsets(this,b),this.dragging=!0,this.helper.addClass("ui-sortable-helper"),this._mouseDrag(b),!0},_mouseDrag:function(b){this.position=this._generatePosition(b),this.positionAbs=this._convertPositionTo("absolute"),this.lastPositionAbs||(this.lastPositionAbs=this.positionAbs);if(this.options.scroll){var c=this.options,d=!1;this.scrollParent[0]!=document&&this.scrollParent[0].tagName!="HTML"?(this.overflowOffset.top+this.scrollParent[0].offsetHeight-b.pageY<c.scrollSensitivity?this.scrollParent[0].scrollTop=d=this.scrollParent[0].scrollTop+c.scrollSpeed:b.pageY-this.overflowOffset.top<c.scrollSensitivity&&(this.scrollParent[0].scrollTop=d=this.scrollParent[0].scrollTop-c.scrollSpeed),this.overflowOffset.left+this.scrollParent[0].offsetWidth-b.pageX<c.scrollSensitivity?this.scrollParent[0].scrollLeft=d=this.scrollParent[0].scrollLeft+c.scrollSpeed:b.pageX-this.overflowOffset.left<c.scrollSensitivity&&(this.scrollParent[0].scrollLeft=d=this.scrollParent[0].scrollLeft-c.scrollSpeed)):(b.pageY-a(document).scrollTop()<c.scrollSensitivity?d=a(document).scrollTop(a(document).scrollTop()-c.scrollSpeed):a(window).height()-(b.pageY-a(document).scrollTop())<c.scrollSensitivity&&(d=a(document).scrollTop(a(document).scrollTop()+c.scrollSpeed)),b.pageX-a(document).scrollLeft()<c.scrollSensitivity?d=a(document).scrollLeft(a(document).scrollLeft()-c.scrollSpeed):a(window).width()-(b.pageX-a(document).scrollLeft())<c.scrollSensitivity&&(d=a(document).scrollLeft(a(document).scrollLeft()+c.scrollSpeed))),d!==!1&&a.ui.ddmanager&&!c.dropBehaviour&&a.ui.ddmanager.prepareOffsets(this,b)}this.positionAbs=this._convertPositionTo("absolute");if(!this.options.axis||this.options.axis!="y")this.helper[0].style.left=this.position.left+"px";if(!this.options.axis||this.options.axis!="x")this.helper[0].style.top=this.position.top+"px";for(var e=this.items.length-1;e>=0;e--){var f=this.items[e],g=f.item[0],h=this._intersectsWithPointer(f);if(!h)continue;if(g!=this.currentItem[0]&&this.placeholder[h==1?"next":"prev"]()[0]!=g&&!a.ui.contains(this.placeholder[0],g)&&(this.options.type=="semi-dynamic"?!a.ui.contains(this.element[0],g):!0)){this.direction=h==1?"down":"up";if(this.options.tolerance=="pointer"||this._intersectsWithSides(f))this._rearrange(b,f);else break;this._trigger("change",b,this._uiHash());break}}return this._contactContainers(b),a.ui.ddmanager&&a.ui.ddmanager.drag(this,b),this._trigger("sort",b,this._uiHash()),this.lastPositionAbs=this.positionAbs,!1},_mouseStop:function(b,c){if(!b)return;a.ui.ddmanager&&!this.options.dropBehaviour&&a.ui.ddmanager.drop(this,b);if(this.options.revert){var d=this,e=d.placeholder.offset();d.reverting=!0,a(this.helper).animate({left:e.left-this.offset.parent.left-d.margins.left+(this.offsetParent[0]==document.body?0:this.offsetParent[0].scrollLeft),top:e.top-this.offset.parent.top-d.margins.top+(this.offsetParent[0]==document.body?0:this.offsetParent[0].scrollTop)},parseInt(this.options.revert,10)||500,function(){d._clear(b)})}else this._clear(b,c);return!1},cancel:function(){var b=this;if(this.dragging){this._mouseUp({target:null}),this.options.helper=="original"?this.currentItem.css(this._storedCSS).removeClass("ui-sortable-helper"):this.currentItem.show();for(var c=this.containers.length-1;c>=0;c--)this.containers[c]._trigger("deactivate",null,b._uiHash(this)),this.containers[c].containerCache.over&&(this.containers[c]._trigger("out",null,b._uiHash(this)),this.containers[c].containerCache.over=0)}return this.placeholder&&(this.placeholder[0].parentNode&&this.placeholder[0].parentNode.removeChild(this.placeholder[0]),this.options.helper!="original"&&this.helper&&this.helper[0].parentNode&&this.helper.remove(),a.extend(this,{helper:null,dragging:!1,reverting:!1,_noFinalSort:null}),this.domPosition.prev?a(this.domPosition.prev).after(this.currentItem):a(this.domPosition.parent).prepend(this.currentItem)),this},serialize:function(b){var c=this._getItemsAsjQuery(b&&b.connected),d=[];return b=b||{},a(c).each(function(){var c=(a(b.item||this).attr(b.attribute||"id")||"").match(b.expression||/(.+)[-=_](.+)/);c&&d.push((b.key||c[1]+"[]")+"="+(b.key&&b.expression?c[1]:c[2]))}),!d.length&&b.key&&d.push(b.key+"="),d.join("&")},toArray:function(b){var c=this._getItemsAsjQuery(b&&b.connected),d=[];return b=b||{},c.each(function(){d.push(a(b.item||this).attr(b.attribute||"id")||"")}),d},_intersectsWith:function(a){var b=this.positionAbs.left,c=b+this.helperProportions.width,d=this.positionAbs.top,e=d+this.helperProportions.height,f=a.left,g=f+a.width,h=a.top,i=h+a.height,j=this.offset.click.top,k=this.offset.click.left,l=d+j>h&&d+j<i&&b+k>f&&b+k<g;return this.options.tolerance=="pointer"||this.options.forcePointerForContainers||this.options.tolerance!="pointer"&&this.helperProportions[this.floating?"width":"height"]>a[this.floating?"width":"height"]?l:f<b+this.helperProportions.width/2&&c-this.helperProportions.width/2<g&&h<d+this.helperProportions.height/2&&e-this.helperProportions.height/2<i},_intersectsWithPointer:function(b){var c=this.options.axis==="x"||a.ui.isOverAxis(this.positionAbs.top+this.offset.click.top,b.top,b.height),d=this.options.axis==="y"||a.ui.isOverAxis(this.positionAbs.left+this.offset.click.left,b.left,b.width),e=c&&d,f=this._getDragVerticalDirection(),g=this._getDragHorizontalDirection();return e?this.floating?g&&g=="right"||f=="down"?2:1:f&&(f=="down"?2:1):!1},_intersectsWithSides:function(b){var c=a.ui.isOverAxis(this.positionAbs.top+this.offset.click.top,b.top+b.height/2,b.height),d=a.ui.isOverAxis(this.positionAbs.left+this.offset.click.left,b.left+b.width/2,b.width),e=this._getDragVerticalDirection(),f=this._getDragHorizontalDirection();return this.floating&&f?f=="right"&&d||f=="left"&&!d:e&&(e=="down"&&c||e=="up"&&!c)},_getDragVerticalDirection:function(){var a=this.positionAbs.top-this.lastPositionAbs.top;return a!=0&&(a>0?"down":"up")},_getDragHorizontalDirection:function(){var a=this.positionAbs.left-this.lastPositionAbs.left;return a!=0&&(a>0?"right":"left")},refresh:function(a){return this._refreshItems(a),this.refreshPositions(),this},_connectWith:function(){var a=this.options;return a.connectWith.constructor==String?[a.connectWith]:a.connectWith},_getItemsAsjQuery:function(b){var c=this,d=[],e=[],f=this._connectWith();if(f&&b)for(var g=f.length-1;g>=0;g--){var h=a(f[g]);for(var i=h.length-1;i>=0;i--){var j=a.data(h[i],this.widgetName);j&&j!=this&&!j.options.disabled&&e.push([a.isFunction(j.options.items)?j.options.items.call(j.element):a(j.options.items,j.element).not(".ui-sortable-helper").not(".ui-sortable-placeholder"),j])}}e.push([a.isFunction(this.options.items)?this.options.items.call(this.element,null,{options:this.options,item:this.currentItem}):a(this.options.items,this.element).not(".ui-sortable-helper").not(".ui-sortable-placeholder"),this]);for(var g=e.length-1;g>=0;g--)e[g][0].each(function(){d.push(this)});return a(d)},_removeCurrentsFromItems:function(){var a=this.currentItem.find(":data("+this.widgetName+"-item)");for(var b=0;b<this.items.length;b++)for(var c=0;c<a.length;c++)a[c]==this.items[b].item[0]&&this.items.splice(b,1)},_refreshItems:function(b){this.items=[],this.containers=[this];var c=this.items,d=this,e=[[a.isFunction(this.options.items)?this.options.items.call(this.element[0],b,{item:this.currentItem}):a(this.options.items,this.element),this]],f=this._connectWith();if(f&&this.ready)for(var g=f.length-1;g>=0;g--){var h=a(f[g]);for(var i=h.length-1;i>=0;i--){var j=a.data(h[i],this.widgetName);j&&j!=this&&!j.options.disabled&&(e.push([a.isFunction(j.options.items)?j.options.items.call(j.element[0],b,{item:this.currentItem}):a(j.options.items,j.element),j]),this.containers.push(j))}}for(var g=e.length-1;g>=0;g--){var k=e[g][1],l=e[g][0];for(var i=0,m=l.length;i<m;i++){var n=a(l[i]);n.data(this.widgetName+"-item",k),c.push({item:n,instance:k,width:0,height:0,left:0,top:0})}}},refreshPositions:function(b){this.offsetParent&&this.helper&&(this.offset.parent=this._getParentOffset());for(var c=this.items.length-1;c>=0;c--){var d=this.items[c];if(d.instance!=this.currentContainer&&this.currentContainer&&d.item[0]!=this.currentItem[0])continue;var e=this.options.toleranceElement?a(this.options.toleranceElement,d.item):d.item;b||(d.width=e.outerWidth(),d.height=e.outerHeight());var f=e.offset();d.left=f.left,d.top=f.top}if(this.options.custom&&this.options.custom.refreshContainers)this.options.custom.refreshContainers.call(this);else for(var c=this.containers.length-1;c>=0;c--){var f=this.containers[c].element.offset();this.containers[c].containerCache.left=f.left,this.containers[c].containerCache.top=f.top,this.containers[c].containerCache.width=this.containers[c].element.outerWidth(),this.containers[c].containerCache.height=this.containers[c].element.outerHeight()}return this},_createPlaceholder:function(b){var c=b||this,d=c.options;if(!d.placeholder||d.placeholder.constructor==String){var e=d.placeholder;d.placeholder={element:function(){var b=a(document.createElement(c.currentItem[0].nodeName)).addClass(e||c.currentItem[0].className+" ui-sortable-placeholder").removeClass("ui-sortable-helper")[0];return e||(b.style.visibility="hidden"),b},update:function(a,b){if(e&&!d.forcePlaceholderSize)return;b.height()||b.height(c.currentItem.innerHeight()-parseInt(c.currentItem.css("paddingTop")||0,10)-parseInt(c.currentItem.css("paddingBottom")||0,10)),b.width()||b.width(c.currentItem.innerWidth()-parseInt(c.currentItem.css("paddingLeft")||0,10)-parseInt(c.currentItem.css("paddingRight")||0,10))}}}c.placeholder=a(d.placeholder.element.call(c.element,c.currentItem)),c.currentItem.after(c.placeholder),d.placeholder.update(c,c.placeholder)},_contactContainers:function(b){var c=null,d=null;for(var e=this.containers.length-1;e>=0;e--){if(a.ui.contains(this.currentItem[0],this.containers[e].element[0]))continue;if(this._intersectsWith(this.containers[e].containerCache)){if(c&&a.ui.contains(this.containers[e].element[0],c.element[0]))continue;c=this.containers[e],d=e}else this.containers[e].containerCache.over&&(this.containers[e]._trigger("out",b,this._uiHash(this)),this.containers[e].containerCache.over=0)}if(!c)return;if(this.containers.length===1)this.containers[d]._trigger("over",b,this._uiHash(this)),this.containers[d].containerCache.over=1;else if(this.currentContainer!=this.containers[d]){var f=1e4,g=null,h=this.positionAbs[this.containers[d].floating?"left":"top"];for(var i=this.items.length-1;i>=0;i--){if(!a.ui.contains(this.containers[d].element[0],this.items[i].item[0]))continue;var j=this.items[i][this.containers[d].floating?"left":"top"];Math.abs(j-h)<f&&(f=Math.abs(j-h),g=this.items[i])}if(!g&&!this.options.dropOnEmpty)return;this.currentContainer=this.containers[d],g?this._rearrange(b,g,null,!0):this._rearrange(b,null,this.containers[d].element,!0),this._trigger("change",b,this._uiHash()),this.containers[d]._trigger("change",b,this._uiHash(this)),this.options.placeholder.update(this.currentContainer,this.placeholder),this.containers[d]._trigger("over",b,this._uiHash(this)),this.containers[d].containerCache.over=1}},_createHelper:function(b){var c=this.options,d=a.isFunction(c.helper)?a(c.helper.apply(this.element[0],[b,this.currentItem])):c.helper=="clone"?this.currentItem.clone():this.currentItem;return d.parents("body").length||a(c.appendTo!="parent"?c.appendTo:this.currentItem[0].parentNode)[0].appendChild(d[0]),d[0]==this.currentItem[0]&&(this._storedCSS={width:this.currentItem[0].style.width,height:this.currentItem[0].style.height,position:this.currentItem.css("position"),top:this.currentItem.css("top"),left:this.currentItem.css("left")}),(d[0].style.width==""||c.forceHelperSize)&&d.width(this.currentItem.width()),(d[0].style.height==""||c.forceHelperSize)&&d.height(this.currentItem.height()),d},_adjustOffsetFromHelper:function(b){typeof b=="string"&&(b=b.split(" ")),a.isArray(b)&&(b={left:+b[0],top:+b[1]||0}),"left"in b&&(this.offset.click.left=b.left+this.margins.left),"right"in b&&(this.offset.click.left=this.helperProportions.width-b.right+this.margins.left),"top"in b&&(this.offset.click.top=b.top+this.margins.top),"bottom"in b&&(this.offset.click.top=this.helperProportions.height-b.bottom+this.margins.top)},_getParentOffset:function(){this.offsetParent=this.helper.offsetParent();var b=this.offsetParent.offset();this.cssPosition=="absolute"&&this.scrollParent[0]!=document&&a.ui.contains(this.scrollParent[0],this.offsetParent[0])&&(b.left+=this.scrollParent.scrollLeft(),b.top+=this.scrollParent.scrollTop());if(this.offsetParent[0]==document.body||this.offsetParent[0].tagName&&this.offsetParent[0].tagName.toLowerCase()=="html"&&a.browser.msie)b={top:0,left:0};return{top:b.top+(parseInt(this.offsetParent.css("borderTopWidth"),10)||0),left:b.left+(parseInt(this.offsetParent.css("borderLeftWidth"),10)||0)}},_getRelativeOffset:function(){if(this.cssPosition=="relative"){var a=this.currentItem.position();return{top:a.top-(parseInt(this.helper.css("top"),10)||0)+this.scrollParent.scrollTop(),left:a.left-(parseInt(this.helper.css("left"),10)||0)+this.scrollParent.scrollLeft()}}return{top:0,left:0}},_cacheMargins:function(){this.margins={left:parseInt(this.currentItem.css("marginLeft"),10)||0,top:parseInt(this.currentItem.css("marginTop"),10)||0}},_cacheHelperProportions:function(){this.helperProportions={width:this.helper.outerWidth(),height:this.helper.outerHeight()}},_setContainment:function(){var b=this.options;b.containment=="parent"&&(b.containment=this.helper[0].parentNode);if(b.containment=="document"||b.containment=="window")this.containment=[0-this.offset.relative.left-this.offset.parent.left,0-this.offset.relative.top-this.offset.parent.top,a(b.containment=="document"?document:window).width()-this.helperProportions.width-this.margins.left,(a(b.containment=="document"?document:window).height()||document.body.parentNode.scrollHeight)-this.helperProportions.height-this.margins.top];if(!/^(document|window|parent)$/.test(b.containment)){var c=a(b.containment)[0],d=a(b.containment).offset(),e=a(c).css("overflow")!="hidden";this.containment=[d.left+(parseInt(a(c).css("borderLeftWidth"),10)||0)+(parseInt(a(c).css("paddingLeft"),10)||0)-this.margins.left,d.top+(parseInt(a(c).css("borderTopWidth"),10)||0)+(parseInt(a(c).css("paddingTop"),10)||0)-this.margins.top,d.left+(e?Math.max(c.scrollWidth,c.offsetWidth):c.offsetWidth)-(parseInt(a(c).css("borderLeftWidth"),10)||0)-(parseInt(a(c).css("paddingRight"),10)||0)-this.helperProportions.width-this.margins.left,d.top+(e?Math.max(c.scrollHeight,c.offsetHeight):c.offsetHeight)-(parseInt(a(c).css("borderTopWidth"),10)||0)-(parseInt(a(c).css("paddingBottom"),10)||0)-this.helperProportions.height-this.margins.top]}},_convertPositionTo:function(b,c){c||(c=this.position);var d=b=="absolute"?1:-1,e=this.options,f=this.cssPosition=="absolute"&&(this.scrollParent[0]==document||!a.ui.contains(this.scrollParent[0],this.offsetParent[0]))?this.offsetParent:this.scrollParent,g=/(html|body)/i.test(f[0].tagName);return{top:c.top+this.offset.relative.top*d+this.offset.parent.top*d-(a.browser.safari&&this.cssPosition=="fixed"?0:(this.cssPosition=="fixed"?-this.scrollParent.scrollTop():g?0:f.scrollTop())*d),left:c.left+this.offset.relative.left*d+this.offset.parent.left*d-(a.browser.safari&&this.cssPosition=="fixed"?0:(this.cssPosition=="fixed"?-this.scrollParent.scrollLeft():g?0:f.scrollLeft())*d)}},_generatePosition:function(b){var c=this.options,d=this.cssPosition=="absolute"&&(this.scrollParent[0]==document||!a.ui.contains(this.scrollParent[0],this.offsetParent[0]))?this.offsetParent:this.scrollParent,e=/(html|body)/i.test(d[0].tagName);this.cssPosition=="relative"&&(this.scrollParent[0]==document||this.scrollParent[0]==this.offsetParent[0])&&(this.offset.relative=this._getRelativeOffset());var f=b.pageX,g=b.pageY;if(this.originalPosition){this.containment&&(b.pageX-this.offset.click.left<this.containment[0]&&(f=this.containment[0]+this.offset.click.left),b.pageY-this.offset.click.top<this.containment[1]&&(g=this.containment[1]+this.offset.click.top),b.pageX-this.offset.click.left>this.containment[2]&&(f=this.containment[2]+this.offset.click.left),b.pageY-this.offset.click.top>this.containment[3]&&(g=this.containment[3]+this.offset.click.top));if(c.grid){var h=this.originalPageY+Math.round((g-this.originalPageY)/c.grid[1])*c.grid[1];g=this.containment?h-this.offset.click.top<this.containment[1]||h-this.offset.click.top>this.containment[3]?h-this.offset.click.top<this.containment[1]?h+c.grid[1]:h-c.grid[1]:h:h;var i=this.originalPageX+Math.round((f-this.originalPageX)/c.grid[0])*c.grid[0];f=this.containment?i-this.offset.click.left<this.containment[0]||i-this.offset.click.left>this.containment[2]?i-this.offset.click.left<this.containment[0]?i+c.grid[0]:i-c.grid[0]:i:i}}return{top:g-this.offset.click.top-this.offset.relative.top-this.offset.parent.top+(a.browser.safari&&this.cssPosition=="fixed"?0:this.cssPosition=="fixed"?-this.scrollParent.scrollTop():e?0:d.scrollTop()),left:f-this.offset.click.left-this.offset.relative.left-this.offset.parent.left+(a.browser.safari&&this.cssPosition=="fixed"?0:this.cssPosition=="fixed"?-this.scrollParent.scrollLeft():e?0:d.scrollLeft())}},_rearrange:function(a,b,c,d){c?c[0].appendChild(this.placeholder[0]):b.item[0].parentNode.insertBefore(this.placeholder[0],this.direction=="down"?b.item[0]:b.item[0].nextSibling),this.counter=this.counter?++this.counter:1;var e=this,f=this.counter;window.setTimeout(function(){f==e.counter&&e.refreshPositions(!d)},0)},_clear:function(b,c){this.reverting=!1;var d=[],e=this;!this._noFinalSort&&this.currentItem.parent().length&&this.placeholder.before(this.currentItem),this._noFinalSort=null;if(this.helper[0]==this.currentItem[0]){for(var f in this._storedCSS)if(this._storedCSS[f]=="auto"||this._storedCSS[f]=="static")this._storedCSS[f]="";this.currentItem.css(this._storedCSS).removeClass("ui-sortable-helper")}else this.currentItem.show();this.fromOutside&&!c&&d.push(function(a){this._trigger("receive",a,this._uiHash(this.fromOutside))}),(this.fromOutside||this.domPosition.prev!=this.currentItem.prev().not(".ui-sortable-helper")[0]||this.domPosition.parent!=this.currentItem.parent()[0])&&!c&&d.push(function(a){this._trigger("update",a,this._uiHash())});if(!a.ui.contains(this.element[0],this.currentItem[0])){c||d.push(function(a){this._trigger("remove",a,this._uiHash())});for(var f=this.containers.length-1;f>=0;f--)a.ui.contains(this.containers[f].element[0],this.currentItem[0])&&!c&&(d.push(function(a){return function(b){a._trigger("receive",b,this._uiHash(this))}}.call(this,this.containers[f])),d.push(function(a){return function(b){a._trigger("update",b,this._uiHash(this))}}.call(this,this.containers[f])))}for(var f=this.containers.length-1;f>=0;f--)c||d.push(function(a){return function(b){a._trigger("deactivate",b,this._uiHash(this))}}.call(this,this.containers[f])),this.containers[f].containerCache.over&&(d.push(function(a){return function(b){a._trigger("out",b,this._uiHash(this))}}.call(this,this.containers[f])),this.containers[f].containerCache.over=0);this._storedCursor&&a("body").css("cursor",this._storedCursor),this._storedOpacity&&this.helper.css("opacity",this._storedOpacity),this._storedZIndex&&this.helper.css("zIndex",this._storedZIndex=="auto"?"":this._storedZIndex),this.dragging=!1;if(this.cancelHelperRemoval){if(!c){this._trigger("beforeStop",b,this._uiHash());for(var f=0;f<d.length;f++)d[f].call(this,b);this._trigger("stop",b,this._uiHash())}return!1}c||this._trigger("beforeStop",b,this._uiHash()),this.placeholder[0].parentNode.removeChild(this.placeholder[0]),this.helper[0]!=this.currentItem[0]&&this.helper.remove(),this.helper=null;if(!c){for(var f=0;f<d.length;f++)d[f].call(this,b);this._trigger("stop",b,this._uiHash())}return this.fromOutside=!1,!0},_trigger:function(){a.Widget.prototype._trigger.apply(this,arguments)===!1&&this.cancel()},_uiHash:function(b){var c=b||this;return{helper:c.helper,placeholder:c.placeholder||a([]),position:c.position,originalPosition:c.originalPosition,offset:c.positionAbs,item:c.currentItem,sender:b?b.element:null}}}),a.extend(a.ui.sortable,{version:"1.8.20"})})(jQuery);;
+/*! jQuery UI - v1.10.2 - 2013-04-29
+* http://jqueryui.com
+* Includes: jquery.ui.core.js, jquery.ui.widget.js, jquery.ui.mouse.js, jquery.ui.position.js, jquery.ui.draggable.js, jquery.ui.resizable.js, jquery.ui.sortable.js
+* Copyright 2013 jQuery Foundation and other contributors Licensed MIT */
+
+(function(e,t){function i(t,i){var a,n,r,o=t.nodeName.toLowerCase();return"area"===o?(a=t.parentNode,n=a.name,t.href&&n&&"map"===a.nodeName.toLowerCase()?(r=e("img[usemap=#"+n+"]")[0],!!r&&s(r)):!1):(/input|select|textarea|button|object/.test(o)?!t.disabled:"a"===o?t.href||i:i)&&s(t)}function s(t){return e.expr.filters.visible(t)&&!e(t).parents().addBack().filter(function(){return"hidden"===e.css(this,"visibility")}).length}var a=0,n=/^ui-id-\d+$/;e.ui=e.ui||{},e.extend(e.ui,{version:"1.10.2",keyCode:{BACKSPACE:8,COMMA:188,DELETE:46,DOWN:40,END:35,ENTER:13,ESCAPE:27,HOME:36,LEFT:37,NUMPAD_ADD:107,NUMPAD_DECIMAL:110,NUMPAD_DIVIDE:111,NUMPAD_ENTER:108,NUMPAD_MULTIPLY:106,NUMPAD_SUBTRACT:109,PAGE_DOWN:34,PAGE_UP:33,PERIOD:190,RIGHT:39,SPACE:32,TAB:9,UP:38}}),e.fn.extend({focus:function(t){return function(i,s){return"number"==typeof i?this.each(function(){var t=this;setTimeout(function(){e(t).focus(),s&&s.call(t)},i)}):t.apply(this,arguments)}}(e.fn.focus),scrollParent:function(){var t;return t=e.ui.ie&&/(static|relative)/.test(this.css("position"))||/absolute/.test(this.css("position"))?this.parents().filter(function(){return/(relative|absolute|fixed)/.test(e.css(this,"position"))&&/(auto|scroll)/.test(e.css(this,"overflow")+e.css(this,"overflow-y")+e.css(this,"overflow-x"))}).eq(0):this.parents().filter(function(){return/(auto|scroll)/.test(e.css(this,"overflow")+e.css(this,"overflow-y")+e.css(this,"overflow-x"))}).eq(0),/fixed/.test(this.css("position"))||!t.length?e(document):t},zIndex:function(i){if(i!==t)return this.css("zIndex",i);if(this.length)for(var s,a,n=e(this[0]);n.length&&n[0]!==document;){if(s=n.css("position"),("absolute"===s||"relative"===s||"fixed"===s)&&(a=parseInt(n.css("zIndex"),10),!isNaN(a)&&0!==a))return a;n=n.parent()}return 0},uniqueId:function(){return this.each(function(){this.id||(this.id="ui-id-"+ ++a)})},removeUniqueId:function(){return this.each(function(){n.test(this.id)&&e(this).removeAttr("id")})}}),e.extend(e.expr[":"],{data:e.expr.createPseudo?e.expr.createPseudo(function(t){return function(i){return!!e.data(i,t)}}):function(t,i,s){return!!e.data(t,s[3])},focusable:function(t){return i(t,!isNaN(e.attr(t,"tabindex")))},tabbable:function(t){var s=e.attr(t,"tabindex"),a=isNaN(s);return(a||s>=0)&&i(t,!a)}}),e("<a>").outerWidth(1).jquery||e.each(["Width","Height"],function(i,s){function a(t,i,s,a){return e.each(n,function(){i-=parseFloat(e.css(t,"padding"+this))||0,s&&(i-=parseFloat(e.css(t,"border"+this+"Width"))||0),a&&(i-=parseFloat(e.css(t,"margin"+this))||0)}),i}var n="Width"===s?["Left","Right"]:["Top","Bottom"],r=s.toLowerCase(),o={innerWidth:e.fn.innerWidth,innerHeight:e.fn.innerHeight,outerWidth:e.fn.outerWidth,outerHeight:e.fn.outerHeight};e.fn["inner"+s]=function(i){return i===t?o["inner"+s].call(this):this.each(function(){e(this).css(r,a(this,i)+"px")})},e.fn["outer"+s]=function(t,i){return"number"!=typeof t?o["outer"+s].call(this,t):this.each(function(){e(this).css(r,a(this,t,!0,i)+"px")})}}),e.fn.addBack||(e.fn.addBack=function(e){return this.add(null==e?this.prevObject:this.prevObject.filter(e))}),e("<a>").data("a-b","a").removeData("a-b").data("a-b")&&(e.fn.removeData=function(t){return function(i){return arguments.length?t.call(this,e.camelCase(i)):t.call(this)}}(e.fn.removeData)),e.ui.ie=!!/msie [\w.]+/.exec(navigator.userAgent.toLowerCase()),e.support.selectstart="onselectstart"in document.createElement("div"),e.fn.extend({disableSelection:function(){return this.bind((e.support.selectstart?"selectstart":"mousedown")+".ui-disableSelection",function(e){e.preventDefault()})},enableSelection:function(){return this.unbind(".ui-disableSelection")}}),e.extend(e.ui,{plugin:{add:function(t,i,s){var a,n=e.ui[t].prototype;for(a in s)n.plugins[a]=n.plugins[a]||[],n.plugins[a].push([i,s[a]])},call:function(e,t,i){var s,a=e.plugins[t];if(a&&e.element[0].parentNode&&11!==e.element[0].parentNode.nodeType)for(s=0;a.length>s;s++)e.options[a[s][0]]&&a[s][1].apply(e.element,i)}},hasScroll:function(t,i){if("hidden"===e(t).css("overflow"))return!1;var s=i&&"left"===i?"scrollLeft":"scrollTop",a=!1;return t[s]>0?!0:(t[s]=1,a=t[s]>0,t[s]=0,a)}})})(jQuery);(function(e,t){var i=0,s=Array.prototype.slice,n=e.cleanData;e.cleanData=function(t){for(var i,s=0;null!=(i=t[s]);s++)try{e(i).triggerHandler("remove")}catch(a){}n(t)},e.widget=function(i,s,n){var a,r,o,h,l={},u=i.split(".")[0];i=i.split(".")[1],a=u+"-"+i,n||(n=s,s=e.Widget),e.expr[":"][a.toLowerCase()]=function(t){return!!e.data(t,a)},e[u]=e[u]||{},r=e[u][i],o=e[u][i]=function(e,i){return this._createWidget?(arguments.length&&this._createWidget(e,i),t):new o(e,i)},e.extend(o,r,{version:n.version,_proto:e.extend({},n),_childConstructors:[]}),h=new s,h.options=e.widget.extend({},h.options),e.each(n,function(i,n){return e.isFunction(n)?(l[i]=function(){var e=function(){return s.prototype[i].apply(this,arguments)},t=function(e){return s.prototype[i].apply(this,e)};return function(){var i,s=this._super,a=this._superApply;return this._super=e,this._superApply=t,i=n.apply(this,arguments),this._super=s,this._superApply=a,i}}(),t):(l[i]=n,t)}),o.prototype=e.widget.extend(h,{widgetEventPrefix:r?h.widgetEventPrefix:i},l,{constructor:o,namespace:u,widgetName:i,widgetFullName:a}),r?(e.each(r._childConstructors,function(t,i){var s=i.prototype;e.widget(s.namespace+"."+s.widgetName,o,i._proto)}),delete r._childConstructors):s._childConstructors.push(o),e.widget.bridge(i,o)},e.widget.extend=function(i){for(var n,a,r=s.call(arguments,1),o=0,h=r.length;h>o;o++)for(n in r[o])a=r[o][n],r[o].hasOwnProperty(n)&&a!==t&&(i[n]=e.isPlainObject(a)?e.isPlainObject(i[n])?e.widget.extend({},i[n],a):e.widget.extend({},a):a);return i},e.widget.bridge=function(i,n){var a=n.prototype.widgetFullName||i;e.fn[i]=function(r){var o="string"==typeof r,h=s.call(arguments,1),l=this;return r=!o&&h.length?e.widget.extend.apply(null,[r].concat(h)):r,o?this.each(function(){var s,n=e.data(this,a);return n?e.isFunction(n[r])&&"_"!==r.charAt(0)?(s=n[r].apply(n,h),s!==n&&s!==t?(l=s&&s.jquery?l.pushStack(s.get()):s,!1):t):e.error("no such method '"+r+"' for "+i+" widget instance"):e.error("cannot call methods on "+i+" prior to initialization; "+"attempted to call method '"+r+"'")}):this.each(function(){var t=e.data(this,a);t?t.option(r||{})._init():e.data(this,a,new n(r,this))}),l}},e.Widget=function(){},e.Widget._childConstructors=[],e.Widget.prototype={widgetName:"widget",widgetEventPrefix:"",defaultElement:"<div>",options:{disabled:!1,create:null},_createWidget:function(t,s){s=e(s||this.defaultElement||this)[0],this.element=e(s),this.uuid=i++,this.eventNamespace="."+this.widgetName+this.uuid,this.options=e.widget.extend({},this.options,this._getCreateOptions(),t),this.bindings=e(),this.hoverable=e(),this.focusable=e(),s!==this&&(e.data(s,this.widgetFullName,this),this._on(!0,this.element,{remove:function(e){e.target===s&&this.destroy()}}),this.document=e(s.style?s.ownerDocument:s.document||s),this.window=e(this.document[0].defaultView||this.document[0].parentWindow)),this._create(),this._trigger("create",null,this._getCreateEventData()),this._init()},_getCreateOptions:e.noop,_getCreateEventData:e.noop,_create:e.noop,_init:e.noop,destroy:function(){this._destroy(),this.element.unbind(this.eventNamespace).removeData(this.widgetName).removeData(this.widgetFullName).removeData(e.camelCase(this.widgetFullName)),this.widget().unbind(this.eventNamespace).removeAttr("aria-disabled").removeClass(this.widgetFullName+"-disabled "+"ui-state-disabled"),this.bindings.unbind(this.eventNamespace),this.hoverable.removeClass("ui-state-hover"),this.focusable.removeClass("ui-state-focus")},_destroy:e.noop,widget:function(){return this.element},option:function(i,s){var n,a,r,o=i;if(0===arguments.length)return e.widget.extend({},this.options);if("string"==typeof i)if(o={},n=i.split("."),i=n.shift(),n.length){for(a=o[i]=e.widget.extend({},this.options[i]),r=0;n.length-1>r;r++)a[n[r]]=a[n[r]]||{},a=a[n[r]];if(i=n.pop(),s===t)return a[i]===t?null:a[i];a[i]=s}else{if(s===t)return this.options[i]===t?null:this.options[i];o[i]=s}return this._setOptions(o),this},_setOptions:function(e){var t;for(t in e)this._setOption(t,e[t]);return this},_setOption:function(e,t){return this.options[e]=t,"disabled"===e&&(this.widget().toggleClass(this.widgetFullName+"-disabled ui-state-disabled",!!t).attr("aria-disabled",t),this.hoverable.removeClass("ui-state-hover"),this.focusable.removeClass("ui-state-focus")),this},enable:function(){return this._setOption("disabled",!1)},disable:function(){return this._setOption("disabled",!0)},_on:function(i,s,n){var a,r=this;"boolean"!=typeof i&&(n=s,s=i,i=!1),n?(s=a=e(s),this.bindings=this.bindings.add(s)):(n=s,s=this.element,a=this.widget()),e.each(n,function(n,o){function h(){return i||r.options.disabled!==!0&&!e(this).hasClass("ui-state-disabled")?("string"==typeof o?r[o]:o).apply(r,arguments):t}"string"!=typeof o&&(h.guid=o.guid=o.guid||h.guid||e.guid++);var l=n.match(/^(\w+)\s*(.*)$/),u=l[1]+r.eventNamespace,c=l[2];c?a.delegate(c,u,h):s.bind(u,h)})},_off:function(e,t){t=(t||"").split(" ").join(this.eventNamespace+" ")+this.eventNamespace,e.unbind(t).undelegate(t)},_delay:function(e,t){function i(){return("string"==typeof e?s[e]:e).apply(s,arguments)}var s=this;return setTimeout(i,t||0)},_hoverable:function(t){this.hoverable=this.hoverable.add(t),this._on(t,{mouseenter:function(t){e(t.currentTarget).addClass("ui-state-hover")},mouseleave:function(t){e(t.currentTarget).removeClass("ui-state-hover")}})},_focusable:function(t){this.focusable=this.focusable.add(t),this._on(t,{focusin:function(t){e(t.currentTarget).addClass("ui-state-focus")},focusout:function(t){e(t.currentTarget).removeClass("ui-state-focus")}})},_trigger:function(t,i,s){var n,a,r=this.options[t];if(s=s||{},i=e.Event(i),i.type=(t===this.widgetEventPrefix?t:this.widgetEventPrefix+t).toLowerCase(),i.target=this.element[0],a=i.originalEvent)for(n in a)n in i||(i[n]=a[n]);return this.element.trigger(i,s),!(e.isFunction(r)&&r.apply(this.element[0],[i].concat(s))===!1||i.isDefaultPrevented())}},e.each({show:"fadeIn",hide:"fadeOut"},function(t,i){e.Widget.prototype["_"+t]=function(s,n,a){"string"==typeof n&&(n={effect:n});var r,o=n?n===!0||"number"==typeof n?i:n.effect||i:t;n=n||{},"number"==typeof n&&(n={duration:n}),r=!e.isEmptyObject(n),n.complete=a,n.delay&&s.delay(n.delay),r&&e.effects&&e.effects.effect[o]?s[t](n):o!==t&&s[o]?s[o](n.duration,n.easing,a):s.queue(function(i){e(this)[t](),a&&a.call(s[0]),i()})}})})(jQuery);(function(e){var t=!1;e(document).mouseup(function(){t=!1}),e.widget("ui.mouse",{version:"1.10.2",options:{cancel:"input,textarea,button,select,option",distance:1,delay:0},_mouseInit:function(){var t=this;this.element.bind("mousedown."+this.widgetName,function(e){return t._mouseDown(e)}).bind("click."+this.widgetName,function(i){return!0===e.data(i.target,t.widgetName+".preventClickEvent")?(e.removeData(i.target,t.widgetName+".preventClickEvent"),i.stopImmediatePropagation(),!1):undefined}),this.started=!1},_mouseDestroy:function(){this.element.unbind("."+this.widgetName),this._mouseMoveDelegate&&e(document).unbind("mousemove."+this.widgetName,this._mouseMoveDelegate).unbind("mouseup."+this.widgetName,this._mouseUpDelegate)},_mouseDown:function(i){if(!t){this._mouseStarted&&this._mouseUp(i),this._mouseDownEvent=i;var s=this,n=1===i.which,a="string"==typeof this.options.cancel&&i.target.nodeName?e(i.target).closest(this.options.cancel).length:!1;return n&&!a&&this._mouseCapture(i)?(this.mouseDelayMet=!this.options.delay,this.mouseDelayMet||(this._mouseDelayTimer=setTimeout(function(){s.mouseDelayMet=!0},this.options.delay)),this._mouseDistanceMet(i)&&this._mouseDelayMet(i)&&(this._mouseStarted=this._mouseStart(i)!==!1,!this._mouseStarted)?(i.preventDefault(),!0):(!0===e.data(i.target,this.widgetName+".preventClickEvent")&&e.removeData(i.target,this.widgetName+".preventClickEvent"),this._mouseMoveDelegate=function(e){return s._mouseMove(e)},this._mouseUpDelegate=function(e){return s._mouseUp(e)},e(document).bind("mousemove."+this.widgetName,this._mouseMoveDelegate).bind("mouseup."+this.widgetName,this._mouseUpDelegate),i.preventDefault(),t=!0,!0)):!0}},_mouseMove:function(t){return e.ui.ie&&(!document.documentMode||9>document.documentMode)&&!t.button?this._mouseUp(t):this._mouseStarted?(this._mouseDrag(t),t.preventDefault()):(this._mouseDistanceMet(t)&&this._mouseDelayMet(t)&&(this._mouseStarted=this._mouseStart(this._mouseDownEvent,t)!==!1,this._mouseStarted?this._mouseDrag(t):this._mouseUp(t)),!this._mouseStarted)},_mouseUp:function(t){return e(document).unbind("mousemove."+this.widgetName,this._mouseMoveDelegate).unbind("mouseup."+this.widgetName,this._mouseUpDelegate),this._mouseStarted&&(this._mouseStarted=!1,t.target===this._mouseDownEvent.target&&e.data(t.target,this.widgetName+".preventClickEvent",!0),this._mouseStop(t)),!1},_mouseDistanceMet:function(e){return Math.max(Math.abs(this._mouseDownEvent.pageX-e.pageX),Math.abs(this._mouseDownEvent.pageY-e.pageY))>=this.options.distance},_mouseDelayMet:function(){return this.mouseDelayMet},_mouseStart:function(){},_mouseDrag:function(){},_mouseStop:function(){},_mouseCapture:function(){return!0}})})(jQuery);(function(t,e){function i(t,e,i){return[parseFloat(t[0])*(p.test(t[0])?e/100:1),parseFloat(t[1])*(p.test(t[1])?i/100:1)]}function s(e,i){return parseInt(t.css(e,i),10)||0}function n(e){var i=e[0];return 9===i.nodeType?{width:e.width(),height:e.height(),offset:{top:0,left:0}}:t.isWindow(i)?{width:e.width(),height:e.height(),offset:{top:e.scrollTop(),left:e.scrollLeft()}}:i.preventDefault?{width:0,height:0,offset:{top:i.pageY,left:i.pageX}}:{width:e.outerWidth(),height:e.outerHeight(),offset:e.offset()}}t.ui=t.ui||{};var a,o=Math.max,r=Math.abs,h=Math.round,l=/left|center|right/,c=/top|center|bottom/,u=/[\+\-]\d+(\.[\d]+)?%?/,d=/^\w+/,p=/%$/,f=t.fn.position;t.position={scrollbarWidth:function(){if(a!==e)return a;var i,s,n=t("<div style='display:block;width:50px;height:50px;overflow:hidden;'><div style='height:100px;width:auto;'></div></div>"),o=n.children()[0];return t("body").append(n),i=o.offsetWidth,n.css("overflow","scroll"),s=o.offsetWidth,i===s&&(s=n[0].clientWidth),n.remove(),a=i-s},getScrollInfo:function(e){var i=e.isWindow?"":e.element.css("overflow-x"),s=e.isWindow?"":e.element.css("overflow-y"),n="scroll"===i||"auto"===i&&e.width<e.element[0].scrollWidth,a="scroll"===s||"auto"===s&&e.height<e.element[0].scrollHeight;return{width:a?t.position.scrollbarWidth():0,height:n?t.position.scrollbarWidth():0}},getWithinInfo:function(e){var i=t(e||window),s=t.isWindow(i[0]);return{element:i,isWindow:s,offset:i.offset()||{left:0,top:0},scrollLeft:i.scrollLeft(),scrollTop:i.scrollTop(),width:s?i.width():i.outerWidth(),height:s?i.height():i.outerHeight()}}},t.fn.position=function(e){if(!e||!e.of)return f.apply(this,arguments);e=t.extend({},e);var a,p,m,g,v,_,b=t(e.of),y=t.position.getWithinInfo(e.within),w=t.position.getScrollInfo(y),x=(e.collision||"flip").split(" "),k={};return _=n(b),b[0].preventDefault&&(e.at="left top"),p=_.width,m=_.height,g=_.offset,v=t.extend({},g),t.each(["my","at"],function(){var t,i,s=(e[this]||"").split(" ");1===s.length&&(s=l.test(s[0])?s.concat(["center"]):c.test(s[0])?["center"].concat(s):["center","center"]),s[0]=l.test(s[0])?s[0]:"center",s[1]=c.test(s[1])?s[1]:"center",t=u.exec(s[0]),i=u.exec(s[1]),k[this]=[t?t[0]:0,i?i[0]:0],e[this]=[d.exec(s[0])[0],d.exec(s[1])[0]]}),1===x.length&&(x[1]=x[0]),"right"===e.at[0]?v.left+=p:"center"===e.at[0]&&(v.left+=p/2),"bottom"===e.at[1]?v.top+=m:"center"===e.at[1]&&(v.top+=m/2),a=i(k.at,p,m),v.left+=a[0],v.top+=a[1],this.each(function(){var n,l,c=t(this),u=c.outerWidth(),d=c.outerHeight(),f=s(this,"marginLeft"),_=s(this,"marginTop"),D=u+f+s(this,"marginRight")+w.width,T=d+_+s(this,"marginBottom")+w.height,C=t.extend({},v),M=i(k.my,c.outerWidth(),c.outerHeight());"right"===e.my[0]?C.left-=u:"center"===e.my[0]&&(C.left-=u/2),"bottom"===e.my[1]?C.top-=d:"center"===e.my[1]&&(C.top-=d/2),C.left+=M[0],C.top+=M[1],t.support.offsetFractions||(C.left=h(C.left),C.top=h(C.top)),n={marginLeft:f,marginTop:_},t.each(["left","top"],function(i,s){t.ui.position[x[i]]&&t.ui.position[x[i]][s](C,{targetWidth:p,targetHeight:m,elemWidth:u,elemHeight:d,collisionPosition:n,collisionWidth:D,collisionHeight:T,offset:[a[0]+M[0],a[1]+M[1]],my:e.my,at:e.at,within:y,elem:c})}),e.using&&(l=function(t){var i=g.left-C.left,s=i+p-u,n=g.top-C.top,a=n+m-d,h={target:{element:b,left:g.left,top:g.top,width:p,height:m},element:{element:c,left:C.left,top:C.top,width:u,height:d},horizontal:0>s?"left":i>0?"right":"center",vertical:0>a?"top":n>0?"bottom":"middle"};u>p&&p>r(i+s)&&(h.horizontal="center"),d>m&&m>r(n+a)&&(h.vertical="middle"),h.important=o(r(i),r(s))>o(r(n),r(a))?"horizontal":"vertical",e.using.call(this,t,h)}),c.offset(t.extend(C,{using:l}))})},t.ui.position={fit:{left:function(t,e){var i,s=e.within,n=s.isWindow?s.scrollLeft:s.offset.left,a=s.width,r=t.left-e.collisionPosition.marginLeft,h=n-r,l=r+e.collisionWidth-a-n;e.collisionWidth>a?h>0&&0>=l?(i=t.left+h+e.collisionWidth-a-n,t.left+=h-i):t.left=l>0&&0>=h?n:h>l?n+a-e.collisionWidth:n:h>0?t.left+=h:l>0?t.left-=l:t.left=o(t.left-r,t.left)},top:function(t,e){var i,s=e.within,n=s.isWindow?s.scrollTop:s.offset.top,a=e.within.height,r=t.top-e.collisionPosition.marginTop,h=n-r,l=r+e.collisionHeight-a-n;e.collisionHeight>a?h>0&&0>=l?(i=t.top+h+e.collisionHeight-a-n,t.top+=h-i):t.top=l>0&&0>=h?n:h>l?n+a-e.collisionHeight:n:h>0?t.top+=h:l>0?t.top-=l:t.top=o(t.top-r,t.top)}},flip:{left:function(t,e){var i,s,n=e.within,a=n.offset.left+n.scrollLeft,o=n.width,h=n.isWindow?n.scrollLeft:n.offset.left,l=t.left-e.collisionPosition.marginLeft,c=l-h,u=l+e.collisionWidth-o-h,d="left"===e.my[0]?-e.elemWidth:"right"===e.my[0]?e.elemWidth:0,p="left"===e.at[0]?e.targetWidth:"right"===e.at[0]?-e.targetWidth:0,f=-2*e.offset[0];0>c?(i=t.left+d+p+f+e.collisionWidth-o-a,(0>i||r(c)>i)&&(t.left+=d+p+f)):u>0&&(s=t.left-e.collisionPosition.marginLeft+d+p+f-h,(s>0||u>r(s))&&(t.left+=d+p+f))},top:function(t,e){var i,s,n=e.within,a=n.offset.top+n.scrollTop,o=n.height,h=n.isWindow?n.scrollTop:n.offset.top,l=t.top-e.collisionPosition.marginTop,c=l-h,u=l+e.collisionHeight-o-h,d="top"===e.my[1],p=d?-e.elemHeight:"bottom"===e.my[1]?e.elemHeight:0,f="top"===e.at[1]?e.targetHeight:"bottom"===e.at[1]?-e.targetHeight:0,m=-2*e.offset[1];0>c?(s=t.top+p+f+m+e.collisionHeight-o-a,t.top+p+f+m>c&&(0>s||r(c)>s)&&(t.top+=p+f+m)):u>0&&(i=t.top-e.collisionPosition.marginTop+p+f+m-h,t.top+p+f+m>u&&(i>0||u>r(i))&&(t.top+=p+f+m))}},flipfit:{left:function(){t.ui.position.flip.left.apply(this,arguments),t.ui.position.fit.left.apply(this,arguments)},top:function(){t.ui.position.flip.top.apply(this,arguments),t.ui.position.fit.top.apply(this,arguments)}}},function(){var e,i,s,n,a,o=document.getElementsByTagName("body")[0],r=document.createElement("div");e=document.createElement(o?"div":"body"),s={visibility:"hidden",width:0,height:0,border:0,margin:0,background:"none"},o&&t.extend(s,{position:"absolute",left:"-1000px",top:"-1000px"});for(a in s)e.style[a]=s[a];e.appendChild(r),i=o||document.documentElement,i.insertBefore(e,i.firstChild),r.style.cssText="position: absolute; left: 10.7432222px;",n=t(r).offset().left,t.support.offsetFractions=n>10&&11>n,e.innerHTML="",i.removeChild(e)}()})(jQuery);(function(e){e.widget("ui.draggable",e.ui.mouse,{version:"1.10.2",widgetEventPrefix:"drag",options:{addClasses:!0,appendTo:"parent",axis:!1,connectToSortable:!1,containment:!1,cursor:"auto",cursorAt:!1,grid:!1,handle:!1,helper:"original",iframeFix:!1,opacity:!1,refreshPositions:!1,revert:!1,revertDuration:500,scope:"default",scroll:!0,scrollSensitivity:20,scrollSpeed:20,snap:!1,snapMode:"both",snapTolerance:20,stack:!1,zIndex:!1,drag:null,start:null,stop:null},_create:function(){"original"!==this.options.helper||/^(?:r|a|f)/.test(this.element.css("position"))||(this.element[0].style.position="relative"),this.options.addClasses&&this.element.addClass("ui-draggable"),this.options.disabled&&this.element.addClass("ui-draggable-disabled"),this._mouseInit()},_destroy:function(){this.element.removeClass("ui-draggable ui-draggable-dragging ui-draggable-disabled"),this._mouseDestroy()},_mouseCapture:function(t){var i=this.options;return this.helper||i.disabled||e(t.target).closest(".ui-resizable-handle").length>0?!1:(this.handle=this._getHandle(t),this.handle?(e(i.iframeFix===!0?"iframe":i.iframeFix).each(function(){e("<div class='ui-draggable-iframeFix' style='background: #fff;'></div>").css({width:this.offsetWidth+"px",height:this.offsetHeight+"px",position:"absolute",opacity:"0.001",zIndex:1e3}).css(e(this).offset()).appendTo("body")}),!0):!1)},_mouseStart:function(t){var i=this.options;return this.helper=this._createHelper(t),this.helper.addClass("ui-draggable-dragging"),this._cacheHelperProportions(),e.ui.ddmanager&&(e.ui.ddmanager.current=this),this._cacheMargins(),this.cssPosition=this.helper.css("position"),this.scrollParent=this.helper.scrollParent(),this.offset=this.positionAbs=this.element.offset(),this.offset={top:this.offset.top-this.margins.top,left:this.offset.left-this.margins.left},e.extend(this.offset,{click:{left:t.pageX-this.offset.left,top:t.pageY-this.offset.top},parent:this._getParentOffset(),relative:this._getRelativeOffset()}),this.originalPosition=this.position=this._generatePosition(t),this.originalPageX=t.pageX,this.originalPageY=t.pageY,i.cursorAt&&this._adjustOffsetFromHelper(i.cursorAt),i.containment&&this._setContainment(),this._trigger("start",t)===!1?(this._clear(),!1):(this._cacheHelperProportions(),e.ui.ddmanager&&!i.dropBehaviour&&e.ui.ddmanager.prepareOffsets(this,t),this._mouseDrag(t,!0),e.ui.ddmanager&&e.ui.ddmanager.dragStart(this,t),!0)},_mouseDrag:function(t,i){if(this.position=this._generatePosition(t),this.positionAbs=this._convertPositionTo("absolute"),!i){var s=this._uiHash();if(this._trigger("drag",t,s)===!1)return this._mouseUp({}),!1;this.position=s.position}return this.options.axis&&"y"===this.options.axis||(this.helper[0].style.left=this.position.left+"px"),this.options.axis&&"x"===this.options.axis||(this.helper[0].style.top=this.position.top+"px"),e.ui.ddmanager&&e.ui.ddmanager.drag(this,t),!1},_mouseStop:function(t){var i,s=this,n=!1,a=!1;for(e.ui.ddmanager&&!this.options.dropBehaviour&&(a=e.ui.ddmanager.drop(this,t)),this.dropped&&(a=this.dropped,this.dropped=!1),i=this.element[0];i&&(i=i.parentNode);)i===document&&(n=!0);return n||"original"!==this.options.helper?("invalid"===this.options.revert&&!a||"valid"===this.options.revert&&a||this.options.revert===!0||e.isFunction(this.options.revert)&&this.options.revert.call(this.element,a)?e(this.helper).animate(this.originalPosition,parseInt(this.options.revertDuration,10),function(){s._trigger("stop",t)!==!1&&s._clear()}):this._trigger("stop",t)!==!1&&this._clear(),!1):!1},_mouseUp:function(t){return e("div.ui-draggable-iframeFix").each(function(){this.parentNode.removeChild(this)}),e.ui.ddmanager&&e.ui.ddmanager.dragStop(this,t),e.ui.mouse.prototype._mouseUp.call(this,t)},cancel:function(){return this.helper.is(".ui-draggable-dragging")?this._mouseUp({}):this._clear(),this},_getHandle:function(t){return this.options.handle?!!e(t.target).closest(this.element.find(this.options.handle)).length:!0},_createHelper:function(t){var i=this.options,s=e.isFunction(i.helper)?e(i.helper.apply(this.element[0],[t])):"clone"===i.helper?this.element.clone().removeAttr("id"):this.element;return s.parents("body").length||s.appendTo("parent"===i.appendTo?this.element[0].parentNode:i.appendTo),s[0]===this.element[0]||/(fixed|absolute)/.test(s.css("position"))||s.css("position","absolute"),s},_adjustOffsetFromHelper:function(t){"string"==typeof t&&(t=t.split(" ")),e.isArray(t)&&(t={left:+t[0],top:+t[1]||0}),"left"in t&&(this.offset.click.left=t.left+this.margins.left),"right"in t&&(this.offset.click.left=this.helperProportions.width-t.right+this.margins.left),"top"in t&&(this.offset.click.top=t.top+this.margins.top),"bottom"in t&&(this.offset.click.top=this.helperProportions.height-t.bottom+this.margins.top)},_getParentOffset:function(){this.offsetParent=this.helper.offsetParent();var t=this.offsetParent.offset();return"absolute"===this.cssPosition&&this.scrollParent[0]!==document&&e.contains(this.scrollParent[0],this.offsetParent[0])&&(t.left+=this.scrollParent.scrollLeft(),t.top+=this.scrollParent.scrollTop()),(this.offsetParent[0]===document.body||this.offsetParent[0].tagName&&"html"===this.offsetParent[0].tagName.toLowerCase()&&e.ui.ie)&&(t={top:0,left:0}),{top:t.top+(parseInt(this.offsetParent.css("borderTopWidth"),10)||0),left:t.left+(parseInt(this.offsetParent.css("borderLeftWidth"),10)||0)}},_getRelativeOffset:function(){if("relative"===this.cssPosition){var e=this.element.position();return{top:e.top-(parseInt(this.helper.css("top"),10)||0)+this.scrollParent.scrollTop(),left:e.left-(parseInt(this.helper.css("left"),10)||0)+this.scrollParent.scrollLeft()}}return{top:0,left:0}},_cacheMargins:function(){this.margins={left:parseInt(this.element.css("marginLeft"),10)||0,top:parseInt(this.element.css("marginTop"),10)||0,right:parseInt(this.element.css("marginRight"),10)||0,bottom:parseInt(this.element.css("marginBottom"),10)||0}},_cacheHelperProportions:function(){this.helperProportions={width:this.helper.outerWidth(),height:this.helper.outerHeight()}},_setContainment:function(){var t,i,s,n=this.options;if("parent"===n.containment&&(n.containment=this.helper[0].parentNode),("document"===n.containment||"window"===n.containment)&&(this.containment=["document"===n.containment?0:e(window).scrollLeft()-this.offset.relative.left-this.offset.parent.left,"document"===n.containment?0:e(window).scrollTop()-this.offset.relative.top-this.offset.parent.top,("document"===n.containment?0:e(window).scrollLeft())+e("document"===n.containment?document:window).width()-this.helperProportions.width-this.margins.left,("document"===n.containment?0:e(window).scrollTop())+(e("document"===n.containment?document:window).height()||document.body.parentNode.scrollHeight)-this.helperProportions.height-this.margins.top]),/^(document|window|parent)$/.test(n.containment)||n.containment.constructor===Array)n.containment.constructor===Array&&(this.containment=n.containment);else{if(i=e(n.containment),s=i[0],!s)return;t="hidden"!==e(s).css("overflow"),this.containment=[(parseInt(e(s).css("borderLeftWidth"),10)||0)+(parseInt(e(s).css("paddingLeft"),10)||0),(parseInt(e(s).css("borderTopWidth"),10)||0)+(parseInt(e(s).css("paddingTop"),10)||0),(t?Math.max(s.scrollWidth,s.offsetWidth):s.offsetWidth)-(parseInt(e(s).css("borderRightWidth"),10)||0)-(parseInt(e(s).css("paddingRight"),10)||0)-this.helperProportions.width-this.margins.left-this.margins.right,(t?Math.max(s.scrollHeight,s.offsetHeight):s.offsetHeight)-(parseInt(e(s).css("borderBottomWidth"),10)||0)-(parseInt(e(s).css("paddingBottom"),10)||0)-this.helperProportions.height-this.margins.top-this.margins.bottom],this.relative_container=i}},_convertPositionTo:function(t,i){i||(i=this.position);var s="absolute"===t?1:-1,n="absolute"!==this.cssPosition||this.scrollParent[0]!==document&&e.contains(this.scrollParent[0],this.offsetParent[0])?this.scrollParent:this.offsetParent,a=/(html|body)/i.test(n[0].tagName);return{top:i.top+this.offset.relative.top*s+this.offset.parent.top*s-("fixed"===this.cssPosition?-this.scrollParent.scrollTop():a?0:n.scrollTop())*s,left:i.left+this.offset.relative.left*s+this.offset.parent.left*s-("fixed"===this.cssPosition?-this.scrollParent.scrollLeft():a?0:n.scrollLeft())*s}},_generatePosition:function(t){var i,s,n,a,o=this.options,r="absolute"!==this.cssPosition||this.scrollParent[0]!==document&&e.contains(this.scrollParent[0],this.offsetParent[0])?this.scrollParent:this.offsetParent,h=/(html|body)/i.test(r[0].tagName),l=t.pageX,u=t.pageY;return this.originalPosition&&(this.containment&&(this.relative_container?(s=this.relative_container.offset(),i=[this.containment[0]+s.left,this.containment[1]+s.top,this.containment[2]+s.left,this.containment[3]+s.top]):i=this.containment,t.pageX-this.offset.click.left<i[0]&&(l=i[0]+this.offset.click.left),t.pageY-this.offset.click.top<i[1]&&(u=i[1]+this.offset.click.top),t.pageX-this.offset.click.left>i[2]&&(l=i[2]+this.offset.click.left),t.pageY-this.offset.click.top>i[3]&&(u=i[3]+this.offset.click.top)),o.grid&&(n=o.grid[1]?this.originalPageY+Math.round((u-this.originalPageY)/o.grid[1])*o.grid[1]:this.originalPageY,u=i?n-this.offset.click.top>=i[1]||n-this.offset.click.top>i[3]?n:n-this.offset.click.top>=i[1]?n-o.grid[1]:n+o.grid[1]:n,a=o.grid[0]?this.originalPageX+Math.round((l-this.originalPageX)/o.grid[0])*o.grid[0]:this.originalPageX,l=i?a-this.offset.click.left>=i[0]||a-this.offset.click.left>i[2]?a:a-this.offset.click.left>=i[0]?a-o.grid[0]:a+o.grid[0]:a)),{top:u-this.offset.click.top-this.offset.relative.top-this.offset.parent.top+("fixed"===this.cssPosition?-this.scrollParent.scrollTop():h?0:r.scrollTop()),left:l-this.offset.click.left-this.offset.relative.left-this.offset.parent.left+("fixed"===this.cssPosition?-this.scrollParent.scrollLeft():h?0:r.scrollLeft())}},_clear:function(){this.helper.removeClass("ui-draggable-dragging"),this.helper[0]===this.element[0]||this.cancelHelperRemoval||this.helper.remove(),this.helper=null,this.cancelHelperRemoval=!1},_trigger:function(t,i,s){return s=s||this._uiHash(),e.ui.plugin.call(this,t,[i,s]),"drag"===t&&(this.positionAbs=this._convertPositionTo("absolute")),e.Widget.prototype._trigger.call(this,t,i,s)},plugins:{},_uiHash:function(){return{helper:this.helper,position:this.position,originalPosition:this.originalPosition,offset:this.positionAbs}}}),e.ui.plugin.add("draggable","connectToSortable",{start:function(t,i){var s=e(this).data("ui-draggable"),n=s.options,a=e.extend({},i,{item:s.element});s.sortables=[],e(n.connectToSortable).each(function(){var i=e.data(this,"ui-sortable");i&&!i.options.disabled&&(s.sortables.push({instance:i,shouldRevert:i.options.revert}),i.refreshPositions(),i._trigger("activate",t,a))})},stop:function(t,i){var s=e(this).data("ui-draggable"),n=e.extend({},i,{item:s.element});e.each(s.sortables,function(){this.instance.isOver?(this.instance.isOver=0,s.cancelHelperRemoval=!0,this.instance.cancelHelperRemoval=!1,this.shouldRevert&&(this.instance.options.revert=this.shouldRevert),this.instance._mouseStop(t),this.instance.options.helper=this.instance.options._helper,"original"===s.options.helper&&this.instance.currentItem.css({top:"auto",left:"auto"})):(this.instance.cancelHelperRemoval=!1,this.instance._trigger("deactivate",t,n))})},drag:function(t,i){var s=e(this).data("ui-draggable"),n=this;e.each(s.sortables,function(){var a=!1,o=this;this.instance.positionAbs=s.positionAbs,this.instance.helperProportions=s.helperProportions,this.instance.offset.click=s.offset.click,this.instance._intersectsWith(this.instance.containerCache)&&(a=!0,e.each(s.sortables,function(){return this.instance.positionAbs=s.positionAbs,this.instance.helperProportions=s.helperProportions,this.instance.offset.click=s.offset.click,this!==o&&this.instance._intersectsWith(this.instance.containerCache)&&e.contains(o.instance.element[0],this.instance.element[0])&&(a=!1),a})),a?(this.instance.isOver||(this.instance.isOver=1,this.instance.currentItem=e(n).clone().removeAttr("id").appendTo(this.instance.element).data("ui-sortable-item",!0),this.instance.options._helper=this.instance.options.helper,this.instance.options.helper=function(){return i.helper[0]},t.target=this.instance.currentItem[0],this.instance._mouseCapture(t,!0),this.instance._mouseStart(t,!0,!0),this.instance.offset.click.top=s.offset.click.top,this.instance.offset.click.left=s.offset.click.left,this.instance.offset.parent.left-=s.offset.parent.left-this.instance.offset.parent.left,this.instance.offset.parent.top-=s.offset.parent.top-this.instance.offset.parent.top,s._trigger("toSortable",t),s.dropped=this.instance.element,s.currentItem=s.element,this.instance.fromOutside=s),this.instance.currentItem&&this.instance._mouseDrag(t)):this.instance.isOver&&(this.instance.isOver=0,this.instance.cancelHelperRemoval=!0,this.instance.options.revert=!1,this.instance._trigger("out",t,this.instance._uiHash(this.instance)),this.instance._mouseStop(t,!0),this.instance.options.helper=this.instance.options._helper,this.instance.currentItem.remove(),this.instance.placeholder&&this.instance.placeholder.remove(),s._trigger("fromSortable",t),s.dropped=!1)})}}),e.ui.plugin.add("draggable","cursor",{start:function(){var t=e("body"),i=e(this).data("ui-draggable").options;t.css("cursor")&&(i._cursor=t.css("cursor")),t.css("cursor",i.cursor)},stop:function(){var t=e(this).data("ui-draggable").options;t._cursor&&e("body").css("cursor",t._cursor)}}),e.ui.plugin.add("draggable","opacity",{start:function(t,i){var s=e(i.helper),n=e(this).data("ui-draggable").options;s.css("opacity")&&(n._opacity=s.css("opacity")),s.css("opacity",n.opacity)},stop:function(t,i){var s=e(this).data("ui-draggable").options;s._opacity&&e(i.helper).css("opacity",s._opacity)}}),e.ui.plugin.add("draggable","scroll",{start:function(){var t=e(this).data("ui-draggable");t.scrollParent[0]!==document&&"HTML"!==t.scrollParent[0].tagName&&(t.overflowOffset=t.scrollParent.offset())},drag:function(t){var i=e(this).data("ui-draggable"),s=i.options,n=!1;i.scrollParent[0]!==document&&"HTML"!==i.scrollParent[0].tagName?(s.axis&&"x"===s.axis||(i.overflowOffset.top+i.scrollParent[0].offsetHeight-t.pageY<s.scrollSensitivity?i.scrollParent[0].scrollTop=n=i.scrollParent[0].scrollTop+s.scrollSpeed:t.pageY-i.overflowOffset.top<s.scrollSensitivity&&(i.scrollParent[0].scrollTop=n=i.scrollParent[0].scrollTop-s.scrollSpeed)),s.axis&&"y"===s.axis||(i.overflowOffset.left+i.scrollParent[0].offsetWidth-t.pageX<s.scrollSensitivity?i.scrollParent[0].scrollLeft=n=i.scrollParent[0].scrollLeft+s.scrollSpeed:t.pageX-i.overflowOffset.left<s.scrollSensitivity&&(i.scrollParent[0].scrollLeft=n=i.scrollParent[0].scrollLeft-s.scrollSpeed))):(s.axis&&"x"===s.axis||(t.pageY-e(document).scrollTop()<s.scrollSensitivity?n=e(document).scrollTop(e(document).scrollTop()-s.scrollSpeed):e(window).height()-(t.pageY-e(document).scrollTop())<s.scrollSensitivity&&(n=e(document).scrollTop(e(document).scrollTop()+s.scrollSpeed))),s.axis&&"y"===s.axis||(t.pageX-e(document).scrollLeft()<s.scrollSensitivity?n=e(document).scrollLeft(e(document).scrollLeft()-s.scrollSpeed):e(window).width()-(t.pageX-e(document).scrollLeft())<s.scrollSensitivity&&(n=e(document).scrollLeft(e(document).scrollLeft()+s.scrollSpeed)))),n!==!1&&e.ui.ddmanager&&!s.dropBehaviour&&e.ui.ddmanager.prepareOffsets(i,t)}}),e.ui.plugin.add("draggable","snap",{start:function(){var t=e(this).data("ui-draggable"),i=t.options;t.snapElements=[],e(i.snap.constructor!==String?i.snap.items||":data(ui-draggable)":i.snap).each(function(){var i=e(this),s=i.offset();this!==t.element[0]&&t.snapElements.push({item:this,width:i.outerWidth(),height:i.outerHeight(),top:s.top,left:s.left})})},drag:function(t,i){var s,n,a,o,r,h,l,u,c,d,p=e(this).data("ui-draggable"),f=p.options,m=f.snapTolerance,g=i.offset.left,v=g+p.helperProportions.width,y=i.offset.top,b=y+p.helperProportions.height;for(c=p.snapElements.length-1;c>=0;c--)r=p.snapElements[c].left,h=r+p.snapElements[c].width,l=p.snapElements[c].top,u=l+p.snapElements[c].height,g>r-m&&h+m>g&&y>l-m&&u+m>y||g>r-m&&h+m>g&&b>l-m&&u+m>b||v>r-m&&h+m>v&&y>l-m&&u+m>y||v>r-m&&h+m>v&&b>l-m&&u+m>b?("inner"!==f.snapMode&&(s=m>=Math.abs(l-b),n=m>=Math.abs(u-y),a=m>=Math.abs(r-v),o=m>=Math.abs(h-g),s&&(i.position.top=p._convertPositionTo("relative",{top:l-p.helperProportions.height,left:0}).top-p.margins.top),n&&(i.position.top=p._convertPositionTo("relative",{top:u,left:0}).top-p.margins.top),a&&(i.position.left=p._convertPositionTo("relative",{top:0,left:r-p.helperProportions.width}).left-p.margins.left),o&&(i.position.left=p._convertPositionTo("relative",{top:0,left:h}).left-p.margins.left)),d=s||n||a||o,"outer"!==f.snapMode&&(s=m>=Math.abs(l-y),n=m>=Math.abs(u-b),a=m>=Math.abs(r-g),o=m>=Math.abs(h-v),s&&(i.position.top=p._convertPositionTo("relative",{top:l,left:0}).top-p.margins.top),n&&(i.position.top=p._convertPositionTo("relative",{top:u-p.helperProportions.height,left:0}).top-p.margins.top),a&&(i.position.left=p._convertPositionTo("relative",{top:0,left:r}).left-p.margins.left),o&&(i.position.left=p._convertPositionTo("relative",{top:0,left:h-p.helperProportions.width}).left-p.margins.left)),!p.snapElements[c].snapping&&(s||n||a||o||d)&&p.options.snap.snap&&p.options.snap.snap.call(p.element,t,e.extend(p._uiHash(),{snapItem:p.snapElements[c].item})),p.snapElements[c].snapping=s||n||a||o||d):(p.snapElements[c].snapping&&p.options.snap.release&&p.options.snap.release.call(p.element,t,e.extend(p._uiHash(),{snapItem:p.snapElements[c].item})),p.snapElements[c].snapping=!1)}}),e.ui.plugin.add("draggable","stack",{start:function(){var t,i=this.data("ui-draggable").options,s=e.makeArray(e(i.stack)).sort(function(t,i){return(parseInt(e(t).css("zIndex"),10)||0)-(parseInt(e(i).css("zIndex"),10)||0)});s.length&&(t=parseInt(e(s[0]).css("zIndex"),10)||0,e(s).each(function(i){e(this).css("zIndex",t+i)}),this.css("zIndex",t+s.length))}}),e.ui.plugin.add("draggable","zIndex",{start:function(t,i){var s=e(i.helper),n=e(this).data("ui-draggable").options;s.css("zIndex")&&(n._zIndex=s.css("zIndex")),s.css("zIndex",n.zIndex)},stop:function(t,i){var s=e(this).data("ui-draggable").options;s._zIndex&&e(i.helper).css("zIndex",s._zIndex)}})})(jQuery);(function(e){function t(e){return parseInt(e,10)||0}function i(e){return!isNaN(parseInt(e,10))}e.widget("ui.resizable",e.ui.mouse,{version:"1.10.2",widgetEventPrefix:"resize",options:{alsoResize:!1,animate:!1,animateDuration:"slow",animateEasing:"swing",aspectRatio:!1,autoHide:!1,containment:!1,ghost:!1,grid:!1,handles:"e,s,se",helper:!1,maxHeight:null,maxWidth:null,minHeight:10,minWidth:10,zIndex:90,resize:null,start:null,stop:null},_create:function(){var t,i,s,n,a,o=this,r=this.options;if(this.element.addClass("ui-resizable"),e.extend(this,{_aspectRatio:!!r.aspectRatio,aspectRatio:r.aspectRatio,originalElement:this.element,_proportionallyResizeElements:[],_helper:r.helper||r.ghost||r.animate?r.helper||"ui-resizable-helper":null}),this.element[0].nodeName.match(/canvas|textarea|input|select|button|img/i)&&(this.element.wrap(e("<div class='ui-wrapper' style='overflow: hidden;'></div>").css({position:this.element.css("position"),width:this.element.outerWidth(),height:this.element.outerHeight(),top:this.element.css("top"),left:this.element.css("left")})),this.element=this.element.parent().data("ui-resizable",this.element.data("ui-resizable")),this.elementIsWrapper=!0,this.element.css({marginLeft:this.originalElement.css("marginLeft"),marginTop:this.originalElement.css("marginTop"),marginRight:this.originalElement.css("marginRight"),marginBottom:this.originalElement.css("marginBottom")}),this.originalElement.css({marginLeft:0,marginTop:0,marginRight:0,marginBottom:0}),this.originalResizeStyle=this.originalElement.css("resize"),this.originalElement.css("resize","none"),this._proportionallyResizeElements.push(this.originalElement.css({position:"static",zoom:1,display:"block"})),this.originalElement.css({margin:this.originalElement.css("margin")}),this._proportionallyResize()),this.handles=r.handles||(e(".ui-resizable-handle",this.element).length?{n:".ui-resizable-n",e:".ui-resizable-e",s:".ui-resizable-s",w:".ui-resizable-w",se:".ui-resizable-se",sw:".ui-resizable-sw",ne:".ui-resizable-ne",nw:".ui-resizable-nw"}:"e,s,se"),this.handles.constructor===String)for("all"===this.handles&&(this.handles="n,e,s,w,se,sw,ne,nw"),t=this.handles.split(","),this.handles={},i=0;t.length>i;i++)s=e.trim(t[i]),a="ui-resizable-"+s,n=e("<div class='ui-resizable-handle "+a+"'></div>"),n.css({zIndex:r.zIndex}),"se"===s&&n.addClass("ui-icon ui-icon-gripsmall-diagonal-se"),this.handles[s]=".ui-resizable-"+s,this.element.append(n);this._renderAxis=function(t){var i,s,n,a;t=t||this.element;for(i in this.handles)this.handles[i].constructor===String&&(this.handles[i]=e(this.handles[i],this.element).show()),this.elementIsWrapper&&this.originalElement[0].nodeName.match(/textarea|input|select|button/i)&&(s=e(this.handles[i],this.element),a=/sw|ne|nw|se|n|s/.test(i)?s.outerHeight():s.outerWidth(),n=["padding",/ne|nw|n/.test(i)?"Top":/se|sw|s/.test(i)?"Bottom":/^e$/.test(i)?"Right":"Left"].join(""),t.css(n,a),this._proportionallyResize()),e(this.handles[i]).length},this._renderAxis(this.element),this._handles=e(".ui-resizable-handle",this.element).disableSelection(),this._handles.mouseover(function(){o.resizing||(this.className&&(n=this.className.match(/ui-resizable-(se|sw|ne|nw|n|e|s|w)/i)),o.axis=n&&n[1]?n[1]:"se")}),r.autoHide&&(this._handles.hide(),e(this.element).addClass("ui-resizable-autohide").mouseenter(function(){r.disabled||(e(this).removeClass("ui-resizable-autohide"),o._handles.show())}).mouseleave(function(){r.disabled||o.resizing||(e(this).addClass("ui-resizable-autohide"),o._handles.hide())})),this._mouseInit()},_destroy:function(){this._mouseDestroy();var t,i=function(t){e(t).removeClass("ui-resizable ui-resizable-disabled ui-resizable-resizing").removeData("resizable").removeData("ui-resizable").unbind(".resizable").find(".ui-resizable-handle").remove()};return this.elementIsWrapper&&(i(this.element),t=this.element,this.originalElement.css({position:t.css("position"),width:t.outerWidth(),height:t.outerHeight(),top:t.css("top"),left:t.css("left")}).insertAfter(t),t.remove()),this.originalElement.css("resize",this.originalResizeStyle),i(this.originalElement),this},_mouseCapture:function(t){var i,s,n=!1;for(i in this.handles)s=e(this.handles[i])[0],(s===t.target||e.contains(s,t.target))&&(n=!0);return!this.options.disabled&&n},_mouseStart:function(i){var s,n,a,o=this.options,r=this.element.position(),h=this.element;return this.resizing=!0,/absolute/.test(h.css("position"))?h.css({position:"absolute",top:h.css("top"),left:h.css("left")}):h.is(".ui-draggable")&&h.css({position:"absolute",top:r.top,left:r.left}),this._renderProxy(),s=t(this.helper.css("left")),n=t(this.helper.css("top")),o.containment&&(s+=e(o.containment).scrollLeft()||0,n+=e(o.containment).scrollTop()||0),this.offset=this.helper.offset(),this.position={left:s,top:n},this.size=this._helper?{width:h.outerWidth(),height:h.outerHeight()}:{width:h.width(),height:h.height()},this.originalSize=this._helper?{width:h.outerWidth(),height:h.outerHeight()}:{width:h.width(),height:h.height()},this.originalPosition={left:s,top:n},this.sizeDiff={width:h.outerWidth()-h.width(),height:h.outerHeight()-h.height()},this.originalMousePosition={left:i.pageX,top:i.pageY},this.aspectRatio="number"==typeof o.aspectRatio?o.aspectRatio:this.originalSize.width/this.originalSize.height||1,a=e(".ui-resizable-"+this.axis).css("cursor"),e("body").css("cursor","auto"===a?this.axis+"-resize":a),h.addClass("ui-resizable-resizing"),this._propagate("start",i),!0},_mouseDrag:function(t){var i,s=this.helper,n={},a=this.originalMousePosition,o=this.axis,r=this.position.top,h=this.position.left,l=this.size.width,u=this.size.height,c=t.pageX-a.left||0,d=t.pageY-a.top||0,p=this._change[o];return p?(i=p.apply(this,[t,c,d]),this._updateVirtualBoundaries(t.shiftKey),(this._aspectRatio||t.shiftKey)&&(i=this._updateRatio(i,t)),i=this._respectSize(i,t),this._updateCache(i),this._propagate("resize",t),this.position.top!==r&&(n.top=this.position.top+"px"),this.position.left!==h&&(n.left=this.position.left+"px"),this.size.width!==l&&(n.width=this.size.width+"px"),this.size.height!==u&&(n.height=this.size.height+"px"),s.css(n),!this._helper&&this._proportionallyResizeElements.length&&this._proportionallyResize(),e.isEmptyObject(n)||this._trigger("resize",t,this.ui()),!1):!1},_mouseStop:function(t){this.resizing=!1;var i,s,n,a,o,r,h,l=this.options,u=this;return this._helper&&(i=this._proportionallyResizeElements,s=i.length&&/textarea/i.test(i[0].nodeName),n=s&&e.ui.hasScroll(i[0],"left")?0:u.sizeDiff.height,a=s?0:u.sizeDiff.width,o={width:u.helper.width()-a,height:u.helper.height()-n},r=parseInt(u.element.css("left"),10)+(u.position.left-u.originalPosition.left)||null,h=parseInt(u.element.css("top"),10)+(u.position.top-u.originalPosition.top)||null,l.animate||this.element.css(e.extend(o,{top:h,left:r})),u.helper.height(u.size.height),u.helper.width(u.size.width),this._helper&&!l.animate&&this._proportionallyResize()),e("body").css("cursor","auto"),this.element.removeClass("ui-resizable-resizing"),this._propagate("stop",t),this._helper&&this.helper.remove(),!1},_updateVirtualBoundaries:function(e){var t,s,n,a,o,r=this.options;o={minWidth:i(r.minWidth)?r.minWidth:0,maxWidth:i(r.maxWidth)?r.maxWidth:1/0,minHeight:i(r.minHeight)?r.minHeight:0,maxHeight:i(r.maxHeight)?r.maxHeight:1/0},(this._aspectRatio||e)&&(t=o.minHeight*this.aspectRatio,n=o.minWidth/this.aspectRatio,s=o.maxHeight*this.aspectRatio,a=o.maxWidth/this.aspectRatio,t>o.minWidth&&(o.minWidth=t),n>o.minHeight&&(o.minHeight=n),o.maxWidth>s&&(o.maxWidth=s),o.maxHeight>a&&(o.maxHeight=a)),this._vBoundaries=o},_updateCache:function(e){this.offset=this.helper.offset(),i(e.left)&&(this.position.left=e.left),i(e.top)&&(this.position.top=e.top),i(e.height)&&(this.size.height=e.height),i(e.width)&&(this.size.width=e.width)},_updateRatio:function(e){var t=this.position,s=this.size,n=this.axis;return i(e.height)?e.width=e.height*this.aspectRatio:i(e.width)&&(e.height=e.width/this.aspectRatio),"sw"===n&&(e.left=t.left+(s.width-e.width),e.top=null),"nw"===n&&(e.top=t.top+(s.height-e.height),e.left=t.left+(s.width-e.width)),e},_respectSize:function(e){var t=this._vBoundaries,s=this.axis,n=i(e.width)&&t.maxWidth&&t.maxWidth<e.width,a=i(e.height)&&t.maxHeight&&t.maxHeight<e.height,o=i(e.width)&&t.minWidth&&t.minWidth>e.width,r=i(e.height)&&t.minHeight&&t.minHeight>e.height,h=this.originalPosition.left+this.originalSize.width,l=this.position.top+this.size.height,u=/sw|nw|w/.test(s),c=/nw|ne|n/.test(s);return o&&(e.width=t.minWidth),r&&(e.height=t.minHeight),n&&(e.width=t.maxWidth),a&&(e.height=t.maxHeight),o&&u&&(e.left=h-t.minWidth),n&&u&&(e.left=h-t.maxWidth),r&&c&&(e.top=l-t.minHeight),a&&c&&(e.top=l-t.maxHeight),e.width||e.height||e.left||!e.top?e.width||e.height||e.top||!e.left||(e.left=null):e.top=null,e},_proportionallyResize:function(){if(this._proportionallyResizeElements.length){var e,t,i,s,n,a=this.helper||this.element;for(e=0;this._proportionallyResizeElements.length>e;e++){if(n=this._proportionallyResizeElements[e],!this.borderDif)for(this.borderDif=[],i=[n.css("borderTopWidth"),n.css("borderRightWidth"),n.css("borderBottomWidth"),n.css("borderLeftWidth")],s=[n.css("paddingTop"),n.css("paddingRight"),n.css("paddingBottom"),n.css("paddingLeft")],t=0;i.length>t;t++)this.borderDif[t]=(parseInt(i[t],10)||0)+(parseInt(s[t],10)||0);n.css({height:a.height()-this.borderDif[0]-this.borderDif[2]||0,width:a.width()-this.borderDif[1]-this.borderDif[3]||0})}}},_renderProxy:function(){var t=this.element,i=this.options;this.elementOffset=t.offset(),this._helper?(this.helper=this.helper||e("<div style='overflow:hidden;'></div>"),this.helper.addClass(this._helper).css({width:this.element.outerWidth()-1,height:this.element.outerHeight()-1,position:"absolute",left:this.elementOffset.left+"px",top:this.elementOffset.top+"px",zIndex:++i.zIndex}),this.helper.appendTo("body").disableSelection()):this.helper=this.element},_change:{e:function(e,t){return{width:this.originalSize.width+t}},w:function(e,t){var i=this.originalSize,s=this.originalPosition;return{left:s.left+t,width:i.width-t}},n:function(e,t,i){var s=this.originalSize,n=this.originalPosition;return{top:n.top+i,height:s.height-i}},s:function(e,t,i){return{height:this.originalSize.height+i}},se:function(t,i,s){return e.extend(this._change.s.apply(this,arguments),this._change.e.apply(this,[t,i,s]))},sw:function(t,i,s){return e.extend(this._change.s.apply(this,arguments),this._change.w.apply(this,[t,i,s]))},ne:function(t,i,s){return e.extend(this._change.n.apply(this,arguments),this._change.e.apply(this,[t,i,s]))},nw:function(t,i,s){return e.extend(this._change.n.apply(this,arguments),this._change.w.apply(this,[t,i,s]))}},_propagate:function(t,i){e.ui.plugin.call(this,t,[i,this.ui()]),"resize"!==t&&this._trigger(t,i,this.ui())},plugins:{},ui:function(){return{originalElement:this.originalElement,element:this.element,helper:this.helper,position:this.position,size:this.size,originalSize:this.originalSize,originalPosition:this.originalPosition}}}),e.ui.plugin.add("resizable","animate",{stop:function(t){var i=e(this).data("ui-resizable"),s=i.options,n=i._proportionallyResizeElements,a=n.length&&/textarea/i.test(n[0].nodeName),o=a&&e.ui.hasScroll(n[0],"left")?0:i.sizeDiff.height,r=a?0:i.sizeDiff.width,h={width:i.size.width-r,height:i.size.height-o},l=parseInt(i.element.css("left"),10)+(i.position.left-i.originalPosition.left)||null,u=parseInt(i.element.css("top"),10)+(i.position.top-i.originalPosition.top)||null;i.element.animate(e.extend(h,u&&l?{top:u,left:l}:{}),{duration:s.animateDuration,easing:s.animateEasing,step:function(){var s={width:parseInt(i.element.css("width"),10),height:parseInt(i.element.css("height"),10),top:parseInt(i.element.css("top"),10),left:parseInt(i.element.css("left"),10)};n&&n.length&&e(n[0]).css({width:s.width,height:s.height}),i._updateCache(s),i._propagate("resize",t)}})}}),e.ui.plugin.add("resizable","containment",{start:function(){var i,s,n,a,o,r,h,l=e(this).data("ui-resizable"),u=l.options,c=l.element,d=u.containment,p=d instanceof e?d.get(0):/parent/.test(d)?c.parent().get(0):d;p&&(l.containerElement=e(p),/document/.test(d)||d===document?(l.containerOffset={left:0,top:0},l.containerPosition={left:0,top:0},l.parentData={element:e(document),left:0,top:0,width:e(document).width(),height:e(document).height()||document.body.parentNode.scrollHeight}):(i=e(p),s=[],e(["Top","Right","Left","Bottom"]).each(function(e,n){s[e]=t(i.css("padding"+n))}),l.containerOffset=i.offset(),l.containerPosition=i.position(),l.containerSize={height:i.innerHeight()-s[3],width:i.innerWidth()-s[1]},n=l.containerOffset,a=l.containerSize.height,o=l.containerSize.width,r=e.ui.hasScroll(p,"left")?p.scrollWidth:o,h=e.ui.hasScroll(p)?p.scrollHeight:a,l.parentData={element:p,left:n.left,top:n.top,width:r,height:h}))},resize:function(t){var i,s,n,a,o=e(this).data("ui-resizable"),r=o.options,h=o.containerOffset,l=o.position,u=o._aspectRatio||t.shiftKey,c={top:0,left:0},d=o.containerElement;d[0]!==document&&/static/.test(d.css("position"))&&(c=h),l.left<(o._helper?h.left:0)&&(o.size.width=o.size.width+(o._helper?o.position.left-h.left:o.position.left-c.left),u&&(o.size.height=o.size.width/o.aspectRatio),o.position.left=r.helper?h.left:0),l.top<(o._helper?h.top:0)&&(o.size.height=o.size.height+(o._helper?o.position.top-h.top:o.position.top),u&&(o.size.width=o.size.height*o.aspectRatio),o.position.top=o._helper?h.top:0),o.offset.left=o.parentData.left+o.position.left,o.offset.top=o.parentData.top+o.position.top,i=Math.abs((o._helper?o.offset.left-c.left:o.offset.left-c.left)+o.sizeDiff.width),s=Math.abs((o._helper?o.offset.top-c.top:o.offset.top-h.top)+o.sizeDiff.height),n=o.containerElement.get(0)===o.element.parent().get(0),a=/relative|absolute/.test(o.containerElement.css("position")),n&&a&&(i-=o.parentData.left),i+o.size.width>=o.parentData.width&&(o.size.width=o.parentData.width-i,u&&(o.size.height=o.size.width/o.aspectRatio)),s+o.size.height>=o.parentData.height&&(o.size.height=o.parentData.height-s,u&&(o.size.width=o.size.height*o.aspectRatio))},stop:function(){var t=e(this).data("ui-resizable"),i=t.options,s=t.containerOffset,n=t.containerPosition,a=t.containerElement,o=e(t.helper),r=o.offset(),h=o.outerWidth()-t.sizeDiff.width,l=o.outerHeight()-t.sizeDiff.height;t._helper&&!i.animate&&/relative/.test(a.css("position"))&&e(this).css({left:r.left-n.left-s.left,width:h,height:l}),t._helper&&!i.animate&&/static/.test(a.css("position"))&&e(this).css({left:r.left-n.left-s.left,width:h,height:l})}}),e.ui.plugin.add("resizable","alsoResize",{start:function(){var t=e(this).data("ui-resizable"),i=t.options,s=function(t){e(t).each(function(){var t=e(this);t.data("ui-resizable-alsoresize",{width:parseInt(t.width(),10),height:parseInt(t.height(),10),left:parseInt(t.css("left"),10),top:parseInt(t.css("top"),10)})})};"object"!=typeof i.alsoResize||i.alsoResize.parentNode?s(i.alsoResize):i.alsoResize.length?(i.alsoResize=i.alsoResize[0],s(i.alsoResize)):e.each(i.alsoResize,function(e){s(e)})},resize:function(t,i){var s=e(this).data("ui-resizable"),n=s.options,a=s.originalSize,o=s.originalPosition,r={height:s.size.height-a.height||0,width:s.size.width-a.width||0,top:s.position.top-o.top||0,left:s.position.left-o.left||0},h=function(t,s){e(t).each(function(){var t=e(this),n=e(this).data("ui-resizable-alsoresize"),a={},o=s&&s.length?s:t.parents(i.originalElement[0]).length?["width","height"]:["width","height","top","left"];e.each(o,function(e,t){var i=(n[t]||0)+(r[t]||0);i&&i>=0&&(a[t]=i||null)}),t.css(a)})};"object"!=typeof n.alsoResize||n.alsoResize.nodeType?h(n.alsoResize):e.each(n.alsoResize,function(e,t){h(e,t)})},stop:function(){e(this).removeData("resizable-alsoresize")}}),e.ui.plugin.add("resizable","ghost",{start:function(){var t=e(this).data("ui-resizable"),i=t.options,s=t.size;t.ghost=t.originalElement.clone(),t.ghost.css({opacity:.25,display:"block",position:"relative",height:s.height,width:s.width,margin:0,left:0,top:0}).addClass("ui-resizable-ghost").addClass("string"==typeof i.ghost?i.ghost:""),t.ghost.appendTo(t.helper)},resize:function(){var t=e(this).data("ui-resizable");t.ghost&&t.ghost.css({position:"relative",height:t.size.height,width:t.size.width})},stop:function(){var t=e(this).data("ui-resizable");t.ghost&&t.helper&&t.helper.get(0).removeChild(t.ghost.get(0))}}),e.ui.plugin.add("resizable","grid",{resize:function(){var t=e(this).data("ui-resizable"),i=t.options,s=t.size,n=t.originalSize,a=t.originalPosition,o=t.axis,r="number"==typeof i.grid?[i.grid,i.grid]:i.grid,h=r[0]||1,l=r[1]||1,u=Math.round((s.width-n.width)/h)*h,c=Math.round((s.height-n.height)/l)*l,d=n.width+u,p=n.height+c,f=i.maxWidth&&d>i.maxWidth,m=i.maxHeight&&p>i.maxHeight,g=i.minWidth&&i.minWidth>d,v=i.minHeight&&i.minHeight>p;i.grid=r,g&&(d+=h),v&&(p+=l),f&&(d-=h),m&&(p-=l),/^(se|s|e)$/.test(o)?(t.size.width=d,t.size.height=p):/^(ne)$/.test(o)?(t.size.width=d,t.size.height=p,t.position.top=a.top-c):/^(sw)$/.test(o)?(t.size.width=d,t.size.height=p,t.position.left=a.left-u):(t.size.width=d,t.size.height=p,t.position.top=a.top-c,t.position.left=a.left-u)}})})(jQuery);(function(t){function e(t,e,i){return t>e&&e+i>t}function i(t){return/left|right/.test(t.css("float"))||/inline|table-cell/.test(t.css("display"))}t.widget("ui.sortable",t.ui.mouse,{version:"1.10.2",widgetEventPrefix:"sort",ready:!1,options:{appendTo:"parent",axis:!1,connectWith:!1,containment:!1,cursor:"auto",cursorAt:!1,dropOnEmpty:!0,forcePlaceholderSize:!1,forceHelperSize:!1,grid:!1,handle:!1,helper:"original",items:"> *",opacity:!1,placeholder:!1,revert:!1,scroll:!0,scrollSensitivity:20,scrollSpeed:20,scope:"default",tolerance:"intersect",zIndex:1e3,activate:null,beforeStop:null,change:null,deactivate:null,out:null,over:null,receive:null,remove:null,sort:null,start:null,stop:null,update:null},_create:function(){var t=this.options;this.containerCache={},this.element.addClass("ui-sortable"),this.refresh(),this.floating=this.items.length?"x"===t.axis||i(this.items[0].item):!1,this.offset=this.element.offset(),this._mouseInit(),this.ready=!0},_destroy:function(){this.element.removeClass("ui-sortable ui-sortable-disabled"),this._mouseDestroy();for(var t=this.items.length-1;t>=0;t--)this.items[t].item.removeData(this.widgetName+"-item");return this},_setOption:function(e,i){"disabled"===e?(this.options[e]=i,this.widget().toggleClass("ui-sortable-disabled",!!i)):t.Widget.prototype._setOption.apply(this,arguments)},_mouseCapture:function(e,i){var s=null,n=!1,a=this;return this.reverting?!1:this.options.disabled||"static"===this.options.type?!1:(this._refreshItems(e),t(e.target).parents().each(function(){return t.data(this,a.widgetName+"-item")===a?(s=t(this),!1):undefined}),t.data(e.target,a.widgetName+"-item")===a&&(s=t(e.target)),s?!this.options.handle||i||(t(this.options.handle,s).find("*").addBack().each(function(){this===e.target&&(n=!0)}),n)?(this.currentItem=s,this._removeCurrentsFromItems(),!0):!1:!1)},_mouseStart:function(e,i,s){var n,a,o=this.options;if(this.currentContainer=this,this.refreshPositions(),this.helper=this._createHelper(e),this._cacheHelperProportions(),this._cacheMargins(),this.scrollParent=this.helper.scrollParent(),this.offset=this.currentItem.offset(),this.offset={top:this.offset.top-this.margins.top,left:this.offset.left-this.margins.left},t.extend(this.offset,{click:{left:e.pageX-this.offset.left,top:e.pageY-this.offset.top},parent:this._getParentOffset(),relative:this._getRelativeOffset()}),this.helper.css("position","absolute"),this.cssPosition=this.helper.css("position"),this.originalPosition=this._generatePosition(e),this.originalPageX=e.pageX,this.originalPageY=e.pageY,o.cursorAt&&this._adjustOffsetFromHelper(o.cursorAt),this.domPosition={prev:this.currentItem.prev()[0],parent:this.currentItem.parent()[0]},this.helper[0]!==this.currentItem[0]&&this.currentItem.hide(),this._createPlaceholder(),o.containment&&this._setContainment(),o.cursor&&"auto"!==o.cursor&&(a=this.document.find("body"),this.storedCursor=a.css("cursor"),a.css("cursor",o.cursor),this.storedStylesheet=t("<style>*{ cursor: "+o.cursor+" !important; }</style>").appendTo(a)),o.opacity&&(this.helper.css("opacity")&&(this._storedOpacity=this.helper.css("opacity")),this.helper.css("opacity",o.opacity)),o.zIndex&&(this.helper.css("zIndex")&&(this._storedZIndex=this.helper.css("zIndex")),this.helper.css("zIndex",o.zIndex)),this.scrollParent[0]!==document&&"HTML"!==this.scrollParent[0].tagName&&(this.overflowOffset=this.scrollParent.offset()),this._trigger("start",e,this._uiHash()),this._preserveHelperProportions||this._cacheHelperProportions(),!s)for(n=this.containers.length-1;n>=0;n--)this.containers[n]._trigger("activate",e,this._uiHash(this));return t.ui.ddmanager&&(t.ui.ddmanager.current=this),t.ui.ddmanager&&!o.dropBehaviour&&t.ui.ddmanager.prepareOffsets(this,e),this.dragging=!0,this.helper.addClass("ui-sortable-helper"),this._mouseDrag(e),!0},_mouseDrag:function(e){var i,s,n,a,o=this.options,r=!1;for(this.position=this._generatePosition(e),this.positionAbs=this._convertPositionTo("absolute"),this.lastPositionAbs||(this.lastPositionAbs=this.positionAbs),this.options.scroll&&(this.scrollParent[0]!==document&&"HTML"!==this.scrollParent[0].tagName?(this.overflowOffset.top+this.scrollParent[0].offsetHeight-e.pageY<o.scrollSensitivity?this.scrollParent[0].scrollTop=r=this.scrollParent[0].scrollTop+o.scrollSpeed:e.pageY-this.overflowOffset.top<o.scrollSensitivity&&(this.scrollParent[0].scrollTop=r=this.scrollParent[0].scrollTop-o.scrollSpeed),this.overflowOffset.left+this.scrollParent[0].offsetWidth-e.pageX<o.scrollSensitivity?this.scrollParent[0].scrollLeft=r=this.scrollParent[0].scrollLeft+o.scrollSpeed:e.pageX-this.overflowOffset.left<o.scrollSensitivity&&(this.scrollParent[0].scrollLeft=r=this.scrollParent[0].scrollLeft-o.scrollSpeed)):(e.pageY-t(document).scrollTop()<o.scrollSensitivity?r=t(document).scrollTop(t(document).scrollTop()-o.scrollSpeed):t(window).height()-(e.pageY-t(document).scrollTop())<o.scrollSensitivity&&(r=t(document).scrollTop(t(document).scrollTop()+o.scrollSpeed)),e.pageX-t(document).scrollLeft()<o.scrollSensitivity?r=t(document).scrollLeft(t(document).scrollLeft()-o.scrollSpeed):t(window).width()-(e.pageX-t(document).scrollLeft())<o.scrollSensitivity&&(r=t(document).scrollLeft(t(document).scrollLeft()+o.scrollSpeed))),r!==!1&&t.ui.ddmanager&&!o.dropBehaviour&&t.ui.ddmanager.prepareOffsets(this,e)),this.positionAbs=this._convertPositionTo("absolute"),this.options.axis&&"y"===this.options.axis||(this.helper[0].style.left=this.position.left+"px"),this.options.axis&&"x"===this.options.axis||(this.helper[0].style.top=this.position.top+"px"),i=this.items.length-1;i>=0;i--)if(s=this.items[i],n=s.item[0],a=this._intersectsWithPointer(s),a&&s.instance===this.currentContainer&&n!==this.currentItem[0]&&this.placeholder[1===a?"next":"prev"]()[0]!==n&&!t.contains(this.placeholder[0],n)&&("semi-dynamic"===this.options.type?!t.contains(this.element[0],n):!0)){if(this.direction=1===a?"down":"up","pointer"!==this.options.tolerance&&!this._intersectsWithSides(s))break;this._rearrange(e,s),this._trigger("change",e,this._uiHash());break}return this._contactContainers(e),t.ui.ddmanager&&t.ui.ddmanager.drag(this,e),this._trigger("sort",e,this._uiHash()),this.lastPositionAbs=this.positionAbs,!1},_mouseStop:function(e,i){if(e){if(t.ui.ddmanager&&!this.options.dropBehaviour&&t.ui.ddmanager.drop(this,e),this.options.revert){var s=this,n=this.placeholder.offset(),a=this.options.axis,o={};a&&"x"!==a||(o.left=n.left-this.offset.parent.left-this.margins.left+(this.offsetParent[0]===document.body?0:this.offsetParent[0].scrollLeft)),a&&"y"!==a||(o.top=n.top-this.offset.parent.top-this.margins.top+(this.offsetParent[0]===document.body?0:this.offsetParent[0].scrollTop)),this.reverting=!0,t(this.helper).animate(o,parseInt(this.options.revert,10)||500,function(){s._clear(e)})}else this._clear(e,i);return!1}},cancel:function(){if(this.dragging){this._mouseUp({target:null}),"original"===this.options.helper?this.currentItem.css(this._storedCSS).removeClass("ui-sortable-helper"):this.currentItem.show();for(var e=this.containers.length-1;e>=0;e--)this.containers[e]._trigger("deactivate",null,this._uiHash(this)),this.containers[e].containerCache.over&&(this.containers[e]._trigger("out",null,this._uiHash(this)),this.containers[e].containerCache.over=0)}return this.placeholder&&(this.placeholder[0].parentNode&&this.placeholder[0].parentNode.removeChild(this.placeholder[0]),"original"!==this.options.helper&&this.helper&&this.helper[0].parentNode&&this.helper.remove(),t.extend(this,{helper:null,dragging:!1,reverting:!1,_noFinalSort:null}),this.domPosition.prev?t(this.domPosition.prev).after(this.currentItem):t(this.domPosition.parent).prepend(this.currentItem)),this},serialize:function(e){var i=this._getItemsAsjQuery(e&&e.connected),s=[];return e=e||{},t(i).each(function(){var i=(t(e.item||this).attr(e.attribute||"id")||"").match(e.expression||/(.+)[\-=_](.+)/);i&&s.push((e.key||i[1]+"[]")+"="+(e.key&&e.expression?i[1]:i[2]))}),!s.length&&e.key&&s.push(e.key+"="),s.join("&")},toArray:function(e){var i=this._getItemsAsjQuery(e&&e.connected),s=[];return e=e||{},i.each(function(){s.push(t(e.item||this).attr(e.attribute||"id")||"")}),s},_intersectsWith:function(t){var e=this.positionAbs.left,i=e+this.helperProportions.width,s=this.positionAbs.top,n=s+this.helperProportions.height,a=t.left,o=a+t.width,r=t.top,h=r+t.height,l=this.offset.click.top,c=this.offset.click.left,u=s+l>r&&h>s+l&&e+c>a&&o>e+c;return"pointer"===this.options.tolerance||this.options.forcePointerForContainers||"pointer"!==this.options.tolerance&&this.helperProportions[this.floating?"width":"height"]>t[this.floating?"width":"height"]?u:e+this.helperProportions.width/2>a&&o>i-this.helperProportions.width/2&&s+this.helperProportions.height/2>r&&h>n-this.helperProportions.height/2},_intersectsWithPointer:function(t){var i="x"===this.options.axis||e(this.positionAbs.top+this.offset.click.top,t.top,t.height),s="y"===this.options.axis||e(this.positionAbs.left+this.offset.click.left,t.left,t.width),n=i&&s,a=this._getDragVerticalDirection(),o=this._getDragHorizontalDirection();return n?this.floating?o&&"right"===o||"down"===a?2:1:a&&("down"===a?2:1):!1},_intersectsWithSides:function(t){var i=e(this.positionAbs.top+this.offset.click.top,t.top+t.height/2,t.height),s=e(this.positionAbs.left+this.offset.click.left,t.left+t.width/2,t.width),n=this._getDragVerticalDirection(),a=this._getDragHorizontalDirection();return this.floating&&a?"right"===a&&s||"left"===a&&!s:n&&("down"===n&&i||"up"===n&&!i)},_getDragVerticalDirection:function(){var t=this.positionAbs.top-this.lastPositionAbs.top;return 0!==t&&(t>0?"down":"up")},_getDragHorizontalDirection:function(){var t=this.positionAbs.left-this.lastPositionAbs.left;return 0!==t&&(t>0?"right":"left")},refresh:function(t){return this._refreshItems(t),this.refreshPositions(),this},_connectWith:function(){var t=this.options;return t.connectWith.constructor===String?[t.connectWith]:t.connectWith},_getItemsAsjQuery:function(e){var i,s,n,a,o=[],r=[],h=this._connectWith();if(h&&e)for(i=h.length-1;i>=0;i--)for(n=t(h[i]),s=n.length-1;s>=0;s--)a=t.data(n[s],this.widgetFullName),a&&a!==this&&!a.options.disabled&&r.push([t.isFunction(a.options.items)?a.options.items.call(a.element):t(a.options.items,a.element).not(".ui-sortable-helper").not(".ui-sortable-placeholder"),a]);for(r.push([t.isFunction(this.options.items)?this.options.items.call(this.element,null,{options:this.options,item:this.currentItem}):t(this.options.items,this.element).not(".ui-sortable-helper").not(".ui-sortable-placeholder"),this]),i=r.length-1;i>=0;i--)r[i][0].each(function(){o.push(this)});return t(o)},_removeCurrentsFromItems:function(){var e=this.currentItem.find(":data("+this.widgetName+"-item)");this.items=t.grep(this.items,function(t){for(var i=0;e.length>i;i++)if(e[i]===t.item[0])return!1;return!0})},_refreshItems:function(e){this.items=[],this.containers=[this];var i,s,n,a,o,r,h,l,c=this.items,u=[[t.isFunction(this.options.items)?this.options.items.call(this.element[0],e,{item:this.currentItem}):t(this.options.items,this.element),this]],d=this._connectWith();if(d&&this.ready)for(i=d.length-1;i>=0;i--)for(n=t(d[i]),s=n.length-1;s>=0;s--)a=t.data(n[s],this.widgetFullName),a&&a!==this&&!a.options.disabled&&(u.push([t.isFunction(a.options.items)?a.options.items.call(a.element[0],e,{item:this.currentItem}):t(a.options.items,a.element),a]),this.containers.push(a));for(i=u.length-1;i>=0;i--)for(o=u[i][1],r=u[i][0],s=0,l=r.length;l>s;s++)h=t(r[s]),h.data(this.widgetName+"-item",o),c.push({item:h,instance:o,width:0,height:0,left:0,top:0})},refreshPositions:function(e){this.offsetParent&&this.helper&&(this.offset.parent=this._getParentOffset());var i,s,n,a;for(i=this.items.length-1;i>=0;i--)s=this.items[i],s.instance!==this.currentContainer&&this.currentContainer&&s.item[0]!==this.currentItem[0]||(n=this.options.toleranceElement?t(this.options.toleranceElement,s.item):s.item,e||(s.width=n.outerWidth(),s.height=n.outerHeight()),a=n.offset(),s.left=a.left,s.top=a.top);if(this.options.custom&&this.options.custom.refreshContainers)this.options.custom.refreshContainers.call(this);else for(i=this.containers.length-1;i>=0;i--)a=this.containers[i].element.offset(),this.containers[i].containerCache.left=a.left,this.containers[i].containerCache.top=a.top,this.containers[i].containerCache.width=this.containers[i].element.outerWidth(),this.containers[i].containerCache.height=this.containers[i].element.outerHeight();return this},_createPlaceholder:function(e){e=e||this;var i,s=e.options;s.placeholder&&s.placeholder.constructor!==String||(i=s.placeholder,s.placeholder={element:function(){var s=e.currentItem[0].nodeName.toLowerCase(),n=t(e.document[0].createElement(s)).addClass(i||e.currentItem[0].className+" ui-sortable-placeholder").removeClass("ui-sortable-helper");return"tr"===s?n.append("<td colspan='99'>&#160;</td>"):"img"===s&&n.attr("src",e.currentItem.attr("src")),i||n.css("visibility","hidden"),n},update:function(t,n){(!i||s.forcePlaceholderSize)&&(n.height()||n.height(e.currentItem.innerHeight()-parseInt(e.currentItem.css("paddingTop")||0,10)-parseInt(e.currentItem.css("paddingBottom")||0,10)),n.width()||n.width(e.currentItem.innerWidth()-parseInt(e.currentItem.css("paddingLeft")||0,10)-parseInt(e.currentItem.css("paddingRight")||0,10)))}}),e.placeholder=t(s.placeholder.element.call(e.element,e.currentItem)),e.currentItem.after(e.placeholder),s.placeholder.update(e,e.placeholder)},_contactContainers:function(s){var n,a,o,r,h,l,c,u,d,p,f=null,m=null;for(n=this.containers.length-1;n>=0;n--)if(!t.contains(this.currentItem[0],this.containers[n].element[0]))if(this._intersectsWith(this.containers[n].containerCache)){if(f&&t.contains(this.containers[n].element[0],f.element[0]))continue;f=this.containers[n],m=n}else this.containers[n].containerCache.over&&(this.containers[n]._trigger("out",s,this._uiHash(this)),this.containers[n].containerCache.over=0);if(f)if(1===this.containers.length)this.containers[m].containerCache.over||(this.containers[m]._trigger("over",s,this._uiHash(this)),this.containers[m].containerCache.over=1);else{for(o=1e4,r=null,p=f.floating||i(this.currentItem),h=p?"left":"top",l=p?"width":"height",c=this.positionAbs[h]+this.offset.click[h],a=this.items.length-1;a>=0;a--)t.contains(this.containers[m].element[0],this.items[a].item[0])&&this.items[a].item[0]!==this.currentItem[0]&&(!p||e(this.positionAbs.top+this.offset.click.top,this.items[a].top,this.items[a].height))&&(u=this.items[a].item.offset()[h],d=!1,Math.abs(u-c)>Math.abs(u+this.items[a][l]-c)&&(d=!0,u+=this.items[a][l]),o>Math.abs(u-c)&&(o=Math.abs(u-c),r=this.items[a],this.direction=d?"up":"down"));if(!r&&!this.options.dropOnEmpty)return;if(this.currentContainer===this.containers[m])return;r?this._rearrange(s,r,null,!0):this._rearrange(s,null,this.containers[m].element,!0),this._trigger("change",s,this._uiHash()),this.containers[m]._trigger("change",s,this._uiHash(this)),this.currentContainer=this.containers[m],this.options.placeholder.update(this.currentContainer,this.placeholder),this.containers[m]._trigger("over",s,this._uiHash(this)),this.containers[m].containerCache.over=1}},_createHelper:function(e){var i=this.options,s=t.isFunction(i.helper)?t(i.helper.apply(this.element[0],[e,this.currentItem])):"clone"===i.helper?this.currentItem.clone():this.currentItem;return s.parents("body").length||t("parent"!==i.appendTo?i.appendTo:this.currentItem[0].parentNode)[0].appendChild(s[0]),s[0]===this.currentItem[0]&&(this._storedCSS={width:this.currentItem[0].style.width,height:this.currentItem[0].style.height,position:this.currentItem.css("position"),top:this.currentItem.css("top"),left:this.currentItem.css("left")}),(!s[0].style.width||i.forceHelperSize)&&s.width(this.currentItem.width()),(!s[0].style.height||i.forceHelperSize)&&s.height(this.currentItem.height()),s},_adjustOffsetFromHelper:function(e){"string"==typeof e&&(e=e.split(" ")),t.isArray(e)&&(e={left:+e[0],top:+e[1]||0}),"left"in e&&(this.offset.click.left=e.left+this.margins.left),"right"in e&&(this.offset.click.left=this.helperProportions.width-e.right+this.margins.left),"top"in e&&(this.offset.click.top=e.top+this.margins.top),"bottom"in e&&(this.offset.click.top=this.helperProportions.height-e.bottom+this.margins.top)},_getParentOffset:function(){this.offsetParent=this.helper.offsetParent();var e=this.offsetParent.offset();return"absolute"===this.cssPosition&&this.scrollParent[0]!==document&&t.contains(this.scrollParent[0],this.offsetParent[0])&&(e.left+=this.scrollParent.scrollLeft(),e.top+=this.scrollParent.scrollTop()),(this.offsetParent[0]===document.body||this.offsetParent[0].tagName&&"html"===this.offsetParent[0].tagName.toLowerCase()&&t.ui.ie)&&(e={top:0,left:0}),{top:e.top+(parseInt(this.offsetParent.css("borderTopWidth"),10)||0),left:e.left+(parseInt(this.offsetParent.css("borderLeftWidth"),10)||0)}},_getRelativeOffset:function(){if("relative"===this.cssPosition){var t=this.currentItem.position();return{top:t.top-(parseInt(this.helper.css("top"),10)||0)+this.scrollParent.scrollTop(),left:t.left-(parseInt(this.helper.css("left"),10)||0)+this.scrollParent.scrollLeft()}}return{top:0,left:0}},_cacheMargins:function(){this.margins={left:parseInt(this.currentItem.css("marginLeft"),10)||0,top:parseInt(this.currentItem.css("marginTop"),10)||0}},_cacheHelperProportions:function(){this.helperProportions={width:this.helper.outerWidth(),height:this.helper.outerHeight()}},_setContainment:function(){var e,i,s,n=this.options;"parent"===n.containment&&(n.containment=this.helper[0].parentNode),("document"===n.containment||"window"===n.containment)&&(this.containment=[0-this.offset.relative.left-this.offset.parent.left,0-this.offset.relative.top-this.offset.parent.top,t("document"===n.containment?document:window).width()-this.helperProportions.width-this.margins.left,(t("document"===n.containment?document:window).height()||document.body.parentNode.scrollHeight)-this.helperProportions.height-this.margins.top]),/^(document|window|parent)$/.test(n.containment)||(e=t(n.containment)[0],i=t(n.containment).offset(),s="hidden"!==t(e).css("overflow"),this.containment=[i.left+(parseInt(t(e).css("borderLeftWidth"),10)||0)+(parseInt(t(e).css("paddingLeft"),10)||0)-this.margins.left,i.top+(parseInt(t(e).css("borderTopWidth"),10)||0)+(parseInt(t(e).css("paddingTop"),10)||0)-this.margins.top,i.left+(s?Math.max(e.scrollWidth,e.offsetWidth):e.offsetWidth)-(parseInt(t(e).css("borderLeftWidth"),10)||0)-(parseInt(t(e).css("paddingRight"),10)||0)-this.helperProportions.width-this.margins.left,i.top+(s?Math.max(e.scrollHeight,e.offsetHeight):e.offsetHeight)-(parseInt(t(e).css("borderTopWidth"),10)||0)-(parseInt(t(e).css("paddingBottom"),10)||0)-this.helperProportions.height-this.margins.top])},_convertPositionTo:function(e,i){i||(i=this.position);var s="absolute"===e?1:-1,n="absolute"!==this.cssPosition||this.scrollParent[0]!==document&&t.contains(this.scrollParent[0],this.offsetParent[0])?this.scrollParent:this.offsetParent,a=/(html|body)/i.test(n[0].tagName);return{top:i.top+this.offset.relative.top*s+this.offset.parent.top*s-("fixed"===this.cssPosition?-this.scrollParent.scrollTop():a?0:n.scrollTop())*s,left:i.left+this.offset.relative.left*s+this.offset.parent.left*s-("fixed"===this.cssPosition?-this.scrollParent.scrollLeft():a?0:n.scrollLeft())*s}},_generatePosition:function(e){var i,s,n=this.options,a=e.pageX,o=e.pageY,r="absolute"!==this.cssPosition||this.scrollParent[0]!==document&&t.contains(this.scrollParent[0],this.offsetParent[0])?this.scrollParent:this.offsetParent,h=/(html|body)/i.test(r[0].tagName);return"relative"!==this.cssPosition||this.scrollParent[0]!==document&&this.scrollParent[0]!==this.offsetParent[0]||(this.offset.relative=this._getRelativeOffset()),this.originalPosition&&(this.containment&&(e.pageX-this.offset.click.left<this.containment[0]&&(a=this.containment[0]+this.offset.click.left),e.pageY-this.offset.click.top<this.containment[1]&&(o=this.containment[1]+this.offset.click.top),e.pageX-this.offset.click.left>this.containment[2]&&(a=this.containment[2]+this.offset.click.left),e.pageY-this.offset.click.top>this.containment[3]&&(o=this.containment[3]+this.offset.click.top)),n.grid&&(i=this.originalPageY+Math.round((o-this.originalPageY)/n.grid[1])*n.grid[1],o=this.containment?i-this.offset.click.top>=this.containment[1]&&i-this.offset.click.top<=this.containment[3]?i:i-this.offset.click.top>=this.containment[1]?i-n.grid[1]:i+n.grid[1]:i,s=this.originalPageX+Math.round((a-this.originalPageX)/n.grid[0])*n.grid[0],a=this.containment?s-this.offset.click.left>=this.containment[0]&&s-this.offset.click.left<=this.containment[2]?s:s-this.offset.click.left>=this.containment[0]?s-n.grid[0]:s+n.grid[0]:s)),{top:o-this.offset.click.top-this.offset.relative.top-this.offset.parent.top+("fixed"===this.cssPosition?-this.scrollParent.scrollTop():h?0:r.scrollTop()),left:a-this.offset.click.left-this.offset.relative.left-this.offset.parent.left+("fixed"===this.cssPosition?-this.scrollParent.scrollLeft():h?0:r.scrollLeft())}},_rearrange:function(t,e,i,s){i?i[0].appendChild(this.placeholder[0]):e.item[0].parentNode.insertBefore(this.placeholder[0],"down"===this.direction?e.item[0]:e.item[0].nextSibling),this.counter=this.counter?++this.counter:1;var n=this.counter;this._delay(function(){n===this.counter&&this.refreshPositions(!s)})},_clear:function(t,e){this.reverting=!1;var i,s=[];if(!this._noFinalSort&&this.currentItem.parent().length&&this.placeholder.before(this.currentItem),this._noFinalSort=null,this.helper[0]===this.currentItem[0]){for(i in this._storedCSS)("auto"===this._storedCSS[i]||"static"===this._storedCSS[i])&&(this._storedCSS[i]="");this.currentItem.css(this._storedCSS).removeClass("ui-sortable-helper")}else this.currentItem.show();for(this.fromOutside&&!e&&s.push(function(t){this._trigger("receive",t,this._uiHash(this.fromOutside))}),!this.fromOutside&&this.domPosition.prev===this.currentItem.prev().not(".ui-sortable-helper")[0]&&this.domPosition.parent===this.currentItem.parent()[0]||e||s.push(function(t){this._trigger("update",t,this._uiHash())}),this!==this.currentContainer&&(e||(s.push(function(t){this._trigger("remove",t,this._uiHash())}),s.push(function(t){return function(e){t._trigger("receive",e,this._uiHash(this))}}.call(this,this.currentContainer)),s.push(function(t){return function(e){t._trigger("update",e,this._uiHash(this))}}.call(this,this.currentContainer)))),i=this.containers.length-1;i>=0;i--)e||s.push(function(t){return function(e){t._trigger("deactivate",e,this._uiHash(this))}}.call(this,this.containers[i])),this.containers[i].containerCache.over&&(s.push(function(t){return function(e){t._trigger("out",e,this._uiHash(this))}}.call(this,this.containers[i])),this.containers[i].containerCache.over=0);if(this.storedCursor&&(this.document.find("body").css("cursor",this.storedCursor),this.storedStylesheet.remove()),this._storedOpacity&&this.helper.css("opacity",this._storedOpacity),this._storedZIndex&&this.helper.css("zIndex","auto"===this._storedZIndex?"":this._storedZIndex),this.dragging=!1,this.cancelHelperRemoval){if(!e){for(this._trigger("beforeStop",t,this._uiHash()),i=0;s.length>i;i++)s[i].call(this,t);this._trigger("stop",t,this._uiHash())}return this.fromOutside=!1,!1}if(e||this._trigger("beforeStop",t,this._uiHash()),this.placeholder[0].parentNode.removeChild(this.placeholder[0]),this.helper[0]!==this.currentItem[0]&&this.helper.remove(),this.helper=null,!e){for(i=0;s.length>i;i++)s[i].call(this,t);this._trigger("stop",t,this._uiHash())}return this.fromOutside=!1,!0},_trigger:function(){t.Widget.prototype._trigger.apply(this,arguments)===!1&&this.cancel()},_uiHash:function(e){var i=e||this;return{helper:i.helper,placeholder:i.placeholder||t([]),position:i.position,originalPosition:i.originalPosition,offset:i.positionAbs,item:i.currentItem,sender:e?e.element:null}}})})(jQuery);
 
 
 
@@ -1549,6 +1534,5304 @@ var FRegion = function(features){
 
 
 
+var grch37 = {
+  "1": {
+    "size": 249250621,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 121500001,
+        "end": 125000000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 120600001,
+        "end": 121500000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12",
+        "start": 117800001,
+        "end": 120600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p13.1",
+        "start": 116100001,
+        "end": 117800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p13.2",
+        "start": 111800001,
+        "end": 116100000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p13.3",
+        "start": 107200001,
+        "end": 111800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p21.1",
+        "start": 102200001,
+        "end": 107200000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p21.2",
+        "start": 99700001,
+        "end": 102200000,
+        "type": "gneg"
+      },
+      {
+        "id": "p21.3",
+        "start": 94700001,
+        "end": 99700000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p22.1",
+        "start": 92000001,
+        "end": 94700000,
+        "type": "gneg"
+      },
+      {
+        "id": "p22.2",
+        "start": 88400001,
+        "end": 92000000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p22.3",
+        "start": 84900001,
+        "end": 88400000,
+        "type": "gneg"
+      },
+      {
+        "id": "p31.1",
+        "start": 69700001,
+        "end": 84900000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p31.2",
+        "start": 68900001,
+        "end": 69700000,
+        "type": "gneg"
+      },
+      {
+        "id": "p31.3",
+        "start": 61300001,
+        "end": 68900000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p32.1",
+        "start": 59000001,
+        "end": 61300000,
+        "type": "gneg"
+      },
+      {
+        "id": "p32.2",
+        "start": 56100001,
+        "end": 59000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p32.3",
+        "start": 50700001,
+        "end": 56100000,
+        "type": "gneg"
+      },
+      {
+        "id": "p33",
+        "start": 46800001,
+        "end": 50700000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p34.1",
+        "start": 44100001,
+        "end": 46800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p34.2",
+        "start": 40100001,
+        "end": 44100000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p34.3",
+        "start": 34600001,
+        "end": 40100000,
+        "type": "gneg"
+      },
+      {
+        "id": "p35.1",
+        "start": 32400001,
+        "end": 34600000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p35.2",
+        "start": 30200001,
+        "end": 32400000,
+        "type": "gneg"
+      },
+      {
+        "id": "p35.3",
+        "start": 28000001,
+        "end": 30200000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p36.11",
+        "start": 23900001,
+        "end": 28000000,
+        "type": "gneg"
+      },
+      {
+        "id": "p36.12",
+        "start": 20400001,
+        "end": 23900000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p36.13",
+        "start": 16200001,
+        "end": 20400000,
+        "type": "gneg"
+      },
+      {
+        "id": "p36.21",
+        "start": 12700001,
+        "end": 16200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p36.22",
+        "start": 9200001,
+        "end": 12700000,
+        "type": "gneg"
+      },
+      {
+        "id": "p36.23",
+        "start": 7200001,
+        "end": 9200000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p36.31",
+        "start": 5400001,
+        "end": 7200000,
+        "type": "gneg"
+      },
+      {
+        "id": "p36.32",
+        "start": 2300001,
+        "end": 5400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p36.33",
+        "start": 1,
+        "end": 2300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11",
+        "start": 125000001,
+        "end": 128900000,
+        "type": "acen"
+      },
+      {
+        "id": "q12",
+        "start": 128900001,
+        "end": 142600000,
+        "type": "gvar"
+      },
+      {
+        "id": "q21.1",
+        "start": 142600001,
+        "end": 147000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.2",
+        "start": 147000001,
+        "end": 150300000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q21.3",
+        "start": 150300001,
+        "end": 155000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22",
+        "start": 155000001,
+        "end": 156500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q23.1",
+        "start": 156500001,
+        "end": 159100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.2",
+        "start": 159100001,
+        "end": 160500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q23.3",
+        "start": 160500001,
+        "end": 165500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.1",
+        "start": 165500001,
+        "end": 167200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.2",
+        "start": 167200001,
+        "end": 170900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.3",
+        "start": 170900001,
+        "end": 172900000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q25.1",
+        "start": 172900001,
+        "end": 176000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q25.2",
+        "start": 176000001,
+        "end": 180300000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q25.3",
+        "start": 180300001,
+        "end": 185800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.1",
+        "start": 185800001,
+        "end": 190800000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q31.2",
+        "start": 190800001,
+        "end": 193800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.3",
+        "start": 193800001,
+        "end": 198700000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q32.1",
+        "start": 198700001,
+        "end": 207200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q32.2",
+        "start": 207200001,
+        "end": 211500000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q32.3",
+        "start": 211500001,
+        "end": 214500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q41",
+        "start": 214500001,
+        "end": 224100000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q42.11",
+        "start": 224100001,
+        "end": 224600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q42.12",
+        "start": 224600001,
+        "end": 227000000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q42.13",
+        "start": 227000001,
+        "end": 230700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q42.2",
+        "start": 230700001,
+        "end": 234700000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q42.3",
+        "start": 234700001,
+        "end": 236600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q43",
+        "start": 236600001,
+        "end": 243700000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q44",
+        "start": 243700001,
+        "end": 249250621,
+        "type": "gneg"
+      }
+    ]
+  },
+  "2": {
+    "size": 243199373,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 90500001,
+        "end": 93300000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 83300001,
+        "end": 90500000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12",
+        "start": 75000001,
+        "end": 83300000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p13.1",
+        "start": 73500001,
+        "end": 75000000,
+        "type": "gneg"
+      },
+      {
+        "id": "p13.2",
+        "start": 71500001,
+        "end": 73500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p13.3",
+        "start": 68600001,
+        "end": 71500000,
+        "type": "gneg"
+      },
+      {
+        "id": "p14",
+        "start": 64100001,
+        "end": 68600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p15",
+        "start": 61300001,
+        "end": 64100000,
+        "type": "gneg"
+      },
+      {
+        "id": "p16.1",
+        "start": 55000001,
+        "end": 61300000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p16.2",
+        "start": 52900001,
+        "end": 55000000,
+        "type": "gneg"
+      },
+      {
+        "id": "p16.3",
+        "start": 47800001,
+        "end": 52900000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p21",
+        "start": 41800001,
+        "end": 47800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p22.1",
+        "start": 38600001,
+        "end": 41800000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p22.2",
+        "start": 36600001,
+        "end": 38600000,
+        "type": "gneg"
+      },
+      {
+        "id": "p22.3",
+        "start": 32100001,
+        "end": 36600000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p23.1",
+        "start": 30000001,
+        "end": 32100000,
+        "type": "gneg"
+      },
+      {
+        "id": "p23.2",
+        "start": 27900001,
+        "end": 30000000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p23.3",
+        "start": 24000001,
+        "end": 27900000,
+        "type": "gneg"
+      },
+      {
+        "id": "p24.1",
+        "start": 19200001,
+        "end": 24000000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p24.2",
+        "start": 16700001,
+        "end": 19200000,
+        "type": "gneg"
+      },
+      {
+        "id": "p24.3",
+        "start": 12200001,
+        "end": 16700000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p25.1",
+        "start": 7100001,
+        "end": 12200000,
+        "type": "gneg"
+      },
+      {
+        "id": "p25.2",
+        "start": 4400001,
+        "end": 7100000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p25.3",
+        "start": 1,
+        "end": 4400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.1",
+        "start": 93300001,
+        "end": 96800000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.2",
+        "start": 96800001,
+        "end": 102700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.1",
+        "start": 102700001,
+        "end": 106000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q12.2",
+        "start": 106000001,
+        "end": 107500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.3",
+        "start": 107500001,
+        "end": 110200000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q13",
+        "start": 110200001,
+        "end": 114400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q14.1",
+        "start": 114400001,
+        "end": 118800000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q14.2",
+        "start": 118800001,
+        "end": 122400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q14.3",
+        "start": 122400001,
+        "end": 129900000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q21.1",
+        "start": 129900001,
+        "end": 132500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.2",
+        "start": 132500001,
+        "end": 135100000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q21.3",
+        "start": 135100001,
+        "end": 136800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.1",
+        "start": 136800001,
+        "end": 142200000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q22.2",
+        "start": 142200001,
+        "end": 144100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.3",
+        "start": 144100001,
+        "end": 148700000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q23.1",
+        "start": 148700001,
+        "end": 149900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.2",
+        "start": 149900001,
+        "end": 150500000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q23.3",
+        "start": 150500001,
+        "end": 154900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.1",
+        "start": 154900001,
+        "end": 159800000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q24.2",
+        "start": 159800001,
+        "end": 163700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.3",
+        "start": 163700001,
+        "end": 169700000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q31.1",
+        "start": 169700001,
+        "end": 178000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.2",
+        "start": 178000001,
+        "end": 180600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q31.3",
+        "start": 180600001,
+        "end": 183000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q32.1",
+        "start": 183000001,
+        "end": 189400000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q32.2",
+        "start": 189400001,
+        "end": 191900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q32.3",
+        "start": 191900001,
+        "end": 197400000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q33.1",
+        "start": 197400001,
+        "end": 203300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q33.2",
+        "start": 203300001,
+        "end": 204900000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q33.3",
+        "start": 204900001,
+        "end": 209000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q34",
+        "start": 209000001,
+        "end": 215300000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q35",
+        "start": 215300001,
+        "end": 221500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q36.1",
+        "start": 221500001,
+        "end": 225200000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q36.2",
+        "start": 225200001,
+        "end": 226100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q36.3",
+        "start": 226100001,
+        "end": 231000000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q37.1",
+        "start": 231000001,
+        "end": 235600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q37.2",
+        "start": 235600001,
+        "end": 237300000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q37.3",
+        "start": 237300001,
+        "end": 243199373,
+        "type": "gneg"
+      }
+    ]
+  },
+  "3": {
+    "size": 198022430,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 87900001,
+        "end": 91000000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 87200001,
+        "end": 87900000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.1",
+        "start": 83500001,
+        "end": 87200000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p12.2",
+        "start": 79800001,
+        "end": 83500000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.3",
+        "start": 74200001,
+        "end": 79800000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p13",
+        "start": 69800001,
+        "end": 74200000,
+        "type": "gneg"
+      },
+      {
+        "id": "p14.1",
+        "start": 63700001,
+        "end": 69800000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p14.2",
+        "start": 58600001,
+        "end": 63700000,
+        "type": "gneg"
+      },
+      {
+        "id": "p14.3",
+        "start": 54400001,
+        "end": 58600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p21.1",
+        "start": 52300001,
+        "end": 54400000,
+        "type": "gneg"
+      },
+      {
+        "id": "p21.2",
+        "start": 50600001,
+        "end": 52300000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p21.31",
+        "start": 44200001,
+        "end": 50600000,
+        "type": "gneg"
+      },
+      {
+        "id": "p21.32",
+        "start": 44100001,
+        "end": 44200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p21.33",
+        "start": 43700001,
+        "end": 44100000,
+        "type": "gneg"
+      },
+      {
+        "id": "p22.1",
+        "start": 39400001,
+        "end": 43700000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p22.2",
+        "start": 36500001,
+        "end": 39400000,
+        "type": "gneg"
+      },
+      {
+        "id": "p22.3",
+        "start": 32100001,
+        "end": 36500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p23",
+        "start": 30900001,
+        "end": 32100000,
+        "type": "gneg"
+      },
+      {
+        "id": "p24.1",
+        "start": 26400001,
+        "end": 30900000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p24.2",
+        "start": 23900001,
+        "end": 26400000,
+        "type": "gneg"
+      },
+      {
+        "id": "p24.3",
+        "start": 16400001,
+        "end": 23900000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p25.1",
+        "start": 13300001,
+        "end": 16400000,
+        "type": "gneg"
+      },
+      {
+        "id": "p25.2",
+        "start": 11800001,
+        "end": 13300000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p25.3",
+        "start": 8700001,
+        "end": 11800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p26.1",
+        "start": 4000001,
+        "end": 8700000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p26.2",
+        "start": 2800001,
+        "end": 4000000,
+        "type": "gneg"
+      },
+      {
+        "id": "p26.3",
+        "start": 1,
+        "end": 2800000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q11.1",
+        "start": 91000001,
+        "end": 93900000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.2",
+        "start": 93900001,
+        "end": 98300000,
+        "type": "gvar"
+      },
+      {
+        "id": "q12.1",
+        "start": 98300001,
+        "end": 100000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.2",
+        "start": 100000001,
+        "end": 100900000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q12.3",
+        "start": 100900001,
+        "end": 102800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.11",
+        "start": 102800001,
+        "end": 106200000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q13.12",
+        "start": 106200001,
+        "end": 107900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.13",
+        "start": 107900001,
+        "end": 111300000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.2",
+        "start": 111300001,
+        "end": 113500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.31",
+        "start": 113500001,
+        "end": 117300000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q13.32",
+        "start": 117300001,
+        "end": 119000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.33",
+        "start": 119000001,
+        "end": 121900000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q21.1",
+        "start": 121900001,
+        "end": 123800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.2",
+        "start": 123800001,
+        "end": 125800000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q21.3",
+        "start": 125800001,
+        "end": 129200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.1",
+        "start": 129200001,
+        "end": 133700000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q22.2",
+        "start": 133700001,
+        "end": 135700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.3",
+        "start": 135700001,
+        "end": 138700000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q23",
+        "start": 138700001,
+        "end": 142800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24",
+        "start": 142800001,
+        "end": 148900000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q25.1",
+        "start": 148900001,
+        "end": 152100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q25.2",
+        "start": 152100001,
+        "end": 155000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q25.31",
+        "start": 155000001,
+        "end": 157000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q25.32",
+        "start": 157000001,
+        "end": 159000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q25.33",
+        "start": 159000001,
+        "end": 160700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q26.1",
+        "start": 160700001,
+        "end": 167600000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q26.2",
+        "start": 167600001,
+        "end": 170900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q26.31",
+        "start": 170900001,
+        "end": 175700000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q26.32",
+        "start": 175700001,
+        "end": 179000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q26.33",
+        "start": 179000001,
+        "end": 182700000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q27.1",
+        "start": 182700001,
+        "end": 184500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q27.2",
+        "start": 184500001,
+        "end": 186000000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q27.3",
+        "start": 186000001,
+        "end": 187900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q28",
+        "start": 187900001,
+        "end": 192300000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q29",
+        "start": 192300001,
+        "end": 198022430,
+        "type": "gneg"
+      }
+    ]
+  },
+  "4": {
+    "size": 191154276,
+    "bands": [
+      {
+        "id": "p11",
+        "start": 48200001,
+        "end": 50400000,
+        "type": "acen"
+      },
+      {
+        "id": "p12",
+        "start": 44600001,
+        "end": 48200000,
+        "type": "gneg"
+      },
+      {
+        "id": "p13",
+        "start": 41200001,
+        "end": 44600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p14",
+        "start": 35800001,
+        "end": 41200000,
+        "type": "gneg"
+      },
+      {
+        "id": "p15.1",
+        "start": 27700001,
+        "end": 35800000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p15.2",
+        "start": 21300001,
+        "end": 27700000,
+        "type": "gneg"
+      },
+      {
+        "id": "p15.31",
+        "start": 17800001,
+        "end": 21300000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p15.32",
+        "start": 15200001,
+        "end": 17800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p15.33",
+        "start": 11300001,
+        "end": 15200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p16.1",
+        "start": 6000001,
+        "end": 11300000,
+        "type": "gneg"
+      },
+      {
+        "id": "p16.2",
+        "start": 4500001,
+        "end": 6000000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p16.3",
+        "start": 1,
+        "end": 4500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11",
+        "start": 50400001,
+        "end": 52700000,
+        "type": "acen"
+      },
+      {
+        "id": "q12",
+        "start": 52700001,
+        "end": 59500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.1",
+        "start": 59500001,
+        "end": 66600000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q13.2",
+        "start": 66600001,
+        "end": 70500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.3",
+        "start": 70500001,
+        "end": 76300000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q21.1",
+        "start": 76300001,
+        "end": 78900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.21",
+        "start": 78900001,
+        "end": 82400000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q21.22",
+        "start": 82400001,
+        "end": 84100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.23",
+        "start": 84100001,
+        "end": 86900000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q21.3",
+        "start": 86900001,
+        "end": 88000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.1",
+        "start": 88000001,
+        "end": 93700000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q22.2",
+        "start": 93700001,
+        "end": 95100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.3",
+        "start": 95100001,
+        "end": 98800000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q23",
+        "start": 98800001,
+        "end": 101100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24",
+        "start": 101100001,
+        "end": 107700000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q25",
+        "start": 107700001,
+        "end": 114100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q26",
+        "start": 114100001,
+        "end": 120800000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q27",
+        "start": 120800001,
+        "end": 123800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q28.1",
+        "start": 123800001,
+        "end": 128800000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q28.2",
+        "start": 128800001,
+        "end": 131100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q28.3",
+        "start": 131100001,
+        "end": 139500000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q31.1",
+        "start": 139500001,
+        "end": 141500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.21",
+        "start": 141500001,
+        "end": 146800000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q31.22",
+        "start": 146800001,
+        "end": 148500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.23",
+        "start": 148500001,
+        "end": 151100000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q31.3",
+        "start": 151100001,
+        "end": 155600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q32.1",
+        "start": 155600001,
+        "end": 161800000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q32.2",
+        "start": 161800001,
+        "end": 164500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q32.3",
+        "start": 164500001,
+        "end": 170100000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q33",
+        "start": 170100001,
+        "end": 171900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q34.1",
+        "start": 171900001,
+        "end": 176300000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q34.2",
+        "start": 176300001,
+        "end": 177500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q34.3",
+        "start": 177500001,
+        "end": 183200000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q35.1",
+        "start": 183200001,
+        "end": 187100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q35.2",
+        "start": 187100001,
+        "end": 191154276,
+        "type": "gpos25"
+      }
+    ]
+  },
+  "5": {
+    "size": 180915260,
+    "bands": [
+      {
+        "id": "p11",
+        "start": 46100001,
+        "end": 48400000,
+        "type": "acen"
+      },
+      {
+        "id": "p12",
+        "start": 42500001,
+        "end": 46100000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p13.1",
+        "start": 38400001,
+        "end": 42500000,
+        "type": "gneg"
+      },
+      {
+        "id": "p13.2",
+        "start": 33800001,
+        "end": 38400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p13.3",
+        "start": 28900001,
+        "end": 33800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p14.1",
+        "start": 24600001,
+        "end": 28900000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p14.2",
+        "start": 23300001,
+        "end": 24600000,
+        "type": "gneg"
+      },
+      {
+        "id": "p14.3",
+        "start": 18400001,
+        "end": 23300000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p15.1",
+        "start": 15000001,
+        "end": 18400000,
+        "type": "gneg"
+      },
+      {
+        "id": "p15.2",
+        "start": 9800001,
+        "end": 15000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p15.31",
+        "start": 6300001,
+        "end": 9800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p15.32",
+        "start": 4500001,
+        "end": 6300000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p15.33",
+        "start": 1,
+        "end": 4500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.1",
+        "start": 48400001,
+        "end": 50700000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.2",
+        "start": 50700001,
+        "end": 58900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.1",
+        "start": 58900001,
+        "end": 62900000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q12.2",
+        "start": 62900001,
+        "end": 63200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.3",
+        "start": 63200001,
+        "end": 66700000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q13.1",
+        "start": 66700001,
+        "end": 68400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.2",
+        "start": 68400001,
+        "end": 73300000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.3",
+        "start": 73300001,
+        "end": 76900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q14.1",
+        "start": 76900001,
+        "end": 81400000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q14.2",
+        "start": 81400001,
+        "end": 82800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q14.3",
+        "start": 82800001,
+        "end": 92300000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q15",
+        "start": 92300001,
+        "end": 98200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.1",
+        "start": 98200001,
+        "end": 102800000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q21.2",
+        "start": 102800001,
+        "end": 104500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.3",
+        "start": 104500001,
+        "end": 109600000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q22.1",
+        "start": 109600001,
+        "end": 111500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.2",
+        "start": 111500001,
+        "end": 113100000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q22.3",
+        "start": 113100001,
+        "end": 115200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.1",
+        "start": 115200001,
+        "end": 121400000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q23.2",
+        "start": 121400001,
+        "end": 127300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.3",
+        "start": 127300001,
+        "end": 130600000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q31.1",
+        "start": 130600001,
+        "end": 136200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.2",
+        "start": 136200001,
+        "end": 139500000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q31.3",
+        "start": 139500001,
+        "end": 144500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q32",
+        "start": 144500001,
+        "end": 149800000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q33.1",
+        "start": 149800001,
+        "end": 152700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q33.2",
+        "start": 152700001,
+        "end": 155700000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q33.3",
+        "start": 155700001,
+        "end": 159900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q34",
+        "start": 159900001,
+        "end": 168500000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q35.1",
+        "start": 168500001,
+        "end": 172800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q35.2",
+        "start": 172800001,
+        "end": 176600000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q35.3",
+        "start": 176600001,
+        "end": 180915260,
+        "type": "gneg"
+      }
+    ]
+  },
+  "6": {
+    "size": 171115067,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 58700001,
+        "end": 61000000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 57000001,
+        "end": 58700000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.1",
+        "start": 52900001,
+        "end": 57000000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p12.2",
+        "start": 51800001,
+        "end": 52900000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.3",
+        "start": 46200001,
+        "end": 51800000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p21.1",
+        "start": 40500001,
+        "end": 46200000,
+        "type": "gneg"
+      },
+      {
+        "id": "p21.2",
+        "start": 36600001,
+        "end": 40500000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p21.31",
+        "start": 33500001,
+        "end": 36600000,
+        "type": "gneg"
+      },
+      {
+        "id": "p21.32",
+        "start": 32100001,
+        "end": 33500000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p21.33",
+        "start": 30400001,
+        "end": 32100000,
+        "type": "gneg"
+      },
+      {
+        "id": "p22.1",
+        "start": 27000001,
+        "end": 30400000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p22.2",
+        "start": 25200001,
+        "end": 27000000,
+        "type": "gneg"
+      },
+      {
+        "id": "p22.3",
+        "start": 15200001,
+        "end": 25200000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p23",
+        "start": 13400001,
+        "end": 15200000,
+        "type": "gneg"
+      },
+      {
+        "id": "p24.1",
+        "start": 11600001,
+        "end": 13400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p24.2",
+        "start": 10600001,
+        "end": 11600000,
+        "type": "gneg"
+      },
+      {
+        "id": "p24.3",
+        "start": 7100001,
+        "end": 10600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p25.1",
+        "start": 4200001,
+        "end": 7100000,
+        "type": "gneg"
+      },
+      {
+        "id": "p25.2",
+        "start": 2300001,
+        "end": 4200000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p25.3",
+        "start": 1,
+        "end": 2300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.1",
+        "start": 61000001,
+        "end": 63300000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.2",
+        "start": 63300001,
+        "end": 63400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12",
+        "start": 63400001,
+        "end": 70000000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q13",
+        "start": 70000001,
+        "end": 75900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q14.1",
+        "start": 75900001,
+        "end": 83900000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q14.2",
+        "start": 83900001,
+        "end": 84900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q14.3",
+        "start": 84900001,
+        "end": 88000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q15",
+        "start": 88000001,
+        "end": 93100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q16.1",
+        "start": 93100001,
+        "end": 99500000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q16.2",
+        "start": 99500001,
+        "end": 100600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q16.3",
+        "start": 100600001,
+        "end": 105500000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q21",
+        "start": 105500001,
+        "end": 114600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.1",
+        "start": 114600001,
+        "end": 118300000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q22.2",
+        "start": 118300001,
+        "end": 118500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.31",
+        "start": 118500001,
+        "end": 126100000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q22.32",
+        "start": 126100001,
+        "end": 127100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.33",
+        "start": 127100001,
+        "end": 130300000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q23.1",
+        "start": 130300001,
+        "end": 131200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.2",
+        "start": 131200001,
+        "end": 135200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q23.3",
+        "start": 135200001,
+        "end": 139000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.1",
+        "start": 139000001,
+        "end": 142800000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q24.2",
+        "start": 142800001,
+        "end": 145600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.3",
+        "start": 145600001,
+        "end": 149000000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q25.1",
+        "start": 149000001,
+        "end": 152500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q25.2",
+        "start": 152500001,
+        "end": 155500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q25.3",
+        "start": 155500001,
+        "end": 161000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q26",
+        "start": 161000001,
+        "end": 164500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q27",
+        "start": 164500001,
+        "end": 171115067,
+        "type": "gneg"
+      }
+    ]
+  },
+  "7": {
+    "size": 159138663,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 58000001,
+        "end": 59900000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 54000001,
+        "end": 58000000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.1",
+        "start": 50500001,
+        "end": 54000000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p12.2",
+        "start": 49000001,
+        "end": 50500000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.3",
+        "start": 45400001,
+        "end": 49000000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p13",
+        "start": 43300001,
+        "end": 45400000,
+        "type": "gneg"
+      },
+      {
+        "id": "p14.1",
+        "start": 37200001,
+        "end": 43300000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p14.2",
+        "start": 35000001,
+        "end": 37200000,
+        "type": "gneg"
+      },
+      {
+        "id": "p14.3",
+        "start": 28800001,
+        "end": 35000000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p15.1",
+        "start": 28000001,
+        "end": 28800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p15.2",
+        "start": 25500001,
+        "end": 28000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p15.3",
+        "start": 20900001,
+        "end": 25500000,
+        "type": "gneg"
+      },
+      {
+        "id": "p21.1",
+        "start": 16500001,
+        "end": 20900000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p21.2",
+        "start": 13800001,
+        "end": 16500000,
+        "type": "gneg"
+      },
+      {
+        "id": "p21.3",
+        "start": 7300001,
+        "end": 13800000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p22.1",
+        "start": 4500001,
+        "end": 7300000,
+        "type": "gneg"
+      },
+      {
+        "id": "p22.2",
+        "start": 2800001,
+        "end": 4500000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p22.3",
+        "start": 1,
+        "end": 2800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.1",
+        "start": 59900001,
+        "end": 61700000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.21",
+        "start": 61700001,
+        "end": 67000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.22",
+        "start": 67000001,
+        "end": 72200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q11.23",
+        "start": 72200001,
+        "end": 77500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.11",
+        "start": 77500001,
+        "end": 86400000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q21.12",
+        "start": 86400001,
+        "end": 88200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.13",
+        "start": 88200001,
+        "end": 91100000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q21.2",
+        "start": 91100001,
+        "end": 92800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.3",
+        "start": 92800001,
+        "end": 98000000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q22.1",
+        "start": 98000001,
+        "end": 103800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.2",
+        "start": 103800001,
+        "end": 104500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q22.3",
+        "start": 104500001,
+        "end": 107400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.1",
+        "start": 107400001,
+        "end": 114600000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q31.2",
+        "start": 114600001,
+        "end": 117400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.31",
+        "start": 117400001,
+        "end": 121100000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q31.32",
+        "start": 121100001,
+        "end": 123800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.33",
+        "start": 123800001,
+        "end": 127100000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q32.1",
+        "start": 127100001,
+        "end": 129200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q32.2",
+        "start": 129200001,
+        "end": 130400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q32.3",
+        "start": 130400001,
+        "end": 132600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q33",
+        "start": 132600001,
+        "end": 138200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q34",
+        "start": 138200001,
+        "end": 143100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q35",
+        "start": 143100001,
+        "end": 147900000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q36.1",
+        "start": 147900001,
+        "end": 152600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q36.2",
+        "start": 152600001,
+        "end": 155100000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q36.3",
+        "start": 155100001,
+        "end": 159138663,
+        "type": "gneg"
+      }
+    ]
+  },
+  "8": {
+    "size": 146364022,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 43100001,
+        "end": 45600000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.21",
+        "start": 39700001,
+        "end": 43100000,
+        "type": "gneg"
+      },
+      {
+        "id": "p11.22",
+        "start": 38300001,
+        "end": 39700000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p11.23",
+        "start": 36500001,
+        "end": 38300000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12",
+        "start": 28800001,
+        "end": 36500000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p21.1",
+        "start": 27400001,
+        "end": 28800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p21.2",
+        "start": 23300001,
+        "end": 27400000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p21.3",
+        "start": 19000001,
+        "end": 23300000,
+        "type": "gneg"
+      },
+      {
+        "id": "p22",
+        "start": 12700001,
+        "end": 19000000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p23.1",
+        "start": 6200001,
+        "end": 12700000,
+        "type": "gneg"
+      },
+      {
+        "id": "p23.2",
+        "start": 2200001,
+        "end": 6200000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p23.3",
+        "start": 1,
+        "end": 2200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.1",
+        "start": 45600001,
+        "end": 48100000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.21",
+        "start": 48100001,
+        "end": 52200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.22",
+        "start": 52200001,
+        "end": 52600000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q11.23",
+        "start": 52600001,
+        "end": 55500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.1",
+        "start": 55500001,
+        "end": 61600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q12.2",
+        "start": 61600001,
+        "end": 62200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.3",
+        "start": 62200001,
+        "end": 66000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.1",
+        "start": 66000001,
+        "end": 68000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.2",
+        "start": 68000001,
+        "end": 70500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.3",
+        "start": 70500001,
+        "end": 73900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.11",
+        "start": 73900001,
+        "end": 78300000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q21.12",
+        "start": 78300001,
+        "end": 80100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.13",
+        "start": 80100001,
+        "end": 84600000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q21.2",
+        "start": 84600001,
+        "end": 86900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.3",
+        "start": 86900001,
+        "end": 93300000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q22.1",
+        "start": 93300001,
+        "end": 99000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.2",
+        "start": 99000001,
+        "end": 101600000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q22.3",
+        "start": 101600001,
+        "end": 106200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.1",
+        "start": 106200001,
+        "end": 110500000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q23.2",
+        "start": 110500001,
+        "end": 112100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.3",
+        "start": 112100001,
+        "end": 117700000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q24.11",
+        "start": 117700001,
+        "end": 119200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.12",
+        "start": 119200001,
+        "end": 122500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.13",
+        "start": 122500001,
+        "end": 127300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.21",
+        "start": 127300001,
+        "end": 131500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.22",
+        "start": 131500001,
+        "end": 136400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.23",
+        "start": 136400001,
+        "end": 139900000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q24.3",
+        "start": 139900001,
+        "end": 146364022,
+        "type": "gneg"
+      }
+    ]
+  },
+  "9": {
+    "size": 141213431,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 47300001,
+        "end": 49000000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 43600001,
+        "end": 47300000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12",
+        "start": 41000001,
+        "end": 43600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p13.1",
+        "start": 38400001,
+        "end": 41000000,
+        "type": "gneg"
+      },
+      {
+        "id": "p13.2",
+        "start": 36300001,
+        "end": 38400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p13.3",
+        "start": 33200001,
+        "end": 36300000,
+        "type": "gneg"
+      },
+      {
+        "id": "p21.1",
+        "start": 28000001,
+        "end": 33200000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p21.2",
+        "start": 25600001,
+        "end": 28000000,
+        "type": "gneg"
+      },
+      {
+        "id": "p21.3",
+        "start": 19900001,
+        "end": 25600000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p22.1",
+        "start": 18500001,
+        "end": 19900000,
+        "type": "gneg"
+      },
+      {
+        "id": "p22.2",
+        "start": 16600001,
+        "end": 18500000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p22.3",
+        "start": 14200001,
+        "end": 16600000,
+        "type": "gneg"
+      },
+      {
+        "id": "p23",
+        "start": 9000001,
+        "end": 14200000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p24.1",
+        "start": 4600001,
+        "end": 9000000,
+        "type": "gneg"
+      },
+      {
+        "id": "p24.2",
+        "start": 2200001,
+        "end": 4600000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p24.3",
+        "start": 1,
+        "end": 2200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11",
+        "start": 49000001,
+        "end": 50700000,
+        "type": "acen"
+      },
+      {
+        "id": "q12",
+        "start": 50700001,
+        "end": 65900000,
+        "type": "gvar"
+      },
+      {
+        "id": "q13",
+        "start": 65900001,
+        "end": 68700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.11",
+        "start": 68700001,
+        "end": 72200000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q21.12",
+        "start": 72200001,
+        "end": 74000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.13",
+        "start": 74000001,
+        "end": 79200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q21.2",
+        "start": 79200001,
+        "end": 81100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.31",
+        "start": 81100001,
+        "end": 84100000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q21.32",
+        "start": 84100001,
+        "end": 86900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.33",
+        "start": 86900001,
+        "end": 90400000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q22.1",
+        "start": 90400001,
+        "end": 91800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.2",
+        "start": 91800001,
+        "end": 93900000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q22.31",
+        "start": 93900001,
+        "end": 96600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.32",
+        "start": 96600001,
+        "end": 99300000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q22.33",
+        "start": 99300001,
+        "end": 102600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.1",
+        "start": 102600001,
+        "end": 108200000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q31.2",
+        "start": 108200001,
+        "end": 111300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.3",
+        "start": 111300001,
+        "end": 114900000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q32",
+        "start": 114900001,
+        "end": 117700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q33.1",
+        "start": 117700001,
+        "end": 122500000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q33.2",
+        "start": 122500001,
+        "end": 125800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q33.3",
+        "start": 125800001,
+        "end": 130300000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q34.11",
+        "start": 130300001,
+        "end": 133500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q34.12",
+        "start": 133500001,
+        "end": 134000000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q34.13",
+        "start": 134000001,
+        "end": 135900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q34.2",
+        "start": 135900001,
+        "end": 137400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q34.3",
+        "start": 137400001,
+        "end": 141213431,
+        "type": "gneg"
+      }
+    ]
+  },
+  "10": {
+    "size": 135534747,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 38000001,
+        "end": 40200000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.21",
+        "start": 34400001,
+        "end": 38000000,
+        "type": "gneg"
+      },
+      {
+        "id": "p11.22",
+        "start": 31300001,
+        "end": 34400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p11.23",
+        "start": 29600001,
+        "end": 31300000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.1",
+        "start": 24600001,
+        "end": 29600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p12.2",
+        "start": 22600001,
+        "end": 24600000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.31",
+        "start": 18700001,
+        "end": 22600000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p12.32",
+        "start": 18600001,
+        "end": 18700000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.33",
+        "start": 17300001,
+        "end": 18600000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p13",
+        "start": 12200001,
+        "end": 17300000,
+        "type": "gneg"
+      },
+      {
+        "id": "p14",
+        "start": 6600001,
+        "end": 12200000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p15.1",
+        "start": 3800001,
+        "end": 6600000,
+        "type": "gneg"
+      },
+      {
+        "id": "p15.2",
+        "start": 3000001,
+        "end": 3800000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p15.3",
+        "start": 1,
+        "end": 3000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.1",
+        "start": 40200001,
+        "end": 42300000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.21",
+        "start": 42300001,
+        "end": 46100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.22",
+        "start": 46100001,
+        "end": 49900000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q11.23",
+        "start": 49900001,
+        "end": 52900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.1",
+        "start": 52900001,
+        "end": 61200000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q21.2",
+        "start": 61200001,
+        "end": 64500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.3",
+        "start": 64500001,
+        "end": 70600000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q22.1",
+        "start": 70600001,
+        "end": 74900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.2",
+        "start": 74900001,
+        "end": 77700000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q22.3",
+        "start": 77700001,
+        "end": 82000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.1",
+        "start": 82000001,
+        "end": 87900000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q23.2",
+        "start": 87900001,
+        "end": 89500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.31",
+        "start": 89500001,
+        "end": 92900000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q23.32",
+        "start": 92900001,
+        "end": 94100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.33",
+        "start": 94100001,
+        "end": 97000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.1",
+        "start": 97000001,
+        "end": 99300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.2",
+        "start": 99300001,
+        "end": 101900000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.31",
+        "start": 101900001,
+        "end": 103000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.32",
+        "start": 103000001,
+        "end": 104900000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q24.33",
+        "start": 104900001,
+        "end": 105800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q25.1",
+        "start": 105800001,
+        "end": 111900000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q25.2",
+        "start": 111900001,
+        "end": 114900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q25.3",
+        "start": 114900001,
+        "end": 119100000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q26.11",
+        "start": 119100001,
+        "end": 121700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q26.12",
+        "start": 121700001,
+        "end": 123100000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q26.13",
+        "start": 123100001,
+        "end": 127500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q26.2",
+        "start": 127500001,
+        "end": 130600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q26.3",
+        "start": 130600001,
+        "end": 135534747,
+        "type": "gneg"
+      }
+    ]
+  },
+  "11": {
+    "size": 135006516,
+    "bands": [
+      {
+        "id": "p11.11",
+        "start": 51600001,
+        "end": 53700000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.12",
+        "start": 48800001,
+        "end": 51600000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p11.2",
+        "start": 43500001,
+        "end": 48800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12",
+        "start": 36400001,
+        "end": 43500000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p13",
+        "start": 31000001,
+        "end": 36400000,
+        "type": "gneg"
+      },
+      {
+        "id": "p14.1",
+        "start": 27200001,
+        "end": 31000000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p14.2",
+        "start": 26100001,
+        "end": 27200000,
+        "type": "gneg"
+      },
+      {
+        "id": "p14.3",
+        "start": 21700001,
+        "end": 26100000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p15.1",
+        "start": 16200001,
+        "end": 21700000,
+        "type": "gneg"
+      },
+      {
+        "id": "p15.2",
+        "start": 12700001,
+        "end": 16200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p15.3",
+        "start": 10700001,
+        "end": 12700000,
+        "type": "gneg"
+      },
+      {
+        "id": "p15.4",
+        "start": 2800001,
+        "end": 10700000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p15.5",
+        "start": 1,
+        "end": 2800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11",
+        "start": 53700001,
+        "end": 55700000,
+        "type": "acen"
+      },
+      {
+        "id": "q12.1",
+        "start": 55700001,
+        "end": 59900000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q12.2",
+        "start": 59900001,
+        "end": 61700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.3",
+        "start": 61700001,
+        "end": 63400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q13.1",
+        "start": 63400001,
+        "end": 65900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.2",
+        "start": 65900001,
+        "end": 68400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q13.3",
+        "start": 68400001,
+        "end": 70400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.4",
+        "start": 70400001,
+        "end": 75200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.5",
+        "start": 75200001,
+        "end": 77100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q14.1",
+        "start": 77100001,
+        "end": 85600000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q14.2",
+        "start": 85600001,
+        "end": 88300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q14.3",
+        "start": 88300001,
+        "end": 92800000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q21",
+        "start": 92800001,
+        "end": 97200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.1",
+        "start": 97200001,
+        "end": 102100000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q22.2",
+        "start": 102100001,
+        "end": 102900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.3",
+        "start": 102900001,
+        "end": 110400000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q23.1",
+        "start": 110400001,
+        "end": 112500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.2",
+        "start": 112500001,
+        "end": 114500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q23.3",
+        "start": 114500001,
+        "end": 121200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.1",
+        "start": 121200001,
+        "end": 123900000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.2",
+        "start": 123900001,
+        "end": 127800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.3",
+        "start": 127800001,
+        "end": 130800000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q25",
+        "start": 130800001,
+        "end": 135006516,
+        "type": "gneg"
+      }
+    ]
+  },
+  "12": {
+    "size": 133851895,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 33300001,
+        "end": 35800000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.21",
+        "start": 30700001,
+        "end": 33300000,
+        "type": "gneg"
+      },
+      {
+        "id": "p11.22",
+        "start": 27800001,
+        "end": 30700000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p11.23",
+        "start": 26500001,
+        "end": 27800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.1",
+        "start": 21300001,
+        "end": 26500000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p12.2",
+        "start": 20000001,
+        "end": 21300000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.3",
+        "start": 14800001,
+        "end": 20000000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p13.1",
+        "start": 12800001,
+        "end": 14800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p13.2",
+        "start": 10100001,
+        "end": 12800000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p13.31",
+        "start": 5400001,
+        "end": 10100000,
+        "type": "gneg"
+      },
+      {
+        "id": "p13.32",
+        "start": 3300001,
+        "end": 5400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p13.33",
+        "start": 1,
+        "end": 3300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11",
+        "start": 35800001,
+        "end": 38200000,
+        "type": "acen"
+      },
+      {
+        "id": "q12",
+        "start": 38200001,
+        "end": 46400000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q13.11",
+        "start": 46400001,
+        "end": 49100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.12",
+        "start": 49100001,
+        "end": 51500000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q13.13",
+        "start": 51500001,
+        "end": 54900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.2",
+        "start": 54900001,
+        "end": 56600000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q13.3",
+        "start": 56600001,
+        "end": 58100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q14.1",
+        "start": 58100001,
+        "end": 63100000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q14.2",
+        "start": 63100001,
+        "end": 65100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q14.3",
+        "start": 65100001,
+        "end": 67700000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q15",
+        "start": 67700001,
+        "end": 71500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.1",
+        "start": 71500001,
+        "end": 75700000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q21.2",
+        "start": 75700001,
+        "end": 80300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.31",
+        "start": 80300001,
+        "end": 86700000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q21.32",
+        "start": 86700001,
+        "end": 89000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.33",
+        "start": 89000001,
+        "end": 92600000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q22",
+        "start": 92600001,
+        "end": 96200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.1",
+        "start": 96200001,
+        "end": 101600000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q23.2",
+        "start": 101600001,
+        "end": 103800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.3",
+        "start": 103800001,
+        "end": 109000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.11",
+        "start": 109000001,
+        "end": 111700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.12",
+        "start": 111700001,
+        "end": 112300000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q24.13",
+        "start": 112300001,
+        "end": 114300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.21",
+        "start": 114300001,
+        "end": 116800000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.22",
+        "start": 116800001,
+        "end": 118100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.23",
+        "start": 118100001,
+        "end": 120700000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.31",
+        "start": 120700001,
+        "end": 125900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.32",
+        "start": 125900001,
+        "end": 129300000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.33",
+        "start": 129300001,
+        "end": 133851895,
+        "type": "gneg"
+      }
+    ]
+  },
+  "13": {
+    "size": 115169878,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 16300001,
+        "end": 17900000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 10000001,
+        "end": 16300000,
+        "type": "gvar"
+      },
+      {
+        "id": "p12",
+        "start": 4500001,
+        "end": 10000000,
+        "type": "stalk"
+      },
+      {
+        "id": "p13",
+        "start": 1,
+        "end": 4500000,
+        "type": "gvar"
+      },
+      {
+        "id": "q11",
+        "start": 17900001,
+        "end": 19500000,
+        "type": "acen"
+      },
+      {
+        "id": "q12.11",
+        "start": 19500001,
+        "end": 23300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.12",
+        "start": 23300001,
+        "end": 25500000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q12.13",
+        "start": 25500001,
+        "end": 27800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.2",
+        "start": 27800001,
+        "end": 28900000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q12.3",
+        "start": 28900001,
+        "end": 32200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.1",
+        "start": 32200001,
+        "end": 34000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.2",
+        "start": 34000001,
+        "end": 35500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.3",
+        "start": 35500001,
+        "end": 40100000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q14.11",
+        "start": 40100001,
+        "end": 45200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q14.12",
+        "start": 45200001,
+        "end": 45800000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q14.13",
+        "start": 45800001,
+        "end": 47300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q14.2",
+        "start": 47300001,
+        "end": 50900000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q14.3",
+        "start": 50900001,
+        "end": 55300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.1",
+        "start": 55300001,
+        "end": 59600000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q21.2",
+        "start": 59600001,
+        "end": 62300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.31",
+        "start": 62300001,
+        "end": 65700000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q21.32",
+        "start": 65700001,
+        "end": 68600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.33",
+        "start": 68600001,
+        "end": 73300000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q22.1",
+        "start": 73300001,
+        "end": 75400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.2",
+        "start": 75400001,
+        "end": 77200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q22.3",
+        "start": 77200001,
+        "end": 79000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.1",
+        "start": 79000001,
+        "end": 87700000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q31.2",
+        "start": 87700001,
+        "end": 90000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.3",
+        "start": 90000001,
+        "end": 95000000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q32.1",
+        "start": 95000001,
+        "end": 98200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q32.2",
+        "start": 98200001,
+        "end": 99300000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q32.3",
+        "start": 99300001,
+        "end": 101700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q33.1",
+        "start": 101700001,
+        "end": 104800000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q33.2",
+        "start": 104800001,
+        "end": 107000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q33.3",
+        "start": 107000001,
+        "end": 110300000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q34",
+        "start": 110300001,
+        "end": 115169878,
+        "type": "gneg"
+      }
+    ]
+  },
+  "14": {
+    "size": 107349540,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 16100001,
+        "end": 17600000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 8100001,
+        "end": 16100000,
+        "type": "gvar"
+      },
+      {
+        "id": "p12",
+        "start": 3700001,
+        "end": 8100000,
+        "type": "stalk"
+      },
+      {
+        "id": "p13",
+        "start": 1,
+        "end": 3700000,
+        "type": "gvar"
+      },
+      {
+        "id": "q11.1",
+        "start": 17600001,
+        "end": 19100000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.2",
+        "start": 19100001,
+        "end": 24600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12",
+        "start": 24600001,
+        "end": 33300000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q13.1",
+        "start": 33300001,
+        "end": 35300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.2",
+        "start": 35300001,
+        "end": 36600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.3",
+        "start": 36600001,
+        "end": 37800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.1",
+        "start": 37800001,
+        "end": 43500000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q21.2",
+        "start": 43500001,
+        "end": 47200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.3",
+        "start": 47200001,
+        "end": 50900000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q22.1",
+        "start": 50900001,
+        "end": 54100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.2",
+        "start": 54100001,
+        "end": 55500000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q22.3",
+        "start": 55500001,
+        "end": 58100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.1",
+        "start": 58100001,
+        "end": 62100000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q23.2",
+        "start": 62100001,
+        "end": 64800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.3",
+        "start": 64800001,
+        "end": 67900000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.1",
+        "start": 67900001,
+        "end": 70200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.2",
+        "start": 70200001,
+        "end": 73800000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.3",
+        "start": 73800001,
+        "end": 79300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.1",
+        "start": 79300001,
+        "end": 83600000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q31.2",
+        "start": 83600001,
+        "end": 84900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q31.3",
+        "start": 84900001,
+        "end": 89800000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q32.11",
+        "start": 89800001,
+        "end": 91900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q32.12",
+        "start": 91900001,
+        "end": 94700000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q32.13",
+        "start": 94700001,
+        "end": 96300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q32.2",
+        "start": 96300001,
+        "end": 101400000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q32.31",
+        "start": 101400001,
+        "end": 103200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q32.32",
+        "start": 103200001,
+        "end": 104000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q32.33",
+        "start": 104000001,
+        "end": 107349540,
+        "type": "gneg"
+      }
+    ]
+  },
+  "15": {
+    "size": 102531392,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 15800001,
+        "end": 19000000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 8700001,
+        "end": 15800000,
+        "type": "gvar"
+      },
+      {
+        "id": "p12",
+        "start": 3900001,
+        "end": 8700000,
+        "type": "stalk"
+      },
+      {
+        "id": "p13",
+        "start": 1,
+        "end": 3900000,
+        "type": "gvar"
+      },
+      {
+        "id": "q11.1",
+        "start": 19000001,
+        "end": 20700000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.2",
+        "start": 20700001,
+        "end": 25700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12",
+        "start": 25700001,
+        "end": 28100000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.1",
+        "start": 28100001,
+        "end": 30300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.2",
+        "start": 30300001,
+        "end": 31200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.3",
+        "start": 31200001,
+        "end": 33600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q14",
+        "start": 33600001,
+        "end": 40100000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q15.1",
+        "start": 40100001,
+        "end": 42800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q15.2",
+        "start": 42800001,
+        "end": 43600000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q15.3",
+        "start": 43600001,
+        "end": 44800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.1",
+        "start": 44800001,
+        "end": 49500000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q21.2",
+        "start": 49500001,
+        "end": 52900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.3",
+        "start": 52900001,
+        "end": 59100000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q22.1",
+        "start": 59100001,
+        "end": 59300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.2",
+        "start": 59300001,
+        "end": 63700000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q22.31",
+        "start": 63700001,
+        "end": 67200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.32",
+        "start": 67200001,
+        "end": 67300000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q22.33",
+        "start": 67300001,
+        "end": 67500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23",
+        "start": 67500001,
+        "end": 72700000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q24.1",
+        "start": 72700001,
+        "end": 75200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.2",
+        "start": 75200001,
+        "end": 76600000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q24.3",
+        "start": 76600001,
+        "end": 78300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q25.1",
+        "start": 78300001,
+        "end": 81700000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q25.2",
+        "start": 81700001,
+        "end": 85200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q25.3",
+        "start": 85200001,
+        "end": 89100000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q26.1",
+        "start": 89100001,
+        "end": 94300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q26.2",
+        "start": 94300001,
+        "end": 98500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q26.3",
+        "start": 98500001,
+        "end": 102531392,
+        "type": "gneg"
+      }
+    ]
+  },
+  "16": {
+    "size": 90354753,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 34600001,
+        "end": 36600000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 28100001,
+        "end": 34600000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.1",
+        "start": 24200001,
+        "end": 28100000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p12.2",
+        "start": 21200001,
+        "end": 24200000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.3",
+        "start": 16800001,
+        "end": 21200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p13.11",
+        "start": 14800001,
+        "end": 16800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p13.12",
+        "start": 12600001,
+        "end": 14800000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p13.13",
+        "start": 10500001,
+        "end": 12600000,
+        "type": "gneg"
+      },
+      {
+        "id": "p13.2",
+        "start": 7900001,
+        "end": 10500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p13.3",
+        "start": 1,
+        "end": 7900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.1",
+        "start": 36600001,
+        "end": 38600000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.2",
+        "start": 38600001,
+        "end": 47000000,
+        "type": "gvar"
+      },
+      {
+        "id": "q12.1",
+        "start": 47000001,
+        "end": 52600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.2",
+        "start": 52600001,
+        "end": 56700000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13",
+        "start": 56700001,
+        "end": 57400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21",
+        "start": 57400001,
+        "end": 66700000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q22.1",
+        "start": 66700001,
+        "end": 70800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.2",
+        "start": 70800001,
+        "end": 72900000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q22.3",
+        "start": 72900001,
+        "end": 74100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.1",
+        "start": 74100001,
+        "end": 79200000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q23.2",
+        "start": 79200001,
+        "end": 81700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.3",
+        "start": 81700001,
+        "end": 84200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.1",
+        "start": 84200001,
+        "end": 87100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.2",
+        "start": 87100001,
+        "end": 88700000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q24.3",
+        "start": 88700001,
+        "end": 90354753,
+        "type": "gneg"
+      }
+    ]
+  },
+  "17": {
+    "size": 81195210,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 22200001,
+        "end": 24000000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 16000001,
+        "end": 22200000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12",
+        "start": 10700001,
+        "end": 16000000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p13.1",
+        "start": 6500001,
+        "end": 10700000,
+        "type": "gneg"
+      },
+      {
+        "id": "p13.2",
+        "start": 3300001,
+        "end": 6500000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p13.3",
+        "start": 1,
+        "end": 3300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.1",
+        "start": 24000001,
+        "end": 25800000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.2",
+        "start": 25800001,
+        "end": 31800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12",
+        "start": 31800001,
+        "end": 38100000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q21.1",
+        "start": 38100001,
+        "end": 38400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.2",
+        "start": 38400001,
+        "end": 40900000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q21.31",
+        "start": 40900001,
+        "end": 44900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.32",
+        "start": 44900001,
+        "end": 47400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q21.33",
+        "start": 47400001,
+        "end": 50200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22",
+        "start": 50200001,
+        "end": 57600000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q23.1",
+        "start": 57600001,
+        "end": 58300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23.2",
+        "start": 58300001,
+        "end": 61100000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q23.3",
+        "start": 61100001,
+        "end": 62600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.1",
+        "start": 62600001,
+        "end": 64200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q24.2",
+        "start": 64200001,
+        "end": 67100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q24.3",
+        "start": 67100001,
+        "end": 70900000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q25.1",
+        "start": 70900001,
+        "end": 74800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q25.2",
+        "start": 74800001,
+        "end": 75300000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q25.3",
+        "start": 75300001,
+        "end": 81195210,
+        "type": "gneg"
+      }
+    ]
+  },
+  "18": {
+    "size": 78077248,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 15400001,
+        "end": 17200000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.21",
+        "start": 10900001,
+        "end": 15400000,
+        "type": "gneg"
+      },
+      {
+        "id": "p11.22",
+        "start": 8500001,
+        "end": 10900000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p11.23",
+        "start": 7100001,
+        "end": 8500000,
+        "type": "gneg"
+      },
+      {
+        "id": "p11.31",
+        "start": 2900001,
+        "end": 7100000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p11.32",
+        "start": 1,
+        "end": 2900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.1",
+        "start": 17200001,
+        "end": 19000000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.2",
+        "start": 19000001,
+        "end": 25000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.1",
+        "start": 25000001,
+        "end": 32700000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q12.2",
+        "start": 32700001,
+        "end": 37200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.3",
+        "start": 37200001,
+        "end": 43500000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q21.1",
+        "start": 43500001,
+        "end": 48200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.2",
+        "start": 48200001,
+        "end": 53800000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q21.31",
+        "start": 53800001,
+        "end": 56200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.32",
+        "start": 56200001,
+        "end": 59000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q21.33",
+        "start": 59000001,
+        "end": 61600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.1",
+        "start": 61600001,
+        "end": 66800000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q22.2",
+        "start": 66800001,
+        "end": 68700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.3",
+        "start": 68700001,
+        "end": 73100000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q23",
+        "start": 73100001,
+        "end": 78077248,
+        "type": "gneg"
+      }
+    ]
+  },
+  "19": {
+    "size": 59128983,
+    "bands": [
+      {
+        "id": "p11",
+        "start": 24400001,
+        "end": 26500000,
+        "type": "acen"
+      },
+      {
+        "id": "p12",
+        "start": 20000001,
+        "end": 24400000,
+        "type": "gvar"
+      },
+      {
+        "id": "p13.11",
+        "start": 16300001,
+        "end": 20000000,
+        "type": "gneg"
+      },
+      {
+        "id": "p13.12",
+        "start": 14000001,
+        "end": 16300000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p13.13",
+        "start": 13900001,
+        "end": 14000000,
+        "type": "gneg"
+      },
+      {
+        "id": "p13.2",
+        "start": 6900001,
+        "end": 13900000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p13.3",
+        "start": 1,
+        "end": 6900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11",
+        "start": 26500001,
+        "end": 28600000,
+        "type": "acen"
+      },
+      {
+        "id": "q12",
+        "start": 28600001,
+        "end": 32400000,
+        "type": "gvar"
+      },
+      {
+        "id": "q13.11",
+        "start": 32400001,
+        "end": 35500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.12",
+        "start": 35500001,
+        "end": 38300000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q13.13",
+        "start": 38300001,
+        "end": 38700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.2",
+        "start": 38700001,
+        "end": 43400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q13.31",
+        "start": 43400001,
+        "end": 45200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.32",
+        "start": 45200001,
+        "end": 48000000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q13.33",
+        "start": 48000001,
+        "end": 51400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.41",
+        "start": 51400001,
+        "end": 53600000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q13.42",
+        "start": 53600001,
+        "end": 56300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.43",
+        "start": 56300001,
+        "end": 59128983,
+        "type": "gpos25"
+      }
+    ]
+  },
+  "20": {
+    "size": 63025520,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 25600001,
+        "end": 27500000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.21",
+        "start": 22300001,
+        "end": 25600000,
+        "type": "gneg"
+      },
+      {
+        "id": "p11.22",
+        "start": 21300001,
+        "end": 22300000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p11.23",
+        "start": 17900001,
+        "end": 21300000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.1",
+        "start": 12100001,
+        "end": 17900000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p12.2",
+        "start": 9200001,
+        "end": 12100000,
+        "type": "gneg"
+      },
+      {
+        "id": "p12.3",
+        "start": 5100001,
+        "end": 9200000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p13",
+        "start": 1,
+        "end": 5100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.1",
+        "start": 27500001,
+        "end": 29400000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.21",
+        "start": 29400001,
+        "end": 32100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.22",
+        "start": 32100001,
+        "end": 34400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q11.23",
+        "start": 34400001,
+        "end": 37600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12",
+        "start": 37600001,
+        "end": 41700000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q13.11",
+        "start": 41700001,
+        "end": 42100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.12",
+        "start": 42100001,
+        "end": 46400000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q13.13",
+        "start": 46400001,
+        "end": 49800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.2",
+        "start": 49800001,
+        "end": 55000000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q13.31",
+        "start": 55000001,
+        "end": 56500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.32",
+        "start": 56500001,
+        "end": 58400000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.33",
+        "start": 58400001,
+        "end": 63025520,
+        "type": "gneg"
+      }
+    ]
+  },
+  "21": {
+    "size": 48129895,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 10900001,
+        "end": 13200000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 6800001,
+        "end": 10900000,
+        "type": "gvar"
+      },
+      {
+        "id": "p12",
+        "start": 2800001,
+        "end": 6800000,
+        "type": "stalk"
+      },
+      {
+        "id": "p13",
+        "start": 1,
+        "end": 2800000,
+        "type": "gvar"
+      },
+      {
+        "id": "q11.1",
+        "start": 13200001,
+        "end": 14300000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.2",
+        "start": 14300001,
+        "end": 16400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.1",
+        "start": 16400001,
+        "end": 24000000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q21.2",
+        "start": 24000001,
+        "end": 26800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.3",
+        "start": 26800001,
+        "end": 31500000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q22.11",
+        "start": 31500001,
+        "end": 35800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.12",
+        "start": 35800001,
+        "end": 37800000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q22.13",
+        "start": 37800001,
+        "end": 39700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.2",
+        "start": 39700001,
+        "end": 42600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q22.3",
+        "start": 42600001,
+        "end": 48129895,
+        "type": "gneg"
+      }
+    ]
+  },
+  "22": {
+    "size": 51304566,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 12200001,
+        "end": 14700000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 8300001,
+        "end": 12200000,
+        "type": "gvar"
+      },
+      {
+        "id": "p12",
+        "start": 3800001,
+        "end": 8300000,
+        "type": "stalk"
+      },
+      {
+        "id": "p13",
+        "start": 1,
+        "end": 3800000,
+        "type": "gvar"
+      },
+      {
+        "id": "q11.1",
+        "start": 14700001,
+        "end": 17900000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.21",
+        "start": 17900001,
+        "end": 22200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.22",
+        "start": 22200001,
+        "end": 23500000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q11.23",
+        "start": 23500001,
+        "end": 25900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.1",
+        "start": 25900001,
+        "end": 29600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q12.2",
+        "start": 29600001,
+        "end": 32200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12.3",
+        "start": 32200001,
+        "end": 37600000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.1",
+        "start": 37600001,
+        "end": 41000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.2",
+        "start": 41000001,
+        "end": 44200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.31",
+        "start": 44200001,
+        "end": 48400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.32",
+        "start": 48400001,
+        "end": 49400000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.33",
+        "start": 49400001,
+        "end": 51304566,
+        "type": "gneg"
+      }
+    ]
+  },
+  "X": {
+    "size": 155270560,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 58100001,
+        "end": 60600000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.21",
+        "start": 54800001,
+        "end": 58100000,
+        "type": "gneg"
+      },
+      {
+        "id": "p11.22",
+        "start": 49800001,
+        "end": 54800000,
+        "type": "gpos25"
+      },
+      {
+        "id": "p11.23",
+        "start": 46400001,
+        "end": 49800000,
+        "type": "gneg"
+      },
+      {
+        "id": "p11.3",
+        "start": 42400001,
+        "end": 46400000,
+        "type": "gpos75"
+      },
+      {
+        "id": "p11.4",
+        "start": 37600001,
+        "end": 42400000,
+        "type": "gneg"
+      },
+      {
+        "id": "p21.1",
+        "start": 31500001,
+        "end": 37600000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p21.2",
+        "start": 29300001,
+        "end": 31500000,
+        "type": "gneg"
+      },
+      {
+        "id": "p21.3",
+        "start": 24900001,
+        "end": 29300000,
+        "type": "gpos100"
+      },
+      {
+        "id": "p22.11",
+        "start": 21900001,
+        "end": 24900000,
+        "type": "gneg"
+      },
+      {
+        "id": "p22.12",
+        "start": 19300001,
+        "end": 21900000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p22.13",
+        "start": 17100001,
+        "end": 19300000,
+        "type": "gneg"
+      },
+      {
+        "id": "p22.2",
+        "start": 9500001,
+        "end": 17100000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p22.31",
+        "start": 6000001,
+        "end": 9500000,
+        "type": "gneg"
+      },
+      {
+        "id": "p22.32",
+        "start": 4300001,
+        "end": 6000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p22.33",
+        "start": 1,
+        "end": 4300000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.1",
+        "start": 60600001,
+        "end": 63000000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.2",
+        "start": 63000001,
+        "end": 64600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12",
+        "start": 64600001,
+        "end": 67800000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.1",
+        "start": 67800001,
+        "end": 71800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q13.2",
+        "start": 71800001,
+        "end": 73900000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q13.3",
+        "start": 73900001,
+        "end": 76000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.1",
+        "start": 76000001,
+        "end": 84600000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q21.2",
+        "start": 84600001,
+        "end": 86200000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.31",
+        "start": 86200001,
+        "end": 91800000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q21.32",
+        "start": 91800001,
+        "end": 93500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q21.33",
+        "start": 93500001,
+        "end": 98300000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q22.1",
+        "start": 98300001,
+        "end": 102600000,
+        "type": "gneg"
+      },
+      {
+        "id": "q22.2",
+        "start": 102600001,
+        "end": 103700000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q22.3",
+        "start": 103700001,
+        "end": 108700000,
+        "type": "gneg"
+      },
+      {
+        "id": "q23",
+        "start": 108700001,
+        "end": 116500000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q24",
+        "start": 116500001,
+        "end": 120900000,
+        "type": "gneg"
+      },
+      {
+        "id": "q25",
+        "start": 120900001,
+        "end": 128700000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q26.1",
+        "start": 128700001,
+        "end": 130400000,
+        "type": "gneg"
+      },
+      {
+        "id": "q26.2",
+        "start": 130400001,
+        "end": 133600000,
+        "type": "gpos25"
+      },
+      {
+        "id": "q26.3",
+        "start": 133600001,
+        "end": 138000000,
+        "type": "gneg"
+      },
+      {
+        "id": "q27.1",
+        "start": 138000001,
+        "end": 140300000,
+        "type": "gpos75"
+      },
+      {
+        "id": "q27.2",
+        "start": 140300001,
+        "end": 142100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q27.3",
+        "start": 142100001,
+        "end": 147100000,
+        "type": "gpos100"
+      },
+      {
+        "id": "q28",
+        "start": 147100001,
+        "end": 155270560,
+        "type": "gneg"
+      }
+    ]
+  },
+  "Y": {
+    "size": 59373566,
+    "bands": [
+      {
+        "id": "p11.1",
+        "start": 11600001,
+        "end": 12500000,
+        "type": "acen"
+      },
+      {
+        "id": "p11.2",
+        "start": 3000001,
+        "end": 11600000,
+        "type": "gneg"
+      },
+      {
+        "id": "p11.31",
+        "start": 2500001,
+        "end": 3000000,
+        "type": "gpos50"
+      },
+      {
+        "id": "p11.32",
+        "start": 1,
+        "end": 2500000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.1",
+        "start": 12500001,
+        "end": 13400000,
+        "type": "acen"
+      },
+      {
+        "id": "q11.21",
+        "start": 13400001,
+        "end": 15100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.221",
+        "start": 15100001,
+        "end": 19800000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q11.222",
+        "start": 19800001,
+        "end": 22100000,
+        "type": "gneg"
+      },
+      {
+        "id": "q11.223",
+        "start": 22100001,
+        "end": 26200000,
+        "type": "gpos50"
+      },
+      {
+        "id": "q11.23",
+        "start": 26200001,
+        "end": 28800000,
+        "type": "gneg"
+      },
+      {
+        "id": "q12",
+        "start": 28800001,
+        "end": 59373566,
+        "type": "gvar"
+      }
+    ]
+  }
+};
+
+
+
+
 // Make sure we have local $ (this is for combined script in a function)
 var $ = jQuery;
 
@@ -1571,6 +6854,7 @@ var Genoverse = Base.extend({
   dragAction       : 'scroll', // options are: scroll, select, off
   wheelAction      : 'off',    // options are: zoom, off
   messages         : {},
+  genome           : grch37,   // Default genome
   colors           : {
     background     : '#FFFFFF',
     majorGuideLine : '#CCCCCC',
@@ -1642,7 +6926,7 @@ var Genoverse = Base.extend({
 
 
   init: function () {
-    var browser = this;
+    var browser = this;    
     var width   = this.width;
 
     if (!(this.container && this.container.length)) {
@@ -1727,7 +7011,10 @@ var Genoverse = Base.extend({
                      : { chr: this.chr, start: this.start, end: this.end };
 
     this.chr = coords.chr;
-    
+    if (!this.chromosomeSize && this.genome) {
+      this.chromosomeSize = this.genome[this.chr].size;
+    }    
+
     this.setRange(coords.start, coords.end);
     this.setHistory();
     this.setTracks();
@@ -1752,11 +7039,13 @@ var Genoverse = Base.extend({
       mousewheel: function (e, delta, deltaX, deltaY) {
         if(deltaY === 0 && deltaX !== 0) {
           browser.move(null, -deltaX * 10);
-        } else {
-            if (browser.wheelAction === 'zoom') {
-              return browser.mousewheelZoom(e, delta);
-            }
+        } else if (browser.wheelAction === 'zoom') {
+          return browser.mousewheelZoom(e, delta);
         }
+      },
+
+      dblclick: function (e) {
+        browser.mousewheelZoom(e, +1);
       }
     }, '.image_container, .overlay, .selector, .message_container');
 
@@ -1793,8 +7082,8 @@ var Genoverse = Base.extend({
       };
     }
   },
-  
-  
+
+
   reset: function () {
     var i = this.tracks.length;
     
@@ -3301,7 +8590,8 @@ Genoverse.Track = Base.extend({
          }
        })
        .fail(function (jqXHR, textStatus, errorThrown) {
-         track.showError(errorThrown.message);
+         //debugger;
+         track.showError('error while getting the data, check console');
        });
     }
   },

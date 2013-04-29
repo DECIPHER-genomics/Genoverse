@@ -1,84 +1,14 @@
 Genoverse.prototype.controls = [
-  {
-    icon   : '...',
-    name   : 'Tracks Menu',
-    init   : function (browser) {
-    },
-
-    action : function (browser) {
-      var button = this;
-
-      if ($(this).hasClass('active')) {
-
-        $('.gv_menu.tracksMenu .close').click();
-        $(this).removeClass('active');
-
-      } else {
-
-        var css     = browser.wrapper.offset();
-        css.top     = Math.max(css.top, $(document).scrollTop()) + 20;
-        css.left   += 50;
-        css.width   = browser.wrapper.width() - 100;
-
-        var menu    = browser.makeMenu({
-          'Currently enabled tracks:'         : 'Available tracks:', 
-          '<div class="currentTracks"></div>' : '<input placeholder="Search"><div class="availableTracks"></div>'
-        }).css(css).addClass('tracksMenu');
-
-        $('.close', menu).click(function(){
-          $(button).removeClass('active');          
-        });
-
-        var currentTracks   = $('.currentTracks', menu);
-        var availableTracks = $('.availableTracks', menu);
-
-        currentTracks.reload = function() {
-          this.html('');
-          this.listTracks();
-        };
-
-        currentTracks.listTracks = function() {
-          for (var i=1; i<browser.tracks.length; i++) {
-            var track = browser.tracks[i];
-
-            (function(track){
-              $('<div>')
-              .append($('<div class="removeTrack">x</div> ').click(function(){
-                $(this).parent().remove();
-                track.remove();
-              }))
-              .append('<span>'+ track.name +'</span>')
-              .appendTo(currentTracks);
-            })(browser.tracks[i]);
-
-          }
-        };
-
-        currentTracks.listTracks();
-
-        if (browser.tracksLibrary && browser.tracksLibrary.length) {
-          for (var i=0; i<browser.tracksLibrary.length; i++) {
-            var track = browser.tracks[i];
-            (function(track){
-              $('<div class="tracksLibraryItem">')
-              .append($('<div class="addTrack">+</div> ').click(function(){
-                browser.addTrack(track);
-                currentTracks.reload();
-              }))
-              .append('<span>'+ track.name +'</span>')
-              .appendTo(availableTracks)
-              .data({ track: track });
-            })(browser.tracksLibrary[i]);
-          }
-        }
-
-        $(this).addClass('active');
-
-      
-      }
-
-    }
-  }
+  // Uncomment this to see this example working
+  // {
+  //   icon   : '...',
+  //   name   : 'Bla',
+  //   init   : function (browser) {
+  //   },
+  //   action : function (browser) {
+  //     alert('bla');
+  //   }
+  // }
 ];
 
 
@@ -108,11 +38,6 @@ $('.tracksMenu input[placeholder=Search]').live('keyup', function(){
   })
 });
 
-
-Genoverse.on('afterInit', function () {
-  this.labelContainer.prepend('<li class="genoverse_panel"><div class="button_set"><button title="Tracks menu">Tracks</button></div></li>');
-  this.karyotypeContainer = $('<div class="gv_karyotype_container" />').insertAfter(this.labelContainer);
-});
 
 Genoverse.on('beforeInit', function () {
   var browser = this;
@@ -237,12 +162,88 @@ Genoverse.on('beforeInit', function () {
 });
 
 
-function showKaryotype (browser) {
-  var chromosome = karyotype[browser.chr];
+Genoverse.on('afterInit', function () {
+  var browser = this;
+  var tracksButton = $('<button title="Tracks menu">&#9776;</button>').on('click', function () {
+      var button = this;
 
-  for (var i=0; i<chromosome.bands.length; i++) {
+      if ($(this).hasClass('active')) {
 
-  }
-  $('gv_chromosome');
-}
+        $('.gv_menu.tracksMenu .close').click();
+        $(this).removeClass('active');
+
+      } else {
+
+        var css     = browser.wrapper.offset();
+        css.top     = Math.max(css.top, $(document).scrollTop()) + 20;
+        css.left   += 50;
+        css.width   = browser.wrapper.width() - 100;
+
+        var menu    = browser.makeMenu({
+          'Currently enabled tracks:'         : 'Available tracks:', 
+          '<div class="currentTracks"></div>' : '<input placeholder="Search"><div class="availableTracks"></div>'
+        }).css(css).addClass('tracksMenu');
+
+        $('.close', menu).click(function(){
+          $(button).removeClass('active');          
+        });
+
+        var currentTracks   = $('.currentTracks', menu);
+        var availableTracks = $('.availableTracks', menu);
+
+        currentTracks.reload = function() {
+          this.html('');
+          this.listTracks();
+        };
+
+        currentTracks.listTracks = function() {
+          for (var i=1; i<browser.tracks.length; i++) {
+            var track = browser.tracks[i];
+
+            (function(track){
+              $('<div>')
+              .append($('<div class="removeTrack">x</div> ').click(function(){
+                $(this).parent().remove();
+                track.remove();
+              }))
+              .append('<span>'+ track.name +'</span>')
+              .appendTo(currentTracks);
+            })(browser.tracks[i]);
+
+          }
+        };
+
+        currentTracks.listTracks();
+
+        if (browser.tracksLibrary && browser.tracksLibrary.length) {
+          for (var i=0; i<browser.tracksLibrary.length; i++) {
+            var track = browser.tracks[i];
+            (function(track){
+              $('<div class="tracksLibraryItem">')
+              .append($('<div class="addTrack">+</div> ').click(function(){
+                browser.addTrack(track);
+                currentTracks.reload();
+              }))
+              .append('<span>'+ track.name +'</span>')
+              .appendTo(availableTracks)
+              .data({ track: track });
+            })(browser.tracksLibrary[i]);
+          }
+        }
+
+        $(this).addClass('active');
+      }
+  });
+
+  this.labelContainer.prepend(
+    $('<li class="genoverse_panel" />').append(
+      $('<div class="button_set" />').append(
+        tracksButton
+      )
+    )
+  );
+
+  this.karyotypeContainer = $('<div class="gv_karyotype_container" />').insertAfter(this.labelContainer);
+});
+
 
