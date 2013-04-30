@@ -16,7 +16,9 @@ Genoverse.on('afterInit', function () {
       var left  = $(this).position().left;
       var start = left * browser.chromosomeSize / browser.karyotypeWidth;
       var end   = (left + $(this).width())  * browser.chromosomeSize / browser.karyotypeWidth;
-      browser.setRange(start, end, true, true);
+      browser.start = start;
+      browser.end   = end;
+      browser.reset();
     }
   });
 
