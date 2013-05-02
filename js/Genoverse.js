@@ -133,7 +133,9 @@ var Genoverse = Base.extend({
         var newOrderTracks = [];
         // Well, this is dodgy, but hopefully .children will always give us LIs in order of appearence
         browser.labelContainer.children('li').each(function (i) {
-          newOrderTracks.push($(this).data('track'));
+          if ($(this).data('track')) {
+            newOrderTracks.push($(this).data('track'));
+          }
         });
         browser.tracks = newOrderTracks;
       }
