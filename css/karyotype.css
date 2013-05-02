@@ -13,6 +13,10 @@
   height: 100%;
   position: absolute;
   background-color: #7f7f7f;
+
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 2em;  
 }
 
 .gv_band.acen {
