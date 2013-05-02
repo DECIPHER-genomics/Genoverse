@@ -7,7 +7,7 @@ var genoverseConfig = {
   chr              : 1,
   start            : 145507100,
   end              : 145508000,
-  plugins          : [ 'controlPanel', 'trackControls', 'resizer', 'tooltips' ],
+  plugins          : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips' ],
   tracks           : defaultTracks,
   tracksLibrary    : tracksLibrary,
 };
