@@ -20,6 +20,10 @@ my @files = qw(
   Track/Scalebar.js
   Track/Sequence.js
 
+  Track/File.js
+  Track/File/VCF.js
+  Track/File/BED.js
+
   Track/DAS.js
   Track/DAS/colorMap.js
   Track/DAS/Transcript.js
