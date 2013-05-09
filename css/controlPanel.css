@@ -122,5 +122,5 @@
 .gv_karyotype_container {
   height:50px;
   overflow:hidden;
-  box-shadow: inset 1px 1px 1px black;
+  box-shadow: inset 0px 0px 33px -7px rgba(24, 36, 56, 0.97), inset 1px 1px 1px 0px black;
 }

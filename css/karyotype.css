@@ -1,5 +1,5 @@
 .gv_chromosome {
-  border: 1px dotted black;
+  border: 1px solid white;
   border-radius: 5px 5px 5px 5px;
   box-shadow: 0 0 5px 1px rgba(162, 161, 161, 0.71);
   display: block;
@@ -13,24 +13,28 @@
   height: 100%;
   position: absolute;
   background-color: #7f7f7f;
-
+  overflow: hidden;
   font-size: 10px;
   font-weight: bold;
-  line-height: 2em;  
+  font-family: Verdana, Tahoma;
+  line-height: 2em;
+  text-align: left;
+  vertical-align: bottom;
 }
 
 .gv_band.acen {
   background-color: #708090;
 }
 .gv_band.acen:first-child {
-  border-radius: 0 5px 5px 0;  
+  border-radius: 0 10px 10px 0;  
 }
 .gv_band.acen:not(:first-child) {
-  border-radius: 5px 0 0 5px;
+  border-radius: 10px 0 0 10px;
 }
 
 .gv_band.gneg {
   background-color: #ffffff;
+  color: #000000;
 }
 .gv_band.gpos {
   background-color: #000000;
@@ -40,9 +44,11 @@
 }
 .gv_band.gpos25 {
   background-color: #d9d9d9;
+  color: black;
 }
 .gv_band.gpos33 {
   background-color: #bfbfbf;
+  color: black;
 }
 .gv_band.gpos50 {
   background-color: #999999;
@@ -55,6 +61,7 @@
 }
 .gv_band.gvar {
   background-color: #e0e0e0;
+  color: black;
 }
 .gv_band.mark {
   background-color: #0000ff;
