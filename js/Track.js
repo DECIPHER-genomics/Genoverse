@@ -369,7 +369,7 @@ Genoverse.Track = Base.extend({
       track[this] = scaleSettings[this];
     });
     
-    this.scrollContainer.css('left', this.browser.left).children('.image_container').hide();
+    this.scrollContainer.css('left', this.browser.left).children('.image_container').remove();
     this.makeFirstImage();
   },
 
@@ -491,6 +491,9 @@ Genoverse.Track = Base.extend({
     this.scrollContainer.append(this.imgContainers);
 
     if (this.threshold && this.threshold < this.browser.length) {
+      this.dataRange.start = 9e99;
+      this.dataRange.end   = -9e99;
+      //this.resetData();
       this.render([], image);
       this.showMessage('thresholdWarning');
     } else if (params.start >= this.dataRange.start && params.end <= this.dataRange.end) {
@@ -512,19 +515,19 @@ Genoverse.Track = Base.extend({
              track.parseData(data, params.start, params.end);
              track.render(track.findFeatures(params.start, params.end), image);
            } catch (e) {
-             track.showError(e.message);
+             track.showError(e);
            }
           
            if (track.allData) {
              track.url = false;
            }
          } else {
-           track.showError('No data received');
+           track.showError({ message: 'No data received', arguments: arguments });
          }
        })
-       .fail(function (jqXHR, textStatus, errorThrown) {
+       .fail(function () {
          //debugger;
-         track.showError('error while getting the data, check console');
+         track.showError({ message: 'error while getting the data, check console', arguments: arguments });
        });
     }
   },
@@ -687,7 +690,8 @@ Genoverse.Track = Base.extend({
 
 
   showError: function (error) {
-    this.showMessage('ERROR', error);
+    console.log(error);
+    this.showMessage('ERROR', error.message);
 
     //console.log(arguments);
     // if (!this.errorMessage) {
