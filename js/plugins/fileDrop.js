@@ -3,7 +3,7 @@ Genoverse.on('afterInit', function() {
   var wrapper = this.wrapper;
 
   $(window).on("dragenter", function (e) {
-    if (e.originalEvent.dataTransfer && e.originalEvent.dataTransfer.types && (e.originalEvent.dataTransfer.types[2] == 'Files' || e.originalEvent.dataTransfer.types[0] == 'Files') && !$('.gv_file_drop_total_overlay').length) {
+    if (e.originalEvent.dataTransfer && e.originalEvent.dataTransfer.types && (e.originalEvent.dataTransfer.types[0] == 'Files' || e.originalEvent.dataTransfer.types[1] == 'Files' || e.originalEvent.dataTransfer.types[2] == 'Files') && !$('.gv_file_drop_total_overlay').length) {
 
       var fileDropDiv  = $('<div class="gv_file_drop" />').appendTo(wrapper);
       var totalDropOverlay = $('<div class="gv_file_drop_total_overlay" />').prependTo($('body'));
@@ -25,7 +25,6 @@ Genoverse.on('afterInit', function() {
 
         for (var i=0; i<files.length; i++) {
           var file = files[i], reader = new FileReader();
-          console.log(file);
           reader.onload = function (event) {
             var track = {
               type    : 'File.' + file.name.slice(-3).toUpperCase(),
