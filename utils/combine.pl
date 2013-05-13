@@ -22,8 +22,8 @@ my @files = qw(
   Track/Fasta.js
 
   Track/File.js
-  Track/File/VCF.js
-  Track/File/BED.js
+  Track/VCF.js
+  Track/BED.js
 
   Track/DAS.js
   Track/DAS/colorMap.js
