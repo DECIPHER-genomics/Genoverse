@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+
+    <script type="text/javascript" src="/js/latest.js">
+
+      {
+        container      : '#genoverse',  // Specify container element with css/jquery selector style
+        width          : 800,           // width in pixels on the page
+        genome         : 'tomato',      // see /js/genomes/
+
+        // These defaults coordinates will be overwritten with url (r=chr:start-end), if present
+        chr            : 1,             // default chromosome, 
+        start          : 45491487,      // 
+        end            : 45508055,      //  
+
+        plugins        : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ], // Array of plugins to load (see plugins folder)
+        tracks         : [
+          {
+            type : 'Scalebar',
+            height : 25,
+          },
+          {
+            type : 'Fasta',
+            url  : '/data/Solanum_lycopersicum.SL2.40.18.dna.chromosome.1.fa'
+          },          
+        ],
+      }
+
+    </script>
+
+  </head>
+  <body>
+    <div id="genoverse"></div>
+  </body>
+</html>
