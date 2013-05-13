@@ -8125,16 +8125,19 @@ Genoverse.Track = Base.extend({
     }
     this.extend($.extend(true, {}, deepCopy));
 
-    // Use Base.extend to make any funciton in config have this.base
-    this.extend(config);
-    var track = this;
-    
-    for (var i = 0; i < this.inherit.length; i++) {
-      if (Genoverse.Track[this.inherit[i]]) {
-        this.extend(Genoverse.Track[this.inherit[i]]);
+    config.inherit = $.merge(this.inherit, config.inherit || []);
+
+    for (var i = 0; i < config.inherit.length; i++) {
+      if (Genoverse.Track[config.inherit[i]]) {
+        this.extend(Genoverse.Track[config.inherit[i]]);
       }
     }
-    
+
+    // Use Base.extend to make any funciton in config have this.base    
+    this.extend(config);
+
+    var track = this;
+
     if (typeof this.inheritedConstructor === 'function') {
       this.inheritedConstructor(config);
     }
@@ -8599,19 +8602,15 @@ Genoverse.Track = Base.extend({
 
       $.when(this.getData(params.start - track.dataBuffer, params.end + track.dataBuffer))
        .done(function (data) {
-         if (data) {
-           try {
-             track.parseData(data, params.start, params.end);
-             track.render(track.findFeatures(params.start, params.end), image);
-           } catch (e) {
-             track.showError(e);
-           }
-          
-           if (track.allData) {
-             track.url = false;
-           }
-         } else {
-           track.showError({ message: 'No data received', arguments: arguments });
+         try {
+           track.parseData(data, params.start, params.end);
+           track.render(track.findFeatures(params.start, params.end), image);
+         } catch (e) {
+           track.showError(e);
+         }
+        
+         if (track.allData) {
+           track.url = false;
          }
        })
        .fail(function () {
@@ -9355,7 +9354,7 @@ Genoverse.Track.Fasta = Genoverse.Track.Sequence.extend({
 
 
 
-Genoverse.Track.File = Genoverse.Track.extend({
+Genoverse.Track.File = {
 
   // Defaults 
   name     : 'File',  
@@ -9369,11 +9368,11 @@ Genoverse.Track.File = Genoverse.Track.extend({
     return $.Deferred().resolve(this.data);
   }
 
-});
+};
 
 
 
-Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
+Genoverse.Track.VCF = Genoverse.Track.extend({
 
   // Defaults 
   name           : "VCF",  
@@ -9398,7 +9397,8 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
         var chr     = fields[0];
         var start   = fields[1]*1;
         var alleles = fields[4].split(",");
-        var id      = i;
+        // Just some unique id
+        var id      = fields.slice(0,5).join("|");
 
         for (var j=0; j<alleles.length; j++) {
           var end     = start + Math.max(fields[3].length, alleles[j].length);
@@ -9440,7 +9440,7 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
 
 
 
-Genoverse.Track.File.BED = Genoverse.Track.File.extend({
+Genoverse.Track.BED = Genoverse.Track.extend({
 
   // Defaults 
   name           : "BED",
