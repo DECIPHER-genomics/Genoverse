@@ -20,7 +20,7 @@ var Genoverse = Base.extend({
   dragAction       : 'scroll', // options are: scroll, select, off
   wheelAction      : 'off',    // options are: zoom, off
   messages         : {},
-  genome           : grch37,   // Default genome
+  genome           : undefined,
   colors           : {
     background     : '#FFFFFF',
     majorGuideLine : '#CCCCCC',
@@ -40,7 +40,7 @@ var Genoverse = Base.extend({
     $.extend(this, config);
     var browser = this;
 
-    $.when(browser.loadPlugins()).always(function(){
+    $.when(browser.loadGenome(), browser.loadPlugins()).always(function(){
       for (var key in browser) {
         if (typeof browser[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap|debugWrap)$/)) {
           browser.functionWrap(key);
@@ -50,14 +50,34 @@ var Genoverse = Base.extend({
     });
   },
 
-  
+
+  loadGenome: function () {
+    if (typeof this.genome == 'string') {
+      var genomeName = this.genome;
+      return $.ajax({
+        url      : this.origin + 'js/genomes/' + genomeName + '.js', 
+        dataType : "script",
+        context  : this,
+        success  : function () {
+          try {
+            this.genome = eval(genomeName);
+          } catch (e) {
+            console.log(e);
+            this.die('Unable to load genome ' + genomeName);
+          }
+        }
+      });
+    }
+  },
+
+
   loadPlugins: function () {
     var browser = this;
     var loadPluginsTask = $.Deferred();
 
     // Load plugins css file
     browser.plugins.every(function (plugin, index, array) {
-      LazyLoad.css(browser.origin + '/css/' + plugin + '.css');
+      LazyLoad.css(browser.origin + 'css/' + plugin + '.css');
       return true;
     });
 
@@ -65,7 +85,7 @@ var Genoverse = Base.extend({
       $, 
       $.map(browser.plugins, function (plugin) {
         return $.ajax({
-          url      : browser.origin + '/js/plugins/' + plugin + '.js',
+          url      : browser.origin + 'js/plugins/' + plugin + '.js',
           dataType : "text",
         });
       })
@@ -1227,5 +1247,5 @@ Genoverse.on('afterMove afterZoomIn afterZoomOut', function () {
 
 window.Genoverse = Genoverse;
 
-Genoverse.prototype.origin = $('script:last').attr('src').split("/").slice(0, -2).join("/") || '.';
-LazyLoad.css(Genoverse.prototype.origin + '/css/genoverse.css');
+Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/\w+\.js/))[1];
+LazyLoad.css(Genoverse.prototype.origin + 'css/genoverse.css');

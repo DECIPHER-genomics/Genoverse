@@ -19,6 +19,7 @@ my @files = qw(
   Track.js
   Track/Scalebar.js
   Track/Sequence.js
+  Track/Fasta.js
 
   Track/File.js
   Track/File/VCF.js
