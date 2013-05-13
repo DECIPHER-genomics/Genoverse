@@ -27,7 +27,8 @@ Genoverse.on('afterInit', function() {
           var file = files[i], reader = new FileReader();
           reader.onload = function (event) {
             var track = {
-              type    : 'File.' + file.name.slice(-3).toUpperCase(),
+              type    : file.name.slice(-3).toUpperCase(),
+              inherit : ['File'],
               name    : file.name,
               data    : event.target.result,
               getData : function () {
