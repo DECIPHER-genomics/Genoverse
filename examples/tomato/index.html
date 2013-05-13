@@ -23,8 +23,25 @@
           },
           {
             type : 'Fasta',
-            url  : '/data/Solanum_lycopersicum.SL2.40.18.dna.chromosome.1.fa'
+            url  : 'http://genoverse.org/examples/tomato/data/Solanum_lycopersicum.SL2.40.18.dna.chromosome.__CHR__.fa',
           },          
+
+          {
+            type : 'VCF',
+            name : 'freebayes kept',
+            url  : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://genoverse.org/examples/tomato/data/vcf/IB2975_LDI2549.freebayesNoBaqAlignIndelsKept.recode.vcf.gz&r=chr__CHR__:__START__-__END__',
+          },          
+          {
+            type : 'VCF',
+            name : 'freebayes removed',
+            url  : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://genoverse.org/examples/tomato/data/vcf/IB2975_LDI2549.freebayesNoBaqAlignIndelsremoved.recode.vcf.gz&r=chr__CHR__:__START__-__END__',
+          },          
+          {
+            type : 'VCF',
+            name : 'BWA marked',
+            url  : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://genoverse.org/examples/tomato/data/vcf/IB2975_LDI2549_BWA.marked.flt.vcf.gz&r=chr__CHR__:__START__-__END__',
+          },
+
         ],
       }
 
