@@ -36,16 +36,19 @@ Genoverse.Track = Base.extend({
     }
     this.extend($.extend(true, {}, deepCopy));
 
-    // Use Base.extend to make any funciton in config have this.base
-    this.extend(config);
-    var track = this;
-    
-    for (var i = 0; i < this.inherit.length; i++) {
-      if (Genoverse.Track[this.inherit[i]]) {
-        this.extend(Genoverse.Track[this.inherit[i]]);
+    config.inherit = $.merge(this.inherit, config.inherit || []);
+
+    for (var i = 0; i < config.inherit.length; i++) {
+      if (Genoverse.Track[config.inherit[i]]) {
+        this.extend(Genoverse.Track[config.inherit[i]]);
       }
     }
-    
+
+    // Use Base.extend to make any funciton in config have this.base    
+    this.extend(config);
+
+    var track = this;
+
     if (typeof this.inheritedConstructor === 'function') {
       this.inheritedConstructor(config);
     }
@@ -510,19 +513,15 @@ Genoverse.Track = Base.extend({
 
       $.when(this.getData(params.start - track.dataBuffer, params.end + track.dataBuffer))
        .done(function (data) {
-         if (data) {
-           try {
-             track.parseData(data, params.start, params.end);
-             track.render(track.findFeatures(params.start, params.end), image);
-           } catch (e) {
-             track.showError(e);
-           }
-          
-           if (track.allData) {
-             track.url = false;
-           }
-         } else {
-           track.showError({ message: 'No data received', arguments: arguments });
+         try {
+           track.parseData(data, params.start, params.end);
+           track.render(track.findFeatures(params.start, params.end), image);
+         } catch (e) {
+           track.showError(e);
+         }
+        
+         if (track.allData) {
+           track.url = false;
          }
        })
        .fail(function () {
