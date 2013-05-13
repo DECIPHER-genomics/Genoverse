@@ -19,7 +19,7 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
 
       if (fields.length < 5) continue;
 
-      if (fields[0] == this.browser.chr || fields[0] == 'chr' + this.browser.chr || fields[0].match('0*'+ this.browser.chr +'$')) {
+      if (fields[0] == this.browser.chr || fields[0] == 'chr' + this.browser.chr || fields[0].match('[^1-9]'+ this.browser.chr +'$')) {
         var chr     = fields[0];
         var start   = fields[1]*1;
         var alleles = fields[4].split(",");
