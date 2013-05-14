@@ -11,6 +11,7 @@ Genoverse.Track = Base.extend({
   fontWeight     : 'normal',
   fontColor      : '#000000',
   bump           : false,
+  bumpLabels     : true,
   bumpSpacing    : 2,
   featureSpacing : 1,
   minScaledWidth : 0.5,
@@ -676,7 +677,7 @@ Genoverse.Track = Base.extend({
     context.fillStyle = feature.color || this.color;
     context.fillRect(Math.floor(feature.x), feature.y, Math.max(1, Math.floor(feature.width)), feature.height);
 
-    if (this.labels) {
+    if (this.labels && feature.label) {
       context.fillStyle = feature.labelColor || feature.color || this.color;
       if (this.labels === 'overlay') {
         if (feature.labelWidth < feature.width)
