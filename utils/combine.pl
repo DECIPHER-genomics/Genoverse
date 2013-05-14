@@ -24,6 +24,7 @@ my @files = qw(
   Track/File.js
   Track/VCF.js
   Track/BED.js
+  Track/GFF3.js
 
   Track/DAS.js
   Track/DAS/colorMap.js
