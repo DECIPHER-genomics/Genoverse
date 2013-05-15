@@ -4,7 +4,7 @@ Genoverse.on('afterInit afterReset', function () {
   if (!(this.karyotype && this.karyotype.data('chr') == this.chr)) {
 
     this.karyotype = $('<div class="gv_chromosome" data-chr="'+ this.chr +'" />');
-    var chromosome = this.genome[this.chr];
+    var chromosome = this.genome && this.genome[this.chr] ? this.genome[this.chr] : { size : this.chromosomeSize, bands : [] };
 
     for (var i=0; i<chromosome.bands.length; i++) {
       var left  = 100 * chromosome.bands[i].start / chromosome.size;

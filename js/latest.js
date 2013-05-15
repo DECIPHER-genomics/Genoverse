@@ -6854,7 +6854,7 @@ var Genoverse = Base.extend({
   dragAction       : 'scroll', // options are: scroll, select, off
   wheelAction      : 'off',    // options are: zoom, off
   messages         : {},
-  genome           : grch37,   // Default genome
+  genome           : undefined,
   colors           : {
     background     : '#FFFFFF',
     majorGuideLine : '#CCCCCC',
@@ -6874,7 +6874,7 @@ var Genoverse = Base.extend({
     $.extend(this, config);
     var browser = this;
 
-    $.when(browser.loadPlugins()).always(function(){
+    $.when(browser.loadGenome(), browser.loadPlugins()).always(function(){
       for (var key in browser) {
         if (typeof browser[key] === 'function' && !key.match(/^(base|extend|constructor|functionWrap|debugWrap)$/)) {
           browser.functionWrap(key);
@@ -6884,14 +6884,34 @@ var Genoverse = Base.extend({
     });
   },
 
-  
+
+  loadGenome: function () {
+    if (typeof this.genome == 'string') {
+      var genomeName = this.genome;
+      return $.ajax({
+        url      : this.origin + 'js/genomes/' + genomeName + '.js', 
+        dataType : "script",
+        context  : this,
+        success  : function () {
+          try {
+            this.genome = eval(genomeName);
+          } catch (e) {
+            console.log(e);
+            this.die('Unable to load genome ' + genomeName);
+          }
+        }
+      });
+    }
+  },
+
+
   loadPlugins: function () {
     var browser = this;
     var loadPluginsTask = $.Deferred();
 
     // Load plugins css file
     browser.plugins.every(function (plugin, index, array) {
-      LazyLoad.css(browser.origin + '/css/' + plugin + '.css');
+      LazyLoad.css(browser.origin + 'css/' + plugin + '.css');
       return true;
     });
 
@@ -6899,7 +6919,7 @@ var Genoverse = Base.extend({
       $, 
       $.map(browser.plugins, function (plugin) {
         return $.ajax({
-          url      : browser.origin + '/js/plugins/' + plugin + '.js',
+          url      : browser.origin + 'js/plugins/' + plugin + '.js',
           dataType : "text",
         });
       })
@@ -8061,8 +8081,8 @@ Genoverse.on('afterMove afterZoomIn afterZoomOut', function () {
 
 window.Genoverse = Genoverse;
 
-Genoverse.prototype.origin = $('script:last').attr('src').split("/").slice(0, -2).join("/") || '.';
-LazyLoad.css(Genoverse.prototype.origin + '/css/genoverse.css');
+Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/\w+\.js/))[1];
+LazyLoad.css(Genoverse.prototype.origin + 'css/genoverse.css');
 
 
 
@@ -8080,6 +8100,7 @@ Genoverse.Track = Base.extend({
   fontWeight     : 'normal',
   fontColor      : '#000000',
   bump           : false,
+  bumpLabels     : true,
   bumpSpacing    : 2,
   featureSpacing : 1,
   minScaledWidth : 0.5,
@@ -8105,16 +8126,19 @@ Genoverse.Track = Base.extend({
     }
     this.extend($.extend(true, {}, deepCopy));
 
-    // Use Base.extend to make any funciton in config have this.base
-    this.extend(config);
-    var track = this;
-    
-    for (var i = 0; i < this.inherit.length; i++) {
-      if (Genoverse.Track[this.inherit[i]]) {
-        this.extend(Genoverse.Track[this.inherit[i]]);
+    config.inherit = $.merge(this.inherit, config.inherit || []);
+
+    for (var i = 0; i < config.inherit.length; i++) {
+      if (Genoverse.Track[config.inherit[i]]) {
+        this.extend(Genoverse.Track[config.inherit[i]]);
       }
     }
-    
+
+    // Use Base.extend to make any funciton in config have this.base    
+    this.extend(config);
+
+    var track = this;
+
     if (typeof this.inheritedConstructor === 'function') {
       this.inheritedConstructor(config);
     }
@@ -8438,7 +8462,7 @@ Genoverse.Track = Base.extend({
       track[this] = scaleSettings[this];
     });
     
-    this.scrollContainer.css('left', this.browser.left).children('.image_container').hide();
+    this.scrollContainer.css('left', this.browser.left).children('.image_container').remove();
     this.makeFirstImage();
   },
 
@@ -8560,6 +8584,9 @@ Genoverse.Track = Base.extend({
     this.scrollContainer.append(this.imgContainers);
 
     if (this.threshold && this.threshold < this.browser.length) {
+      this.dataRange.start = 9e99;
+      this.dataRange.end   = -9e99;
+      //this.resetData();
       this.render([], image);
       this.showMessage('thresholdWarning');
     } else if (params.start >= this.dataRange.start && params.end <= this.dataRange.end) {
@@ -8576,24 +8603,20 @@ Genoverse.Track = Base.extend({
 
       $.when(this.getData(params.start - track.dataBuffer, params.end + track.dataBuffer))
        .done(function (data) {
-         if (data) {
-           try {
-             track.parseData(data, params.start, params.end);
-             track.render(track.findFeatures(params.start, params.end), image);
-           } catch (e) {
-             track.showError(e.message);
-           }
-          
-           if (track.allData) {
-             track.url = false;
-           }
-         } else {
-           track.showError('No data received');
+         try {
+           track.parseData(data, params.start, params.end);
+           track.render(track.findFeatures(params.start, params.end), image);
+         } catch (e) {
+           track.showError(e);
+         }
+        
+         if (track.allData) {
+           track.url = false;
          }
        })
-       .fail(function (jqXHR, textStatus, errorThrown) {
+       .fail(function () {
          //debugger;
-         track.showError('error while getting the data, check console');
+         track.showError({ message: 'error while getting the data, check console', arguments: arguments });
        });
     }
   },
@@ -8743,7 +8766,7 @@ Genoverse.Track = Base.extend({
     context.fillStyle = feature.color || this.color;
     context.fillRect(Math.floor(feature.x), feature.y, Math.max(1, Math.floor(feature.width)), feature.height);
 
-    if (this.labels) {
+    if (this.labels && feature.label) {
       context.fillStyle = feature.labelColor || feature.color || this.color;
       if (this.labels === 'overlay') {
         if (feature.labelWidth < feature.width)
@@ -8756,7 +8779,8 @@ Genoverse.Track = Base.extend({
 
 
   showError: function (error) {
-    this.showMessage('ERROR', error);
+    console.log(error);
+    this.showMessage('ERROR', error.message);
 
     //console.log(arguments);
     // if (!this.errorMessage) {
@@ -9240,7 +9264,98 @@ Genoverse.Track.Sequence = Genoverse.Track.extend({
 
 
 
-Genoverse.Track.File = Genoverse.Track.extend({
+Genoverse.Track.Fasta = Genoverse.Track.Sequence.extend({
+
+  // Defaults 
+  name       : "Fasta",
+
+  // Following settings could be left undefined and will be detected automatically via .getStartByte()
+  startByte  : undefined, // Byte in the file where the sequence actually starts
+  lineLength : undefined, // Length of the sequence line in the file
+
+  getData: function (start, end) {
+    var promise = $.Deferred();
+    $.when(this.getStartByte()).done(function () {
+      start = start - start % this.chunkSize + 1;
+      end   = end + this.chunkSize - end % this.chunkSize;
+
+      var startByte = start - 1 + Math.floor((start - 1) / this.lineLength) + this.startByte;
+      var endByte   = end   - 1 + Math.floor((end   - 1) / this.lineLength) + this.startByte;
+
+      $.ajax({
+        url       : this.parseUrl(),
+        dataType  : 'text',
+        headers   : {
+          'Range' : 'bytes='+ startByte +'-'+ endByte
+        },
+        context   : this, 
+        xhrFields : this.xhrFields,
+      }).done(function (sequence) {
+        promise.resolveWith(this, [{
+          start    : start,
+          end      : end,
+          sequence : sequence
+        }]);
+      }).fail(function () {
+        promise.rejectWith(this, arguments);
+      });
+    });
+
+    return promise;
+  },
+
+  getStartByte: function () {
+    if (this.startByteRequest) 
+      return this.startByteRequest;
+
+    if (this.startByte === undefined || this.lineLength === undefined) {
+      this.startByteRequest = $.ajax({
+        url       : this.parseUrl(),
+        dataType  : 'text',
+        context   : this,
+        headers   : {
+          'Range' : 'bytes=0-300'
+        },
+        xhrFields : this.xhrFields,        
+        success   : function (data) {
+          if (data.indexOf('>') === 0) {
+            this.startByte = data.indexOf('\n') + 1;
+          } else {
+            this.startByte = 0;
+          }
+
+          this.lineLength = data.indexOf('\n', this.startByte) - this.startByte;
+        }
+      });
+
+      return this.startByteRequest;
+    }
+  },
+
+  parseData: function (data) {
+    data.sequence = data.sequence.replace(/\n/g, "").toLowerCase();
+    for (var i=0; i<data.sequence.length; i+=this.chunkSize) {
+      if (this.chunks[data.start + i]) continue;
+      var feature = {
+        id       : data.start + i,
+        start    : data.start + i,
+        end      : data.start + i + this.chunkSize,
+        y        : this.yOffset,
+        sequence : data.sequence.substr(i, this.chunkSize),
+      };
+      
+      this.chunks[feature.start] = feature;
+      this.features.insert({ x: feature.start, w: this.chunkSize, y:0, h:1 }, feature);
+    }
+
+  },
+
+
+});
+
+
+
+Genoverse.Track.File = {
 
   // Defaults 
   name     : 'File',  
@@ -9254,11 +9369,11 @@ Genoverse.Track.File = Genoverse.Track.extend({
     return $.Deferred().resolve(this.data);
   }
 
-});
+};
 
 
 
-Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
+Genoverse.Track.VCF = Genoverse.Track.extend({
 
   // Defaults 
   name           : "VCF",  
@@ -9270,33 +9385,39 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
   color          : '#000000',
 
   parseData: function (text) {
+    //debugger;
     var lines = text.split("\n");
     for (var i=0; i<lines.length; i++) {
       if (!lines[i].length || lines[i].indexOf('#') === 0) continue;
 
       var fields  = lines[i].split("\t");
-      if (fields.length < 5 || fields[0] != this.browser.chr) continue;
 
-      var chr     = fields[0];
-      var start   = fields[1]*1;
-      var alleles = fields[4].split(",");
-      var id      = fields[2] || fields[1];
+      if (fields.length < 5) continue;
 
-      for (var j=0; j<alleles.length; j++) {
-        var end     = start + Math.max(fields[3].length, alleles[j].length);
-        
-        var feature = {
-          id     : id,
-          start  : start,
-          end    : end,
-          width  : end - start,
-          allele : alleles[j],
-          label  : alleles[j],
-          labelColor: 'white',
-          originalFeature: fields,
-        };
-        this.insertFeature(feature);        
+      if (fields[0] == this.browser.chr || fields[0] == 'chr' + this.browser.chr || fields[0].match('[^1-9]'+ this.browser.chr +'$')) {
+        var chr     = fields[0];
+        var start   = fields[1]*1;
+        var alleles = fields[4].split(",");
+        // Just some unique id
+        var id      = fields.slice(0,5).join("|");
+
+        for (var j=0; j<alleles.length; j++) {
+          var end     = start + Math.max(fields[3].length, alleles[j].length);
+          
+          var feature = {
+            id     : id,
+            start  : start,
+            end    : end,
+            width  : end - start,
+            allele : alleles[j],
+            label  : alleles[j],
+            labelColor: 'white',
+            originalFeature: fields,
+          };
+          this.insertFeature(feature);        
+        }
       }
+
     }
   },
 
@@ -9320,7 +9441,7 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
 
 
 
-Genoverse.Track.File.BED = Genoverse.Track.File.extend({
+Genoverse.Track.BED = Genoverse.Track.extend({
 
   // Defaults 
   name           : "BED",
@@ -9394,6 +9515,92 @@ Genoverse.Track.File.BED = Genoverse.Track.File.extend({
       blockStarts : feature.originalFeature[11],
     };
   },
+
+});
+
+
+
+Genoverse.Track.GFF3 = Genoverse.Track.extend({
+
+  // Defaults 
+  name           : "GFF3",
+  height         : 100,
+  featureHeight  : 8,
+  featureSpacing : 2,
+  bump           : true,
+  dataType       : 'text',
+  labels         : true,
+  color          : '#000000',
+
+
+  parseData: function (text) {
+    //debugger;
+    var lines = text.split("\n");
+    for (var i=0; i<lines.length; i++) {
+      if (!lines[i].length || lines[i].indexOf('#') === 0) continue;
+
+      var fields  = lines[i].split("\t");
+
+      if (fields.length < 5) continue;
+
+      if (fields[0] == this.browser.chr || fields[0] == 'chr' + this.browser.chr || fields[0].match('[^1-9]'+ this.browser.chr +'$')) {
+        var feature = {};
+
+        if (fields[8]) {
+          var frame = fields[8].split(';');
+          for (var j=0; j<frame.length; j++) {
+            var keyValue = frame[j].split('=');
+            if (keyValue.length == 2) feature[keyValue[0].toLowerCase()] = keyValue[1];
+          }
+        }
+
+        feature.start  = fields[3]*1;
+        feature.end    = fields[4]*1;
+        feature.id     = feature.id || fields.slice(0,5).join("|");
+
+        feature.source = fields[1];
+        feature.type   = fields[2];
+        feature.score  = fields[5];
+        feature.strand = fields[6];
+
+        // Assuming here that parent always goes first in the GFF file, 
+        // which seems to be the case for most examples
+        if (feature.parent) {
+          this.featuresById[feature.parent].parts.push(feature);
+        } else {
+          feature.label  = feature.name || feature.id || '';
+          feature.parts = [];
+          this.insertFeature(feature);
+        }
+
+      }
+    }
+  },
+
+
+  drawFeature: function(feature, context, scale) {
+    if (!feature.parts || !feature.parts.length) return this.base(feature, context, scale);
+
+    context.fillRect(Math.floor(feature.x), Math.floor(feature.y + feature.height/2), Math.max(1, Math.floor(feature.width)), 0.5);
+
+    for (var i=0; i<feature.parts.length; i++) {
+      var part = feature.parts[i];
+      this.base(
+        $.extend({}, part, {
+          x: feature.x + (part.start - feature.start) * scale, 
+          y: feature.y,
+          width: (part.end - part.start) * scale,
+          height: feature.height
+        }),
+        context, 
+        scale
+      );
+    }
+
+    context.fillStyle = 'black';
+    context.fillText(feature.label, feature.x, feature.y + feature.height + 2);
+  },
+
 
 });
 

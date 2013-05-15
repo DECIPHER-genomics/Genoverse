@@ -1,4 +1,4 @@
-Genoverse.Track.File = Genoverse.Track.extend({
+Genoverse.Track.File = {
 
   // Defaults 
   name     : 'File',  
@@ -12,4 +12,4 @@ Genoverse.Track.File = Genoverse.Track.extend({
     return $.Deferred().resolve(this.data);
   }
 
-});
+};

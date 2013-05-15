@@ -1,4 +1,4 @@
-Genoverse.Track.File.BED = Genoverse.Track.File.extend({
+Genoverse.Track.BED = Genoverse.Track.extend({
 
   // Defaults 
   name           : "BED",

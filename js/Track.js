@@ -11,6 +11,7 @@ Genoverse.Track = Base.extend({
   fontWeight     : 'normal',
   fontColor      : '#000000',
   bump           : false,
+  bumpLabels     : true,
   bumpSpacing    : 2,
   featureSpacing : 1,
   minScaledWidth : 0.5,
@@ -36,16 +37,19 @@ Genoverse.Track = Base.extend({
     }
     this.extend($.extend(true, {}, deepCopy));
 
-    // Use Base.extend to make any funciton in config have this.base
-    this.extend(config);
-    var track = this;
-    
-    for (var i = 0; i < this.inherit.length; i++) {
-      if (Genoverse.Track[this.inherit[i]]) {
-        this.extend(Genoverse.Track[this.inherit[i]]);
+    config.inherit = $.merge(this.inherit, config.inherit || []);
+
+    for (var i = 0; i < config.inherit.length; i++) {
+      if (Genoverse.Track[config.inherit[i]]) {
+        this.extend(Genoverse.Track[config.inherit[i]]);
       }
     }
-    
+
+    // Use Base.extend to make any funciton in config have this.base    
+    this.extend(config);
+
+    var track = this;
+
     if (typeof this.inheritedConstructor === 'function') {
       this.inheritedConstructor(config);
     }
@@ -369,7 +373,7 @@ Genoverse.Track = Base.extend({
       track[this] = scaleSettings[this];
     });
     
-    this.scrollContainer.css('left', this.browser.left).children('.image_container').hide();
+    this.scrollContainer.css('left', this.browser.left).children('.image_container').remove();
     this.makeFirstImage();
   },
 
@@ -491,6 +495,9 @@ Genoverse.Track = Base.extend({
     this.scrollContainer.append(this.imgContainers);
 
     if (this.threshold && this.threshold < this.browser.length) {
+      this.dataRange.start = 9e99;
+      this.dataRange.end   = -9e99;
+      //this.resetData();
       this.render([], image);
       this.showMessage('thresholdWarning');
     } else if (params.start >= this.dataRange.start && params.end <= this.dataRange.end) {
@@ -507,24 +514,20 @@ Genoverse.Track = Base.extend({
 
       $.when(this.getData(params.start - track.dataBuffer, params.end + track.dataBuffer))
        .done(function (data) {
-         if (data) {
-           try {
-             track.parseData(data, params.start, params.end);
-             track.render(track.findFeatures(params.start, params.end), image);
-           } catch (e) {
-             track.showError(e.message);
-           }
-          
-           if (track.allData) {
-             track.url = false;
-           }
-         } else {
-           track.showError('No data received');
+         try {
+           track.parseData(data, params.start, params.end);
+           track.render(track.findFeatures(params.start, params.end), image);
+         } catch (e) {
+           track.showError(e);
+         }
+        
+         if (track.allData) {
+           track.url = false;
          }
        })
-       .fail(function (jqXHR, textStatus, errorThrown) {
+       .fail(function () {
          //debugger;
-         track.showError('error while getting the data, check console');
+         track.showError({ message: 'error while getting the data, check console', arguments: arguments });
        });
     }
   },
@@ -674,7 +677,7 @@ Genoverse.Track = Base.extend({
     context.fillStyle = feature.color || this.color;
     context.fillRect(Math.floor(feature.x), feature.y, Math.max(1, Math.floor(feature.width)), feature.height);
 
-    if (this.labels) {
+    if (this.labels && feature.label) {
       context.fillStyle = feature.labelColor || feature.color || this.color;
       if (this.labels === 'overlay') {
         if (feature.labelWidth < feature.width)
@@ -687,7 +690,8 @@ Genoverse.Track = Base.extend({
 
 
   showError: function (error) {
-    this.showMessage('ERROR', error);
+    console.log(error);
+    this.showMessage('ERROR', error.message);
 
     //console.log(arguments);
     // if (!this.errorMessage) {

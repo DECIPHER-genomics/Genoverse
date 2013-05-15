@@ -16,13 +16,18 @@
       {
         container      : '#genoverse',  // Specify container element with css/jquery selector style
         width          : 930,           // width in pixels on the page
-        chromosomeSize : 249250621,     // chromosome 1, human
-        chr            : 1,             // default chr number
-        start          : 145454171,     // start bp
-        end            : 145482971,     // end bp
-        plugins        : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ], // Array of plugins to load (see plugins folder)
+        genome         : 'grch37',      // see /js/genomes/
+
         tracks         : defaultTracks, // Array of tracks
         tracksLibrary  : tracksLibrary, // Additional array of tracks for tracks menu
+
+        // These will be overwritten from url (r=chr:start-end), if present
+        chr            : 1,             // default chr
+        start          : 145454171,     // start bp
+        end            : 145482971,     // end bp
+
+        // Array of plugins to load (see plugins folder)
+        plugins        : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ], 
       }
 
     </script>

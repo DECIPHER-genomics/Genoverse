@@ -42,6 +42,9 @@ $('.tracksMenu input[placeholder=Search]').live('keyup', function(){
 Genoverse.on('beforeInit', function () {
   var browser = this;
 
+  if (!this.tracksLibrary)
+    this.tracksLibrary = this.tracks.slice(1, this.tracks.length);
+
   $('<table cellspacing=0 cellpadding=0 class="genoverse">')
   .append('<tr><td class="canvas_container"></td><td class="genoverse_panel genoverse_panel_right"></td></tr>')
   .appendTo(browser.container);

@@ -19,10 +19,12 @@ my @files = qw(
   Track.js
   Track/Scalebar.js
   Track/Sequence.js
+  Track/Fasta.js
 
   Track/File.js
-  Track/File/VCF.js
-  Track/File/BED.js
+  Track/VCF.js
+  Track/BED.js
+  Track/GFF3.js
 
   Track/DAS.js
   Track/DAS/colorMap.js
