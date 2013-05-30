@@ -80,7 +80,7 @@ Genoverse.on('beforeInit', function () {
 
   $(".genoverse_panel button.scrollLeft,button.scrollRight").mouseup(function () {
     browser.updateURL();
-    browser.checkHeights();
+    browser.checkTrackHeights();
   });
 
   $(".genoverse_panel button.scrollRight").mousehold(10, function () {

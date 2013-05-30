@@ -1,35 +1,31 @@
 Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
   height        : 20,
-  featureHeight : 6,
+  featureHeight : 3,
   spacing       : 0,
   color         : '#000000',
   autoHeight    : false,
   unsortable    : true,
   labels        : true,
   bump          : false,
+  labelSpacing  : 3,
   fixedHeight   : true,
   order         : 0,
   orderReverse  : 1e5,
   featureStrand : 1,
   controls      : 'off',
-  guideLines    : {},
-  guideLinesByScale : {},
-  //inherit       : [ 'Stranded' ],
-  colors           : {
-    background     : '#FFFFFF',
+  class         : 'scalebar',
+  inherit       : [ 'Stranded' ],
+  colors        : {
     majorGuideLine : '#CCCCCC',
-    minorGuideLine : '#E5E5E5',
-    sortHandle     : '#CFD4E7'
+    minorGuideLine : '#E5E5E5'
   },
-
-
-  addDomElements: function () {
-    this.base();
-    this.container.css({ overflow: 'visible' });
+  
+  reset: function () {
+    this.scrollContainer.children('.image_container').remove();
+    this.init();
   },
-
-
+  
   setScale: function () {
     var length = this.browser.length;
     var majorUnit, minorUnit, exponent, mantissa;
@@ -56,55 +52,39 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       }
     }
 
-    this.dataRegion = { start: 9e99, end: -9e99 };
-    
-    this.minorUnit = minorUnit;
-    this.majorUnit = majorUnit;
-    this.seen      = {};
-    this.features  = new RTree();
+    this.dataRegion   = { start: 9e99, end: -9e99 };
+    this.minorUnit    = minorUnit;
+    this.majorUnit    = majorUnit;
+    this.seen         = {};
+    this.features     = new RTree();
     this.featuresById = {};
-
-    if (!this.guideLinesByScale[this.scale]) {
-      this.guideLinesByScale[this.scale] = { major: {}, minor: {} };
-    }
     
-    this.guideLines = this.guideLinesByScale[this.scale];
     this.base();
   },
-
-
+  
   makeImage: function (params) {
-
-    // TODO: check params
-    params.scaledStart = params.start*params.scale;
-    params.height      = this.height || 0;
-    params.width       = this.width;
-
-    var cls     = ("scale_" + params.scale).replace('.','_');
-    var div     = this.imgContainer.clone().width(this.width).addClass(cls).css('left', params.left);      
-    var bgImage = $('<img class="bg guidelines" />')
-                    .width(this.width)
-                    .height(this.browser.wrapper.outerHeight(true))
-                    .data(params)
-                    .prependTo(div);
-    var image   = $('<img class="data" />').data(params).appendTo(div);
-
-    this.imgContainers.push(div[0]);
-    this.scrollContainer.append(this.imgContainers);
-
-    this.setGuideLines(params.start, params.end);
-
-    this.render(this.findFeatures(params.start, params.end), image);
-    this.renderBackground(bgImage);
-  },
-
-
-  setGuideLines: function (start, end) {
-    var start = Math.max(start - (start % this.minorUnit) - this.majorUnit, 0);
+    params.background    = 'guidelines fullHeight';
+    params.featureHeight = this.height;
     
-    var flip     = (start / this.minorUnit) % 2 ? 1 : -1;
-    var features = [];
+    this.setFeatures(params.start, params.end);
+    
+    var rtn = this.base(params);
+    
+    params.container.addClass('fullHeight');
+    
+    return rtn;
+  },
+  
+  makeReverseImage: function (params) {
+    this.imgContainers.push(params.container.clone().html(params.container.children('.data').clone(true).css('background', '#FFF'))[0]);
+    this.scrollContainer.append(this.imgContainers);
+  },
+  
+  setFeatures: function (start, end) {
+    var start = Math.max(start - (start % this.minorUnit) - this.majorUnit, 0);
+    var flip  = (start / this.minorUnit) % 2 ? 1 : -1;
     var feature, major, label;
+    
     for (var x = start; x < end + this.minorUnit; x += this.minorUnit) {
       flip *= -1;
       
@@ -114,75 +94,88 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       
       this.seen[x] = 1;
       
-      feature = { id: x, start: x, strand: 1 };
+      feature = { id: x, strand: 1, sort: x };
       major   = x && !(x % this.majorUnit);
       
       if (flip === 1) {
-        feature.end = x + this.minorUnit - 1;
-      } else {
-        feature.end = x;
+        feature.start = x;
+        feature.end   = x + this.minorUnit - 1;
       }
       
       if (major) {
-        feature.major = true;
-        feature.label = this.formatLabel(x);
+        label = this.formatLabel(x);
+        
+        if (label !== this.lastLabel) {
+          feature.label = label;
+          
+          if (!feature.end) {
+            feature.start = x;
+            feature.end   = x - 1;
+          }
+        }
+        
+        this.lastLabel = label;
       }
-
-      this.insertFeature(feature);
-      features.push(feature);
-      this.guideLines[major ? 'major' : 'minor'][x] = Math.round(x * this.scale);
-    }
-
-    return features;
-  },
-
-
-  draw: function (features, context, scale) {
-    var i = features.length;
-    context.textBaseline = 'top';
-
-    while (i--) {
-      var feature = features[i];
-      context.fillRect(Math.round(feature.position[scale].X), 0, Math.ceil(feature.position[scale].width), this.featureHeight/2);
-      if (feature.major) {
-        context.fillRect(Math.round(feature.position[scale].X), 0, 1, this.featureHeight);
-        context.fillText(feature.label, feature.position[scale].X, this.featureHeight);
-      }
-    }
-    
-    context.fillRect(0, 0, context.canvas.width, 1);
-    context.fillRect(0, this.featureHeight/2, context.canvas.width, 1);
-  },
-
-
-  drawBackground: function (data, context) {
-    // Draw background color
-    // context.fillStyle = this.background || this.browser.colors.background;
-    // context.fillRect(0, 0, context.canvas.width, 1);
-
-    // Draw guidelines
-    var guideLines  = { major: [ this.colors.majorGuideLine, this.majorUnit ], minor: [ this.colors.minorGuideLine, this.minorUnit ] };
-    var scaledStart = Math.round(data.scaledStart);
-    var x;
-    
-    for (var c in guideLines) {
-      context.fillStyle = guideLines[c][0];
       
-      for (x = Math.max(data.start - (data.start % guideLines[c][1]), 0); x < data.end + this.minorUnit; x += guideLines[c][1]) {
-        context.fillRect((this.guideLines[c][x] || 0) - scaledStart, 0, 1, context.canvas.height);
+      if (feature.end) {
+        this.insertFeature(feature);
+      }
+    }
+  },
+  
+  draw: function (features, featureContext, labelContext, scale) {
+    var i     = features.length;
+    var width = Math.ceil(this.minorUnit * this.scale);
+    var feature, start;
+    
+    featureContext.textBaseline = 'top';
+    featureContext.fillStyle    = this.color;
+    
+    this.guideLines = { major: {} }; // FIXME: pass params to draw, rather than scale. set guideLines on params
+    
+    while (i--) {
+      feature = features[i];
+      start   = Math.round(feature.position[scale].X);
+      
+      this.drawFeature($.extend({}, feature, {
+        x      : start,
+        y      : 0,
+        width  : Math.ceil(feature.position[scale].width),
+        height : this.featureHeight
+      }), featureContext, labelContext, scale);
+      
+      if (feature.label) {
+        if (start > -1) {
+          featureContext.fillRect(start, this.featureHeight, 1, this.featureHeight);
+        }
+        
+        this.guideLines.major[feature.start] = true;
+      }
+      
+      this.guideLines[feature.start] = start;
+      this.guideLines[feature.start + this.minorUnit] = start + width - 1;
+    }
+    
+    featureContext.fillRect(0, 0, featureContext.canvas.width, 1);
+    featureContext.fillRect(0, this.featureHeight, featureContext.canvas.width, 1);
+  },
+  
+  // Draw guidelines
+  drawBackground: function (f, context) {
+    for (var i in this.guideLines) {
+      if (this.guideLines[i] >= 0 && this.guideLines[i] <= this.width) {
+        context.fillStyle = this.colors[this.guideLines.major[i] ? 'majorGuideLine' : 'minorGuideLine' ];
+        context.fillRect(this.guideLines[i], 0, 1, context.canvas.height);
       }
     }
   },
 
+  afterRenderBackground: function (f, bgImage) {
+    bgImage.height(this.browser.wrapper.outerHeight(true));
+  }
 
 });
 
-
 Genoverse.Track.on('afterInit afterResize', function () {
-  var height = 0;
-  for (var i=0; i<this.browser.tracks.length; i++) {
-    height += this.browser.tracks[i].height || 0;
-  }
-
-  $('.guidelines', this.browser.container).height(Math.max(height, this.browser.wrapper.outerHeight(true)));
+  $('.bg.fullHeight', this.browser.container).height(this.browser.wrapper.outerHeight(true));
 });

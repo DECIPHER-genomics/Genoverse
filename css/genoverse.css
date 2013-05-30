@@ -52,8 +52,12 @@ ul.label_container {
 .canvas_container .track_container_static {
   overflow: hidden;
   position: relative;
-  width: 0;
+  width: 100%;
   z-index: 5;
+}
+
+.track_container.scalebar {
+  overflow: visible;
 }
 
 .track_container.partially_hidden + .track_container {
@@ -67,43 +71,21 @@ ul.label_container {
   height: 100%;
 }
 
-.message_container {
-  display: none;
-  position: relative;
-  background: none repeat scroll 0 0 rgba(221, 221, 221, 0.9);
-  color: black;
-  text-shadow: -0.5px 0.5px 0 #FFFFFF;
-  border-radius: 0 0 2px 0;
-  box-shadow: 0 0 2px black;  
-  float: left;
-  font-family: Verdana;
-  font-size: 10px;
-  font-weight: bold;
-  padding: 5px 10px;
-  min-height: 12px;
-  z-index: 5;
+.canvas_container .message_container                     { 
+  position: absolute; top: 0; left: -1px; display: none; background: #DDD; color: #000; border: 1px solid #999; padding: 5px; margin-bottom: 4px; z-index: 11;
+  font-family: Verdana; font-size: 10px; font-weight: bold;
 }
 
-.message_container>div {
-  margin-right: 10px;
-}
+.canvas_container .message_container .messages           { float: left; padding-right: 15px; }
+.canvas_container .message_container .control            { position: absolute; top: 50%; right: 5px; height: 14px; margin-top: -7px; font-size: 11px; cursor: pointer; }
+.canvas_container .message_container .control.expand     { position: relative; right: 0; top: 0; margin: 0; }
+.canvas_container .message_container .control:hover      { text-decoration: underline; }
+.canvas_container .message_container.collapsed           { padding: 1px 3px; }
+.canvas_container .message_container.collapsed .messages,
+.canvas_container .message_container.collapsed .collapse,
+.canvas_container .message_container.expanded  .expand   { display: none; }
 
-.message_container_control {
-  font-size: 11px;
-  color: black;
-  display: inline-block;
-  position: absolute;
-  right: 5px;
-  top: 5px;  
-}
 
-.message_container_control:hover {
-  text-decoration: underline;
-}
-
-.message_container.collapsed :not(.message_container_control) {
-  display: none;
-}
 
 .canvas_container .image_container {
   height: 100%;
@@ -223,6 +205,9 @@ li.sortHandle {
   width: 100%;
 }
 
+.track_container.scalebar .track_border {
+  border: none;
+}
 
 .canvas_container .expander {
   position: absolute;
