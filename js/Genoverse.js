@@ -15,7 +15,7 @@ var Genoverse = Base.extend({
   dragAction       : 'scroll', // options are: scroll, select, off
   wheelAction      : 'off',    // options are: zoom, off
   genome           : undefined,
-  collapseMessages : false,
+  autoHideMessages : true,
   colors           : {
     background     : '#FFFFFF',
     majorGuideLine : '#CCCCCC',
@@ -193,6 +193,8 @@ var Genoverse = Base.extend({
     
     this.container.on({
       mousedown: function (e) {
+        browser.hideMessages();
+
         // Only scroll on left click, and do nothing if clicking on a button in selectorControls
         if ((!e.which || e.which === 1) && !(this === browser.selector[0] && e.target !== this)) {
           browser.mousedown(e);
@@ -205,23 +207,28 @@ var Genoverse = Base.extend({
           return true;
         }
         
+        browser.hideMessages();
+
         if (deltaY === 0 && deltaX !== 0) {
+          browser.startDragScroll(e);
           browser.move(-deltaX * 10);
+          browser.stopDragScroll(false);          
         } else if (browser.wheelAction === 'zoom') {
           return browser.mousewheelZoom(e, delta);
         }
       },
       dblclick: function (e) {
+        browser.hideMessages();
         browser.mousewheelZoom(e, 1);
       }
-    }, '.image_container, .selector, .message_container');
+    }, '.image_container, .selector');
     
     this.selectorControls.on('click', function (e) {
       var pos = browser.getSelectorPosition();
       
       switch (e.target.className) {
         case 'zoomHere' : browser.setRange(pos.start, pos.end, true); break;
-        case 'center'   : browser.move(browser.width / 2 - (pos.left + pos.width / 2)); break;
+        case 'center'   : browser.startDragScroll(e); browser.move(browser.width / 2 - (pos.left + pos.width / 2)); browser.stopDragScroll(false); break;
         case 'summary'  : browser.summary(pos.start, pos.end); break;
         case 'cancel'   : browser.cancelSelect(); break;
         default         : break;
@@ -316,10 +323,9 @@ var Genoverse = Base.extend({
     this.dragStart  = this.start;
   },
   
-  stopDragScroll: function (e, update) {
+  stopDragScroll: function (update) {
     this.dragging  = false;
     this.scrolling = false;
-    this.moving    = false;
     
     if (update !== false) {
       if (this.start !== this.dragStart) {
@@ -458,8 +464,8 @@ var Genoverse = Base.extend({
     }
     
     switch (this.dragging) {
-      case 'select' : this.stopDragSelect(e);         break;
-      case 'scroll' : this.stopDragScroll(e, update); break;
+      case 'select' : this.stopDragSelect(e);      break;
+      case 'scroll' : this.stopDragScroll(update); break;
       default       : break;
     }
   },
@@ -486,10 +492,6 @@ var Genoverse = Base.extend({
     var scale = this.scale;
     var start, end, left;
     
-    if (!this.moving) {
-      this.moveStart();
-    }
-    
     if (scale > 1) {
       delta = Math.round(delta / scale) * scale; // Force stepping by base pair when in small regions
     }
@@ -513,18 +515,17 @@ var Genoverse = Base.extend({
     }
     
     this.left = left;
-    
+
+    if (start !== this.dragStart) {
+      this.closeMenus();
+      this.selector.hide();
+    }
+
     for (var i = 0; i < this.tracks.length; i++) {
       this.tracks[i].move(delta);
     }
     
     this.setRange(start, end);
-  },
-  
-  moveStart: function () {
-    this.closeMenus();
-    this.selector.hide();
-    this.moving = true;
   },
   
   setRange: function (start, end, update, force) {
@@ -785,6 +786,7 @@ var Genoverse = Base.extend({
     }
     
     this.closeMenus();
+    this.hideMessages();
   },
   
   getURLCoords: function () {
@@ -885,6 +887,12 @@ var Genoverse = Base.extend({
     this.menus = $();
   },
   
+  hideMessages: function () {
+    if (this.autoHideMessages) {
+      this.wrapper.find('.message_container').addClass('collapsed');
+    }
+  },
+
   getSelectorPosition: function () {
     var left  = this.selector.position().left;
     var width = this.selector.outerWidth(true);

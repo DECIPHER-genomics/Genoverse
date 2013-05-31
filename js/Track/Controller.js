@@ -42,19 +42,18 @@ Genoverse.Track.Controller = Base.extend({
 
     this.browser.wrapFunctions(this);
     
-    this.imgRange         = {};
-    this.scrollRange      = {};
-    this.order            = typeof this.order            !== 'undefined' ? this.order            : this.index;
-    this.spacing          = typeof this.spacing          !== 'undefined' ? this.spacing          : this.browser.trackSpacing;
-    this.fixedHeight      = typeof this.fixedHeight      !== 'undefined' ? this.fixedHeight      : this.featureHeight === this.height && !this.bump;
-    this.autoHeight       = typeof this.autoHeight       !== 'undefined' ? this.autoHeight       : !this.fixedHeight && !config.height ? this.browser.autoHeight : false;
-    this.resizable        = typeof this.resizable        !== 'undefined' ? this.resizable        : !this.fixedHeight;
-    this.collapseMessages = typeof this.collapseMessages !== 'undefined' ? this.collapseMessages : this.browser.collapseMessages;
-    this.height          += this.spacing;
-    this.initialHeight    = this.height;
-    this.minLabelHeight   = 0;
-    this.font             = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
-    this.labelUnits       = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
+    this.imgRange       = {};
+    this.scrollRange    = {};
+    this.order          = typeof this.order       !== 'undefined' ? this.order       : this.index;
+    this.spacing        = typeof this.spacing     !== 'undefined' ? this.spacing     : this.browser.trackSpacing;
+    this.fixedHeight    = typeof this.fixedHeight !== 'undefined' ? this.fixedHeight : this.featureHeight === this.height && !this.bump;
+    this.autoHeight     = typeof this.autoHeight  !== 'undefined' ? this.autoHeight  : !this.fixedHeight && !config.height ? this.browser.autoHeight : false;
+    this.resizable      = typeof this.resizable   !== 'undefined' ? this.resizable   : !this.fixedHeight;
+    this.height        += this.spacing;
+    this.initialHeight  = this.height;
+    this.minLabelHeight = 0;
+    this.font           = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
+    this.labelUnits     = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
     
     if (this.hidden) {
       this.height = 0;
@@ -66,7 +65,7 @@ Genoverse.Track.Controller = Base.extend({
       this.resizable   = false;
       
     } else if (this.threshold) {
-      this.thresholdMessage = true;
+      this.thresholdMessage = this.formatLabel(this.threshold);
     }
     
     if (this.labels && this.labels !== 'overlay' && (this.depth || this.bump === 'labels')) {
@@ -91,17 +90,15 @@ Genoverse.Track.Controller = Base.extend({
 
   init: function () {
     if (this.renderer) {
-      this.setUrlParams({ renderer: this.renderer }, true);
       this.featuresByRenderer   = {};
       this.featuresByIdRenderer = {};
-      this.features             = this.featuresByRenderer[this.renderer]   = new RTree();
-      this.featuresById         = this.featuresByIdRenderer[this.renderer] = {};
+      this.setRenderer(this.renderer, true);
     } else {
       this.features     = new RTree();
       this.featuresById = {};
+      this.dataRanges   = {};      
     }
     
-    this.dataRanges    = {};
     this.scaleSettings = {};
   },
   
@@ -162,16 +159,10 @@ Genoverse.Track.Controller = Base.extend({
     this.container        = $('<div class="track_container">').appendTo(this.browser.wrapper).addClass(this.class);
     this.scrollContainer  = $('<div class="scroll_container">').appendTo(this.container);
     this.imgContainer     = $('<div class="image_container">').width(this.width);
+    this.messageContainer = $('<div class="message_container"><div class="messages"></div><span class="control collapse">&laquo;</span><span class="control expand">&raquo;</span></div>').appendTo(this.container);
     this.border           = $('<div class="track_border">').appendTo(this.container);
     this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('track', this);
     this.context          = $('<canvas>')[0].getContext('2d');
-    this.messageContainer = $(
-      '<div class="message_container">'                 +
-      '  <div class="messages"></div>'                  +
-      '  <span class="control collapse">&laquo;</span>' +
-      '  <span class="control expand">&raquo;</span>'   +
-      '</div>'
-    ).addClass(this.collapseMessages ? 'collapsed' : 'expanded').appendTo(this.container);
     
     if (this.unsortable) {
       this.label.addClass('unsortable');
@@ -216,17 +207,17 @@ Genoverse.Track.Controller = Base.extend({
     var browser = this.browser;
     
     this.container.on('mouseup', '.image_container', function (e) {
-      if ((e.which && e.which !== 1) || browser.moving || (browser.dragAction === 'select' && browser.selector.outerWidth(true) > 2)) {
+      if ((e.which && e.which !== 1) || browser.start !== browser.dragStart || (browser.dragAction === 'select' && browser.selector.outerWidth(true) > 2)) {
         return; // Only show menus on left click when not dragging and not selecting
       }
 
       track.click(e);
     });
-    
-    this.messageContainer.on('click', '> *', function () {
-      var cls = track.messageContainer.children('.messages').is(':visible') ? 'collapsed' : 'expanded';
-      track.messageContainer.attr('class', 'message_container ' + cls);
-      browser.saveConfig('collapseMessages', cls === 'collapsed' ? 1 : 0, track);
+
+    this.messageContainer.children().on('click', function () {
+      var collapsed = track.messageContainer.children('.messages').is(':visible') ? ' collapsed' : '';
+      track.messageContainer.attr('class', 'message_container' + collapsed);
+      track.checkHeight();
     });
   },
   
@@ -239,29 +230,34 @@ Genoverse.Track.Controller = Base.extend({
       this.browser.makeMenu(f, e, this);
     }
   },
-  
+
+  // FIXME: messages are now hidden/shown instead of removed/added. This will cause a problem if a new message arrives with the same code as one that already exists.  
   showMessage: function (code, additionalText) {
     var messages = this.messageContainer.children('.messages');
     
-    if (!messages.children('.' + code).length) {
-      messages.prepend('<div class="' + code + '">' + (this.messages[code] || this.browser.messages[code]) + (additionalText || '') + '</div>');
-      this.messageContainer.show();
+    if (!messages.children('.' + code).show().length) {
+      messages.prepend('<div class="msg ' + code + '">' + this.messages[code] + (additionalText || '') + '</div>');
+      this.messageContainer.removeClass('collapsed');
+    }
+    
+    var height = this.messageContainer.show().outerHeight(true);
+    
+    if (height > this.height) {
+      this.resize(height);
     }
     
     messages = null;
   },
   
   hideMessage: function (code) {
-    var messages = this.messageContainer.children('.messages');
+    var messages = this.messageContainer.find('.msg');
     
     if (code) {
-      messages.children('.' + code).remove();
-      
-      if (!messages.children().length) {
+      if (!messages.filter('.' + code).hide().siblings().filter(function () { return this.style.display !== 'none'; }).length) {
         this.messageContainer.hide();
       }
     } else {
-      messages.empty();
+      messages.hide();
       this.messageContainer.hide();
     }
     
@@ -272,10 +268,15 @@ Genoverse.Track.Controller = Base.extend({
     var autoHeight;
     
     if (this.threshold && this.browser.length > this.threshold) {
-      autoHeight = this.autoHeight;
-      
-      this.fullVisibleHeight = this.thresholdMessage ? this.messageContainer.outerHeight(true) : 0;
-      this.autoHeight        = true;
+      autoHeight      = this.autoHeight;
+      this.autoHeight = true;
+
+      if (this.thresholdMessage) {
+        this.showMessage('threshold', this.thresholdMessage);
+        this.fullVisibleHeight = this.messageContainer.outerHeight(true);
+      } else {
+        this.fullVisibleHeight = 0;
+      }
     } else {
       var bounds = { x: this.browser.scaledStart, w: this.width, y: 0, h: 9e99 };
       var scale  = this.scale;
@@ -284,6 +285,10 @@ Genoverse.Track.Controller = Base.extend({
       if (this.labels === 'separate') {
         this.labelTop = height;
         height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.position[scale].label.bottom; }).concat(0));
+      }
+
+      if (this.thresholdMessage) {
+        this.hideMessage('threshold');
       }
       
       this.fullVisibleHeight = height || (this.messageContainer.is(':visible') ? this.messageContainer.outerHeight(true) : 0);
@@ -428,7 +433,7 @@ Genoverse.Track.Controller = Base.extend({
     
     $.each(this.scaleSettings[this.scale], function (k, v) { track[k] = v; });
     
-    this.messageContainer.children('.messages').empty().end().hide();
+    this.hideMessage();
     
     if (this.scrollContainer.children().hide().filter('.' + this.scrollStart).show().length) {
       this.checkHeight();
@@ -519,10 +524,10 @@ Genoverse.Track.Controller = Base.extend({
     params.labelHeight   = params.labelHeight   || 0;
     
     var deferred;
-    var threshold = this.threshold && this.threshold < this.browser.length;
-    var div       = this.imgContainer.clone().addClass((params.cls + ' loading').replace('.', '_')).css({ left: params.left, display: params.cls === this.scrollStart ? 'block' : 'none' });
-    var bgImage   = params.background ? $('<img class="bg">').addClass(params.background).data(params).prependTo(div) : false;
-    var image     = $('<img class="data">').hide().data(params).appendTo(div).load(function () {
+    var tooLarge = this.threshold && this.threshold < this.browser.length;
+    var div      = this.imgContainer.clone().addClass((params.cls + ' loading').replace('.', '_')).css({ left: params.left, display: params.cls === this.scrollStart ? 'block' : 'none' });
+    var bgImage  = params.background ? $('<img class="bg">').addClass(params.background).data(params).prependTo(div) : false;
+    var image    = $('<img class="data">').hide().data(params).appendTo(div).load(function () {
       $(this).fadeIn('fast').parent().removeClass('loading');
     });
     
@@ -531,11 +536,7 @@ Genoverse.Track.Controller = Base.extend({
     this.imgContainers.push(div[0]);
     this.scrollContainer.append(this.imgContainers);
 
-    if (threshold) {
-      if (this.thresholdMessage) {
-        this.showMessage('threshold', this.formatLabel(this.threshold));
-      }
-    } else if (!this.checkDataRange(params.start, params.end)) {
+    if (!tooLarge && !this.checkDataRange(params.start, params.end)) {
       params.start -= this.dataBuffer.start;
       params.end   += this.dataBuffer.end;
       deferred      = this.getData(params.start, params.end);
@@ -547,7 +548,7 @@ Genoverse.Track.Controller = Base.extend({
     }
     
     deferred.done(function () {
-      var features = threshold ? [] : this.findFeatures(params.start, params.end);
+      var features = tooLarge ? [] : this.findFeatures(params.start, params.end);
       
       this.render(features, image);
       
