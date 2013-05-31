@@ -2,12 +2,17 @@ var defaultControls = [
 
   $('<a />').html('?').click(function(){
     var track  = $(this).data('track');
-    var offset = track.container.offset();
+    //debugger;
+    var offset   = track.container.offset();
+    offset.left += 50;
+    offset.width = track.width - 100;
 
-    track.browser.makeMenu({
-      title : track.name,
-      ' '   : track.info
-    }).css({ top: offset.top }).addClass('track_info');
+    if (!track.menus.filter('.track_info').length) {
+      track.browser.makeMenu({
+        title : track.name,
+        ' '   : track.info
+      }, false, track).css(offset).addClass('track_info');
+    }
   }),
 
   $('<a />').html('x').click(function(){

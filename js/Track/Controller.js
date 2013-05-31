@@ -73,7 +73,6 @@ Genoverse.Track.Controller = Base.extend({
     }
     
     if (this.urlParams) {
-      debugger;
       this._url = this.url; // Remember original url
       this.setUrlParams();
     }

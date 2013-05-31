@@ -837,7 +837,15 @@ var Genoverse = Base.extend({
   
   menuTemplate: $('<div class="gv_menu"><div class="close">x</div><table></table></div>').on('click', function (e) {
     if ($(e.target).hasClass('close')) {
-      $(this).fadeOut('fast', function () { $(this).remove(); });
+      $(this).fadeOut('fast', function () { 
+        var menu = this;
+        var data = $(this).data();
+        if (data.track) {
+          data.track.menus = $( $.grep(data.track.menus, function(el){ return el != menu; }) );
+        }
+        data.browser.menus = $( $.grep(data.browser.menus, function(el){ return el != menu; }) );
+        $(this).hide();
+      });
     }
   }),
   
@@ -865,9 +873,11 @@ var Genoverse = Base.extend({
           return true;
         });
         
-        if (track && track.id) {
+        if (track) {
           menu.addClass(track.id);
+          menu.data({ track: track });
         }
+        menu.data({ browser: track.browser });
       });
       
       feature.menuEl = menu;
@@ -879,7 +889,14 @@ var Genoverse = Base.extend({
       track.menus = track.menus.add(feature.menuEl);
     }
     
-    return feature.menuEl.appendTo('body').position({ of: event, my: 'left top', collision: 'flipfit' });
+    feature.menuEl.appendTo('body')
+
+    //debugger;
+    if (event) {
+      feature.menuEl.css({ left:0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' }).show();
+    }
+
+    return feature.menuEl;
   },
   
   closeMenus: function () {

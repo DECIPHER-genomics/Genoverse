@@ -167,7 +167,7 @@ Genoverse.on('beforeInit', function () {
 
 Genoverse.on('afterInit', function () {
   var browser = this;
-  var tracksButton = $('<button title="Tracks menu">&#9776;</button>').on('click', function () {
+  var tracksButton = $('<button title="Tracks menu">&#9776; Tracks</button>').on('click', function () {
       var button = this;
 
       if ($(this).hasClass('active')) {
@@ -181,11 +181,12 @@ Genoverse.on('afterInit', function () {
         css.top     = Math.max(css.top, $(document).scrollTop()) + 20;
         css.left   += 50;
         css.width   = browser.wrapper.width() - 100;
-
         var menu    = browser.makeMenu({
           'Currently enabled tracks:'         : 'Available tracks:', 
           '<div class="currentTracks"></div>' : '<input placeholder="Search"><div class="availableTracks"></div>'
-        }).css(css).addClass('tracksMenu');
+        });
+
+        menu.css(css).addClass('tracksMenu');
 
         $('.close', menu).click(function(){
           $(button).removeClass('active');          
