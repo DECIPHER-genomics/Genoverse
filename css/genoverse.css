@@ -72,18 +72,46 @@ ul.label_container {
 }
 
 .canvas_container .message_container                     { 
-  position: absolute; top: 0; left: -1px; display: none; background: #DDD; color: #000; border: 1px solid #999; padding: 5px; margin-bottom: 4px; z-index: 11;
-  font-family: Verdana; font-size: 10px; font-weight: bold;
+  position: absolute; 
+  top: 0; 
+  left: -1px; 
+  display: none; 
+  background: rgba(0, 0, 0, 0.5);
+  color: #FFF; 
+  border-radius: 0 0 2px 0;
+  padding: 5px; 
+  margin-bottom: 4px; 
+  z-index: 11;
+  font-family: Verdana; 
+  font-size: 12px; 
+  font-weight: bold;
 }
-.canvas_container .message_container .messages           { float: left; padding-right: 15px; margin-bottom: -6px; }
-.canvas_container .message_container .msg                { margin-bottom: 6px; }
-.canvas_container .message_container .control            { position: absolute; top: 50%; right: 5px; height: 14px; margin-top: -7px; font-size: 11px; cursor: pointer; }
+
+.canvas_container .message_container .messages { 
+  float: right; 
+  padding-right: 10px; 
+  padding-left: 15px; 
+  margin-bottom: -6px; 
+}
+
+.canvas_container .message_container .msg { 
+  margin-bottom: 6px; 
+}
+
+.canvas_container .message_container .control            { 
+  position: absolute; 
+  top: 50%; 
+  height: 14px;
+  margin-top: -7px; 
+  font-size: 12px; 
+  cursor: pointer; 
+}
+
 .canvas_container .message_container .control:hover      { text-decoration: underline; }
 .canvas_container .message_container .expand,
 .canvas_container .message_container.collapsed .messages,
 .canvas_container .message_container.collapsed .collapse { display: none; }
-.canvas_container .message_container.collapsed .expand   { display: inline; position: relative; right: 0; top: 0; margin: 0; }
-.canvas_container .message_container.collapsed           { padding: 1px 3px; }
+.canvas_container .message_container.collapsed .expand   { display: inline; position: relative; }
 
 
 

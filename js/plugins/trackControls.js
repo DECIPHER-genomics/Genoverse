@@ -1,6 +1,6 @@
 var defaultControls = [
 
-  $('<a />').html('?').click(function(){
+  $('<a title="More info" />').html('?').click(function(){
     var track  = $(this).data('track');
     //debugger;
     var offset   = track.container.offset();
@@ -15,7 +15,7 @@ var defaultControls = [
     }
   }),
 
-  $('<a />').html('x').click(function(){
+  $('<a title="Close track" />').html('x').click(function(){
     var track = $(this).data('track');
     track.remove();    
   }),
@@ -48,5 +48,5 @@ Genoverse.Track.on('afterAddDomElements', function() {
     controls[i].clone(true).css({ display: 'none' }).data({track : track}).appendTo(div);
   }
 
-  toggle.clone(true).data({track : track}).prependTo(div);
+  toggle.clone(true).data({track : track}).appendTo(div);
 });

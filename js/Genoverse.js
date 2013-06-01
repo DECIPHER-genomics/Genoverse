@@ -877,12 +877,13 @@ var Genoverse = Base.extend({
           menu.addClass(track.id);
           menu.data({ track: track });
         }
-        menu.data({ browser: track.browser });
+
+        menu.data({ browser: this });
       });
       
       feature.menuEl = menu;
     }
-    
+
     this.menus = this.menus.add(feature.menuEl);
     
     if (track) {
