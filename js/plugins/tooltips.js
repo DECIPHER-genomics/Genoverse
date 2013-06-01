@@ -281,7 +281,7 @@ Genoverse.on('afterInit', function () {
     //   $(this).tipsy({ gravity: 'w', fade: true, trigger: 'manual' })
     // });
 
-    $('.genoverse_panel .button_set[title],.genoverse_panel .button_set>button[title]').each(function(){
+    $('.genoverse_panel .button_set[title]').each(function(){
       $(this)
         .addClass('tooltip')
         .tipsy({ gravity: 'w', fade: true, trigger: 'manual' })

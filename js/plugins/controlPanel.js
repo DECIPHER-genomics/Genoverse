@@ -1,5 +1,5 @@
 Genoverse.prototype.controls = [
-  // Uncomment this to see this example working
+  // // Uncomment this to see this example working
   // {
   //   icon   : '...',
   //   name   : 'Bla',
@@ -57,10 +57,10 @@ Genoverse.on('beforeInit', function () {
     <button class="zoomIn">+</button><button class="zoomOut">&#8722;</button>\
     </div>\
     <div class="button_set toggleDrag" title="Toggle your mouse drag action between scroll left/right and select region">\
-    <button class="dragScroll">&#8596;</button><button class="dragSelect">&#9482;</button>\
+    <button class="dragScroll">&#8596;</button><button class="dragSelect" title="Mouse wheel action to scroll the page up and down">&#9482;</button>\
     </div>\
     <div class="button_set toggleWheel" title="Toggle your mouse wheel action between zoom in/out and default page scroll">\
-    <button class="wheelOff">&#8597;</button><button class="wheelZoom">&#177;</button>\
+    <button class="wheelOff" title="Mouse wheel to zoom in and out">&#8597;</button><button class="wheelZoom" title="Mouse wheel action to scroll the page up and down">&#177;</button>\
     </div>\
   ');
 
@@ -240,8 +240,8 @@ Genoverse.on('afterInit', function () {
   });
 
   this.labelContainer.prepend(
-    $('<li class="genoverse_panel" />').append(
-      $('<div class="button_set" />').append(
+    $('<li class="genoverse_panel unsortable" />').append(
+      $('<div class="button_set" title="Tracks menu" />').append(
         tracksButton
       )
     )

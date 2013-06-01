@@ -71,7 +71,7 @@ ul.label_container {
   height: 100%;
 }
 
-.canvas_container .message_container                     { 
+.canvas_container .message_container { 
   position: absolute; 
   top: 0; 
   left: -1px; 
@@ -85,6 +85,10 @@ ul.label_container {
   font-family: Verdana; 
   font-size: 12px; 
   font-weight: bold;
+}
+
+.canvas_container .message_container:hover { 
+  background: rgba(0, 0, 0, 0.7);
 }
 
 .canvas_container .message_container .messages { 
