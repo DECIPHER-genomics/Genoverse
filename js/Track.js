@@ -7,7 +7,10 @@ Genoverse.Track = Base.extend({
   constructor: function (config) {
     this.extend(config);
     this.setScaleMap();
-    this._extend(this.model, this.view, this.controller, this.__proto__, config);
+
+    var deepCopy = $.extend(true, {}, this);
+
+    this._extend(this.model, this.view, this.controller, deepCopy);
   },
 
   _extend: function () {

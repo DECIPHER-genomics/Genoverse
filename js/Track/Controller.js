@@ -6,23 +6,10 @@ Genoverse.Track.Controller = Base.extend({
 
   constructor: function (config) {
     var config = config || {};
-    var deepCopy = {};
-    var key;
-    
-    // this.__proto__ to overwrite model, view and controller stuff
-    //this.extend(this.__proto__);
-    // Deep clone all [..] and {..} objects in this to prevent sharing between instances
-    for (key in this) {
-      if (typeof this[key] === 'object') {
-        deepCopy[key] = this[key];
-      }
-    }
     
     this.featureHeight     = typeof this.featureHeight !== 'undefined' ? this.featureHeight : this.height; // Feature height must be based on default height, not config.height, which could be anything
     this.defaultHeight     = this.height;
     this.defaultAutoHeight = this.autoHeight;
-    
-    this.extend($.extend(true, {}, deepCopy));
 
     config.inherit = $.merge(this.inherit, config.inherit || []);
 
