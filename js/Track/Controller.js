@@ -43,11 +43,6 @@ Genoverse.Track.Controller = Base.extend({
       this.labels = 'separate';
     }
     
-    if (this.urlParams) {
-      this._url = this.url; // Remember original url
-      this.setURL();
-    }
-    
     this.addDomElements();
     this.addUserEventHandlers();
     this.init();
@@ -110,16 +105,6 @@ Genoverse.Track.Controller = Base.extend({
     this.minLabelHeight = $('span.name', this.label).html(this.name).outerHeight(true);
     
     this.label.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
-  },
-  
-  setURL: function (urlParams, update) {
-    urlParams = urlParams || this.urlParams;
-    
-    if (update && this._url) {
-      this.url = this._url;
-    }
-
-    this.url += (this.url.indexOf('?') === -1 ? '?' : '&') + $.map(urlParams, function (value, key) { return key + '=' + value; }).join('&');
   },
   
   addDomElements: function () {

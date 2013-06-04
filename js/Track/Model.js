@@ -8,6 +8,21 @@ Genoverse.Track.Model = Base.extend({
     this.features     = this.features     || new RTree();
     this.featuresById = this.featuresById || {};
     this.dataRanges   = this.dataRanges   || {};
+    
+    if (this.urlParams) {
+      this._url = this.url; // Remember original url
+      this.setURL();
+    }
+  },
+  
+  setURL: function (urlParams, update) {
+    urlParams = urlParams || this.urlParams;
+    
+    if (update && this._url) {
+      this.url = this._url;
+    }
+
+    this.url += (this.url.indexOf('?') === -1 ? '?' : '&') + $.map(urlParams, function (value, key) { return key + '=' + value; }).join('&');
   },
   
   getData: function (start, end) {
