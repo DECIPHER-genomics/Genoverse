@@ -75,7 +75,7 @@ Genoverse.Track.Model.Gene.Ensembl = Genoverse.Track.Model.Gene.extend({
    
     $.when.apply($, $.map(bins, function (bin) {
       return $.ajax({
-        url       : track.parseUrl(bin[0], bin[1]),
+        url       : track.parseURL(bin[0], bin[1]),
         dataType  : track.dataType,
         context   : track,
         xhrFields : track.xhrFields,

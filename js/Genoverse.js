@@ -1,6 +1,5 @@
 var $         = jQuery; // Make sure we have local $ (this is for combined script in a function)
 var Genoverse = Base.extend({
-
   // Defaults
   urlParamTemplate : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
   width            : 1000,
@@ -16,6 +15,7 @@ var Genoverse = Base.extend({
   wheelAction      : 'off',    // options are: zoom, off
   genome           : undefined,
   autoHideMessages : true,
+  trackBorder      : true,
   colors           : {
     background     : '#FFFFFF',
     majorGuideLine : '#CCCCCC',
@@ -25,35 +25,37 @@ var Genoverse = Base.extend({
 
   // Default coordinates for initial view, overwrite in your config
   chr   : 1,
-  start : 1090419,
-  end   : 1282428,
+  start : 1,
+  end   : 1000000,
 
   constructor: function (config) {
+    var browser = this;
+    
     if (!this.supported()) {
       return this.die('Your browser does not support this functionality');
     }
     
     config.container = $(config.container); // Make sure container is a jquery object, jquery recognises itself automatically
+    
     if (!(config.container && config.container.length)) {
-      config.container = $('<div id="genoverse">').appendTo($('body'));
+      config.container = $('<div id="genoverse">').appendTo('body');
     }
 
     $.extend(this, config);
     
-    var browser = this;
-    
-    $.when(browser.loadGenome(), browser.loadPlugins()).always(function(){
+    $.when(this.loadGenome(), this.loadPlugins()).always(function () {
       browser.wrapFunctions();
       browser.init();
     });
   },
 
   loadGenome: function () {
-    if (typeof this.genome == 'string') {
+    if (typeof this.genome === 'string') {
       var genomeName = this.genome;
+      
       return $.ajax({
         url      : this.origin + 'js/genomes/' + genomeName + '.js', 
-        dataType : "script",
+        dataType : 'script',
         context  : this,
         success  : function () {
           try {
@@ -74,7 +76,7 @@ var Genoverse = Base.extend({
     
     var browser         = this;
     var loadPluginsTask = $.Deferred();
-
+    
     // Load plugins css file
     browser.plugins.every(function (plugin) {
       LazyLoad.css(browser.origin + 'css/' + plugin + '.css');
@@ -87,9 +89,9 @@ var Genoverse = Base.extend({
         dataType : 'text'
       });
     })).done(function () {
-      (function ($, scripts) {
+      (function (jq, scripts) {
         // Localize variables
-        var $ = $;
+        var $ = jq;
         
         for (var i = 0; i < scripts.length; i++) {
           try {
@@ -107,8 +109,7 @@ var Genoverse = Base.extend({
   },
   
   init: function () {
-    var browser = this;
-    var width   = this.width;
+    var width = this.width;
     
     this.addDomElements(width);
     this.addUserEventHandlers();
@@ -632,28 +633,28 @@ var Genoverse = Base.extend({
     var push = !!tracks;
     var hierarchy, Class, subClass;
     
-    tracks = tracks || this.tracks;
+    tracks = tracks || $.extend([], this.tracks);
     index  = index  || 0;
     
     for (var i = 0; i < tracks.length; i++) {
       if (typeof tracks[i] === 'function') {
         Class = tracks[i];
         tracks[i] = new Class($.extend({}, defaults, { index: i + index }));
-      } else if (typeof tracks[i] === 'function') {
-        continue;
       } else {
         hierarchy = (tracks[i].type || '').split('.');
         Class     = Genoverse.Track;
         
-        while (subClass = hierarchy.shift()) {
+        while ((subClass = hierarchy.shift())) {
           Class = Class[subClass];
         }
+        
         tracks[i] = new Class($.extend(tracks[i], defaults, { index: i + index }));
       }
       
-      
       if (push) {
         this.tracks.push(tracks[i]);
+      } else {
+        this.tracks[i] = tracks[i];
       }
       
       if (tracks[i].strand === -1 && tracks[i].orderReverse) {
@@ -742,6 +743,7 @@ var Genoverse = Base.extend({
     var p = ui.item.prev().data('track').order || 0;
     var n = ui.item.next().data('track').order || 0;
     var o = p || n;
+    var order;
     
     if (Math.floor(n) === Math.floor(p)) {
       order = p + (n - p) / 2;
@@ -838,22 +840,20 @@ var Genoverse = Base.extend({
   menuTemplate: $('<div class="gv_menu"><div class="close">x</div><table></table></div>').on('click', function (e) {
     if ($(e.target).hasClass('close')) {
       $(this).fadeOut('fast', function () { 
-        var menu = this;
         var data = $(this).data();
+        
         if (data.track) {
-          data.track.menus = $( $.grep(data.track.menus, function(el){ return el != menu; }) );
+          data.track.menus = data.track.menus.not(this);
         }
-        data.browser.menus = $( $.grep(data.browser.menus, function(el){ return el != menu; }) );
-        $(this).hide();
+        
+        data.browser.menus = data.browser.menus.not(this);
       });
     }
   }),
   
   makeMenu: function (feature, event, track) {
     if (!feature.menuEl) {
-      var wrapper = this.wrapper;
-      var offset  = wrapper.offset();
-      var menu    = this.menuTemplate.clone(true);
+      var menu = this.menuTemplate.clone(true).data('browser', this);
       
       $.when(track ? track.populateMenu(feature) : feature).done(function (feature) {
         if (Object.prototype.toString.call(feature) !== '[object Array]') {
@@ -874,30 +874,26 @@ var Genoverse = Base.extend({
         });
         
         if (track) {
-          menu.addClass(track.id);
-          menu.data({ track: track });
+          menu.addClass(track.id).data('track', track);
         }
-
-        menu.data({ browser: this });
       });
       
       feature.menuEl = menu;
     }
-
+    
     this.menus = this.menus.add(feature.menuEl);
     
     if (track) {
       track.menus = track.menus.add(feature.menuEl);
     }
     
-    feature.menuEl.appendTo('body')
-
-    //debugger;
+    feature.menuEl.appendTo('body');
+    
     if (event) {
-      feature.menuEl.css({ left:0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' }).show();
+      feature.menuEl.css({ left: 0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' });
     }
 
-    return feature.menuEl;
+    return feature.menuEl.show();
   },
   
   closeMenus: function () {
@@ -910,7 +906,7 @@ var Genoverse = Base.extend({
       this.wrapper.find('.message_container').addClass('collapsed');
     }
   },
-
+  
   getSelectorPosition: function () {
     var left  = this.selector.position().left;
     var width = this.selector.outerWidth(true);
@@ -931,7 +927,7 @@ var Genoverse = Base.extend({
   },
   
   saveConfig: $.noop,
-
+  
   wrapFunctions: function (obj) {
     obj = obj || this;
 
@@ -942,9 +938,9 @@ var Genoverse = Base.extend({
         obj.systemEventHandlers[key].push(obj[key]);
       }
     }
-
+    
     // Wrap it up
-    for (var key in obj) {
+    for (key in obj) {
       if (typeof obj[key] === 'function' && !key.match(/^(base|extend|constructor|loadPlugins|loadGenome|wrapFunctions|functionWrap|debugWrap)$/)) {
         this.functionWrap(key, obj);
       }
@@ -958,7 +954,9 @@ var Genoverse = Base.extend({
     var name = (obj ? (obj.name || 'Track' + obj.type) : 'Genoverse') + '.' + key;
     obj = obj || this;
     
-    if (key.match(/^(before|after)/)) return;
+    if (key.match(/^(before|after|__original)/)) {
+      return;
+    }
     
     var func = key.substring(0, 1).toUpperCase() + key.substring(1);
     

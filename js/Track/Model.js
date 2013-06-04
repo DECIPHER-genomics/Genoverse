@@ -1,32 +1,26 @@
 Genoverse.Track.Model = Base.extend({
-
-  dataType     : 'json',
-  threshold    : undefined,
-  xhrFields    : {},
-  buffer       : 0,
-  //constructor : $.noop,
-
+  dataType  : 'json',
+  threshold : undefined,
+  xhrFields : {},
+  buffer    : 0,
+  
   constructor : function () {
-    //debugger;
-    console.log('contructor!');
     this.features     = this.features     || new RTree();
     this.featuresById = this.featuresById || {};
     this.dataRanges   = this.dataRanges   || {};
-    //this.scaleSettings = {};
   },
-
-
+  
   getData: function (start, end) {
     return this.url ? $.ajax({
-      url       : this.parseUrl(start, end),
+      url       : this.parseURL(start, end),
       dataType  : this.dataType,
       context   : this,
       xhrFields : this.xhrFields,
       success   : function (data) { this.receiveData(data, start, end); },
-      error     : function (xhr, statusText) { this.showError(statusText + ' while getting the data, see console for more details', arguments) }
+      error     : function (xhr, statusText) { this.showError(statusText + ' while getting the data, see console for more details', arguments); }
     }) : $.Deferred().resolveWith(this);
   },
-
+  
   /**
   * parseData(data) - parse raw data from the data source (e.g. online web service)
   * extract features and insert it into the internal features storage (RTree)
@@ -44,7 +38,7 @@ Genoverse.Track.Model = Base.extend({
   *
   * and call this.insertFeature(feature)
   */
-  parseData: function (data) {
+  parseData: function (data, start, end) {
     // Example of parseData function when data is an array of hashes like { start: ..., end: ... }
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];
@@ -69,8 +63,5 @@ Genoverse.Track.Model = Base.extend({
   
   findFeatures: function (start, end) {
     return this.features.search({ x: start - this.dataBuffer.start, y: 0, w: end - start + this.dataBuffer.start + this.dataBuffer.end + 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; });
-  },
-
-  // Do not overwrite this
-  type: 'model'
+  }
 });

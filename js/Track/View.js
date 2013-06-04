@@ -1,5 +1,4 @@
 Genoverse.Track.View = Base.extend({
-
   top            : 2,
   height         : 12,
   bumpSpacing    : 2,
@@ -16,28 +15,14 @@ Genoverse.Track.View = Base.extend({
   bump           : false,
   messages       : {
     error     : 'ERROR: ',
-    threshold : 'Data for this track is not displayed in regions greater than ', // + this.formatLabel(this.threshold)
+    threshold : 'Data for this track is not displayed in regions greater than ',
     resize    : 'Some features are currently hidden, resize to see all'
   },
-  constructor    : $.noop,
-
-  // constructor : function () {
-  //   for (var key in this.view.prototype) {
-  //     if (!isNaN(key) || key.match(/^\d+:\d+$/)) {
-  //       this.viewByScale = this.viewByScale || [];
-  //       var scale = key;
-  //       if (isNaN(scale)) {
-  //         scale = scale.split(':')[0] / scale.split(':')[1];
-  //       }
-  //       this.viewByScale[this.viewByScale.length] = [ scale, this.view.prototype[key] ];
-  //     }
-  //   }
-
-  //   if (this.viewByScale) {
-  //     this.viewByScale = this.viewByScale.sort(function (a, b) { return b[0] - a[0] });
-  //   }
-  // },
-
+  
+  constructor     : $.noop,
+  drawBackground  : $.noop,
+  decorateFeature : $.noop,
+  
   draw: function (features, featureContext, labelContext, scale) {
     var feature;
     
@@ -59,7 +44,7 @@ Genoverse.Track.View = Base.extend({
   
   drawFeature: function (feature, featureContext, labelContext, scale) {
     if (feature.x < 0 || feature.x + feature.width > this.width) {
-      this.truncateForDrawing(feature, scale);
+      this.truncateForDrawing(feature);
     }
     
     if (feature.color !== false) {
@@ -68,7 +53,7 @@ Genoverse.Track.View = Base.extend({
     }
     
     if (this.labels && feature.label) {
-      this.drawLabel(feature, labelContext, scale)
+      this.drawLabel(feature, labelContext, scale);
     }
     
     if (feature.borderColor) {
@@ -80,13 +65,12 @@ Genoverse.Track.View = Base.extend({
       this.decorateFeature(feature, featureContext, scale);
     }
   },
-
+  
   drawLabel: function (feature, labelContext, scale) {
     var labelStart = feature.x;
+    
     if (feature.untruncated) {
-      labelStart = (this.repeatLabel && feature.untruncated.x < -this.width && feature.untruncated.x + feature.untruncated.width > feature.labelWidth) 
-        ? 0 
-        : feature.untruncated.x;
+      labelStart = this.repeatLabel && feature.untruncated.x < -this.width && feature.untruncated.x + feature.untruncated.width > feature.labelWidth ? 0 : feature.untruncated.x;
     }
     
     if (typeof feature.label === 'string') {
@@ -113,7 +97,7 @@ Genoverse.Track.View = Base.extend({
       }
     }    
   },
-
+  
   formatLabel: function (label) {
     var str = label.toString();
     
@@ -127,11 +111,5 @@ Genoverse.Track.View = Base.extend({
       
       return Math.floor(label) + (unit === 'bp' ? '' : '.' + (label.toString().split('.')[1] || '').concat('00').substring(0, 2)) + ' ' + unit;
     }
-  },  
-
-  drawBackground  : $.noop,
-  decorateFeature : $.noop, // decoration for the features
-
-  // Do not overwrite this
-  type: 'view'
+  }
 });

@@ -50,14 +50,8 @@ ul.label_container {
 
 .canvas_container .track_container,
 .canvas_container .track_container_static {
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-  z-index: 5;
-}
-
-.track_container.scalebar {
   overflow: visible;
+  position: relative;
 }
 
 .track_container.partially_hidden + .track_container {
@@ -102,7 +96,7 @@ ul.label_container {
   margin-bottom: 6px; 
 }
 
-.canvas_container .message_container .control            { 
+.canvas_container .message_container .control {
   position: absolute; 
   top: 50%; 
   height: 14px;
@@ -121,10 +115,15 @@ ul.label_container {
 
 .canvas_container .image_container {
   height: 100%;
-  overflow: visible;
+  overflow-x: visible;
+  overflow-y: hidden;
   position: absolute;
   /*background: #ccc;*/
   margin: 0;
+}
+
+.canvas_container .image_container.fullHeight {
+  overflow-y: visible;
 }
 
 .canvas_container .image_container.loading {
@@ -149,7 +148,14 @@ ul.label_container {
   display: block;
   z-index: 0;
   width: 100%;
-  height: 100%;
+}
+
+.canvas_container .image_container img.fullHeight {
+  z-index: 0;
+}
+
+.canvas_container .image_container img.guidelines {
+  z-index: 1;
 }
 
 .canvas_container .image_container img.static {
@@ -237,7 +243,7 @@ li.sortHandle {
   width: 100%;
 }
 
-.track_container.scalebar .track_border {
+.track_container.fullHeight .track_border {
   border: none;
 }
 

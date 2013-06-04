@@ -1,27 +1,32 @@
-Genoverse.Track.Stranded = {
-  inheritedConstructor: function (config) {
+Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
+  constructor: function (config) {
     if (typeof this._makeImage === 'function') {
       return;
     }
-    
-    this.base(config);
     
     if (this.strand === -1) {
       this.url        = false;
       this._makeImage = this.makeReverseImage || this.makeImage;
       this.makeImage  = $.noop;
     } else {
+      var reverseTrack = $.extend({}, Object.getPrototypeOf(this), config, { controller: this.controller, model: this.model, view: this.view, strand: -1, forwardTrack: this });
+      
       this.strand       = 1;
       this._makeImage   = this.makeImage;
       this.makeImage    = this.makeForwardImage;
-      this.reverseTrack = this.browser.setTracks([ $.extend({}, config, { strand: -1, forwardTrack: this }) ], this.browser.tracks.length)[0];
+      this.reverseTrack = this.browser.setTracks([ reverseTrack ], this.browser.tracks.length)[0];
     }
     
     if (!this.featureStrand) {
       this.featureStrand = this.strand;
     }
     
-    this.urlParams.strand = this.featureStrand;
+    this.base(config);
+  },
+  
+  setURL: function (urlParams, update) {
+    $.extend(urlParams || this.urlParams, { strand: this.featureStrand });
+    this.base(urlParams, update);
   },
   
   init: function () {
@@ -35,7 +40,6 @@ Genoverse.Track.Stranded = {
   },
   
   findFeatures: function () {
-    var track  = this;
     var strand = this.featureStrand;
     return $.grep(this.base.apply(this, arguments), function (feature) { return feature.strand === strand; });
   },
@@ -62,4 +66,4 @@ Genoverse.Track.Stranded = {
     
     this.base();
   }
-};
+});

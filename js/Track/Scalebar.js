@@ -1,5 +1,4 @@
 Genoverse.Track.Scalebar = Genoverse.Track.extend({
-
   height        : 20,
   featureHeight : 3,
   spacing       : 0,
@@ -14,8 +13,6 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   orderReverse  : 1e5,
   featureStrand : 1,
   controls      : 'off',
-  class         : 'scalebar',
-  inherit       : [ 'Stranded' ],
   colors        : {
     majorGuideLine : '#CCCCCC',
     minorGuideLine : '#E5E5E5'
@@ -81,7 +78,8 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   },
   
   setFeatures: function (start, end) {
-    var start = Math.max(start - (start % this.minorUnit) - this.majorUnit, 0);
+    start = Math.max(start - (start % this.minorUnit) - this.majorUnit, 0);
+    
     var flip  = (start / this.minorUnit) % 2 ? 1 : -1;
     var feature, major, label;
     
@@ -173,7 +171,6 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   afterRenderBackground: function (f, bgImage) {
     bgImage.height(this.browser.wrapper.outerHeight(true));
   }
-
 });
 
 Genoverse.Track.on('afterInit afterResize', function () {

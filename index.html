@@ -21,36 +21,40 @@
     <script type="text/javascript" src="js/lib/rtree.js"></script>
     
     <script type="text/javascript" src="js/Genoverse.js"></script>
-
+    <script type="text/javascript" src="js/Track.js"></script>
+    
     <script type="text/javascript" src="js/Track/Model.js"></script> 
     <script type="text/javascript" src="js/Track/View.js"></script> 
     <script type="text/javascript" src="js/Track/Controller.js"></script> 
 
-    <script type="text/javascript" src="js/Track.js"></script> 
+    <script type="text/javascript" src="js/Track/Controller/Stranded.js"></script>
+    
     <script type="text/javascript" src="js/Track/Scalebar.js"></script>
-
+    
     <script type="text/javascript" src="js/Track/Model/Sequence.js"></script>
     <script type="text/javascript" src="js/Track/Model/Sequence/Fasta.js"></script>
     <script type="text/javascript" src="js/Track/Model/Sequence/Ensembl.js"></script>
     <script type="text/javascript" src="js/Track/Model/Sequence/DAS.js"></script>
+    <script type="text/javascript" src="js/Track/View/Sequence.js"></script>
 
     <script type="text/javascript" src="js/Track/Model/SequenceVariation.js"></script>
     <script type="text/javascript" src="js/Track/Model/SequenceVariation/VCF.js"></script>
+    <script type="text/javascript" src="js/Track/View/SequenceVariation.js"></script>
 
     <script type="text/javascript" src="js/Track/Model/Gene.js"></script>
     <script type="text/javascript" src="js/Track/Model/Gene/Ensembl.js"></script>
-
-    <script type="text/javascript" src="js/Track/Model/Transcript.js"></script>
-    <script type="text/javascript" src="js/Track/Model/Transcript/Ensembl.js"></script>
-
-    <script type="text/javascript" src="js/Track/View/Sequence.js"></script>
-    <script type="text/javascript" src="js/Track/View/SequenceVariation.js"></script>
-
     <script type="text/javascript" src="js/Track/View/Gene.js"></script>
     <script type="text/javascript" src="js/Track/View/Gene/Ensembl.js"></script>
-
+    
+    <script type="text/javascript" src="js/Track/Model/Transcript.js"></script>
+    <script type="text/javascript" src="js/Track/Model/Transcript/Ensembl.js"></script>
     <script type="text/javascript" src="js/Track/View/Transcript.js"></script>
     <script type="text/javascript" src="js/Track/View/Transcript/Ensembl.js"></script>
+    
+    <script type="text/javascript" src="js/Track/Model/Patch.js"></script>
+    <script type="text/javascript" src="js/Track/View/Patch.js"></script>
+    <script type="text/javascript" src="js/Track/Controller/Patch.js"></script>
+    <script type="text/javascript" src="js/Track/Patch.js"></script>
 
     <style>
       #genoverse {
@@ -89,11 +93,11 @@
             height     : 150,
             1: {
               model : Genoverse.Track.Model.Transcript.Ensembl,
-              view  : Genoverse.Track.View.Transcript,
+              view  : Genoverse.Track.View.Transcript
             },
             100000: {
               model : Genoverse.Track.Model.Gene.Ensembl,
-              view  : Genoverse.Track.View.Gene,
+              view  : Genoverse.Track.View.Gene
             }
           },
 
@@ -133,9 +137,8 @@
                   this.base.apply(this, arguments);
                 }
               })
-            },
-          },
-
+            }
+          }
         ]
       }
 

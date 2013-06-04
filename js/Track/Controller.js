@@ -1,32 +1,17 @@
 Genoverse.Track.Controller = Base.extend({
-
   scrollBuffer   : 1.2,                  // number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
   inherit        : [],
   dataBuffer     : { start: 0, end: 0 }, // basepairs, extend data region for, when getting data from the origin
 
   constructor: function (config) {
-    var config = config || {};
+    config = config || {};
     
     this.featureHeight     = typeof this.featureHeight !== 'undefined' ? this.featureHeight : this.height; // Feature height must be based on default height, not config.height, which could be anything
     this.defaultHeight     = this.height;
     this.defaultAutoHeight = this.autoHeight;
-
-    config.inherit = $.merge(this.inherit, config.inherit || []);
-
-    for (var i = 0; i < config.inherit.length; i++) {
-      if (Genoverse.Track[config.inherit[i]]) {
-        this.extend(Genoverse.Track[config.inherit[i]]);
-      }
-    }
-
+    
     this.extend(config); // Use Base.extend to make any function in config have this.base
-
-    if (typeof this.inheritedConstructor === 'function') {
-      this.inheritedConstructor(config);
-    }
-
-    if (!this.width) this.width = this.browser.width;
-
+    
     this.browser.wrapFunctions(this);
     
     this.imgRange       = {};
@@ -50,7 +35,6 @@ Genoverse.Track.Controller = Base.extend({
       this.autoHeight  = true;
       this.fixedHeight = false;
       this.resizable   = false;
-      
     } else if (this.threshold) {
       this.thresholdMessage = this.formatLabel(this.threshold);
     }
@@ -61,10 +45,9 @@ Genoverse.Track.Controller = Base.extend({
     
     if (this.urlParams) {
       this._url = this.url; // Remember original url
-      this.setUrlParams();
+      this.setURL();
     }
-
-    //debugger;    
+    
     this.addDomElements();
     this.addUserEventHandlers();
     this.init();
@@ -129,26 +112,30 @@ Genoverse.Track.Controller = Base.extend({
     this.label.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
   },
   
-  setUrlParams: function (urlParams, update) {
+  setURL: function (urlParams, update) {
     urlParams = urlParams || this.urlParams;
+    
     if (update && this._url) {
       this.url = this._url;
     }
 
-    this.url += (this.url.indexOf('?') > -1 ? '&' : '?') + $.map(urlParams, function (value, key) { return key + '=' + value }).join('&');
+    this.url += (this.url.indexOf('?') === -1 ? '?' : '&') + $.map(urlParams, function (value, key) { return key + '=' + value; }).join('&');
   },
   
   addDomElements: function () {
     var track = this;
     
     this.menus            = $();
-    this.container        = $('<div class="track_container">').appendTo(this.browser.wrapper).addClass(this.class);
+    this.container        = $('<div class="track_container">').appendTo(this.browser.wrapper);
     this.scrollContainer  = $('<div class="scroll_container">').appendTo(this.container);
     this.imgContainer     = $('<div class="image_container">').width(this.width);
     this.messageContainer = $('<div class="message_container"><div class="messages"></div><span class="control collapse">&laquo;</span><span class="control expand">&raquo;</span></div>').appendTo(this.container);
-    this.border           = $('<div class="track_border">').appendTo(this.container);
     this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('track', this);
     this.context          = $('<canvas>')[0].getContext('2d');
+    
+    if (this.browser.trackBorder) {
+      $('<div class="track_border">').appendTo(this.container);
+    }
     
     if (this.unsortable) {
       this.label.addClass('unsortable');
@@ -173,7 +160,7 @@ Genoverse.Track.Controller = Base.extend({
         click     : function () {
           var height;
           
-          if (track.autoHeight = !track.autoHeight) {
+          if ((track.autoHeight = !track.autoHeight)) {
             track.heightBeforeToggle = track.height;
             height = track.fullVisibleHeight;
           } else {
@@ -196,10 +183,10 @@ Genoverse.Track.Controller = Base.extend({
       if ((e.which && e.which !== 1) || browser.start !== browser.dragStart || (browser.dragAction === 'select' && browser.selector.outerWidth(true) > 2)) {
         return; // Only show menus on left click when not dragging and not selecting
       }
-
+      
       track.click(e);
     });
-
+    
     this.messageContainer.children().on('click', function () {
       var collapsed = track.messageContainer.children('.messages').is(':visible') ? ' collapsed' : '';
       track.messageContainer.attr('class', 'message_container' + collapsed);
@@ -216,7 +203,7 @@ Genoverse.Track.Controller = Base.extend({
       this.browser.makeMenu(f, e, this);
     }
   },
-
+  
   // FIXME: messages are now hidden/shown instead of removed/added. This will cause a problem if a new message arrives with the same code as one that already exists.  
   showMessage: function (code, additionalText) {
     var messages = this.messageContainer.children('.messages');
@@ -256,7 +243,7 @@ Genoverse.Track.Controller = Base.extend({
     if (this.threshold && this.browser.length > this.threshold) {
       autoHeight      = this.autoHeight;
       this.autoHeight = true;
-
+      
       if (this.thresholdMessage) {
         this.showMessage('threshold', this.thresholdMessage);
         this.fullVisibleHeight = this.messageContainer.outerHeight(true);
@@ -272,7 +259,7 @@ Genoverse.Track.Controller = Base.extend({
         this.labelTop = height;
         height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.position[scale].label.bottom; }).concat(0));
       }
-
+      
       if (this.thresholdMessage) {
         this.hideMessage('threshold');
       }
@@ -356,30 +343,35 @@ Genoverse.Track.Controller = Base.extend({
     this.scale = this.browser.scale;
 
     if (this.scaleMap) {
-      for (var i=0; i<this.scaleMap.length; i++) {
+      for (var i = 0; i < this.scaleMap.length; i++) {
         if (this.browser.length >= this.scaleMap[i][0]) {
-          var x = this.scaleMap[i][1];
-          if (x.model && this.model != x.model) {
+          var setting = this.scaleMap[i][1];
+          
+          if (setting.model && this.model !== setting.model) {
             this.model.features     = this.features;
             this.model.featuresById = this.featuresById;
             this.model.dataRanges   = this.dataRanges;
-            this.features     = x.model.features;
-            this.featuresById = x.model.featuresById;
-            this.dataRanges   = x.model.dataRanges;
-            $.extend(this, x.model.prototype);
-            this.applyConstructor(x.model);
+            
+            this.features     = setting.model.features;
+            this.featuresById = setting.model.featuresById;
+            this.dataRanges   = setting.model.dataRanges;
+            
+            $.extend(this, setting.model.prototype);
+            this.applyConstructor(setting.model);
           }
-          if (x.view && this.view != x.view) {
-            $.extend(this, x.view.prototype);
-            //this.extend(x.view.prototype); 
-            this.applyConstructor(x.view);
+          
+          if (setting.view && this.view !== setting.view) {
+            $.extend(this, setting.view.prototype);
+            this.applyConstructor(setting.view);
           }
-          this.extend(x);
+          
+          this.extend(setting);
+          
           break;
         }
       }
     }
-
+    
     this.resetImageRanges();
     
     if (this.renderer) {
@@ -513,7 +505,7 @@ Genoverse.Track.Controller = Base.extend({
     var tooLarge = this.threshold && this.threshold < this.browser.length;
     var div      = this.imgContainer.clone().addClass((params.cls + ' loading').replace('.', '_')).css({ left: params.left, display: params.cls === this.scrollStart ? 'block' : 'none' });
     var bgImage  = params.background ? $('<img class="bg">').addClass(params.background).data(params).prependTo(div) : false;
-    var image    = $('<img class="data">').hide().data(params).appendTo(div).load(function () {
+    var image    = $('<img class="data">').hide().data(params).appendTo(div).on('load', function () {
       $(this).fadeIn('fast').parent().removeClass('loading');
     });
     
@@ -521,7 +513,7 @@ Genoverse.Track.Controller = Base.extend({
     
     this.imgContainers.push(div[0]);
     this.scrollContainer.append(this.imgContainers);
-
+    
     if (!tooLarge && !this.checkDataRange(params.start, params.end)) {
       params.start -= this.dataBuffer.start;
       params.end   += this.dataBuffer.end;
@@ -533,7 +525,7 @@ Genoverse.Track.Controller = Base.extend({
       setTimeout($.proxy(deferred.resolve, this), 1); // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
     }
     
-    deferred.done(function () {
+    return deferred.done(function () {
       var features = tooLarge ? [] : this.findFeatures(params.start, params.end);
       
       this.render(features, image);
@@ -544,8 +536,6 @@ Genoverse.Track.Controller = Base.extend({
     }).fail(function () { 
       // TODO: error handling here
     });
-
-    return image;
   },
   
   makeFirstImage: function () {
@@ -570,7 +560,7 @@ Genoverse.Track.Controller = Base.extend({
       this.getData(start - this.dataBuffer.start - length, end + this.dataBuffer.end + length).done(makeImages);
     }
   },
-
+  
   scaleFeatures: function (features, scale) {
     var add = Math.max(scale, 1);
     var feature;
@@ -581,7 +571,7 @@ Genoverse.Track.Controller = Base.extend({
       if (!feature.position) {
         feature.position = {};
       }
-
+      
       if (!feature.position[scale]) {
         feature.position[scale] = {
           start  : feature.start * scale,
@@ -740,12 +730,12 @@ Genoverse.Track.Controller = Base.extend({
     img.attr('src', canvas.toDataURL());
     canvas = img = null;
   },
-
+  
   // truncate features - make the features start at 1px outside the canvas to ensure no lines are drawn at the borders incorrectly
-  truncateForDrawing: function (feature, scale) {
+  truncateForDrawing: function (feature) {
     var start = Math.min(Math.max(feature.x, -1), this.width + 1);
     var width = feature.x - start + feature.width;
-
+    
     if (width + start > this.width) {
       width = this.width - start + 1;
     }
@@ -760,11 +750,8 @@ Genoverse.Track.Controller = Base.extend({
     this.showMessage('error', error);
   },
   
-  parseUrl: function (start, end, url) {
-    var chr = this.browser.chr;
-    var url = url || this.url;
-
-    return url.replace(/__CHR__/, chr).replace(/__START__/, start).replace(/__END__/, end);
+  parseURL: function (start, end, url) {
+    return (url || this.url).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
   },
   
   receiveData: function (data, start, end) {
@@ -879,8 +866,5 @@ Genoverse.Track.Controller = Base.extend({
     for (var key in this) {
       delete this[key];
     }
-  },
-
-  // Do not overwrite this
-  type: 'controller'
+  }
 });

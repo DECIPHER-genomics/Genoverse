@@ -88,7 +88,7 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
    
     $.when.apply($, $.map(bins, function (bin) {
       return $.ajax({
-        url       : track.parseUrl(bin[0], bin[1], url || this.url),
+        url       : track.parseURL(bin[0], bin[1], url || this.url),
         dataType  : track.dataType,
         context   : track,
         xhrFields : track.xhrFields,

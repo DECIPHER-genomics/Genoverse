@@ -21,7 +21,7 @@ Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
       var endByte   = end   - 1 + Math.floor((end   - 1) / this.lineLength) + this.startByte;
 
       $.ajax({
-        url       : this.parseUrl(start, end),
+        url       : this.parseURL(start, end),
         dataType  : this.dataType,
         context   : this,
         headers   : { 'Range' : 'bytes='+ startByte +'-'+ endByte },
@@ -42,7 +42,7 @@ Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
 
     if (this.startByte === undefined || this.lineLength === undefined) {
       this.startByteRequest = $.ajax({
-        url       : this.parseUrl(),
+        url       : this.parseURL(),
         dataType  : 'text',
         context   : this,
         headers   : {

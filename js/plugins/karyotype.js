@@ -63,7 +63,6 @@ Genoverse.on('afterInit afterReset', function () {
 
     setTimeout(function () {
       browser.karyotypeWidth = browser.karyotype.innerWidth();
-      console.log(browser.karyotypeWidth);
       var left  = browser.karyotypeWidth * browser.start / chromosome.size;
       var width = (browser.karyotypeWidth * browser.end / chromosome.size) - left;
       browser.karyotypeViewPoint.css({ left: left , width: width }).fadeIn('fast');    
