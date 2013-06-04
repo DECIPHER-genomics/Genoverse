@@ -41,6 +41,7 @@ Genoverse.Track.Model.Gene.Ensembl = Genoverse.Track.Model.Gene.extend({
         color = '#0000FF';
       break;
       case 'pseudogene':
+      case 'processed_pseudogene':
         color = '#666666';
       break;
       default :

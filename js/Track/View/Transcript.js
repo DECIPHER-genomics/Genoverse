@@ -17,7 +17,7 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
       featureContext.lineWidth   = 1;
       featureContext.strokeRect(
         transcript.x + (exon.start - transcript.start) * scale,
-        transcript.y + 2, 
+        transcript.y + 2.5,
         (exon.end - exon.start) * scale, 
         transcript.height - 4
       );
@@ -60,7 +60,6 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
         context.lineTo(intron.x + intron.width, intron.y);
       break;
       case 'bezierCurve' :
-        context.beginPath();
         context.moveTo(intron.x, intron.y);
         context.bezierCurveTo(intron.x, intron.y + intron.height, intron.x + intron.width, intron.y + intron.height, intron.x + intron.width, intron.y);
       break;
