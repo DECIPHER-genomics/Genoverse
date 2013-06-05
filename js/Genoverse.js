@@ -631,25 +631,21 @@ var Genoverse = Base.extend({
     };
     
     var push = !!tracks;
-    var hierarchy, Class, subClass;
+    var Class, config;
     
     tracks = tracks || $.extend([], this.tracks);
     index  = index  || 0;
     
     for (var i = 0; i < tracks.length; i++) {
       if (typeof tracks[i] === 'function') {
-        Class = tracks[i];
-        tracks[i] = new Class($.extend({}, defaults, { index: i + index }));
+        Class  = tracks[i];
+        config = {};
       } else {
-        hierarchy = (tracks[i].type || '').split('.');
-        Class     = Genoverse.Track;
-        
-        while ((subClass = hierarchy.shift())) {
-          Class = Class[subClass];
-        }
-        
-        tracks[i] = new Class($.extend(tracks[i], defaults, { index: i + index }));
+        Class  = tracks[i].type ? eval('Genoverse.Track.' + tracks[i].type) || Genoverse.Track : Genoverse.Track;
+        config = tracks[i];
       }
+      
+      tracks[i] = new Class($.extend(config, defaults, { index: i + index }));
       
       if (push) {
         this.tracks.push(tracks[i]);
