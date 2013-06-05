@@ -54,6 +54,12 @@ ul.label_container {
   position: relative;
 }
 
+.canvas_container .track_container_static .image_container,
+.canvas_container .track_container_static img {
+  background: #FFF;
+  z-index: 1;
+}
+
 .track_container.partially_hidden + .track_container {
   box-shadow: 0 -4px 5px 2px rgba(0, 0, 0, 0.5);
 }
