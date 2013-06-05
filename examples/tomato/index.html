@@ -80,13 +80,13 @@
 
           Genoverse.Track.Scalebar,
 
-          // {
-          //   model  : Genoverse.Track.Model.Sequence.Fasta,
-          //   view   : Genoverse.Track.View.Sequence,
-          //   autoHeight : false,
-          //   threshold  : 10000,
-          //   url    : 'http://genoverse.org/examples/tomato/data/Solanum_lycopersicum.SL2.40.18.dna.chromosome.__CHR__.fa',
-          // },
+          {
+            model  : Genoverse.Track.Model.Sequence.Fasta,
+            view   : Genoverse.Track.View.Sequence,
+            autoHeight : false,
+            threshold  : 10000,
+            url    : 'http://genoverse.org/examples/tomato/data/Solanum_lycopersicum.SL2.40.18.dna.chromosome.__CHR__.fa',
+          },
 
           {
             model  : Genoverse.Track.Model.Transcript.GFF3,
@@ -98,20 +98,17 @@
             }
           },
 
-          // Genoverse.Track.SequenceVariation.extend({
-          //   name : 'freebayes kept',
-          //   url  : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://genoverse.org/examples/tomato/data/vcf/IB2975_LDI2549.freebayesNoBaqAlignIndelsKept.recode.vcf.gz&r=chr__CHR__:__START__-__END__',
-          // }),
-
-          // Genoverse.Track.SequenceVariation.extend({
-          //   name : 'freebayes removed',
-          //   url   : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://genoverse.org/examples/tomato/data/vcf/IB2975_LDI2549.freebayesNoBaqAlignIndelsremoved.recode.vcf.gz&r=chr__CHR__:__START__-__END__',
-          // }),
+          Genoverse.Track.SequenceVariation.extend({
+            name : 'freebayes kept',
+            url  : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://genoverse.org/examples/tomato/data/vcf/IB2975_LDI2549.freebayesNoBaqAlignIndelsKept.recode.vcf.gz&r=chr__CHR__:__START__-__END__',
+          }),
 
           Genoverse.Track.SequenceVariation.extend({
-            // debug : {
-            //   positionFeatures : true,
-            // },
+            name : 'freebayes removed',
+            url   : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://genoverse.org/examples/tomato/data/vcf/IB2975_LDI2549.freebayesNoBaqAlignIndelsremoved.recode.vcf.gz&r=chr__CHR__:__START__-__END__',
+          }),
+
+          Genoverse.Track.SequenceVariation.extend({
             name  : 'BWA marked',
             url   : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://genoverse.org/examples/tomato/data/vcf/IB2975_LDI2549_BWA.marked.flt.vcf.gz&r=chr__CHR__:__START__-__END__',
           }),
