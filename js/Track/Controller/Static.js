@@ -1,15 +1,17 @@
-Genoverse.Track.Static = {
-  'static'    : true,
+Genoverse.Track.Static = Genoverse.Track.extend({
+  delay       : true,
   bumpSpacing : 0,
   fixedHeight : true,
   unsortable  : true,
   url         : false,
   
-  init: function () {
-    this.base();
+  constructor: function (config) {
+    this.base(config);
     
     this.image = $('<img>').appendTo(this.imgContainer);
     this.container.toggleClass('track_container track_container_static').html(this.imgContainer);
+    
+    this.setScale();
   },
   
   reset           : $.noop,
@@ -53,4 +55,4 @@ Genoverse.Track.Static = {
       this.drawFeature(features[i], featureContext, labelContext, scale);
     }
   }
-};
+});

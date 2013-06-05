@@ -14,7 +14,7 @@ Genoverse.Track.on('afterPositionFeatures', function (features, params) {
   var legend = this.legend;
   
   if (legend) {
-    setTimeout(function () { legend.makeImage(params); }, 1)
+    setTimeout(function () { legend.makeImage(params); }, 1);
   }
 });
 
@@ -24,15 +24,14 @@ Genoverse.Track.on('afterResize', function (height, userResize) {
   }
 });
 
-Genoverse.Track.Legend = Genoverse.Track.extend({
+Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   textColor : '#000000',
   labels    : 'overlay',
-  inherit   : [ 'Static' ],
   
   init: function () {
-    this.tracks = [];
-    
     this.base();
+    
+    this.tracks = [];
     
     if (!this.browser.legends) {
       this.browser.legends = {};

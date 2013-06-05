@@ -1,9 +1,8 @@
-Genoverse.Track.Scaleline = Genoverse.Track.extend({
-  strand  : 1,
-  color   : '#000000',
-  height  : 12,
-  labels  : 'overlay',
-  inherit : [ 'Static' ],
+Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
+  strand : 1,
+  color  : '#000000',
+  height : 12,
+  labels : 'overlay',
   
   resize: $.noop,
   
@@ -45,7 +44,7 @@ Genoverse.Track.Scaleline = Genoverse.Track.extend({
     return this.base(this.scaleline, params);
   },
   
-  decorateFeature: function (feature, context, scale) {
+  decorateFeature: function (feature, context) {
     var x = this.strand === 1 ? this.width - 25 : 25;
     
     context.strokeStyle = this.color;
