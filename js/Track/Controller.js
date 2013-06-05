@@ -489,9 +489,10 @@ Genoverse.Track.Controller = Base.extend({
     var deferred;
     var tooLarge = this.threshold && this.threshold < this.browser.length;
     var div      = this.imgContainer.clone().addClass((params.cls + ' loading').replace('.', '_')).css({ left: params.left, display: params.cls === this.scrollStart ? 'block' : 'none' });
-    var bgImage  = params.background ? $('<img class="bg">').addClass(params.background).data(params).prependTo(div) : false;
+    var bgImage  = params.background ? $('<img class="bg">').hide().addClass(params.background).data(params).prependTo(div) : false;
     var image    = $('<img class="data">').hide().data(params).appendTo(div).on('load', function () {
       $(this).fadeIn('fast').parent().removeClass('loading');
+      $(this).siblings('.bg').show();
     });
     
     params.container = div;
