@@ -1,7 +1,7 @@
 Genoverse.Track.View = Base.extend({
   top            : 2,
   height         : 12,
-  bumpSpacing    : 2,
+  bumpSpacing    : 1,
   featureSpacing : 1,
   repeatLabel    : true,
   minScaledWidth : 0.5,
@@ -91,7 +91,7 @@ Genoverse.Track.View = Base.extend({
         }
       } else {
         for (var i = 0; i < feature.label.length; i++) {
-          labelContext.fillText(feature.label[i], labelStart, i * (this.fontHeight + 2) + (feature.labelPosition ? feature.labelPosition.y : feature.y + feature.height + this.bumpSpacing + 1));
+          labelContext.fillText(feature.label[i], labelStart, i * (this.fontHeight + 2) + (feature.labelPosition ? feature.labelPosition.y : feature.y + feature.height));
         }
       }
     }    
