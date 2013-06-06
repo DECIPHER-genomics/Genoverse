@@ -77,8 +77,9 @@
           Genoverse.Track.Scalebar,
 
           {
-            model : Genoverse.Track.Model.Sequence.Fasta,
+            model : Genoverse.Track.Model.Sequence.Ensembl,
             view  : Genoverse.Track.View.Sequence,
+            threshold : 10000,
           },
 
           {
@@ -87,13 +88,20 @@
             autoHeight : false,
             height     : 150,
             1: {
+              labels: true,
               model : Genoverse.Track.Model.Transcript.Ensembl,
               view  : Genoverse.Track.View.Transcript
             },
             100000: {
+              labels: true,
               model : Genoverse.Track.Model.Gene.Ensembl,
               view  : Genoverse.Track.View.Gene
-            }
+            },
+            1000000: {
+              labels: false,
+              model : Genoverse.Track.Model.Gene.Ensembl,
+              view  : Genoverse.Track.View.Gene
+            },
           },
 
           {
