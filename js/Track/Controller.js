@@ -543,7 +543,7 @@ Genoverse.Track.Controller = Base.extend({
     if (this.threshold && this.threshold < length || this.checkDataRange(start, end)) {
       makeImages.call(this);
     } else {
-      this.getData(start - this.dataBuffer.start - length, end + this.dataBuffer.end + length).done(makeImages);
+      this.getData(Math.max(0, start - this.dataBuffer.start - length), Math.min(this.browser.chromosomeSize, end + this.dataBuffer.end + length)).done(makeImages);
     }
   },
   
@@ -737,6 +737,9 @@ Genoverse.Track.Controller = Base.extend({
   },
   
   parseURL: function (start, end, url) {
+    start = Math.max(0, start);
+    end   = Math.min(this.browser.chromosomeSize, end);
+
     return (url || this.url).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
   },
   
@@ -802,6 +805,9 @@ Genoverse.Track.Controller = Base.extend({
   },
   
   checkDataRange: function (start, end) {
+    start = Math.max(0, start);
+    end   = Math.min(this.browser.chromosomeSize, end);
+    
     if (!this.url) {
       return { start: 1, end: this.browser.chromosomeSize };
     }

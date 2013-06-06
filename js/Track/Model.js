@@ -26,6 +26,9 @@ Genoverse.Track.Model = Base.extend({
   },
   
   getData: function (start, end) {
+    start = Math.max(0, start);
+    end   = Math.min(this.browser.chromosomeSize, end);
+    
     return this.url ? $.ajax({
       url       : this.parseURL(start, end),
       dataType  : this.dataType,
