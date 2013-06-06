@@ -53,12 +53,14 @@ Genoverse.Track.Model.Gene.Ensembl = Genoverse.Track.Model.Gene.extend({
   },
 
   getData: function (start, end) {
-    //debugger;
+    start = Math.max(0, start);
+    end   = Math.min(this.browser.chromosomeSize, end);
+
     var track    = this;
     var deferred = $.Deferred();
     var bins     = [];
     var length   = end - start + 1;
-   
+
     if (!this.url) {
       return deferred.resolveWith(this);
     }
