@@ -1054,7 +1054,7 @@ String.prototype.hashCode = function () {
   return '' + hash;
 };
 
-Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/\w+\.js/))[1];
+Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/[\w\.]+\.js$/))[1];
 
 if (typeof LazyLoad !== 'undefined') {
   LazyLoad.css(Genoverse.prototype.origin + 'css/genoverse.css');
