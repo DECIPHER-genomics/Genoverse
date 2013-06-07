@@ -11,9 +11,7 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
     cds   : 'cds'
   },
 
-
   parseData: function (text) {
-    //debugger;
     var lines = text.split("\n");
     for (var i=0; i<lines.length; i++) {
       if (!lines[i].length || lines[i].indexOf('#') === 0) continue;
@@ -21,8 +19,7 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
       var fields  = lines[i].split("\t");
 
       if (fields.length < 5) continue;
-
-      if (fields[0] == this.browser.chr || fields[0] == 'chr' + this.browser.chr || fields[0].match('[^1-9]'+ this.browser.chr +'$')) {
+      if (fields[0] == this.browser.chr || fields[0].toLowerCase() == 'chr' + this.browser.chr || fields[0].match('[^1-9]'+ this.browser.chr +'$')) {
         var feature = {};
 
         if (fields[8]) {
