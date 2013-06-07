@@ -60,6 +60,7 @@ Genoverse.Track = Base.extend({
       }
       Genoverse.Track.prototype.systemEventHandlers[this].push(handler);
     });
-  }
+  },
+  File: {}
 });
 
