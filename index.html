@@ -3,154 +3,89 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
 
-    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
-    <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
-    <link rel="stylesheet" type="text/css" href="css/trackControls.css" />
-    <link rel="stylesheet" type="text/css" href="css/resizer.css" />
-    <link rel="stylesheet" type="text/css" href="css/tooltips.css" />
-    
-    <script type="text/javascript" src="js/lib/jquery.js"></script>
-    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
-    <script type="text/javascript" src="js/lib/lazyload.js"></script>
-    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
-    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
-
-    <script type="text/javascript" src="js/genomes/grch37.js"></script>
-
-    <script type="text/javascript" src="js/lib/Base.js"></script>
-    <script type="text/javascript" src="js/lib/rtree.js"></script>
-    
-    <script type="text/javascript" src="js/Genoverse.js"></script>
-    <script type="text/javascript" src="js/Track.js"></script>
-    
-    <script type="text/javascript" src="js/Track/Model.js"></script> 
-    <script type="text/javascript" src="js/Track/View.js"></script> 
-    <script type="text/javascript" src="js/Track/Controller.js"></script> 
-
-    <script type="text/javascript" src="js/Track/Controller/Stranded.js"></script>
-    
-    <script type="text/javascript" src="js/Track/Scalebar.js"></script>
-    
-    <script type="text/javascript" src="js/Track/Model/Sequence.js"></script>
-    <script type="text/javascript" src="js/Track/Model/Sequence/Fasta.js"></script>
-    <script type="text/javascript" src="js/Track/Model/Sequence/Ensembl.js"></script>
-    <script type="text/javascript" src="js/Track/Model/Sequence/DAS.js"></script>
-    <script type="text/javascript" src="js/Track/View/Sequence.js"></script>
-
-    <script type="text/javascript" src="js/Track/Model/SequenceVariation.js"></script>
-    <script type="text/javascript" src="js/Track/Model/SequenceVariation/VCF.js"></script>
-    <script type="text/javascript" src="js/Track/View/SequenceVariation.js"></script>
-
-    <script type="text/javascript" src="js/Track/Model/Gene.js"></script>
-    <script type="text/javascript" src="js/Track/Model/Gene/Ensembl.js"></script>
-    <script type="text/javascript" src="js/Track/View/Gene.js"></script>
-    <script type="text/javascript" src="js/Track/View/Gene/Ensembl.js"></script>
-    
-    <script type="text/javascript" src="js/Track/Model/Transcript.js"></script>
-    <script type="text/javascript" src="js/Track/Model/Transcript/Ensembl.js"></script>
-    <script type="text/javascript" src="js/Track/View/Transcript.js"></script>
-    <script type="text/javascript" src="js/Track/View/Transcript/Ensembl.js"></script>
-
-    <style>
-      #genoverse {
-        margin-left: 99px;
-        margin-top: 60px;    
-      }
-    </style>
-
-
-    <script>
-
-      var genoverseConfig = {
-        container      : '#genoverse',
-        width          : 756,
-        chromosomeSize : 249250621, // chromosome 1, human
-        chr            : 1,
-        start          : 45476751,
-        end            : 45480893,
-        genome         : 'grch37',
-
-        plugins        : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
+    <link rel="stylesheet" type="text/css" href="/examples/genoverse.org/styles.css" />
+    <script type="text/javascript" src="/js/genoverse.combined.js">
+      {
+        container      : '#genoverse', // Where to inject Genoverse (css/jQuery selector)
+        // If no genome supplied, it must have at least chromosomeSize, e.g.:
+        // chromosomeSize : 249250621, // chromosome 1, human
+        genome         : 'grch37', // see js/genomes/
+        plugins        : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'fileDrop' ],
         
         tracks         : [
 
           Genoverse.Track.Scalebar,
 
           {
+            name  : 'Sequence',
             model : Genoverse.Track.Model.Sequence.Ensembl,
             view  : Genoverse.Track.View.Sequence,
-            threshold : 10000,
+            url   : 'http://beta.rest.ensembl.org/sequence/region/human/__CHR__:__START__-__END__?content-type=text/plain',
+            // placeholders __CHR__, __START__ and __END__ in the url will be replaced automaticaly
           },
 
           {
-            name : 'Ensembl Genes',
+            name : 'e! genes',
             resizable  : true,
             autoHeight : false,
-            height     : 150,
-            1: {
-              labels: true,
-              model : Genoverse.Track.Model.Transcript.Ensembl,
-              view  : Genoverse.Track.View.Transcript
-            },
-            100000: {
-              labels: true,
-              model : Genoverse.Track.Model.Gene.Ensembl,
-              view  : Genoverse.Track.View.Gene
-            },
-            1000000: {
+            height     : 200,
+            info       : 'Ensembl API genes & transcripts, see <a href="http://beta.rest.ensembl.org/" target=_blank>beta.rest.ensembl.org</a> for more details',
+            // Different settings for different zoom level
+            2000000: { // This one applies when > 2M base-pairs per screen
               labels: false,
               model : Genoverse.Track.Model.Gene.Ensembl,
               view  : Genoverse.Track.View.Gene
             },
-          },
-
-          {
-            name  : 'Sequence Variation',
-            model : Genoverse.Track.Model.SequenceVariation.VCF,
-            url   : '/data/Son_s_VCF_file.vcf',
-            1: { 
-              view: Genoverse.Track.View.Sequence.extend({
-                bump           : true,
-                labels         : false,
-                bumpSpacing    : 0,
-                featureSpacing : 0,
-                autoHeight     : false,
-
-                draw: function(features, featureContext, labelContext, scale) {
-                  this.base.apply(this, arguments);
-                  this.highlightRef(features, featureContext, scale);
-                },
-
-                highlightRef: function(features, context, scale) {
-                  context.strokeStyle = 'black';
-                  for (var i=0; i<features.length; i++) {
-                    if (features[i].allele == 'REF') {
-                      context.strokeRect(features[i].position[scale].X, features[i].position[scale].Y, features[i].position[scale].width, features[i].position[scale].height);
-                    }
-                  }
-                }
-              })
+            100000: { // more than 100K but less then 2M
+              labels: true,
+              model : Genoverse.Track.Model.Gene.Ensembl,
+              view  : Genoverse.Track.View.Gene
             },
-            1000: {
-              view: Genoverse.Track.View.extend({
-                bump       : false,
-                labels     : false,
-                autoHeight : false,
-                draw: function (features, featureContext, labelContext, scale) {
-                  this.base.apply(this, arguments);
-                }
-              })
-            }
-          }
+            1: { // > 1 base-pair, but less then 100K
+              labels: true,
+              model : Genoverse.Track.Model.Transcript.Ensembl,
+              view  : Genoverse.Track.View.Transcript,
+            },
+          },
         ]
       }
-
-      $(document).ready(function(){ window.genoverse = new Genoverse(genoverseConfig) });
-
     </script>
 
   </head>
   <body>
+
+    <a href="https://github.com/eugenebragin/Genoverse"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+
+    <div class="container">
+      <div class="head"><h1>Genoverse - interactive HTML5 genome browser</h1></div>
+      <div class="wrap">
+
+        <div id="genoverse"></div>
+
+      </div>
+      <div class="info">
+        <p>Genoverse is a portable, customizable, back-end independent JavaScript and HTML5 based genome browser which allows the user to explore data interactively.</p>
+        <p>Data is visualized in the browser, meaning Genoverse can be installed on any website and show data from a wide range of online or local sources.</p>
+        <p>Genoverse works with a variety of formats, such as XML, JSON, GFF, GFF3, BED or any delimited text files, and can be customized to parse and display any data source as required.</p>
+        <p style="font-weight:bold; text-align:center;">If you have any questions or need help, please contact us <a href="mailto:info@genoverse.org">info@genoverse.org</a></p>
+      </div>
+    </div>
+
   <div id="genoverse"></div>
+
+  <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-34315286-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
+ 
   </body>
 </html>
