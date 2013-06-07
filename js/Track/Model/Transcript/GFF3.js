@@ -5,6 +5,13 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
   name     : 'GFF3 Transcript',
   dataType : 'text',
 
+  // Transcript structure map for column 3 (type) 
+  typeMap : {
+    exon  : 'exon',
+    cds   : 'cds'
+  },
+
+
   parseData: function (text) {
     //debugger;
     var lines = text.split("\n");
@@ -33,17 +40,28 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
         feature.source = fields[1];
         feature.type   = fields[2];
         feature.score  = fields[5];
-        feature.strand = fields[6];
+        feature.strand = fields[6] + '1';
 
-        // Assuming here that parent always goes first in the GFF file, 
-        // which seems to be the case for most examples
-        if (feature.parent) {
+        // sub-feature came earlier than parent feature
+        if (feature.parent && !this.featuresById[feature.parent]) {
+          this.featuresById[feature.parent] = {
+            exons : [],
+            cds   : []
+          }
+        }
+
+        if (feature.parent && feature.type.toLowerCase() == this.typeMap.exon.toLowerCase()) {
           if (!$.grep(this.featuresById[feature.parent].exons, function (exon) { return exon.id == feature.id }).length) {
             this.featuresById[feature.parent].exons.push(feature);
           }
-        } else {
+        } else if (feature.parent && feature.type.toLowerCase() == this.typeMap.cds.toLowerCase()) {
+          if (!$.grep(this.featuresById[feature.parent].cds, function (exon) { return exon.id == feature.id }).length) {
+            this.featuresById[feature.parent].cds.push(feature);
+          }
+        } else if (!feature.parent) {
           feature.label = feature.name || feature.id || '';
-          feature.exons = [];
+          $.extend(feature, { label: feature.name || feature.id || '', exons:[], cds:[] }, this.featuresById[feature.id] || {});
+          delete this.featuresById[feature.id];
           this.insertFeature(feature);
         }
 

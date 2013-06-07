@@ -93,6 +93,20 @@
             view   : Genoverse.Track.View.Transcript,
             url    : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://genoverse.org/examples/tomato/data/gff/sgn_markers.sorted.gff3.gz&r=chr__CHR__:__START__-__END__',
             labels : true,
+            typeMap: {
+              exon : 'match_part',
+            },
+            500000 : {
+              labels : false,
+            }
+          },
+
+          {
+            model  : Genoverse.Track.Model.Transcript.GFF3,
+            view   : Genoverse.Track.View.Transcript,
+            url    : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://genoverse.org/examples/tomato/data/gff/mrna.sorted.gff3.gz&r=chr__CHR__:__START__-__END__',
+            labels : true,
+            intronStyle : 'hat',
             500000 : {
               labels : false,
             }
