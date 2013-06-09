@@ -40,11 +40,15 @@ Genoverse.Track.SequenceVariation = Genoverse.Track.extend(          {
         if (!feature.color) {
           //debugger;
           var QUAL  = feature.originalFeature[5];
-          var heat  = Math.min(255, Math.floor(255 * QUAL/this.maxQUAL)) - 127;
-          var red   = heat > 0 ? 255 : 127 + heat;
-          var green = heat < 0 ? 255 : 127 - heat;
+          if (QUAL > 0) {
+            var heat  = Math.min(255, Math.floor(255 * QUAL/this.maxQUAL)) - 127;
+            var red   = heat > 0 ? 255 : 127 + heat;
+            var green = heat < 0 ? 255 : 127 - heat;
 
-          feature.color = 'rgb('+ red +','+ green +',0)';
+            feature.color = 'rgb('+ red +','+ green +',0)';
+          } else {
+            feature.color = 'rgb(0,0,0)';
+          }
         }
         this.base.apply(this, arguments);
       }
