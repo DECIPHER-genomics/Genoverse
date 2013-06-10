@@ -4,6 +4,16 @@ Genoverse.Track.SequenceVariation = Genoverse.Track.extend(          {
   name      : 'Sequence Variation',
   model     : Genoverse.Track.Model.SequenceVariation.VCF,
 
+  populateMenu: function (feature) {
+    return {
+      'title'         : 'This is the title',
+      'Location'      : feature.originalFeature[0] + ':' + feature.start + '-' + feature.end,
+      'Ref allele'    : feature.originalFeature[3],
+      'Alt allele(s)' : feature.originalFeature[4],
+      'Qual'          : feature.originalFeature[5]
+    };
+  },
+
   1: { 
     view: Genoverse.Track.View.Sequence.extend({
       bump           : true,
@@ -53,6 +63,6 @@ Genoverse.Track.SequenceVariation = Genoverse.Track.extend(          {
         this.base.apply(this, arguments);
       }
     })
-  }
+  },
 
 });
