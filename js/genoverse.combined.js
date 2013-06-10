@@ -6855,7 +6855,7 @@ var Genoverse = Base.extend({
   
   addDomElements: function (width) {
     var browser = this;
-    
+
     this.menus          = $();
     this.labelContainer = $('<ul class="label_container">').appendTo(this.container).sortable({
       items       : 'li:not(.unsortable)',
