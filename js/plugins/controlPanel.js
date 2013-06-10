@@ -48,7 +48,7 @@ Genoverse.on('beforeInit', function () {
   $('<table cellspacing=0 cellpadding=0 class="genoverse">')
   .append('<tr><td class="canvas_container"></td><td class="genoverse_panel genoverse_panel_right"></td></tr>')
   .appendTo(browser.container)
-  .after('<div style="padding: 0 0 1em;"><div style="float:right; font-size: 10px; font-family: Verdana">Powered by <a target=_blank href="http://genoverse.org">Genoverse</a></div><div>');
+  .after('<div style="padding: 0 0 1em;"><div style="float:right; font-size: 10px; font-family: Verdana">Powered by <a target=_blank href="http://genoverse.org" style="font-size: 10px; font-family: Verdana; font-weight: bold;">Genoverse</a></div><div>');
 
   $('td.genoverse_panel_right').append('\
     <div class="button_set" title="Scroll left and right by pressing and holding these buttons">\
