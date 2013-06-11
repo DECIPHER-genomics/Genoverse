@@ -54,7 +54,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     
     $.each($.map(this.tracks, function (track) {
       bounds.h = track.height;
-      return track.featurePositions.search(bounds).concat(track.labelPositions.search(bounds));
+      return track.featurePositions ? track.featurePositions.search(bounds).concat(track.labelPositions.search(bounds)) : [];
     }), function () {
       if (this.legend) {
         features[this.legend] = this.color;

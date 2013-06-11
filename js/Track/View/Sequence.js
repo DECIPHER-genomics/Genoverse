@@ -1,7 +1,7 @@
 Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
 
   autoHeight : 'force',
-  spacing    : 0,
+  margin     : 0,
 
   colors     : {
     A : "#00986A",

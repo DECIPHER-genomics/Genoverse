@@ -9,12 +9,12 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
       this._makeImage = this.makeReverseImage || this.makeImage;
       this.makeImage  = $.noop;
     } else {
-      var reverseTrack = $.extend({}, Object.getPrototypeOf(this), config, { controller: this.controller, model: this.model, view: this.view, strand: -1, forwardTrack: this });
+      var reverseTrack = $.extend(true, {}, Object.getPrototypeOf(this), config, { controller: this.controller, model: this.model, view: this.view, strand: -1, forwardTrack: this });
       
       this.strand       = 1;
       this._makeImage   = this.makeImage;
       this.makeImage    = this.makeForwardImage;
-      this.reverseTrack = this.browser.setTracks([ reverseTrack ], this.browser.tracks.length)[0];
+      this.reverseTrack = this.browser.addTrack(reverseTrack, this.browser.tracks.length);
     }
     
     if (!this.featureStrand) {

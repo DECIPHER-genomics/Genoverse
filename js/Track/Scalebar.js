@@ -1,7 +1,8 @@
 Genoverse.Track.Scalebar = Genoverse.Track.extend({
   height        : 20,
   featureHeight : 3,
-  spacing       : 0,
+  featureMargin : { top: 0, right: 0, bottom: 2, left: 0 },
+  margin        : 0,
   color         : '#000000',
   autoHeight    : false,
   unsortable    : true,
@@ -169,6 +170,10 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
   afterRenderBackground: function (f, bgImage) {
     bgImage.height(this.browser.wrapper.outerHeight(true));
+  },
+  
+  formatLabel: function (label) {
+    return this.minorUnit < 1000 ? label.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') : this.base(label);
   }
 });
 

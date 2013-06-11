@@ -1,55 +1,17 @@
 Genoverse.Track.Controller = Base.extend({
-  scrollBuffer   : 1.2,                  // number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
-  inherit        : [],
-  dataBuffer     : { start: 0, end: 0 }, // basepairs, extend data region for, when getting data from the origin
+  scrollBuffer : 1.2,                  // number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
+  dataBuffer   : { start: 0, end: 0 }, // basepairs, extend data region for, when getting data from the origin
 
-  constructor: function (config) {
-    config = config || {};
-    
-    this.featureHeight     = typeof this.featureHeight !== 'undefined' ? this.featureHeight : this.height; // Feature height must be based on default height, not config.height, which could be anything
-    this.defaultHeight     = this.height;
-    this.defaultAutoHeight = this.autoHeight;
-    
-    this.extend(config); // Use Base.extend to make any function in config have this.base
-    
+  constructor: function () {
     this.browser.wrapFunctions(this);
     
-    this.imgRange       = {};
-    this.scrollRange    = {};
-    this.order          = typeof this.order       !== 'undefined' ? this.order       : this.index;
-    this.spacing        = typeof this.spacing     !== 'undefined' ? this.spacing     : this.browser.trackSpacing;
-    this.fixedHeight    = typeof this.fixedHeight !== 'undefined' ? this.fixedHeight : this.featureHeight === this.height && !this.bump;
-    this.autoHeight     = typeof this.autoHeight  !== 'undefined' ? this.autoHeight  : !this.fixedHeight && !config.height ? this.browser.autoHeight : false;
-    this.resizable      = typeof this.resizable   !== 'undefined' ? this.resizable   : !this.fixedHeight;
-    this.height        += this.spacing;
-    this.initialHeight  = this.height;
-    this.minLabelHeight = 0;
-    this.font           = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
-    this.labelUnits     = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
-    
-    if (this.hidden) {
-      this.height = 0;
-    }
-    
-    if (this.autoHeight === 'force') {
-      this.autoHeight  = true;
-      this.fixedHeight = false;
-      this.resizable   = false;
-    } else if (this.threshold) {
-      this.thresholdMessage = this.formatLabel(this.threshold);
-    }
-    
-    if (this.labels && this.labels !== 'overlay' && (this.depth || this.bump === 'labels')) {
-      this.labels = 'separate';
-    }
+    this.imgRange    = {};
+    this.scrollRange = {};
+    this.order       = typeof this.order !== 'undefined' ? this.order : this.index;
     
     this.addDomElements();
     this.addUserEventHandlers();
     this.init();
-
-    if (!this.delay) {
-      this.setScale();
-    }
   },
 
   init: function () {
@@ -138,26 +100,25 @@ Genoverse.Track.Controller = Base.extend({
     
     this.container.height(h);
     
-    if (!this.fixedHeight && this.resizable !== false) {
-      this.heightToggler = $('<div class="height_toggler"><div class="auto">Set track to auto-adjust height</div><div class="fixed">Set track to fixed height</div></div>').on({
-        mouseover : function () { $(this).children(track.autoHeight ? '.fixed' : '.auto').show(); },
-        mouseout  : function () { $(this).children().hide(); },
-        click     : function () {
-          var height;
-          
-          if ((track.autoHeight = !track.autoHeight)) {
-            track.heightBeforeToggle = track.height;
-            height = track.fullVisibleHeight;
-          } else {
-            height = track.heightBeforeToggle || track.initialHeight;
-          }
-          
-          $(this).toggleClass('auto_height').children(':visible').hide().siblings().show();
-          
-          track.resize(height, true);
+    // FIXME: this should be in a plugin
+    this.heightToggler = $('<div class="height_toggler"><div class="auto">Set track to auto-adjust height</div><div class="fixed">Set track to fixed height</div></div>').on({
+      mouseover : function () { $(this).children(track.autoHeight ? '.fixed' : '.auto').show(); },
+      mouseout  : function () { $(this).children().hide(); },
+      click     : function () {
+        var height;
+        
+        if ((track.autoHeight = !track.autoHeight)) {
+          track.heightBeforeToggle = track.height;
+          height = track.fullVisibleHeight;
+        } else {
+          height = track.heightBeforeToggle || track.initialHeight;
         }
-      }).addClass(this.autoHeight ? 'auto_height' : '').appendTo(this.label);
-    }
+        
+        $(this).toggleClass('auto_height').children(':visible').hide().siblings().show();
+        
+        track.resize(height, true);
+      }
+    }).addClass(this.autoHeight ? 'auto_height' : '')[!this.fixedHeight && this.resizable !== false ? 'show' : 'hide']().appendTo(this.label);
   },
   
   addUserEventHandlers: function () {
@@ -292,13 +253,12 @@ Genoverse.Track.Controller = Base.extend({
     
     var track = this;
     
-    // Note: this.fullVisibleHeight - this.bumpSpacing is not actually the correct value to test against, but it's the easiest best guess to obtain.
-    // this.fullVisibleHeight is the maximum bottom position of the track's features in the region, which includes spacing at the bottom of each feature and label
-    // Therefore this.fullVisibleHeight includes this spacing for the bottom-most feature.
+    // Note: this.fullVisibleHeight - this.featureMargin.top - this.featureMargin.bottom is not actually the correct value to test against, but it's the easiest best guess to obtain.
+    // this.fullVisibleHeight is the maximum bottom position of the track's features in the region, which includes margin at the bottom of each feature and label
+    // Therefore this.fullVisibleHeight includes this margin for the bottom-most feature.
     // The correct value (for a track using the default positionFeatures code) is:
-    // this.fullVisibleHeight - ([there are labels in this region] ? (this.labels === 'separate' ? 0 : this.bumpSpacing + 1) + 2 : this.bumpSpacing)
-    //                                                                ^ padding on label y-position                            ^ margin on label height
-    if (this.fullVisibleHeight - this.bumpSpacing > this.container.height()) {
+    // this.fullVisibleHeight - ([there are labels in this region] ? (this.labels === 'separate' ? 0 : this.featureMargin.bottom + 1) + 2 : this.featureMargin.bottom)
+    if (this.fullVisibleHeight - this.featureMargin.top - this.featureMargin.bottom > this.container.height()) {
       this.showMessage('resize');
       
       var height = this.messageContainer.outerHeight(true);
@@ -326,37 +286,8 @@ Genoverse.Track.Controller = Base.extend({
     var featurePositions, labelPositions;
     
     this.scale = this.browser.scale;
-
-    if (this.scaleMap) {
-      for (var i = 0; i < this.scaleMap.length; i++) {
-        if (this.browser.length >= this.scaleMap[i][0]) {
-          var setting = this.scaleMap[i][1];
-          
-          if (setting.model && this.model !== setting.model) {
-            this.model.features     = this.features;
-            this.model.featuresById = this.featuresById;
-            this.model.dataRanges   = this.dataRanges;
-            
-            this.features     = setting.model.features;
-            this.featuresById = setting.model.featuresById;
-            this.dataRanges   = setting.model.dataRanges;
-            
-            $.extend(this, setting.model.prototype);
-            this.applyConstructor(setting.model);
-          }
-          
-          if (setting.view && this.view !== setting.view) {
-            $.extend(this, setting.view.prototype);
-            this.applyConstructor(setting.view);
-          }
-          
-          this.extend(setting);
-          
-          break;
-        }
-      }
-    }
     
+    this.setModelView();
     this.resetImageRanges();
     
     if (this.renderer) {
@@ -593,9 +524,9 @@ Genoverse.Track.Controller = Base.extend({
     feature.position[scale].X = feature.position[scale].start - params.scaledStart; // FIXME: always have to reposition for X, in case a feature appears in 2 images. Pass scaledStart around instead?
     
     if (!feature.position[scale].positioned) {
-      feature.position[scale].H = (feature.position[scale].height + this.bumpSpacing);
-      feature.position[scale].W = feature.position[scale].width + (feature.spacing || this.featureSpacing);
-      feature.position[scale].Y = (feature.y ? feature.y * (feature.position[scale].H + this.bumpSpacing) : this.top);
+      feature.position[scale].H = (feature.position[scale].height + this.featureMargin.top + this.featureMargin.bottom);
+      feature.position[scale].W = feature.position[scale].width + (feature.marginRight || this.featureMargin.right);
+      feature.position[scale].Y = (feature.y ? feature.y * (feature.position[scale].H + this.featureMargin.top + this.featureMargin.bottom) : this.top);
       
       if (feature.label) {
         if (typeof feature.label === 'string') {
@@ -633,7 +564,7 @@ Genoverse.Track.Controller = Base.extend({
       
       this.scaleSettings[scale].featurePositions.insert(bounds, feature);
       
-      feature.position[scale].bottom = feature.position[scale].Y + feature.position[scale].H + this.spacing;
+      feature.position[scale].bottom = feature.position[scale].Y + feature.position[scale].H + this.margin;
       
       if (feature.position[scale].label) {
         var f = $.extend(true, {}, feature); // FIXME: hack to avoid changing feature.position[scale].Y in bumpFeature
@@ -641,7 +572,7 @@ Genoverse.Track.Controller = Base.extend({
         this.bumpFeature(feature.position[scale].label, f, scale, this.scaleSettings[scale].labelPositions);
         
         f.position[scale].label        = feature.position[scale].label;
-        f.position[scale].label.bottom = f.position[scale].label.y + f.position[scale].label.h + this.spacing;
+        f.position[scale].label.bottom = f.position[scale].label.y + f.position[scale].label.h + this.margin;
         
         feature = f;
         

@@ -7,7 +7,7 @@ var Genoverse = Base.extend({
   labelWidth       : 90,
   buffer           : 1,
   longestLabel     : 30,
-  trackSpacing     : 2,
+  trackMargin      : 2,
   defaultLength    : 5000,
   tracks           : [],
   plugins          : [],
@@ -138,8 +138,8 @@ var Genoverse = Base.extend({
       this.chromosomeSize = this.genome[this.chr].size;
     }
     
+    this.addTracks();
     this.setRange(coords.start, coords.end);
-    this.setTracks();
   },
   
   addDomElements: function (width) {
@@ -256,31 +256,32 @@ var Genoverse = Base.extend({
     $(window).on(this.useHash ? 'hashchange.genoverse' : 'popstate.genoverse', $.proxy(this.popState, this));
   },
   
-  reset: function () {
-    var i = this.tracks.length;
+  onTracks: function () {
+    var args = $.extend([], arguments);
+    var func = args.shift();
     
-    while (i--) {
-      this.tracks[i].reset();
+    for (i = 0; i < this.tracks.length; i++) {
+      if (typeof this.tracks[i][func] === 'function') {
+        this.tracks[i][func].apply(this.tracks[i], args);
+      } else if (typeof func === 'function') {
+        func.apply(this.tracks[i], args);
+      }
     }
-    
+  },
+  
+  reset: function () {
+    this.onTracks('reset');
     this.scale = 9e99; // arbitrary value so that setScale resets track scales as well
-    
     this.setRange(this.start, this.end);
   },
   
   setWidth: function (width) {
-    var i = this.tracks.length;
-    
     this.width       = width;
     this.wrapperLeft = this.labelWidth - width;
     this.width      -= this.labelWidth;
     
     this.container.width(width);
-    
-    while (i--) {
-      this.tracks[i].setWidth(this.width);
-    }
-    
+    this.onTracks('setWidth', this.width);
     this.reset();
   },
   
@@ -521,11 +522,8 @@ var Genoverse = Base.extend({
       this.closeMenus();
       this.selector.hide();
     }
-
-    for (var i = 0; i < this.tracks.length; i++) {
-      this.tracks[i].move(delta);
-    }
     
+    this.onTracks('move', delta);
     this.setRange(start, end);
   },
   
@@ -560,46 +558,34 @@ var Genoverse = Base.extend({
       this.labelBuffer = Math.ceil(this.textWidth / this.scale) * this.longestLabel;
 
       if (this.prev.scale) {
-        var i = this.tracks.length;
-        
         this.cancelSelect();
         this.closeMenus();
-        
-        while (i--) {
-          this.tracks[i].setScale();
-        }
       }
+      
+      this.onTracks('setScale');
     }
   },
   
   checkTrackHeights: function () {
-    if (this.dragging) {
-      return;
-    }
-    
-    for (var i = 0; i < this.tracks.length; i++) {
-      if (!this.tracks[i].fixedHeight) {
-        this.tracks[i].checkHeight();
-      }
+    if (!this.dragging) {
+      this.onTracks('checkHeight');
     }
   },
   
   resetTrackHeights: function () {
-    var track;
+    var browser = this;
     
-    for (var i = 0; i < this.tracks.length; i++) {
-      track = this.tracks[i];
-      
-      if (track.resizable) {
-        track.autoHeight = !!([ track.defaultAutoHeight, this.autoHeight ].sort(function (a, b) {
+    this.onTracks(function () {
+      if (this.resizable) {
+        this.autoHeight = !!([ this.view.prototype.autoHeight, browser.autoHeight ].sort(function (a, b) {
           return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
         })[0]);
         
-        track.heightToggler[track.autoHeight ? 'addClass' : 'removeClass']('auto_height');
-        track.resize(track.defaultHeight + track.spacing);
-        track.initialHeight = track.height;
+        this.heightToggler[this.autoHeight ? 'addClass' : 'removeClass']('auto_height');
+        this.resize(this.view.prototype.height + this.margin);
+        this.initialHeight = this.height;
       }
-    }
+    });
   },
   
   zoomIn: function (x) {
@@ -624,7 +610,12 @@ var Genoverse = Base.extend({
     this.setRange(start, end, true);
   },
   
-  setTracks: function (tracks, index) {
+  
+  addTrack: function (track, index) {
+    return this.addTracks([ track ], index)[0];
+  },
+  
+  addTracks: function (tracks, index) {
     var defaults = {
       browser : this,
       width   : this.width
@@ -649,6 +640,10 @@ var Genoverse = Base.extend({
       
       if (push) {
         this.tracks.push(tracks[i]);
+        
+        if (this.scale) {
+          tracks[i].setScale(); // scale will only be set for tracks added after initalisation
+        }
       } else {
         this.tracks[i] = tracks[i];
       }
@@ -662,20 +657,9 @@ var Genoverse = Base.extend({
       }
     }
     
-    if (!push) {
-      this.sortTracks(); // initial sort
-    }
+    this.sortTracks();
     
     return tracks;
-  },
-  
-  addTrack: function (track) {
-    this.addTracks([ track ]);
-  },
-  
-  addTracks: function (tracks) {
-    this.setTracks(tracks, this.tracks.length);
-    this.sortTracks();
   },
   
   removeTrack: function (track) {
@@ -705,6 +689,10 @@ var Genoverse = Base.extend({
   },
   
   sortTracks: function () {
+    if ($.grep(this.tracks, function (t) { return typeof t !== 'object'; }).length) {
+      return;
+    }
+    
     var sorted     = $.extend([], this.tracks).sort(function (a, b) { return a.order - b.order; });
     var labels     = $();
     var containers = $();
@@ -766,20 +754,13 @@ var Genoverse = Base.extend({
     var coords = this.getURLCoords();
     var start  = parseInt(coords.start, 10);
     var end    = parseInt(coords.end,   10);
-    var length, delta, i;
     
     if (coords.start && !(start === this.start && end === this.end)) {
-      length = end - start + 1;
-      
       this.setRange(start, end);
       
       // FIXME: a back action which changes scale or a zoom out will reset tracks, since scrollStart will not be the same as it was before
       if (this.prev.scale === this.scale) {
-        delta = (this.prev.start - this.start) * this.scale;
-        
-        for (i = 0; i < this.tracks.length; i++) {
-          this.tracks[i].moveTo(this.start, this.end, delta);
-        }
+        this.onTracks('moveTo', this.start, this.end, (this.prev.start - this.start) * this.scale);
       }
     }
     
@@ -937,7 +918,7 @@ var Genoverse = Base.extend({
     
     // Wrap it up
     for (key in obj) {
-      if (typeof obj[key] === 'function' && !key.match(/^(base|extend|constructor|loadPlugins|loadGenome|wrapFunctions|functionWrap|debugWrap)$/)) {
+      if (typeof obj[key] === 'function' && !key.match(/^(base|extend|constructor|loadPlugins|loadGenome|wrapFunctions|functionWrap|debugWrap|controller|model|view)$/)) {
         this.functionWrap(key, obj);
       }
     }
@@ -1033,9 +1014,14 @@ var Genoverse = Base.extend({
       
       Genoverse.prototype.systemEventHandlers[this].push(handler);
     });
-  },
-  Track : {},
+  }
 });
+
+Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/\w+\.js/))[1];
+
+if (typeof LazyLoad !== 'undefined') {
+  LazyLoad.css(Genoverse.prototype.origin + 'css/genoverse.css');
+}
 
 String.prototype.hashCode = function () {
   var hash = 0;
@@ -1053,11 +1039,5 @@ String.prototype.hashCode = function () {
   
   return '' + hash;
 };
-
-Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/\w+\.js/))[1];
-
-if (typeof LazyLoad !== 'undefined') {
-  LazyLoad.css(Genoverse.prototype.origin + 'css/genoverse.css');
-}
 
 window.Genoverse = Genoverse;

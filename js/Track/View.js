@@ -1,8 +1,7 @@
 Genoverse.Track.View = Base.extend({
   top            : 2,
   height         : 12,
-  bumpSpacing    : 2,
-  featureSpacing : 1,
+  featureMargin  : { top: 0, right: 1, bottom: 2, left: 1 }, // left is never used
   repeatLabel    : true,
   minScaledWidth : 0.5,
   fontHeight     : 10,
@@ -18,9 +17,50 @@ Genoverse.Track.View = Base.extend({
     resize    : 'Some features are currently hidden, resize to see all'
   },
   
-  constructor     : $.noop,
   drawBackground  : $.noop,
   decorateFeature : $.noop,
+  
+  constructor: function () {
+    var margin = [ 'Top', 'Right', 'Bottom', 'Left' ];
+    
+    for (var i in margin) {
+      if (typeof this['featureMargin' + margin[i]] === 'number') {
+        this.featureMargin[margin[i].toLowerCase()] = this['featureMargin' + margin[i]];
+      }
+    }
+    
+    this.featureHeight  = typeof this.featureHeight !== 'undefined' ? this.featureHeight : this.view.prototype.height; // Base feature height must on default track height if not set
+    this.margin         = typeof this.margin        !== 'undefined' ? this.margin        : this.browser.trackMargin;
+    this.fixedHeight    = typeof this.fixedHeight   !== 'undefined' ? this.fixedHeight   : this.featureHeight === this.height && !this.bump;
+    this.autoHeight     = typeof this.autoHeight    !== 'undefined' ? this.autoHeight    : !this.fixedHeight && !config.height ? this.browser.autoHeight : false;
+    this.resizable      = typeof this.resizable     !== 'undefined' ? this.resizable     : !this.fixedHeight;
+    this.height        += this.margin;
+    this.initialHeight  = this.height;
+    this.minLabelHeight = 0;
+    this.font           = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
+    this.labelUnits     = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
+    
+    if (this.hidden) {
+      this.height = 0;
+    }
+    
+    if (this.autoHeight === 'force') {
+      this.autoHeight  = true;
+      this.fixedHeight = false;
+      this.resizable   = false;
+    } else if (this.threshold) {
+      this.thresholdMessage = this.formatLabel(this.threshold);
+    }
+    
+    if (this.labels && this.labels !== 'overlay' && (this.depth || this.bump === 'labels')) {
+      this.labels = 'separate';
+    }
+    
+    // FIXME: this should be in a plugin
+    if (this.heightToggler) {
+      this.heightToggler[!this.fixedHeight && this.resizable !== false ? 'show' : 'hide']();
+    }
+  },
   
   draw: function (features, featureContext, labelContext, scale) {
     var feature;
@@ -91,24 +131,18 @@ Genoverse.Track.View = Base.extend({
         }
       } else {
         for (var i = 0; i < feature.label.length; i++) {
-          labelContext.fillText(feature.label[i], labelStart, i * (this.fontHeight + 2) + (feature.labelPosition ? feature.labelPosition.y : feature.y + feature.height + this.bumpSpacing + 1));
+          labelContext.fillText(feature.label[i], labelStart, i * (this.fontHeight + 2) + (feature.labelPosition ? feature.labelPosition.y : feature.y + feature.height + this.featureMargin.bottom + 1));
         }
       }
     }    
   },
   
   formatLabel: function (label) {
-    var str = label.toString();
+    var power = Math.floor((label.toString().length - 1) / 3);
+    var unit  = this.labelUnits[power];
     
-    if (this.minorUnit < 1000) {
-      return str.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
-    } else {
-      var power = Math.floor((str.length - 1) / 3);
-      var unit  = this.labelUnits[power];
-      
-      label /= Math.pow(10, power * 3);
-      
-      return Math.floor(label) + (unit === 'bp' ? '' : '.' + (label.toString().split('.')[1] || '').concat('00').substring(0, 2)) + ' ' + unit;
-    }
+    label /= Math.pow(10, power * 3);
+    
+    return Math.floor(label) + (unit === 'bp' ? '' : '.' + (label.toString().split('.')[1] || '').concat('00').substring(0, 2)) + ' ' + unit;
   }
 });

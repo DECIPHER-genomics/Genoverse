@@ -1,6 +1,6 @@
 Genoverse.Track.Static = Genoverse.Track.extend({
-  delay       : true,
-  bumpSpacing : 0,
+  featureMargin : { top: 0, right: 1, bottom: 0, left: 1 },
+  
   fixedHeight : true,
   unsortable  : true,
   url         : false,
@@ -10,8 +10,6 @@ Genoverse.Track.Static = Genoverse.Track.extend({
     
     this.image = $('<img>').appendTo(this.imgContainer);
     this.container.toggleClass('track_container track_container_static').html(this.imgContainer);
-    
-    this.setScale();
   },
   
   reset           : $.noop,
