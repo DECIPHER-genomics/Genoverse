@@ -18,9 +18,10 @@
   background: rgba(0, 0, 0, 0.7);
 }
 
-.track_container div.track_controls>* {
-  margin: 0 5px;
-  display: inline;
+.track_container div.track_controls > * {
+  display: inline-block;
+  width: 20px;
+  text-align: center;
 }
 
 .track_container div.track_controls a {
@@ -35,6 +36,14 @@
   display: block;
 }
 
-/*.track_container:not(:hover)>div.track_controls:not(.maximized) {
-  display: none;
-}*/
+.track_container div.track_controls a.hidden {
+  display: none!important;
+}
+
+.track_container div.track_controls a.height_toggle {
+  background: url(../i/auto_height.png) center 1px no-repeat;
+}
+
+.track_container div.track_controls a.height_toggle.auto_height {
+  background-position: center -17px;
+}

@@ -99,26 +99,6 @@ Genoverse.Track.Controller = Base.extend({
     }
     
     this.container.height(h);
-    
-    // FIXME: this should be in a plugin
-    this.heightToggler = $('<div class="height_toggler"><div class="auto">Set track to auto-adjust height</div><div class="fixed">Set track to fixed height</div></div>').on({
-      mouseover : function () { $(this).children(track.autoHeight ? '.fixed' : '.auto').show(); },
-      mouseout  : function () { $(this).children().hide(); },
-      click     : function () {
-        var height;
-        
-        if ((track.autoHeight = !track.autoHeight)) {
-          track.heightBeforeToggle = track.height;
-          height = track.fullVisibleHeight;
-        } else {
-          height = track.heightBeforeToggle || track.initialHeight;
-        }
-        
-        $(this).toggleClass('auto_height').children(':visible').hide().siblings().show();
-        
-        track.resize(height, true);
-      }
-    }).addClass(this.autoHeight ? 'auto_height' : '')[!this.fixedHeight && this.resizable !== false ? 'show' : 'hide']().appendTo(this.label);
   },
   
   addUserEventHandlers: function () {
@@ -244,6 +224,17 @@ Genoverse.Track.Controller = Base.extend({
     this.container.height(height);
     this.label.height(height)[height ? 'show' : 'hide']();
     this.toggleExpander();
+  },
+  
+  resetHeight: function () {
+    if (this.resizable) {
+      this.autoHeight = !!([ this.view.prototype.autoHeight, browser.autoHeight ].sort(function (a, b) {
+        return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
+      })[0]);
+      
+      this.resize(this.view.prototype.height + this.margin);
+      this.initialHeight = this.height;
+    }
   },
   
   toggleExpander: function () {

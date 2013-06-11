@@ -574,19 +574,7 @@ var Genoverse = Base.extend({
   },
   
   resetTrackHeights: function () {
-    var browser = this;
-    
-    this.onTracks(function () {
-      if (this.resizable) {
-        this.autoHeight = !!([ this.view.prototype.autoHeight, browser.autoHeight ].sort(function (a, b) {
-          return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
-        })[0]);
-        
-        this.heightToggler[this.autoHeight ? 'addClass' : 'removeClass']('auto_height');
-        this.resize(this.view.prototype.height + this.margin);
-        this.initialHeight = this.height;
-      }
-    });
+    this.onTracks('resetHeight');
   },
   
   zoomIn: function (x) {

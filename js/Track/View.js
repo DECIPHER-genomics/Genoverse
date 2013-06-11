@@ -55,11 +55,6 @@ Genoverse.Track.View = Base.extend({
     if (this.labels && this.labels !== 'overlay' && (this.depth || this.bump === 'labels')) {
       this.labels = 'separate';
     }
-    
-    // FIXME: this should be in a plugin
-    if (this.heightToggler) {
-      this.heightToggler[!this.fixedHeight && this.resizable !== false ? 'show' : 'hide']();
-    }
   },
   
   draw: function (features, featureContext, labelContext, scale) {
