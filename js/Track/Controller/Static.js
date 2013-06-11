@@ -1,9 +1,9 @@
 Genoverse.Track.Static = Genoverse.Track.extend({
   featureMargin : { top: 0, right: 1, bottom: 0, left: 1 },
-  
-  fixedHeight : true,
-  unsortable  : true,
-  url         : false,
+  controls      : 'off',
+  fixedHeight   : true,
+  unsortable    : true,
+  url           : false,
   
   constructor: function (config) {
     this.base(config);

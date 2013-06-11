@@ -3,7 +3,7 @@ body.dragging * {
 }
 
 div.resizer { 
-  position: absolute; 
+  position: absolute!important; 
   bottom: 0; 
   opacity: 0.8; 
   /*background-color: #F0F0F0; */

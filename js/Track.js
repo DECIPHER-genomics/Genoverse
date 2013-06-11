@@ -1,6 +1,8 @@
 Genoverse.Track = Base.extend({
+  
   constructor: function (config) {
     // this.extend(config) doesn't overwrite model/view/controller
+    // TODO: sanity check for supplied model, view and controller
     this.model      = this.model      || config.model      || Genoverse.Track.Model;
     this.view       = this.view       || config.view       || Genoverse.Track.View;
     this.controller = this.controller || config.controller || Genoverse.Track.Controller;
@@ -98,6 +100,7 @@ Genoverse.Track = Base.extend({
       }
       Genoverse.Track.prototype.systemEventHandlers[this].push(handler);
     });
-  }
+  },
+  File: {}
 });
 

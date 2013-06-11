@@ -672,9 +672,6 @@ Genoverse.Track.Controller = Base.extend({
   },
   
   receiveData: function (data, start, end) {
-    start = Math.max(start, 1);
-    end   = Math.min(end, this.browser.chromosomeSize);
-    
     this.setDataRange(start, end);
     
    // try {
@@ -682,10 +679,6 @@ Genoverse.Track.Controller = Base.extend({
     /*} catch (e) {
       this.showError(e);
     }*/
-    
-    if (this.allData) {
-      this.url = false;
-    }
   },
 
   setDataRange: function (start, end) {
@@ -733,9 +726,8 @@ Genoverse.Track.Controller = Base.extend({
   },
   
   checkDataRange: function (start, end) {
-    if (!this.url) {
-      return { start: 1, end: this.browser.chromosomeSize };
-    }
+    start = Math.max(1, start);
+    end   = Math.min(this.browser.chromosomeSize, end);
     
     for (var i in this.dataRanges) {
       if (Math.max(start, 1) >= parseInt(i, 10) && Math.min(end, this.browser.chromosomeSize) <= this.dataRanges[i]) {

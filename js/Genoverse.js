@@ -259,8 +259,9 @@ var Genoverse = Base.extend({
   onTracks: function () {
     var args = $.extend([], arguments);
     var func = args.shift();
+    var i    = this.tracks.length;
     
-    for (i = 0; i < this.tracks.length; i++) {
+    while (i--) {
       if (typeof this.tracks[i][func] === 'function') {
         this.tracks[i][func].apply(this.tracks[i], args);
       } else if (typeof func === 'function') {
@@ -1017,11 +1018,12 @@ var Genoverse = Base.extend({
   }
 });
 
-Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/\w+\.js/))[1];
+Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/[\w\.]+\.js$/))[1];
 
 if (typeof LazyLoad !== 'undefined') {
   LazyLoad.css(Genoverse.prototype.origin + 'css/genoverse.css');
 }
+
 
 String.prototype.hashCode = function () {
   var hash = 0;

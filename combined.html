@@ -1,0 +1,47 @@
+   
+    <script type="text/javascript" src="js/genoverse.combined.js">
+      {
+        
+        // If no genome supplied, it must have at least chromosomeSize, e.g.:
+        // chromosomeSize : 249250621, // chromosome 1, human
+        genome   : 'grch37', // see js/genomes/
+        plugins  : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
+        tracks   : [
+
+          Genoverse.Track.Scalebar,
+
+          {
+            name  : 'Sequence',
+            model : Genoverse.Track.Model.Sequence.Ensembl,
+            view  : Genoverse.Track.View.Sequence,
+            url   : 'http://beta.rest.ensembl.org/sequence/region/human/__CHR__:__START__-__END__?content-type=text/plain',
+            // placeholders __CHR__, __START__ and __END__ in the url will be replaced automaticaly
+          },
+
+          {
+            name : 'e! genes',
+            resizable  : true,
+            autoHeight : false,
+            height     : 200,
+            // Different settings for different zoom level
+            2000000: { // This one applies when > 2M base-pairs per screen
+              labels: false,
+              model : Genoverse.Track.Model.Gene.Ensembl,
+              view  : Genoverse.Track.View.Gene
+            },
+            100000: { // more than 100K but less then 2M
+              labels: true,
+              model : Genoverse.Track.Model.Gene.Ensembl,
+              view  : Genoverse.Track.View.Gene
+            },
+            1: { // > 1 base-pair, but less then 100K
+              labels: true,
+              model : Genoverse.Track.Model.Transcript.Ensembl,
+              view  : Genoverse.Track.View.Transcript,
+            },
+          },
+
+        ]
+      }    
+    </script>
+

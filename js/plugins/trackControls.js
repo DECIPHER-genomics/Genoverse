@@ -38,15 +38,26 @@ var toggle = $('<a />').html('&laquo;').click(function(){
 
 
 Genoverse.Track.on('afterAddDomElements', function() {
-  var track = this;
-  if (track.controls === 'off') return;
+  if (this.controls === 'off') return;
 
-  var controls = (track.controls || []).concat(defaultControls);
-  var div = $('<div class="track_controls" />').prependTo(track.container);
+  var controls = (this.controls || []).concat(defaultControls);
+  this.trackControls = $('<div class="track_controls" />').prependTo(this.container);
 
   for (var i=0; i<controls.length; i++) {
-    controls[i].clone(true).css({ display: 'none' }).data({track : track}).appendTo(div);
+    controls[i].clone(true).css({ display: 'none' }).data({track : this}).appendTo(this.trackControls);
   }
 
-  toggle.clone(true).data({track : track}).appendTo(div);
+  toggle.clone(true).data({track : this}).appendTo(this.trackControls);
+});
+
+Genoverse.Track.on('afterResize', function() {
+  if (!this.trackControls) {
+    return;
+  }
+  
+  if (this.height < this.trackControls.outerHeight(true)) {
+    this.trackControls.hide();
+  } else {
+    this.trackControls.show();    
+  }
 });

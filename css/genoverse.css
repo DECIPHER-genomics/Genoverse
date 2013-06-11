@@ -288,7 +288,7 @@ li.sortHandle {
   min-width: 200px;
   padding: 0;
   position: absolute;
-  z-index: 5;
+  z-index: 20;
   box-shadow: 3px 3px 10px #666666;
   margin-left: 5px;  
 }

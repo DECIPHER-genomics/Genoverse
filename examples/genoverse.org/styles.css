@@ -1,0 +1,41 @@
+body {
+  background: #2A313A;
+  font-family: Verdana;
+  font-size: 14px;
+  margin: 0;
+}
+
+.container {
+  background: white;
+  position: relative;
+  width: 1020px;
+  top: 10px;
+  left: 50%;
+  margin-left: -510px;
+  padding-bottom: 1px;
+  border-radius: 5px;
+}
+
+.head {
+  background: #5F8CB0;
+  width: 100%;
+  height: 40px;
+  border-bottom: 1px solid black;
+  border-radius: 5px 5px 0 0;
+}
+
+.head h1 {
+  color: white;
+  font-size: 30px;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.75);
+  margin-left: 10px;
+}
+
+.wrap {
+  margin: 10px auto;
+  width: 1000px;
+}
+
+.info p {
+  padding: 0 16px;
+}

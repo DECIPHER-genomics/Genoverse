@@ -67,6 +67,9 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
   },
 
   getData: function (start, end, url, deferred) {
+    start = Math.max(1, start);
+    end   = Math.min(this.browser.chromosomeSize, end);
+
     var track    = this;
     var deferred = deferred || $.Deferred();
     var bins     = [];

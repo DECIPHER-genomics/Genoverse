@@ -22,19 +22,15 @@ Genoverse.on('afterInit', function() {
         e.preventDefault();
         e.stopPropagation();
         var files = e.originalEvent.dataTransfer.files;
-
         for (var i=0; i<files.length; i++) {
           var file = files[i], reader = new FileReader();
           reader.onload = function (event) {
-            var track = {
-              type    : file.name.slice(-3).toUpperCase(),
-              inherit : ['File'],
-              name    : file.name,
-              data    : event.target.result,
-              getData : function () {
-                return $.Deferred().resolve(this.data);
-              }
-            };
+            var track = Genoverse.Track.File[((file.name.match(/\.(\w+)$/))[1]).toUpperCase()].extend({
+              controller : Genoverse.Track.Controller.File,
+              name       : file.name,
+              data       : event.target.result,
+              threshold  : false,
+            });
 
             browser.addTrack(track);
           };
