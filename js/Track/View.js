@@ -32,7 +32,7 @@ Genoverse.Track.View = Base.extend({
     this.featureHeight  = typeof this.featureHeight !== 'undefined' ? this.featureHeight : this.view.prototype.height; // Base feature height must on default track height if not set
     this.margin         = typeof this.margin        !== 'undefined' ? this.margin        : this.browser.trackMargin;
     this.fixedHeight    = typeof this.fixedHeight   !== 'undefined' ? this.fixedHeight   : this.featureHeight === this.height && !this.bump;
-    this.autoHeight     = typeof this.autoHeight    !== 'undefined' ? this.autoHeight    : !this.fixedHeight && !config.height ? this.browser.autoHeight : false;
+    this.autoHeight     = typeof this.autoHeight    !== 'undefined' ? this.autoHeight    : !this.fixedHeight && this.height === this.view.prototype.height ? this.browser.autoHeight : false;
     this.resizable      = typeof this.resizable     !== 'undefined' ? this.resizable     : !this.fixedHeight;
     this.height        += this.margin;
     this.initialHeight  = this.height;
