@@ -1,5 +1,4 @@
 Genoverse.Track = Base.extend({
-  
   constructor: function (config) {
     // this.extend(config) doesn't overwrite model/view/controller
     // TODO: sanity check for supplied model, view and controller
@@ -12,7 +11,7 @@ Genoverse.Track = Base.extend({
     
     var deepCopy = $.extend(true, {}, this);
     
-    this._extend(this.model, this.view, this.controller, deepCopy);
+    this._extend(this.controller, this.model, this.view, deepCopy);
   },
   
   _extend: function () {
@@ -100,7 +99,7 @@ Genoverse.Track = Base.extend({
       }
       Genoverse.Track.prototype.systemEventHandlers[this].push(handler);
     });
-  },
-  File: {}
+  }
 });
 
+Genoverse.Track.File = {};
