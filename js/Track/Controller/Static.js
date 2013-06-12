@@ -27,6 +27,10 @@ Genoverse.Track.Static = Genoverse.Track.extend({
     this.imgContainer.show();
   },
   
+  checkDataRange: function () {
+    return true;
+  },
+  
   makeImage: function (params) {
     var features = this.positionFeatures(this.findFeatures(params.start, params.end), params);
     
