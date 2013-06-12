@@ -2,21 +2,23 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
 
   autoHeight : 'force',
   margin     : 0,
-
-  colors     : {
-    A : "#00986A",
-    T : "#0772A1",
-    G : "#FF8E00",
-    C : "#FFDD73",
-    N : "grey",
-    default : "grey"
+  
+  colors : {
+    A       : '#00986A',
+    T       : '#0772A1',
+    G       : '#FF8E00',
+    C       : '#FFDD73',
+    N       : 'grey',
+    default : 'grey'
   },
 
   labelColors: {
-    default : "white"
+    default : 'white'
   },
 
-  constructor: function (config) {
+  constructor: function () {
+    this.base();
+    
     this.labelWidth   = {};
     this.widestLabel  = this.lowerCase ? 'g' : 'G';
     this.labelYOffset = (this.featureHeight + (this.lowerCase ? 0 : 1)) / 2;
@@ -70,7 +72,6 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
       }
     }
   },
-
-  click: $.noop,
-
+  
+  click: $.noop
 });
