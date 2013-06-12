@@ -5,9 +5,9 @@ Genoverse.Track.Model = Base.extend({
   buffer    : 0,
   
   constructor : function () {
+    this.dataRanges   = this.dataRanges   || new RTree();
     this.features     = this.features     || new RTree();
     this.featuresById = this.featuresById || {};
-    this.dataRanges   = this.dataRanges   || {};
     
     if (this.urlParams) {
       this._url = this.url; // Remember original url
@@ -25,18 +25,33 @@ Genoverse.Track.Model = Base.extend({
     this.url += (this.url.indexOf('?') === -1 ? '?' : '&') + $.map(urlParams, function (value, key) { return key + '=' + value; }).join('&');
   },
   
+  
+  parseURL: function (start, end, url) {
+    if (this.allData) {
+      start = 1;
+      end   = this.browser.chromosomeSize;
+    }
+    
+    return (url || this.url).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
+  },
+  
   getData: function (start, end) {
     start = Math.max(1, start);
     end   = Math.min(this.browser.chromosomeSize, end);
     
-    return this.url ? $.ajax({
+    var request = this.url ? $.ajax({
       url       : this.parseURL(start, end),
       dataType  : this.dataType,
       context   : this,
       xhrFields : this.xhrFields,
       success   : function (data) { this.receiveData(data, start, end); },
-      error     : function (xhr, statusText) { this.showError(statusText + ' while getting the data, see console for more details', arguments); }
+      error     : function (xhr, statusText) { this.showError(statusText + ' while getting the data, see console for more details', arguments); },
+      complete  : function (xhr) { this.dataLoading = $.grep(this.dataLoading, function (t) { return xhr !== t; }); }
     }) : $.Deferred().resolveWith(this);
+    
+    this.dataLoading.push(request);
+    
+    return request;
   },
   
   /**

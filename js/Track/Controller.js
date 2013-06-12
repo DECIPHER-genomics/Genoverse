@@ -7,6 +7,7 @@ Genoverse.Track.Controller = Base.extend({
     
     this.imgRange    = {};
     this.scrollRange = {};
+    this.dataLoading = []; // tracks incomplete requests for data
     this.order       = typeof this.order !== 'undefined' ? this.order : this.index;
     
     this.addDomElements();
@@ -14,15 +15,15 @@ Genoverse.Track.Controller = Base.extend({
     this.init();
   },
 
-  init: function () {
+  init: function () { // FIXME: this should all be moved to model
     if (this.renderer) {
       this.featuresByRenderer   = {};
       this.featuresByIdRenderer = {};
       this.setRenderer(this.renderer, true);
     } else {
+      this.dataRanges   = new RTree();
       this.features     = new RTree();
       this.featuresById = {};
-      this.dataRanges   = {};      
     }
     
     this.scaleSettings = {};
@@ -221,8 +222,7 @@ Genoverse.Track.Controller = Base.extend({
       this.imgContainers.children('.labels').css('top', arguments[1]);
     }
     
-    this.container.height(height);
-    this.label.height(height)[height ? 'show' : 'hide']();
+    this.container.add(this.label).height(height)[height ? 'show' : 'hide']();
     this.toggleExpander();
   },
   
@@ -331,7 +331,7 @@ Genoverse.Track.Controller = Base.extend({
   setRenderer: function (renderer, permanent) {
     if (this.urlParams.renderer !== renderer) {
       this.urlParams.renderer = renderer;
-      this.dataRanges         = {};
+      this.dataRanges         = new RTree();
       this.features           = (this.featuresByRenderer[renderer]   = this.featuresByRenderer[renderer]   || new RTree());
       this.featuresById       = (this.featuresByIdRenderer[renderer] = this.featuresByIdRenderer[renderer] || {});
     }
@@ -658,10 +658,6 @@ Genoverse.Track.Controller = Base.extend({
     this.showMessage('error', error);
   },
   
-  parseURL: function (start, end, url) {
-    return (url || this.url).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
-  },
-  
   receiveData: function (data, start, end) {
     this.setDataRange(start, end);
     
@@ -674,59 +670,37 @@ Genoverse.Track.Controller = Base.extend({
 
   setDataRange: function (start, end) {
     if (this.allData) {
-      this.dataRanges = { 1: this.browser.chromosomeSize };
-      return;
+      start = 1;
+      end   = this.browser.chromosomeSize;
     }
     
-    var sorted   = $.map(this.dataRanges, function (e, s) { return parseInt(s, 10); }).sort(function (a, b) { return a - b; });
-    var i        = sorted.length;
-    var toDelete = {};
-    var done     = false;
-    var s, e;
-    
-    while (i--) {
-      s = sorted[i];
-      e = this.dataRanges[s];
-      
-      if ((s === start && e === end) || (s < start && e > end)) {
-        done = true;
-        continue;
-      }
-      
-      // New region and old region have the same start, or new region overlaps old region to the right. Must be done first as this.dataRanges[s] is altered, and is used in the second check.
-      if (s === start || start <= e && end >= e) {
-        this.dataRanges[s] = Math.max(e, end);
-        done = true;
-      }
-      
-      // New region and old region have the same end, or new region overlaps old region to the left
-      if (e === end || start <= s && end >= s) {
-        this.dataRanges[start] = Math.max(this.dataRanges[start] || 0, this.dataRanges[s]);
-        toDelete[s] = true;
-        done = true;
-      }
-    }
-    
-    for (i in toDelete) {
-      delete this.dataRanges[i];
-    }
-    
-    if (!done) {
-      this.dataRanges[start] = end;
-    }
+    this.dataRanges.insert({ x: start, w: end - start + 1, y: 0, h: 1 }, [ start, end ]);
   },
   
   checkDataRange: function (start, end) {
     start = Math.max(1, start);
     end   = Math.min(this.browser.chromosomeSize, end);
     
-    for (var i in this.dataRanges) {
-      if (Math.max(start, 1) >= parseInt(i, 10) && Math.min(end, this.browser.chromosomeSize) <= this.dataRanges[i]) {
-        return { start: i, end: this.dataRanges[i] };
+    var ranges = this.dataRanges.search({ x: start, w: end - start + 1, y: 0, h: 1 }).sort(function (a, b) { return a[0] - b[0]; });
+    
+    if (!ranges.length) {
+      return false;
+    }
+    
+    var s = ranges.length === 1 ? ranges[0][0] : 9e99;
+    var e = ranges.length === 1 ? ranges[0][1] : -9e99;
+    
+    for (var i = 0; i < ranges.length - 1; i++) {
+      // s0 <= s1 && ((e0 >= e1) || (e0 + 1 >= s1))
+      if (ranges[i][0] <= ranges[i + 1][0] && ((ranges[i][1] >= ranges[i + 1][1]) || (ranges[i][1] + 1 >= ranges[i + 1][0]))) {
+        s = Math.min(s, ranges[i + 1][0]);
+        e = Math.max(e, ranges[i + 1][1]);
+      } else {
+        return false;
       }
     }
     
-    return false;
+    return start >= s && end <= e;
   },
 
   populateMenu: function (feature) {

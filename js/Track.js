@@ -70,6 +70,12 @@ Genoverse.Track = Base.extend({
     }
     
     if (settings.model && settings.model !== this.model) {
+      for (var i = 0; i < this.dataLoading.length; i++) {
+        this.dataLoading[i].abort();
+      }
+      
+      this.dataLoading = [];
+      
       this.model.features     = this.features;
       this.model.featuresById = this.featuresById;
       this.model.dataRanges   = this.dataRanges;
