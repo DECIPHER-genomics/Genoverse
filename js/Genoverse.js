@@ -528,6 +528,14 @@ var Genoverse = Base.extend({
     this.setRange(start, end);
   },
   
+  moveTo: function (start, end, update) {
+    this.setRange(start, end, update);
+    
+    if (this.prev.scale === this.scale) {
+      this.onTracks('moveTo', this.start, this.end, (this.prev.start - this.start) * this.scale);
+    }
+  },
+  
   setRange: function (start, end, update, force) {
     this.prev.start = this.start;
     this.prev.end   = this.end;
@@ -745,12 +753,8 @@ var Genoverse = Base.extend({
     var end    = parseInt(coords.end,   10);
     
     if (coords.start && !(start === this.start && end === this.end)) {
-      this.setRange(start, end);
-      
       // FIXME: a back action which changes scale or a zoom out will reset tracks, since scrollStart will not be the same as it was before
-      if (this.prev.scale === this.scale) {
-        this.onTracks('moveTo', this.start, this.end, (this.prev.start - this.start) * this.scale);
-      }
+      this.moveTo(start, end);
     }
     
     this.closeMenus();
