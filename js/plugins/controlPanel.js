@@ -247,8 +247,6 @@ Genoverse.on('afterInit', function () {
       )
     )
   );
-
-  this.karyotypeContainer = $('<div class="gv_karyotype_container" />').insertAfter(this.labelContainer);
 });
 
 
