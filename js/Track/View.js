@@ -81,7 +81,11 @@ Genoverse.Track.View = Base.extend({
     }
     
     if (feature.color !== false) {
-      featureContext.fillStyle = feature.color || this.color;
+      if (!feature.color) {
+        this.setFeatureColor(feature);
+      }
+      
+      featureContext.fillStyle = feature.color;
       featureContext.fillRect(feature.x, feature.y, feature.width, feature.height);
     }
     
@@ -111,7 +115,11 @@ Genoverse.Track.View = Base.extend({
     }
     
     if (labelStart > 0 || labelStart + feature.labelWidth < this.width) {
-      labelContext.fillStyle = feature.labelColor || feature.color || this.fontColor || this.color;
+      if (!feature.labelColor) {
+        this.setLabelColor(feature);
+      }
+      
+      labelContext.fillStyle = feature.labelColor;
       
       if (this.labels === 'overlay') {
         var featureWidth = feature.untruncated ? feature.untruncated.width : feature.width;
@@ -129,6 +137,14 @@ Genoverse.Track.View = Base.extend({
         }
       }
     }    
+  },
+  
+  setFeatureColor: function (feature) {
+    feature.color = this.color;
+  },
+  
+  setLabelColor: function (feature) {
+    feature.labelColor = feature.color || this.fontColor || this.color;
   },
   
   formatLabel: function (label) {

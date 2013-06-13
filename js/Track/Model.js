@@ -22,7 +22,7 @@ Genoverse.Track.Model = Base.extend({
       this.url = this._url;
     }
 
-    this.url += (this.url.indexOf('?') === -1 ? '?' : '&') + $.map(urlParams, function (value, key) { return key + '=' + value; }).join('&');
+    this.url += (this.url.indexOf('?') === -1 ? '?' : '&') + decodeURIComponent($.param(urlParams, true));
   },
   
   
@@ -35,23 +35,53 @@ Genoverse.Track.Model = Base.extend({
     return (url || this.url).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
   },
   
-  getData: function (start, end) {
+  getData: function (start, end, done) {
     start = Math.max(1, start);
     end   = Math.min(this.browser.chromosomeSize, end);
     
-    var request = this.url ? $.ajax({
-      url       : this.parseURL(start, end),
-      dataType  : this.dataType,
-      context   : this,
-      xhrFields : this.xhrFields,
-      success   : function (data) { this.receiveData(data, start, end); },
-      error     : function (xhr, statusText) { this.showError(statusText + ' while getting the data, see console for more details', arguments); },
-      complete  : function (xhr) { this.dataLoading = $.grep(this.dataLoading, function (t) { return xhr !== t; }); }
-    }) : $.Deferred().resolveWith(this);
+    var track    = this;
+    var deferred = $.Deferred();
+    var bins     = [];
+    var length   = end - start + 1;
     
-    this.dataLoading.push(request);
-    
-    return request;
+    if (!this.url) {
+      return deferred.resolveWith(this);
+    }
+   
+    if (this.dataRequestLimit && length > this.dataRequestLimit) {
+      var i = Math.ceil(length / this.dataRequestLimit);
+     
+      while (i--) {
+        bins.push([ start, i ? start += this.dataRequestLimit - 1 : end ]);
+        start++;
+      }
+    } else {
+      bins.push([ start, end ]);
+    }
+   
+    $.when.apply($, $.map(bins, function (bin) {
+      var request = $.ajax({
+        url       : track.parseURL(bin[0], bin[1]),
+        dataType  : track.dataType,
+        context   : track,
+        xhrFields : track.xhrFields,
+        success   : function (data) { this.receiveData(data, bin[0], bin[1]); },
+        error     : function (xhr, statusText) { this.showError(statusText + ' while getting the data, see console for more details', arguments); },
+        complete  : function (xhr) { this.dataLoading = $.grep(this.dataLoading, function (t) { return xhr !== t; }); }
+      });
+      
+      request.coords = [ bin[0], bin[1] ]; // store actual start and end on the request, in case they are needed
+      
+      if (typeof done === 'function') {
+        request.done(done);
+      }
+      
+      track.dataLoading.push(request);
+      
+      return request;
+    })).done(function () { deferred.resolveWith(track); });
+     
+    return deferred;
   },
   
   /**
