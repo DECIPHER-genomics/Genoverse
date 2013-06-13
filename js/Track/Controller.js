@@ -455,9 +455,16 @@ Genoverse.Track.Controller = Base.extend({
     var loading = this.imgContainer.clone().addClass('loading').prependTo(this.scrollContainer);
     
     function makeImages() {
-      this.makeImage({ start: start,          end: end,          scale: scale, cls: cls, left: 0           });
-      this.makeImage({ start: start - length, end: start - 1,    scale: scale, cls: cls, left: -this.width });
-      this.makeImage({ start: end + 1,        end: end + length, scale: scale, cls: cls, left: this.width  });
+      this.makeImage({ start: start, end: end, scale: scale, cls: cls, left: 0 });
+      
+      if (start > 1) {
+        this.makeImage({ start: start - length, end: start - 1, scale: scale, cls: cls, left: -this.width });
+      }
+      
+      if (end < this.browser.chromosomeSize) {
+        this.makeImage({ start: end + 1, end: end + length, scale: scale, cls: cls, left: this.width });
+      }
+      
       loading.remove();
     }
     
@@ -693,7 +700,7 @@ Genoverse.Track.Controller = Base.extend({
     for (var i = 0; i < ranges.length - 1; i++) {
       // s0 <= s1 && ((e0 >= e1) || (e0 + 1 >= s1))
       if (ranges[i][0] <= ranges[i + 1][0] && ((ranges[i][1] >= ranges[i + 1][1]) || (ranges[i][1] + 1 >= ranges[i + 1][0]))) {
-        s = Math.min(s, ranges[i + 1][0]);
+        s = Math.min(s, ranges[i][0]);
         e = Math.max(e, ranges[i + 1][1]);
       } else {
         return false;
