@@ -2,66 +2,14 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
-
     <link rel="stylesheet" type="text/css" href="/examples/genoverse.org/styles.css" />
-    <script type="text/javascript" src="/js/genoverse.combined.js">
-      {
-        container      : '#genoverse', // Where to inject Genoverse (css/jQuery selector)
-        // If no genome supplied, it must have at least chromosomeSize, e.g.:
-        // chromosomeSize : 249250621, // chromosome 1, human
-        genome         : 'grch37', // see js/genomes/
-        plugins        : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'fileDrop' ],
-        
-        tracks         : [
-
-          Genoverse.Track.Scalebar,
-
-          {
-            name  : 'Sequence',
-            model : Genoverse.Track.Model.Sequence.Ensembl,
-            view  : Genoverse.Track.View.Sequence,
-            url   : 'http://beta.rest.ensembl.org/sequence/region/human/__CHR__:__START__-__END__?content-type=text/plain',
-            // placeholders __CHR__, __START__ and __END__ in the url will be replaced automaticaly
-          },
-
-          {
-            name : 'e! genes',
-            resizable  : true,
-            autoHeight : false,
-            height     : 200,
-            info       : 'Ensembl API genes & transcripts, see <a href="http://beta.rest.ensembl.org/" target=_blank>beta.rest.ensembl.org</a> for more details',
-            // Different settings for different zoom level
-            2000000: { // This one applies when > 2M base-pairs per screen
-              labels: false,
-              model : Genoverse.Track.Model.Gene.Ensembl,
-              view  : Genoverse.Track.View.Gene
-            },
-            100000: { // more than 100K but less then 2M
-              labels: true,
-              model : Genoverse.Track.Model.Gene.Ensembl,
-              view  : Genoverse.Track.View.Gene
-            },
-            1: { // > 1 base-pair, but less then 100K
-              labels: true,
-              model : Genoverse.Track.Model.Transcript.Ensembl,
-              view  : Genoverse.Track.View.Transcript,
-            },
-          },
-        ]
-      }
-    </script>
-
   </head>
   <body>
-
     <a href="https://github.com/eugenebragin/Genoverse"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
-
     <div class="container">
       <div class="head"><h1>Genoverse - interactive HTML5 genome browser</h1></div>
       <div class="wrap">
-
         <div id="genoverse"></div>
-
       </div>
       <div class="info">
         <p>Genoverse is a portable, customizable, back-end independent JavaScript and HTML5 based genome browser which allows the user to explore data interactively.</p>
@@ -70,22 +18,63 @@
         <p style="font-weight:bold; text-align:center;">If you have any questions or need help, please contact us <a href="mailto:info@genoverse.org">info@genoverse.org</a></p>
       </div>
     </div>
-
-  <div id="genoverse"></div>
-
-  <script type="text/javascript">
-
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-34315286-1']);
-    _gaq.push(['_trackPageview']);
-
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-
-  </script>
- 
+    
+    <script type="text/javascript" src="/js/genoverse.combined.js">
+      {
+        container      : '#genoverse', // Where to inject Genoverse (css/jQuery selector)
+        // If no genome supplied, it must have at least chromosomeSize, e.g.:
+        // chromosomeSize : 249250621, // chromosome 1, human
+        genome         : 'grch37', // see js/genomes/
+        plugins        : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'fileDrop' ],
+        tracks         : [
+          Genoverse.Track.Scalebar,
+          
+          {
+            name  : 'Sequence',
+            model : Genoverse.Track.Model.Sequence.Ensembl,
+            view  : Genoverse.Track.View.Sequence,
+            url   : 'http://beta.rest.ensembl.org/sequence/region/human/__CHR__:__START__-__END__?content-type=text/plain',
+            // placeholders __CHR__, __START__ and __END__ in the url will be replaced automaticaly
+          },
+          
+          {
+            name       : 'e! Genes',
+            resizable  : true,
+            autoHeight : false,
+            height     : 200,
+            info       : 'Ensembl API genes & transcripts, see <a href="http://beta.rest.ensembl.org/" target=_blank>beta.rest.ensembl.org</a> for more details',
+            
+            // Different settings for different zoom level
+            2000000: { // This one applies when > 2M base-pairs per screen
+              labels : false,
+              model  : Genoverse.Track.Model.Gene.Ensembl,
+              view   : Genoverse.Track.View.Gene.Ensembl
+            },
+            100000: { // more than 100K but less then 2M
+              labels : true,
+              model  : Genoverse.Track.Model.Gene.Ensembl,
+              view   : Genoverse.Track.View.Gene.Ensembl
+            },
+            1: { // > 1 base-pair, but less then 100K
+              labels : true,
+              model  : Genoverse.Track.Model.Transcript.Ensembl,
+              view   : Genoverse.Track.View.Transcript.Ensembl
+            }
+          }
+        ]
+      }
+    </script>
+    
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-34315286-1']);
+      _gaq.push(['_trackPageview']);
+      
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
   </body>
 </html>

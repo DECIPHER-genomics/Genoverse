@@ -7898,7 +7898,7 @@ Genoverse.Track.Model = Base.extend({
       this.url = this._url;
     }
 
-    this.url += (this.url.indexOf('?') === -1 ? '?' : '&') + $.map(urlParams, function (value, key) { return key + '=' + value; }).join('&');
+    this.url += (this.url.indexOf('?') === -1 ? '?' : '&') + decodeURIComponent($.param(urlParams, true));
   },
   
   
@@ -7911,23 +7911,53 @@ Genoverse.Track.Model = Base.extend({
     return (url || this.url).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
   },
   
-  getData: function (start, end) {
+  getData: function (start, end, done) {
     start = Math.max(1, start);
     end   = Math.min(this.browser.chromosomeSize, end);
     
-    var request = this.url ? $.ajax({
-      url       : this.parseURL(start, end),
-      dataType  : this.dataType,
-      context   : this,
-      xhrFields : this.xhrFields,
-      success   : function (data) { this.receiveData(data, start, end); },
-      error     : function (xhr, statusText) { this.showError(statusText + ' while getting the data, see console for more details', arguments); },
-      complete  : function (xhr) { this.dataLoading = $.grep(this.dataLoading, function (t) { return xhr !== t; }); }
-    }) : $.Deferred().resolveWith(this);
+    var track    = this;
+    var deferred = $.Deferred();
+    var bins     = [];
+    var length   = end - start + 1;
     
-    this.dataLoading.push(request);
-    
-    return request;
+    if (!this.url) {
+      return deferred.resolveWith(this);
+    }
+   
+    if (this.dataRequestLimit && length > this.dataRequestLimit) {
+      var i = Math.ceil(length / this.dataRequestLimit);
+     
+      while (i--) {
+        bins.push([ start, i ? start += this.dataRequestLimit - 1 : end ]);
+        start++;
+      }
+    } else {
+      bins.push([ start, end ]);
+    }
+   
+    $.when.apply($, $.map(bins, function (bin) {
+      var request = $.ajax({
+        url       : track.parseURL(bin[0], bin[1]),
+        dataType  : track.dataType,
+        context   : track,
+        xhrFields : track.xhrFields,
+        success   : function (data) { this.receiveData(data, bin[0], bin[1]); },
+        error     : function (xhr, statusText) { this.showError(statusText + ' while getting the data, see console for more details', arguments); },
+        complete  : function (xhr) { this.dataLoading = $.grep(this.dataLoading, function (t) { return xhr !== t; }); }
+      });
+      
+      request.coords = [ bin[0], bin[1] ]; // store actual start and end on the request, in case they are needed
+      
+      if (typeof done === 'function') {
+        request.done(done);
+      }
+      
+      track.dataLoading.push(request);
+      
+      return request;
+    })).done(function () { deferred.resolveWith(track); });
+     
+    return deferred;
   },
   
   /**
@@ -8016,7 +8046,6 @@ Genoverse.Track.View = Base.extend({
     this.resizable      = typeof this.resizable     !== 'undefined' ? this.resizable     : !this.fixedHeight;
     this.height        += this.margin;
     this.initialHeight  = this.height;
-    this.minLabelHeight = 0;
     this.font           = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
     this.labelUnits     = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
     
@@ -8062,7 +8091,11 @@ Genoverse.Track.View = Base.extend({
     }
     
     if (feature.color !== false) {
-      featureContext.fillStyle = feature.color || this.color;
+      if (!feature.color) {
+        this.setFeatureColor(feature);
+      }
+      
+      featureContext.fillStyle = feature.color;
       featureContext.fillRect(feature.x, feature.y, feature.width, feature.height);
     }
     
@@ -8092,7 +8125,11 @@ Genoverse.Track.View = Base.extend({
     }
     
     if (labelStart > 0 || labelStart + feature.labelWidth < this.width) {
-      labelContext.fillStyle = feature.labelColor || feature.color || this.fontColor || this.color;
+      if (!feature.labelColor) {
+        this.setLabelColor(feature);
+      }
+      
+      labelContext.fillStyle = feature.labelColor;
       
       if (this.labels === 'overlay') {
         var featureWidth = feature.untruncated ? feature.untruncated.width : feature.width;
@@ -8110,6 +8147,14 @@ Genoverse.Track.View = Base.extend({
         }
       }
     }    
+  },
+  
+  setFeatureColor: function (feature) {
+    feature.color = this.color;
+  },
+  
+  setLabelColor: function (feature) {
+    feature.labelColor = feature.color || this.fontColor || this.color;
   },
   
   formatLabel: function (label) {
@@ -8198,8 +8243,6 @@ Genoverse.Track.Controller = Base.extend({
   },
   
   addDomElements: function () {
-    var track = this;
-    
     this.menus            = $();
     this.container        = $('<div class="track_container">').appendTo(this.browser.wrapper);
     this.scrollContainer  = $('<div class="scroll_container">').appendTo(this.container);
@@ -8355,7 +8398,7 @@ Genoverse.Track.Controller = Base.extend({
   
   resetHeight: function () {
     if (this.resizable) {
-      this.autoHeight = !!([ this.view.prototype.autoHeight, browser.autoHeight ].sort(function (a, b) {
+      this.autoHeight = !!([ this.view.prototype.autoHeight, this.browser.autoHeight ].sort(function (a, b) {
         return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
       })[0]);
       
@@ -8419,13 +8462,9 @@ Genoverse.Track.Controller = Base.extend({
     // Don't draw labels if the region is too big
     if (this.maxLabelRegion) {
       if (this.maxLabelRegion < this.browser.length) {
-        if (this.labels) {
-          this._labels = this.labels;
-          this.labels  = false;
-        }
-      } else if (typeof this._labels !== 'undefined') {
-        this.labels = this._labels;
-        delete this._labels;
+        this.labels = false;
+      } else if (typeof this.view.prototype.labels !== 'undefined') {
+        this.labels = this.view.prototype.labels;
       }
     }
     
@@ -9631,98 +9670,28 @@ Genoverse.Track.Model.Gene = Genoverse.Track.Model.extend({
 
 // Ensembl REST API Gene model
 Genoverse.Track.Model.Gene.Ensembl = Genoverse.Track.Model.Gene.extend({
-
-  name : 'e! Genes',
-  url  : 'http://beta.rest.ensembl.org/feature/region/human/__CHR__:__START__-__END__?feature=gene;content-type=application/json',
+  
+  name             : 'e! Genes',
+  url              : 'http://beta.rest.ensembl.org/feature/region/human/__CHR__:__START__-__END__?feature=gene;content-type=application/json',
   dataRequestLimit : 5000000, // As per e! REST API restrictions
-
+  
   // The url above responds in json format, data is an array
   // We assume that parents always preceed children in data array, gene -> transcript -> exon
   // See http://beta.rest.ensembl.org/documentation/info/feature_region for more details
   parseData: function (data) {
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];
-      if (feature.feature_type == 'gene' && !this.featuresById[feature.ID]) {
-        feature.id = feature.ID;
-        feature.label = feature.external_name || feature.id;
-        feature.color = feature.labelColor = this.ensemblGeneColor(feature);
+      
+      if (feature.feature_type === 'gene' && !this.featuresById[feature.ID]) {
+        feature.id          = feature.ID;
+        feature.label       = feature.external_name || feature.id;
         feature.transcripts = [];
+        
         this.insertFeature(feature);
       }
     }
-  },
-
-  ensemblGeneColor: function (feature) {
-    var color = '#000000';
-    if (feature.logic_name.indexOf('ensembl_havana') === 0) {
-      color = '#cd9b1d';
-    } else if (feature.biotype.indexOf('RNA') > -1) {
-      color = '#8b668b';
-    } else switch (feature.biotype) {
-      case 'protein_coding':
-        color = '#A00000';
-      break;
-      case 'processed_transcript':
-        color = '#0000FF';
-      break;
-      case 'antisense':
-        color = '#0000FF';
-      break;
-      case 'sense_intronic':
-        color = '#0000FF';
-      break;
-      case 'pseudogene':
-      case 'processed_pseudogene':
-        color = '#666666';
-      break;
-      default :
-        color = '#A00000';
-      break;
-    }
-
-    return color;
-  },
-
-  getData: function (start, end) {
-    start = Math.max(1, start);
-    end   = Math.min(this.browser.chromosomeSize, end);
-
-    var track    = this;
-    var deferred = $.Deferred();
-    var bins     = [];
-    var length   = end - start + 1;
-
-    if (!this.url) {
-      return deferred.resolveWith(this);
-    }
-   
-    if (this.dataRequestLimit && length > this.dataRequestLimit) {
-      var i = Math.ceil(length / this.dataRequestLimit);
-     
-      while (i--) {
-        bins.push([ start, i ? start += this.dataRequestLimit - 1 : end ]);
-        start++;
-      }
-    } else {
-      bins.push([ start, end ]);
-    }
-   
-    $.when.apply($, $.map(bins, function (bin) {
-      return $.ajax({
-        url       : track.parseURL(bin[0], bin[1]),
-        dataType  : track.dataType,
-        context   : track,
-        xhrFields : track.xhrFields,
-        success   : function (data) { this.receiveData(data, bin[0], bin[1]); },
-        error     : function (xhr, statusText) { this.showError(statusText + ' while getting the data, see console for more details', arguments) }
-      });
-    })).done(function () { deferred.resolveWith(track); });
-     
-    return deferred;
-  },
-
+  }
 });
-
 
 
 
@@ -9738,7 +9707,25 @@ Genoverse.Track.View.Gene = Genoverse.Track.View.extend({
 
 
 Genoverse.Track.View.Gene.Ensembl = Genoverse.Track.View.Gene.extend({
-
+  setFeatureColor: function (feature) {
+    var color = '#000000';
+    
+    if (feature.logic_name.indexOf('ensembl_havana') === 0) {
+      color = '#cd9b1d';
+    } else if (feature.biotype.indexOf('RNA') > -1) {
+      color = '#8b668b';
+    } else switch (feature.biotype) {
+      case 'protein_coding'       : color = '#A00000'; break;
+      case 'processed_transcript' : color = '#0000FF'; break;
+      case 'antisense'            : color = '#0000FF'; break;
+      case 'sense_intronic'       : color = '#0000FF'; break;
+      case 'pseudogene'           :
+      case 'processed_pseudogene' : color = '#666666'; break;
+      default                     : color = '#A00000'; break;
+    }
+    
+    feature.color = feature.labelColor = color;
+  }
 });
 
 
@@ -9753,31 +9740,35 @@ Genoverse.Track.Model.Transcript = Genoverse.Track.Model.extend({
 
 // Ensembl REST API Transcript model
 Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.extend({
-
-  name : 'e! Transcripts',
-  url  : 'http://beta.rest.ensembl.org/feature/region/human/__CHR__:__START__-__END__?feature=transcript;content-type=application/json',
+  
+  name             : 'e! Transcripts',
+  url              : 'http://beta.rest.ensembl.org/feature/region/human/__CHR__:__START__-__END__?content-type=application/json',
+  urlParams        : { feature: 'transcript' },
   dataRequestLimit : 5000000, // As per e! REST API restrictions
-
+  
   // The url above responds in json format, data is an array
   // See http://beta.rest.ensembl.org/documentation/info/feature_region for more details
   parseData: function (data) {
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];
-      if (feature.feature_type == 'transcript' && !this.featuresById[feature.ID]) {
-        feature.id    = feature.ID,
+      
+      if (feature.feature_type === 'transcript' && !this.featuresById[feature.ID]) {
+        feature.id    = feature.ID;
         feature.label = feature.id;
-        feature.color = feature.labelColor = this.ensemblTranscriptColor(feature);
         feature.exons = [];
         feature.cds   = [];
+        
         this.insertFeature(feature);
-      } else if (feature.feature_type == 'exon' && this.featuresById[feature.Parent]) {
+      } else if (feature.feature_type === 'exon' && this.featuresById[feature.Parent]) {
         feature.id = feature.ID;
+        
         if (!this.featuresById[feature.Parent].exons[feature.id]) {
           this.featuresById[feature.Parent].exons.push(feature);
           this.featuresById[feature.Parent].exons[feature.id] = feature;
         }
-      } else if (feature.feature_type == 'cds' && this.featuresById[feature.Parent]) {
+      } else if (feature.feature_type === 'cds' && this.featuresById[feature.Parent]) {
         feature.id = feature.start + '-' + feature.end;
+        
         if (!this.featuresById[feature.Parent].cds[feature.id]) {
           this.featuresById[feature.Parent].cds.push(feature);
           this.featuresById[feature.Parent].cds[feature.id] = feature;
@@ -9785,97 +9776,37 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
       }
     }
   },
-
-  ensemblTranscriptColor: function (feature) {
-    var color = '#000000';
-    if (feature.logic_name.indexOf('ensembl_havana') === 0) {
-      color = '#cd9b1d';
-    } else if (feature.biotype.indexOf('RNA') > -1) {
-      color = '#8b668b';
-    } else switch (feature.biotype) {
-      case 'protein_coding':
-        color = '#A00000';
-      break;
-      case 'retained_intron':
-        color = '#0000FF';
-      break;
-      case 'processed_transcript':
-        color = '#0000FF';
-      case 'antisense':
-        color = '#0000FF';
-      break;
-      case 'sense_intronic':
-        color = '#0000FF';
-      break;
-      case 'pseudogene':
-      case 'processed_pseudogene':
-        color = '#666666';
-      break;
-      default :
-        color = '#A00000';
-      break;
-    }
-
-    return color;
-  },
-
-  getData: function (start, end, url, deferred) {
+  
+  getData: function (start, end, dfd) {
     start = Math.max(1, start);
     end   = Math.min(this.browser.chromosomeSize, end);
-
-    var track    = this;
-    var deferred = deferred || $.Deferred();
-    var bins     = [];
-    var length   = end - start + 1;
-   
-    if (!this.url && !url) {
-      return deferred.resolveWith(this);
-    }
-
-    if (this.dataRequestLimit && length > this.dataRequestLimit) {
-      var i = Math.ceil(length / this.dataRequestLimit);
-     
-      while (i--) {
-        bins.push([ start, i ? start += this.dataRequestLimit - 1 : end ]);
-        start++;
+    
+    var deferred = dfd || $.Deferred();
+    
+    this.base(start, end, function (data, state, request) {
+      if (dfd) {
+        this.parseData(data, request.coords[0], request.coords[1]);
+      } else { // Non modified (transcript) url, loop through the transcripts and see if any extend beyond start and end
+        for (var i = 0; i < data.length; i++) {
+          start = Math.min(start, data[i].start);
+          end   = Math.max(end,   data[i].end);
+        }
+        
+        this.receiveData(data, request.coords[0], request.coords[1]); 
       }
-    } else {
-      bins.push([ start, end ]);
-    }
-   
-    $.when.apply($, $.map(bins, function (bin) {
-      return $.ajax({
-        url       : track.parseURL(bin[0], bin[1], url || this.url),
-        dataType  : track.dataType,
-        context   : track,
-        xhrFields : track.xhrFields,
-        success   : function (data) {
-          if (!url) { // Non modified (transcript) url, loop through the trasncripts and see if any extend beyond start and end
-            for (var i=0; i<data.length; i++) {
-              if (data[i].start < start) start = data[i].start;
-              if (data[i].end > end) end = data[i].end;
-            }
-            this.receiveData(data, bin[0], bin[1]); 
-          } else {
-            this.parseData(data); 
-          }
-        },
-        error     : function (xhr, statusText) { this.showError(statusText + ' while getting the data, see console for more details', arguments) }
-      });
-    })).done(function () {
-      if (!url) { // Now get me the exons and cds for start-end
-        url = this.url.replace('feature=transcript', 'feature=exon;feature=cds');
-        this.getData(start, end, url, deferred);
+    }).done(function () {
+      if (dfd) { // Now get me the exons and cds for start-end
+        dfd.resolveWith(this);
       } else {
-        deferred.resolveWith(track); 
+        this.setURL({ feature: [ 'exon', 'cds' ]}, true);
+        this.getData(start, end, deferred);
+        this.setURL(this.urlParams, true);
       }
     });
-     
+    
     return deferred;
-  },
-
+  }
 });
-
 
 
 
@@ -9952,54 +9883,57 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
 
 
 Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
-
+  
   height        : 150,
   featureHeight : 10,
   labels        : true,
   bump          : true,
   intronStyle   : 'bezierCurve',
   lineWidth     : 0.5,
-
+  
   drawFeature: function(transcript, featureContext, labelContext, scale) {
-    var exons = (transcript.exons || []).sort(function(a, b){ return a.start - b.start });
-
+    this.setFeatureColor(transcript);
+    
+    var exons = (transcript.exons || []).sort(function (a, b) { return a.start - b.start; });
+    var exon, cds, i;
+    
     if (!exons.length || exons[0].start > transcript.start) {
-      exons.unshift({
-        start : transcript.start,
-        end   : transcript.start
-      });
+      exons.unshift({ start: transcript.start, end: transcript.start });
     }
-
-    if (!exons.length || exons[exons.length-1].end < transcript.end) {
-      exons.push({
-        start : transcript.end,
-        end   : transcript.end
-      });
+    
+    if (!exons.length || exons[exons.length - 1].end < transcript.end) {
+      exons.push({ start: transcript.end, end: transcript.end  });
     }
-
-    for (var i=0; i<exons.length; i++) {
-      var exon = exons[i];
+    
+    for (i = 0; i < exons.length; i++) {
+      exon = exons[i];
+      
       featureContext.strokeStyle = exon.color || transcript.color || this.color;
       featureContext.lineWidth   = 1;
+      
       featureContext.strokeRect(
         transcript.x + (exon.start - transcript.start) * scale,
         transcript.y + 1.5,
         Math.max(1, (exon.end - exon.start) * scale), 
         transcript.height - 3
       );
-
-      if (i) this.drawIntron({
-        x: transcript.x + (exons[i-1].end - transcript.start) * scale,
-        y: transcript.y + transcript.height/2 + 0.5,
-        width: (exon.start - exons[i-1].end) * scale,
-        height: transcript.strand > 0 ? -transcript.height/2 : transcript.height/2,
-      }, featureContext);
+      
+      if (i) {
+        this.drawIntron({
+          x: transcript.x + (exons[i - 1].end - transcript.start) * scale,
+          y: transcript.y + transcript.height / 2 + 0.5,
+          width: (exon.start - exons[i - 1].end) * scale,
+          height: transcript.strand > 0 ? -transcript.height / 2 : transcript.height / 2,
+        }, featureContext);
+      }
     }
 
     if (transcript.cds && transcript.cds.length) {
-      for (var i=0; i<transcript.cds.length; i++) {
-        var cds = transcript.cds[i];
+      for (i = 0; i < transcript.cds.length; i++) {
+        cds = transcript.cds[i];
+        
         featureContext.fillStyle = cds.color || transcript.color || this.color;
+        
         featureContext.fillRect(
           transcript.x + (cds.start - transcript.start) * scale,
           transcript.y, 
@@ -10008,40 +9942,44 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
         );
       }
     }
-
+    
     if (this.labels && transcript.label) {
       this.drawLabel(transcript, labelContext, scale)
     }
   },  
-
+  
   drawIntron: function (intron, context) {
     context.beginPath();
     context.lineWidth = this.lineWidth;
+    
     switch (this.intronStyle) {
-      case 'line' :
+      case 'line':
         context.moveTo(intron.x, intron.y);
         context.lineTo(intron.x + intron.width, intron.y);
-      break;
-      case 'hat' :
+        break;
+      case 'hat':
         context.moveTo(intron.x, intron.y);
-        context.lineTo(intron.x + intron.width/2, intron.y + intron.height);
+        context.lineTo(intron.x + intron.width / 2, intron.y + intron.height);
         context.lineTo(intron.x + intron.width, intron.y);
-      break;
-      case 'bezierCurve' :
+        break;
+      case 'bezierCurve':
         context.moveTo(intron.x, intron.y);
         context.bezierCurveTo(intron.x, intron.y + intron.height, intron.x + intron.width, intron.y + intron.height, intron.x + intron.width, intron.y);
-      break;
+        break;
+      default: break;
     }
+    
     context.stroke();
     context.closePath();
   }
-
 });
 
 
 
 Genoverse.Track.View.Transcript.Ensembl = Genoverse.Track.View.Transcript.extend({
-
+  setFeatureColor: function (feature) {
+    Genoverse.Track.View.Gene.Ensembl.prototype.setFeatureColor(feature);
+  }
 });
 
 

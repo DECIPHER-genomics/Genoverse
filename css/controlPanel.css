@@ -70,14 +70,14 @@
   box-shadow: 0 0 1px rgba(6, 54, 95, 0.8) inset !important;        
 }
 
+table.genoverse {
+  position: relative;
+  margin-bottom: 30px;
+}
+
 .genoverse td {
   padding: 0;
   color: white;
-  border: none;
-}
-
-.genoverse>table {
-  width: auto;
   border: none;
 }
 
@@ -123,4 +123,17 @@
   height:50px;
   overflow:hidden;
   box-shadow: inset 0px 0px 33px -7px rgba(24, 36, 56, 0.97), inset 1px 1px 1px 0px black;
+}
+
+.gv_powered_by {
+  position: absolute;
+  right: 0;
+  bottom: -16px;
+  font-size: 10px;
+  font-family: Verdana;
+  color: black;
+}
+
+.gv_powered_by a {
+  font-weight: bold;
 }

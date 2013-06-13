@@ -2,12 +2,15 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
-
+    
     <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
     <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
     <link rel="stylesheet" type="text/css" href="css/trackControls.css" />
     <link rel="stylesheet" type="text/css" href="css/resizer.css" />
     <link rel="stylesheet" type="text/css" href="css/tooltips.css" />
+  </head>
+  <body>
+    <div id="genoverse"></div>
     
     <script type="text/javascript" src="js/lib/jquery.js"></script>
     <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
@@ -63,7 +66,6 @@
     <script type="text/javascript" src="js/Track/File/GFF3.js"></script>
 
     <script>
-
       var genoverseConfig = {
         container      : '#genoverse',
         width          : 756,
@@ -84,7 +86,7 @@
             name  : 'Sequence',
             model : Genoverse.Track.Model.Sequence.Ensembl,
             view  : Genoverse.Track.View.Sequence,
-            url   : 'http://beta.rest.ensembl.org/sequence/region/human/__CHR__:__START__-__END__?content-type=text/plain',
+            url   : 'http://beta.rest.ensembl.org/sequence/region/human/__CHR__:__START__-__END__?content-type=text/plain'
             // placeholders __CHR__, __START__ and __END__ will be replaced automaticaly for current location
           },
 
@@ -97,31 +99,23 @@
             2000000: { // This one applies when > 2M base-pairs per screen
               labels: false,
               model : Genoverse.Track.Model.Gene.Ensembl,
-              view  : Genoverse.Track.View.Gene
+              view  : Genoverse.Track.View.Gene.Ensembl
             },
             100000: { // more than 100K but less then 2M
               labels: true,
               model : Genoverse.Track.Model.Gene.Ensembl,
-              view  : Genoverse.Track.View.Gene
+              view  : Genoverse.Track.View.Gene.Ensembl
             },
             1: { // > 1 base-pair, but less then 100K
               labels: true,
               model : Genoverse.Track.Model.Transcript.Ensembl,
-              view  : Genoverse.Track.View.Transcript,
+              view  : Genoverse.Track.View.Transcript.Ensembl
             },
-          },
-
+          }
         ]
       }
 
-      $(document).ready(function(){ window.genoverse = new Genoverse(genoverseConfig) });
-
+      $(document).ready(function(){ window.genoverse = new Genoverse(genoverseConfig); });
     </script>
-
-  </head>
-  <body>
-
-  <div id="genoverse"></div>
-
   </body>
 </html>
