@@ -1,4 +1,4 @@
-Genoverse.Track.on('afterInit', function () {
+Genoverse.Track.on('afterSetModelView', function () {
   if (!this.resizable) {
     return;
   }
