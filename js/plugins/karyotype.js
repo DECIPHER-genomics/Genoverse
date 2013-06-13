@@ -14,7 +14,7 @@ Genoverse.on('afterInit', function () {
     var scale = browser.chromosomeSize / browser.karyotypeWidth;
     var start = Math.floor(ui.position.left * scale);
     var end   = e.type === 'dragstop' ? start + browser.length - 1 : Math.floor(ui.helper.width() * scale) + start;
-    browser.moveTo(start, end, true);
+    browser.moveTo(start, end, true, e.type === 'dragstop');
   }
   
   if (!(this.karyotype && this.karyotype.data('chr') === this.chr)) {

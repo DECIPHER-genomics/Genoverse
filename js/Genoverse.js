@@ -530,15 +530,15 @@ var Genoverse = Base.extend({
     this.setRange(start, end);
   },
   
-  moveTo: function (start, end, update) {
-    this.setRange(start, end, update);
+  moveTo: function (start, end, update, keepLength) {
+    this.setRange(start, end, update, keepLength);
     
     if (this.prev.scale === this.scale) {
       this.onTracks('moveTo', this.start, this.end, (this.prev.start - this.start) * this.scale);
     }
   },
   
-  setRange: function (start, end, update, force) {
+  setRange: function (start, end, update, keepLength) {
     this.prev.start = this.start;
     this.prev.end   = this.end;
     this.start      = Math.max(typeof start === 'number' ? Math.floor(start) : parseInt(start, 10), 1);
@@ -548,21 +548,29 @@ var Genoverse = Base.extend({
       this.end = Math.min(this.start + this.defaultLength - 1, this.chromosomeSize);
     }
     
-    this.length = this.end - this.start + 1;
+    if (keepLength && this.end - this.start + 1 !== this.length) {
+      if (this.end === this.chromosomeSize) {
+        this.start = this.end - this.length + 1;
+      } else {
+        this.end = this.start + this.length - 1;
+      }
+    } else {
+      this.length = this.end - this.start + 1;
+    }
     
-    this.setScale(force);
+    this.setScale();
     
     if (update === true && (this.prev.start !== this.start || this.prev.end !== this.end)) {
       this.updateURL();
     }
   },
   
-  setScale: function (force) {
+  setScale: function () {
     this.prev.scale  = this.scale;
     this.scale       = this.width / this.length;
     this.scaledStart = this.start * this.scale;
     
-    if (force || this.prev.scale !== this.scale) {
+    if (this.prev.scale !== this.scale) {
       this.left        = 0;
       this.minLeft     = Math.round((this.end   - this.chromosomeSize) * this.scale);
       this.maxLeft     = Math.round((this.start - 1) * this.scale);
