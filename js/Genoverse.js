@@ -78,16 +78,18 @@ var Genoverse = Base.extend({
     var loadPluginsTask = $.Deferred();
     
     // Load plugins css file
-    browser.plugins.every(function (plugin) {
-      LazyLoad.css(browser.origin + 'css/' + plugin + '.css');
-      return true;
-    });
-
     $.when.apply($, $.map(browser.plugins, function (plugin) {
-      return $.ajax({
-        url      : browser.origin + 'js/plugins/' + plugin + '.js',
-        dataType : 'text'
+      var dfd = $.Deferred();
+      
+      LazyLoad.css(browser.origin + 'css/' + plugin + '.css', function () {
+        $.ajax({
+          url      : browser.origin + 'js/plugins/' + plugin + '.js',
+          dataType : 'text',
+          success  : dfd.resolve
+        });
       });
+      
+      return dfd;
     })).done(function () {
       (function (jq, scripts) {
         // Localize variables

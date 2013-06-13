@@ -1,5 +1,5 @@
 Genoverse.prototype.updateKaryotypePosition = function () {
-  if (this.karyotypeViewPoint) {
+  if (this.karyotypeViewPoint && this.karyotypeWidth) {
     var left  =  this.karyotypeWidth * this.start / this.chromosomeSize;
     var width = (this.karyotypeWidth * this.end   / this.chromosomeSize) - left;
     
