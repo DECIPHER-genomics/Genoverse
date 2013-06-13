@@ -62,7 +62,6 @@ Genoverse.Track.on('afterAddDomElements', function() {
     return;
   }
   
-  var track    = this;
   var controls = (this.controls || []).concat(defaultControls);
   
   this.trackControls = $('<div class="track_controls">').prependTo(this.container);
@@ -83,8 +82,6 @@ Genoverse.Track.on('afterResize', function() {
 });
 
 Genoverse.Track.on('afterResetHeight', function () {
-  var track = this;
-  
   if (this.resizable && this.heightToggler) {
     this.heightToggler[this.autoHeight ? 'addClass' : 'removeClass']('auto_height');
     this.heightToggler.trigger('toggleState');

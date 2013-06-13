@@ -71,8 +71,6 @@ Genoverse.Track.Controller = Base.extend({
   },
   
   addDomElements: function () {
-    var track = this;
-    
     this.menus            = $();
     this.container        = $('<div class="track_container">').appendTo(this.browser.wrapper);
     this.scrollContainer  = $('<div class="scroll_container">').appendTo(this.container);
@@ -228,7 +226,7 @@ Genoverse.Track.Controller = Base.extend({
   
   resetHeight: function () {
     if (this.resizable) {
-      this.autoHeight = !!([ this.view.prototype.autoHeight, browser.autoHeight ].sort(function (a, b) {
+      this.autoHeight = !!([ this.view.prototype.autoHeight, this.browser.autoHeight ].sort(function (a, b) {
         return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
       })[0]);
       

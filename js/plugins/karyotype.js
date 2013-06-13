@@ -5,7 +5,7 @@ Genoverse.prototype.updateKaryotypePosition = function () {
     
     this.karyotypeViewPoint.css({ left: left, width: width });  
   }
-}
+};
 
 Genoverse.on('afterInit', function () {
   var browser = this;
@@ -25,7 +25,8 @@ Genoverse.on('afterInit', function () {
     for (var i = 0; i < chromosome.bands.length; i++) {
       var left  =  100 * chromosome.bands[i].start / chromosome.size;
       var width = (100 * chromosome.bands[i].end   / chromosome.size) - left;
-      var band  = $('<div title="' + chromosome.bands[i].id + '">&nbsp;<wbr />' + chromosome.bands[i].id + '</div>')
+      
+      $('<div title="' + chromosome.bands[i].id + '">&nbsp;<wbr />' + chromosome.bands[i].id + '</div>')
         .addClass('gv_band ' + chromosome.bands[i].type)
         .css({ left: left + '%', width: width + '%' })
         .data({
