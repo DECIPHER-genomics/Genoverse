@@ -1,5 +1,21 @@
+Genoverse.prototype.updateKaryotypePosition = function () {
+  if (this.karyotypeViewPoint) {
+    var left  =  this.karyotypeWidth * this.start / this.chromosomeSize;
+    var width = (this.karyotypeWidth * this.end   / this.chromosomeSize) - left;
+    
+    this.karyotypeViewPoint.css({ left: left, width: width });  
+  }
+}
+
 Genoverse.on('afterInit', function () {
   var browser = this;
+  
+  function updateBrowserLocation(e, ui) {
+    var scale = browser.chromosomeSize / browser.karyotypeWidth;
+    var start = Math.floor(ui.position.left * scale);
+    var end   = e.type === 'dragstop' ? start + browser.length - 1 : Math.floor(ui.helper.width() * scale) + start;
+    browser.moveTo(start, end, true);
+  }
   
   if (!(this.karyotype && this.karyotype.data('chr') === this.chr)) {
     this.karyotype = $('<div class="gv_chromosome" data-chr="' + this.chr + '">');
@@ -16,27 +32,18 @@ Genoverse.on('afterInit', function () {
           start : chromosome.bands[i].start,
           end   : chromosome.bands[i].end
         }).on('click', function () {
-          browser.moveTo($(this).data('start'), $(this).data('end'), true);
+          var data = $(this).data();
+          browser.moveTo(data.start, data.end, true);
         }).appendTo(this.karyotype);
     }
     
-    $('<div class="gv_karyotype_container">').html(this.karyotype).insertAfter(this.labelContainer);
-
-    var followViewpoint = function (e) {
-      var left  = $(this).position().left;
-      var scale = browser.chromosomeSize / browser.karyotypeWidth;
-      var start = Math.floor(left * scale);
-      var end   = e.type === 'dragstop' ? start + browser.length - 1 : Math.floor($(this).width() * scale) + start;
-      browser.moveTo(start, end, true);
-    };
-
     this.karyotypeViewPoint = $('<div class="gv_karyotype_viewpoint" style="display:none">').draggable({
       axis        : 'x',
       containment : 'parent',
-      stop        : followViewpoint
+      stop        : updateBrowserLocation
     }).resizable({
       handles : 'e, w',
-      stop    : followViewpoint,
+      stop    : updateBrowserLocation,
       resize  : function (e, ui) {
         ui.element.css('left', Math.max(0, ui.position.left));
         
@@ -46,17 +53,16 @@ Genoverse.on('afterInit', function () {
           ui.element.width(ui.size.width + ui.position.left);
         }
       }
-    }).delay(1000).fadeIn('fast');
+    }).appendTo(this.karyotype);
     
-    this.karyotypeWidth = this.karyotype.append(this.karyotypeViewPoint).innerWidth();
+    $('<div class="gv_karyotype_container">').html(this.karyotype).insertAfter(this.labelContainer);
+    
+    this.karyotypeWidth = this.karyotype.innerWidth();
+    this.updateKaryotypePosition();
+    this.karyotypeViewPoint.delay(1000).fadeIn('fast');
   }
 });
 
-Genoverse.on('afterInit afterSetRange', function () {
-  if (this.karyotypeViewPoint) {
-    var left  = this.karyotypeWidth * this.start / this.chromosomeSize;
-    var width = (this.karyotypeWidth * this.end / this.chromosomeSize) - left;
-    
-    this.karyotypeViewPoint.css({ left: left, width: width });  
-  }
+Genoverse.on('afterSetRange', function () {
+  this.updateKaryotypePosition();
 });
