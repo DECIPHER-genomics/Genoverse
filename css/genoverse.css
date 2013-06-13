@@ -15,7 +15,6 @@ ul.label_container {
 }
 
 .canvas_container {
-  position: relative;
   cursor: pointer;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
