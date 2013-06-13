@@ -290,13 +290,9 @@ Genoverse.Track.Controller = Base.extend({
     // Don't draw labels if the region is too big
     if (this.maxLabelRegion) {
       if (this.maxLabelRegion < this.browser.length) {
-        if (this.labels) {
-          this._labels = this.labels;
-          this.labels  = false;
-        }
-      } else if (typeof this._labels !== 'undefined') {
-        this.labels = this._labels;
-        delete this._labels;
+        this.labels = false;
+      } else if (typeof this.view.prototype.labels !== 'undefined') {
+        this.labels = this.view.prototype.labels;
       }
     }
     
