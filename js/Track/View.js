@@ -36,7 +36,6 @@ Genoverse.Track.View = Base.extend({
     this.resizable      = typeof this.resizable     !== 'undefined' ? this.resizable     : !this.fixedHeight;
     this.height        += this.margin;
     this.initialHeight  = this.height;
-    this.minLabelHeight = 0;
     this.font           = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
     this.labelUnits     = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
     
