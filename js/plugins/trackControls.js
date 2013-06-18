@@ -90,6 +90,6 @@ Genoverse.Track.on('afterResetHeight', function () {
 
 Genoverse.Track.on('afterSetModelView', function () {
   if (this.heightToggler) {
-    this.heightToggler[!this.fixedHeight && this.resizable !== false ? 'removeClass' : 'addClass']('hidden');
+    this.heightToggler.trigger('toggleState')[!this.fixedHeight && this.resizable !== false ? 'removeClass' : 'addClass']('hidden');
   }
 });
