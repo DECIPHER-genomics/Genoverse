@@ -4,7 +4,7 @@ Genoverse.on('afterInit afterAddTracks afterRemoveTracks', function () {
   }
 });
 
-Genoverse.on('afterCheckTrackHeights afterRemoveTracks', function () {
+Genoverse.on('afterRemoveTracks', function () {
   for (var i in this.legends) {
     this.legends[i].makeImage({});
   }
@@ -20,6 +20,12 @@ Genoverse.Track.on('afterPositionFeatures', function (features, params) {
 
 Genoverse.Track.on('afterResize', function (height, userResize) {
   if (this.legend && userResize === true) {
+    this.legend.makeImage({});
+  }
+});
+
+Genoverse.Track.on('afterCheckHeight', function () {
+  if (this.legend) {
     this.legend.makeImage({});
   }
 });
