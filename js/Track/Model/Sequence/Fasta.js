@@ -2,7 +2,7 @@ Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
 
   // Defaults 
   name : 'Fasta',
-  url  : '/data/Homo_sapiens.GRCh37.70.dna.chromosome.1.fa', // Example url
+  url  : '/data/Homo_sapiens.GRCh37.72.dna.chromosome.1.fa', // Example url
   
   // Following settings could be left undefined and will be detected automatically via .getStartByte()
   startByte  : undefined, // Byte in the file where the sequence actually starts
