@@ -1,8 +1,5 @@
 Genoverse.Track.SequenceVariation = Genoverse.Track.extend({
-  
-  threshold : 100000,
-  name      : 'Sequence Variation',
-  model     : Genoverse.Track.Model.SequenceVariation.VCF,
+  model: Genoverse.Track.Model.SequenceVariation.VCF,
   
   populateMenu: function (feature) {
     return {
@@ -59,5 +56,7 @@ Genoverse.Track.SequenceVariation = Genoverse.Track.extend({
         }
       }
     })
-  }
+  },
+  
+  100000: false
 });

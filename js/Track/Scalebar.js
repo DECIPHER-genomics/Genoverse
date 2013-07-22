@@ -1,18 +1,18 @@
 Genoverse.Track.Scalebar = Genoverse.Track.extend({
+  unsortable    : true,
+  order         : 1,
+  orderReverse  : 1e5,
+  featureStrand : 1,
+  controls      : 'off',
   height        : 20,
   featureHeight : 3,
   featureMargin : { top: 0, right: 0, bottom: 2, left: 0 },
   margin        : 0,
   color         : '#000000',
   autoHeight    : false,
-  unsortable    : true,
   labels        : true,
   bump          : false,
-  fixedHeight   : true,
-  order         : 0,
-  orderReverse  : 1e5,
-  featureStrand : 1,
-  controls      : 'off',
+  resizable     : false,
   colors        : {
     majorGuideLine : '#CCCCCC',
     minorGuideLine : '#E5E5E5'
@@ -20,7 +20,8 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   
   reset: function () {
     this.scrollContainer.children('.image_container').remove();
-    this.init();
+    this.model.init();
+    this.view.init();
   },
   
   setScale: function () {
@@ -48,60 +49,45 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
         minorUnit = majorUnit / 5;
       }
     }
-
-    this.dataRegion   = { start: 9e99, end: -9e99 };
-    this.minorUnit    = minorUnit;
-    this.majorUnit    = majorUnit;
-    this.seen         = {};
-    this.features     = new RTree();
-    this.featuresById = {};
+    
+    this.prop('minorUnit',    minorUnit);
+    this.prop('majorUnit',    majorUnit);
+    this.prop('features',     new RTree());
+    this.prop('featuresById', {});
+    this.prop('seen',         {});
     
     this.base();
   },
   
-  makeImage: function (params) {
-    params.background    = 'guidelines fullHeight';
-    params.featureHeight = this.height;
-    
-    this.setFeatures(params.start, params.end);
-    
-    var rtn = this.base(params);
-    
-    params.container.addClass('fullHeight');
-    
-    return rtn;
-  },
-  
-  makeReverseImage: function (params) {
-    this.imgContainers.push(params.container.clone().html(params.container.children('.data').clone(true).css('background', '#FFF'))[0]);
-    this.scrollContainer.append(this.imgContainers);
-  },
-  
   setFeatures: function (start, end) {
-    start = Math.max(start - (start % this.minorUnit) - this.majorUnit, 0);
+    var minorUnit = this.prop('minorUnit');
+    var majorUnit = this.prop('majorUnit');
+    var seen      = this.prop('seen');
     
-    var flip  = (start / this.minorUnit) % 2 ? 1 : -1;
+    start = Math.max(start - (start % minorUnit) - majorUnit, 0);
+    
+    var flip  = (start / minorUnit) % 2 ? 1 : -1;
     var feature, major, label;
     
-    for (var x = start; x < end + this.minorUnit; x += this.minorUnit) {
+    for (var x = start; x < end + minorUnit; x += minorUnit) {
       flip *= -1;
       
-      if (this.seen[x]) {
+      if (seen[x]) {
         continue;
       }
       
-      this.seen[x] = 1;
+      seen[x] = 1;
       
       feature = { id: x, strand: 1, sort: x };
-      major   = x && !(x % this.majorUnit);
+      major   = x && x % majorUnit === 0;
       
       if (flip === 1) {
         feature.start = x;
-        feature.end   = x + this.minorUnit - 1;
+        feature.end   = x + minorUnit - 1;
       }
       
       if (major) {
-        label = this.formatLabel(x);
+        label = this.track.view.formatLabel(x);
         
         if (label !== this.lastLabel) {
           feature.label = label;
@@ -121,9 +107,41 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     }
   },
   
+  makeFirstImage: function (moveTo) {
+    if (this.prop('strand') === -1) {
+      moveTo = this.track.forwardTrack.scrollStart;
+    }
+    
+    return this.base(moveTo);
+  },
+  
+  makeImage: function (params) {
+    params.background    = 'guidelines fullHeight';
+    params.featureHeight = this.prop('height');
+    
+    this.track.setFeatures.apply(this.track.model, [ params.start, params.end ]);
+    
+    var rtn = this.base(params);
+    
+    params.container.addClass('fullHeight');
+    
+    return rtn;
+  },
+  
+  makeReverseImage: function (params) {
+    this.imgContainers.push(params.container.clone().html(params.container.children('.data').clone(true).css('background', '#FFF'))[0]);
+    this.scrollContainer.append(this.imgContainers);
+  },
+  
+  renderBackground: function (f, bgImage) {
+    this.base(f, bgImage);
+    bgImage.height(this.browser.wrapper.outerHeight(true));
+  },
+  
   draw: function (features, featureContext, labelContext, scale) {
-    var i     = features.length;
-    var width = Math.ceil(this.minorUnit * this.scale);
+    var i         = features.length;
+    var minorUnit = this.prop('minorUnit');
+    var width     = Math.ceil(minorUnit * scale);
     var feature, start;
     
     featureContext.textBaseline = 'top';
@@ -151,7 +169,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       }
       
       this.guideLines[feature.start] = start;
-      this.guideLines[feature.start + this.minorUnit] = start + width - 1;
+      this.guideLines[feature.start + minorUnit] = start + width - 1;
     }
     
     featureContext.fillRect(0, 0, featureContext.canvas.width, 1);
@@ -162,21 +180,21 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   drawBackground: function (f, context) {
     for (var i in this.guideLines) {
       if (this.guideLines[i] >= 0 && this.guideLines[i] <= this.width) {
-        context.fillStyle = this.colors[this.guideLines.major[i] ? 'majorGuideLine' : 'minorGuideLine' ];
+        context.fillStyle = this.track.colors[this.guideLines.major[i] ? 'majorGuideLine' : 'minorGuideLine' ];
         context.fillRect(this.guideLines[i], 0, 1, context.canvas.height);
       }
     }
   },
-
-  afterRenderBackground: function (f, bgImage) {
-    bgImage.height(this.browser.wrapper.outerHeight(true));
-  },
   
   formatLabel: function (label) {
-    return this.minorUnit < 1000 ? label.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') : this.base(label);
+    return this.prop('minorUnit') < 1000 ? label.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') : this.base(label);
   }
 });
 
-Genoverse.Track.on('afterInit afterResize', function () {
+Genoverse.Track.on('afterResize', function () {
   $('.bg.fullHeight', this.browser.container).height(this.browser.wrapper.outerHeight(true));
+});
+
+Genoverse.on('afterAddTracks', function () {
+  $('.bg.fullHeight', this.container).height(this.wrapper.outerHeight(true));
 });

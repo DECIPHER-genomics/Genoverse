@@ -1,32 +1,20 @@
 Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
-
-  autoHeight : 'force',
-  margin     : 0,
+  featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },
+  colors        : { 'default': '#CCCCCC', A: '#00986A', T: '#0772A1', G: '#FF8E00', C: '#FFDD73' },
+  labelColors   : { 'default': '#000000', A: '#FFFFFF', T: '#FFFFFF' },
   
-  colors : {
-    A       : '#00986A',
-    T       : '#0772A1',
-    G       : '#FF8E00',
-    C       : '#FFDD73',
-    N       : 'grey',
-    default : 'grey'
-  },
-
-  labelColors: {
-    default : 'white'
-  },
-
   constructor: function () {
-    this.base();
+    this.base.apply(this, arguments);
     
     this.labelWidth   = {};
     this.widestLabel  = this.lowerCase ? 'g' : 'G';
     this.labelYOffset = (this.featureHeight + (this.lowerCase ? 0 : 1)) / 2;
-
+    
     if (this.lowerCase) {
-      for (key in this.colors) {
+      for (var key in this.colors) {
         this.colors[key.toLowerCase()] = this.colors[key];
       }
+      
       for (key in this.labelColors) {
         this.colors[key.toLowerCase()] = this.colors[key];
       }      

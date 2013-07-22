@@ -7,7 +7,6 @@ var Genoverse = Base.extend({
   labelWidth       : 90,
   buffer           : 1,
   longestLabel     : 30,
-  trackMargin      : 2,
   defaultLength    : 5000,
   tracks           : [],
   plugins          : [],
@@ -15,7 +14,6 @@ var Genoverse = Base.extend({
   wheelAction      : 'off',    // options are: zoom, off
   genome           : undefined,
   autoHideMessages : true,
-  trackBorder      : true,
   colors           : {
     background     : '#FFFFFF',
     majorGuideLine : '#CCCCCC',
@@ -44,7 +42,7 @@ var Genoverse = Base.extend({
     $.extend(this, config);
     
     $.when(this.loadGenome(), this.loadPlugins()).always(function () {
-      browser.wrapFunctions();
+      Genoverse.wrapFunctions(browser);
       browser.init();
     });
   },
@@ -120,7 +118,6 @@ var Genoverse = Base.extend({
     this.prev             = {};
     this.urlParamTemplate = this.urlParamTemplate || '';
     this.useHash          = typeof window.history.pushState !== 'function';
-    this.proxy            = $.support.cors ? false : this.proxy;
     this.textWidth        = document.createElement('canvas').getContext('2d').measureText('W').width;
     this.labelWidth       = this.labelContainer.outerWidth(true);
     this.wrapperLeft      = this.labelWidth - width;
@@ -261,14 +258,11 @@ var Genoverse = Base.extend({
   onTracks: function () {
     var args = $.extend([], arguments);
     var func = args.shift();
-    var i    = this.tracks.length;
+    var mvc;
     
-    while (i--) {
-      if (typeof this.tracks[i][func] === 'function') {
-        this.tracks[i][func].apply(this.tracks[i], args);
-      } else if (typeof func === 'function') {
-        func.apply(this.tracks[i], args);
-      }
+    for (var i = 0; i < this.tracks.length; i++) {
+      mvc = this.tracks[i]._interface[func];
+      this.tracks[i][mvc][func].apply(this.tracks[i][mvc], args);
     }
   },
   
@@ -582,13 +576,16 @@ var Genoverse = Base.extend({
       }
       
       this.onTracks('setScale');
+      this.onTracks('makeFirstImage');
     }
   },
   
   checkTrackHeights: function () {
-    if (!this.dragging) {
-      this.onTracks('checkHeight');
+    if (this.dragging) {
+      return;
     }
+    
+    this.onTracks('checkHeight');
   },
   
   resetTrackHeights: function () {
@@ -639,28 +636,25 @@ var Genoverse = Base.extend({
         Class  = tracks[i];
         config = {};
       } else {
-        Class  = tracks[i].type ? eval('Genoverse.Track.' + tracks[i].type) || Genoverse.Track : Genoverse.Track;
+        Class  = tracks[i].type ? typeof tracks[i].type === 'function' ? tracks[i].type : eval('Genoverse.Track.' + tracks[i].type) || Genoverse.Track : Genoverse.Track;
         config = tracks[i];
       }
       
       tracks[i] = new Class($.extend(config, defaults, { index: i + index }));
       
+      if (tracks[i].id) {
+        this.tracksById[tracks[i].id] = tracks[i];
+      }
+      
       if (push) {
         this.tracks.push(tracks[i]);
         
         if (this.scale) {
-          tracks[i].setScale(); // scale will only be set for tracks added after initalisation
+          tracks[i].controller.setScale(); // scale will only be set for tracks added after initalisation
+          tracks[i].controller.makeFirstImage();
         }
       } else {
         this.tracks[i] = tracks[i];
-      }
-      
-      if (tracks[i].strand === -1 && tracks[i].orderReverse) {
-        tracks[i].order = tracks[i].orderReverse;
-      }
-      
-      if (tracks[i].id) {
-        this.tracksById[tracks[i].id] = tracks[i];
       }
     }
     
@@ -691,7 +685,7 @@ var Genoverse = Base.extend({
         delete this.tracksById[tracks[i].id];
       }
       
-      tracks[i].destroy(); // Destroy DOM elements and track itself
+      tracks[i].destructor(); // Destroy DOM elements and track itself
     }
   },
   
@@ -705,23 +699,25 @@ var Genoverse = Base.extend({
     var containers = $();
     
     for (var i = 0; i < sorted.length; i++) {
-      if (sorted[i].menus.length) {
-        sorted[i].top = sorted[i].container.position().top;
+      if (sorted[i].prop('menus').length) {
+        sorted[i].prop('top', sorted[i].prop('container').position().top);
       }
       
-      labels.push(sorted[i].label[0]);
-      containers.push(sorted[i].container[0]);
+      labels.push(sorted[i].prop('label')[0]);
+      containers.push(sorted[i].prop('container')[0]);
     }
     
     this.labelContainer.append(labels);
     this.wrapper.append(containers);
     
     // Correct the order
-    this.tracks = labels.map(function () { return $(this).data('track'); }).each(function () {
-      if (this.menus.length) {
-        var diff = this.container.position().top - this.top;
-        this.menus.css('top', function (i, top) { return parseInt(top, 10) + diff; });
-        delete this.top;
+    this.tracks = sorted;
+    
+    labels.map(function () { return $(this).data('track'); }).each(function () {
+      if (this.prop('menus').length) {
+        var diff = this.prop('container').position().top - this.prop('top');
+        this.prop('menus').css('top', function (i, top) { return parseInt(top, 10) + diff; });
+        this.prop('top', null);
       }
     }); 
     
@@ -731,8 +727,8 @@ var Genoverse = Base.extend({
   updateTrackOrder: function (e, ui) {
     var track = ui.item.data('track');
     
-    var p = ui.item.prev().data('track').order || 0;
-    var n = ui.item.next().data('track').order || 0;
+    var p = ui.item.prev().data('track').prop('order') || 0;
+    var n = ui.item.next().data('track').prop('order') || 0;
     var o = p || n;
     var order;
     
@@ -742,7 +738,7 @@ var Genoverse = Base.extend({
       order = o + (p ? 1 : -1) * (Math.round(o) - o || 1) / 2;
     }
     
-    track.order = order;
+    track.prop('order', order);
     
     this.sortTracks();
   },
@@ -835,7 +831,7 @@ var Genoverse = Base.extend({
     if (!feature.menuEl) {
       var menu = this.menuTemplate.clone(true).data('browser', this);
       
-      $.when(track ? track.populateMenu(feature) : feature).done(function (feature) {
+      $.when(track ? track.controller.populateMenu(feature) : feature).done(function (feature) {
         if (Object.prototype.toString.call(feature) !== '[object Array]') {
           feature = [ feature ];
         }
@@ -864,7 +860,7 @@ var Genoverse = Base.extend({
     this.menus = this.menus.add(feature.menuEl);
     
     if (track) {
-      track.menus = track.menus.add(feature.menuEl);
+      track.prop('menus', track.prop('menus').add(feature.menuEl));
     }
     
     feature.menuEl.appendTo('body');
@@ -908,9 +904,19 @@ var Genoverse = Base.extend({
   
   saveConfig: $.noop,
   
+  systemEventHandlers: {}
+}, {
+  on: function (events, handler) {
+    $.each(events.split(' '), function () {
+      if (typeof Genoverse.prototype.systemEventHandlers[this] === 'undefined') {
+        Genoverse.prototype.systemEventHandlers[this] = [];
+      }
+      
+      Genoverse.prototype.systemEventHandlers[this].push(handler);
+    });
+  },
+  
   wrapFunctions: function (obj) {
-    obj = obj || this;
-
     // Push all before* and after* functions to systemEventHandlers array
     for (var key in obj) {
       if (typeof obj[key] === 'function' && key.match(/^(before|after)/)) {
@@ -921,8 +927,8 @@ var Genoverse = Base.extend({
     
     // Wrap it up
     for (key in obj) {
-      if (typeof obj[key] === 'function' && !key.match(/^(base|extend|constructor|loadPlugins|loadGenome|wrapFunctions|functionWrap|debugWrap|controller|model|view)$/)) {
-        this.functionWrap(key, obj);
+      if (typeof obj[key] === 'function' && !key.match(/^(base|extend|constructor|loadPlugins|loadGenome|controller|model|view)$/)) {
+        Genoverse.functionWrap(key, obj);
       }
     }
   },
@@ -931,8 +937,7 @@ var Genoverse = Base.extend({
    * functionWrap - wraps event handlers and adds debugging functionality
    **/
   functionWrap: function (key, obj) {
-    var name = (obj ? (obj.name || 'Track' + obj.type) : 'Genoverse') + '.' + key;
-    obj = obj || this;
+    var name = (obj ? (obj.name || 'Track' + (obj.type || '')) : 'Genoverse') + '.' + key;
     
     if (key.match(/^(before|after|__original)/)) {
       return;
@@ -941,7 +946,7 @@ var Genoverse = Base.extend({
     var func = key.substring(0, 1).toUpperCase() + key.substring(1);
     
     if (obj.debug) {
-      this.debugWrap(obj, key, name, func);
+      Genoverse.debugWrap(obj, key, name, func);
     }
     
     // turn function into system event, enabling eventHandlers for before/after the event
@@ -1005,27 +1010,14 @@ var Genoverse = Base.extend({
         console.timeEnd('time: ' + name);
       });
     }
-  },
-  
-  systemEventHandlers: {}
-}, {
-  on: function (events, handler) {
-    $.each(events.split(' '), function () {
-      if (typeof Genoverse.prototype.systemEventHandlers[this] === 'undefined') {
-        Genoverse.prototype.systemEventHandlers[this] = [];
-      }
-      
-      Genoverse.prototype.systemEventHandlers[this].push(handler);
-    });
   }
 });
 
-Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/[\w\.]+\.js$/))[1];
+Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/\w+/))[1];
 
 if (typeof LazyLoad !== 'undefined') {
   LazyLoad.css(Genoverse.prototype.origin + 'css/genoverse.css');
 }
-
 
 String.prototype.hashCode = function () {
   var hash = 0;

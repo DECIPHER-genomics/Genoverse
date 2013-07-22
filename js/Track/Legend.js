@@ -1,6 +1,6 @@
 Genoverse.on('afterInit afterAddTracks afterRemoveTracks', function () {
   for (var i in this.legends) {
-    this.legends[i].setTracks();
+    this.legends[i].track.setTracks();
   }
 });
 
@@ -31,36 +31,39 @@ Genoverse.Track.on('afterCheckHeight', function () {
 });
 
 Genoverse.Track.Legend = Genoverse.Track.Static.extend({
-  textColor : '#000000',
-  labels    : 'overlay',
+  textColor  : '#000000',
+  labels     : 'overlay',
+  unsortable : true,
   
-  init: function () {
-    this.base();
-    
-    this.tracks = [];
-    
-    if (!this.browser.legends) {
-      this.browser.legends = {};
+  controller: Genoverse.Track.Controller.Static.extend({
+    init: function () {
+      this.base();
+      
+      this.tracks = [];
+      
+      if (!this.browser.legends) {
+        this.browser.legends = {};
+      }
+      
+      this.browser.legends[this.track.id] = this;
+      this.track.setTracks();
     }
-    
-    this.browser.legends[this.id] = this;
-    this.setTracks();
-  },
+  }),
   
   setTracks: function () {
     var legend = this;
     var type   = this.featureType;
     
-    this.tracks = $.grep(this.browser.tracks, function (t) { if (t.type === type) { t.legend = legend; return true; } });
+    this.tracks = $.grep(this.browser.tracks, function (t) { if (t.type === type) { t.controller.legend = legend.controller; return true; } });
   },
   
   findFeatures: function () {
     var bounds   = { x: this.browser.scaledStart, y: 0, w: this.width };
     var features = {};
     
-    $.each($.map(this.tracks, function (track) {
-      bounds.h = track.height;
-      return track.featurePositions ? track.featurePositions.search(bounds).concat(track.labelPositions.search(bounds)) : [];
+    $.each($.map(this.track.tracks, function (track) {
+      bounds.h = track.prop('height');
+      return track.controller.featurePositions.search(bounds).concat(track.controller.labelPositions.search(bounds));
     }), function () {
       if (this.legend) {
         features[this.legend] = this.color;

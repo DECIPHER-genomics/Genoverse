@@ -1,7 +1,5 @@
 // Ensembl REST API Gene model
 Genoverse.Track.Model.Gene.Ensembl = Genoverse.Track.Model.Gene.extend({
-  
-  name             : 'e! Genes',
   url              : 'http://beta.rest.ensembl.org/feature/region/human/__CHR__:__START__-__END__?feature=gene;content-type=application/json',
   dataRequestLimit : 5000000, // As per e! REST API restrictions
   

@@ -11,6 +11,7 @@ Genoverse.prototype.controls = [
   // }
 ];
 
+// FIXME: this doesn't do anything
 $('.tracksMenu input[placeholder=Search]').on('keyup', function () {
   var str = this.value.toLowerCase();
   
@@ -41,7 +42,7 @@ Genoverse.on('beforeInit', function () {
   var browser = this;
   
   if (!this.tracksLibrary) {
-    this.tracksLibrary = this.tracks.slice(1, this.tracks.length);
+    this.tracksLibrary = $.extend(true, [], this.tracks.slice(1, this.tracks.length));
   }
   
   $(
@@ -204,6 +205,7 @@ Genoverse.on('afterInit', function () {
               $('<div class="removeTrack">x</div> ').on('click', function () {
                 $(this).parent().remove();
                 track.remove();
+                // FIXME: if the track is stranded, both strands get removed, but one removeTrack element is left behind until the tracks list is closed
               })
             ).append('<span>' + track.name + '</span>').appendTo(currentTracks);
           })(browser.tracks[i]);
@@ -217,7 +219,7 @@ Genoverse.on('afterInit', function () {
           (function (track) {
             $('<div class="tracksLibraryItem">').append(
               $('<div class="addTrack">+</div> ').on('click', function () {
-                browser.addTrack(track);
+                browser.addTrack(typeof track === 'function' ? track : $.extend(true, {}, track), browser.tracks.length);
                 currentTracks.reload();
               })
             ).append('<span>' + track.name + '</span>').appendTo(availableTracks).data('track', track);

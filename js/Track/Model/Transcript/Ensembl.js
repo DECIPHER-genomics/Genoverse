@@ -1,7 +1,5 @@
 // Ensembl REST API Transcript model
 Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.extend({
-  
-  name             : 'e! Transcripts',
   url              : 'http://beta.rest.ensembl.org/feature/region/human/__CHR__:__START__-__END__?content-type=application/json',
   urlParams        : { feature: 'transcript' },
   dataRequestLimit : 5000000, // As per e! REST API restrictions

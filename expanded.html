@@ -25,14 +25,18 @@
     
     <script type="text/javascript" src="js/Genoverse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script>
+    <script type="text/javascript" src="js/Track/File.js"></script>
     
+    <script type="text/javascript" src="js/Track/Controller.js"></script> 
     <script type="text/javascript" src="js/Track/Model.js"></script> 
     <script type="text/javascript" src="js/Track/View.js"></script> 
-    <script type="text/javascript" src="js/Track/Controller.js"></script> 
-
-    <script type="text/javascript" src="js/Track/Controller/Stranded.js"></script>
-    <script type="text/javascript" src="js/Track/Controller/File.js"></script>
     
+    <script type="text/javascript" src="js/Track/Static.js"></script>
+    
+    <script type="text/javascript" src="js/Track/Controller/Stranded.js"></script>
+    <script type="text/javascript" src="js/Track/Model/Stranded.js"></script>
+    
+    <script type="text/javascript" src="js/Track/Scaleline.js"></script>
     <script type="text/javascript" src="js/Track/Scalebar.js"></script>
     
     <script type="text/javascript" src="js/Track/Model/Sequence.js"></script>
@@ -43,11 +47,6 @@
 
     <script type="text/javascript" src="js/Track/Model/SequenceVariation.js"></script>
     <script type="text/javascript" src="js/Track/Model/SequenceVariation/VCF.js"></script>
-    <script type="text/javascript" src="js/Track/View/SequenceVariation.js"></script>
-
-    <script type="text/javascript" src="js/Track/Model/Annotation.js"></script> 
-    <script type="text/javascript" src="js/Track/Model/Annotation/BED.js"></script> 
-    <script type="text/javascript" src="js/Track/Model/Annotation/GFF.js"></script> 
 
     <script type="text/javascript" src="js/Track/Model/Gene.js"></script>
     <script type="text/javascript" src="js/Track/Model/Gene/Ensembl.js"></script>
@@ -60,10 +59,14 @@
     <script type="text/javascript" src="js/Track/View/Transcript.js"></script>
     <script type="text/javascript" src="js/Track/View/Transcript/Ensembl.js"></script>
 
-    <script type="text/javascript" src="js/Track/File/VCF.js"></script>
-    <script type="text/javascript" src="js/Track/File/BED.js"></script>
+    <script type="text/javascript" src="js/Track/Model/File.js"></script>
+    <script type="text/javascript" src="js/Track/Model/File/GFF.js"></script>
+    <script type="text/javascript" src="js/Track/Model/File/BED.js"></script>
+    
     <script type="text/javascript" src="js/Track/File/GFF.js"></script>
     <script type="text/javascript" src="js/Track/File/GFF3.js"></script>
+    <script type="text/javascript" src="js/Track/File/BED.js"></script>
+    <script type="text/javascript" src="js/Track/File/VCF.js"></script>
 
     <script>
       var genoverseConfig = {
@@ -75,47 +78,39 @@
         chr            : 1,
         start          : 45476751,
         end            : 45480893,
-
         plugins        : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
-        
         tracks         : [
-
           Genoverse.Track.Scalebar,
-
-          {
-            name  : 'Sequence',
-            model : Genoverse.Track.Model.Sequence.Ensembl,
-            view  : Genoverse.Track.View.Sequence,
-            url   : 'http://beta.rest.ensembl.org/sequence/region/human/__CHR__:__START__-__END__?content-type=text/plain'
-            // placeholders __CHR__, __START__ and __END__ will be replaced automaticaly for current location
-          },
-
-          {
-            name : 'e! genes',
-            resizable  : true,
-            autoHeight : false,
-            height     : 200,
+          Genoverse.Track.extend({
+            name      : 'Sequence',
+            model     : Genoverse.Track.Model.Sequence.Ensembl,
+            view      : Genoverse.Track.View.Sequence,
+            resizable : 'auto',
+            100000    : false
+          }),
+          Genoverse.Track.extend({
+            name   : 'Genes',
+            height : 200,
+            
             // Different settings for different zoom level
             2000000: { // This one applies when > 2M base-pairs per screen
-              labels: false,
-              model : Genoverse.Track.Model.Gene.Ensembl,
-              view  : Genoverse.Track.View.Gene.Ensembl
+              labels : false
             },
             100000: { // more than 100K but less then 2M
-              labels: true,
-              model : Genoverse.Track.Model.Gene.Ensembl,
-              view  : Genoverse.Track.View.Gene.Ensembl
+              labels : true,
+              model  : Genoverse.Track.Model.Gene.Ensembl,
+              view   : Genoverse.Track.View.Gene.Ensembl
             },
             1: { // > 1 base-pair, but less then 100K
-              labels: true,
-              model : Genoverse.Track.Model.Transcript.Ensembl,
-              view  : Genoverse.Track.View.Transcript.Ensembl
-            },
-          }
+              labels : true,
+              model  : Genoverse.Track.Model.Transcript.Ensembl,
+              view   : Genoverse.Track.View.Transcript.Ensembl
+            }
+          })
         ]
       }
 
-      $(document).ready(function(){ window.genoverse = new Genoverse(genoverseConfig); });
+      $(document).ready(function () { window.genoverse = new Genoverse(genoverseConfig); });
     </script>
   </body>
 </html>

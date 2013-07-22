@@ -1,69 +1,65 @@
 Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
-  constructor: function (config) {
+  constructor: function (properties) {
+    this.base(properties);
+    
     if (typeof this._makeImage === 'function') {
       return;
     }
     
-    if (this.strand === -1) {
-      this.url        = false;
-      this._makeImage = this.makeReverseImage || this.makeImage;
+    var strand        = this.prop('strand');
+    var featureStrand = this.prop('featureStrand');
+    
+    if (strand === -1) {
+      this._makeImage = this.track.makeReverseImage ? $.proxy(this.track.makeReverseImage, this) : this.makeImage;
       this.makeImage  = $.noop;
     } else {
-      var reverseTrack = $.extend(true, {}, Object.getPrototypeOf(this), config, { controller: this.controller, model: this.model, view: this.view, strand: -1, forwardTrack: this });
+      strand = this.prop('strand', 1);
       
-      this.strand       = 1;
       this._makeImage   = this.makeImage;
       this.makeImage    = this.makeForwardImage;
-      this.reverseTrack = this.browser.addTrack(reverseTrack, this.browser.tracks.length);
+      this.reverseTrack = this.browser.addTrack(this.track.constructor.extend({ strand: -1, url: false, forwardTrack: this }), this.browser.tracks.length).controller;
     }
     
-    if (!this.featureStrand) {
-      this.featureStrand = this.strand;
+    if (!featureStrand) {
+      this.prop('featureStrand', strand);
     }
     
-    this.base(config);
-  },
-  
-  setURL: function (urlParams, update) {
-    $.extend(urlParams || this.urlParams, { strand: this.featureStrand });
-    this.base(urlParams, update);
+    if (!(this.model instanceof Genoverse.Track.Model.Stranded)) {
+      this.track.lengthMap.push([ -9e99, { model: Genoverse.Track.Model.Stranded }]);
+    }
   },
   
   init: function () {
     this.base();
     
-    if (this.strand === 1) {
-      this.reverseTrack.features = this.features;
-    } else {
-      this.features = this.forwardTrack.features;
+    var forwardTrack = this.prop('forwardTrack');
+    
+    if (forwardTrack) {
+      this.prop('features', forwardTrack.prop('features'));
     }
-  },
-  
-  findFeatures: function () {
-    var strand = this.featureStrand;
-    return $.grep(this.base.apply(this, arguments), function (feature) { return feature.strand === strand; });
   },
   
   makeForwardImage: function (params) {
-    var rtn = this._makeImage(params);
+    var reverseTrack = this.prop('reverseTrack');
+    var rtn          = this._makeImage(params);
     
     if (rtn && typeof rtn.done === 'function') {
       rtn.done(function () {
-        this.reverseTrack._makeImage(params, rtn);
+        reverseTrack._makeImage(params, rtn);
       });
     } else {
-      this.reverseTrack._makeImage(params, rtn);
+      reverseTrack._makeImage(params, rtn);
     }
   },
   
-  remove: function () {
-    if (!this.removing) {
-      var track = this.forwardTrack || this.reverseTrack;
-      
-      track.removing = true;
-      this.browser.removeTrack(track);
+  destroy: function () {
+    if (this.removing) {
+      return;
     }
     
+    this.removing = true;
+    
+    this.browser.removeTrack((this.prop('forwardTrack') || this.prop('reverseTrack')).track);
     this.base();
   }
 });

@@ -1,59 +1,199 @@
 Genoverse.Track.View = Base.extend({
-  top            : 2,
-  height         : 12,
   featureMargin  : { top: 3, right: 1, bottom: 1, left: 0 }, // left is never used
-  repeatLabel    : true,
-  minScaledWidth : 0.5,
   fontHeight     : 10,
   fontFamily     : 'sans-serif',
   fontWeight     : 'normal',
   fontColor      : '#000000',
   color          : '#000000',
+  minScaledWidth : 0.5,
   labels         : true,
+  repeatLabel    : true,
   bump           : false,
-  messages       : {
-    error     : 'ERROR: ',
-    threshold : 'Data for this track is not displayed in regions greater than ',
-    resize    : 'Some features are currently hidden, resize to see all'
+  depth          : undefined,
+  featureHeight  : undefined, // defaults to track height
+  
+  constructor: function (properties) {
+    $.extend(this, properties);
+    Genoverse.wrapFunctions(this);
+    this.init();
   },
   
-  drawBackground  : $.noop,
-  decorateFeature : $.noop,
+  // difference between init and constructor: init gets called on reset, if reset is implemented
+  init: function () {
+    this.setDefaults();
+    this.scaleSettings = {};
+  },
   
-  constructor: function () {
+  setDefaults: function () {
     var margin = [ 'Top', 'Right', 'Bottom', 'Left' ];
     
-    for (var i in margin) {
+    for (var i = 0; i < margin.length; i++) {
       if (typeof this['featureMargin' + margin[i]] === 'number') {
         this.featureMargin[margin[i].toLowerCase()] = this['featureMargin' + margin[i]];
       }
     }
     
-    this.featureHeight  = typeof this.featureHeight !== 'undefined' ? this.featureHeight : this.view.prototype.height; // Base feature height must on default track height if not set
-    this.margin         = typeof this.margin        !== 'undefined' ? this.margin        : this.browser.trackMargin;
-    this.fixedHeight    = typeof this.fixedHeight   !== 'undefined' ? this.fixedHeight   : this.featureHeight === this.height && !this.bump;
-    this.autoHeight     = typeof this.autoHeight    !== 'undefined' ? this.autoHeight    : !this.fixedHeight && this.height === this.view.prototype.height ? this.browser.autoHeight : false;
-    this.resizable      = typeof this.resizable     !== 'undefined' ? this.resizable     : !this.fixedHeight;
-    this.height        += this.margin;
-    this.initialHeight  = this.height;
-    this.font           = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
-    this.labelUnits     = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
-    
-    if (this.hidden) {
-      this.height = 0;
-    }
-    
-    if (this.autoHeight === 'force') {
-      this.autoHeight  = true;
-      this.fixedHeight = false;
-      this.resizable   = false;
-    } else if (this.threshold) {
-      this.thresholdMessage = this.formatLabel(this.threshold);
-    }
+    this.context    = $('<canvas>')[0].getContext('2d');
+    this.featureHeight = typeof this.featureHeight !== 'undefined' ? this.featureHeight : this.prop('defaultHeight');
+    this.font       = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
+    this.labelUnits = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
     
     if (this.labels && this.labels !== 'overlay' && (this.depth || this.bump === 'labels')) {
       this.labels = 'separate';
     }
+  },
+  
+  setScaleSettings: function (scale) {
+    var featurePositions, labelPositions;
+    
+    if (!this.scaleSettings[scale]) {
+      featurePositions = featurePositions || new RTree();
+      
+      this.scaleSettings[scale] = {
+        imgContainers    : $(),
+        featurePositions : featurePositions,
+        labelPositions   : this.labels === 'separate' ? labelPositions || new RTree() : featurePositions
+      };
+    }
+    
+    return this.scaleSettings[scale];
+  },
+  
+  scaleFeatures: function (features, scale) {
+    var add = Math.max(scale, 1);
+    var feature;
+    
+    for (var i = 0; i < features.length; i++) {
+      feature = features[i];
+      
+      if (!feature.position) {
+        feature.position = {};
+      }
+      
+      if (!feature.position[scale]) {
+        feature.position[scale] = {
+          start  : feature.start * scale,
+          width  : (feature.end - feature.start) * scale + add,
+          height : feature.height || this.featureHeight
+        };
+        
+        if (feature.position[scale].width < this.minScaledWidth) {
+          feature.position[scale].width = this.minScaledWidth;
+        }
+      }
+    }
+    
+    return features;
+  },
+  
+  positionFeatures: function (features, params) {
+    params.margin = this.prop('margin');
+    
+    for (var i = 0; i < features.length; i++) {
+      this.positionFeature(features[i], params);
+    }
+    
+    params.width         = Math.ceil(params.width);
+    params.height        = Math.ceil(params.height);
+    //params.featureHeight = Math.max(Math.ceil(params.featureHeight), this.fixedHeight ? Math.max(this.height, this.prop('minLabelHeight')) : 0);
+    params.featureHeight = Math.max(Math.ceil(params.featureHeight), this.prop('resizable') ? Math.max(this.prop('height'), this.prop('minLabelHeight')) : 0);
+    params.labelHeight   = Math.ceil(params.labelHeight);
+    
+    return features;
+  },
+  
+  positionFeature: function (feature, params) {
+    var scale = params.scale;
+    
+    feature.position[scale].X = feature.position[scale].start - params.scaledStart; // FIXME: always have to reposition for X, in case a feature appears in 2 images. Pass scaledStart around instead?
+    
+    if (!feature.position[scale].positioned) {
+      feature.position[scale].H = (feature.position[scale].height + this.featureMargin.top + this.featureMargin.bottom);
+      feature.position[scale].W = feature.position[scale].width + (feature.marginRight || this.featureMargin.right);
+      feature.position[scale].Y = (feature.y ? feature.y * (feature.position[scale].H + this.featureMargin.top + this.featureMargin.bottom) : this.featureMargin.top);
+      
+      if (feature.label) {
+        if (typeof feature.label === 'string') {
+          feature.label = feature.label.split('\n');
+        }
+        
+        var context = this.context;
+        
+        feature.labelHeight = feature.labelHeight || (this.fontHeight + 2) * feature.label.length;
+        feature.labelWidth  = feature.labelWidth  || Math.max.apply(Math, $.map(feature.label, function (l) { return Math.ceil(context.measureText(l).width); })) + 1;
+        
+        if (this.labels === true) {
+          feature.position[scale].H += feature.labelHeight;
+          feature.position[scale].W  = Math.max(feature.labelWidth, feature.position[scale].W);
+        } else if (this.labels === 'separate' && !feature.position[scale].label) {
+          feature.position[scale].label = {
+            x: feature.position[scale].start,
+            y: feature.position[scale].Y,
+            w: feature.labelWidth,
+            h: feature.labelHeight
+          };
+        }
+      }
+      
+      var bounds = {
+        x: feature.position[scale].start,
+        y: feature.position[scale].Y,
+        w: feature.position[scale].W,
+        h: feature.position[scale].H
+      };
+      
+      if (this.bump === true) {
+        this.bumpFeature(bounds, feature, scale, this.scaleSettings[scale].featurePositions);
+      }
+      
+      this.scaleSettings[scale].featurePositions.insert(bounds, feature);
+      
+      feature.position[scale].bottom = feature.position[scale].Y + feature.position[scale].H + params.margin;
+      
+      if (feature.position[scale].label) {
+        var f = $.extend(true, {}, feature); // FIXME: hack to avoid changing feature.position[scale].Y in bumpFeature
+        
+        this.bumpFeature(feature.position[scale].label, f, scale, this.scaleSettings[scale].labelPositions);
+        
+        f.position[scale].label        = feature.position[scale].label;
+        f.position[scale].label.bottom = f.position[scale].label.y + f.position[scale].label.h + params.margin;
+        
+        feature = f;
+        
+        this.scaleSettings[scale].labelPositions.insert(feature.position[scale].label, feature);
+        
+        params.labelHeight = Math.max(params.labelHeight, feature.position[scale].label.bottom);
+      }
+      
+      feature.position[scale].positioned = true;
+    }
+    
+    params.featureHeight = Math.max(params.featureHeight, feature.position[scale].bottom);
+    params.height        = Math.max(params.height, params.featureHeight + params.labelHeight);
+  },
+  
+  bumpFeature: function (bounds, feature, scale, tree) {
+    var depth = 0;
+    var bump;
+    
+    do {
+      if (this.depth && ++depth >= this.depth) {
+        if ($.grep(this.scaleSettings[scale].featurePositions.search(bounds), function (f) { return f.position[scale].visible !== false; }).length) {
+          feature.position[scale].visible = false;
+        }
+        
+        break;
+      }
+      
+      bump = false;
+      
+      if ((tree.search(bounds)[0] || feature).id !== feature.id) {
+        bounds.y += bounds.h;
+        bump      = true;
+      }
+    } while (bump);
+    
+    feature.position[scale].Y = bounds.y;
   },
   
   draw: function (features, featureContext, labelContext, scale) {
@@ -147,6 +287,20 @@ Genoverse.Track.View = Base.extend({
     feature.labelColor = feature.color || this.fontColor || this.color;
   },
   
+  // truncate features - make the features start at 1px outside the canvas to ensure no lines are drawn at the borders incorrectly
+  truncateForDrawing: function (feature) {
+    var start = Math.min(Math.max(feature.x, -1), this.width + 1);
+    var width = feature.x - start + feature.width;
+
+    if (width + start > this.width) {
+      width = this.width - start + 1;
+    }
+    
+    feature.untruncated = { x: feature.x, width: feature.width };
+    feature.x           = start;
+    feature.width       = Math.max(width, 0);
+  },
+  
   formatLabel: function (label) {
     var power = Math.floor((label.toString().length - 1) / 3);
     var unit  = this.labelUnits[power];
@@ -154,5 +308,8 @@ Genoverse.Track.View = Base.extend({
     label /= Math.pow(10, power * 3);
     
     return Math.floor(label) + (unit === 'bp' ? '' : '.' + (label.toString().split('.')[1] || '').concat('00').substring(0, 2)) + ' ' + unit;
-  }
+  },
+  
+  drawBackground  : $.noop,
+  decorateFeature : $.noop // decoration for the features
 });

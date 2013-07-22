@@ -1,32 +1,49 @@
 Genoverse.Track.Controller = Base.extend({
-  scrollBuffer : 1.2,                  // number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
-  dataBuffer   : { start: 0, end: 0 }, // basepairs, extend data region for, when getting data from the origin
-
-  constructor: function () {
-    this.browser.wrapFunctions(this);
+  height       : 12,        // The height of the track_container div
+  margin       : 2,         // The spacing between this track and the next
+  scrollBuffer : 1.2,       // Number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
+  threshold    : Infinity,  // Length above which the track is not drawn
+  resizable    : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
+  hidden       : false,     // Is the track hidden by default
+  border       : true,      // Does the track have a bottom border
+  name         : undefined, // Need to have name in the interface, as Function.name exists, so prop('name') will not work properly
+  autoHeight   : undefined, // Does the track automatically resize so that all the features are visible
+  messages     : {
+    error     : 'ERROR: ',
+    threshold : 'Data for this track is not displayed in regions greater than ',
+    resize    : 'Some features are currently hidden, resize to see all'
+  },
+  
+  constructor: function (properties) {
+    $.extend(this, properties);
+    Genoverse.wrapFunctions(this);
     
+    this.setDefaults();
+    this.init();
+  },
+  
+  init: function () {
     this.imgRange    = {};
     this.scrollRange = {};
-    this.dataLoading = []; // tracks incomplete requests for data
-    this.order       = typeof this.order !== 'undefined' ? this.order : this.index;
     
     this.addDomElements();
     this.addUserEventHandlers();
-    this.init();
   },
-
-  init: function () { // FIXME: this should all be moved to model
-    if (this.renderer) {
-      this.featuresByRenderer   = {};
-      this.featuresByIdRenderer = {};
-      this.setRenderer(this.renderer, true);
-    } else {
-      this.dataRanges   = new RTree();
-      this.features     = new RTree();
-      this.featuresById = {};
+  
+  setDefaults: function () {
+    this.defaultHeight     = this.height; // TODO: check if this is needed - could use this.constructor.prototype.height/autoHeight instead?
+    this.defaultAutoHeight = this.autoHeight;
+    this.autoHeight        = typeof this.autoHeight !== 'undefined' ? this.autoHeight : this.height === this.constructor.prototype.height ? this.browser.autoHeight : false;
+    this.height           += this.margin;
+    this.initialHeight     = this.height;
+    
+    if (this.hidden) {
+      this.height = 0;
     }
     
-    this.scaleSettings = {};
+    if (this.resizable === 'auto') {
+      this.autoHeight = true;
+    }
   },
   
   reset: function () {
@@ -34,8 +51,10 @@ Genoverse.Track.Controller = Base.extend({
     this.browser.closeMenus.call(this);
     
     if (this.url !== false) {
-      this.init();
+      this.model.init();
     }
+    
+    this.view.init();
   },
   
   resetImages: function () {
@@ -53,43 +72,34 @@ Genoverse.Track.Controller = Base.extend({
     this.scrollRange[this.scrollStart] = this.scrollRange[this.scrollStart] || { start: this.browser.start - this.browser.length, end: this.browser.end + this.browser.length };
   },
   
-  resetFeaturePositions: function () {
-    this.scaleSettings    = {};
-    this.featurePositions = new RTree();
-    this.labelPositions   = this.labels === 'separate' ? new RTree() : this.featurePositions;
-    
-    for (var id in this.featuresById) {
-      delete this.featuresById[id].position;
-    }
-  },
-  
   rename: function (name) {
     this.name           = name;
     this.minLabelHeight = $('span.name', this.label).html(this.name).outerHeight(true);
-    
     this.label.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
   },
   
   addDomElements: function () {
+    var name = this.name || '';
+    
     this.menus            = $();
     this.container        = $('<div class="track_container">').appendTo(this.browser.wrapper);
     this.scrollContainer  = $('<div class="scroll_container">').appendTo(this.container);
     this.imgContainer     = $('<div class="image_container">').width(this.width);
     this.messageContainer = $('<div class="message_container"><div class="messages"></div><span class="control collapse">&laquo;</span><span class="control expand">&raquo;</span></div>').appendTo(this.container);
-    this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('track', this);
+    this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('track', this.track);
     this.context          = $('<canvas>')[0].getContext('2d');
     
-    if (this.browser.trackBorder) {
+    if (this.border) {
       $('<div class="track_border">').appendTo(this.container);
     }
     
-    if (this.unsortable) {
+    if (this.prop('unsortable')) {
       this.label.addClass('unsortable');
     } else {
       $('<div class="handle">').appendTo(this.label);
     }
     
-    this.minLabelHeight = $('<span class="name" title="' + (this.name || '') + '">' + (this.name || '') + '</span>').appendTo(this.label).outerHeight(true);
+    this.minLabelHeight = $('<span class="name" title="' + name + '">' + name + '</span>').appendTo(this.label).outerHeight(true);
     
     var h = this.hidden ? 0 : Math.max(this.height, this.minLabelHeight);
     
@@ -101,21 +111,21 @@ Genoverse.Track.Controller = Base.extend({
   },
   
   addUserEventHandlers: function () {
-    var track   = this;
-    var browser = this.browser;
+    var controller = this;
+    var browser    = this.browser;
     
     this.container.on('mouseup', '.image_container', function (e) {
       if ((e.which && e.which !== 1) || browser.start !== browser.dragStart || (browser.dragAction === 'select' && browser.selector.outerWidth(true) > 2)) {
         return; // Only show menus on left click when not dragging and not selecting
       }
-      
-      track.click(e);
+
+      controller.click(e);
     });
     
     this.messageContainer.children().on('click', function () {
-      var collapsed = track.messageContainer.children('.messages').is(':visible') ? ' collapsed' : '';
-      track.messageContainer.attr('class', 'message_container' + collapsed);
-      track.checkHeight();
+      var collapsed = controller.messageContainer.children('.messages').is(':visible') ? ' collapsed' : '';
+      controller.messageContainer.attr('class', 'message_container' + collapsed);
+      controller.checkHeight();
     });
   },
   
@@ -129,7 +139,7 @@ Genoverse.Track.Controller = Base.extend({
     }
   },
   
-  // FIXME: messages are now hidden/shown instead of removed/added. This will cause a problem if a new message arrives with the same code as one that already exists.  
+  // FIXME: messages are now hidden/shown instead of removed/added. This will cause a problem if a new message arrives with the same code as one that already exists.
   showMessage: function (code, additionalText) {
     var messages = this.messageContainer.children('.messages');
     
@@ -162,59 +172,63 @@ Genoverse.Track.Controller = Base.extend({
     messages = null;
   },
   
+  showError: function (error) {
+    this.showMessage('error', error);
+  },
+  
   checkHeight: function () {
-    var autoHeight;
-    
-    if (this.threshold && this.browser.length > this.threshold) {
-      autoHeight      = this.autoHeight;
-      this.autoHeight = true;
-      
+    if (this.browser.length > this.threshold) {
       if (this.thresholdMessage) {
         this.showMessage('threshold', this.thresholdMessage);
-        this.fullVisibleHeight = this.messageContainer.outerHeight(true);
+        this.prop('fullVisibleHeight', Math.max(this.messageContainer.outerHeight(true), this.minLabelHeight));
       } else {
-        this.fullVisibleHeight = 0;
+        this.prop('fullVisibleHeight', 0);
       }
+    } else if (this.thresholdMessage) {
+      this.hideMessage('threshold');
+    }
+    
+    if (!this.resizable) {
+      return;
+    }
+    
+    var autoHeight;
+    
+    if (this.browser.length > this.threshold) {
+      autoHeight = this.prop('autoHeight');
+      this.prop('autoHeight', true);
     } else {
       var bounds = { x: this.browser.scaledStart, w: this.width, y: 0, h: 9e99 };
       var scale  = this.scale;
       var height = Math.max.apply(Math, $.map(this.featurePositions.search(bounds), function (feature) { return feature.position[scale].bottom; }).concat(0));
       
-      if (this.labels === 'separate') {
+      if (this.prop('labels') === 'separate') {
         this.labelTop = height;
         height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.position[scale].label.bottom; }).concat(0));
       }
       
-      if (this.thresholdMessage) {
-        this.hideMessage('threshold');
-      }
-      
-      this.fullVisibleHeight = height || (this.messageContainer.is(':visible') ? this.messageContainer.outerHeight(true) : 0);
+      this.prop('fullVisibleHeight', height || (this.messageContainer.is(':visible') ? this.messageContainer.outerHeight(true) : 0));
     }
     
     this.autoResize();
     
     if (typeof autoHeight !== 'undefined') {
-      this.autoHeight = autoHeight;
+      this.prop('autoHeight', autoHeight);
     }
   },
   
   autoResize: function () {
-    if (this.autoHeight || this.labels === 'separate') {
-      this.resize(this[this.autoHeight ? 'fullVisibleHeight' : 'height'], this.labelTop);
+    var autoHeight = this.prop('autoHeight');
+    
+    if (autoHeight || this.prop('labels') === 'separate') {
+      this.resize(autoHeight ? this.prop('fullVisibleHeight') : this.height, this.labelTop);
     } else {
       this.toggleExpander();
     }
   },
   
   resize: function (height) {
-    if (arguments[1] !== true && height < this.featureHeight) {
-      height = 0;
-    } else {
-      height = this.hidden ? 0 : Math.max(height, this.minLabelHeight);
-    }
-    
-    this.height = height;
+    height = this.setHeight.apply(this, arguments);
     
     if (typeof arguments[1] === 'number') {
       this.imgContainers.children('.labels').css('top', arguments[1]);
@@ -224,40 +238,51 @@ Genoverse.Track.Controller = Base.extend({
     this.toggleExpander();
   },
   
-  resetHeight: function () {
+  setHeight: function (height) {
+    if (arguments[1] !== true && height < this.prop('featureHeight')) {
+      height = 0;
+    } else {
+      height = this.hidden ? 0 : Math.max(height, this.prop('minLabelHeight'));
+    }
+    
+    this.height = height;
+    
+    return height;
+  },
+  
+  resetHeight: function () {  
     if (this.resizable) {
-      this.autoHeight = !!([ this.view.prototype.autoHeight, this.browser.autoHeight ].sort(function (a, b) {
+      this.autoHeight = !!([ this.defaultAutoHeight, this.browser.autoHeight ].sort(function (a, b) {
         return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
       })[0]);
       
-      this.resize(this.view.prototype.height + this.margin);
+      this.resize(this.defaultHeight + this.prop('margin'));
       this.initialHeight = this.height;
     }
   },
   
   toggleExpander: function () {
-    if (!this.resizable) {
+    if (this.resizable !== true) {
       return;
     }
     
-    var track = this;
-    
-    // Note: this.fullVisibleHeight - this.featureMargin.top - this.featureMargin.bottom is not actually the correct value to test against, but it's the easiest best guess to obtain.
-    // this.fullVisibleHeight is the maximum bottom position of the track's features in the region, which includes margin at the bottom of each feature and label
-    // Therefore this.fullVisibleHeight includes this margin for the bottom-most feature.
+    // Note: fullVisibleHeight - featureMargin.top - featureMargin.bottom is not actually the correct value to test against, but it's the easiest best guess to obtain.
+    // fullVisibleHeight is the maximum bottom position of the track's features in the region, which includes margin at the bottom of each feature and label
+    // Therefore fullVisibleHeight includes this margin for the bottom-most feature.
     // The correct value (for a track using the default positionFeatures code) is:
-    // this.fullVisibleHeight - ([there are labels in this region] ? (this.labels === 'separate' ? 0 : this.featureMargin.bottom + 1) + 2 : this.featureMargin.bottom)
-    if (this.fullVisibleHeight - this.featureMargin.top - this.featureMargin.bottom > this.container.height()) {
+    // fullVisibleHeight - ([there are labels in this region] ? (labels === 'separate' ? 0 : featureMargin.bottom + 1) + 2 : featureMargin.bottom)
+    if (this.prop('fullVisibleHeight') - this.prop('featureMargin').top - this.prop('featureMargin').bottom > this.height) {
       this.showMessage('resize');
       
-      var height = this.messageContainer.outerHeight(true);
+      var controller = this;
+      var height     = this.messageContainer.outerHeight(true);
       
       if (height > this.height) {
         this.resize(height);
       }
       
       this.expander = (this.expander || $('<div class="expander static">').width(this.width).appendTo(this.container).on('click', function () {
-        track.resize(track.fullVisibleHeight);
+        controller.resize(controller.prop('fullVisibleHeight'));
       }))[this.height === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
       this.hideMessage('resize');
@@ -271,76 +296,28 @@ Genoverse.Track.Controller = Base.extend({
   },
   
   setScale: function () {
-    var track = this;
-    var featurePositions, labelPositions;
+    var controller = this;
     
     this.scale = this.browser.scale;
     
-    this.setModelView();
+    this.track.setMVC();
     this.resetImageRanges();
     
-    if (this.renderer) {
-      var renderer = this.getRenderer();
-      
-      if (renderer !== this.urlParams.renderer) {
-        this.setRenderer(renderer);
-      }
+    var labels = this.prop('labels');
+    
+    if (labels && labels !== 'overlay') {
+      this.model.setLabelBuffer(this.browser.labelBuffer);
     }
     
-    // Don't draw labels if the region is too big
-    if (this.maxLabelRegion) {
-      if (this.maxLabelRegion < this.browser.length) {
-        this.labels = false;
-      } else if (typeof this.view.prototype.labels !== 'undefined') {
-        this.labels = this.view.prototype.labels;
-      }
+    if (this.threshold !== Infinity && this.resizable !== 'auto') {
+      this.thresholdMessage = this.view.formatLabel(this.threshold);
     }
     
-    if (this.labels && this.labels !== 'overlay') {
-      this.dataBuffer.start = Math.max(this.dataBuffer.start, this.browser.labelBuffer);
-    }
-    
-    if (!this.scaleSettings[this.scale]) {
-      featurePositions = featurePositions || new RTree();
-      
-      this.scaleSettings[this.scale] = {
-        imgContainers    : $(),
-        featurePositions : featurePositions,
-        labelPositions   : this.labels === 'separate' ? labelPositions || new RTree() : featurePositions
-      };
-    }
-    
-    $.each(this.scaleSettings[this.scale], function (k, v) { track[k] = v; });
+    $.each(this.view.setScaleSettings(this.scale), function (k, v) { controller[k] = v; });
     
     this.hideMessage();
-    
-    if (this.scrollContainer.children().hide().filter('.' + this.scrollStart).show().length) {
-      this.checkHeight();
-    } else {
-      this.scrollContainer.css('left', 0);
-      this.makeFirstImage();
-    }
   },
   
-  setRenderer: function (renderer, permanent) {
-    if (this.urlParams.renderer !== renderer) {
-      this.urlParams.renderer = renderer;
-      this.dataRanges         = new RTree();
-      this.features           = (this.featuresByRenderer[renderer]   = this.featuresByRenderer[renderer]   || new RTree());
-      this.featuresById       = (this.featuresByIdRenderer[renderer] = this.featuresByIdRenderer[renderer] || {});
-    }
-    
-    if (permanent && this.renderer !== renderer) {
-      this.renderer = renderer;
-      this.reset();
-      this.setScale();
-    }
-  },
-  
-  getRenderer: function () {
-    return this.urlParams.renderer;
-  },
-
   move: function (delta) {
     this.left += delta;
     this.scrollContainer.css('left', this.left);
@@ -384,15 +361,11 @@ Genoverse.Track.Controller = Base.extend({
     
     if (this.scrollRange[scrollStart] || start > scrollRange.end || end < scrollRange.start) {
       this.resetImageRanges();
-      
-      if (!this.scrollContainer.css('left', 0).children().hide().filter('.' + scrollStart).show().length) {
-        return this.makeFirstImage();
-      }
+      this.makeFirstImage(scrollStart);
     } else {
       this.move(typeof delta === 'number' ? delta : (start - this.browser.start) * this.scale);
+      this.checkHeight();
     }
-    
-    this.checkHeight();
   },
   
   makeImage: function (params) {
@@ -403,10 +376,11 @@ Genoverse.Track.Controller = Base.extend({
     params.labelHeight   = params.labelHeight   || 0;
     
     var deferred;
-    var tooLarge = this.threshold && this.threshold < this.browser.length;
-    var div      = this.imgContainer.clone().addClass((params.cls + ' loading').replace('.', '_')).css({ left: params.left, display: params.cls === this.scrollStart ? 'block' : 'none' });
-    var bgImage  = params.background ? $('<img class="bg">').hide().addClass(params.background).data(params).prependTo(div) : false;
-    var image    = $('<img class="data">').hide().data(params).appendTo(div).on('load', function () {
+    var controller = this;
+    var tooLarge   = this.browser.length > this.threshold;
+    var div        = this.imgContainer.clone().addClass((params.cls + ' loading').replace('.', '_')).css({ left: params.left, display: params.cls === this.scrollStart ? 'block' : 'none' });
+    var bgImage    = params.background ? $('<img class="bg">').hide().addClass(params.background).data(params).prependTo(div) : false;
+    var image      = $('<img class="data">').hide().data(params).appendTo(div).on('load', function () {
       $(this).fadeIn('fast').parent().removeClass('loading');
       $(this).siblings('.bg').show();
     });
@@ -416,211 +390,100 @@ Genoverse.Track.Controller = Base.extend({
     this.imgContainers.push(div[0]);
     this.scrollContainer.append(this.imgContainers);
     
-    if (!tooLarge && !this.checkDataRange(params.start, params.end)) {
-      params.start -= this.dataBuffer.start;
-      params.end   += this.dataBuffer.end;
-      deferred      = this.getData(params.start, params.end);
+    if (!tooLarge && !this.model.checkDataRange(params.start, params.end)) {
+      var buffer = this.prop('dataBuffer');
+      
+      params.start -= buffer.start;
+      params.end   += buffer.end;
+      deferred      = this.model.getData(params.start, params.end);
     }
-
+    
     if (!deferred) {
       deferred = $.Deferred();
       setTimeout($.proxy(deferred.resolve, this), 1); // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
     }
     
     return deferred.done(function () {
-      var features = tooLarge ? [] : this.findFeatures(params.start, params.end);
-      
-      this.render(features, image);
+      var features = tooLarge ? [] : controller.model.findFeatures(params.start, params.end);
+      controller.render(features, image);
       
       if (bgImage) {
-        this.renderBackground(features, bgImage);
+        controller.renderBackground(features, bgImage);
       }
-    }).fail(function () { 
-      // TODO: error handling here
+    }).fail(function (e) {
+      controller.showError(e);
     });
   },
   
-  makeFirstImage: function () {
-    var start   = this.browser.start;
-    var end     = this.browser.end;
-    var length  = this.browser.length;
-    var scale   = this.scale;
-    var cls     = this.scrollStart;
-    var loading = this.imgContainer.clone().addClass('loading').prependTo(this.scrollContainer);
-    
-    function makeImages() {
-      this.makeImage({ start: start, end: end, scale: scale, cls: cls, left: 0 });
-      
-      if (start > 1) {
-        this.makeImage({ start: start - length, end: start - 1, scale: scale, cls: cls, left: -this.width });
+  makeFirstImage: function (moveTo) {
+    if (this.scrollContainer.children().hide().filter('.' + (moveTo || this.scrollStart)).show().length) {
+      if (moveTo) {
+        this.scrollContainer.css('left', 0);
       }
       
-      if (end < this.browser.chromosomeSize) {
-        this.makeImage({ start: end + 1, end: end + length, scale: scale, cls: cls, left: this.width });
+      return this.checkHeight();
+    }
+    
+    var controller = this;
+    var start      = this.browser.start;
+    var end        = this.browser.end;
+    var length     = this.browser.length;
+    var scale      = this.scale;
+    var cls        = this.scrollStart;
+    var images     = [{ start: start, end: end, scale: scale, cls: cls, left: 0 }];
+    var left       = 0;
+    var width      = this.width;
+    
+    if (start > 1) {
+      images.push({ start: start - length, end: start - 1, scale: scale, cls: cls, left: -this.width });
+      left   = -this.width;
+      width += this.width;
+    }
+    
+    if (end < this.browser.chromosomeSize) {
+      images.push({ start: end + 1, end: end + length, scale: scale, cls: cls, left: this.width });
+      width += this.width;
+    }
+    
+    var loading = this.imgContainer.clone().addClass('loading').css({ left: left, width: width }).prependTo(this.scrollContainer.css('left', 0));
+    
+    function makeImages() {
+      for (var i = 0; i < images.length; i++) {
+        controller.makeImage(images[i]);
       }
       
       loading.remove();
     }
     
     // FIXME: on zoom out, making more than 1 request
-    if (this.threshold && this.threshold < length || this.checkDataRange(start, end)) {
-      makeImages.call(this);
+    if (length > this.threshold || this.model.checkDataRange(start, end)) {
+      makeImages();
     } else {
-      this.getData(start - this.dataBuffer.start - length, end + this.dataBuffer.end + length).done(makeImages);
+      var buffer = this.prop('dataBuffer');
+      
+      this.model.getData(start - buffer.start - length, end + buffer.end + length).done(makeImages).fail(function (e) {
+        controller.showError(e);
+      });
     }
-  },
-  
-  scaleFeatures: function (features, scale) {
-    var add = Math.max(scale, 1);
-    var feature;
-    
-    for (var i = 0; i < features.length; i++) {
-      feature = features[i];
-      
-      if (!feature.position) {
-        feature.position = {};
-      }
-      
-      if (!feature.position[scale]) {
-        feature.position[scale] = {
-          start  : feature.start * scale,
-          width  : (feature.end - feature.start) * scale + add,
-          height : feature.height || this.featureHeight
-        };
-        
-        if (feature.position[scale].width < this.minScaledWidth) {
-          feature.position[scale].width = this.minScaledWidth;
-        }
-      }
-    }
-    
-    return features;
-  },
-  
-  positionFeatures: function (features, params) {
-    for (var i = 0; i < features.length; i++) {
-      this.positionFeature(features[i], params);
-    }
-    
-    params.width         = Math.ceil(params.width);
-    params.height        = Math.ceil(params.height);
-    params.featureHeight = Math.max(Math.ceil(params.featureHeight), this.fixedHeight ? Math.max(this.height, this.minLabelHeight) : 0);
-    params.labelHeight   = Math.ceil(params.labelHeight);
-    
-    return features;
-  },
-  
-  positionFeature: function (feature, params) {
-    var scale = params.scale;
-    
-    feature.position[scale].X = feature.position[scale].start - params.scaledStart; // FIXME: always have to reposition for X, in case a feature appears in 2 images. Pass scaledStart around instead?
-    
-    if (!feature.position[scale].positioned) {
-      feature.position[scale].H = (feature.position[scale].height + this.featureMargin.top + this.featureMargin.bottom);
-      feature.position[scale].W = feature.position[scale].width + (feature.marginRight || this.featureMargin.right);
-      feature.position[scale].Y = (feature.y ? feature.y * (feature.position[scale].H + this.featureMargin.top + this.featureMargin.bottom) : this.top);
-      
-      if (feature.label) {
-        if (typeof feature.label === 'string') {
-          feature.label = feature.label.split('\n');
-        }
-        
-        var context = this.context || $('<canvas>')[0].getContext('2d');
-        
-        feature.labelHeight = feature.labelHeight || (this.fontHeight + 2) * feature.label.length;
-        feature.labelWidth  = feature.labelWidth  || Math.max.apply(Math, $.map(feature.label, function (l) { return Math.ceil(context.measureText(l).width); })) + 1;
-        
-        if (this.labels === true) {
-          feature.position[scale].H += feature.labelHeight;
-          feature.position[scale].W  = Math.max(feature.labelWidth, feature.position[scale].W);
-        } else if (this.labels === 'separate' && !feature.position[scale].label) {
-          feature.position[scale].label = {
-            x: feature.position[scale].start,
-            y: feature.position[scale].Y,
-            w: feature.labelWidth,
-            h: feature.labelHeight
-          };
-        }
-      }
-      
-      var bounds = {
-        x: feature.position[scale].start,
-        y: feature.position[scale].Y,
-        w: feature.position[scale].W,
-        h: feature.position[scale].H
-      };
-      
-      if (this.bump === true) {
-        this.bumpFeature(bounds, feature, scale, this.scaleSettings[scale].featurePositions);
-      }
-      
-      this.scaleSettings[scale].featurePositions.insert(bounds, feature);
-      
-      feature.position[scale].bottom = feature.position[scale].Y + feature.position[scale].H + this.margin;
-      
-      if (feature.position[scale].label) {
-        var f = $.extend(true, {}, feature); // FIXME: hack to avoid changing feature.position[scale].Y in bumpFeature
-        
-        this.bumpFeature(feature.position[scale].label, f, scale, this.scaleSettings[scale].labelPositions);
-        
-        f.position[scale].label        = feature.position[scale].label;
-        f.position[scale].label.bottom = f.position[scale].label.y + f.position[scale].label.h + this.margin;
-        
-        feature = f;
-        
-        this.scaleSettings[scale].labelPositions.insert(feature.position[scale].label, feature);
-        
-        params.labelHeight = Math.max(params.labelHeight, feature.position[scale].label.bottom);
-      }
-      
-      feature.position[scale].positioned = true;
-    }
-    
-    params.featureHeight = Math.max(params.featureHeight, feature.position[scale].bottom);
-    params.height        = Math.max(params.height, params.featureHeight + params.labelHeight);
-  },
-  
-  bumpFeature: function (bounds, feature, scale, tree) {
-    var depth = 0;
-    var bump;
-    
-    do {
-      if (this.depth && ++depth >= this.depth) {
-        if ($.grep(this.scaleSettings[scale].featurePositions.search(bounds), function (f) { return f.position[scale].visible !== false; }).length) {
-          feature.position[scale].visible = false;
-        }
-        
-        break;
-      }
-      
-      bump = false;
-      
-      if ((tree.search(bounds)[0] || feature).id !== feature.id) {
-        bounds.y += bounds.h;
-        bump      = true;
-      }
-    } while (bump);
-    
-    feature.position[scale].Y = bounds.y;
   },
   
   render: function (features, img) {
     var params         = img.data();
-        features       = this.positionFeatures(this.scaleFeatures(features, params.scale), params); // positionFeatures alters params.featureHeight, so this must happen before the canvases are created
+        features       = this.view.positionFeatures(this.view.scaleFeatures(features, params.scale), params); // positionFeatures alters params.featureHeight, so this must happen before the canvases are created
     var featureCanvas  = $('<canvas>').attr({ width: params.width, height: params.featureHeight || 1 });
-    var labelCanvas    = this.labels === 'separate' && params.labelHeight ? featureCanvas.clone().attr('height', params.labelHeight) : featureCanvas;
+    var labelCanvas    = this.prop('labels') === 'separate' && params.labelHeight ? featureCanvas.clone().attr('height', params.labelHeight) : featureCanvas;
     var featureContext = featureCanvas[0].getContext('2d');
     var labelContext   = labelCanvas[0].getContext('2d');
     
-    featureContext.font = labelContext.font = this.font;
+    featureContext.font = labelContext.font = this.prop('font');
     
-    switch (this.labels) {
+    switch (this.prop('labels')) {
       case false     : break;
       case 'overlay' : labelContext.textAlign = 'center'; labelContext.textBaseline = 'middle'; break;
       default        : labelContext.textAlign = 'left';   labelContext.textBaseline = 'top';    break;
     }
     
-    this.draw(features, featureContext, labelContext, params.scale);
+    this.view.draw(features, featureContext, labelContext, params.scale);
     
     img.attr('src', featureCanvas[0].toDataURL());
     
@@ -635,75 +498,11 @@ Genoverse.Track.Controller = Base.extend({
   
   renderBackground: function (features, img, height) {
     var canvas = $('<canvas>').attr({ width: this.width, height: height || 1 })[0];
-    this.drawBackground(features, canvas.getContext('2d'), img.data());
+    this.view.drawBackground(features, canvas.getContext('2d'), img.data());
     img.attr('src', canvas.toDataURL());
     canvas = img = null;
   },
   
-  // truncate features - make the features start at 1px outside the canvas to ensure no lines are drawn at the borders incorrectly
-  truncateForDrawing: function (feature) {
-    var start = Math.min(Math.max(feature.x, -1), this.width + 1);
-    var width = feature.x - start + feature.width;
-    
-    if (width + start > this.width) {
-      width = this.width - start + 1;
-    }
-    
-    feature.untruncated = { x: feature.x, width: feature.width };
-    feature.x           = start;
-    feature.width       = Math.max(width, 0);
-  },
-  
-  showError: function (error) {
-    console.log(arguments);
-    this.showMessage('error', error);
-  },
-  
-  receiveData: function (data, start, end) {
-    this.setDataRange(start, end);
-    
-   // try {
-      this.parseData(data, start, end);
-    /*} catch (e) {
-      this.showError(e);
-    }*/
-  },
-
-  setDataRange: function (start, end) {
-    if (this.allData) {
-      start = 1;
-      end   = this.browser.chromosomeSize;
-    }
-    
-    this.dataRanges.insert({ x: start, w: end - start + 1, y: 0, h: 1 }, [ start, end ]);
-  },
-  
-  checkDataRange: function (start, end) {
-    start = Math.max(1, start);
-    end   = Math.min(this.browser.chromosomeSize, end);
-    
-    var ranges = this.dataRanges.search({ x: start, w: end - start + 1, y: 0, h: 1 }).sort(function (a, b) { return a[0] - b[0]; });
-    
-    if (!ranges.length) {
-      return false;
-    }
-    
-    var s = ranges.length === 1 ? ranges[0][0] : 9e99;
-    var e = ranges.length === 1 ? ranges[0][1] : -9e99;
-    
-    for (var i = 0; i < ranges.length - 1; i++) {
-      // s0 <= s1 && ((e0 >= e1) || (e0 + 1 >= s1))
-      if (ranges[i][0] <= ranges[i + 1][0] && ((ranges[i][1] >= ranges[i + 1][1]) || (ranges[i][1] + 1 >= ranges[i + 1][0]))) {
-        s = Math.min(s, ranges[i][0]);
-        e = Math.max(e, ranges[i + 1][1]);
-      } else {
-        return false;
-      }
-    }
-    
-    return start >= s && end <= e;
-  },
-
   populateMenu: function (feature) {
     return feature;
   },
@@ -730,16 +529,8 @@ Genoverse.Track.Controller = Base.extend({
     this.reset();
     this.disabled = true;
   },
-
-  remove: function () {
-    this.browser.removeTrack(this);
-  },
-
+  
   destroy: function () {
     this.container.add(this.label).add(this.menus).remove();
-    
-    for (var key in this) {
-      delete this[key];
-    }
   }
 });

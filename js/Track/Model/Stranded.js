@@ -1,0 +1,10 @@
+Genoverse.Track.Model.Stranded = Genoverse.Track.Model.extend({
+  setURL: function (urlParams, update) {
+    this.base($.extend(urlParams || this.urlParams, { strand: this.track.featureStrand }), update);
+  },
+  
+  findFeatures: function () {
+    var strand = this.track.featureStrand;
+    return $.grep(this.base.apply(this, arguments), function (feature) { return feature.strand === strand; });
+  }
+});

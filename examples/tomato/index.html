@@ -10,62 +10,60 @@
     <script type="text/javascript" src="SequenceVariation.js"></script>
     <script>
       var genoverseConfig = {
-        container: '#genoverse',
-        width: 1366,
-        genome: 'tomato',
-        plugins: [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
-        tracks: [
+        container : '#genoverse',
+        width     : 1366,
+        genome    : 'tomato',
+        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
+        tracks    : [
           Genoverse.Track.Scalebar,
-          
-          {
-            model      : Genoverse.Track.Model.Sequence.Fasta,
-            view       : Genoverse.Track.View.Sequence,
-            autoHeight : false,
-            threshold  : 30000,
-            url        : 'http://genoverse.org/examples/tomato/data/Solanum_lycopersicum.SL2.40.18.dna.chromosome.__CHR__.fa'
-          },
-          
-          {
-            model       : Genoverse.Track.Model.Transcript.GFF3,
-            name        : 'Gene Track',
-            view        : Genoverse.Track.View.Transcript,
-            url         : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://genoverse.org/examples/tomato/data/gff/mrna.sorted.gff3.gz&r=chr__CHR__:__START__-__END__',
-            labels      : true,
-            intronStyle : 'hat',
-            500000      : {
-              labels: false,
+          Genoverse.Track.extend({
+            name      : 'Fasta',
+            model     : Genoverse.Track.Model.Sequence.Fasta,
+            view      : Genoverse.Track.View.Sequence,
+            url       : 'http://genoverse.org/examples/tomato/data/Solanum_lycopersicum.SL2.40.18.dna.chromosome.__CHR__.fa',
+            resizable : false,
+            30000     : false
+          }),
+          Genoverse.Track.extend({
+            name   : 'Gene Track',
+            url    : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://genoverse.org/examples/tomato/data/gff/mrna.sorted.gff3.gz&r=chr__CHR__:__START__-__END__',
+            model  : Genoverse.Track.Model.Transcript.GFF3,
+            view   : Genoverse.Track.View.Transcript.extend({ intronStyle: 'hat' }),
+            height : 150,
+            500000 : {
+              labels: false
             }
-          },
-          
-          {
+          }),
+          Genoverse.Track.extend({
             model   : Genoverse.Track.Model.Transcript.GFF3,
             view    : Genoverse.Track.View.Transcript,
-            name    : 'SGN<br/>Markers',
+            name    : 'SGN<br />Markers',
             url     : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://elvis.ccc.cranfield.ac.uk/GenoVerseTesting/data/vcf/sgn_markers.sorted.gff3.gz&r=chr__CHR__:__START__-__END__',
-            labels  : true,
+            height  : 150,
             typeMap : {
-              exon: 'match_part',
+              exon: 'match_part'
             },
             500000  : {
-              labels: false,
+              labels: false
             }
-          },
-
-          Genoverse.Track.SequenceVariation.extend({
-            name    : 'MicroTom',
-            url     : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://elvis.ccc.cranfield.ac.uk/GenoVerseTesting/data/vcf/mt_snp-v2.sorted.vcf.gz&r=chr__CHR__:__START__-__END__',
-            maxQUAL : 255
-          }),
-          
-          Genoverse.Track.SequenceVariation.extend({
-            name    : 'L5',
-            url     : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://elvis.ccc.cranfield.ac.uk/GenoVerseTesting/data/vcf/L5_samtoolsMPILEUP_Anno.sorted.vcf.gz&r=chr__CHR__:__START__-__END__',
-            maxQUAL : 255
           }),
           Genoverse.Track.SequenceVariation.extend({
-            name    : 'E9',
-            url     : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://elvis.ccc.cranfield.ac.uk/GenoVerseTesting/data/vcf/E9_samtoolsMPILEUP_Anno.sorted.vcf.gz&r=chr__CHR__:__START__-__END__',
-            maxQUAL : 255
+            name      : 'MicroTom',
+            url       : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://elvis.ccc.cranfield.ac.uk/GenoVerseTesting/data/vcf/mt_snp-v2.sorted.vcf.gz&r=chr__CHR__:__START__-__END__',
+            maxQUAL   : 255,
+            resizable : false
+          }),
+          Genoverse.Track.SequenceVariation.extend({
+            name      : 'L5',
+            url       : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://elvis.ccc.cranfield.ac.uk/GenoVerseTesting/data/vcf/L5_samtoolsMPILEUP_Anno.sorted.vcf.gz&r=chr__CHR__:__START__-__END__',
+            maxQUAL   : 255,
+            resizable : false
+          }),
+          Genoverse.Track.SequenceVariation.extend({
+            name      : 'E9',
+            url       : 'http://genoverse.org/cgi-bin/tabix.proxy?file=http://elvis.ccc.cranfield.ac.uk/GenoVerseTesting/data/vcf/E9_samtoolsMPILEUP_Anno.sorted.vcf.gz&r=chr__CHR__:__START__-__END__',
+            maxQUAL   : 255,
+            resizable : false
           })
         ]
       };
