@@ -57,7 +57,7 @@ Genoverse.Track = Base.extend({
     }
     
     var lengthSettings = this.getSettingsForLength();
-    var settings       = $.extend(true, {}, lengthSettings, this.constructor.prototype); // model, view, options
+    var settings       = $.extend(true, {}, this.constructor.prototype, lengthSettings); // model, view, options
     var mvc            = [ 'model', 'view', 'controller' ];
     var propFunc       = $.proxy(this.prop, this);
     var mvcSettings    = {};
@@ -98,22 +98,24 @@ Genoverse.Track = Base.extend({
         continue;
       }
       
-      if (typeof settings[obj] === 'function') {
-        if (this[obj] && this[obj].constructor.ancestor === settings[obj]) {
-          for (j in this[obj].constructor.prototype) {
-            if (this[obj].constructor.prototype[j] !== this[obj][j] && typeof this[obj][j] !== 'function') {
-              this[obj][j] = this[obj].constructor.prototype[j];
-            }
+      if ((typeof settings[obj] === 'function' && this[obj] && this[obj].constructor.ancestor === settings[obj]) || this[obj] === settings[obj]) {
+        for (j in this[obj].constructor.prototype) {
+          if (this[obj].constructor.prototype[j] !== this[obj][j] && typeof this[obj][j] !== 'function') {
+            this[obj][j] = this[obj].constructor.prototype[j];
           }
-          
-          for (j in mvcSettings[obj].prop) {
-            this[obj][j] = mvcSettings[obj].prop[j];
-          }
-          
-          this[obj].setDefaults();
-        } else {
-          this[obj] = new (settings[obj].extend(mvcSettings[obj].func))(mvcSettings[obj].prop);
         }
+        
+        for (j in mvcSettings[obj].prop) {
+          this[obj][j] = mvcSettings[obj].prop[j];
+        }
+        
+        if (typeof this[obj] === 'function') {
+          this[obj] = new (settings[obj].extend(mvcSettings[obj].func))(mvcSettings[obj].prop);
+        } else {
+          this[obj].setDefaults();
+        }
+      } else if (typeof settings[obj] === 'function') {
+        this[obj] = new (settings[obj].extend(mvcSettings[obj].func))(mvcSettings[obj].prop);
       } else {
         this[obj] = $.extend(settings[obj], mvcSettings[obj].prop);
         this[obj].constructor.extend(mvcSettings[obj].func);

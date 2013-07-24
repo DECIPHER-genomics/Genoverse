@@ -97,7 +97,7 @@ Genoverse.Track.Model = Base.extend({
       
       return request;
     })).done(function () { deferred.resolveWith(model); });
-     
+    
     return deferred;
   },
   
