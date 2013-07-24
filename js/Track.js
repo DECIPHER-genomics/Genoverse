@@ -157,8 +157,13 @@ Genoverse.Track = Base.extend({
       }
       
       for (j = i + 1; j < this.lengthMap.length; j++) {
-        this.lengthMap[i][1].model = this.lengthMap[i][1].model || deepCopy.model ? Genoverse.Track.Model.extend($.extend(true, {}, this.lengthMap[j][1].model.prototype)) : this.lengthMap[j][1].model;
-        this.lengthMap[i][1].view  = this.lengthMap[i][1].view  || deepCopy.view  ? Genoverse.Track.View.extend($.extend(true,  {}, this.lengthMap[j][1].view.prototype))  : this.lengthMap[j][1].view;
+        if (!this.lengthMap[i][1].model && this.lengthMap[j][1].model) {
+          this.lengthMap[i][1].model = deepCopy.model ? Genoverse.Track.Model.extend($.extend(true, {}, this.lengthMap[j][1].model.prototype)) : this.lengthMap[j][1].model;
+        }
+        
+        if (!this.lengthMap[i][1].view && this.lengthMap[j][1].view) {
+          this.lengthMap[i][1].view = deepCopy.view ? Genoverse.Track.View.extend($.extend(true, {}, this.lengthMap[j][1].view.prototype)) : this.lengthMap[j][1].view;
+        }
         
         if (this.lengthMap[i][1].model && this.lengthMap[i][1].view) {
           break;
