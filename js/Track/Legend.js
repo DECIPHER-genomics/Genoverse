@@ -11,7 +11,7 @@ Genoverse.on('afterRemoveTracks', function () {
 });
 
 Genoverse.Track.on('afterPositionFeatures', function (features, params) {
-  var legend = this.legend;
+  var legend = this.prop('legend');
   
   if (legend) {
     setTimeout(function () { legend.makeImage(params); }, 1);
@@ -19,21 +19,26 @@ Genoverse.Track.on('afterPositionFeatures', function (features, params) {
 });
 
 Genoverse.Track.on('afterResize', function (height, userResize) {
-  if (this.legend && userResize === true) {
-    this.legend.makeImage({});
+  var legend = this.prop('legend');
+  
+  if (legend && userResize === true) {
+    legend.makeImage({});
   }
 });
 
 Genoverse.Track.on('afterCheckHeight', function () {
-  if (this.legend) {
-    this.legend.makeImage({});
+  var legend = this.prop('legend');
+  
+  if (legend) {
+    legend.makeImage({});
   }
 });
 
 Genoverse.Track.Legend = Genoverse.Track.Static.extend({
-  textColor  : '#000000',
-  labels     : 'overlay',
-  unsortable : true,
+  textColor     : '#000000',
+  labels        : 'overlay',
+  unsortable    : true,
+  featureHeight : 12,
   
   controller: Genoverse.Track.Controller.Static.extend({
     init: function () {
@@ -63,7 +68,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     
     $.each($.map(this.track.tracks, function (track) {
       bounds.h = track.prop('height');
-      return track.controller.featurePositions.search(bounds).concat(track.controller.labelPositions.search(bounds));
+      return track.prop('featurePositions').search(bounds).concat(track.prop('labelPositions').search(bounds));
     }), function () {
       if (this.legend) {
         features[this.legend] = this.color;
@@ -109,14 +114,14 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
       }
     }
     
-    this.height = ((y + (x ? 1 : 0)) * yScale) + pad;
-    
+    params.height     = this.prop('height', ((y + (x ? 1 : 0)) * yScale) + pad);
+    params.width      = this.width;
     params.positioned = true;
     
     return this.base(features, params);
   },
   
-  remove: function () {
+  destroy: function () {
     delete this.browser.legends[this.id];
     this.base();
   }

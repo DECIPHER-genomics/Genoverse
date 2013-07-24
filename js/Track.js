@@ -1,14 +1,38 @@
 Genoverse.Track = Base.extend({
+  height     : 12,        // The height of the track_container div
+  margin     : 2,         // The spacing between this track and the next
+  resizable  : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
+  border     : true,      // Does the track have a bottom border
+  hidden     : false,     // Is the track hidden by default
+  name       : undefined, // The name of the track, which appears in its label
+  autoHeight : undefined, // Does the track automatically resize so that all the features are visible
+  
   constructor: function (config) {
     this.setInterface();
     this.extend(config); // TODO: check when track is { ... } instead of Genoverse.Track.extend({ ... })
-    
-    this.order = this.order || this.index;
+    this.setDefaults();
     
     Genoverse.wrapFunctions(this);
     
     this.setLengthMap();
     this.setMVC();
+  },
+  
+  setDefaults: function () {
+    this.order             = this.order || this.index;
+    this.defaultHeight     = this.height;
+    this.defaultAutoHeight = this.autoHeight;
+    this.autoHeight        = typeof this.autoHeight !== 'undefined' ? this.autoHeight : this.browser.trackAutoHeight;
+    this.height           += this.margin;
+    this.initialHeight     = this.height;
+    
+    if (this.hidden) {
+      this.height = 0;
+    }
+    
+    if (this.resizable === 'auto') {
+      this.autoHeight = true;
+    }
   },
   
   setInterface: function () {
@@ -182,6 +206,54 @@ Genoverse.Track = Base.extend({
     }
     
     return obj ? obj[key] : undefined;
+  },
+  
+  setHeight: function (height, forceShow) {
+    if (this.prop('hidden') || (forceShow !== true && height < this.prop('featureHeight'))) {
+      height = 0;
+    } else {
+      height = Math.max(height, this.prop('minLabelHeight'));
+    }
+    
+    this.height = height;
+    
+    return height;
+  },
+  
+  resetHeight: function () {  
+    if (this.resizable === true) {
+      var resizer = this.prop('resizer');
+      
+      this.autoHeight = !!([ this.defaultAutoHeight, this.browser.trackAutoHeight ].sort(function (a, b) {
+        return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
+      })[0]);
+      
+      this.controller.resize(this.autoHeight ? this.prop('fullVisibleHeight') : this.defaultHeight + this.margin + (resizer ? resizer.height() : 0));
+      this.initialHeight = this.height;
+    }
+  },
+  
+  show: function () {
+    this.hidden = false;
+    this.controller.resize(this.initialHeight);
+  },
+  
+  hide: function () {
+    this.hidden = true;
+    this.controller.resize(0);
+  },
+  
+  enable: function () {
+    this.disabled = false;
+    this.show();
+    this.controller.makeFirstImage();
+  },
+  
+  disable: function () {
+    this.hide();
+    this.controller.scrollContainer.css('left', 0);
+    this.controller.reset();
+    this.disabled = true;
   },
   
   remove: function () {

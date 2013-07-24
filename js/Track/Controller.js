@@ -1,13 +1,6 @@
 Genoverse.Track.Controller = Base.extend({
-  height       : 12,        // The height of the track_container div
-  margin       : 2,         // The spacing between this track and the next
   scrollBuffer : 1.2,       // Number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
   threshold    : Infinity,  // Length above which the track is not drawn
-  resizable    : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
-  hidden       : false,     // Is the track hidden by default
-  border       : true,      // Does the track have a bottom border
-  name         : undefined, // Need to have name in the interface, as Function.name exists, so prop('name') will not work properly
-  autoHeight   : undefined, // Does the track automatically resize so that all the features are visible
   messages     : {
     error     : 'ERROR: ',
     threshold : 'Data for this track is not displayed in regions greater than ',
@@ -17,8 +10,6 @@ Genoverse.Track.Controller = Base.extend({
   constructor: function (properties) {
     $.extend(this, properties);
     Genoverse.wrapFunctions(this);
-    
-    this.setDefaults();
     this.init();
   },
   
@@ -28,22 +19,6 @@ Genoverse.Track.Controller = Base.extend({
     
     this.addDomElements();
     this.addUserEventHandlers();
-  },
-  
-  setDefaults: function () {
-    this.defaultHeight     = this.height; // TODO: check if this is needed - could use this.constructor.prototype.height/autoHeight instead?
-    this.defaultAutoHeight = this.autoHeight;
-    this.autoHeight        = typeof this.autoHeight !== 'undefined' ? this.autoHeight : this.height === this.constructor.prototype.height ? this.browser.autoHeight : false;
-    this.height           += this.margin;
-    this.initialHeight     = this.height;
-    
-    if (this.hidden) {
-      this.height = 0;
-    }
-    
-    if (this.resizable === 'auto') {
-      this.autoHeight = true;
-    }
   },
   
   reset: function () {
@@ -73,23 +48,23 @@ Genoverse.Track.Controller = Base.extend({
   },
   
   rename: function (name) {
-    this.name           = name;
-    this.minLabelHeight = $('span.name', this.label).html(this.name).outerHeight(true);
-    this.label.height(this.hidden ? 0 : Math.max(this.height, this.minLabelHeight));
+    this.track.name     = name;
+    this.minLabelHeight = $('span.name', this.label).html(name).outerHeight(true);
+    this.label.height(this.prop('hidden') ? 0 : Math.max(this.prop('height'), this.minLabelHeight));
   },
   
   addDomElements: function () {
-    var name = this.name || '';
+    var name = this.track.name || '';
     
     this.menus            = $();
     this.container        = $('<div class="track_container">').appendTo(this.browser.wrapper);
     this.scrollContainer  = $('<div class="scroll_container">').appendTo(this.container);
     this.imgContainer     = $('<div class="image_container">').width(this.width);
     this.messageContainer = $('<div class="message_container"><div class="messages"></div><span class="control collapse">&laquo;</span><span class="control expand">&raquo;</span></div>').appendTo(this.container);
-    this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.height).data('track', this.track);
+    this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.prop('height')).data('track', this.track);
     this.context          = $('<canvas>')[0].getContext('2d');
     
-    if (this.border) {
+    if (this.prop('border')) {
       $('<div class="track_border">').appendTo(this.container);
     }
     
@@ -101,7 +76,7 @@ Genoverse.Track.Controller = Base.extend({
     
     this.minLabelHeight = $('<span class="name" title="' + name + '">' + name + '</span>').appendTo(this.label).outerHeight(true);
     
-    var h = this.hidden ? 0 : Math.max(this.height, this.minLabelHeight);
+    var h = this.prop('hidden') ? 0 : Math.max(this.prop('height'), this.minLabelHeight);
     
     if (this.minLabelHeight) {
       this.label.height(h);
@@ -150,7 +125,7 @@ Genoverse.Track.Controller = Base.extend({
     
     var height = this.messageContainer.show().outerHeight(true);
     
-    if (height > this.height) {
+    if (height > this.prop('height')) {
       this.resize(height);
     }
     
@@ -180,15 +155,15 @@ Genoverse.Track.Controller = Base.extend({
     if (this.browser.length > this.threshold) {
       if (this.thresholdMessage) {
         this.showMessage('threshold', this.thresholdMessage);
-        this.prop('fullVisibleHeight', Math.max(this.messageContainer.outerHeight(true), this.minLabelHeight));
+        this.fullVisibleHeight = Math.max(this.messageContainer.outerHeight(true), this.minLabelHeight);
       } else {
-        this.prop('fullVisibleHeight', 0);
+        this.fullVisibleHeight = 0;
       }
     } else if (this.thresholdMessage) {
       this.hideMessage('threshold');
     }
     
-    if (!this.resizable) {
+    if (!this.prop('resizable')) {
       return;
     }
     
@@ -207,7 +182,7 @@ Genoverse.Track.Controller = Base.extend({
         height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.position[scale].label.bottom; }).concat(0));
       }
       
-      this.prop('fullVisibleHeight', height || (this.messageContainer.is(':visible') ? this.messageContainer.outerHeight(true) : 0));
+      this.fullVisibleHeight = height || (this.messageContainer.is(':visible') ? this.messageContainer.outerHeight(true) : 0);
     }
     
     this.autoResize();
@@ -221,14 +196,14 @@ Genoverse.Track.Controller = Base.extend({
     var autoHeight = this.prop('autoHeight');
     
     if (autoHeight || this.prop('labels') === 'separate') {
-      this.resize(autoHeight ? this.prop('fullVisibleHeight') : this.height, this.labelTop);
+      this.resize(autoHeight ? this.fullVisibleHeight : this.prop('height'), this.labelTop);
     } else {
       this.toggleExpander();
     }
   },
   
   resize: function (height) {
-    height = this.setHeight.apply(this, arguments);
+    height = this.track.setHeight(height, arguments[1]);
     
     if (typeof arguments[1] === 'number') {
       this.imgContainers.children('.labels').css('top', arguments[1]);
@@ -238,52 +213,32 @@ Genoverse.Track.Controller = Base.extend({
     this.toggleExpander();
   },
   
-  setHeight: function (height) {
-    if (arguments[1] !== true && height < this.prop('featureHeight')) {
-      height = 0;
-    } else {
-      height = this.hidden ? 0 : Math.max(height, this.prop('minLabelHeight'));
-    }
-    
-    this.height = height;
-    
-    return height;
-  },
-  
-  resetHeight: function () {  
-    if (this.resizable) {
-      this.autoHeight = !!([ this.defaultAutoHeight, this.browser.autoHeight ].sort(function (a, b) {
-        return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
-      })[0]);
-      
-      this.resize(this.defaultHeight + this.prop('margin'));
-      this.initialHeight = this.height;
-    }
-  },
-  
   toggleExpander: function () {
-    if (this.resizable !== true) {
+    if (this.prop('resizable') !== true) {
       return;
     }
+    
+    var featureMargin = this.prop('featureMargin');
+    var height        = this.prop('height');
     
     // Note: fullVisibleHeight - featureMargin.top - featureMargin.bottom is not actually the correct value to test against, but it's the easiest best guess to obtain.
     // fullVisibleHeight is the maximum bottom position of the track's features in the region, which includes margin at the bottom of each feature and label
     // Therefore fullVisibleHeight includes this margin for the bottom-most feature.
     // The correct value (for a track using the default positionFeatures code) is:
     // fullVisibleHeight - ([there are labels in this region] ? (labels === 'separate' ? 0 : featureMargin.bottom + 1) + 2 : featureMargin.bottom)
-    if (this.prop('fullVisibleHeight') - this.prop('featureMargin').top - this.prop('featureMargin').bottom > this.height) {
+    if (this.fullVisibleHeight - featureMargin.top - featureMargin.bottom > height) {
       this.showMessage('resize');
       
       var controller = this;
-      var height     = this.messageContainer.outerHeight(true);
+      var h          = this.messageContainer.outerHeight(true);
       
-      if (height > this.height) {
-        this.resize(height);
+      if (h > height) {
+        this.resize(h);
       }
       
       this.expander = (this.expander || $('<div class="expander static">').width(this.width).appendTo(this.container).on('click', function () {
-        controller.resize(controller.prop('fullVisibleHeight'));
-      }))[this.height === 0 ? 'hide' : 'show']();
+        controller.resize(controller.fullVisibleHeight);
+      }))[this.prop('height') === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
       this.hideMessage('resize');
       this.expander.hide();
@@ -309,7 +264,7 @@ Genoverse.Track.Controller = Base.extend({
       this.model.setLabelBuffer(this.browser.labelBuffer);
     }
     
-    if (this.threshold !== Infinity && this.resizable !== 'auto') {
+    if (this.threshold !== Infinity && this.prop('resizable') !== 'auto') {
       this.thresholdMessage = this.view.formatLabel(this.threshold);
     }
     
@@ -371,7 +326,7 @@ Genoverse.Track.Controller = Base.extend({
   makeImage: function (params) {
     params.scaledStart   = params.scaledStart   || params.start * params.scale;
     params.width         = params.width         || this.width;
-    params.height        = params.height        || this.height;
+    params.height        = params.height        || this.prop('height');
     params.featureHeight = params.featureHeight || 0;
     params.labelHeight   = params.labelHeight   || 0;
     
@@ -505,29 +460,6 @@ Genoverse.Track.Controller = Base.extend({
   
   populateMenu: function (feature) {
     return feature;
-  },
-  
-  show: function () {
-    this.hidden = false;
-    this.resize(this.initialHeight);
-  },
-  
-  hide: function () {
-    this.hidden = true;
-    this.resize(0);
-  },
-  
-  enable: function () {
-    this.show();
-    this.disabled = false;
-    this.makeFirstImage();
-  },
-  
-  disable: function () {
-    this.hide();
-    this.scrollContainer.css('left', 0);
-    this.reset();
-    this.disabled = true;
   },
   
   destroy: function () {

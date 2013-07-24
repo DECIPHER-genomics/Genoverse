@@ -6,7 +6,11 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
   chunkSize : 1000,
   buffer    : 0,
   dataType  : 'text',
-  chunks    : {},
+  
+  init: function () {
+    this.base();
+    this.chunks = {};
+  },
   
   getData: function (start, end) {
     var start = start - start % this.chunkSize + 1;
@@ -17,7 +21,7 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
   parseData: function (data, start, end) {
     data = data.replace(/\n/g, '');
     
-    if (this.lowerCase) {
+    if (this.prop('lowerCase')) {
       data = data.toLowerCase();
     }
     

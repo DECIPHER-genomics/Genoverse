@@ -1,6 +1,4 @@
 Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
-  resizable: 'auto',
-  
   constructor: function (properties) {
     this.base(properties);
     
@@ -28,12 +26,14 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
       var string = JSON.stringify(features);
       
       if (this.stringified !== string) {
+        var height = this.prop('height');
+        
         params.width         = this.width;
-        params.featureHeight = this.prop('height');
+        params.featureHeight = height;
         
         this.render(features, this.image.data(params));
         this.imgContainer.children(':last').show();
-        this.resize(this.prop('height'));
+        this.resize(height);
         
         this.stringified = string;
       }
@@ -63,6 +63,7 @@ Genoverse.Track.View.Static = Genoverse.Track.View.extend({
 
 Genoverse.Track.Static = Genoverse.Track.extend({
   controls   : 'off',
+  resizable  : false,
   controller : Genoverse.Track.Controller.Static,
   model      : Genoverse.Track.Model.Static,
   view       : Genoverse.Track.View.Static

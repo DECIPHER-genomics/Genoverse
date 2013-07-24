@@ -14,6 +14,7 @@ var Genoverse = Base.extend({
   wheelAction      : 'off',    // options are: zoom, off
   genome           : undefined,
   autoHideMessages : true,
+  trackAutoHeight  : false,
   colors           : {
     background     : '#FFFFFF',
     majorGuideLine : '#CCCCCC',
@@ -262,7 +263,12 @@ var Genoverse = Base.extend({
     
     for (var i = 0; i < this.tracks.length; i++) {
       mvc = this.tracks[i]._interface[func];
-      this.tracks[i][mvc][func].apply(this.tracks[i][mvc], args);
+      
+      if (mvc) {
+        this.tracks[i][mvc][func].apply(this.tracks[i][mvc], args);
+      } else if (this.tracks[i][func]) {
+        this.tracks[i][func].apply(this.tracks[i], args);
+      }
     }
   },
   
@@ -626,21 +632,12 @@ var Genoverse = Base.extend({
     };
     
     var push = !!tracks;
-    var Class, config;
     
     tracks = tracks || $.extend([], this.tracks);
     index  = index  || 0;
     
     for (var i = 0; i < tracks.length; i++) {
-      if (typeof tracks[i] === 'function') {
-        Class  = tracks[i];
-        config = {};
-      } else {
-        Class  = tracks[i].type ? typeof tracks[i].type === 'function' ? tracks[i].type : eval('Genoverse.Track.' + tracks[i].type) || Genoverse.Track : Genoverse.Track;
-        config = tracks[i];
-      }
-      
-      tracks[i] = new Class($.extend(config, defaults, { index: i + index }));
+      tracks[i] = new tracks[i]($.extend(defaults, { index: i + index }));
       
       if (tracks[i].id) {
         this.tracksById[tracks[i].id] = tracks[i];

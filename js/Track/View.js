@@ -33,10 +33,10 @@ Genoverse.Track.View = Base.extend({
       }
     }
     
-    this.context    = $('<canvas>')[0].getContext('2d');
+    this.context       = $('<canvas>')[0].getContext('2d');
     this.featureHeight = typeof this.featureHeight !== 'undefined' ? this.featureHeight : this.prop('defaultHeight');
-    this.font       = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
-    this.labelUnits = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
+    this.font          = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
+    this.labelUnits    = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
     
     if (this.labels && this.labels !== 'overlay' && (this.depth || this.bump === 'labels')) {
       this.labels = 'separate';
@@ -95,7 +95,6 @@ Genoverse.Track.View = Base.extend({
     
     params.width         = Math.ceil(params.width);
     params.height        = Math.ceil(params.height);
-    //params.featureHeight = Math.max(Math.ceil(params.featureHeight), this.fixedHeight ? Math.max(this.height, this.prop('minLabelHeight')) : 0);
     params.featureHeight = Math.max(Math.ceil(params.featureHeight), this.prop('resizable') ? Math.max(this.prop('height'), this.prop('minLabelHeight')) : 0);
     params.labelHeight   = Math.ceil(params.labelHeight);
     

@@ -11,29 +11,6 @@ Genoverse.prototype.controls = [
   // }
 ];
 
-// FIXME: this doesn't do anything
-$('.tracksMenu input[placeholder=Search]').on('keyup', function () {
-  var str = this.value.toLowerCase();
-  
-  $('.tracksMenu .tracksLibraryItem').each(function () {
-    var track = $(this).data('track');
-    var match = false;
-    
-    if (track.name.toLowerCase().indexOf(str) >= 0) {
-      match = true;
-    } else if (track.tags.length) {
-      for (var i = 0; i < track.tags.length; i++) {
-        if (track.tags[i].toLowerCase().indexOf(str) >= 0) {
-          match = true;
-          break;
-        }
-      }
-    }
-    
-    $(this)[match ? 'show' : 'hide']();
-  });
-});
-
 Genoverse.on('afterAddDomElements', function () {
   this.wrapper.after('<div class="gv_powered_by">Powered by <a target="_blank" href="http://genoverse.org">Genoverse</a></div>');
 });
@@ -42,7 +19,7 @@ Genoverse.on('beforeInit', function () {
   var browser = this;
   
   if (!this.tracksLibrary) {
-    this.tracksLibrary = $.extend(true, [], this.tracks.slice(1, this.tracks.length));
+    this.tracksLibrary = $.map(this.tracks, function (track) { if (track.prototype.name) { return $.extend(true, {}, track.prototype); } });
   }
   
   $(
@@ -175,56 +152,89 @@ Genoverse.on('afterInit', function () {
       $('.gv_menu.tracksMenu .close').trigger('click');
       $(this).removeClass('active');
     } else {
-      var css = browser.wrapper.offset();
+      var menu = $(this).data('menu');
+      var css  = browser.wrapper.offset();
       
       css.top   = Math.max(css.top, $(document).scrollTop()) + 20;
       css.left += 50;
       css.width = browser.wrapper.width() - 100;
       
-      var menu = browser.makeMenu({
-        'Currently enabled tracks:'         : 'Available tracks:', 
-        '<div class="currentTracks"></div>' : '<input placeholder="Search"><div class="availableTracks"></div>'
-      }).css(css).addClass('tracksMenu');
-      
-      $('.close', menu).on('click', function () {
-        $(button).removeClass('active');          
-      });
-      
-      var currentTracks   = $('.currentTracks',   menu);
-      var availableTracks = $('.availableTracks', menu);
-      
-      currentTracks.reload = function () {
-        this.html('');
-        this.listTracks();
-      };
-      
-      currentTracks.listTracks = function () {
-        for (var i = 1; i < browser.tracks.length; i++) {
-          (function (track) {
-            $('<div>').append(
-              $('<div class="removeTrack">x</div> ').on('click', function () {
-                $(this).parent().remove();
-                track.remove();
-                // FIXME: if the track is stranded, both strands get removed, but one removeTrack element is left behind until the tracks list is closed
-              })
-            ).append('<span>' + track.name + '</span>').appendTo(currentTracks);
-          })(browser.tracks[i]);
+      if (menu) {
+        menu.show();
+      } else {
+        menu = browser.makeMenu({
+          'Currently enabled tracks:'         : 'Available tracks:',
+          '<div class="currentTracks"></div>' : '<input placeholder="Search"><div class="availableTracks"></div>'
+        }).css(css).addClass('tracksMenu');
+        
+        $('input[placeholder=Search]', menu).on('keyup', function () {
+          var str = this.value.toLowerCase();
+          
+          $('.tracksMenu .tracksLibraryItem').each(function () {
+            var track = $(this).data('track');
+            var match = false;
+            
+            if (track.name && track.name.toLowerCase().indexOf(str) >= 0) {
+              match = true;
+            } else if (track.tags) {
+              for (var i = 0; i < track.tags.length; i++) {
+                if (track.tags[i].toLowerCase().indexOf(str) >= 0) {
+                  match = true;
+                  break;
+                }
+              }
+            }
+            
+            $(this)[match ? 'show' : 'hide']();
+          });
+        });
+        
+        $('.close', menu).on('click', function () {
+          $(button).removeClass('active');
+        });
+        
+        var currentTracks   = $('.currentTracks',   menu);
+        var availableTracks = $('.availableTracks', menu);
+        
+        currentTracks.reload = function () {
+          this.html('');
+          this.listTracks();
+        };
+        
+        currentTracks.listTracks = function () {
+          for (var i = 1; i < browser.tracks.length; i++) {
+            if (browser.tracks[i].name) {
+              (function (track) {
+                $('<div>').append(
+                  $('<div class="removeTrack">x</div> ').on('click', function () {
+                    $(this).parent().remove();
+                    track.remove();
+                    // FIXME: if the track is stranded, both strands get removed, but one removeTrack element is left behind
+                  })
+                ).append('<span>' + track.name + '</span>').appendTo(currentTracks);
+              })(browser.tracks[i]);
+            }
+          }
+        };
+        
+        currentTracks.listTracks();
+        
+        if (browser.tracksLibrary && browser.tracksLibrary.length) {
+          for (var i = 0; i < browser.tracksLibrary.length; i++) {
+            if (browser.tracksLibrary[i].name) {
+              (function (track) {
+                $('<div class="tracksLibraryItem">').append(
+                  $('<div class="addTrack">+</div> ').on('click', function () {
+                    browser.addTrack(Genoverse.Track.extend($.extend(true, {}, track)), browser.tracks.length);
+                    currentTracks.reload();
+                  })
+                ).append('<span>' + track.name + '</span>').appendTo(availableTracks).data('track', track);
+              })(browser.tracksLibrary[i]);
+            }
+          }
         }
-      };
-      
-      currentTracks.listTracks();
-      
-      if (browser.tracksLibrary && browser.tracksLibrary.length) {
-        for (var i = 0; i < browser.tracksLibrary.length; i++) {
-          (function (track) {
-            $('<div class="tracksLibraryItem">').append(
-              $('<div class="addTrack">+</div> ').on('click', function () {
-                browser.addTrack(typeof track === 'function' ? track : $.extend(true, {}, track), browser.tracks.length);
-                currentTracks.reload();
-              })
-            ).append('<span>' + track.name + '</span>').appendTo(availableTracks).data('track', track);
-          })(browser.tracksLibrary[i]);
-        }
+        
+        $(this).data('menu', menu);
       }
       
       $(this).addClass('active');

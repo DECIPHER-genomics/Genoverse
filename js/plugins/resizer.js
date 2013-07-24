@@ -6,6 +6,7 @@ Genoverse.Track.on('afterSetMVC', function () {
   var track      = this;
   var controller = this.controller;
   var resizer    = this.prop('resizer');
+  var height     = this.prop('height');
   
   if (!resizer) {
     resizer = this.prop('resizer', $('<div class="resizer static"><div class="handle"></div></div>').appendTo(track.prop('container')).draggable({
@@ -17,18 +18,18 @@ Genoverse.Track.on('afterSetMVC', function () {
         $(this).css('top', 'auto'); // returns the resizer to the bottom of the container - needed when the track is resized to 0
       }
     }).on('click', function () {
-      var height = track.prop('fullVisibleHeight');
+      var h = track.prop('fullVisibleHeight');
       
-      if (height) {
-        controller.resize(height, true);
+      if (h) {
+        controller.resize(h, true);
       }
     }));
   }
   
   resizer.css({ width: this.width, left: 0 })[this.prop('autoHeight') ? 'hide' : 'show']();
   
-  if (!this.prop('autoHeight') && this.prop('height') - this.prop('margin') === this.prop('featureHeight')) {
-    controller.resize(this.prop('height') + resizer.height());
+  if (!this.prop('autoHeight') && height - this.prop('margin') === this.prop('featureHeight')) {
+    controller.resize(height + resizer.height());
     this.prop('initialHeight', this.prop('height'));
   }
 });

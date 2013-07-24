@@ -21,12 +21,12 @@
     
     <script type="text/javascript" src="/js/genoverse.combined.js">
       {
-        container      : '#genoverse', // Where to inject Genoverse (css/jQuery selector)
+        container : '#genoverse', // Where to inject Genoverse (css/jQuery selector)
         // If no genome supplied, it must have at least chromosomeSize, e.g.:
         // chromosomeSize : 249250621, // chromosome 1, human
-        genome         : 'grch37', // see js/genomes/
-        plugins        : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'fileDrop' ],
-        tracks         : [
+        genome    : 'grch37', // see js/genomes/
+        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'fileDrop' ],
+        tracks    : [
           Genoverse.Track.Scalebar,
           Genoverse.Track.extend({
             name      : 'Sequence',

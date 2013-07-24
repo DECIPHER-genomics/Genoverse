@@ -6,11 +6,13 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
   constructor: function () {
     this.base.apply(this, arguments);
     
-    this.labelWidth   = {};
-    this.widestLabel  = this.lowerCase ? 'g' : 'G';
-    this.labelYOffset = (this.featureHeight + (this.lowerCase ? 0 : 1)) / 2;
+    var lowerCase = this.prop('lowerCase');
     
-    if (this.lowerCase) {
+    this.labelWidth   = {};
+    this.widestLabel  = lowerCase ? 'g' : 'G';
+    this.labelYOffset = (this.featureHeight + (lowerCase ? 0 : 1)) / 2;
+    
+    if (lowerCase) {
       for (var key in this.colors) {
         this.colors[key.toLowerCase()] = this.colors[key];
       }
@@ -29,13 +31,15 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
       this.labelWidth[this.widestLabel] = Math.ceil(this.context.measureText(this.widestLabel).width) + 1;
     }
     
+    var width = Math.max(scale, this.minScaledWidth);
+    
     for (var i = 0; i < features.length; i++) {
-      this.drawSequence(features[i], featureContext, scale);
+      this.drawSequence(features[i], featureContext, scale, width);
     }
   },
   
-  drawSequence: function (feature, context, scale) {
-    var drawLabels = this.labelWidth[this.widestLabel] < scale - 1;
+  drawSequence: function (feature, context, scale, width) {
+    var drawLabels = this.labelWidth[this.widestLabel] < width - 1;
     var start, bp;
     
     for (var i = 0; i < feature.sequence.length; i++) {
@@ -48,7 +52,7 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
       bp = feature.sequence.charAt(i);
       
       context.fillStyle = this.colors[bp] || this.colors['default'];
-      context.fillRect(start, feature.position[scale].Y, scale, this.featureHeight);
+      context.fillRect(start, feature.position[scale].Y, width, this.featureHeight);
       
       if (!this.labelWidth[bp]) {
         this.labelWidth[bp] = Math.ceil(context.measureText(bp).width) + 1;
@@ -56,7 +60,7 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
       
       if (drawLabels) {
         context.fillStyle = this.labelColors[bp] || this.labelColors['default'];
-        context.fillText(bp, start + (scale - this.labelWidth[bp]) / 2, feature.position[scale].Y + this.labelYOffset);
+        context.fillText(bp, start + (width - this.labelWidth[bp]) / 2, feature.position[scale].Y + this.labelYOffset);
       }
     }
   },

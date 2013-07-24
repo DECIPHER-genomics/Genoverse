@@ -70,16 +70,16 @@
 
     <script>
       var genoverseConfig = {
-        container      : '#genoverse',
-        width          : 756,
-        genome         : 'grch37',
+        container : '#genoverse',
+        width     : 756,
+        genome    : 'grch37',
         // If no genome supplied, it must have at least chromosomeSize, e.g.:
         // chromosomeSize : 249250621, // chromosome 1, human
-        chr            : 1,
-        start          : 45476751,
-        end            : 45480893,
-        plugins        : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
-        tracks         : [
+        chr       : 1,
+        start     : 45476751,
+        end       : 45480893,
+        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
+        tracks    : [
           Genoverse.Track.Scalebar,
           Genoverse.Track.extend({
             name      : 'Sequence',
@@ -91,7 +91,6 @@
           Genoverse.Track.extend({
             name   : 'Genes',
             height : 200,
-            
             // Different settings for different zoom level
             2000000: { // This one applies when > 2M base-pairs per screen
               labels : false
