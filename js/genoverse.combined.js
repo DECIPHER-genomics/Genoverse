@@ -7808,7 +7808,7 @@ Genoverse.Track = Base.extend({
     }
     
     var lengthSettings = this.getSettingsForLength();
-    var settings       = $.extend(true, {}, lengthSettings, this.constructor.prototype); // model, view, options
+    var settings       = $.extend(true, {}, this.constructor.prototype, lengthSettings); // model, view, options
     var mvc            = [ 'model', 'view', 'controller' ];
     var propFunc       = $.proxy(this.prop, this);
     var mvcSettings    = {};
@@ -7849,23 +7849,9 @@ Genoverse.Track = Base.extend({
         continue;
       }
       
-      if (typeof settings[obj] === 'function') {
-        if (this[obj] && this[obj].constructor.ancestor === settings[obj]) {
-          for (j in this[obj].constructor.prototype) {
-            if (this[obj].constructor.prototype[j] !== this[obj][j] && typeof this[obj][j] !== 'function') {
-              this[obj][j] = this[obj].constructor.prototype[j];
-            }
-          }
-          
-          for (j in mvcSettings[obj].prop) {
-            this[obj][j] = mvcSettings[obj].prop[j];
-          }
-          
-          this[obj].setDefaults();
-        } else {
-          this[obj] = new (settings[obj].extend(mvcSettings[obj].func))(mvcSettings[obj].prop);
-        }
-      } else {
+      if (typeof settings[obj] === 'function' && (!this[obj] || this[obj].constructor.ancestor !== settings[obj])) {
+        this[obj] = new (settings[obj].extend(mvcSettings[obj].func))(mvcSettings[obj].prop);
+      } else if (typeof settings[obj] === 'object' && this[obj] !== settings[obj]) {
         this[obj] = $.extend(settings[obj], mvcSettings[obj].prop);
         this[obj].constructor.extend(mvcSettings[obj].func);
       }
@@ -7888,7 +7874,7 @@ Genoverse.Track = Base.extend({
   },
   
   setLengthMap: function () {
-    var value, j;
+    var value, j, deepCopy;
     
     this.lengthMap = [];
     
@@ -7911,9 +7897,19 @@ Genoverse.Track = Base.extend({
         continue;
       }
       
+      deepCopy = {};
+      
+      if (this.lengthMap[i][0] !== -1) {
+        for (j in this.lengthMap[i][1]) {
+          if (this._interface[j]) {
+            deepCopy[this._interface[j]] = true;
+          }
+        }
+      }
+      
       for (j = i + 1; j < this.lengthMap.length; j++) {
-        this.lengthMap[i][1].model = this.lengthMap[i][1].model || this.lengthMap[j][1].model;
-        this.lengthMap[i][1].view  = this.lengthMap[i][1].view  || this.lengthMap[j][1].view;
+        this.lengthMap[i][1].model = this.lengthMap[i][1].model || deepCopy.model ? Genoverse.Track.Model.extend($.extend(true, {}, this.lengthMap[j][1].model.prototype)) : this.lengthMap[j][1].model;
+        this.lengthMap[i][1].view  = this.lengthMap[i][1].view  || deepCopy.view  ? Genoverse.Track.View.extend($.extend(true,  {}, this.lengthMap[j][1].view.prototype))  : this.lengthMap[j][1].view;
         
         if (this.lengthMap[i][1].model && this.lengthMap[i][1].view) {
           break;
@@ -8618,7 +8614,7 @@ Genoverse.Track.Model = Base.extend({
       
       return request;
     })).done(function () { deferred.resolveWith(model); });
-     
+    
     return deferred;
   },
   
@@ -9522,7 +9518,7 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
 
 
 Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
-  url  : '/data/Homo_sapiens.GRCh37.70.dna.chromosome.1.fa', // Example url
+  url  : 'http://genoverse.org/data/Homo_sapiens.GRCh37.72.dna.chromosome.1.fa', // Example url
   
   // Following settings could be left undefined and will be detected automatically via .getStartByte()
   startByte  : undefined, // Byte in the file where the sequence actually starts
@@ -9572,7 +9568,7 @@ Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
           } else {
             this.startByte = 0;
           }
-
+          
           this.lineLength = data.indexOf('\n', this.startByte) - this.startByte;
         }
       });
@@ -9581,6 +9577,7 @@ Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
     }
   }
 });
+
 
 
 
