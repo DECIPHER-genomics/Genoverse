@@ -30,14 +30,12 @@ Genoverse.on('afterInit', function () {
           
           reader.onload = function (event) {
             var track = Genoverse.Track.File[((file.name.match(/\.(\w+)$/))[1]).toUpperCase()].extend({
-              name      : file.name,
-              dataType  : 'text',
-              info      : 'Local file `' + file.name + '`, size: ' + file.size + ' bytes',
-              threshold : false,
-              allData   : true,
-              url       : false,
-              data      : event.target.result,
-              getData   : function () {
+              name    : file.name,
+              info    : 'Local file `' + file.name + '`, size: ' + file.size + ' bytes',
+              allData : true,
+              url     : false,
+              data    : event.target.result,
+              getData : function () {
                 return $.Deferred().done(function () {
                   this.receiveData(this.data, 1, this.browser.chromosomeSize);
                 }).resolveWith(this);

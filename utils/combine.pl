@@ -17,7 +17,7 @@ open COMBINED, '>', 'js/genoverse.combined.js' or die $!;
 print COMBINED "(function () {\n";
 for (@files) {
   local $|=1;  
-  open my $FILE, '<', $_ or die "Can't open '$_' for read: $!";
+  open my $FILE, '<', $_ or warn "Can't open '$_' for read: $!";
   while (<$FILE>) {
     print COMBINED;
   }
