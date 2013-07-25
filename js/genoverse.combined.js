@@ -8161,7 +8161,7 @@ Genoverse.Track.Controller = Base.extend({
     var f = this[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
     
     if (f) {
-      this.browser.makeMenu(f, e, this);
+      this.browser.makeMenu(f, e, this.track);
     }
   },
   
@@ -8517,6 +8517,7 @@ Genoverse.Track.Controller = Base.extend({
     this.container.add(this.label).add(this.menus).remove();
   }
 });
+
 
 
 
