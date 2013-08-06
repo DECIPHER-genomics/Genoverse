@@ -816,7 +816,7 @@ var Genoverse = Base.extend({
         var data = $(this).data();
         
         if (data.track) {
-          data.track.menus = data.track.menus.not(this);
+          data.track.prop('menus', data.track.prop('menus').not(this));
         }
         
         data.browser.menus = data.browser.menus.not(this);
