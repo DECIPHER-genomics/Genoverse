@@ -1,6 +1,7 @@
 Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
   featureHeight : 10,
   labels        : true,
+  repeatLabels  : true,
   bump          : true,
   intronStyle   : 'bezierCurve',
   lineWidth     : 0.5,

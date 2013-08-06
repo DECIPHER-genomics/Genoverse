@@ -136,7 +136,9 @@ Genoverse.Track.Controller = Base.extend({
     var messages = this.messageContainer.find('.msg');
     
     if (code) {
-      if (!messages.filter('.' + code).hide().siblings().filter(function () { return this.style.display !== 'none'; }).length) {
+      messages = messages.filter('.' + code).hide();
+      
+      if (messages.length && !messages.siblings().filter(function () { return this.style.display !== 'none'; }).length) {
         this.messageContainer.hide();
       }
     } else {
@@ -173,13 +175,14 @@ Genoverse.Track.Controller = Base.extend({
       autoHeight = this.prop('autoHeight');
       this.prop('autoHeight', true);
     } else {
-      var bounds = { x: this.browser.scaledStart, w: this.width, y: 0, h: 9e99 };
-      var scale  = this.scale;
-      var height = Math.max.apply(Math, $.map(this.featurePositions.search(bounds), function (feature) { return feature.position[scale].bottom; }).concat(0));
+      var bounds   = { x: this.browser.scaledStart, w: this.width, y: 0, h: 9e99 };
+      var scale    = this.scale;
+      var features = this.featurePositions.search(bounds);
+      var height   = Math.max.apply(Math, $.map(features, function (feature) { return feature.position[scale].bottom; }).concat(0));
       
       if (this.prop('labels') === 'separate') {
         this.labelTop = height;
-        height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds), function (feature) { return feature.position[scale].label.bottom; }).concat(0));
+        height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds).concat(this.prop('repeatLabels') ? features : []), function (feature) { return feature.position[scale].label.bottom; }).concat(0));
       }
       
       this.fullVisibleHeight = height || (this.messageContainer.is(':visible') ? this.messageContainer.outerHeight(true) : 0);

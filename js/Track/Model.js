@@ -4,7 +4,7 @@ Genoverse.Track.Model = Base.extend({
   dataType   : 'json',
   allData    : false,
   url        : undefined,
-  urlParams  : undefined, // hash of URL params
+  urlParams  : {}, // hash of URL params
   
   constructor: function (properties) {
     $.extend(this, properties);
@@ -29,7 +29,7 @@ Genoverse.Track.Model = Base.extend({
   },
   
   setURL: function (urlParams, update) {
-    urlParams = urlParams || this.urlParams || {};
+    urlParams = urlParams || this.urlParams;
     
     if (update && this._url) {
       this.url = this._url;

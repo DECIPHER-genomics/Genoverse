@@ -29,16 +29,6 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
     }
   },
   
-  init: function () {
-    this.base();
-    
-    var forwardTrack = this.prop('forwardTrack');
-    
-    if (forwardTrack) {
-      this.prop('features', forwardTrack.prop('features'));
-    }
-  },
-  
   makeForwardImage: function (params) {
     var reverseTrack = this.prop('reverseTrack');
     var rtn          = this._makeImage(params);

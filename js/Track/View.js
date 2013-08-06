@@ -7,7 +7,7 @@ Genoverse.Track.View = Base.extend({
   color          : '#000000',
   minScaledWidth : 0.5,
   labels         : true,
-  repeatLabel    : true,
+  repeatLabels   : false,
   bump           : false,
   depth          : undefined,
   featureHeight  : undefined, // defaults to track height
@@ -73,13 +73,9 @@ Genoverse.Track.View = Base.extend({
       if (!feature.position[scale]) {
         feature.position[scale] = {
           start  : feature.start * scale,
-          width  : (feature.end - feature.start) * scale + add,
+          width  : Math.max((feature.end - feature.start) * scale + add, this.minScaledWidth),
           height : feature.height || this.featureHeight
         };
-        
-        if (feature.position[scale].width < this.minScaledWidth) {
-          feature.position[scale].width = this.minScaledWidth;
-        }
       }
     }
     
@@ -107,9 +103,9 @@ Genoverse.Track.View = Base.extend({
     feature.position[scale].X = feature.position[scale].start - params.scaledStart; // FIXME: always have to reposition for X, in case a feature appears in 2 images. Pass scaledStart around instead?
     
     if (!feature.position[scale].positioned) {
-      feature.position[scale].H = (feature.position[scale].height + this.featureMargin.top + this.featureMargin.bottom);
+      feature.position[scale].H = feature.position[scale].height + this.featureMargin.bottom;
       feature.position[scale].W = feature.position[scale].width + (feature.marginRight || this.featureMargin.right);
-      feature.position[scale].Y = (feature.y ? feature.y * (feature.position[scale].H + this.featureMargin.top + this.featureMargin.bottom) : this.featureMargin.top);
+      feature.position[scale].Y = feature.y ? feature.y * feature.position[scale].H : this.featureMargin.top;
       
       if (feature.label) {
         if (typeof feature.label === 'string') {
@@ -138,7 +134,7 @@ Genoverse.Track.View = Base.extend({
         x: feature.position[scale].start,
         y: feature.position[scale].Y,
         w: feature.position[scale].W,
-        h: feature.position[scale].H
+        h: feature.position[scale].H + this.featureMargin.top
       };
       
       if (this.bump === true) {
@@ -242,40 +238,55 @@ Genoverse.Track.View = Base.extend({
     }
   },
   
-  drawLabel: function (feature, labelContext, scale) {
-    var labelStart = feature.x;
+  drawLabel: function (feature, context, scale) {
+    var original = feature.untruncated;
+    var width    = (original || feature).width;
     
-    if (feature.untruncated) {
-      labelStart = this.repeatLabel && feature.untruncated.x < -this.width && feature.untruncated.x + feature.untruncated.width > feature.labelWidth ? 0 : feature.untruncated.x;
+    if (this.labels === 'overlay' && feature.labelWidth >= width) {
+      return;
     }
     
     if (typeof feature.label === 'string') {
       feature.label = [ feature.label ];
     }
     
-    if (labelStart > 0 || labelStart + feature.labelWidth < this.width) {
-      if (!feature.labelColor) {
-        this.setLabelColor(feature);
-      }
+    var x       = (original || feature).x;
+    var n       = this.repeatLabels && !feature.labelPosition ? Math.ceil((width - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) : 1;
+    var spacing = width / n;
+    var label, start, j, y, h;
+    
+    if (!feature.labelColor) {
+      this.setLabelColor(feature);
+    }
+    
+    context.fillStyle = feature.labelColor;
+    
+    if (this.labels === 'overlay') {
+      label = [ feature.label.join(' ') ];
+      y     = feature.y + (feature.height + 1) / 2;
+      h     = 0;
+    } else {
+      label = feature.label;
+      y     = feature.labelPosition ? feature.labelPosition.y : feature.y + feature.height + this.featureMargin.bottom;
+      h     = this.fontHeight + 2;
+    }
+    
+    var i      = context.textAlign === 'center' ? 0.5 : 0;
+    var offset = feature.labelWidth * i;
+    
+    for (; i < n; i++) {
+      start = x + (i * spacing);
       
-      labelContext.fillStyle = feature.labelColor;
-      
-      if (this.labels === 'overlay') {
-        var featureWidth = feature.untruncated ? feature.untruncated.width : feature.width;
+      if (start + feature.labelWidth >= 0) {
+        if (start - offset > this.width) {
+          break;
+        }
         
-        if (feature.labelWidth < featureWidth) {
-          if (featureWidth < this.width) {
-            labelContext.fillText(feature.label.join(' '), labelStart + featureWidth / 2, feature.y + (feature.height + 1) / 2);
-          } else {
-            labelContext.fillText(feature.label.join(' '), labelStart, feature.y + (feature.height + 1) / 2);
-          }
-        }
-      } else {
-        for (var i = 0; i < feature.label.length; i++) {
-          labelContext.fillText(feature.label[i], labelStart, i * (this.fontHeight + 2) + (feature.labelPosition ? feature.labelPosition.y : feature.y + feature.height + this.featureMargin.bottom));
+        for (j = 0; j < label.length; j++) {
+          context.fillText(label[j], start, y + (j * h));
         }
       }
-    }    
+    }
   },
   
   setFeatureColor: function (feature) {
@@ -290,7 +301,7 @@ Genoverse.Track.View = Base.extend({
   truncateForDrawing: function (feature) {
     var start = Math.min(Math.max(feature.x, -1), this.width + 1);
     var width = feature.x - start + feature.width;
-
+    
     if (width + start > this.width) {
       width = this.width - start + 1;
     }

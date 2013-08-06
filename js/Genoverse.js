@@ -228,9 +228,9 @@ var Genoverse = Base.extend({
       var pos = browser.getSelectorPosition();
       
       switch (e.target.className) {
-        case 'zoomHere' : browser.setRange(pos.start, pos.end, true); break;
-        case 'center'   : browser.startDragScroll(e); browser.move(browser.width / 2 - (pos.left + pos.width / 2)); browser.stopDragScroll(false); break;
         case 'summary'  : browser.summary(pos.start, pos.end); break;
+        case 'zoomHere' : browser.setRange(pos.start, pos.end, true); break;
+        case 'center'   : browser.moveTo(pos.start, pos.end, true, true);
         case 'cancel'   : browser.cancelSelect(); break;
         default         : break;
       }
@@ -552,7 +552,9 @@ var Genoverse = Base.extend({
       if (this.end === this.chromosomeSize) {
         this.start = this.end - this.length + 1;
       } else {
-        this.end = this.start + this.length - 1;
+        var center = (this.start + this.end) / 2;
+        this.start = Math.max(Math.floor(center - this.length / 2), 1);
+        this.end   = this.start + this.length - 1;
       }
     } else {
       this.length = this.end - this.start + 1;
@@ -1010,7 +1012,7 @@ var Genoverse = Base.extend({
   }
 });
 
-Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/\w+/))[1];
+Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/\w+/) || [])[1];
 
 if (typeof LazyLoad !== 'undefined') {
   LazyLoad.css(Genoverse.prototype.origin + 'css/genoverse.css');

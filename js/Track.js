@@ -4,12 +4,18 @@ Genoverse.Track = Base.extend({
   resizable  : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
   border     : true,      // Does the track have a bottom border
   hidden     : false,     // Is the track hidden by default
+  unsortable : false,     // Is the track unsortable
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
   
   constructor: function (config) {
+    if (this.stranded || config.stranded) {
+      this.controller = this.controller || Genoverse.Track.Controller.Stranded;
+      this.model      = this.model      || Genoverse.Track.Model.Stranded;
+    }
+    
     this.setInterface();
-    this.extend(config); // TODO: check when track is { ... } instead of Genoverse.Track.extend({ ... })
+    this.extend(config);
     this.setDefaults();
     
     Genoverse.wrapFunctions(this);
@@ -73,7 +79,7 @@ Genoverse.Track = Base.extend({
     }
     
     for (i in settings) {
-      if (!/^(constructor|init|setDefaults|base|extend)$/.test(i)) {
+      if (!/^(constructor|init|setDefaults|base|extend|lengthMap)$/.test(i) && isNaN(i)) {
         if (this._interface[i]) {
           mvcSettings[this._interface[i]][typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
         } else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|model|view)$/.test(i)) {
@@ -99,15 +105,22 @@ Genoverse.Track = Base.extend({
       }
       
       if (typeof settings[obj] === 'function' && (!this[obj] || this[obj].constructor.ancestor !== settings[obj])) {
-        this[obj] = new (settings[obj].extend(mvcSettings[obj].func))(mvcSettings[obj].prop);
+        this[obj] = new (settings[obj].extend($.extend(true, {}, settings[obj].prototype, mvcSettings[obj].func)))(mvcSettings[obj].prop);
       } else if (typeof settings[obj] === 'object' && this[obj] !== settings[obj]) {
-        this[obj] = $.extend(settings[obj], mvcSettings[obj].prop);
+        this[obj] = settings[obj];
+        
+        for (j in mvcSettings[obj].prop) {
+          if (typeof this[obj][j] === 'undefined') {
+            this[obj][j] = mvcSettings[obj].prop[j];
+          }
+        }
+        
         this[obj].constructor.extend(mvcSettings[obj].func);
       }
     }
     
     if (!this.controller || typeof this.controller === 'function') {
-      this.controller = new (settings.controller.extend(mvcSettings.controller.func))($.extend(mvcSettings.controller.prop, { model: this.model, view: this.view }));
+      this.controller = new (settings.controller.extend($.extend(true, {}, settings.controller.prototype, mvcSettings.controller.func)))($.extend(mvcSettings.controller.prop, { model: this.model, view: this.view }));
     } else {
       $.extend(this.controller, { model: this.model, view: this.view, threshold: mvcSettings.controller.prop.threshold || this.controller.constructor.prototype.threshold });
     }
@@ -137,7 +150,7 @@ Genoverse.Track = Base.extend({
     }
     
     if (this.lengthMap.length) {
-      this.lengthMap.push([ -1, $.extend(true, {}, this) ]);
+      this.lengthMap.push([ -1, $.extend(true, {}, this, { view: this.view || Genoverse.Track.View, model: this.model || Genoverse.Track.Model }) ]);
       this.lengthMap = this.lengthMap.sort(function (a, b) { return b[0] - a[0]; });
     }
     
