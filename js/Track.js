@@ -187,7 +187,7 @@ Genoverse.Track = Base.extend({
   
   getSettingsForLength: function () {
     for (var i = 0; i < this.lengthMap.length; i++) {
-      if (this.browser.length >= this.lengthMap[i][0]) {
+      if (this.browser.length > this.lengthMap[i][0]) {
         return this.lengthMap[i][1];
       }
     }

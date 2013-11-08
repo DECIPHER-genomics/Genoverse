@@ -26,7 +26,7 @@ Genoverse.Track.Controller = Base.extend({
     this.browser.closeMenus.call(this);
     
     if (this.url !== false) {
-      this.model.init();
+      this.model.init(true);
     }
     
     this.view.init();
@@ -255,8 +255,14 @@ Genoverse.Track.Controller = Base.extend({
   },
   
   setWidth: function (width) {
-    this.width = width;
-    this.imgContainer.width(width);
+    var track = this.track;
+    
+    $.each([ this, track, track.model, track.view ], function () {
+      this.width = width;
+    });
+    
+    this.imgContainer.add(this.expander).width(width);
+    
   },
   
   setScale: function () {

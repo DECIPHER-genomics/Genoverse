@@ -49,7 +49,7 @@ Genoverse.Track.Model.Static = Genoverse.Track.Model.extend({
 });
 
 Genoverse.Track.View.Static = Genoverse.Track.View.extend({
-  featureMargin: { top: 0, right: 1, bottom: 0, left: 1 },
+  featureMargin : { top: 0, right: 1, bottom: 0, left: 1 },
   
   positionFeature : $.noop,
   scaleFeatures   : function (features) { return features; },

@@ -18,12 +18,6 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     minorGuideLine : '#E5E5E5'
   },
   
-  reset: function () {
-    this.scrollContainer.children('.image_container').remove();
-    this.model.init();
-    this.view.init();
-  },
-  
   setScale: function () {
     var length = this.browser.length;
     var majorUnit, minorUnit, exponent, mantissa;

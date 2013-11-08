@@ -377,8 +377,11 @@ var Genoverse = Base.extend({
     }).show();
   },
   
-  cancelSelect: function () {
-    this.dragging        = false;
+  cancelSelect: function (keepDragging) {
+    if (!keepDragging) {
+      this.dragging = false;
+    }
+    
     this.selectorStalled = false;
     
     this.selector.addClass('crosshair').width(0);
@@ -523,7 +526,7 @@ var Genoverse = Base.extend({
 
     if (start !== this.dragStart) {
       this.closeMenus();
-      this.selector.hide();
+      this.cancelSelect(true);
     }
     
     this.onTracks('move', delta);

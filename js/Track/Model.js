@@ -12,19 +12,29 @@ Genoverse.Track.Model = Base.extend({
     this.init();
   },
   
-  init: function () {
-    this.setDefaults();
+  init: function (reset) {
+    this.setDefaults(reset);
     
-    this.dataRanges   = new RTree();
-    this.features     = new RTree();
-    this.featuresById = {};
-    this.dataLoading  = []; // tracks incomplete requests for data
+    if (reset) {
+      for (var i in this.featuresById) {
+        delete this.featuresById[i].position;
+      }
+    } else {
+      this.dataRanges   = new RTree();
+      this.features     = new RTree();
+      this.featuresById = {};
+    }
+    
+    this.dataLoading = []; // tracks incomplete requests for data
   },
   
-  setDefaults: function () {
-    if (this.url) {
+  setDefaults: function (reset) {
+    if (!this._url) {
       this._url = this.url; // Remember original url
-      this.setURL();
+    }
+    
+    if (this.url || (this._url && reset)) {
+      this.setURL(undefined, reset);
     }
   },
   

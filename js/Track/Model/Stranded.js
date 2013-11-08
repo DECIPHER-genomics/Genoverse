@@ -1,12 +1,14 @@
 Genoverse.Track.Model.Stranded = Genoverse.Track.Model.extend({
-  init: function () {
-    this.base();
+  init: function (reset) {
+    this.base(reset);
     
-    var otherTrack = this.prop('forwardTrack');
-    
-    if (otherTrack) {
-      this.features     = otherTrack.prop('features');
-      this.featuresById = otherTrack.prop('featuresById');
+    if (!reset) {
+      var otherTrack = this.prop('forwardTrack');
+      
+      if (otherTrack) {
+        this.features     = otherTrack.prop('features');
+        this.featuresById = otherTrack.prop('featuresById');
+      }
     }
   },
   
