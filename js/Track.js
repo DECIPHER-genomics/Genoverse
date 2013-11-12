@@ -105,17 +105,21 @@ Genoverse.Track = Base.extend({
       }
       
       if (typeof settings[obj] === 'function' && (!this[obj] || this[obj].constructor.ancestor !== settings[obj])) {
+        // Make a new instance of model/view if there isn't one already, or the model/view in lengthSettings is different from the existing model/view
         this[obj] = new (settings[obj].extend($.extend(true, {}, settings[obj].prototype, mvcSettings[obj].func)))(mvcSettings[obj].prop);
-      } else if (typeof settings[obj] === 'object' && this[obj] !== settings[obj]) {
-        this[obj] = settings[obj];
+      } else {
+        // Update the model/view with the values in mvcSettings.
+        var test = typeof settings[obj] === 'object' && this[obj] !== settings[obj] ? this[obj] = settings[obj] : lengthSettings && this.lengthMap.length > 1 ? lengthSettings : false;
         
-        for (j in mvcSettings[obj].prop) {
-          if (typeof this[obj][j] === 'undefined') {
-            this[obj][j] = mvcSettings[obj].prop[j];
+        if (test) {
+          for (j in mvcSettings[obj].prop) {
+            if (typeof test[j] !== 'undefined') {
+              this[obj][j] = mvcSettings[obj].prop[j];
+            }
           }
+          
+          this[obj].constructor.extend(mvcSettings[obj].func);
         }
-        
-        this[obj].constructor.extend(mvcSettings[obj].func);
       }
     }
     
