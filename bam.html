@@ -1,0 +1,187 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+    
+    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
+    <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
+    <link rel="stylesheet" type="text/css" href="css/trackControls.css" />
+    <link rel="stylesheet" type="text/css" href="css/resizer.css" />
+    <link rel="stylesheet" type="text/css" href="css/tooltips.css" />
+  </head>
+  <body>
+    <div id="genoverse"></div>
+    
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/lib/lazyload.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+
+    <script type="text/javascript" src="js/genomes/grch37.js"></script>
+
+    <script type="text/javascript" src="js/lib/Base.js"></script>
+    <script type="text/javascript" src="js/lib/rtree.js"></script>
+    
+    <script type="text/javascript" src="js/Genoverse.js"></script>
+    <script type="text/javascript" src="js/Track.js"></script>
+    <script type="text/javascript" src="js/Track/library/File.js"></script>
+    
+    <script type="text/javascript" src="js/Track/Controller.js"></script> 
+    <script type="text/javascript" src="js/Track/Model.js"></script> 
+    <script type="text/javascript" src="js/Track/View.js"></script> 
+    
+    <script type="text/javascript" src="js/Track/library/Static.js"></script>
+    
+    <script type="text/javascript" src="js/Track/Controller/Stranded.js"></script>
+    <script type="text/javascript" src="js/Track/Model/Stranded.js"></script>
+    
+    <script type="text/javascript" src="js/Track/library/Scaleline.js"></script>
+    <script type="text/javascript" src="js/Track/library/Scalebar.js"></script>
+    
+    <script type="text/javascript" src="js/Track/Model/Sequence.js"></script>
+    <script type="text/javascript" src="js/Track/Model/Sequence/Fasta.js"></script>
+    <script type="text/javascript" src="js/Track/Model/Sequence/Ensembl.js"></script>
+    <script type="text/javascript" src="js/Track/Model/Sequence/DAS.js"></script>
+    <script type="text/javascript" src="js/Track/View/Sequence.js"></script>
+
+    <script type="text/javascript" src="js/Track/Model/SequenceVariation.js"></script>
+    <script type="text/javascript" src="js/Track/Model/SequenceVariation/VCF.js"></script>
+
+    <script type="text/javascript" src="js/Track/Model/Gene.js"></script>
+    <script type="text/javascript" src="js/Track/Model/Gene/Ensembl.js"></script>
+    <script type="text/javascript" src="js/Track/View/Gene.js"></script>
+    <script type="text/javascript" src="js/Track/View/Gene/Ensembl.js"></script>
+    
+    <script type="text/javascript" src="js/Track/Model/Transcript.js"></script>
+    <script type="text/javascript" src="js/Track/Model/Transcript/Ensembl.js"></script>
+    <script type="text/javascript" src="js/Track/Model/Transcript/GFF3.js"></script>
+    <script type="text/javascript" src="js/Track/View/Transcript.js"></script>
+    <script type="text/javascript" src="js/Track/View/Transcript/Ensembl.js"></script>
+
+    <script type="text/javascript" src="js/Track/Model/File.js"></script>
+    <script type="text/javascript" src="js/Track/Model/File/GFF.js"></script>
+    <script type="text/javascript" src="js/Track/Model/File/BED.js"></script>
+    
+    <script type="text/javascript" src="js/Track/library/File/GFF.js"></script>
+    <script type="text/javascript" src="js/Track/library/File/GFF3.js"></script>
+    <script type="text/javascript" src="js/Track/library/File/BED.js"></script>
+    <script type="text/javascript" src="js/Track/library/File/VCF.js"></script>
+
+    <script language="javascript" src="js/lib/dalliance/js/utils.js"></script>
+    <script language="javascript" src="js/lib/dalliance/js/bin.js"></script>
+    <script language="javascript" src="js/lib/dalliance/js/das.js"></script>
+    <script language="javascript" src="js/lib/jszlib/js/inflate.js"></script>
+    <script language="javascript" src="js/lib/dalliance/js/bam.js"></script>
+
+    <script>
+    function dlog (error) {
+        console.log(error);
+    };
+
+    var genoverseConfig = {
+        container : '#genoverse',
+        width     : 756,
+        genome    : 'grch37',
+        // If no genome supplied, it must have at least chromosomeSize, e.g.:
+        // chromosomeSize : 249250621, // chromosome 1, human
+        chr       : 1,
+        start     : 45476751,
+        end       : 45480893,
+        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
+        tracks    : [
+          Genoverse.Track.Scalebar,
+          Genoverse.Track.extend({
+            name      : 'Sequence',
+            model     : Genoverse.Track.Model.Sequence.Ensembl,
+            view      : Genoverse.Track.View.Sequence,
+            resizable : 'auto',
+            100000    : false
+          }),
+
+          Genoverse.Track.extend({
+            name      : 'Bam file',
+            bump      : true,
+            model     : Genoverse.Track.Model.extend({
+                urlBam   : '/data/bam/Son_s_Aligned_Bam_File.bam',
+                urlBai   : '/data/bam/Son_s_Index_of_BAM_file.bai',
+                init     : function () {
+                    var model = this;
+                    model.initialised = $.Deferred();
+                    makeBam(
+                        new URLFetchable(this.urlBam), 
+                        new URLFetchable(this.urlBai), 
+                        function (bam) {
+                            model.bam = bam;
+                            model.initialised.resolve();
+                        }
+                    );
+                    this.base();
+                },
+                getData  : function (start, end) {
+                    var model = this;
+                    var getDataState = $.Deferred();
+                    $.when(this.initialised).done(function(){
+                        model.bam.fetch(model.browser.chr, start, end, function(r, e) {
+                            if (r) {
+                                model.receiveData(r, start, end);
+                                getDataState.resolve();
+                            }
+                            if (e) {
+                                console.log('BAM Error: ' + e);
+                                getDataState.reject();
+                            }
+                        });
+                    });
+                    return getDataState;
+                },
+                parseData : function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        this.insertFeature({
+                            id       : data[i].readName,
+                            start    : data[i].pos + 1,
+                            end      : data[i].pos + 1 + data[i].seq.length,
+                            sequence : data[i].seq
+                        });
+                    }
+                },
+            }),
+            view      : Genoverse.Track.View.Sequence,
+            100000    : false,
+            2000      : {
+                featureHeight : 2,
+                view  : Genoverse.Track.View.extend({
+                    featureMargin : { top: 0, right: 0, bottom: 0, left: 0 }
+                }),
+            },
+            100       : {
+                featureHeight : 2,
+            },
+            resizable : true,
+          }),
+
+          Genoverse.Track.extend({
+            name   : 'Genes',
+            height : 200,
+            // Different settings for different zoom level
+            2000000: { // This one applies when > 2M base-pairs per screen
+              labels : false
+            },
+            100000: { // more than 100K but less then 2M
+              labels : true,
+              model  : Genoverse.Track.Model.Gene.Ensembl,
+              view   : Genoverse.Track.View.Gene.Ensembl
+            },
+            1: { // > 1 base-pair, but less then 100K
+              labels : true,
+              model  : Genoverse.Track.Model.Transcript.Ensembl,
+              view   : Genoverse.Track.View.Transcript.Ensembl
+            }
+          })
+        ]
+      }
+
+      $(document).ready(function () { window.genoverse = new Genoverse(genoverseConfig); });
+    </script>
+  </body>
+</html>
