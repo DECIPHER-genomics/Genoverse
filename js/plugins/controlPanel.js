@@ -53,18 +53,18 @@ Genoverse.on('beforeInit', function () {
   }
 
   this.container = $('.canvas_container', this.container);
-
-  $('.genoverse_panel button.scrollLeft').mousehold(10, function () {
-    browser.move(10);
+  
+  $('.genoverse_panel button.scrollLeft, button.scrollRight').on({
+    mousedown : function () { genoverse.startDragScroll(); },
+    mouseup   : function () { genoverse.stopDragScroll();  }
   });
   
-  $('.genoverse_panel button.scrollLeft,button.scrollRight').mouseup(function () {
-    browser.updateURL();
-    browser.checkTrackHeights();
+  $('.genoverse_panel button.scrollLeft').mousehold(50, function () {
+    browser.move(browser.scrollDelta);
   });
   
-  $('.genoverse_panel button.scrollRight').mousehold(10, function () {
-    browser.move(-10);
+  $('.genoverse_panel button.scrollRight').mousehold(50, function () {
+    browser.move(-browser.scrollDelta);
   });
   
   $('.genoverse_panel button.zoomIn').on('click', function () {

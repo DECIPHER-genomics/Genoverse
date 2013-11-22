@@ -1,25 +1,26 @@
 var $         = jQuery; // Make sure we have local $ (this is for combined script in a function)
 var Genoverse = Base.extend({
   // Defaults
-  urlParamTemplate : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
-  width            : 1000,
-  height           : 200,
-  labelWidth       : 90,
-  buffer           : 1,
-  longestLabel     : 30,
-  defaultLength    : 5000,
-  tracks           : [],
-  plugins          : [],
-  dragAction       : 'scroll', // options are: scroll, select, off
-  wheelAction      : 'off',    // options are: zoom, off
-  genome           : undefined,
-  autoHideMessages : true,
-  trackAutoHeight  : false,
-  colors           : {
-    background     : '#FFFFFF',
-    majorGuideLine : '#CCCCCC',
-    minorGuideLine : '#E5E5E5',
-    sortHandle     : '#CFD4E7'
+  urlParamTemplate   : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
+  width              : 1000,
+  height             : 200,
+  labelWidth         : 90,
+  buffer             : 1,
+  longestLabel       : 30,
+  defaultLength      : 5000,
+  defaultScrollDelta : 100,
+  tracks             : [],
+  plugins            : [],
+  dragAction         : 'scroll', // options are: scroll, select, off
+  wheelAction        : 'off',    // options are: zoom, off
+  genome             : undefined,
+  autoHideMessages   : true,
+  trackAutoHeight    : false,
+  colors             : {
+    background       : '#FFFFFF',
+    majorGuideLine   : '#CCCCCC',
+    minorGuideLine   : '#E5E5E5',
+    sortHandle       : '#CFD4E7'
   },
 
   // Default coordinates for initial view, overwrite in your config
@@ -322,10 +323,11 @@ var Genoverse = Base.extend({
   },
   
   startDragScroll: function (e) {
-    this.dragging   = 'scroll';
-    this.scrolling  = !e;
-    this.dragOffset = e ? e.pageX - this.left : 0;
-    this.dragStart  = this.start;
+    this.dragging    = 'scroll';
+    this.scrolling   = !e;
+    this.dragOffset  = e ? e.pageX - this.left : 0;
+    this.dragStart   = this.start;
+    this.scrollDelta = Math.max(this.scale, this.defaultScrollDelta);
   },
   
   stopDragScroll: function (update) {

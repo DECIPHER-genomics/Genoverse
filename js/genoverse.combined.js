@@ -6712,25 +6712,26 @@ RTree.Rectangle.make_MBR = function(nodes, rect) {
 var $         = jQuery; // Make sure we have local $ (this is for combined script in a function)
 var Genoverse = Base.extend({
   // Defaults
-  urlParamTemplate : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
-  width            : 1000,
-  height           : 200,
-  labelWidth       : 90,
-  buffer           : 1,
-  longestLabel     : 30,
-  defaultLength    : 5000,
-  tracks           : [],
-  plugins          : [],
-  dragAction       : 'scroll', // options are: scroll, select, off
-  wheelAction      : 'off',    // options are: zoom, off
-  genome           : undefined,
-  autoHideMessages : true,
-  trackAutoHeight  : false,
-  colors           : {
-    background     : '#FFFFFF',
-    majorGuideLine : '#CCCCCC',
-    minorGuideLine : '#E5E5E5',
-    sortHandle     : '#CFD4E7'
+  urlParamTemplate   : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
+  width              : 1000,
+  height             : 200,
+  labelWidth         : 90,
+  buffer             : 1,
+  longestLabel       : 30,
+  defaultLength      : 5000,
+  defaultScrollDelta : 100,
+  tracks             : [],
+  plugins            : [],
+  dragAction         : 'scroll', // options are: scroll, select, off
+  wheelAction        : 'off',    // options are: zoom, off
+  genome             : undefined,
+  autoHideMessages   : true,
+  trackAutoHeight    : false,
+  colors             : {
+    background       : '#FFFFFF',
+    majorGuideLine   : '#CCCCCC',
+    minorGuideLine   : '#E5E5E5',
+    sortHandle       : '#CFD4E7'
   },
 
   // Default coordinates for initial view, overwrite in your config
@@ -7033,10 +7034,11 @@ var Genoverse = Base.extend({
   },
   
   startDragScroll: function (e) {
-    this.dragging   = 'scroll';
-    this.scrolling  = !e;
-    this.dragOffset = e ? e.pageX - this.left : 0;
-    this.dragStart  = this.start;
+    this.dragging    = 'scroll';
+    this.scrolling   = !e;
+    this.dragOffset  = e ? e.pageX - this.left : 0;
+    this.dragStart   = this.start;
+    this.scrollDelta = Math.max(this.scale, this.defaultScrollDelta);
   },
   
   stopDragScroll: function (update) {
@@ -7088,8 +7090,11 @@ var Genoverse = Base.extend({
     }).show();
   },
   
-  cancelSelect: function () {
-    this.dragging        = false;
+  cancelSelect: function (keepDragging) {
+    if (!keepDragging) {
+      this.dragging = false;
+    }
+    
     this.selectorStalled = false;
     
     this.selector.addClass('crosshair').width(0);
@@ -7234,7 +7239,7 @@ var Genoverse = Base.extend({
 
     if (start !== this.dragStart) {
       this.closeMenus();
-      this.selector.hide();
+      this.cancelSelect(true);
     }
     
     this.onTracks('move', delta);
@@ -7858,17 +7863,21 @@ Genoverse.Track = Base.extend({
       }
       
       if (typeof settings[obj] === 'function' && (!this[obj] || this[obj].constructor.ancestor !== settings[obj])) {
+        // Make a new instance of model/view if there isn't one already, or the model/view in lengthSettings is different from the existing model/view
         this[obj] = new (settings[obj].extend($.extend(true, {}, settings[obj].prototype, mvcSettings[obj].func)))(mvcSettings[obj].prop);
-      } else if (typeof settings[obj] === 'object' && this[obj] !== settings[obj]) {
-        this[obj] = settings[obj];
+      } else {
+        // Update the model/view with the values in mvcSettings.
+        var test = typeof settings[obj] === 'object' && this[obj] !== settings[obj] ? this[obj] = settings[obj] : lengthSettings && this.lengthMap.length > 1 ? lengthSettings : false;
         
-        for (j in mvcSettings[obj].prop) {
-          if (typeof this[obj][j] === 'undefined') {
-            this[obj][j] = mvcSettings[obj].prop[j];
+        if (test) {
+          for (j in mvcSettings[obj].prop) {
+            if (typeof test[j] !== 'undefined') {
+              this[obj][j] = mvcSettings[obj].prop[j];
+            }
           }
+          
+          this[obj].constructor.extend(mvcSettings[obj].func);
         }
-        
-        this[obj].constructor.extend(mvcSettings[obj].func);
       }
     }
     
@@ -7940,7 +7949,7 @@ Genoverse.Track = Base.extend({
   
   getSettingsForLength: function () {
     for (var i = 0; i < this.lengthMap.length; i++) {
-      if (this.browser.length >= this.lengthMap[i][0]) {
+      if (this.browser.length > this.lengthMap[i][0]) {
         return this.lengthMap[i][1];
       }
     }
@@ -8092,7 +8101,7 @@ Genoverse.Track.Controller = Base.extend({
     this.browser.closeMenus.call(this);
     
     if (this.url !== false) {
-      this.model.init();
+      this.model.init(true);
     }
     
     this.view.init();
@@ -8321,8 +8330,14 @@ Genoverse.Track.Controller = Base.extend({
   },
   
   setWidth: function (width) {
-    this.width = width;
-    this.imgContainer.width(width);
+    var track = this.track;
+    
+    $.each([ this, track, track.model, track.view ], function () {
+      this.width = width;
+    });
+    
+    this.imgContainer.add(this.expander).width(width);
+    
   },
   
   setScale: function () {
@@ -8544,6 +8559,7 @@ Genoverse.Track.Controller = Base.extend({
 
 
 
+
 Genoverse.Track.Model = Base.extend({
   dataBuffer : { start: 0, end: 0 }, // basepairs to extend data region for, when getting data from the origin
   xhrFields  : {},
@@ -8558,19 +8574,29 @@ Genoverse.Track.Model = Base.extend({
     this.init();
   },
   
-  init: function () {
-    this.setDefaults();
+  init: function (reset) {
+    this.setDefaults(reset);
     
-    this.dataRanges   = new RTree();
-    this.features     = new RTree();
-    this.featuresById = {};
-    this.dataLoading  = []; // tracks incomplete requests for data
+    if (reset) {
+      for (var i in this.featuresById) {
+        delete this.featuresById[i].position;
+      }
+    } else {
+      this.dataRanges   = new RTree();
+      this.features     = new RTree();
+      this.featuresById = {};
+    }
+    
+    this.dataLoading = []; // tracks incomplete requests for data
   },
   
-  setDefaults: function () {
-    if (this.url) {
+  setDefaults: function (reset) {
+    if (!this._url) {
       this._url = this.url; // Remember original url
-      this.setURL();
+    }
+    
+    if (this.url || (this._url && reset)) {
+      this.setURL(undefined, reset);
     }
   },
   
@@ -8751,6 +8777,7 @@ Genoverse.Track.Model = Base.extend({
 
 
 
+
 Genoverse.Track.View = Base.extend({
   featureMargin  : { top: 3, right: 1, bottom: 1, left: 0 }, // left is never used
   fontHeight     : 10,
@@ -8858,7 +8885,7 @@ Genoverse.Track.View = Base.extend({
     if (!feature.position[scale].positioned) {
       feature.position[scale].H = feature.position[scale].height + this.featureMargin.bottom;
       feature.position[scale].W = feature.position[scale].width + (feature.marginRight || this.featureMargin.right);
-      feature.position[scale].Y = feature.y ? feature.y * feature.position[scale].H : this.featureMargin.top;
+      feature.position[scale].Y = typeof feature.y === 'number' ? feature.y * feature.position[scale].H : this.featureMargin.top;
       
       if (feature.label) {
         if (typeof feature.label === 'string') {
@@ -9130,7 +9157,7 @@ Genoverse.Track.Model.Static = Genoverse.Track.Model.extend({
 });
 
 Genoverse.Track.View.Static = Genoverse.Track.View.extend({
-  featureMargin: { top: 0, right: 1, bottom: 0, left: 1 },
+  featureMargin : { top: 0, right: 1, bottom: 0, left: 1 },
   
   positionFeature : $.noop,
   scaleFeatures   : function (features) { return features; },
@@ -9212,14 +9239,16 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
 
 
 Genoverse.Track.Model.Stranded = Genoverse.Track.Model.extend({
-  init: function () {
-    this.base();
+  init: function (reset) {
+    this.base(reset);
     
-    var otherTrack = this.prop('forwardTrack');
-    
-    if (otherTrack) {
-      this.features     = otherTrack.prop('features');
-      this.featuresById = otherTrack.prop('featuresById');
+    if (!reset) {
+      var otherTrack = this.prop('forwardTrack');
+      
+      if (otherTrack) {
+        this.features     = otherTrack.prop('features');
+        this.featuresById = otherTrack.prop('featuresById');
+      }
     }
   },
   
@@ -9310,58 +9339,72 @@ Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
 
 
 Genoverse.Track.Scalebar = Genoverse.Track.extend({
-  unsortable    : true,
-  order         : 1,
-  orderReverse  : 1e5,
-  featureStrand : 1,
-  controls      : 'off',
-  height        : 20,
-  featureHeight : 3,
-  featureMargin : { top: 0, right: 0, bottom: 2, left: 0 },
-  margin        : 0,
-  color         : '#000000',
-  autoHeight    : false,
-  labels        : true,
-  bump          : false,
-  resizable     : false,
-  colors        : {
+  unsortable     : true,
+  order          : 1,
+  orderReverse   : 1e5,
+  featureStrand  : 1,
+  controls       : 'off',
+  height         : 20,
+  featureHeight  : 3,
+  featureMargin  : { top: 0, right: 0, bottom: 2, left: 0 },
+  margin         : 0,
+  minPixPerMajor : 100, // Least number of pixels per written number
+  color          : '#000000',
+  autoHeight     : false,
+  labels         : true,
+  bump           : false,
+  resizable      : false,
+  colors         : {
     majorGuideLine : '#CCCCCC',
     minorGuideLine : '#E5E5E5'
   },
   
-  reset: function () {
-    this.scrollContainer.children('.image_container').remove();
-    this.model.init();
-    this.view.init();
-  },
-  
   setScale: function () {
-    var length = this.browser.length;
-    var majorUnit, minorUnit, exponent, mantissa;
+    var max       = this.prop('width') / this.prop('minPixPerMajor');
+    var divisor   = 5;
+    var majorUnit = -1;
+    var fromDigit = ('' + this.browser.start).split(''); // Split into array of digits
+    var toDigit   = ('' + this.browser.end).split('');
+    var divisions, i;
     
-    if (length <= 51) {
-      majorUnit = 10;
-      minorUnit = 1;
-    } else {
-      exponent = Math.pow(10, Math.floor(Math.log(length) / Math.log(10)));
-      mantissa = length / exponent;
+    for (i = fromDigit.length; i < toDigit.length; i++) {
+      fromDigit.unshift('0');
+    }
+    
+    for (i = toDigit.length; i < fromDigit.length; i++) {
+      toDigit.unshift('0');
+    }
+    
+    // How many divisions would there be if we only kept i digits?
+    for (i = 0; i < fromDigit.length; i++) {
+      divisions = parseInt(toDigit.slice(0, fromDigit.length - i).join(''), 10) - parseInt(fromDigit.slice(0, fromDigit.length - i).join(''), 10);
       
-      if (mantissa < 1.2) {
-        majorUnit = exponent  / 10;
-        minorUnit = majorUnit / 5;
-      } else if (mantissa < 2.5) {
-        majorUnit = exponent  / 5;
-        minorUnit = majorUnit / 4;
-      } else if (mantissa < 5) {
-        majorUnit = exponent  / 2;
-        minorUnit = majorUnit / 5;
-      } else {
-        majorUnit = exponent;
-        minorUnit = majorUnit / 5;
+      if (divisions && divisions <= max) {
+        majorUnit = parseInt('1' + $.map(new Array(i), function () { return '0'; }).join(''), 10);
+        break;
       }
     }
     
-    this.prop('minorUnit',    minorUnit);
+    if (majorUnit === -1) {
+      majorUnit = parseInt('1' + $.map(new Array(fromDigit.length), function () { return '0'; }).join(''), 10);
+      divisor   = 1;
+    } else {
+      // Improve things by trying simple multiples of 1<n zeroes>.
+      // (eg if 100 will fit will 200, 400, 500).
+      if (divisions * 5 <= max) {
+        majorUnit /= 5;
+        divisor    = 2;
+      } else if (divisions * 4 <= max) {
+        majorUnit /= 4;
+        divisor    = 1;
+      } else if (divisions * 2 <= max) {
+        majorUnit /= 2;
+      }
+    }
+    
+    majorUnit = Math.max(majorUnit, 1);
+    
+    this.prop('minorUnit',    Math.max(majorUnit / divisor, 1));
     this.prop('majorUnit',    majorUnit);
     this.prop('features',     new RTree());
     this.prop('featuresById', {});
