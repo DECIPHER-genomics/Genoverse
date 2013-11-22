@@ -1,50 +1,70 @@
 Genoverse.Track.Scalebar = Genoverse.Track.extend({
-  unsortable    : true,
-  order         : 1,
-  orderReverse  : 1e5,
-  featureStrand : 1,
-  controls      : 'off',
-  height        : 20,
-  featureHeight : 3,
-  featureMargin : { top: 0, right: 0, bottom: 2, left: 0 },
-  margin        : 0,
-  color         : '#000000',
-  autoHeight    : false,
-  labels        : true,
-  bump          : false,
-  resizable     : false,
-  colors        : {
+  unsortable     : true,
+  order          : 1,
+  orderReverse   : 1e5,
+  featureStrand  : 1,
+  controls       : 'off',
+  height         : 20,
+  featureHeight  : 3,
+  featureMargin  : { top: 0, right: 0, bottom: 2, left: 0 },
+  margin         : 0,
+  minPixPerMajor : 100, // Least number of pixels per written number
+  color          : '#000000',
+  autoHeight     : false,
+  labels         : true,
+  bump           : false,
+  resizable      : false,
+  colors         : {
     majorGuideLine : '#CCCCCC',
     minorGuideLine : '#E5E5E5'
   },
   
   setScale: function () {
-    var length = this.browser.length;
-    var majorUnit, minorUnit, exponent, mantissa;
+    var max       = this.prop('width') / this.prop('minPixPerMajor');
+    var divisor   = 5;
+    var majorUnit = -1;
+    var fromDigit = ('' + this.browser.start).split(''); // Split into array of digits
+    var toDigit   = ('' + this.browser.end).split('');
+    var divisions, i;
     
-    if (length <= 51) {
-      majorUnit = 10;
-      minorUnit = 1;
-    } else {
-      exponent = Math.pow(10, Math.floor(Math.log(length) / Math.log(10)));
-      mantissa = length / exponent;
+    for (i = fromDigit.length; i < toDigit.length; i++) {
+      fromDigit.unshift('0');
+    }
+    
+    for (i = toDigit.length; i < fromDigit.length; i++) {
+      toDigit.unshift('0');
+    }
+    
+    // How many divisions would there be if we only kept i digits?
+    for (i = 0; i < fromDigit.length; i++) {
+      divisions = parseInt(toDigit.slice(0, fromDigit.length - i).join(''), 10) - parseInt(fromDigit.slice(0, fromDigit.length - i).join(''), 10);
       
-      if (mantissa < 1.2) {
-        majorUnit = exponent  / 10;
-        minorUnit = majorUnit / 5;
-      } else if (mantissa < 2.5) {
-        majorUnit = exponent  / 5;
-        minorUnit = majorUnit / 4;
-      } else if (mantissa < 5) {
-        majorUnit = exponent  / 2;
-        minorUnit = majorUnit / 5;
-      } else {
-        majorUnit = exponent;
-        minorUnit = majorUnit / 5;
+      if (divisions && divisions <= max) {
+        majorUnit = parseInt('1' + $.map(new Array(i), function () { return '0'; }).join(''), 10);
+        break;
       }
     }
     
-    this.prop('minorUnit',    minorUnit);
+    if (majorUnit === -1) {
+      majorUnit = parseInt('1' + $.map(new Array(fromDigit.length), function () { return '0'; }).join(''), 10);
+      divisor   = 1;
+    } else {
+      // Improve things by trying simple multiples of 1<n zeroes>.
+      // (eg if 100 will fit will 200, 400, 500).
+      if (divisions * 5 <= max) {
+        majorUnit /= 5;
+        divisor    = 2;
+      } else if (divisions * 4 <= max) {
+        majorUnit /= 4;
+        divisor    = 1;
+      } else if (divisions * 2 <= max) {
+        majorUnit /= 2;
+      }
+    }
+    
+    majorUnit = Math.max(majorUnit, 1);
+    
+    this.prop('minorUnit',    Math.max(majorUnit / divisor, 1));
     this.prop('majorUnit',    majorUnit);
     this.prop('features',     new RTree());
     this.prop('featuresById', {});
