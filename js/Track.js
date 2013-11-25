@@ -119,6 +119,10 @@ Genoverse.Track = Base.extend({
           }
           
           this[obj].constructor.extend(mvcSettings[obj].func);
+          
+          if (obj === 'model' && typeof test.url !== 'undefined') {
+            this.model.setURL(); // make sure the URL is correct
+          }
         }
       }
     }
@@ -191,7 +195,7 @@ Genoverse.Track = Base.extend({
   
   getSettingsForLength: function () {
     for (var i = 0; i < this.lengthMap.length; i++) {
-      if (this.browser.length > this.lengthMap[i][0]) {
+      if (this.browser.length > this.lengthMap[i][0] || this.browser.length === 1 && this.lengthMap[i][0] === 1) {
         return this.lengthMap[i][1];
       }
     }
