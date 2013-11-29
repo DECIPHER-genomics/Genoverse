@@ -1,0 +1,200 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
+    <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
+    <link rel="stylesheet" type="text/css" href="css/trackControls.css" />
+    <link rel="stylesheet" type="text/css" href="css/resizer.css" />
+    <link rel="stylesheet" type="text/css" href="css/tooltips.css" />
+</head>
+<body>
+<div id="genoverse"></div>
+
+<script type="text/javascript" src="js/lib/jquery.js"></script>
+<script type="text/javascript" src="js/lib/jquery-ui.js"></script>
+<script type="text/javascript" src="js/lib/lazyload.js"></script>
+<script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
+<script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
+
+<script type="text/javascript" src="js/genomes/grch37.js"></script>
+
+<script type="text/javascript" src="js/lib/Base.js"></script>
+<script type="text/javascript" src="js/lib/rtree.js"></script>
+
+<script type="text/javascript" src="js/Genoverse.js"></script>
+<script type="text/javascript" src="js/Track.js"></script>
+<script type="text/javascript" src="js/Track/library/File.js"></script>
+
+<script type="text/javascript" src="js/Track/Controller.js"></script>
+<script type="text/javascript" src="js/Track/Model.js"></script>
+<script type="text/javascript" src="js/Track/View.js"></script>
+
+<script type="text/javascript" src="js/Track/library/Static.js"></script>
+
+<script type="text/javascript" src="js/Track/Controller/Stranded.js"></script>
+<script type="text/javascript" src="js/Track/Model/Stranded.js"></script>
+
+<script type="text/javascript" src="js/Track/library/Scaleline.js"></script>
+<script type="text/javascript" src="js/Track/library/Scalebar.js"></script>
+
+<script type="text/javascript" src="js/Track/Model/Sequence.js"></script>
+<script type="text/javascript" src="js/Track/Model/Sequence/Fasta.js"></script>
+<script type="text/javascript" src="js/Track/Model/Sequence/Ensembl.js"></script>
+<script type="text/javascript" src="js/Track/Model/Sequence/DAS.js"></script>
+<script type="text/javascript" src="js/Track/View/Sequence.js"></script>
+
+<script type="text/javascript" src="js/Track/Model/SequenceVariation.js"></script>
+<script type="text/javascript" src="js/Track/Model/SequenceVariation/VCF.js"></script>
+
+<script type="text/javascript" src="js/Track/Model/Gene.js"></script>
+<script type="text/javascript" src="js/Track/Model/Gene/Ensembl.js"></script>
+<script type="text/javascript" src="js/Track/View/Gene.js"></script>
+<script type="text/javascript" src="js/Track/View/Gene/Ensembl.js"></script>
+
+<script type="text/javascript" src="js/Track/Model/Transcript.js"></script>
+<script type="text/javascript" src="js/Track/Model/Transcript/Ensembl.js"></script>
+<script type="text/javascript" src="js/Track/Model/Transcript/GFF3.js"></script>
+<script type="text/javascript" src="js/Track/View/Transcript.js"></script>
+<script type="text/javascript" src="js/Track/View/Transcript/Ensembl.js"></script>
+
+<script type="text/javascript" src="js/Track/Model/File.js"></script>
+<script type="text/javascript" src="js/Track/Model/File/GFF.js"></script>
+<script type="text/javascript" src="js/Track/Model/File/BED.js"></script>
+
+<script type="text/javascript" src="js/Track/library/File/GFF.js"></script>
+<script type="text/javascript" src="js/Track/library/File/GFF3.js"></script>
+<script type="text/javascript" src="js/Track/library/File/BED.js"></script>
+<script type="text/javascript" src="js/Track/library/File/VCF.js"></script>
+
+<script language="javascript" src="js/lib/dalliance/js/utils.js"></script>
+<script language="javascript" src="js/lib/dalliance/js/bin.js"></script>
+<script language="javascript" src="js/lib/dalliance/js/das.js"></script>
+<script language="javascript" src="js/lib/jszlib/js/inflate.js"></script>
+<script language="javascript" src="js/lib/dalliance/js/bam.js"></script>
+
+<script>
+    function dlog (error) {
+        console.log(error);
+    };
+
+    var genoverseConfig = {
+        container : '#genoverse',
+        width     : 1024,
+        genome    : 'grch37',
+        // If no genome supplied, it must have at least chromosomeSize, e.g.:
+        // chromosomeSize : 249250621, // chromosome 1, human
+        chr       : 1,
+        start     : 85742012,
+        end       : 85742112,
+        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
+        tracks    : [
+            Genoverse.Track.Scalebar,
+            Genoverse.Track.extend({
+                name      : 'Sequence',
+                model     : Genoverse.Track.Model.Sequence.Fasta,
+                view      : Genoverse.Track.View.Sequence,
+                resizable : 'auto',
+                lineLength: 71
+            }),
+
+            Genoverse.Track.extend({
+                name      : 'Bam file',
+                bump      : true,
+                autoHeight: true,
+                model     : Genoverse.Track.Model.extend({
+                    urlBam   : '/data/ion/rawlib_chr1_85742012.bam',
+                    urlBai   : '/data/ion/rawlib_chr1_85742012.bam.bai',
+                    init     : function () {
+                        var model = this;
+                        model.initialised = $.Deferred();
+                        makeBam(
+                                new URLFetchable(this.urlBam),
+                                new URLFetchable(this.urlBai),
+                                function (bam) {
+                                    model.bam = bam;
+                                    model.initialised.resolve();
+                                }
+                        );
+                        this.base();
+                    },
+                    getData  : function (start, end) {
+                        var model = this;
+                        var getDataState = $.Deferred();
+                        $.when(this.initialised).done(function(){
+                            model.bam.fetch(model.browser.chr, start, end, function(r, e) {
+                                if (r) {
+                                    model.receiveData(r, start, end);
+                                    getDataState.resolve();
+                                }
+                                if (e) {
+                                    console.log('BAM Error: ' + e);
+                                    getDataState.reject();
+                                }
+                            });
+                        });
+                        return getDataState;
+                    },
+                    parseData : function (data) {
+                        for (var i = 0; i < data.length; i++) {
+                            var feature = $.extend({}, data[i], {
+                                id       : data[i].readName,
+                                start    : data[i].pos + 1,
+                                end      : data[i].pos + 1 + data[i].seq.length,
+                                sequence : data[i].seq,
+                                insertions : [],
+                            });
+                            if (feature.cigar) {
+                                var puffs = feature.cigar.match(/[0-9]+[A-Z]{1}/g);
+                                var cursor = 0;
+                                for (var j=0; j<puffs.length; j++) {
+                                    var puffSize = parseInt( puffs[j].slice(0, -1), 10 );
+                                    if (puffs[j].slice(-1) === 'I') {
+                                        // Remove insertion from the sequence string, push it into insertions array
+                                        // Cursor stays where it was
+                                        feature.insertions.push([cursor, feature.sequence.slice(cursor, puffSize)]);
+                                        feature.sequence = feature.sequence.slice(0, cursor) + feature.sequence.slice(cursor + puffSize);
+                                    } else if (puffs[j].slice(-1) === 'S' || puffs[j].slice(-1) === 'H') {
+                                        // Soft clipping, remove clip sequence string
+                                        // Cursor stays where it was
+                                        feature.sequence = feature.sequence.slice(0, cursor) + feature.sequence.slice(cursor + puffSize);
+                                    }
+                                     else if (puffs[j].slice(-1) === 'D') {
+                                        // Add dashes in place of deleted bases to keep the sequence aligned
+                                        feature.sequence = feature.sequence.slice(0, cursor) + Array(puffSize + 1).join('-') + feature.sequence.slice(cursor);
+                                        cursor += puffSize;
+                                    } else {
+                                        cursor += puffSize;
+                                    }
+                                    feature.end = feature.start + cursor;
+                                }
+                            }
+
+                            this.insertFeature(feature);
+                        }
+                    },
+                }),
+                view      : Genoverse.Track.View.Sequence,
+                100000    : false,
+                2000      : {
+                    featureHeight : 2,
+                    view  : Genoverse.Track.View.extend({
+                        featureMargin : { top: 0, right: 0, bottom: 0, left: 0 }
+                    }),
+                },
+                100       : {
+                    featureHeight : 12,
+                },
+                resizable : true,
+            })
+
+
+        ]
+    }
+
+    $(document).ready(function () { window.genoverse = new Genoverse(genoverseConfig); });
+</script>
+</body>
+</html>
