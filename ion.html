@@ -154,7 +154,7 @@
                                     if (puffs[j].slice(-1) === 'I') {
                                         // Remove insertion from the sequence string, push it into insertions array
                                         // Cursor stays where it was
-                                        feature.insertions.push([cursor, feature.sequence.slice(cursor, puffSize)]);
+                                        feature.insertions.push([ cursor, feature.sequence.slice(cursor, puffSize) ]);
                                         feature.sequence = feature.sequence.slice(0, cursor) + feature.sequence.slice(cursor + puffSize);
                                     } else if (puffs[j].slice(-1) === 'S' || puffs[j].slice(-1) === 'H') {
                                         // Soft clipping, remove clip sequence string
@@ -176,7 +176,20 @@
                         }
                     },
                 }),
-                view      : Genoverse.Track.View.Sequence,
+                view      : Genoverse.Track.View.Sequence.extend({
+                    drawSequence : function (feature, context, scale, width) {                        
+                        this.base(feature, context, scale, width);
+
+                        var oldFont = context.font;
+                        context.font = 'bold 12pt Courier';
+                        for (var i = 0; i < feature.insertions.length; i++) {
+                            var position = feature.position[scale].X + scale * feature.insertions[i][0] - 5;
+                            context.fillStyle = 'black';
+                            context.fillText('I', position, feature.position[scale].Y + this.labelYOffset);
+                        }
+                        context.font = oldFont;
+                    }
+                }),
                 100000    : false,
                 2000      : {
                     featureHeight : 2,
