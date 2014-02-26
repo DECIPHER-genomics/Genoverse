@@ -1,17 +1,18 @@
 var defaultControls = [
   $('<a title="More info">').html('?').on('click', function () {
-    var track  = $(this).data('track');
-    var offset = track.prop('container').offset();
+    var track = $(this).data('track');
+    var menu  = track.prop('menus').filter('.track_info');
     
-    offset.left += 50;
-    offset.width = track.prop('width') - 100;
-    
-    if (!track.prop('menus').filter('.track_info').length) {
-      track.browser.makeMenu({
-        title : track.name,
-        ' '   : track.prop('info')
-      }, false, track).css(offset).addClass('track_info');
+    if (!menu.length) {
+      menu = track.prop('menus', track.prop('menus').add(
+        track.browser.makeMenu({
+          title : track.name,
+          ' '   : track.prop('info')
+        }).addClass('track_info')
+      ));
     }
+    
+    menu.show().position({ of: track.prop('container'), at: 'center top', my: 'center top', collision: 'none' });
   }),
   
   $('<a class="height_toggle">').html('&nbsp;').on({
@@ -75,7 +76,7 @@ Genoverse.Track.on('afterAddDomElements', function () {
   this.trackControls = $('<div class="track_controls">').prependTo(this.container);
 
   for (var i = 0; i < controls.length; i++) {
-    controls[i].clone(true).css({ display: 'none' }).data('track', this.track).appendTo(this.trackControls);
+    controls[i].clone(true).hide().data('track', this.track).appendTo(this.trackControls);
   }
   
   this.prop('heightToggler', this.trackControls.children('.height_toggle').trigger('toggleState'));

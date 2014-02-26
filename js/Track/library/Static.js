@@ -1,9 +1,11 @@
 Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
-  constructor: function (properties) {
-    this.base(properties);
+  addDomElements: function () {
+    this.base();
     
     this.image = $('<img>').appendTo(this.imgContainer);
-    this.container.toggleClass('track_container track_container_static').html(this.imgContainer);
+    
+    this.container.toggleClass('track_container track_container_static').prepend(this.imgContainer);
+    this.scrollContainer.add(this.messageContainer).remove();
   },
   
   reset: $.noop,
@@ -20,6 +22,10 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
   },
   
   makeImage: function (params) {
+    if (this.prop('disabled')) {
+      return $.Deferred().resolve();
+    }
+    
     var features = this.view.positionFeatures(this.model.findFeatures(params.start, params.end), params);
     
     if (features) {

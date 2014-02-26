@@ -3,7 +3,6 @@ Genoverse.Track = Base.extend({
   margin     : 2,         // The spacing between this track and the next
   resizable  : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
   border     : true,      // Does the track have a bottom border
-  hidden     : false,     // Is the track hidden by default
   unsortable : false,     // Is the track unsortable
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
@@ -32,10 +31,6 @@ Genoverse.Track = Base.extend({
     this.height           += this.margin;
     this.initialHeight     = this.height;
     
-    if (this.hidden) {
-      this.height = 0;
-    }
-    
     if (this.resizable === 'auto') {
       this.autoHeight = true;
     }
@@ -63,7 +58,7 @@ Genoverse.Track = Base.extend({
     }
     
     var lengthSettings = this.getSettingsForLength();
-    var settings       = $.extend(true, {}, this.constructor.prototype, lengthSettings); // model, view, options
+    var settings       = $.extend(true, {}, this.constructor.prototype, lengthSettings[1]); // model, view, options
     var mvc            = [ 'model', 'view', 'controller' ];
     var propFunc       = $.proxy(this.prop, this);
     var mvcSettings    = {};
@@ -71,15 +66,15 @@ Genoverse.Track = Base.extend({
     var obj, j;
     
     settings.controller = settings.controller || this.controller || Genoverse.Track.Controller;
-    settings.model      = settings.model      || this.model      || Genoverse.Track.Model;
-    settings.view       = settings.view       || this.view       || Genoverse.Track.View;
+    settings.model      = this.models[lengthSettings[0]] || settings.model || this.model || Genoverse.Track.Model;
+    settings.view       = this.views[lengthSettings[0]]  || settings.view  || this.view  || Genoverse.Track.View;
     
     for (var i = 0; i < 3; i++) {
       mvcSettings[mvc[i]] = { prop: {}, func: {} };
     }
     
     for (i in settings) {
-      if (!/^(constructor|init|setDefaults|base|extend|lengthMap)$/.test(i) && isNaN(i)) {
+      if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(i) && isNaN(i)) {
         if (this._interface[i]) {
           mvcSettings[this._interface[i]][typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
         } else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|model|view)$/.test(i)) {
@@ -109,7 +104,7 @@ Genoverse.Track = Base.extend({
         this[obj] = new (settings[obj].extend($.extend(true, {}, settings[obj].prototype, mvcSettings[obj].func)))(mvcSettings[obj].prop);
       } else {
         // Update the model/view with the values in mvcSettings.
-        var test = typeof settings[obj] === 'object' && this[obj] !== settings[obj] ? this[obj] = settings[obj] : lengthSettings && this.lengthMap.length > 1 ? lengthSettings : false;
+        var test = typeof settings[obj] === 'object' && this[obj] !== settings[obj] ? this[obj] = settings[obj] : this[obj + 's'][lengthSettings[0]] && this.lengthMap.length > 1 ? this[obj + 's'][lengthSettings[0]] : false;
         
         if (test) {
           for (j in mvcSettings[obj].prop) {
@@ -137,9 +132,9 @@ Genoverse.Track = Base.extend({
       this.order = this.orderReverse;
     }
     
-    if (lengthSettings) {
-      lengthSettings.model = this.model;
-      lengthSettings.view  = this.view;
+    if (lengthSettings[1]) {
+      this.models[lengthSettings[0]] = this.model;
+      this.views[lengthSettings[0]]  = this.view;
     }
   },
   
@@ -147,13 +142,15 @@ Genoverse.Track = Base.extend({
     var value, j, deepCopy;
     
     this.lengthMap = [];
+    this.models    = {};
+    this.views     = {};
     
     for (var key in this) { // Find all scale-map like keys
       if (!isNaN(key)) {
         key   = parseInt(key, 10);
         value = this[key];
         delete this[key];
-        this.lengthMap.push([ key, value === false ? { threshold: key, resizable: 'auto' } : value ]);
+        this.lengthMap.push([ key, value === false ? { threshold: key, resizable: 'auto', featureHeight: 0, model: Genoverse.Track.Model, view: Genoverse.Track.View } : value ]);
       }
     }
     
@@ -196,9 +193,11 @@ Genoverse.Track = Base.extend({
   getSettingsForLength: function () {
     for (var i = 0; i < this.lengthMap.length; i++) {
       if (this.browser.length > this.lengthMap[i][0] || this.browser.length === 1 && this.lengthMap[i][0] === 1) {
-        return this.lengthMap[i][1];
+        return this.lengthMap[i];
       }
     }
+    
+    return [];
   },
   
   prop: function (key, value) {
@@ -231,7 +230,7 @@ Genoverse.Track = Base.extend({
   },
   
   setHeight: function (height, forceShow) {
-    if (this.prop('hidden') || (forceShow !== true && height < this.prop('featureHeight'))) {
+    if (this.disabled || (forceShow !== true && height < this.prop('featureHeight'))) {
       height = 0;
     } else {
       height = Math.max(height, this.prop('minLabelHeight'));
@@ -255,27 +254,29 @@ Genoverse.Track = Base.extend({
     }
   },
   
-  show: function () {
-    this.hidden = false;
-    this.controller.resize(this.initialHeight);
-  },
-  
-  hide: function () {
-    this.hidden = true;
-    this.controller.resize(0);
-  },
-  
   enable: function () {
-    this.disabled = false;
-    this.show();
-    this.controller.makeFirstImage();
+    if (this.disabled === true) {
+      this.disabled = false;
+      this.controller.resize(this.initialHeight);
+      this.reset();
+    }
   },
   
   disable: function () {
-    this.hide();
-    this.controller.scrollContainer.css('left', 0);
+    if (!this.disabled) {
+      this.disabled = true;
+      this.controller.resize(0);
+    }
+  },
+  
+  reset: function () {
+    if (this.prop('url') !== false) {
+      this.model.init(true);
+    }
+    
+    this.view.init();
+    this.setLengthMap();
     this.controller.reset();
-    this.disabled = true;
   },
   
   remove: function () {

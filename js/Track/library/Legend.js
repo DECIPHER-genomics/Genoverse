@@ -44,6 +44,8 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     init: function () {
       this.base();
       
+      this.container.addClass('track_container_legend');
+      
       this.tracks = [];
       
       if (!this.browser.legends) {
@@ -67,8 +69,9 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     var features = {};
     
     $.each($.map(this.track.tracks, function (track) {
+      var featurePositions = track.prop('featurePositions');
       bounds.h = track.prop('height');
-      return track.prop('featurePositions').search(bounds).concat(track.prop('labelPositions').search(bounds));
+      return featurePositions ? featurePositions.search(bounds).concat(track.prop('labelPositions').search(bounds)) : [];
     }), function () {
       if (this.legend) {
         features[this.legend] = this.color;
@@ -95,7 +98,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     var y        = 0;
     var xScale   = this.width / cols;
     var yScale   = this.fontHeight + pad;
-    var features = [{ x: 0, y: 0, width: this.width, height: 1, color: this.textColor }];
+    var features = [];
     var xPos, yPos, labelWidth;
     
     for (var i = 0; i < f.length; i++) {
@@ -114,11 +117,21 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
       }
     }
     
-    params.height     = this.prop('height', ((y + (x ? 1 : 0)) * yScale) + pad);
+    params.height     = this.prop('height', f.length ? ((y + (x ? 1 : 0)) * yScale) + pad : 0);
     params.width      = this.width;
     params.positioned = true;
     
     return this.base(features, params);
+  },
+  
+  enable: function () {
+    this.base();
+    this.controller.makeImage({});
+  },
+  
+  disable: function () {
+    delete this.controller.stringified;
+    this.base();
   },
   
   destroy: function () {

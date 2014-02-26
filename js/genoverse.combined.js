@@ -6974,6 +6974,10 @@ var Genoverse = Base.extend({
     var mvc;
     
     for (var i = 0; i < this.tracks.length; i++) {
+      if (this.tracks[i].disabled) {
+        continue;
+      }
+      
       mvc = this.tracks[i]._interface[func];
       
       if (mvc) {
@@ -7556,7 +7560,7 @@ var Genoverse = Base.extend({
             (f.title ? '<tr class="header"><th colspan="2" class="title">' + f.title + '</th></tr>' : '') +
             $.map(f, function (value, key) {
               if (key !== 'title') {
-                return '<tr><td>'+ key +'</td><td>'+ value +'</td></tr>';
+                return '<tr><td>' + key + '</td><td>' + value + '</td></tr>';
               }
             }).join()
           );
@@ -7569,7 +7573,7 @@ var Genoverse = Base.extend({
         }
       });
       
-      feature.menuEl = menu;
+      feature.menuEl = menu.appendTo(this.superContainer || this.container);
     }
     
     this.menus = this.menus.add(feature.menuEl);
@@ -7578,13 +7582,13 @@ var Genoverse = Base.extend({
       track.prop('menus', track.prop('menus').add(feature.menuEl));
     }
     
-    feature.menuEl.appendTo('body');
+    feature.menuEl.show(); // Must show before positioning, else position will be wrong
     
     if (event) {
       feature.menuEl.css({ left: 0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' });
     }
 
-    return feature.menuEl.show();
+    return feature.menuEl;
   },
   
   closeMenus: function () {
@@ -7761,7 +7765,6 @@ Genoverse.Track = Base.extend({
   margin     : 2,         // The spacing between this track and the next
   resizable  : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
   border     : true,      // Does the track have a bottom border
-  hidden     : false,     // Is the track hidden by default
   unsortable : false,     // Is the track unsortable
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
@@ -7790,10 +7793,6 @@ Genoverse.Track = Base.extend({
     this.height           += this.margin;
     this.initialHeight     = this.height;
     
-    if (this.hidden) {
-      this.height = 0;
-    }
-    
     if (this.resizable === 'auto') {
       this.autoHeight = true;
     }
@@ -7821,7 +7820,7 @@ Genoverse.Track = Base.extend({
     }
     
     var lengthSettings = this.getSettingsForLength();
-    var settings       = $.extend(true, {}, this.constructor.prototype, lengthSettings); // model, view, options
+    var settings       = $.extend(true, {}, this.constructor.prototype, lengthSettings[1]); // model, view, options
     var mvc            = [ 'model', 'view', 'controller' ];
     var propFunc       = $.proxy(this.prop, this);
     var mvcSettings    = {};
@@ -7829,15 +7828,15 @@ Genoverse.Track = Base.extend({
     var obj, j;
     
     settings.controller = settings.controller || this.controller || Genoverse.Track.Controller;
-    settings.model      = settings.model      || this.model      || Genoverse.Track.Model;
-    settings.view       = settings.view       || this.view       || Genoverse.Track.View;
+    settings.model      = this.models[lengthSettings[0]] || settings.model || this.model || Genoverse.Track.Model;
+    settings.view       = this.views[lengthSettings[0]]  || settings.view  || this.view  || Genoverse.Track.View;
     
     for (var i = 0; i < 3; i++) {
       mvcSettings[mvc[i]] = { prop: {}, func: {} };
     }
     
     for (i in settings) {
-      if (!/^(constructor|init|setDefaults|base|extend|lengthMap)$/.test(i) && isNaN(i)) {
+      if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(i) && isNaN(i)) {
         if (this._interface[i]) {
           mvcSettings[this._interface[i]][typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
         } else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|model|view)$/.test(i)) {
@@ -7867,7 +7866,7 @@ Genoverse.Track = Base.extend({
         this[obj] = new (settings[obj].extend($.extend(true, {}, settings[obj].prototype, mvcSettings[obj].func)))(mvcSettings[obj].prop);
       } else {
         // Update the model/view with the values in mvcSettings.
-        var test = typeof settings[obj] === 'object' && this[obj] !== settings[obj] ? this[obj] = settings[obj] : lengthSettings && this.lengthMap.length > 1 ? lengthSettings : false;
+        var test = typeof settings[obj] === 'object' && this[obj] !== settings[obj] ? this[obj] = settings[obj] : this[obj + 's'][lengthSettings[0]] && this.lengthMap.length > 1 ? this[obj + 's'][lengthSettings[0]] : false;
         
         if (test) {
           for (j in mvcSettings[obj].prop) {
@@ -7877,6 +7876,10 @@ Genoverse.Track = Base.extend({
           }
           
           this[obj].constructor.extend(mvcSettings[obj].func);
+          
+          if (obj === 'model' && typeof test.url !== 'undefined') {
+            this.model.setURL(); // make sure the URL is correct
+          }
         }
       }
     }
@@ -7891,9 +7894,9 @@ Genoverse.Track = Base.extend({
       this.order = this.orderReverse;
     }
     
-    if (lengthSettings) {
-      lengthSettings.model = this.model;
-      lengthSettings.view  = this.view;
+    if (lengthSettings[1]) {
+      this.models[lengthSettings[0]] = this.model;
+      this.views[lengthSettings[0]]  = this.view;
     }
   },
   
@@ -7901,13 +7904,15 @@ Genoverse.Track = Base.extend({
     var value, j, deepCopy;
     
     this.lengthMap = [];
+    this.models    = {};
+    this.views     = {};
     
     for (var key in this) { // Find all scale-map like keys
       if (!isNaN(key)) {
         key   = parseInt(key, 10);
         value = this[key];
         delete this[key];
-        this.lengthMap.push([ key, value === false ? { threshold: key, resizable: 'auto' } : value ]);
+        this.lengthMap.push([ key, value === false ? { threshold: key, resizable: 'auto', featureHeight: 0, model: Genoverse.Track.Model, view: Genoverse.Track.View } : value ]);
       }
     }
     
@@ -7949,10 +7954,12 @@ Genoverse.Track = Base.extend({
   
   getSettingsForLength: function () {
     for (var i = 0; i < this.lengthMap.length; i++) {
-      if (this.browser.length > this.lengthMap[i][0]) {
-        return this.lengthMap[i][1];
+      if (this.browser.length > this.lengthMap[i][0] || this.browser.length === 1 && this.lengthMap[i][0] === 1) {
+        return this.lengthMap[i];
       }
     }
+    
+    return [];
   },
   
   prop: function (key, value) {
@@ -7985,7 +7992,7 @@ Genoverse.Track = Base.extend({
   },
   
   setHeight: function (height, forceShow) {
-    if (this.prop('hidden') || (forceShow !== true && height < this.prop('featureHeight'))) {
+    if (this.disabled || (forceShow !== true && height < this.prop('featureHeight'))) {
       height = 0;
     } else {
       height = Math.max(height, this.prop('minLabelHeight'));
@@ -8009,27 +8016,29 @@ Genoverse.Track = Base.extend({
     }
   },
   
-  show: function () {
-    this.hidden = false;
-    this.controller.resize(this.initialHeight);
-  },
-  
-  hide: function () {
-    this.hidden = true;
-    this.controller.resize(0);
-  },
-  
   enable: function () {
-    this.disabled = false;
-    this.show();
-    this.controller.makeFirstImage();
+    if (this.disabled === true) {
+      this.disabled = false;
+      this.controller.resize(this.initialHeight);
+      this.reset();
+    }
   },
   
   disable: function () {
-    this.hide();
-    this.controller.scrollContainer.css('left', 0);
+    if (!this.disabled) {
+      this.disabled = true;
+      this.controller.resize(0);
+    }
+  },
+  
+  reset: function () {
+    if (this.prop('url') !== false) {
+      this.model.init(true);
+    }
+    
+    this.view.init();
+    this.setLengthMap();
     this.controller.reset();
-    this.disabled = true;
   },
   
   remove: function () {
@@ -8099,12 +8108,8 @@ Genoverse.Track.Controller = Base.extend({
   reset: function () {
     this.resetImages();
     this.browser.closeMenus.call(this);
-    
-    if (this.url !== false) {
-      this.model.init(true);
-    }
-    
-    this.view.init();
+    this.setScale();
+    this.makeFirstImage();
   },
   
   resetImages: function () {
@@ -8125,7 +8130,7 @@ Genoverse.Track.Controller = Base.extend({
   rename: function (name) {
     this.track.name     = name;
     this.minLabelHeight = $('span.name', this.label).html(name).outerHeight(true);
-    this.label.height(this.prop('hidden') ? 0 : Math.max(this.prop('height'), this.minLabelHeight));
+    this.label.height(this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight));
   },
   
   addDomElements: function () {
@@ -8151,7 +8156,7 @@ Genoverse.Track.Controller = Base.extend({
     
     this.minLabelHeight = $('<span class="name" title="' + name + '">' + name + '</span>').appendTo(this.label).outerHeight(true);
     
-    var h = this.prop('hidden') ? 0 : Math.max(this.prop('height'), this.minLabelHeight);
+    var h = this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight);
     
     if (this.minLabelHeight) {
       this.label.height(h);
@@ -8310,7 +8315,7 @@ Genoverse.Track.Controller = Base.extend({
     // Therefore fullVisibleHeight includes this margin for the bottom-most feature.
     // The correct value (for a track using the default positionFeatures code) is:
     // fullVisibleHeight - ([there are labels in this region] ? (labels === 'separate' ? 0 : featureMargin.bottom + 1) + 2 : featureMargin.bottom)
-    if (this.fullVisibleHeight - featureMargin.top - featureMargin.bottom > height) {
+    if (this.fullVisibleHeight - featureMargin.top - featureMargin.bottom > height && !this.prop('disabled')) {
       this.showMessage('resize');
       
       var controller = this;
@@ -9107,11 +9112,13 @@ Genoverse.Track.View = Base.extend({
 
 
 Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
-  constructor: function (properties) {
-    this.base(properties);
+  addDomElements: function () {
+    this.base();
     
     this.image = $('<img>').appendTo(this.imgContainer);
-    this.container.toggleClass('track_container track_container_static').html(this.imgContainer);
+    
+    this.container.toggleClass('track_container track_container_static').prepend(this.imgContainer);
+    this.scrollContainer.add(this.messageContainer).remove();
   },
   
   reset: $.noop,
@@ -9128,6 +9135,10 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
   },
   
   makeImage: function (params) {
+    if (this.prop('disabled')) {
+      return $.Deferred().resolve();
+    }
+    
     var features = this.view.positionFeatures(this.model.findFeatures(params.start, params.end), params);
     
     if (features) {
@@ -9177,6 +9188,94 @@ Genoverse.Track.Static = Genoverse.Track.extend({
   view       : Genoverse.Track.View.Static
 });
 
+
+
+
+Genoverse.Track.Controller.Configurable = Genoverse.Track.Controller.extend({
+  addDomElements: function () {
+    var controls      = this.prop('controls');
+    var defaultConfig = this.prop('defaultConfig');
+    
+    for (var i in controls) {
+      if (typeof controls[i] === 'string') {
+        controls[i] = $(controls[i]);
+        
+        // TODO: other control types
+        if (controls[i].is('select')) {
+          controls[i].children('[value=' + defaultConfig[controls[i].data('control')] + ']').attr('selected', true).end().change(function () {
+            $(this).data('track').setConfig($(this).data('control'), this.value);
+          });
+        }
+      }
+    }
+    
+    this.base.apply(this, arguments);
+  }
+});
+
+Genoverse.Track.Configurable = Genoverse.Track.extend({
+  controller     : Genoverse.Track.Controller.Configurable,
+  configSettings : {},
+  defaultConfig  : {},
+  controls       : [],
+  
+  setDefaults: function () {
+    this.config = this.config || {};
+    
+    for (var i in this.defaultConfig) {
+      if (typeof this.config[i] === 'undefined') {
+        this.config[i] = this.defaultConfig[i];
+      }
+    }
+    
+    this.base();
+  },
+  
+  setLengthMap: function () {
+    var config         = this.config;
+    var args           = [ true, {} ];
+    var featureFilters = [];
+    var settings;
+    
+    for (var i in this.configSettings) {
+      settings = this.getConfig(i);
+      
+      if (settings) {
+        args.push(settings);
+        
+        if (settings.featureFilter) {
+          featureFilters.push(settings.featureFilter);
+        }
+      }
+    }
+    
+    this.extend({ 1: $.extend.apply($, args.concat({ featureFilters: featureFilters })) });
+    this.base();
+  },
+  
+  setConfig: function (type, config) {
+    if (this.configSettings[type][config]) {
+      this.config[type] = config;
+    }
+    
+    this.reset();
+  },
+  
+  getConfig: function (type) {
+    return this.configSettings[type][this.config[type]];
+  },
+  
+  findFeatures: function () {
+    var features = this.base.apply(this, arguments);
+    var filters  = this.prop('featureFilters');
+    
+    for (var i in filters) {
+      features = $.grep(features, filters[i]);
+    }
+    
+    return features;
+  }
+});
 
 
 
@@ -9911,8 +10010,7 @@ Genoverse.Track.Model.Transcript = Genoverse.Track.Model.extend({
 
 // Ensembl REST API Transcript model
 Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.extend({
-  url              : 'http://beta.rest.ensembl.org/feature/region/human/__CHR__:__START__-__END__?content-type=application/json',
-  urlParams        : { feature: 'transcript' },
+  url              : 'http://beta.rest.ensembl.org/feature/region/human/__CHR__:__START__-__END__?feature=transcript;feature=exon;feature=cds;content-type=application/json',
   dataRequestLimit : 5000000, // As per e! REST API restrictions
   
   // The url above responds in json format, data is an array
@@ -9944,38 +10042,9 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
         }
       }
     }
-  },
-  
-  getData: function (start, end, dfd) {
-    start = Math.max(1, start);
-    end   = Math.min(this.browser.chromosomeSize, end);
-    
-    var deferred = dfd || $.Deferred();
-    
-    this.base(start, end, function (data, state, request) {
-      if (dfd) {
-        this.parseData(data, request.coords[0], request.coords[1]);
-      } else { // Non modified (transcript) url, loop through the transcripts and see if any extend beyond start and end
-        for (var i = 0; i < data.length; i++) {
-          start = Math.min(start, data[i].start);
-          end   = Math.max(end,   data[i].end);
-        }
-        
-        this.receiveData(data, request.coords[0], request.coords[1]); 
-      }
-    }).done(function () {
-      if (dfd) { // Now get me the exons and cds for start-end
-        dfd.resolveWith(this);
-      } else {
-        this.setURL({ feature: [ 'exon', 'cds' ]}, true);
-        this.getData(start, end, deferred);
-        this.setURL(this.urlParams, true);
-      }
-    });
-    
-    return deferred;
   }
 });
+
 
 
 

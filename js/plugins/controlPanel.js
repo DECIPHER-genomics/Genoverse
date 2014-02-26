@@ -22,7 +22,7 @@ Genoverse.on('beforeInit', function () {
     this.tracksLibrary = $.map(this.tracks, function (track) { if (track.prototype.name) { return $.extend(true, {}, track.prototype); } });
   }
   
-  $(
+  var panel = $(
     '<table cellspacing=0 cellpadding=0 class="genoverse">' +
     '  <tr>' +
     '    <td class="canvas_container"></td>' +
@@ -42,7 +42,7 @@ Genoverse.on('beforeInit', function () {
     '    </td>' +
     '  </tr>' +
     '</table>'
-  ).appendTo(this.container);
+  ).appendTo(this.container).find('.genoverse_panel');
   
   if (this.enableSharing) {
     $('.genoverse_panel_right').append(
@@ -51,73 +51,74 @@ Genoverse.on('beforeInit', function () {
       '</div>'
     );
   }
-
-  this.container = $('.canvas_container', this.container);
   
-  $('.genoverse_panel button.scrollLeft, button.scrollRight').on({
+  this.superContainer = this.container;
+  this.container      = $('.canvas_container', this.container);
+  
+  panel.find('button.scrollLeft, button.scrollRight').on({
     mousedown : function () { genoverse.startDragScroll(); },
     mouseup   : function () { genoverse.stopDragScroll();  }
   });
   
-  $('.genoverse_panel button.scrollLeft').mousehold(50, function () {
+  panel.find('button.scrollLeft').mousehold(50, function () {
     browser.move(browser.scrollDelta);
   });
   
-  $('.genoverse_panel button.scrollRight').mousehold(50, function () {
+  panel.find('button.scrollRight').mousehold(50, function () {
     browser.move(-browser.scrollDelta);
   });
   
-  $('.genoverse_panel button.zoomIn').on('click', function () {
+  panel.find('button.zoomIn').on('click', function () {
     browser.zoomIn();
   });
   
-  $('.genoverse_panel button.zoomOut').on('click', function () {
+  panel.find('button.zoomOut').on('click', function () {
     browser.zoomOut();
   });
   
   if (browser.dragAction === 'select') {
-    $('.genoverse_panel button.dragSelect').addClass('active');
-    $('.genoverse_panel button.dragScroll').removeClass('active');
+    panel.find('button.dragSelect').addClass('active');
+    panel.find('button.dragScroll').removeClass('active');
   } else {
-    $('.genoverse_panel button.dragSelect').removeClass('active');
-    $('.genoverse_panel button.dragScroll').addClass('active');
+    panel.find('button.dragSelect').removeClass('active');
+    panel.find('button.dragScroll').addClass('active');
   }
   
-  $('.genoverse_panel button.dragSelect').on('click', function () {
+  panel.find('button.dragSelect').on('click', function () {
     browser.setDragAction('select');
-    $('.genoverse_panel button.dragSelect').addClass('active');
-    $('.genoverse_panel button.dragScroll').removeClass('active');        
+    panel.find('button.dragSelect').addClass('active');
+    panel.find('button.dragScroll').removeClass('active');
   });
   
-  $('.genoverse_panel button.dragScroll').on('click', function () {
+  panel.find('button.dragScroll').on('click', function () {
     browser.setDragAction('scroll');
-    $('.genoverse_panel button.dragSelect').removeClass('active');
-    $('.genoverse_panel button.dragScroll').addClass('active');     
+    panel.find('button.dragSelect').removeClass('active');
+    panel.find('button.dragScroll').addClass('active');
   });
   
   if (browser.wheelAction === 'zoom') {
-    $('.genoverse_panel button.wheelZoom').addClass('active');
-    $('.genoverse_panel button.wheelOff').removeClass('active');
+    panel.find('button.wheelZoom').addClass('active');
+    panel.find('button.wheelOff').removeClass('active');
   } else {
-    $('.genoverse_panel button.wheelZoom').removeClass('active');
-    $('.genoverse_panel button.wheelOff').addClass('active');
+    panel.find('button.wheelZoom').removeClass('active');
+    panel.find('button.wheelOff').addClass('active');
   }
   
-  $('.genoverse_panel button.wheelZoom').on('click', function () {
+  panel.find('button.wheelZoom').on('click', function () {
     browser.setWheelAction('zoom');
-    $('.genoverse_panel button.wheelZoom').addClass('active');
-    $('.genoverse_panel button.wheelOff').removeClass('active');
+    $(this).addClass('active');
+    panel.find('button.wheelOff').removeClass('active');
   });
   
-  $('.genoverse_panel button.wheelOff').on('click', function () {
+  panel.find('button.wheelOff').on('click', function () {
     browser.setWheelAction('off');
-    $('.genoverse_panel button.wheelZoom').removeClass('active');
-    $('.genoverse_panel button.wheelOff').addClass('active');    
+    panel.find('button.wheelZoom').removeClass('active');
+    $(this).addClass('active');
   });
   
   for (var i = 0; i < browser.controls.length; i++) {
     (function (control) {
-      $('<button>' + control.icon + '</button>')
+      var button = $('<button>' + control.icon + '</button>')
         .attr('title', control.name)
         .addClass(control.class)
         .on('click', function () {
@@ -126,16 +127,16 @@ Genoverse.on('beforeInit', function () {
         .appendTo($('<div class="button_set">').appendTo('.genoverse_panel_right'));
       
       if (control.init) {
-        control.init.call(this, browser);
+        control.init.call(button[0], browser);
       }
     })(browser.controls[i]);
   }
   
-  // ESC key to toggle crosshair select to drag mode and close menues
+  // ESC key to toggle crosshair select to drag mode and close menus
   $(document).on('keydown', function (e) {
     if (e.keyCode === 27) {
-      if ($('.genoverse_panel button.dragSelect').hasClass('active')) {
-        $('.genoverse_panel button.dragScroll').trigger('click');
+      if (panel.find('button.dragSelect').hasClass('active')) {
+        panel.find('button.dragScroll').trigger('click');
       }
       
       $('.gv_menu .close').trigger('click');
@@ -221,14 +222,16 @@ Genoverse.on('afterInit', function () {
         
         if (browser.tracksLibrary && browser.tracksLibrary.length) {
           for (var i = 0; i < browser.tracksLibrary.length; i++) {
-            if (browser.tracksLibrary[i].name) {
+            if (browser.tracksLibrary[i].prototype.name) {
               (function (track) {
                 $('<div class="tracksLibraryItem">').append(
                   $('<div class="addTrack">+</div> ').on('click', function () {
-                    browser.addTrack(Genoverse.Track.extend($.extend(true, {}, track)), browser.tracks.length);
+                    browser.trackIds = browser.trackIds || {};
+                    browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
+                    browser.addTrack(track.extend({ id: track.prototype.id + browser.trackIds[track.prototype.id]++ }), browser.tracks.length);
                     currentTracks.reload();
                   })
-                ).append('<span>' + track.name + '</span>').appendTo(availableTracks).data('track', track);
+                ).append('<span>' + track.prototype.name + '</span>').appendTo(availableTracks).data('track', track.prototype);
               })(browser.tracksLibrary[i]);
             }
           }

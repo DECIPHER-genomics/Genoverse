@@ -263,6 +263,10 @@ var Genoverse = Base.extend({
     var mvc;
     
     for (var i = 0; i < this.tracks.length; i++) {
+      if (this.tracks[i].disabled) {
+        continue;
+      }
+      
       mvc = this.tracks[i]._interface[func];
       
       if (mvc) {
@@ -845,7 +849,7 @@ var Genoverse = Base.extend({
             (f.title ? '<tr class="header"><th colspan="2" class="title">' + f.title + '</th></tr>' : '') +
             $.map(f, function (value, key) {
               if (key !== 'title') {
-                return '<tr><td>'+ key +'</td><td>'+ value +'</td></tr>';
+                return '<tr><td>' + key + '</td><td>' + value + '</td></tr>';
               }
             }).join()
           );
@@ -858,7 +862,7 @@ var Genoverse = Base.extend({
         }
       });
       
-      feature.menuEl = menu;
+      feature.menuEl = menu.appendTo(this.superContainer || this.container);
     }
     
     this.menus = this.menus.add(feature.menuEl);
@@ -867,13 +871,13 @@ var Genoverse = Base.extend({
       track.prop('menus', track.prop('menus').add(feature.menuEl));
     }
     
-    feature.menuEl.appendTo('body');
+    feature.menuEl.show(); // Must show before positioning, else position will be wrong
     
     if (event) {
       feature.menuEl.css({ left: 0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' });
     }
 
-    return feature.menuEl.show();
+    return feature.menuEl;
   },
   
   closeMenus: function () {

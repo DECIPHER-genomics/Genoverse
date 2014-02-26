@@ -24,12 +24,8 @@ Genoverse.Track.Controller = Base.extend({
   reset: function () {
     this.resetImages();
     this.browser.closeMenus.call(this);
-    
-    if (this.url !== false) {
-      this.model.init(true);
-    }
-    
-    this.view.init();
+    this.setScale();
+    this.makeFirstImage();
   },
   
   resetImages: function () {
@@ -50,7 +46,7 @@ Genoverse.Track.Controller = Base.extend({
   rename: function (name) {
     this.track.name     = name;
     this.minLabelHeight = $('span.name', this.label).html(name).outerHeight(true);
-    this.label.height(this.prop('hidden') ? 0 : Math.max(this.prop('height'), this.minLabelHeight));
+    this.label.height(this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight));
   },
   
   addDomElements: function () {
@@ -76,7 +72,7 @@ Genoverse.Track.Controller = Base.extend({
     
     this.minLabelHeight = $('<span class="name" title="' + name + '">' + name + '</span>').appendTo(this.label).outerHeight(true);
     
-    var h = this.prop('hidden') ? 0 : Math.max(this.prop('height'), this.minLabelHeight);
+    var h = this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight);
     
     if (this.minLabelHeight) {
       this.label.height(h);
@@ -235,7 +231,7 @@ Genoverse.Track.Controller = Base.extend({
     // Therefore fullVisibleHeight includes this margin for the bottom-most feature.
     // The correct value (for a track using the default positionFeatures code) is:
     // fullVisibleHeight - ([there are labels in this region] ? (labels === 'separate' ? 0 : featureMargin.bottom + 1) + 2 : featureMargin.bottom)
-    if (this.fullVisibleHeight - featureMargin.top - featureMargin.bottom > height) {
+    if (this.fullVisibleHeight - featureMargin.top - featureMargin.bottom > height && !this.prop('disabled')) {
       this.showMessage('resize');
       
       var controller = this;

@@ -3,17 +3,6 @@
   width: 1000px;
 }
 
-ul.label_container {
-  background-color: #5F8CB0;
-  background-image: -moz-linear-gradient(right center , #5F8CB0, #4A7496); 
-  background-image: -webkit-linear-gradient(right, #5F8CB0, #4A7496);
-  border-radius: 5px 0 0 5px;
-  border: 1px solid #1C5380;
-  border-right: none;
-  box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);        
-  width: 90px;
-}
-
 .canvas_container {
   cursor: pointer;
   -webkit-touch-callout: none;
@@ -51,6 +40,12 @@ ul.label_container {
 .canvas_container .track_container_static {
   overflow: visible;
   position: relative;
+}
+
+.canvas_container .track_container_legend {
+  border-top: 1px solid #000000;
+  margin-top: -1px;
+  z-index: 1;
 }
 
 .canvas_container .track_container_static .image_container,
@@ -178,6 +173,14 @@ ul.label_container {
   margin: 0;
   padding: 0;
   list-style: none;
+  background-color: #5F8CB0;
+  background-image: -moz-linear-gradient(right center , #5F8CB0, #4A7496);
+  background-image: -webkit-linear-gradient(right, #5F8CB0, #4A7496);
+  border-radius: 5px 0 0 5px;
+  border: 1px solid #1C5380;
+  border-right: none;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);
+  width: 100px;
 }
 
 .canvas_container .label_container li {
@@ -195,8 +198,8 @@ ul.label_container {
   background-image: url(../i/Grabbar.png);
   cursor: move;
   display: inline-block;
-  height: 90%;
-  margin: 8px 0;
+  height: 80%;
+  top: 10%;
   width: 10px;
   opacity: 0.7;
 }
@@ -238,7 +241,8 @@ li.sortHandle {
   padding-bottom: 100px;
 }
 
-.track_container .track_border {
+.track_container .track_border,
+.track_container_static .track_border {
   position: absolute;
   display: block;
   height: 1px;
@@ -248,8 +252,17 @@ li.sortHandle {
   width: 100%;
 }
 
-.track_container.fullHeight .track_border {
+.track_container.fullHeight .track_border,
+.track_container_static.fullHeight .track_border {
   border: none;
+}
+
+.canvas_container .track_container_legend .track_border {
+  border-color: #000;
+}
+
+.canvas_container .gv_wrapper > :last-child.track_container_legend .track_border {
+  display: none;
 }
 
 .canvas_container .expander {
