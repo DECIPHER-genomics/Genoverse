@@ -7992,7 +7992,7 @@ Genoverse.Track = Base.extend({
   },
   
   setHeight: function (height, forceShow) {
-    if (this.disabled || (forceShow !== true && height < this.prop('featureHeight'))) {
+    if (this.disabled || (forceShow !== true && height < this.prop('featureHeight')) || (this.prop('threshold') && !this.prop('thresholdMessage') && this.browser.length > this.prop('threshold'))) {
       height = 0;
     } else {
       height = Math.max(height, this.prop('minLabelHeight'));

@@ -97,10 +97,8 @@
 }
 
 .canvas_container .message_container .control {
-  position: absolute; 
-  top: 50%; 
+  position: absolute;
   height: 14px;
-  margin-top: -7px; 
   font-size: 12px; 
   cursor: pointer; 
 }
@@ -111,14 +109,11 @@
 .canvas_container .message_container.collapsed .collapse { display: none; }
 .canvas_container .message_container.collapsed .expand   { display: inline; position: relative; }
 
-
-
 .canvas_container .image_container {
   height: 100%;
   overflow-x: visible;
   overflow-y: hidden;
   position: absolute;
-  /*background: #ccc;*/
   margin: 0;
 }
 
@@ -131,7 +126,6 @@
 }
 
 .canvas_container .image_container img {
-  /*display: none;*/
   position: absolute;
   z-index: 1;
 }
@@ -139,10 +133,6 @@
 .canvas_container .image_container img.data {
   max-width: none;
 }
-
-/*.canvas_container .image_container img.data {
-  display:none;
-}*/
 
 .canvas_container .image_container img.bg {
   display: block;
@@ -335,7 +325,6 @@ li.sortHandle {
 }
 
 .gv_menu:not(.trackSelection) table td {
-  /*width: 50%;*/
   padding: 0 1em 0 0;
 }
 
@@ -406,4 +395,3 @@ li.sortHandle {
   color: white;
   z-index: 11;
 }
-

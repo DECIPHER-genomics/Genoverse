@@ -29,10 +29,11 @@
         tracks    : [
           Genoverse.Track.Scalebar,
           Genoverse.Track.extend({
-            name   : 'Sequence',
-            model  : Genoverse.Track.Model.Sequence.Ensembl,
-            view   : Genoverse.Track.View.Sequence,
-            100000 : false
+            name      : 'Sequence',
+            model     : Genoverse.Track.Model.Sequence.Ensembl,
+            view      : Genoverse.Track.View.Sequence,
+            100000    : false,
+            resizable : 'auto'
           }),
           Genoverse.Track.extend({
             name   : 'Genes',
