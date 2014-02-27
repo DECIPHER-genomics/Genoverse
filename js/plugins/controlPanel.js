@@ -204,7 +204,7 @@ Genoverse.on('afterInit', function () {
         
         currentTracks.listTracks = function () {
           for (var i = 1; i < browser.tracks.length; i++) {
-            if (browser.tracks[i].name) {
+            if (browser.tracks[i].name && !(browser.tracks[i] instanceof Genoverse.Track.Legend)) {
               (function (track) {
                 $('<div>').append(
                   $('<div class="removeTrack">x</div> ').on('click', function () {
@@ -221,19 +221,19 @@ Genoverse.on('afterInit', function () {
         currentTracks.listTracks();
         
         if (browser.tracksLibrary && browser.tracksLibrary.length) {
-          for (var i = 0; i < browser.tracksLibrary.length; i++) {
-            if (browser.tracksLibrary[i].prototype.name) {
-              (function (track) {
-                $('<div class="tracksLibraryItem">').append(
-                  $('<div class="addTrack">+</div> ').on('click', function () {
-                    browser.trackIds = browser.trackIds || {};
-                    browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
-                    browser.addTrack(track.extend({ id: track.prototype.id + browser.trackIds[track.prototype.id]++ }), browser.tracks.length);
-                    currentTracks.reload();
-                  })
-                ).append('<span>' + track.prototype.name + '</span>').appendTo(availableTracks).data('track', track.prototype);
-              })(browser.tracksLibrary[i]);
-            }
+          var tracksLibrary = $.map(browser.tracksLibrary, function (track) { return track.prototype.name ? [[ track.prototype.name.toLowerCase(), track ]] : undefined }).sort(function (a, b) { return b < a });
+          
+          for (var i = 0; i < tracksLibrary.length; i++) {
+            (function (track) {
+              $('<div class="tracksLibraryItem">').append(
+                $('<div class="addTrack">+</div> ').on('click', function () {
+                  browser.trackIds = browser.trackIds || {};
+                  browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
+                  browser.addTrack(track.extend({ id: track.prototype.id + browser.trackIds[track.prototype.id]++ }), browser.tracks.length);
+                  currentTracks.reload();
+                })
+              ).append('<span>' + track.prototype.name + '</span>').appendTo(availableTracks).data('track', track.prototype);
+            })(tracksLibrary[i][1]);
           }
         }
         
