@@ -63,7 +63,5 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
         context.fillText(bp, start + (width - this.labelWidth[bp]) / 2, feature.position[scale].Y + this.labelYOffset);
       }
     }
-  },
-  
-  click: $.noop
+  }
 });
