@@ -32,13 +32,15 @@
     <script type="text/javascript" src="js/Track/View.js"></script> 
     
     <script type="text/javascript" src="js/Track/library/Static.js"></script>
+    <script type="text/javascript" src="js/Track/library/Configurable.js"></script>
     
     <script type="text/javascript" src="js/Track/Controller/Stranded.js"></script>
     <script type="text/javascript" src="js/Track/Model/Stranded.js"></script>
     
     <script type="text/javascript" src="js/Track/library/Scaleline.js"></script>
     <script type="text/javascript" src="js/Track/library/Scalebar.js"></script>
-    
+
+    <script type="text/javascript" src="js/Track/Controller/Sequence.js"></script>
     <script type="text/javascript" src="js/Track/Model/Sequence.js"></script>
     <script type="text/javascript" src="js/Track/Model/Sequence/Fasta.js"></script>
     <script type="text/javascript" src="js/Track/Model/Sequence/Ensembl.js"></script>
@@ -92,11 +94,12 @@
         tracks    : [
           Genoverse.Track.Scalebar,
           Genoverse.Track.extend({
-            name      : 'Sequence',
-            model     : Genoverse.Track.Model.Sequence.Ensembl,
-            view      : Genoverse.Track.View.Sequence,
-            resizable : 'auto',
-            100000    : false
+            name       : 'Sequence',
+            controller : Genoverse.Track.Controller.Sequence.Ensembl,
+            model      : Genoverse.Track.Model.Sequence.Ensembl,
+            view       : Genoverse.Track.View.Sequence,
+            resizable  : 'auto',
+            100000     : false
           }),
 
           Genoverse.Track.extend({

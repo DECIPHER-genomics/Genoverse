@@ -33,6 +33,7 @@
 <script type="text/javascript" src="js/Track/View.js"></script>
 
 <script type="text/javascript" src="js/Track/library/Static.js"></script>
+<script type="text/javascript" src="js/Track/library/Configurable.js"></script>
 
 <script type="text/javascript" src="js/Track/Controller/Stranded.js"></script>
 <script type="text/javascript" src="js/Track/Model/Stranded.js"></script>
@@ -93,13 +94,13 @@
         tracks    : [
             Genoverse.Track.Scalebar,
             Genoverse.Track.extend({
-                name      : 'Sequence',
-                model     : Genoverse.Track.Model.Sequence.Fasta,
-                view      : Genoverse.Track.View.Sequence,
-                resizable : 'auto',
-                lineLength: 71
+              name       : 'Sequence',
+              controller : Genoverse.Track.Controller.Sequence,
+              model      : Genoverse.Track.Model.Sequence.Fasta,
+              view       : Genoverse.Track.View.Sequence,
+              lineLength : 71,
+              resizable  : 'auto'
             }),
-
             Genoverse.Track.extend({
                 name      : 'Bam file',
                 bump      : true,

@@ -17,12 +17,13 @@
         tracks    : [
           Genoverse.Track.Scalebar,
           Genoverse.Track.extend({
-            name      : 'Fasta',
-            model     : Genoverse.Track.Model.Sequence.Fasta,
-            view      : Genoverse.Track.View.Sequence,
-            url       : 'http://genoverse.org/examples/tomato/data/Solanum_lycopersicum.SL2.40.18.dna.chromosome.__CHR__.fa',
-            resizable : false,
-            30000     : false
+            name       : 'Fasta',
+            controller : Genoverse.Track.Controller.Sequence,
+            model      : Genoverse.Track.Model.Sequence.Fasta,
+            view       : Genoverse.Track.View.Sequence,
+            url        : 'http://genoverse.org/examples/tomato/data/Solanum_lycopersicum.SL2.40.18.dna.chromosome.__CHR__.fa',
+            resizable  : false,
+            30000      : false
           }),
           Genoverse.Track.extend({
             name   : 'Gene Track',
