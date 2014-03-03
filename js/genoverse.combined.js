@@ -7850,20 +7850,13 @@ Genoverse.Track = Base.extend({
     for (i = 0; i < 3; i++) {
       obj = mvc[i];
       
-      mvcSettings[obj].func.prop                = propFunc;
-      mvcSettings[obj].func.systemEventHandlers = this.systemEventHandlers;
-      mvcSettings[obj].prop.browser             = this.browser;
-      mvcSettings[obj].prop.width               = this.width;
-      mvcSettings[obj].prop.index               = this.index;
-      mvcSettings[obj].prop.track               = this;
-      
       if (obj === 'controller') {
         continue;
       }
       
       if (typeof settings[obj] === 'function' && (!this[obj] || this[obj].constructor.ancestor !== settings[obj])) {
         // Make a new instance of model/view if there isn't one already, or the model/view in lengthSettings is different from the existing model/view
-        this[obj] = new (settings[obj].extend($.extend(true, {}, settings[obj].prototype, mvcSettings[obj].func)))(mvcSettings[obj].prop);
+        this[obj] = this.newMVC(settings[obj], mvcSettings[obj].func, mvcSettings[obj].prop);
       } else {
         // Update the model/view with the values in mvcSettings.
         var test = typeof settings[obj] === 'object' && this[obj] !== settings[obj] ? this[obj] = settings[obj] : this[obj + 's'][lengthSettings[0]] && this.lengthMap.length > 1 ? this[obj + 's'][lengthSettings[0]] : false;
@@ -7885,7 +7878,7 @@ Genoverse.Track = Base.extend({
     }
     
     if (!this.controller || typeof this.controller === 'function') {
-      this.controller = new (settings.controller.extend($.extend(true, {}, settings.controller.prototype, mvcSettings.controller.func)))($.extend(mvcSettings.controller.prop, { model: this.model, view: this.view }));
+      this.controller = this.newMVC(settings.controller, mvcSettings.controller.func, $.extend(mvcSettings.controller.prop, { model: this.model, view: this.view }));
     } else {
       $.extend(this.controller, { model: this.model, view: this.view, threshold: mvcSettings.controller.prop.threshold || this.controller.constructor.prototype.threshold });
     }
@@ -7898,6 +7891,22 @@ Genoverse.Track = Base.extend({
       this.models[lengthSettings[0]] = this.model;
       this.views[lengthSettings[0]]  = this.view;
     }
+  },
+  
+  newMVC: function (object, functions, properties) {
+    return new (object.extend(
+      $.extend(true, {}, object.prototype, functions, {
+        prop                : $.proxy(this.prop, this),
+        systemEventHandlers : this.systemEventHandlers
+      })
+    ))(
+      $.extend(properties, {
+        browser : this.browser,
+        width   : this.width,
+        index   : this.index,
+        track   : this
+      })
+    );
   },
   
   setLengthMap: function () {
@@ -9654,6 +9663,25 @@ Genoverse.on('afterAddTracks', function () {
 
 
 
+Genoverse.Track.Controller.Sequence = Genoverse.Track.Controller.extend({
+  click: function (e) {
+    var x = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
+    var y = e.pageY - $(e.target).offset().top;
+    var f = this[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
+    
+    if (f) {
+      x = Math.floor(x / this.scale);
+      
+      this.browser.makeMenu(f.alt_allele ? f : {
+        title    : f.sequence.charAt(x - f.start),
+        Location : this.browser.chr + ':' + x
+      }, e, this.track);
+    }
+  }
+});
+
+
+
 // Abstract Sequence model
 // assumes that the data source responds with raw sequence text
 // see Fasta model for more specific example
@@ -9872,15 +9900,30 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
         context.fillText(bp, start + (width - this.labelWidth[bp]) / 2, feature.position[scale].Y + this.labelYOffset);
       }
     }
-  },
-  
-  click: $.noop
+  }
 });
 
 
 
 Genoverse.Track.Model.SequenceVariation = Genoverse.Track.Model.extend({
-  // Nothing specific, all specisics are in the derived classes
+  seqModel: Genoverse.Track.Model.Sequence.Ensembl,
+  
+  constructor: function () {
+    this.base.apply(this, arguments);
+    this.prop('models').seq = this.track.newMVC(this.seqModel);
+  },
+  
+  getData: function (start, end) {
+    var deferred = $.Deferred();
+    
+    this.base(start, end).done(function () { this.prop('models').seq.getData(start, end).done(deferred.resolve); });
+    
+    return deferred;
+  },
+  
+  findFeatures: function (start, end) {
+    return this.prop('models').seq.findFeatures(start, end).concat(this.base(start, end));
+  }
 });
 
 
