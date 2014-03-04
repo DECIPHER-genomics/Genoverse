@@ -9719,6 +9719,7 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
         start    : start + i,
         end      : start + i + this.chunkSize,
         sequence : data.substr(i, this.chunkSize),
+        sort     : start + i
       };
       
       this.chunks[feature.start] = feature;
@@ -9915,10 +9916,21 @@ Genoverse.Track.Model.SequenceVariation = Genoverse.Track.Model.extend({
   
   getData: function (start, end) {
     var deferred = $.Deferred();
+    var seqData  = this.prop('models').seq.checkDataRange(start, end);
     
-    this.base(start, end).done(function () { this.prop('models').seq.getData(start, end).done(deferred.resolve); });
+    this.base(start, end).done(function () {
+      if (seqData) {
+        deferred.resolve();
+      } else {
+        this.prop('models').seq.getData(start, end).done(deferred.resolve);
+      }
+    });
     
     return deferred;
+  },
+  
+  checkDataRange: function (start, end) {
+    return this.base(start, end) && this.prop('models').seq.checkDataRange(start, end);
   },
   
   findFeatures: function (start, end) {
