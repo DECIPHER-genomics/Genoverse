@@ -119,12 +119,6 @@ table.genoverse {
   box-shadow: 0px 0px 5px #FFFFFF;
 }
 
-.gv_karyotype_container {
-  height:50px;
-  overflow:hidden;
-  box-shadow: inset 0px 0px 33px -7px rgba(24, 36, 56, 0.97), inset 1px 1px 1px 0px black;
-}
-
 .gv_powered_by {
   position: absolute;
   right: 0;

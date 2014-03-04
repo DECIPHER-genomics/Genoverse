@@ -70,37 +70,55 @@ var Genoverse = Base.extend({
   },
 
   loadPlugins: function () {
-    if (typeof LazyLoad === 'undefined') {
-      return;
-    }
-    
     var browser         = this;
     var loadPluginsTask = $.Deferred();
     
+    function loadPlugin(plugin) {
+      if (typeof Genoverse.Plugins[plugin] === 'function') {
+        if (!Genoverse.Plugins[plugin].loaded) {
+          Genoverse.Plugins[plugin]();
+          Genoverse.Plugins[plugin].loaded = true;
+        }
+        
+        return true;
+      }
+    }
+    
+    function getScript(deferred, plugin) {
+      $.getScript(browser.origin + 'js/plugins/' + plugin + '.js', function () {
+        deferred.resolve.apply(deferred, [].slice.call(arguments).concat(plugin));
+      });
+    }
+    
     // Load plugins css file
     $.when.apply($, $.map(browser.plugins, function (plugin) {
-      var dfd = $.Deferred();
+      if (loadPlugin(plugin)) {
+        return undefined;
+      }
       
-      LazyLoad.css(browser.origin + 'css/' + plugin + '.css', function () {
-        $.ajax({
-          url      : browser.origin + 'js/plugins/' + plugin + '.js',
-          dataType : 'text',
-          success  : dfd.resolve
-        });
-      });
+      var deferred = $.Deferred();
       
-      return dfd;
+      if ($('link[href="' + browser.origin + 'css/' + plugin + '.css"]').length) {
+        getScript(deferred, plugin);
+      } else {
+        $('<link href="' + browser.origin + 'css/' + plugin + '.css" rel="stylesheet">').on('load', function () { getScript(deferred, plugin); }).appendTo('body');
+      }
+      
+      return deferred;
     })).done(function () {
       (function (jq, scripts) {
         // Localize variables
         var $ = jq;
+        var plugin;
         
         for (var i = 0; i < scripts.length; i++) {
+          plugin = scripts[i][scripts[i].length - 1];
+          
           try {
             eval(scripts[i][0]);
+            loadPlugin(plugin);
           } catch (e) {
-            // TODO: add plugin name to this message
-            console.log('Error evaluating plugin script: ' + e);
+            console.log('Error evaluating plugin script "' + plugin + ': "' + e);
             console.log(scripts[i][0]);
           }
         }
@@ -631,7 +649,6 @@ var Genoverse = Base.extend({
     this.setRange(start, end, true);
   },
   
-  
   addTrack: function (track, index) {
     return this.addTracks([ track ], index)[0];
   },
@@ -914,6 +931,8 @@ var Genoverse = Base.extend({
   
   systemEventHandlers: {}
 }, {
+  Plugins: {},
+  
   on: function (events, handler) {
     $.each(events.split(' '), function () {
       if (typeof Genoverse.prototype.systemEventHandlers[this] === 'undefined') {
@@ -1023,9 +1042,11 @@ var Genoverse = Base.extend({
 
 Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/\w+/) || [])[1];
 
-if (typeof LazyLoad !== 'undefined') {
-  LazyLoad.css(Genoverse.prototype.origin + 'css/genoverse.css');
-}
+$(function () {
+  if (!$('link[href="' + Genoverse.prototype.origin + 'css/genoverse.css"]').length) {
+    $('<link href="' + Genoverse.prototype.origin + 'css/genoverse.css" rel="stylesheet">').appendTo('body');
+  }
+});
 
 String.prototype.hashCode = function () {
   var hash = 0;

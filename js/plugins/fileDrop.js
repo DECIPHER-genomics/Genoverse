@@ -1,55 +1,57 @@
-Genoverse.on('afterInit', function () {
-  var browser = this;
-  var wrapper = this.wrapper;
+Genoverse.Plugins.fileDrop = function () {
+  Genoverse.on('afterInit', function () {
+    var browser = this;
+    var wrapper = this.wrapper;
 
-  $(window).on('dragenter', function (e) {
-    var dataTransfer = e.originalEvent.dataTransfer;
-    
-    if (dataTransfer && dataTransfer.types && (dataTransfer.types[0] === 'Files' || dataTransfer.types[1] === 'Files' || dataTransfer.types[2] === 'Files') && !$('.gv_file_drop_total_overlay').length) {
-      var fileDropDiv      = $('<div class="gv_file_drop">').appendTo(wrapper);
-      var totalDropOverlay = $('<div class="gv_file_drop_total_overlay">').prependTo('body');
+    $(window).on('dragenter', function (e) {
+      var dataTransfer = e.originalEvent.dataTransfer;
       
-      var dragleave = function () {
-        fileDropDiv.remove();
-        totalDropOverlay.remove();
-      };
-      
-      totalDropOverlay.on('dragenter', function (e) { e.preventDefault(); e.stopPropagation(); });
-      totalDropOverlay.on('dragover',  function (e) { e.preventDefault(); e.stopPropagation(); });
-      totalDropOverlay.on('dragleave', dragleave);
-      totalDropOverlay.on('drop', function (e) {
-        dragleave();
-        e.preventDefault();
-        e.stopPropagation();
+      if (dataTransfer && dataTransfer.types && (dataTransfer.types[0] === 'Files' || dataTransfer.types[1] === 'Files' || dataTransfer.types[2] === 'Files') && !$('.gv_file_drop_total_overlay').length) {
+        var fileDropDiv      = $('<div class="gv_file_drop">').appendTo(wrapper);
+        var totalDropOverlay = $('<div class="gv_file_drop_total_overlay">').prependTo('body');
         
-        var files = e.originalEvent.dataTransfer.files;
+        var dragleave = function () {
+          fileDropDiv.remove();
+          totalDropOverlay.remove();
+        };
         
-        for (var i = 0; i < files.length; i++) {
-          var file   = files[i];
-          var reader = new FileReader();
+        totalDropOverlay.on('dragenter', function (e) { e.preventDefault(); e.stopPropagation(); });
+        totalDropOverlay.on('dragover',  function (e) { e.preventDefault(); e.stopPropagation(); });
+        totalDropOverlay.on('dragleave', dragleave);
+        totalDropOverlay.on('drop', function (e) {
+          dragleave();
+          e.preventDefault();
+          e.stopPropagation();
           
-          reader.onload = function (event) {
-            var track = Genoverse.Track.File[((file.name.match(/\.(\w+)$/))[1]).toUpperCase()].extend({
-              name    : file.name,
-              info    : 'Local file `' + file.name + '`, size: ' + file.size + ' bytes',
-              allData : true,
-              url     : false,
-              data    : event.target.result,
-              getData : function () {
-                return $.Deferred().done(function () {
-                  this.receiveData(this.data, 1, this.browser.chromosomeSize);
-                }).resolveWith(this);
-              }
-            });
+          var files = e.originalEvent.dataTransfer.files;
+          
+          for (var i = 0; i < files.length; i++) {
+            var file   = files[i];
+            var reader = new FileReader();
             
-            browser.addTrack(track, browser.tracks.length - 1);
-          };
+            reader.onload = function (event) {
+              var track = Genoverse.Track.File[((file.name.match(/\.(\w+)$/))[1]).toUpperCase()].extend({
+                name    : file.name,
+                info    : 'Local file `' + file.name + '`, size: ' + file.size + ' bytes',
+                allData : true,
+                url     : false,
+                data    : event.target.result,
+                getData : function () {
+                  return $.Deferred().done(function () {
+                    this.receiveData(this.data, 1, this.browser.chromosomeSize);
+                  }).resolveWith(this);
+                }
+              });
+              
+              browser.addTrack(track, browser.tracks.length - 1);
+            };
+            
+            reader.readAsText(file);
+          }
           
-          reader.readAsText(file);
-        }
-        
-        return false;
-      });
-    }
+          return false;
+        });
+      }
+    });
   });
-});
+};
