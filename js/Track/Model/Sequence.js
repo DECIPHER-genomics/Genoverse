@@ -35,6 +35,7 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
         start    : start + i,
         end      : start + i + this.chunkSize,
         sequence : data.substr(i, this.chunkSize),
+        sort     : start + i
       };
       
       this.chunks[feature.start] = feature;
