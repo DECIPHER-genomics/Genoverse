@@ -1,4 +1,4 @@
-Genoverse.Plugins.trackControls = function () {
+Genoverse.Plugins.trackControls = function (browser) {
   var defaultControls = [
     $('<a title="More info">').html('?').on('click', function () {
       var track = $(this).data('track');
@@ -64,8 +64,8 @@ Genoverse.Plugins.trackControls = function () {
         .html('&raquo;');
     }
   });
-
-  Genoverse.Track.on('afterAddDomElements', function () {
+  
+  browser.on('afterAddDomElements', 'tracks', function () {
     var controls = this.prop('controls');
     
     if (controls === 'off') {
@@ -84,14 +84,14 @@ Genoverse.Plugins.trackControls = function () {
     
     toggle.clone(true).data('track', this.track).appendTo(this.trackControls);
   });
-
-  Genoverse.Track.on('afterResize', function() {
+  
+  browser.on('afterResize', 'tracks', function () {
     if (this.trackControls) {
       this.trackControls[this.prop('height') < this.trackControls.outerHeight(true) ? 'hide' : 'show']();
     }
   });
 
-  Genoverse.Track.on('afterResetHeight', function () {
+  browser.on('afterResetHeight', 'tracks', function () {
     var heightToggler = this.prop('heightToggler');
     
     if (this.prop('resizable') === true && heightToggler) {
@@ -99,8 +99,8 @@ Genoverse.Plugins.trackControls = function () {
       heightToggler.trigger('toggleState');
     }
   });
-
-  Genoverse.Track.on('afterSetMVC', function () {
+  
+  browser.on('afterSetMVC', 'tracks', function () {
     var heightToggler = this.prop('heightToggler');
     
     if (heightToggler) {

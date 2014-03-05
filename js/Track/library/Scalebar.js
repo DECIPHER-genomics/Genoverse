@@ -19,6 +19,16 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     minorGuideLine : '#E5E5E5'
   },
   
+  setEvents: function () {
+    this.browser.on('afterAddTracks', function () {
+      $('.bg.fullHeight', this.container).height(this.wrapper.outerHeight(true));
+    });
+    
+    this.browser.on('afterResize', this, function () {
+      $('.bg.fullHeight', this.browser.container).height(this.browser.wrapper.outerHeight(true));
+    });
+  },
+  
   setScale: function () {
     var max       = this.prop('width') / this.prop('minPixPerMajor');
     var divisor   = 5;
@@ -203,12 +213,4 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   formatLabel: function (label) {
     return this.prop('minorUnit') < 1000 ? label.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') : this.base(label);
   }
-});
-
-Genoverse.Track.on('afterResize', function () {
-  $('.bg.fullHeight', this.browser.container).height(this.browser.wrapper.outerHeight(true));
-});
-
-Genoverse.on('afterAddTracks', function () {
-  $('.bg.fullHeight', this.container).height(this.wrapper.outerHeight(true));
 });

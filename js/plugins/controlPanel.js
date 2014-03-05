@@ -1,5 +1,5 @@
-Genoverse.Plugins.controlPanel = function () {
- Genoverse.prototype.controls = [
+Genoverse.Plugins.controlPanel = function (browser) {
+  browser.controls = [
     // // Uncomment this to see this example working
     // {
     //   icon   : '...',
@@ -12,15 +12,15 @@ Genoverse.Plugins.controlPanel = function () {
     // }
   ];
 
-  Genoverse.on('afterAddDomElements', function () {
+  browser.on('afterAddDomElements', function () {
     this.wrapper.after('<div class="gv_powered_by">Powered by <a target="_blank" href="http://genoverse.org">Genoverse</a></div>');
   });
 
-  Genoverse.on('beforeInit', function () {
+  browser.on('beforeInit', function () {
     var browser = this;
     
     if (!this.tracksLibrary) {
-      this.tracksLibrary = $.map(this.tracks, function (track) { if (track.prototype.name) { return $.extend(true, {}, track.prototype); } });
+      this.tracksLibrary = $.grep(this.tracks, function (track) { return track.prototype.name; });
     }
     
     var panel = $(
@@ -145,7 +145,7 @@ Genoverse.Plugins.controlPanel = function () {
     });
   });
 
-  Genoverse.on('afterInit', function () {
+  browser.on('afterInit', function () {
     var browser      = this;
     var tracksButton = $('<button title="Tracks menu">&#9776; Tracks</button>').on('click', function () {
       var button = this;
@@ -172,7 +172,7 @@ Genoverse.Plugins.controlPanel = function () {
           $('input[placeholder=Search]', menu).on('keyup', function () {
             var str = this.value.toLowerCase();
             
-            $('.tracksMenu .tracksLibraryItem').each(function () {
+            $('.tracksMenu .tracksLibraryItem', menu).each(function () {
               var track = $(this).data('track');
               var match = false;
               
@@ -195,31 +195,24 @@ Genoverse.Plugins.controlPanel = function () {
             $(button).removeClass('active');
           });
           
-          var currentTracks   = $('.currentTracks',   menu);
           var availableTracks = $('.availableTracks', menu);
-          
-          currentTracks.reload = function () {
-            this.html('');
-            this.listTracks();
-          };
-          
-          currentTracks.listTracks = function () {
-            for (var i = 1; i < browser.tracks.length; i++) {
-              if (browser.tracks[i].name && !(browser.tracks[i] instanceof Genoverse.Track.Legend)) {
-                (function (track) {
-                  $('<div>').append(
-                    $('<div class="removeTrack">x</div> ').on('click', function () {
-                      $(this).parent().remove();
-                      track.remove();
-                      // FIXME: if the track is stranded, both strands get removed, but one removeTrack element is left behind
-                    })
-                  ).append('<span>' + track.name + '</span>').appendTo(currentTracks);
-                })(browser.tracks[i]);
+          var currentTracks   = $('.currentTracks',   menu).data({
+            reload     : function () { $(this).empty().data('listTracks')(); },
+            listTracks : function () {
+              for (var i = 0; i < browser.tracks.length; i++) {
+                if (browser.tracks[i].name && !(browser.tracks[i] instanceof Genoverse.Track.Legend)) {
+                  (function (track) {
+                    $('<div>')
+                      .append($('<div class="removeTrack">x</div>').on('click', function () { track.remove(); }))
+                      .append('<span>' + track.name + '</span>')
+                      .appendTo(currentTracks);
+                  })(browser.tracks[i]);
+                }
               }
             }
-          };
+          });
           
-          currentTracks.listTracks();
+          currentTracks.data('listTracks')();
           
           if (browser.tracksLibrary && browser.tracksLibrary.length) {
             var tracksLibrary = $.map(browser.tracksLibrary, function (track) { return track.prototype.name ? [[ track.prototype.name.toLowerCase(), track ]] : undefined }).sort(function (a, b) { return b < a });
@@ -231,7 +224,6 @@ Genoverse.Plugins.controlPanel = function () {
                     browser.trackIds = browser.trackIds || {};
                     browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
                     browser.addTrack(track.extend({ id: track.prototype.id + browser.trackIds[track.prototype.id]++ }), browser.tracks.length);
-                    currentTracks.reload();
                   })
                 ).append('<span>' + track.prototype.name + '</span>').appendTo(availableTracks).data('track', track.prototype);
               })(tracksLibrary[i][1]);
@@ -250,5 +242,13 @@ Genoverse.Plugins.controlPanel = function () {
         $('<div class="button_set" title="Tracks menu">').append(tracksButton)
       )
     );
+  });
+  
+  browser.on('afterAddTracks afterRemoveTracks', function (tracks) {
+    var currentTracks = this.superContainer.find('.tracksMenu .currentTracks');
+    
+    if (currentTracks.length) {
+      currentTracks.data('reload').call(currentTracks);
+    }
   });
 };

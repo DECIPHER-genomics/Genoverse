@@ -43,6 +43,8 @@ var Genoverse = Base.extend({
 
     $.extend(this, config);
     
+    this.events = { browser: {}, tracks: {} };
+    
     $.when(this.loadGenome(), this.loadPlugins()).always(function () {
       Genoverse.wrapFunctions(browser);
       browser.init();
@@ -75,11 +77,7 @@ var Genoverse = Base.extend({
     
     function loadPlugin(plugin) {
       if (typeof Genoverse.Plugins[plugin] === 'function') {
-        if (!Genoverse.Plugins[plugin].loaded) {
-          Genoverse.Plugins[plugin]();
-          Genoverse.Plugins[plugin].loaded = true;
-        }
-        
+        Genoverse.Plugins[plugin](browser);
         return true;
       }
     }
@@ -897,9 +895,11 @@ var Genoverse = Base.extend({
     return feature.menuEl;
   },
   
-  closeMenus: function () {
-    this.menus.filter(':visible').children('.close').trigger('click');
-    this.menus = $();
+  closeMenus: function (obj) {
+    obj = obj || this;
+    
+    obj.menus.filter(':visible').children('.close').trigger('click');
+    obj.menus = $();
   },
   
   hideMessages: function () {
@@ -929,32 +929,29 @@ var Genoverse = Base.extend({
   
   saveConfig: $.noop,
   
-  systemEventHandlers: {}
+  on: function (events, obj, handler) {
+    if (typeof handler === 'undefined') {
+      handler = obj;
+      obj     = this;
+    }
+    
+    var type    = obj instanceof Genoverse.Track || obj === 'tracks' ? 'tracks' : 'browser';
+    var browser = this;
+    
+    $.each(events.split(' '), function () {
+      browser.events[type][this] = browser.events[type][this] || [];
+      
+      if (!$.grep(browser.events[type][this], function (func) { return func.toString() === handler.toString(); }).length) {
+        browser.events[type][this].push(handler);
+      }
+    });
+  }
 }, {
   Plugins: {},
   
-  on: function (events, handler) {
-    $.each(events.split(' '), function () {
-      if (typeof Genoverse.prototype.systemEventHandlers[this] === 'undefined') {
-        Genoverse.prototype.systemEventHandlers[this] = [];
-      }
-      
-      Genoverse.prototype.systemEventHandlers[this].push(handler);
-    });
-  },
-  
   wrapFunctions: function (obj) {
-    // Push all before* and after* functions to systemEventHandlers array
     for (var key in obj) {
-      if (typeof obj[key] === 'function' && key.match(/^(before|after)/)) {
-        obj.systemEventHandlers[key] = obj.systemEventHandlers[key] || [];
-        obj.systemEventHandlers[key].push(obj[key]);
-      }
-    }
-    
-    // Wrap it up
-    for (key in obj) {
-      if (typeof obj[key] === 'function' && !key.match(/^(base|extend|constructor|loadPlugins|loadGenome|controller|model|view)$/)) {
+      if (typeof obj[key] === 'function' && typeof obj[key].ancestor !== 'function' && !key.match(/^(base|extend|constructor|on|prop|loadPlugins|loadGenome)$/)) {
         Genoverse.functionWrap(key, obj);
       }
     }
@@ -964,79 +961,61 @@ var Genoverse = Base.extend({
    * functionWrap - wraps event handlers and adds debugging functionality
    **/
   functionWrap: function (key, obj) {
-    var name = (obj ? (obj.name || 'Track' + (obj.type || '')) : 'Genoverse') + '.' + key;
+    obj.functions = obj.functions || {};
     
-    if (key.match(/^(before|after|__original)/)) {
+    if (obj.functions[key] || key.match(/^(before|after)/)) {
       return;
     }
     
-    var func = key.substring(0, 1).toUpperCase() + key.substring(1);
+    var func      = key.substring(0, 1).toUpperCase() + key.substring(1);
+    var isBrowser = obj instanceof Genoverse;
+    var mainObj   = isBrowser || obj instanceof Genoverse.Track ? obj : obj.track;
+    var events    = isBrowser ? obj.events.browser : obj.browser.events.tracks;
+    var debug     = (isBrowser ? 'Genoverse' : obj.id || obj.name || 'Track') + '.' + key;
     
-    if (obj.debug) {
-      Genoverse.debugWrap(obj, key, name, func);
-    }
+    obj.functions[key] = obj[key];
     
-    // turn function into system event, enabling eventHandlers for before/after the event
-    if (obj.systemEventHandlers['before' + func] || obj.systemEventHandlers['after' + func]) {
-      obj['__original' + func] = obj[key];
+    obj[key] = function () {
+      var i, rtn;
       
-      obj[key] = function () {
-        var i, rtn;
-        
-        if (this.systemEventHandlers['before' + func]) {
-          for (i = 0; i < this.systemEventHandlers['before' + func].length; i++) {
-            // TODO: Should it end when beforeFunc returned false??
-            this.systemEventHandlers['before' + func][i].apply(this, arguments);
-          }
+      // Debugging functionality
+      // Enabled by "debug": true || { functionName: true, ...} option
+      if (obj.debug === true) {                                     // if "debug": true, simply log function call
+        console.log(debug);
+      } else if (typeof obj.debug === 'object' && obj.debug[key]) { // if debug: { functionName: true, ...}, log function time
+        console.time('time: ' + debug);
+      }
+      
+      if (events['before' + func]) {
+        for (i = 0; i < events['before' + func].length; i++) {
+          // TODO: Should it end when beforeFunc returned false??
+          events['before' + func][i].apply(this, arguments);
         }
-        
-        rtn = this['__original' + func].apply(this, arguments);
-        
-        if (this.systemEventHandlers['after' + func]) {
-          for (i = 0; i < this.systemEventHandlers['after' + func].length; i++) {
-            // TODO: Should it end when afterFunc returned false??
-            this.systemEventHandlers['after' + func][i].apply(this, arguments);
-          }
+      }
+      
+      if (typeof mainObj['before' + func] === 'function') {
+        mainObj['before' + func].apply(this, arguments);
+      }
+      
+      rtn = this.functions[key].apply(this, arguments);
+      
+      if (typeof mainObj['after' + func] === 'function') {
+        mainObj['after' + func].apply(this, arguments);
+      }
+      
+      if (events['after' + func]) {
+        for (i = 0; i < events['after' + func].length; i++) {
+          // TODO: Should it end when afterFunc returned false??
+          events['after' + func][i].apply(this, arguments);
         }
-        
-        return rtn;
-      };
-    }
-  },
-  
-  debugWrap: function (obj, key, name, func) {
-    // Debugging functionality
-    // Enabled by "debug": true || { functionName: true, ...} option
-    // if "debug": true, simply log function call
-    if (obj.debug === true) {
-      if (!obj.systemEventHandlers['before' + func]) {
-        obj.systemEventHandlers['before' + func] = [];
       }
       
-      obj.systemEventHandlers['before' + func].unshift(function () {
-        console.log(name);
-      });
-    }
-    
-    // if debug: { functionName: true, ...}, log function time
-    if (typeof obj.debug === 'object' && obj.debug[key]) {
-      if (!obj.systemEventHandlers['before' + func]) {
-        obj.systemEventHandlers['before' + func] = [];
+      if (typeof obj.debug === 'object' && obj.debug[key]) {
+        console.timeEnd('time: ' + debug);
       }
       
-      if (!obj.systemEventHandlers['after' + func]) {
-        obj.systemEventHandlers['after' + func] = [];
-      }
-      
-      obj.systemEventHandlers['before' + func].unshift(function () {
-        //console.log(name, arguments);        
-        console.time('time: ' + name);
-      });
-      
-      obj.systemEventHandlers['after' + func].push(function () {
-        console.timeEnd('time: ' + name);
-      });
-    }
+      return rtn;
+    };
   }
 });
 
@@ -1047,22 +1026,5 @@ $(function () {
     $('<link href="' + Genoverse.prototype.origin + 'css/genoverse.css" rel="stylesheet">').appendTo('body');
   }
 });
-
-String.prototype.hashCode = function () {
-  var hash = 0;
-  var chr;
-  
-  if (!this.length) {
-    return hash;
-  }
-  
-  for (var i = 0; i < this.length; i++) {
-    chr  = this.charCodeAt(i);
-    hash = ((hash << 5) - hash) + chr;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  
-  return '' + hash;
-};
 
 window.Genoverse = Genoverse;

@@ -191,7 +191,7 @@ Genoverse.Track.Model = Base.extend({
   insertFeature: function (feature) {
     // Make sure we have a unique ID, this method is not efficient, so better supply your own id
     if (!feature.id) {
-      feature.id = JSON.stringify(feature).hashCode();
+      feature.id = this.hashCode(JSON.stringify(feature));
     }
     
     if (!this.featuresById[feature.id]) {
@@ -210,5 +210,22 @@ Genoverse.Track.Model = Base.extend({
     }
     
     this.dataLoading = [];
+  },
+  
+  hashCode: function (string) {
+    var hash = 0;
+    var chr;
+    
+    if (!string.length) {
+      return hash;
+    }
+    
+    for (var i = 0; i < string.length; i++) {
+      chr  = string.charCodeAt(i);
+      hash = ((hash << 5) - hash) + chr;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    
+    return '' + hash;
   }
 });

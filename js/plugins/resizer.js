@@ -1,5 +1,5 @@
-Genoverse.Plugins.resizer = function () {
-  Genoverse.Track.on('afterSetMVC', function () {
+Genoverse.Plugins.resizer = function (browser) {
+  browser.on('afterSetMVC', 'tracks', function () {
     if (this.prop('resizable') !== true) {
       return;
     }

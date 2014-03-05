@@ -1,5 +1,5 @@
-Genoverse.Plugins.karyotype = function () {
-  Genoverse.prototype.updateKaryotypePosition = function () {
+Genoverse.Plugins.karyotype = function (browser) {
+  browser.updateKaryotypePosition = function () {
     if (this.karyotypeViewPoint && this.karyotypeWidth) {
       var left  =  this.karyotypeWidth * this.start / this.chromosomeSize;
       var width = (this.karyotypeWidth * this.end   / this.chromosomeSize) - left;
@@ -8,7 +8,7 @@ Genoverse.Plugins.karyotype = function () {
     }
   };
 
-  Genoverse.on('afterInit', function () {
+  browser.on('afterInit', function () {
     var browser = this;
     
     function updateBrowserLocation(e, ui) {
@@ -65,7 +65,7 @@ Genoverse.Plugins.karyotype = function () {
     }
   });
 
-  Genoverse.on('afterSetRange', function () {
+  browser.on('afterSetRange', function () {
     this.updateKaryotypePosition();
   });
 };

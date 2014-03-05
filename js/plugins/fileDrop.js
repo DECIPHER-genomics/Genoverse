@@ -1,5 +1,5 @@
-Genoverse.Plugins.fileDrop = function () {
-  Genoverse.on('afterInit', function () {
+Genoverse.Plugins.fileDrop = function (browser) {
+  browser.on('afterInit', function () {
     var browser = this;
     var wrapper = this.wrapper;
 

@@ -1,39 +1,3 @@
-Genoverse.on('afterInit afterAddTracks afterRemoveTracks', function () {
-  for (var i in this.legends) {
-    this.legends[i].track.setTracks();
-  }
-});
-
-Genoverse.on('afterRemoveTracks', function () {
-  for (var i in this.legends) {
-    this.legends[i].makeImage({});
-  }
-});
-
-Genoverse.Track.on('afterPositionFeatures', function (features, params) {
-  var legend = this.prop('legend');
-  
-  if (legend) {
-    setTimeout(function () { legend.makeImage(params); }, 1);
-  }
-});
-
-Genoverse.Track.on('afterResize', function (height, userResize) {
-  var legend = this.prop('legend');
-  
-  if (legend && userResize === true) {
-    legend.makeImage({});
-  }
-});
-
-Genoverse.Track.on('afterCheckHeight', function () {
-  var legend = this.prop('legend');
-  
-  if (legend) {
-    legend.makeImage({});
-  }
-});
-
 Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   textColor     : '#000000',
   labels        : 'overlay',
@@ -56,6 +20,44 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
       this.track.setTracks();
     }
   }),
+  
+  setEvents: function () {
+    this.browser.on('afterInit afterAddTracks afterRemoveTracks', function () {
+      for (var i in this.legends) {
+        this.legends[i].track.setTracks();
+      }
+    });
+    
+    this.browser.on('afterRemoveTracks', function () {
+      for (var i in this.legends) {
+        this.legends[i].makeImage({});
+      }
+    });
+    
+    this.browser.on('afterPositionFeatures', this, function (features, params) {
+      var legend = this.prop('legend');
+      
+      if (legend) {
+        setTimeout(function () { legend.makeImage(params); }, 1);
+      }
+    });
+    
+    this.browser.on('afterResize', this, function (height, userResize) {
+      var legend = this.prop('legend');
+      
+      if (legend && userResize === true) {
+        legend.makeImage({});
+      }
+    });
+    
+    this.browser.on('afterCheckHeight', this, function () {
+      var legend = this.prop('legend');
+      
+      if (legend) {
+        legend.makeImage({});
+      }
+    });
+  },
   
   setTracks: function () {
     var legend = this;

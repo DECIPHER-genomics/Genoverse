@@ -16,12 +16,15 @@ Genoverse.Track = Base.extend({
     this.setInterface();
     this.extend(config);
     this.setDefaults();
+    this.setEvents();
     
     Genoverse.wrapFunctions(this);
     
     this.setLengthMap();
     this.setMVC();
   },
+  
+  setEvents: $.noop,
   
   setDefaults: function () {
     this.order             = this.order || this.index;
@@ -134,8 +137,7 @@ Genoverse.Track = Base.extend({
   newMVC: function (object, functions, properties) {
     return new (object.extend(
       $.extend(true, {}, object.prototype, functions, {
-        prop                : $.proxy(this.prop, this),
-        systemEventHandlers : this.systemEventHandlers
+        prop: $.proxy(this.prop, this)
       })
     ))(
       $.extend(properties, {
@@ -302,17 +304,5 @@ Genoverse.Track = Base.extend({
         delete obj[key];
       }
     }
-  },
-  
-  systemEventHandlers: {}
-}, {
-  on: function (events, handler) {
-    $.each(events.split(' '), function () {
-      if (typeof Genoverse.Track.prototype.systemEventHandlers[this] === 'undefined') {
-        Genoverse.Track.prototype.systemEventHandlers[this] = [];
-      }
-      
-      Genoverse.Track.prototype.systemEventHandlers[this].push(handler);
-    });
   }
 });
