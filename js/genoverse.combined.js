@@ -6394,7 +6394,7 @@ var Genoverse = Base.extend({
     
     function loadPlugin(plugin) {
       if (typeof Genoverse.Plugins[plugin] === 'function') {
-        Genoverse.Plugins[plugin](browser);
+        Genoverse.Plugins[plugin].call(browser);
         return true;
       }
     }
@@ -7246,22 +7246,44 @@ var Genoverse = Base.extend({
   
   saveConfig: $.noop,
   
-  on: function (events, obj, handler) {
-    if (typeof handler === 'undefined') {
-      handler = obj;
-      obj     = this;
+  on: function (events, obj, fn) {
+    var browser  = this;
+    var eventMap = {};
+    var i, compare;
+    
+    function makeEventMap(types, handler) {
+      types = types.split(' ');
+      
+      for (var j = 0; j < types.length; j++) {
+        eventMap[types[j]] = (eventMap[types[j]] || []).concat(handler);
+      }
     }
     
-    var type    = obj instanceof Genoverse.Track || obj === 'tracks' ? 'tracks' : 'browser';
-    var browser = this;
-    
-    $.each(events.split(' '), function () {
-      browser.events[type][this] = browser.events[type][this] || [];
-      
-      if (!$.grep(browser.events[type][this], function (func) { return func.toString() === handler.toString(); }).length) {
-        browser.events[type][this].push(handler);
+    if (typeof events === 'object') {
+      for (i in events) {
+        makeEventMap(i, events[i]);
       }
-    });
+      
+      obj = obj || this;
+    } else {
+      if (typeof fn === 'undefined') {
+        fn  = obj;
+        obj = this;
+      }
+      
+      makeEventMap(events, fn);
+    }
+    
+    var type = obj instanceof Genoverse.Track || obj === 'tracks' ? 'tracks' : 'browser';
+    
+    for (i in eventMap) {
+      browser.events[type][i] = browser.events[type][i] || [];
+      compare = eventMap[i].toString();
+      
+      if (!$.grep(browser.events[type][i], function (func) { return func.toString() === compare; }).length) {
+        browser.events[type][i].push.apply(browser.events[type][i], eventMap[i]);
+      }
+    }
   }
 }, {
   Plugins: {},
@@ -9064,13 +9086,14 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   },
   
   setEvents: function () {
-    this.browser.on('afterAddTracks', function () {
-      $('.bg.fullHeight', this.container).height(this.wrapper.outerHeight(true));
-    });
+    var browser = this.browser;
     
-    this.browser.on('afterResize', this, function () {
-      $('.bg.fullHeight', this.browser.container).height(this.browser.wrapper.outerHeight(true));
-    });
+    function resize() {
+      $('.bg.fullHeight', browser.container).height(browser.wrapper.outerHeight(true));
+    }
+    
+    browser.on('afterAddTracks', resize);
+    browser.on('afterResize', this, resize);
   },
   
   setScale: function () {
@@ -9285,41 +9308,42 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   }),
   
   setEvents: function () {
-    this.browser.on('afterInit afterAddTracks afterRemoveTracks', function () {
-      for (var i in this.legends) {
-        this.legends[i].track.setTracks();
+    this.browser.on({
+      'afterInit afterAddTracks afterRemoveTracks': function () {
+        for (var i in this.legends) {
+          this.legends[i].track.setTracks();
+        }
+      },
+      afterRemoveTracks: function () {
+        for (var i in this.legends) {
+          this.legends[i].makeImage({});
+        }
       }
     });
     
-    this.browser.on('afterRemoveTracks', function () {
-      for (var i in this.legends) {
-        this.legends[i].makeImage({});
+    this.browser.on({
+      afterPositionFeatures: function (features, params) {
+        var legend = this.prop('legend');
+        
+        if (legend) {
+          setTimeout(function () { legend.makeImage(params); }, 1);
+        }
+      },
+      afterResize: function (height, userResize) {
+        var legend = this.prop('legend');
+        
+        if (legend && userResize === true) {
+          legend.makeImage({});
+        }
+      },
+      afterCheckHeight: function () {
+        var legend = this.prop('legend');
+        
+        if (legend) {
+          legend.makeImage({});
+        }
       }
-    });
-    
-    this.browser.on('afterPositionFeatures', this, function (features, params) {
-      var legend = this.prop('legend');
-      
-      if (legend) {
-        setTimeout(function () { legend.makeImage(params); }, 1);
-      }
-    });
-    
-    this.browser.on('afterResize', this, function (height, userResize) {
-      var legend = this.prop('legend');
-      
-      if (legend && userResize === true) {
-        legend.makeImage({});
-      }
-    });
-    
-    this.browser.on('afterCheckHeight', this, function () {
-      var legend = this.prop('legend');
-      
-      if (legend) {
-        legend.makeImage({});
-      }
-    });
+    }, this);
   },
   
   setTracks: function () {

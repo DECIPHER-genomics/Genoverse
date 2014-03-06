@@ -22,41 +22,42 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   }),
   
   setEvents: function () {
-    this.browser.on('afterInit afterAddTracks afterRemoveTracks', function () {
-      for (var i in this.legends) {
-        this.legends[i].track.setTracks();
+    this.browser.on({
+      'afterInit afterAddTracks afterRemoveTracks': function () {
+        for (var i in this.legends) {
+          this.legends[i].track.setTracks();
+        }
+      },
+      afterRemoveTracks: function () {
+        for (var i in this.legends) {
+          this.legends[i].makeImage({});
+        }
       }
     });
     
-    this.browser.on('afterRemoveTracks', function () {
-      for (var i in this.legends) {
-        this.legends[i].makeImage({});
+    this.browser.on({
+      afterPositionFeatures: function (features, params) {
+        var legend = this.prop('legend');
+        
+        if (legend) {
+          setTimeout(function () { legend.makeImage(params); }, 1);
+        }
+      },
+      afterResize: function (height, userResize) {
+        var legend = this.prop('legend');
+        
+        if (legend && userResize === true) {
+          legend.makeImage({});
+        }
+      },
+      afterCheckHeight: function () {
+        var legend = this.prop('legend');
+        
+        if (legend) {
+          legend.makeImage({});
+        }
       }
-    });
-    
-    this.browser.on('afterPositionFeatures', this, function (features, params) {
-      var legend = this.prop('legend');
-      
-      if (legend) {
-        setTimeout(function () { legend.makeImage(params); }, 1);
-      }
-    });
-    
-    this.browser.on('afterResize', this, function (height, userResize) {
-      var legend = this.prop('legend');
-      
-      if (legend && userResize === true) {
-        legend.makeImage({});
-      }
-    });
-    
-    this.browser.on('afterCheckHeight', this, function () {
-      var legend = this.prop('legend');
-      
-      if (legend) {
-        legend.makeImage({});
-      }
-    });
+    }, this);
   },
   
   setTracks: function () {

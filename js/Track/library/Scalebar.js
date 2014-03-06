@@ -20,13 +20,14 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   },
   
   setEvents: function () {
-    this.browser.on('afterAddTracks', function () {
-      $('.bg.fullHeight', this.container).height(this.wrapper.outerHeight(true));
-    });
+    var browser = this.browser;
     
-    this.browser.on('afterResize', this, function () {
-      $('.bg.fullHeight', this.browser.container).height(this.browser.wrapper.outerHeight(true));
-    });
+    function resize() {
+      $('.bg.fullHeight', browser.container).height(browser.wrapper.outerHeight(true));
+    }
+    
+    browser.on('afterAddTracks', resize);
+    browser.on('afterResize', this, resize);
   },
   
   setScale: function () {

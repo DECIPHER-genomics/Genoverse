@@ -1,7 +1,6 @@
-Genoverse.Plugins.hoverLabels = function (browser) {
-  browser.on('afterAddDomElements', 'tracks', function () {
+Genoverse.Plugins.hoverLabels = function () {
+  this.on('afterAddDomElements', 'tracks', function () {
     var track = this;
-    
     this.container
     .mouseenter(function () {
       track.label.css({ overflow: 'visible'});

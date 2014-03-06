@@ -1,4 +1,4 @@
-Genoverse.Plugins.trackControls = function (browser) {
+Genoverse.Plugins.trackControls = function () {
   var defaultControls = [
     $('<a title="More info">').html('?').on('click', function () {
       var track = $(this).data('track');
@@ -65,46 +65,45 @@ Genoverse.Plugins.trackControls = function (browser) {
     }
   });
   
-  browser.on('afterAddDomElements', 'tracks', function () {
-    var controls = this.prop('controls');
-    
-    if (controls === 'off') {
-      return;
-    }
-    
-    controls = (controls || []).concat(defaultControls);
-    
-    this.trackControls = $('<div class="track_controls">').prependTo(this.container);
+  this.on({
+    afterAddDomElements: function () {
+      var controls = this.prop('controls');
+      
+      if (controls === 'off') {
+        return;
+      }
+      
+      controls = (controls || []).concat(defaultControls);
+      
+      this.trackControls = $('<div class="track_controls">').prependTo(this.container);
 
-    for (var i = 0; i < controls.length; i++) {
-      controls[i].clone(true).hide().data('track', this.track).appendTo(this.trackControls);
+      for (var i = 0; i < controls.length; i++) {
+        controls[i].clone(true).hide().data('track', this.track).appendTo(this.trackControls);
+      }
+      
+      this.prop('heightToggler', this.trackControls.children('.height_toggle').trigger('toggleState'));
+      
+      toggle.clone(true).data('track', this.track).appendTo(this.trackControls);
+    },
+    afterResize: function () {
+      if (this.trackControls) {
+        this.trackControls[this.prop('height') < this.trackControls.outerHeight(true) ? 'hide' : 'show']();
+      }
+    },
+    afterResetHeight: function () {
+      var heightToggler = this.prop('heightToggler');
+      
+      if (this.prop('resizable') === true && heightToggler) {
+        heightToggler[this.prop('autoHeight') ? 'addClass' : 'removeClass']('auto_height');
+        heightToggler.trigger('toggleState');
+      }
+    },
+    afterSetMVC: function () {
+      var heightToggler = this.prop('heightToggler');
+      
+      if (heightToggler) {
+        heightToggler.trigger('toggleState')[this.prop('resizable') === true ? 'removeClass' : 'addClass']('hidden');
+      }
     }
-    
-    this.prop('heightToggler', this.trackControls.children('.height_toggle').trigger('toggleState'));
-    
-    toggle.clone(true).data('track', this.track).appendTo(this.trackControls);
-  });
-  
-  browser.on('afterResize', 'tracks', function () {
-    if (this.trackControls) {
-      this.trackControls[this.prop('height') < this.trackControls.outerHeight(true) ? 'hide' : 'show']();
-    }
-  });
-
-  browser.on('afterResetHeight', 'tracks', function () {
-    var heightToggler = this.prop('heightToggler');
-    
-    if (this.prop('resizable') === true && heightToggler) {
-      heightToggler[this.prop('autoHeight') ? 'addClass' : 'removeClass']('auto_height');
-      heightToggler.trigger('toggleState');
-    }
-  });
-  
-  browser.on('afterSetMVC', 'tracks', function () {
-    var heightToggler = this.prop('heightToggler');
-    
-    if (heightToggler) {
-      heightToggler.trigger('toggleState')[this.prop('resizable') === true ? 'removeClass' : 'addClass']('hidden');
-    }
-  });
+  }, 'tracks');
 };

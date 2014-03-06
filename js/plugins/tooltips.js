@@ -3,7 +3,7 @@
 // (c) 2008-2010 jason frame [jason@onehackoranother.com]
 // released under the MIT license
 
-Genoverse.Plugins.tooltips = function (browser) {
+Genoverse.Plugins.tooltips = function () {
   (function($) {
       
       function maybeCall(thing, ctx) {
@@ -258,7 +258,7 @@ Genoverse.Plugins.tooltips = function (browser) {
       
   })($);
 
-  browser.controls.push({
+  this.controls.push({
     icon   : '?',
     name   : 'Tooltips',
     class  : 'tooltip',
@@ -275,7 +275,7 @@ Genoverse.Plugins.tooltips = function (browser) {
     }
   });
 
-  browser.on('afterInit', function () {
+  this.on('afterInit', function () {
       // $('.tooltip').each(function(){
       //   $(this).tipsy({ gravity: 'w', fade: true, trigger: 'manual' })
       // });
@@ -313,7 +313,7 @@ Genoverse.Plugins.tooltips = function (browser) {
       //   .tipsy('show');
   });
 
-  browser.on('afterResize', 'tracks', function () {
+  this.on('afterResize', 'tracks', function () {
     $('.resizer:last').tipsy('hide');
   });
 };
