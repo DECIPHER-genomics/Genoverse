@@ -4,7 +4,6 @@ var Genoverse = Base.extend({
   urlParamTemplate   : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
   width              : 1000,
   height             : 200,
-  labelWidth         : 90,
   buffer             : 1,
   longestLabel       : 30,
   defaultLength      : 5000,
@@ -104,23 +103,20 @@ var Genoverse = Base.extend({
       
       return deferred;
     })).done(function () {
-      (function (jq, scripts) {
-        // Localize variables
-        var $ = jq;
-        var plugin;
+      var scripts = browser.plugins.length === 1 ? [ arguments ] : arguments;
+      var plugin;
+      
+      for (var i = 0; i < scripts.length; i++) {
+        plugin = scripts[i][scripts[i].length - 1];
         
-        for (var i = 0; i < scripts.length; i++) {
-          plugin = scripts[i][scripts[i].length - 1];
-          
-          try {
-            eval(scripts[i][0]);
-            loadPlugin(plugin);
-          } catch (e) {
-            console.log('Error evaluating plugin script "' + plugin + ': "' + e);
-            console.log(scripts[i][0]);
-          }
+        try {
+          eval(scripts[i][0]);
+          loadPlugin(plugin);
+        } catch (e) {
+          console.log('Error evaluating plugin script "' + plugin + ': "' + e);
+          console.log(scripts[i][0]);
         }
-      })($, browser.plugins.length === 1 ? [ arguments ] : arguments);
+      }
     }).always(loadPluginsTask.resolve);
     
     return loadPluginsTask;
@@ -932,7 +928,7 @@ var Genoverse = Base.extend({
   on: function (events, obj, fn) {
     var browser  = this;
     var eventMap = {};
-    var i, compare;
+    var i, fnString;
     
     function makeEventMap(types, handler) {
       types = types.split(' ');
@@ -940,6 +936,10 @@ var Genoverse = Base.extend({
       for (var j = 0; j < types.length; j++) {
         eventMap[types[j]] = (eventMap[types[j]] || []).concat(handler);
       }
+    }
+    
+    function compare(func) {
+      return func.toString() === fnString;
     }
     
     if (typeof events === 'object') {
@@ -961,9 +961,9 @@ var Genoverse = Base.extend({
     
     for (i in eventMap) {
       browser.events[type][i] = browser.events[type][i] || [];
-      compare = eventMap[i].toString();
+      fnString = eventMap[i].toString();
       
-      if (!$.grep(browser.events[type][i], function (func) { return func.toString() === compare; }).length) {
+      if (!$.grep(browser.events[type][i], compare).length) {
         browser.events[type][i].push.apply(browser.events[type][i], eventMap[i]);
       }
     }

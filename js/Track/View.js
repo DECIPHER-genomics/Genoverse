@@ -242,7 +242,7 @@ Genoverse.Track.View = Base.extend({
     var original = feature.untruncated;
     var width    = (original || feature).width;
     
-    if (this.labels === 'overlay' && feature.labelWidth >= width) {
+    if (this.labels === 'overlay' && feature.labelWidth >= Math.floor(width)) {
       return;
     }
     

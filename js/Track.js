@@ -63,7 +63,6 @@ Genoverse.Track = Base.extend({
     var lengthSettings = this.getSettingsForLength();
     var settings       = $.extend(true, {}, this.constructor.prototype, lengthSettings[1]); // model, view, options
     var mvc            = [ 'model', 'view', 'controller' ];
-    var propFunc       = $.proxy(this.prop, this);
     var mvcSettings    = {};
     var trackSettings  = {};
     var obj, j;

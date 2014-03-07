@@ -20,6 +20,11 @@ Genoverse.Plugins.karyotype = function () {
         browser.moveTo(start, end, true, e.type === 'dragstop');
       }
       
+      function onClick() {
+        var data = $(this).data();
+        browser.moveTo(data.start, data.end, true);
+      }
+      
       if (!(this.karyotype && this.karyotype.data('chr') === this.chr)) {
         this.karyotype = $('<div class="gv_chromosome" data-chr="' + this.chr + '">');
         
@@ -35,10 +40,7 @@ Genoverse.Plugins.karyotype = function () {
             .data({
               start : chromosome.bands[i].start,
               end   : chromosome.bands[i].end
-            }).on('click', function () {
-              var data = $(this).data();
-              browser.moveTo(data.start, data.end, true);
-            }).appendTo(this.karyotype);
+            }).on('click', onClick).appendTo(this.karyotype);
         }
         
         this.karyotypeViewPoint = $('<div class="gv_karyotype_viewpoint" style="display:none">').draggable({
