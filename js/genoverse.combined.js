@@ -6448,7 +6448,7 @@ var Genoverse = Base.extend({
     this.tracksById       = {};
     this.prev             = {};
     this.urlParamTemplate = this.urlParamTemplate || '';
-    this.useHash          = typeof window.history.pushState !== 'function';
+    this.useHash          = typeof this.useHash === 'boolean' ? this.useHash : typeof window.history.pushState !== 'function';
     this.textWidth        = document.createElement('canvas').getContext('2d').measureText('W').width;
     this.labelWidth       = this.labelContainer.outerWidth(true);
     this.wrapperLeft      = this.labelWidth - width;
