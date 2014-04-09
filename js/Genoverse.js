@@ -745,13 +745,14 @@ var Genoverse = Base.extend({
   
   updateTrackOrder: function (e, ui) {
     var track = ui.item.data('track');
-    
-    var p = ui.item.prev().data('track').prop('order') || 0;
-    var n = ui.item.next().data('track').prop('order') || 0;
-    var o = p || n;
+    var prev  = ui.item.prev().data('track');
+    var next  = ui.item.next().data('track');
+    var p     = prev ? prev.prop('order') : 0;
+    var n     = next ? next.prop('order') : 0;
+    var o     = p || n;
     var order;
     
-    if (Math.floor(n) === Math.floor(p)) {
+    if (prev && next && Math.floor(n) === Math.floor(p)) {
       order = p + (n - p) / 2;
     } else {
       order = o + (p ? 1 : -1) * (Math.round(o) - o || 1) / 2;
