@@ -1,115 +1,54 @@
 .gv_karyotype_container {
-  height:50px;
-  overflow:hidden;
-  box-shadow: inset 0px 0px 33px -7px rgba(24, 36, 56, 0.97), inset 1px 1px 1px 0px black;
+  height: 50px;
+  overflow: hidden;
+  box-shadow: inset 0 0 33px -7px rgba(24, 36, 56, 0.97), inset 1px 1px 1px 0 black;
 }
 
-.gv_chromosome {
-  border: 1px solid white;
-  border-radius: 5px 5px 5px 5px;
-  box-shadow: 0 0 5px 1px rgba(162, 161, 161, 0.71);
-  display: block;
-  height: 38%;
+.gv_karyotype_container .gv_wrapper {
+  border: 0;
+}
+
+.gv_karyotype_container .gv_chromosome {
   margin: 15px;
   position: relative;
 }
 
-.gv_band {
-  display: block;
-  height: 100%;
-  position: absolute;
-  background-color: #7f7f7f;
-  overflow: hidden;
-  font-size: 10px;
-  font-weight: bold;
-  font-family: Verdana, Tahoma;
-  line-height: 2em;
-  text-align: left;
-  vertical-align: bottom;
+.gv_karyotype_container .image_container {
+  box-shadow: 0 0 33px -7px #CCC inset;
 }
 
-.gv_band.acen {
-  background-color: #708090;
-}
-.gv_band.acen:first-child {
-  border-radius: 0 10px 10px 0;  
-}
-.gv_band.acen:not(:first-child) {
-  border-radius: 10px 0 0 10px;
-}
-
-.gv_band.gneg {
-  background-color: #ffffff;
-  color: #000000;
-}
-.gv_band.gpos {
-  background-color: #000000;
-}
-.gv_band.gpos100 {
-  background-color: #000000;
-}
-.gv_band.gpos25 {
-  background-color: #d9d9d9;
-  color: black;
-}
-.gv_band.gpos33 {
-  background-color: #bfbfbf;
-  color: black;
-}
-.gv_band.gpos50 {
-  background-color: #999999;
-}
-.gv_band.gpos66 {
-  background-color: #7f7f7f;
-}
-.gv_band.gpos75 {
-  background-color: #666666;
-}
-.gv_band.gvar {
-  background-color: #e0e0e0;
-  color: black;
-}
-.gv_band.mark {
-  background-color: #0000ff;
-}
-.gv_band.stalk {
-  background-color: #708090;
-}
-.gv_band.tip {
-  background-color: #000000;
-}
-
-.gv_karyotype_viewpoint {
+.gv_karyotype_container .gv_karyotype_viewpoint {
   background-color: rgba(222, 84, 35, 0.37);
   border: 1px dashed #E6380D;
   box-shadow: 0 0 3px 2px rgba(237, 237, 237, 0.4) inset, 0 0 4px 0 rgba(116, 116, 116, 0.7);
-  display: block;
   height: 170%;
-  position: relative;
+  position: absolute;
   top: -40%;
   z-index: 50;
-  cursor:hand;
-  cursor:grab;
-  cursor:-moz-grab;
-  cursor:-webkit-grab;  
+  cursor: hand;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
 }
 
-.ui-resizable-e {
-    cursor: e-resize;
-    height: 100%;
-    right: -5px;
-    top: 0;
-    width: 7px;
+.gv_karyotype_container .ui-resizable-e {
+  cursor: e-resize;
+  height: 100%;
+  right: -5px;
+  top: 0;
+  width: 7px;
 }
-.ui-resizable-w {
-    cursor: w-resize;
-    height: 100%;
-    left: -5px;
-    top: 0;
-    width: 7px;
+
+.gv_karyotype_container .ui-resizable-w {
+  cursor: w-resize;
+  height: 100%;
+  left: -5px;
+  top: 0;
+  width: 7px;
 }
-.ui-resizable-handle {
-    display: block;
-    font-size: 0.1px;
-    position: absolute;
+
+.gv_karyotype_container .ui-resizable-handle {
+  display: block;
+  font-size: 0.1px;
+  position: absolute;
 }

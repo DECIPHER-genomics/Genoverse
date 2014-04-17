@@ -12,6 +12,7 @@ var Genoverse = Base.extend({
   plugins            : [],
   dragAction         : 'scroll', // options are: scroll, select, off
   wheelAction        : 'off',    // options are: zoom, off
+  isStatic           : false,    // if true, will stop drag, select and zoom actions occurring
   genome             : undefined,
   autoHideMessages   : true,
   trackAutoHeight    : false,
@@ -128,6 +129,11 @@ var Genoverse = Base.extend({
     this.addDomElements(width);
     this.addUserEventHandlers();
     
+    if (this.isStatic) {
+      this.dragAction       = this.wheelAction = 'off';
+      this.urlParamTemplate = false;
+    }
+    
     this.tracksById       = {};
     this.prev             = {};
     this.urlParamTemplate = this.urlParamTemplate || '';
@@ -232,6 +238,10 @@ var Genoverse = Base.extend({
         }
       },
       dblclick: function (e) {
+        if (browser.isStatic) {
+          return true;
+        }
+        
         browser.hideMessages();
         browser.mousewheelZoom(e, 1);
       }

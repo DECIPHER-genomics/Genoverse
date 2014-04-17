@@ -159,6 +159,267 @@ $.fn.mousehold = function(timeout, f) {
 
 
 
+// tipsy, facebook style tooltips for jquery
+// version 1.0.0a
+// (c) 2008-2010 jason frame [jason@onehackoranother.com]
+// released under the MIT license
+
+(function($) {
+    
+    function maybeCall(thing, ctx) {
+        return (typeof thing == 'function') ? (thing.call(ctx)) : thing;
+    };
+    
+    function isElementInDOM(ele) {
+      while (ele = ele.parentNode) {
+        if (ele == document) return true;
+      }
+      return false;
+    };
+    
+    function Tipsy(element, options) {
+        this.$element = $(element);
+        this.options = options;
+        this.enabled = true;
+        this.fixTitle();
+    };
+    
+    Tipsy.prototype = {
+        show: function() {
+            var title = this.getTitle();
+            if (title && this.enabled) {
+                var $tip = this.tip();
+                
+                $tip.find('.tipsy-inner')[this.options.html ? 'html' : 'text'](title);
+                $tip[0].className = 'tipsy'; // reset classname in case of dynamic gravity
+                $tip.remove().css({top: 0, left: 0, visibility: 'hidden', display: 'block'}).prependTo(document.body);
+                
+                var pos = $.extend({}, this.$element.offset(), {
+                    width: this.$element[0].offsetWidth,
+                    height: this.$element[0].offsetHeight
+                });
+                
+                var actualWidth = $tip[0].offsetWidth,
+                    actualHeight = $tip[0].offsetHeight,
+                    gravity = maybeCall(this.options.gravity, this.$element[0]);
+                
+                var tp;
+                switch (gravity.charAt(0)) {
+                    case 'n':
+                        tp = {top: pos.top + pos.height + this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2};
+                        break;
+                    case 's':
+                        tp = {top: pos.top - actualHeight - this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2};
+                        break;
+                    case 'e':
+                        tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth - this.options.offset};
+                        break;
+                    case 'w':
+                        tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width + this.options.offset};
+                        break;
+                }
+                
+                if (gravity.length == 2) {
+                    if (gravity.charAt(1) == 'w') {
+                        tp.left = pos.left + pos.width / 2 - 15;
+                    } else {
+                        tp.left = pos.left + pos.width / 2 - actualWidth + 15;
+                    }
+                }
+                
+                $tip.css(tp).addClass('tipsy-' + gravity);
+                $tip.find('.tipsy-arrow')[0].className = 'tipsy-arrow tipsy-arrow-' + gravity.charAt(0);
+                if (this.options.className) {
+                    $tip.addClass(maybeCall(this.options.className, this.$element[0]));
+                }
+                
+                if (this.options.fade) {
+                    $tip.stop().css({opacity: 0, display: 'block', visibility: 'visible'}).animate({opacity: this.options.opacity});
+                } else {
+                    $tip.css({visibility: 'visible', opacity: this.options.opacity});
+                }
+            }
+        },
+        
+        hide: function() {
+            if (this.options.fade) {
+                this.tip().stop().fadeOut(function() { $(this).remove(); });
+            } else {
+                this.tip().remove();
+            }
+        },
+        
+        fixTitle: function() {
+            var $e = this.$element;
+            if ($e.attr('title') || typeof($e.attr('original-title')) != 'string') {
+                $e.attr('original-title', $e.attr('title') || '').removeAttr('title');
+            }
+        },
+        
+        getTitle: function() {
+            var title, $e = this.$element, o = this.options;
+            this.fixTitle();
+            var title, o = this.options;
+            if (typeof o.title == 'string') {
+                title = $e.attr(o.title == 'title' ? 'original-title' : o.title);
+            } else if (typeof o.title == 'function') {
+                title = o.title.call($e[0]);
+            }
+            title = ('' + title).replace(/(^\s*|\s*$)/, "");
+            return title || o.fallback;
+        },
+        
+        tip: function() {
+            if (!this.$tip) {
+                this.$tip = $('<div class="tipsy"></div>').html('<div class="tipsy-arrow"></div><div class="tipsy-inner"></div>');
+                this.$tip.data('tipsy-pointee', this.$element[0]);
+            }
+            return this.$tip;
+        },
+        
+        validate: function() {
+            if (!this.$element[0].parentNode) {
+                this.hide();
+                this.$element = null;
+                this.options = null;
+            }
+        },
+        
+        enable: function() { this.enabled = true; },
+        disable: function() { this.enabled = false; },
+        toggleEnabled: function() { this.enabled = !this.enabled; }
+    };
+    
+    $.fn.tipsy = function(options) {
+        
+        if (options === true) {
+            return this.data('tipsy');
+        } else if (typeof options == 'string') {
+            var tipsy = this.data('tipsy');
+            if (tipsy) tipsy[options]();
+            return this;
+        }
+        
+        options = $.extend({}, $.fn.tipsy.defaults, options);
+        
+        function get(ele) {
+            var tipsy = $.data(ele, 'tipsy');
+            if (!tipsy) {
+                tipsy = new Tipsy(ele, $.fn.tipsy.elementOptions(ele, options));
+                $.data(ele, 'tipsy', tipsy);
+            }
+            return tipsy;
+        }
+        
+        function enter() {
+            var tipsy = get(this);
+            tipsy.hoverState = 'in';
+            if (options.delayIn == 0) {
+                tipsy.show();
+            } else {
+                tipsy.fixTitle();
+                setTimeout(function() { if (tipsy.hoverState == 'in') tipsy.show(); }, options.delayIn);
+            }
+        };
+        
+        function leave() {
+            var tipsy = get(this);
+            tipsy.hoverState = 'out';
+            if (options.delayOut == 0) {
+                tipsy.hide();
+            } else {
+                setTimeout(function() { if (tipsy.hoverState == 'out') tipsy.hide(); }, options.delayOut);
+            }
+        };
+        
+        if (!options.live) this.each(function() { get(this); });
+        
+        if (options.trigger != 'manual') {
+            var binder   = options.live ? 'live' : 'bind',
+                eventIn  = options.trigger == 'hover' ? 'mouseenter' : 'focus',
+                eventOut = options.trigger == 'hover' ? 'mouseleave' : 'blur';
+            this[binder](eventIn, enter)[binder](eventOut, leave);
+        }
+        
+        return this;
+        
+    };
+    
+    $.fn.tipsy.defaults = {
+        className: null,
+        delayIn: 0,
+        delayOut: 0,
+        fade: false,
+        fallback: '',
+        gravity: 'n',
+        html: false,
+        live: false,
+        offset: 0,
+        opacity: 0.8,
+        title: 'title',
+        trigger: 'hover'
+    };
+    
+    $.fn.tipsy.revalidate = function() {
+      $('.tipsy').each(function() {
+        var pointee = $.data(this, 'tipsy-pointee');
+        if (!pointee || !isElementInDOM(pointee)) {
+          $(this).remove();
+        }
+      });
+    };
+    
+    // Overwrite this method to provide options on a per-element basis.
+    // For example, you could store the gravity in a 'tipsy-gravity' attribute:
+    // return $.extend({}, options, {gravity: $(ele).attr('tipsy-gravity') || 'n' });
+    // (remember - do not modify 'options' in place!)
+    $.fn.tipsy.elementOptions = function(ele, options) {
+        return $.metadata ? $.extend({}, options, $(ele).metadata()) : options;
+    };
+    
+    $.fn.tipsy.autoNS = function() {
+        return $(this).offset().top > ($(document).scrollTop() + $(window).height() / 2) ? 's' : 'n';
+    };
+    
+    $.fn.tipsy.autoWE = function() {
+        return $(this).offset().left > ($(document).scrollLeft() + $(window).width() / 2) ? 'e' : 'w';
+    };
+    
+    /**
+     * yields a closure of the supplied parameters, producing a function that takes
+     * no arguments and is suitable for use as an autogravity function like so:
+     *
+     * @param margin (int) - distance from the viewable region edge that an
+     *        element should be before setting its tooltip's gravity to be away
+     *        from that edge.
+     * @param prefer (string, e.g. 'n', 'sw', 'w') - the direction to prefer
+     *        if there are no viewable region edges effecting the tooltip's
+     *        gravity. It will try to vary from this minimally, for example,
+     *        if 'sw' is preferred and an element is near the right viewable 
+     *        region edge, but not the top edge, it will set the gravity for
+     *        that element's tooltip to be 'se', preserving the southern
+     *        component.
+     */
+     $.fn.tipsy.autoBounds = function(margin, prefer) {
+		return function() {
+			var dir = {ns: prefer[0], ew: (prefer.length > 1 ? prefer[1] : false)},
+			    boundTop = $(document).scrollTop() + margin,
+			    boundLeft = $(document).scrollLeft() + margin,
+			    $this = $(this);
+
+			if ($this.offset().top < boundTop) dir.ns = 'n';
+			if ($this.offset().left < boundLeft) dir.ew = 'w';
+			if ($(window).width() + $(document).scrollLeft() - $this.offset().left < margin) dir.ew = 'e';
+			if ($(window).height() + $(document).scrollTop() - $this.offset().top < margin) dir.ns = 's';
+
+			return dir.ns + (dir.ew ? dir.ew : '');
+		}
+	};
+    
+})(jQuery);
+
+
+
 var grch37 = {
   "1": {
     "size": 249250621,
@@ -6329,6 +6590,7 @@ var Genoverse = Base.extend({
   plugins            : [],
   dragAction         : 'scroll', // options are: scroll, select, off
   wheelAction        : 'off',    // options are: zoom, off
+  isStatic           : false,    // if true, will stop drag, select and zoom actions occurring
   genome             : undefined,
   autoHideMessages   : true,
   trackAutoHeight    : false,
@@ -6445,6 +6707,11 @@ var Genoverse = Base.extend({
     this.addDomElements(width);
     this.addUserEventHandlers();
     
+    if (this.isStatic) {
+      this.dragAction       = this.wheelAction = 'off';
+      this.urlParamTemplate = false;
+    }
+    
     this.tracksById       = {};
     this.prev             = {};
     this.urlParamTemplate = this.urlParamTemplate || '';
@@ -6549,6 +6816,10 @@ var Genoverse = Base.extend({
         }
       },
       dblclick: function (e) {
+        if (browser.isStatic) {
+          return true;
+        }
+        
         browser.hideMessages();
         browser.mousewheelZoom(e, 1);
       }
@@ -8988,6 +9259,135 @@ Genoverse.Track.Model.Stranded = Genoverse.Track.Model.extend({
   }
 });
 
+
+
+
+Genoverse.Track.Chromosome = Genoverse.Track.extend({
+  id            : 'chromosome',
+  margin        : 1,
+  featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },
+  labels        : 'overlay',
+  url           : false,
+  allData       : true,
+  colors        : {
+    acen    : '#708090',
+    gneg    : '#FFFFFF',
+    gpos    : '#000000',
+    gpos100 : '#000000',
+    gpos25  : '#D9D9D9',
+    gpos33  : '#BFBFBF',
+    gpos50  : '#999999',
+    gpos66  : '#7F7F7F',
+    gpos75  : '#666666',
+    gvar    : '#E0E0E0',
+    stalk   : '#708090'
+  },
+  labelColors: {
+    gneg   : '#000000',
+    gvar   : '#000000',
+    gpos25 : '#000000',
+    gpos33 : '#000000'
+  },
+  
+  getData: function (start, end) {
+    this.receiveData([].slice.call(grch37[this.browser.chr].bands), start, end);
+    return $.Deferred().resolveWith(this);
+  },
+  
+  insertFeature: function (feature) {
+    feature.label      = feature.type === 'acen' || feature.type === 'stalk' ? false : feature.id;
+    feature.color      = this.prop('colors')[feature.type];
+    feature.labelColor = this.prop('labelColors')[feature.type] || '#FFFFFF';
+    
+    this.base(feature);
+  },
+  
+  drawFeature: function (feature, featureContext, labelContext, scale) {
+    if (feature.type === 'acen') {
+      featureContext.fillStyle   = feature.color;
+      featureContext.strokeStyle = '#000000';
+      
+      featureContext.beginPath();
+      
+      if (feature.sort === 1) {
+        featureContext.moveTo(feature.x, 0);
+        featureContext.lineTo(feature.x + feature.width, feature.height / 2);
+        featureContext.lineTo(feature.x, feature.height + 0.5);
+      } else {
+        featureContext.moveTo(feature.x + feature.width, 0);
+        featureContext.lineTo(feature.x + feature.width, feature.height + 0.5);
+        featureContext.lineTo(feature.x, feature.height / 2);
+      }
+      
+      featureContext.closePath();
+      featureContext.fill();
+      featureContext.stroke();
+    } else if (feature.type === 'stalk') {
+      featureContext.fillStyle   = feature.color;
+      featureContext.strokeStyle = '#000000';
+      
+      for (var i = 0; i < 2; i++) {
+        featureContext.beginPath();
+        
+        featureContext.moveTo(feature.x, 0);
+        featureContext.lineTo(feature.x + feature.width * 0.25, feature.height * 0.25 + 0.5);
+        featureContext.lineTo(feature.x + feature.width * 0.75, feature.height * 0.25 + 0.5);
+        featureContext.lineTo(feature.x + feature.width, 0);
+        
+        featureContext[i ? 'moveTo' : 'lineTo'](feature.x + feature.width, feature.height);
+        featureContext.lineTo(feature.x + feature.width * 0.75, feature.height * 0.75 - 0.5);
+        featureContext.lineTo(feature.x + feature.width * 0.25, feature.height * 0.75 - 0.5);
+        featureContext.lineTo(feature.x, feature.height);
+        
+        featureContext[i ? 'stroke' : 'fill']();
+      };
+    } else {
+      this.base(feature, featureContext, labelContext, scale);
+      
+      featureContext.strokeStyle = '#000000';
+      
+      featureContext.beginPath();
+      
+      if (feature.start === 1) {
+        featureContext.clearRect(0, 0, 5, this.prop('height'));
+        
+        featureContext.fillStyle = feature.color;
+        featureContext.moveTo(5, 0.5);
+        featureContext.lineTo(feature.x + feature.width, 0.5);
+        featureContext.moveTo(5, feature.height + 0.5);
+        featureContext.lineTo(feature.x + feature.width, feature.height + 0.5);
+        featureContext.moveTo(5, 0.5);
+        featureContext.bezierCurveTo(-1, 0.5, -1, feature.height + 0.5, 5, feature.height + 0.5);
+        featureContext.fill();
+      } else if (feature.end === this.browser.chromosomeSize) {
+        featureContext.clearRect(feature.x + feature.width - 5, 0, 10, this.prop('height'));
+        
+        featureContext.fillStyle = feature.color;
+        featureContext.moveTo(feature.x, 0.5);
+        featureContext.lineTo(feature.x + feature.width - 5, 0.5);
+        featureContext.moveTo(feature.x, feature.height + 0.5);
+        featureContext.lineTo(feature.x + feature.width - 5, feature.height + 0.5);
+        featureContext.moveTo(feature.x + feature.width - 5, 0.5);
+        featureContext.bezierCurveTo(this.width + 1, 0.5, this.width + 1, feature.height + 0.5, feature.x + feature.width - 5, feature.height + 0.5);
+        featureContext.fill();
+      } else {
+        featureContext.moveTo(feature.x, 0.5);
+        featureContext.lineTo(feature.x + feature.width, 0.5);
+        featureContext.moveTo(feature.x, feature.height + 0.5);
+        featureContext.lineTo(feature.x + feature.width, feature.height + 0.5);
+      }
+      
+      featureContext.stroke();
+    }
+  },
+  
+  populateMenu: function (feature) {
+    return {
+      title    : feature.id,
+      Position : this.browser.chr + ':' + feature.start + '-' + feature.end
+    };
+  }
+});
 
 
 
