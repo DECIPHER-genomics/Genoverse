@@ -4,6 +4,10 @@
 // released under the MIT license
 
 Genoverse.Plugins.tooltips = function () {
+  if (!this.controls) {
+    return;
+  }
+  
   this.controls.push({
     icon    : '?',
     name    : 'Tooltips',

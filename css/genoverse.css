@@ -304,8 +304,6 @@ li.sortHandle {
 }
 
 .gv_menu table {
-  width: 80%;
-  margin: 0 15% 0 0;
   color: white;
   font-family: monospace;
   font-size: 12px;
@@ -320,6 +318,7 @@ li.sortHandle {
 }
 
 .gv_menu table .title {
+  padding-right: 20px;
   font-weight: bold;
   text-align: left;
 }
@@ -328,25 +327,24 @@ li.sortHandle {
   padding: 0 1em 0 0;
 }
 
-.gv_menu>.close {
-  float: right;
-}
-
 .gv_menu .close {
-  background-color: #CCCCCC;
-  border-radius : 20px;
-  height        : 20px;
-  width         : 20px;
-  line-height   : 17px;
-  font-size     : 13px;
-  font-family   : Comic Sans MS;
-  font-weight   : bold;
-  color: #2E2E2E;
-  text-shadow : #F5F5F5 1px 1px 0px;
-  cursor: pointer;
+  position: absolute;
+  right: 0;
+  height: 20px;
+  width: 20px;
   padding: 0 0 0 1px;
-  text-align: center;
   margin: 3px;
+  background-color: #CCCCCC;
+  border-radius: 20px;
+  line-height: 17px;
+  font-size: 13px;
+  font-family: Comic Sans MS;
+  font-weight: bold;
+  color: #2E2E2E;
+  text-shadow: #F5F5F5 1px 1px 0;
+  cursor: pointer;
+  text-align: center;
+  opacity: 1;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -357,7 +355,7 @@ li.sortHandle {
 
 .gv_menu .close:hover {
   background-color: #FFF;
-  box-shadow: 0px 0px 5px #FFFFFF;
+  box-shadow: 0 0 5px #FFFFFF;
 }
 
 .selector {

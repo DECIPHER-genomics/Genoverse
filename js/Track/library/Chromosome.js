@@ -117,6 +117,14 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
     }
   },
   
+  drawLabel: function (feature) {
+    if ((feature.start === 1 || feature.end === this.browser.chromosomeSize) && feature.labelWidth >= Math.floor(feature.width - 5)) {
+      return;
+    }
+    
+    this.base.apply(this, arguments);
+  },
+  
   populateMenu: function (feature) {
     return {
       title    : feature.id,

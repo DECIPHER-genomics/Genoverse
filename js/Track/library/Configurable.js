@@ -39,7 +39,6 @@ Genoverse.Track.Configurable = Genoverse.Track.extend({
   },
   
   setLengthMap: function () {
-    var config         = this.config;
     var args           = [ true, {} ];
     var featureFilters = [];
     var settings;

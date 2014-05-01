@@ -43,7 +43,7 @@ Genoverse.Plugins.controlPanel = function () {
       ).appendTo(this.container).find('.genoverse_panel');
       
       if (this.enableSharing) {
-        $('.genoverse_panel_right').append(
+        panel.append(
           '<div class="button_set">' +
             '<button class="share" style="width: 100%">share</button>' +
           '</div>'
@@ -52,6 +52,7 @@ Genoverse.Plugins.controlPanel = function () {
       
       this.superContainer = this.container;
       this.container      = $('.canvas_container', this.container);
+      this.width         -= panel.width();
       
       panel.find('button.scrollLeft, button.scrollRight').on({
         mousedown : function () { genoverse.startDragScroll(); },
@@ -141,6 +142,7 @@ Genoverse.Plugins.controlPanel = function () {
         }
       });
     },
+    
     afterInit: function () {
       var browser      = this;
       var tracksButton = $('<button title="Tracks menu">&#9776; Tracks</button>').on('click', function () {
@@ -168,7 +170,7 @@ Genoverse.Plugins.controlPanel = function () {
             $('input[placeholder=Search]', menu).on('keyup', function () {
               var str = this.value.toLowerCase();
               
-              $('.tracksMenu .tracksLibraryItem', menu).each(function () {
+              $('.tracksLibraryItem', menu).each(function () {
                 var track = $(this).data('track');
                 var match = false;
                 
@@ -239,9 +241,11 @@ Genoverse.Plugins.controlPanel = function () {
         )
       );
     },
+    
     afterAddDomElements: function () {
       this.wrapper.after('<div class="gv_powered_by">Powered by <a target="_blank" href="http://genoverse.org">Genoverse</a></div>');
     },
+    
     'afterAddTracks afterRemoveTracks': function () {
       var currentTracks = this.superContainer.find('.tracksMenu .currentTracks');
       

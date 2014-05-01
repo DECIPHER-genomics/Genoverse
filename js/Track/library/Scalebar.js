@@ -14,6 +14,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   labels         : true,
   bump           : false,
   resizable      : false,
+  click          : $.noop,
   colors         : {
     majorGuideLine : '#CCCCCC',
     minorGuideLine : '#E5E5E5'
