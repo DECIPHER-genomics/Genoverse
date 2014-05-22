@@ -9153,6 +9153,12 @@ Genoverse.Track.Configurable = Genoverse.Track.extend({
   setConfig: function (type, config) {
     if (this.configSettings[type][config]) {
       this.config[type] = config;
+      
+      var features = this.prop('featuresById');
+      
+      for (var i in features) {
+        delete features[i].menuEl;
+      }
     }
     
     this.reset();

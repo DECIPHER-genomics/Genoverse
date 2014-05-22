@@ -55,8 +55,8 @@ Genoverse.Plugins.controlPanel = function () {
       this.width         -= panel.width();
       
       panel.find('button.scrollLeft, button.scrollRight').on({
-        mousedown : function () { genoverse.startDragScroll(); },
-        mouseup   : function () { genoverse.stopDragScroll();  }
+        mousedown : function () { browser.startDragScroll(); },
+        mouseup   : function () { browser.stopDragScroll();  }
       });
       
       panel.find('button.scrollLeft').mousehold(50, function () {

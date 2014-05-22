@@ -73,6 +73,7 @@
 table.genoverse {
   position: relative;
   margin-bottom: 30px;
+  border-collapse: separate;
 }
 
 .genoverse td {
