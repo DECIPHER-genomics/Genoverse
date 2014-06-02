@@ -10,7 +10,7 @@ var Genoverse = Base.extend({
   defaultScrollDelta : 100,
   tracks             : [],
   plugins            : [],
-  padding            : 0, // 'auto' or number
+  padding            : 0,
   dragAction         : 'scroll', // options are: scroll, select, off
   wheelAction        : 'off',    // options are: zoom, off
   isStatic           : false,    // if true, will stop drag, select and zoom actions occurring
