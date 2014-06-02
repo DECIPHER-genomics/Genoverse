@@ -10,7 +10,7 @@ var Genoverse = Base.extend({
   defaultScrollDelta : 100,
   tracks             : [],
   plugins            : [],
-  zoomLevel          : 'auto', // 'auto' or number
+  padding            : 0, // 'auto' or number
   dragAction         : 'scroll', // options are: scroll, select, off
   wheelAction        : 'off',    // options are: zoom, off
   isStatic           : false,    // if true, will stop drag, select and zoom actions occurring
@@ -49,10 +49,8 @@ var Genoverse = Base.extend({
     $.when(this.loadGenome(), this.loadPlugins()).always(function () {
       Genoverse.wrapFunctions(browser);
       browser.init();
-      if (browser.zoomLevel !== 'auto' && typeof browser.zoomLevel === 'number') {
-		for (var i = 0; i < browser.zoomLevel; i++) {
-			browser.zoomOut();
-		}
+      if (typeof browser.padding === 'number' && browser.padding % 1 === 0) {
+		browser.setRange(browser.start - browser.padding, browser.end + browser.padding, true);
 	  };
     });
   },
