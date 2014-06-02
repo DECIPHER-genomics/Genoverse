@@ -10,7 +10,7 @@ var Genoverse = Base.extend({
   defaultScrollDelta : 100,
   tracks             : [],
   plugins            : [],
-  padding            : 0,
+  padding            : 0, 
   dragAction         : 'scroll', // options are: scroll, select, off
   wheelAction        : 'off',    // options are: zoom, off
   isStatic           : false,    // if true, will stop drag, select and zoom actions occurring
@@ -161,7 +161,7 @@ var Genoverse = Base.extend({
     this.addTracks();
 	
     if (typeof this.padding === 'number' && this.padding % 1 === 0) {
-		this.setRange(coords.start - this.padding, coords.end + this.padding, true);
+		this.setRange(coords.start - this.padding, coords.end + this.padding);
 	} else {
 		this.setRange(coords.start, coords.end);
 	}
