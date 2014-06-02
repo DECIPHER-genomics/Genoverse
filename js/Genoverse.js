@@ -49,9 +49,6 @@ var Genoverse = Base.extend({
     $.when(this.loadGenome(), this.loadPlugins()).always(function () {
       Genoverse.wrapFunctions(browser);
       browser.init();
-      if (typeof browser.padding === 'number' && browser.padding % 1 === 0) {
-		browser.setRange(browser.start - browser.padding, browser.end + browser.padding, true);
-	  };
     });
   },
 
@@ -162,7 +159,12 @@ var Genoverse = Base.extend({
     }
     
     this.addTracks();
-    this.setRange(coords.start, coords.end);
+	
+    if (typeof this.padding === 'number' && this.padding % 1 === 0) {
+		this.setRange(coords.start - this.padding, coords.end + this.padding, true);
+	} else {
+		this.setRange(coords.start, coords.end);
+	}
   },
   
   addDomElements: function (width) {
