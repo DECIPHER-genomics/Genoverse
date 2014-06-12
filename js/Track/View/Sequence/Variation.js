@@ -55,7 +55,7 @@ Genoverse.Track.View.SequenceVariation = Genoverse.Track.View.Sequence.extend({
       positionY = [ 0, position.Y - this.featureMargin.bottom / 2, position.Y, position.Y + this.featureHeight ];
       
       if (!features[i].highlightColor) {
-        this.setHighlightColor(features[i])
+        this.setHighlightColor(features[i]);
       }
       
       context.strokeStyle = context.fillStyle = features[i].highlightColor;

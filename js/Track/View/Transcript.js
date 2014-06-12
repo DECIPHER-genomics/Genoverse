@@ -38,7 +38,7 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
           x: transcript.x + (exons[i - 1].end - transcript.start) * scale,
           y: transcript.y + transcript.height / 2 + 0.5,
           width: (exon.start - exons[i - 1].end) * scale,
-          height: transcript.strand > 0 ? -transcript.height / 2 : transcript.height / 2,
+          height: transcript.strand > 0 ? -transcript.height / 2 : transcript.height / 2
         }, featureContext);
       }
     }
@@ -59,7 +59,7 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
     }
     
     if (this.labels && transcript.label) {
-      this.drawLabel(transcript, labelContext, scale)
+      this.drawLabel(transcript, labelContext, scale);
     }
   },  
   

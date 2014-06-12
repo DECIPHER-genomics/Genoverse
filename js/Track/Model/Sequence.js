@@ -13,8 +13,8 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
   },
   
   getData: function (start, end) {
-    var start = start - start % this.chunkSize + 1;
-    var end  = end + this.chunkSize - end % this.chunkSize;    
+    start = start - start % this.chunkSize + 1;
+    end   = end + this.chunkSize - end % this.chunkSize;
     return this.base(start, end);
   },
   

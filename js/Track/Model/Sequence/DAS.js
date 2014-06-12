@@ -27,6 +27,5 @@ Genoverse.Track.Model.Sequence.DAS = Genoverse.Track.Model.Sequence.extend({
 
       track.base.apply(track, [ sequence, start ]);
     });
-  },
-
+  }
 });  

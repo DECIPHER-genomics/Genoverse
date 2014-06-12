@@ -76,7 +76,7 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
         featureContext.lineTo(feature.x, feature.height);
         
         featureContext[i ? 'stroke' : 'fill']();
-      };
+      }
     } else {
       this.base(feature, featureContext, labelContext, scale);
       
