@@ -107,6 +107,7 @@
 .canvas_container .message_container .expand,
 .canvas_container .message_container.collapsed .messages,
 .canvas_container .message_container.collapsed .collapse { display: none; }
+.canvas_container .message_container .collapse           { display: inline; }
 .canvas_container .message_container.collapsed .expand   { display: inline; position: relative; }
 
 .canvas_container .image_container {

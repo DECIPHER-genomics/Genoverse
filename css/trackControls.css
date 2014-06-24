@@ -32,7 +32,7 @@
   text-decoration: underline;
 }
 
-.track_container:hover>div.track_controls {
+.track_container:hover > div.track_controls {
   display: block;
 }
 
@@ -46,4 +46,12 @@
 
 .track_container div.track_controls a.height_toggle.auto_height {
   background-position: center -17px;
+}
+
+.track_container div.track_controls select,
+.track_container div.track_controls input,
+.track_container div.track_controls button,
+.track_container div.track_controls textarea {
+  color: #333;
+  font-weight: normal;
 }
