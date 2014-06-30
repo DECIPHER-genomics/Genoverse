@@ -1,10 +1,10 @@
 // Ensembl REST API Transcript model
 Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.extend({
-  url              : 'http://rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=transcript;feature=exon;feature=cds;content-type=application/json',
+  url              : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=transcript;feature=exon;feature=cds;content-type=application/json',
   dataRequestLimit : 5000000, // As per e! REST API restrictions
   
   // The url above responds in json format, data is an array
-  // See http://rest.ensembl.org/documentation/info/feature_region for more details
+  // See rest.ensembl.org/documentation/info/feature_region for more details
   parseData: function (data) {
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];

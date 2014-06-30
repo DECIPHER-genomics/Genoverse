@@ -9990,7 +9990,7 @@ Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
 
 
 Genoverse.Track.Model.Sequence.Ensembl = Genoverse.Track.Model.Sequence.extend({
-  url              : 'http://rest.ensembl.org/sequence/region/human/__CHR__:__START__-__END__?content-type=text/plain', // Example url
+  url              : '//rest.ensembl.org/sequence/region/human/__CHR__:__START__-__END__?content-type=text/plain', // Example url
   dataRequestLimit : 10000000 // As per e! REST API restrictions
 });
 
@@ -10192,12 +10192,12 @@ Genoverse.Track.Model.Gene = Genoverse.Track.Model.extend({
 
 // Ensembl REST API Gene model
 Genoverse.Track.Model.Gene.Ensembl = Genoverse.Track.Model.Gene.extend({
-  url              : 'http://rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=gene;content-type=application/json',
+  url              : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=gene;content-type=application/json',
   dataRequestLimit : 5000000, // As per e! REST API restrictions
   
   // The url above responds in json format, data is an array
   // We assume that parents always preceed children in data array, gene -> transcript -> exon
-  // See http://rest.ensembl.org/documentation/info/feature_region for more details
+  // See rest.ensembl.org/documentation/info/feature_region for more details
   parseData: function (data) {
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];
@@ -10260,11 +10260,11 @@ Genoverse.Track.Model.Transcript = Genoverse.Track.Model.extend({
 
 // Ensembl REST API Transcript model
 Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.extend({
-  url              : 'http://rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=transcript;feature=exon;feature=cds;content-type=application/json',
+  url              : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=transcript;feature=exon;feature=cds;content-type=application/json',
   dataRequestLimit : 5000000, // As per e! REST API restrictions
   
   // The url above responds in json format, data is an array
-  // See http://rest.ensembl.org/documentation/info/feature_region for more details
+  // See rest.ensembl.org/documentation/info/feature_region for more details
   parseData: function (data) {
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];
