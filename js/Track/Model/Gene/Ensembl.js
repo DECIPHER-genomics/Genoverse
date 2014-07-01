@@ -10,8 +10,7 @@ Genoverse.Track.Model.Gene.Ensembl = Genoverse.Track.Model.Gene.extend({
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];
       
-      if (feature.feature_type === 'gene' && !this.featuresById[feature.ID]) {
-        feature.id          = feature.ID;
+      if (feature.feature_type === 'gene' && !this.featuresById[feature.id]) {
         feature.label       = feature.external_name || feature.id;
         feature.transcripts = [];
         

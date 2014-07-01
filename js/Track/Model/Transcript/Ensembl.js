@@ -9,16 +9,13 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];
       
-      if (feature.feature_type === 'transcript' && !this.featuresById[feature.ID]) {
-        feature.id    = feature.ID;
+      if (feature.feature_type === 'transcript' && !this.featuresById[feature.id]) {
         feature.label = feature.id;
         feature.exons = [];
         feature.cds   = [];
         
         this.insertFeature(feature);
       } else if (feature.feature_type === 'exon' && this.featuresById[feature.Parent]) {
-        feature.id = feature.ID;
-        
         if (!this.featuresById[feature.Parent].exons[feature.id]) {
           this.featuresById[feature.Parent].exons.push(feature);
           this.featuresById[feature.Parent].exons[feature.id] = feature;
