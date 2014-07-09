@@ -359,6 +359,10 @@ li.sortHandle {
   box-shadow: 0 0 5px #FFFFFF;
 }
 
+.gv_menu input {
+  color: #000;
+}
+
 .selector {
   position: absolute;
   display: none;
