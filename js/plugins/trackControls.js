@@ -52,14 +52,14 @@ Genoverse.Plugins.trackControls = function () {
   ];
 
   var toggle = $('<a>').html('&laquo;').on('click', function () {
-    if ($(this).parent().hasClass('maximized')) {
-      $(this)
-        .parent().removeClass('maximized').end()
+    var parent = $(this).parent();
+    
+    if (parent.hasClass('maximized')) {
+      parent.removeClass('maximized').end()
         .siblings().css({ display: 'none' }).end()
         .html('&laquo;');
     } else {
-      $(this)
-        .parent().addClass('maximized').end()
+      parent.addClass('maximized').end()
         .siblings().css({ display: 'inline-block' }).end()
         .html('&raquo;');
     }
@@ -83,7 +83,12 @@ Genoverse.Plugins.trackControls = function () {
       
       this.prop('heightToggler', this.trackControls.children('.height_toggle').trigger('toggleState'));
       
-      toggle.clone(true).data('track', this.track).appendTo(this.trackControls);
+      var toggler = toggle.clone(true).data('track', this.track).appendTo(this.trackControls);
+      
+      toggler.trigger('click');
+      this.minLabelHeight = Math.max(this.minLabelHeight, this.trackControls.outerHeight(true) + this.prop('margin'));
+      toggler.trigger('click');
+      
     },
     afterResize: function () {
       if (this.trackControls) {
