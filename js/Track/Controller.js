@@ -400,15 +400,17 @@ Genoverse.Track.Controller = Base.extend({
     var left       = 0;
     var width      = this.width;
     
-    if (start > 1) {
-      images.push({ start: start - length, end: start - 1, scale: scale, cls: cls, left: -this.width });
-      left   = -this.width;
-      width += this.width;
-    }
-    
-    if (end < this.browser.chromosomeSize) {
-      images.push({ start: end + 1, end: end + length, scale: scale, cls: cls, left: this.width });
-      width += this.width;
+    if (!this.browser.isStatic) {
+      if (start > 1) {
+        images.push({ start: start - length, end: start - 1, scale: scale, cls: cls, left: -this.width });
+        left   = -this.width;
+        width += this.width;
+      }
+      
+      if (end < this.browser.chromosomeSize) {
+        images.push({ start: end + 1, end: end + length, scale: scale, cls: cls, left: this.width });
+        width += this.width;
+      }
     }
     
     var loading = this.imgContainer.clone().addClass('loading').css({ left: left, width: width }).prependTo(this.scrollContainer.css('left', 0));
