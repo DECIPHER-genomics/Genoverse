@@ -266,6 +266,9 @@ li.sortHandle {
   cursor: pointer;
   z-index: 1;
   bottom: 0;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
 }
 
 .canvas_container .expander:hover {
