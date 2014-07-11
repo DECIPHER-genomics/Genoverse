@@ -4,7 +4,7 @@ Genoverse.Track.Controller = Base.extend({
   messages     : {
     error     : 'ERROR: ',
     threshold : 'Data for this track is not displayed in regions greater than ',
-    resize    : 'Some features are currently hidden, resize to see all'
+    resize    : 'Some features are currently hidden, <a class="resize">resize to see all</a>'
   },
   
   constructor: function (properties) {
@@ -121,7 +121,14 @@ Genoverse.Track.Controller = Base.extend({
     var messages = this.messageContainer.children('.messages');
     
     if (!messages.children('.' + code).show().length) {
-      messages.prepend('<div class="msg ' + code + '">' + this.messages[code] + (additionalText || '') + '</div>');
+      var msg = $('<div class="msg ' + code + '">' + this.messages[code] + (additionalText || '') + '</div>').prependTo(messages);
+      
+      if (code === 'resize') {
+        msg.children('a.resize').on('click', $.proxy(function () {
+          this.resize(this.fullVisibleHeight);
+        }, this));
+      }
+      
       this.messageContainer[document.cookie.match([ 'gv_msg', code, this.prop('id') ].join('_') + '=1') ? 'addClass' : 'removeClass']('collapsed');
     }
     

@@ -96,6 +96,11 @@
   margin-bottom: 6px; 
 }
 
+.canvas_container .message_container .msg a {
+  color: #FFF;
+  text-decoration: underline;
+}
+
 .canvas_container .message_container .control {
   position: absolute;
   height: 14px;
