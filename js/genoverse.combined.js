@@ -7969,7 +7969,7 @@ Genoverse.Track.Controller = Base.extend({
   messages     : {
     error     : 'ERROR: ',
     threshold : 'Data for this track is not displayed in regions greater than ',
-    resize    : 'Some features are currently hidden, resize to see all'
+    resize    : 'Some features are currently hidden, <a class="resize">resize to see all</a>'
   },
   
   constructor: function (properties) {
@@ -8086,7 +8086,14 @@ Genoverse.Track.Controller = Base.extend({
     var messages = this.messageContainer.children('.messages');
     
     if (!messages.children('.' + code).show().length) {
-      messages.prepend('<div class="msg ' + code + '">' + this.messages[code] + (additionalText || '') + '</div>');
+      var msg = $('<div class="msg ' + code + '">' + this.messages[code] + (additionalText || '') + '</div>').prependTo(messages);
+      
+      if (code === 'resize') {
+        msg.children('a.resize').on('click', $.proxy(function () {
+          this.resize(this.fullVisibleHeight);
+        }, this));
+      }
+      
       this.messageContainer[document.cookie.match([ 'gv_msg', code, this.prop('id') ].join('_') + '=1') ? 'addClass' : 'removeClass']('collapsed');
     }
     
@@ -8365,15 +8372,17 @@ Genoverse.Track.Controller = Base.extend({
     var left       = 0;
     var width      = this.width;
     
-    if (start > 1) {
-      images.push({ start: start - length, end: start - 1, scale: scale, cls: cls, left: -this.width });
-      left   = -this.width;
-      width += this.width;
-    }
-    
-    if (end < this.browser.chromosomeSize) {
-      images.push({ start: end + 1, end: end + length, scale: scale, cls: cls, left: this.width });
-      width += this.width;
+    if (!this.browser.isStatic) {
+      if (start > 1) {
+        images.push({ start: start - length, end: start - 1, scale: scale, cls: cls, left: -this.width });
+        left   = -this.width;
+        width += this.width;
+      }
+      
+      if (end < this.browser.chromosomeSize) {
+        images.push({ start: end + 1, end: end + length, scale: scale, cls: cls, left: this.width });
+        width += this.width;
+      }
     }
     
     var loading = this.imgContainer.clone().addClass('loading').css({ left: left, width: width }).prependTo(this.scrollContainer.css('left', 0));
