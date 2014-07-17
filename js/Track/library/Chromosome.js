@@ -26,7 +26,7 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
   },
   
   getData: function (start, end) {
-    this.receiveData([].slice.call(grch37[this.browser.chr].bands), start, end);
+    this.receiveData([].slice.call(this.browser.genome[this.browser.chr].bands), start, end);
     return $.Deferred().resolveWith(this);
   },
   
