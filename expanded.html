@@ -77,11 +77,9 @@
         container : '#genoverse',
         width     : 756,
         genome    : 'grch37',
-        // If no genome supplied, it must have at least chromosomeSize, e.g.:
-        // chromosomeSize : 249250621, // chromosome 1, human
-        chr       : 1,
-        start     : 45476751,
-        end       : 45480893,
+        chr       : 13,
+        start     : 32889611,
+        end       : 32973805,
         plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
         tracks    : [
           Genoverse.Track.Scalebar,
@@ -109,6 +107,13 @@
               model  : Genoverse.Track.Model.Transcript.Ensembl,
               view   : Genoverse.Track.View.Transcript.Ensembl
             }
+          }),
+          Genoverse.Track.extend({
+            name            : 'Regulatory Features',
+            url             : 'http://rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=regulatory;content-type=application/json',
+            resizable       : 'auto',
+            model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
+            setFeatureColor : function (f) { f.color = '#AAA'; }
           })
         ]
       }
