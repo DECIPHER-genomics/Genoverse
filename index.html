@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="examples/genoverse.org/styles.css" />
   </head>
   <body>
@@ -18,13 +18,13 @@
         <p style="font-weight:bold; text-align:center;">If you have any questions or need help, please contact us <a href="mailto:info@genoverse.org">info@genoverse.org</a></p>
       </div>
     </div>
-    
+
     <script type="text/javascript" src="js/genoverse.combined.js">
       {
         container : '#genoverse', // Where to inject Genoverse (css/jQuery selector)
         // If no genome supplied, it must have at least chromosomeSize, e.g.:
         // chromosomeSize : 249250621, // chromosome 1, human
-        genome    : 'grch37', // see js/genomes/
+        genome    : 'grch38', // see js/genomes/
         chr       : 13,
         start     : 32889611,
         end       : 32973805,
@@ -43,7 +43,7 @@
             name   : 'Genes',
             height : 200,
             info   : 'Ensembl API genes & transcripts, see <a href="http://rest.ensembl.org/" target="_blank">rest.ensembl.org</a> for more details',
-            
+
             // Different settings for different zoom level
             2000000: { // This one applies when > 2M base-pairs per screen
               labels : false
@@ -69,12 +69,12 @@
         ]
       }
     </script>
-    
+
     <script type="text/javascript">
       var _gaq = _gaq || [];
       _gaq.push(['_setAccount', 'UA-34315286-1']);
       _gaq.push(['_trackPageview']);
-      
+
       (function() {
         var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
         ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';

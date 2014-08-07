@@ -19,8 +19,6 @@
 <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
 <script type="text/javascript" src="js/lib/jquery.tipsy.js"></script>
 
-<script type="text/javascript" src="js/genomes/grch37.js"></script>
-
 <script type="text/javascript" src="js/lib/Base.js"></script>
 <script type="text/javascript" src="js/lib/rtree.js"></script>
 
@@ -86,7 +84,7 @@
     var genoverseConfig = {
         container : '#genoverse',
         width     : 1024,
-        genome    : 'grch37',
+        genome    : 'grch38',
         // If no genome supplied, it must have at least chromosomeSize, e.g.:
         // chromosomeSize : 249250621, // chromosome 1, human
         chr       : 1,
@@ -180,7 +178,7 @@
                     },
                 }),
                 view      : Genoverse.Track.View.Sequence.extend({
-                    drawSequence : function (feature, context, scale, width) {                        
+                    drawSequence : function (feature, context, scale, width) {
                         this.base(feature, context, scale, width);
 
                         var oldFont = context.font;

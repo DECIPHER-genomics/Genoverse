@@ -1,8 +1,8 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
-    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
     <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
     <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
     <link rel="stylesheet" type="text/css" href="css/trackControls.css" />
@@ -11,32 +11,30 @@
   </head>
   <body>
     <div id="genoverse"></div>
-    
+
     <script type="text/javascript" src="js/lib/jquery.js"></script>
     <script type="text/javascript" src="js/lib/jquery-ui.js"></script>
     <script type="text/javascript" src="js/lib/jquery.mousewheel.js"></script>
     <script type="text/javascript" src="js/lib/jquery.mousehold.js"></script>
     <script type="text/javascript" src="js/lib/jquery.tipsy.js"></script>
 
-    <script type="text/javascript" src="js/genomes/grch37.js"></script>
-
     <script type="text/javascript" src="js/lib/Base.js"></script>
     <script type="text/javascript" src="js/lib/rtree.js"></script>
-    
+
     <script type="text/javascript" src="js/Genoverse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script>
     <script type="text/javascript" src="js/Track/library/File.js"></script>
-    
-    <script type="text/javascript" src="js/Track/Controller.js"></script> 
-    <script type="text/javascript" src="js/Track/Model.js"></script> 
-    <script type="text/javascript" src="js/Track/View.js"></script> 
-    
+
+    <script type="text/javascript" src="js/Track/Controller.js"></script>
+    <script type="text/javascript" src="js/Track/Model.js"></script>
+    <script type="text/javascript" src="js/Track/View.js"></script>
+
     <script type="text/javascript" src="js/Track/library/Static.js"></script>
     <script type="text/javascript" src="js/Track/library/Configurable.js"></script>
-    
+
     <script type="text/javascript" src="js/Track/Controller/Stranded.js"></script>
     <script type="text/javascript" src="js/Track/Model/Stranded.js"></script>
-   
+
     <script type="text/javascript" src="js/Track/library/Chromosome.js"></script>
     <script type="text/javascript" src="js/Track/library/Scaleline.js"></script>
     <script type="text/javascript" src="js/Track/library/Scalebar.js"></script>
@@ -56,7 +54,7 @@
     <script type="text/javascript" src="js/Track/Model/Gene/Ensembl.js"></script>
     <script type="text/javascript" src="js/Track/View/Gene.js"></script>
     <script type="text/javascript" src="js/Track/View/Gene/Ensembl.js"></script>
-    
+
     <script type="text/javascript" src="js/Track/Model/Transcript.js"></script>
     <script type="text/javascript" src="js/Track/Model/Transcript/Ensembl.js"></script>
     <script type="text/javascript" src="js/Track/Model/Transcript/GFF3.js"></script>
@@ -66,7 +64,7 @@
     <script type="text/javascript" src="js/Track/Model/File.js"></script>
     <script type="text/javascript" src="js/Track/Model/File/GFF.js"></script>
     <script type="text/javascript" src="js/Track/Model/File/BED.js"></script>
-    
+
     <script type="text/javascript" src="js/Track/library/File/GFF.js"></script>
     <script type="text/javascript" src="js/Track/library/File/GFF3.js"></script>
     <script type="text/javascript" src="js/Track/library/File/BED.js"></script>
@@ -86,7 +84,7 @@
     var genoverseConfig = {
         container : '#genoverse',
         width     : 756,
-        genome    : 'grch37',
+        genome    : 'grch38',
         // If no genome supplied, it must have at least chromosomeSize, e.g.:
         // chromosomeSize : 249250621, // chromosome 1, human
         chr       : 1,
@@ -114,8 +112,8 @@
                     var model = this;
                     model.initialised = $.Deferred();
                     makeBam(
-                        new URLFetchable(this.urlBam), 
-                        new URLFetchable(this.urlBai), 
+                        new URLFetchable(this.urlBam),
+                        new URLFetchable(this.urlBai),
                         function (bam) {
                             model.bam = bam;
                             model.initialised.resolve();

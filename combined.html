@@ -2,7 +2,7 @@
   {
     // If no genome supplied, it must have at least chromosomeSize, e.g.:
     // chromosomeSize : 249250621, // chromosome 1, human
-    genome  : 'grch37', // see js/genomes/
+    genome  : 'grch38', // see js/genomes/
     plugins : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
     tracks  : [
       Genoverse.Track.Scalebar,
@@ -17,7 +17,7 @@
       Genoverse.Track.extend({
         name   : 'Genes',
         height : 200,
-        
+
         // Different settings for different zoom level
         2000000: { // This one applies when > 2M base-pairs per screen
           labels : false

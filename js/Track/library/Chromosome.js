@@ -24,69 +24,70 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
     gpos25 : '#000000',
     gpos33 : '#000000'
   },
-  
+
   getData: function (start, end) {
     this.receiveData([].slice.call(this.browser.genome[this.browser.chr].bands), start, end);
     return $.Deferred().resolveWith(this);
   },
-  
+
   insertFeature: function (feature) {
     feature.label      = feature.type === 'acen' || feature.type === 'stalk' ? false : feature.id;
     feature.color      = this.prop('colors')[feature.type];
     feature.labelColor = this.prop('labelColors')[feature.type] || '#FFFFFF';
-    
+
     this.base(feature);
   },
-  
+
   drawFeature: function (feature, featureContext, labelContext, scale) {
     if (feature.type === 'acen') {
       featureContext.fillStyle   = feature.color;
       featureContext.strokeStyle = '#000000';
-      
+
       featureContext.beginPath();
-      
-      if (feature.sort === 1) {
-        featureContext.moveTo(feature.x, 0);
-        featureContext.lineTo(feature.x + feature.width, feature.height / 2);
-        featureContext.lineTo(feature.x, feature.height + 0.5);
-      } else {
+
+      if (this.drawnAcen) {
         featureContext.moveTo(feature.x + feature.width, 0);
         featureContext.lineTo(feature.x + feature.width, feature.height + 0.5);
         featureContext.lineTo(feature.x, feature.height / 2);
+      } else {
+        featureContext.moveTo(feature.x, 0);
+        featureContext.lineTo(feature.x + feature.width, feature.height / 2);
+        featureContext.lineTo(feature.x, feature.height + 0.5);
+        this.drawnAcen = true;
       }
-      
+
       featureContext.closePath();
       featureContext.fill();
       featureContext.stroke();
     } else if (feature.type === 'stalk') {
       featureContext.fillStyle   = feature.color;
       featureContext.strokeStyle = '#000000';
-      
+
       for (var i = 0; i < 2; i++) {
         featureContext.beginPath();
-        
+
         featureContext.moveTo(feature.x, 0);
         featureContext.lineTo(feature.x + feature.width * 0.25, feature.height * 0.25 + 0.5);
         featureContext.lineTo(feature.x + feature.width * 0.75, feature.height * 0.25 + 0.5);
         featureContext.lineTo(feature.x + feature.width, 0);
-        
+
         featureContext[i ? 'moveTo' : 'lineTo'](feature.x + feature.width, feature.height);
         featureContext.lineTo(feature.x + feature.width * 0.75, feature.height * 0.75 - 0.5);
         featureContext.lineTo(feature.x + feature.width * 0.25, feature.height * 0.75 - 0.5);
         featureContext.lineTo(feature.x, feature.height);
-        
+
         featureContext[i ? 'stroke' : 'fill']();
       }
     } else {
       this.base(feature, featureContext, labelContext, scale);
-      
+
       featureContext.strokeStyle = '#000000';
-      
+
       featureContext.beginPath();
-      
+
       if (feature.start === 1) {
         featureContext.clearRect(0, 0, 5, this.prop('height'));
-        
+
         featureContext.fillStyle = feature.color;
         featureContext.moveTo(5, 0.5);
         featureContext.lineTo(feature.x + feature.width, 0.5);
@@ -97,7 +98,7 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
         featureContext.fill();
       } else if (feature.end === this.browser.chromosomeSize) {
         featureContext.clearRect(feature.x + feature.width - 5, 0, 10, this.prop('height'));
-        
+
         featureContext.fillStyle = feature.color;
         featureContext.moveTo(feature.x, 0.5);
         featureContext.lineTo(feature.x + feature.width - 5, 0.5);
@@ -112,19 +113,19 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
         featureContext.moveTo(feature.x, feature.height + 0.5);
         featureContext.lineTo(feature.x + feature.width, feature.height + 0.5);
       }
-      
+
       featureContext.stroke();
     }
   },
-  
+
   drawLabel: function (feature) {
     if ((feature.start === 1 || feature.end === this.browser.chromosomeSize) && feature.labelWidth >= Math.floor(feature.width - 5)) {
       return;
     }
-    
+
     this.base.apply(this, arguments);
   },
-  
+
   populateMenu: function (feature) {
     return {
       title    : feature.id,
