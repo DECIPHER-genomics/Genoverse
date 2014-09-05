@@ -42,14 +42,6 @@ Genoverse.Plugins.controlPanel = function () {
         '</table>'
       ).appendTo(this.container).find('.genoverse_panel');
       
-      if (this.enableSharing) {
-        panel.append(
-          '<div class="button_set">' +
-            '<button class="share" style="width: 100%">share</button>' +
-          '</div>'
-        );
-      }
-      
       this.superContainer = this.container;
       this.container      = $('.canvas_container', this.container);
       this.width         -= panel.width();
