@@ -939,7 +939,7 @@ var Genoverse = Base.extend({
   on: function (events, obj, fn) {
     var browser  = this;
     var eventMap = {};
-    var i, fnString;
+    var i, j, f, fnString;
     
     function makeEventMap(types, handler) {
       types = types.split(' ');
@@ -949,8 +949,18 @@ var Genoverse = Base.extend({
       }
     }
     
+    function makeFnString(func) {
+      return func.toString();
+    }
+
     function compare(func) {
-      return func.toString() === fnString;
+      f = func.toString();
+
+      for (j = 0; j < fnString.length; j++) {
+        if (f === fnString[j]) {
+          return true;
+        }
+      }
     }
     
     if (typeof events === 'object') {
@@ -972,7 +982,7 @@ var Genoverse = Base.extend({
     
     for (i in eventMap) {
       browser.events[type][i] = browser.events[type][i] || [];
-      fnString = eventMap[i].toString();
+      fnString = $.map(eventMap[i], makeFnString);
       
       if (!$.grep(browser.events[type][i], compare).length) {
         browser.events[type][i].push.apply(browser.events[type][i], eventMap[i]);
