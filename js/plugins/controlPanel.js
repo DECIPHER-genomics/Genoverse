@@ -213,7 +213,11 @@ Genoverse.Plugins.controlPanel = function () {
                     $('<div class="addTrack">+</div> ').on('click', function () {
                       browser.trackIds = browser.trackIds || {};
                       browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
-                      browser.addTrack(track.extend({ id: track.prototype.id + browser.trackIds[track.prototype.id]++ }), browser.tracks.length);
+
+                      browser.addTrack(
+                        track.extend({ id: track.prototype.id + (browser.tracksById[track.prototype.id] ? browser.trackIds[track.prototype.id]++ : '') }),
+                        Math.floor(browser.tracks.sort(function (a, b) { return b.order - a.order; })[0].order + 1)
+                      );
                     })
                   ).append('<span>' + track.prototype.name + '</span>').appendTo(availableTracks).data('track', track.prototype);
                 })(tracksLibrary[i][1]);
