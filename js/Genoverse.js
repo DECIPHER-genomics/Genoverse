@@ -853,6 +853,8 @@ var Genoverse = Base.extend({
     var containers = $();
     
     for (var i = 0; i < sorted.length; i++) {
+      sorted[i].prop('order', i);
+
       if (sorted[i].prop('menus').length) {
         sorted[i].prop('top', sorted[i].prop('container').position().top);
       }
@@ -890,7 +892,7 @@ var Genoverse = Base.extend({
     if (prev && next && Math.floor(n) === Math.floor(p)) {
       order = p + (n - p) / 2;
     } else {
-      order = o + (p ? 1 : -1) * (Math.round(o) - o || 1) / 2;
+      order = o + (p ? 1 : -1) * Math.abs(Math.round(o) - o || 1) / 2;
     }
     
     track.prop('order', order);

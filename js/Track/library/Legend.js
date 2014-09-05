@@ -2,6 +2,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   textColor     : '#000000',
   labels        : 'overlay',
   unsortable    : true,
+  lockToTrack   : true,  // Always put the legend just below the last track that the legend is for
   featureHeight : 12,
   
   controller: Genoverse.Track.Controller.Static.extend({
@@ -9,9 +10,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
       this.base();
       
       this.container.addClass('track_container_legend');
-      
-      this.tracks = [];
-      
+
       if (!this.browser.legends) {
         this.browser.legends = {};
       }
@@ -37,6 +36,11 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
 
         for (var i in this.legends) {
           this.legends[i].makeImage({});
+        }
+      },
+      afterUpdateTrackOrder: function () {
+        for (var i in this.legends) {
+          this.legends[i].track.updateOrder();
         }
       }
     });
@@ -71,8 +75,18 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     var type   = this.featureType;
     
     this.tracks = $.grep(this.browser.tracks, function (t) { if (t.type === type) { t.controller.legend = legend.controller; return true; } });
+    this.updateOrder();
   },
-  
+
+  updateOrder: function () {
+    if (!this.lockToTrack || !this.tracks.length || this.browser._constructing) {
+      return;
+    }
+
+    this.order = this.tracks[this.tracks.length - 1].order + 0.1;
+    this.browser.sortTracks();
+  },
+
   findFeatures: function () {
     var bounds   = { x: this.browser.scaledStart, y: 0, w: this.width };
     var features = {};
