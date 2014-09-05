@@ -697,23 +697,24 @@ var Genoverse = Base.extend({
   
   removeTracks: function (tracks) {
     var i = tracks.length;
-    var j;
+    var track, j;
     
     while (i--) {
+      track = tracks[i];
       j = this.tracks.length;
       
       while (j--) {
-        if (tracks[i] === this.tracks[j]) {
+        if (track === this.tracks[j]) {
           this.tracks.splice(j, 1);
           break;
         }
       }
       
-      if (tracks[i].id) {
-        delete this.tracksById[tracks[i].id];
+      if (track.id) {
+        delete this.tracksById[track.id];
       }
       
-      tracks[i].destructor(); // Destroy DOM elements and track itself
+      track.destructor(); // Destroy DOM elements and track itself
     }
   },
   
