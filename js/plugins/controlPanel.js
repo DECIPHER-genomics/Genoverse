@@ -41,7 +41,7 @@ Genoverse.Plugins.controlPanel = function () {
         '  </tr>' +
         '</table>'
       ).appendTo(this.container).find('.genoverse_panel');
-      
+
       this.superContainer = this.container;
       this.container      = $('.canvas_container', this.container);
       this.width         -= panel.width();
@@ -106,17 +106,23 @@ Genoverse.Plugins.controlPanel = function () {
         panel.find('button.wheelZoom').removeClass('active');
         $(this).addClass('active');
       });
-      
+
+      if (this.saveable) {
+        this.controls.push({
+          icon   : '&#x21bb;',
+          name   : 'Reset tracks and configuration',
+          action : function (browser) { browser.resetConfig(); }
+        });
+      }
+
       for (var i = 0; i < browser.controls.length; i++) {
         (function (control) {
-          var button = $('<button>' + control.icon + '</button>')
-            .attr('title', control.name)
-            .addClass(control.class)
-            .on('click', function () {
-              control.action.call(this, browser);
-            })
-            .appendTo($('<div class="button_set">').appendTo('.genoverse_panel_right'));
-          
+          var button = $('<button>' + control.icon + '</button>').addClass(control['class']).attr('title', control.name).on('click', function () {
+            control.action.call(this, browser);
+          }).appendTo(
+            $('<div class="button_set">').attr('title', control.name).appendTo('.genoverse_panel_right')
+          );
+
           if (control.init) {
             control.init.call(button[0], browser);
           }

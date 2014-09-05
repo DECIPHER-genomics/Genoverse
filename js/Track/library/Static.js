@@ -39,8 +39,8 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
         
         this.render(features, this.image.data(params));
         this.imgContainer.children(':last').show();
-        this.resize(height);
-        
+        this.resize(height, undefined, false);
+
         this.stringified = string;
       }
     }

@@ -2,14 +2,18 @@ Genoverse.Track.Controller.Configurable = Genoverse.Track.Controller.extend({
   addDomElements: function () {
     var controls      = this.prop('controls');
     var defaultConfig = this.prop('defaultConfig');
-    
+    var savedConfig   = this.browser.savedConfig ? this.browser.savedConfig[this.prop('id')] || {} : {};
+    var prop;
+
     for (var i in controls) {
       if (typeof controls[i] === 'string') {
         controls[i] = $(controls[i]);
         
         // TODO: other control types
         if (controls[i].is('select')) {
-          controls[i].children('[value=' + defaultConfig[controls[i].data('control')] + ']').attr('selected', true).end().change(function () {
+          prop = controls[i].data('control');
+
+          controls[i].children('[value=' + (savedConfig[prop] || defaultConfig[prop]) + ']').attr('selected', true).end().change(function () {
             $(this).data('track').setConfig($(this).data('control'), this.value);
           });
         }
@@ -71,6 +75,7 @@ Genoverse.Track.Configurable = Genoverse.Track.extend({
     }
     
     this.reset();
+    this.browser.saveConfig();
   },
   
   getConfig: function (type) {

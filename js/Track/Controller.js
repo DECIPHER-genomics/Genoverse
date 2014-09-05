@@ -208,21 +208,25 @@ Genoverse.Track.Controller = Base.extend({
     var autoHeight = this.prop('autoHeight');
     
     if (autoHeight || this.prop('labels') === 'separate') {
-      this.resize(autoHeight ? this.fullVisibleHeight : this.prop('height'), this.labelTop);
+      this.resize(autoHeight ? this.fullVisibleHeight : this.prop('height'), this.labelTop, false);
     } else {
       this.toggleExpander();
     }
   },
-  
-  resize: function (height) {
-    height = this.track.setHeight(height, arguments[1]);
-    
-    if (typeof arguments[1] === 'number') {
-      this.imgContainers.children('.labels').css('top', arguments[1]);
+
+  resize: function (height, arg, saveConfig) {
+    height = this.track.setHeight(height, arg);
+
+    if (typeof arg === 'number') {
+      this.imgContainers.children('.labels').css('top', arg);
     }
     
     this.container.add(this.label).height(height)[height ? 'show' : 'hide']();
     this.toggleExpander();
+
+    if (saveConfig !== false) {
+      this.browser.saveConfig();
+    }
   },
   
   toggleExpander: function () {

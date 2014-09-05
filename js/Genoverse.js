@@ -10,9 +10,12 @@ var Genoverse = Base.extend({
   defaultScrollDelta : 100,
   tracks             : [],
   plugins            : [],
-  dragAction         : 'scroll', // options are: scroll, select, off
-  wheelAction        : 'off',    // options are: zoom, off
-  isStatic           : false,    // if true, will stop drag, select and zoom actions occurring
+  dragAction         : 'scroll',         // options are: scroll, select, off
+  wheelAction        : 'off',            // options are: zoom, off
+  isStatic           : false,            // if true, will stop drag, select and zoom actions occurring
+  saveable           : false,            // if true, track configuration and ordering will be saved in sessionStorage/localStorage
+  saveKey            : '',               // default key for sessionStorage/localStorage configuration is 'genoverse'. saveKey will be appended to this if it is set
+  storageType        : 'sessionStorage', // set to localStorage for permanence
   genome             : undefined,
   autoHideMessages   : true,
   trackAutoHeight    : false,
@@ -136,6 +139,7 @@ var Genoverse = Base.extend({
     
     this.tracksById       = {};
     this.prev             = {};
+    this.saveKey          = this.saveKey ? 'genoverse-' + this.saveKey : 'genoverse';
     this.urlParamTemplate = this.urlParamTemplate || '';
     this.useHash          = typeof this.useHash === 'boolean' ? this.useHash : typeof window.history.pushState !== 'function';
     this.textWidth        = document.createElement('canvas').getContext('2d').measureText('W').width;
@@ -156,23 +160,136 @@ var Genoverse = Base.extend({
     if (this.genome && !this.chromosomeSize) {
       this.chromosomeSize = this.genome[this.chr].size;
     }
-    
-    this.addTracks();
+
+    if (this.saveable) {
+      this.loadConfig();
+    } else {
+      this.addTracks();
+    }
+
     this.setRange(coords.start, coords.end);
   },
-  
+
+  loadConfig: function () {
+    this.defaultTracks = $.extend([], true, this.tracks);
+
+    var config = window[this.storageType].getItem(this.saveKey);
+
+    if (config) {
+      config = JSON.parse(config);
+    } else {
+      return this.addTracks();
+    }
+
+    var tracksLibrary = this.tracksLibrary || [];
+    var tracks        = [];
+    var tracksById    = {};
+    var tracksByName  = {};
+    var savedConfig   = {};
+    var i, prop, track;
+
+    function setConfig(track, conf) {
+      for (prop in conf) {
+        if (prop === 'config') {
+          savedConfig[conf.id] = conf[prop];
+        } else {
+          track.prototype[prop] = conf[prop];
+        }
+      }
+    }
+
+    for (i = 0; i < this.tracks.length; i++) {
+      if (this.tracks[i].prototype.id) {
+        tracksById[this.tracks[i].prototype.id] = this.tracks[i];
+      }
+    }
+
+    for (i = 0; i < tracksLibrary.length; i++) {
+      if (tracksLibrary[i].prototype.name) {
+        tracksByName[tracksLibrary[i].prototype.name] = tracksLibrary[i];
+      }
+    }
+
+    for (i = 0; i < config.length; i++) {
+      track = tracksById[config[i].id];
+
+      if (track) {
+        setConfig(track, config[i]);
+        track._fromStorage = true;
+      } else if (tracksByName[config[i].name]) {
+        track = tracksByName[config[i].name];
+
+        this.trackIds = this.trackIds || {};
+        this.trackIds[track.prototype.id] = this.trackIds[track.prototype.id] || 1;
+
+        track = track.extend({ id: track.prototype.id + (tracksById[track.prototype.id] ? this.trackIds[track.prototype.id]++ : '') })
+
+        setConfig(track, config[i]);
+        tracks.push(track);
+      }
+    }
+
+    for (i = 0; i < this.tracks.length; i++) {
+      if (this.tracks[i].prototype.id && !this.tracks[i]._fromStorage) {
+        continue;
+      }
+
+      tracks.push(this.tracks[i]);
+    }
+
+    this.tracks      = tracks;
+    this.savedConfig = savedConfig;
+
+    this.addTracks();
+  },
+
+  saveConfig: function () {
+    if (this._constructing) {
+      return;
+    }
+
+    var config = [];
+
+    for (var i = 0; i < this.tracks.length; i++) {
+      if (this.tracks[i].id) {
+        config.push({
+          id         : this.tracks[i].id,
+          name       : this.tracks[i].name,
+          order      : this.tracks[i].order,
+          height     : this.tracks[i].height,
+          autoHeight : this.tracks[i].autoHeight,
+          config     : this.tracks[i].config
+        });
+      }
+    }
+
+    window[this.storageType].setItem(this.saveKey, JSON.stringify(config));
+  },
+
+  resetConfig: function () {
+    window[this.storageType].removeItem(this.saveKey);
+
+    this._constructing = true;
+    this.savedConfig   = {};
+
+    this.removeTracks(this.tracks);
+    this.addTracks($.extend([], true, this.defaultTracks));
+
+    this._constructing = false;
+  },
+
   addDomElements: function (width) {
     var browser = this;
     
     this.menus          = $();
     this.labelContainer = $('<ul class="label_container">').appendTo(this.container).sortable({
-      items       : 'li:not(.unsortable)',
-      handle      : '.handle',
-      axis        : 'y',
-      helper      : 'clone',
-      cursor      : 'move',
-      update      : $.proxy(this.updateTrackOrder, this),
-      start       : function (e, ui) {
+      items  : 'li:not(.unsortable)',
+      handle : '.handle',
+      axis   : 'y',
+      helper : 'clone',
+      cursor : 'move',
+      update : $.proxy(this.updateTrackOrder, this),
+      start  : function (e, ui) {
         ui.placeholder.css({ height: ui.item.height(), visibility: 'visible', background: browser.colors.sortHandle }).html(ui.item.html());
         ui.helper.hide();
       }
@@ -663,11 +780,16 @@ var Genoverse = Base.extend({
     };
     
     var push = !!tracks;
-    
+    var j, config;
+
     tracks = tracks || $.extend([], this.tracks);
     index  = index  || 0;
     
     for (var i = 0; i < tracks.length; i++) {
+      if (this.savedConfig && this.savedConfig[tracks[i].prototype.id]) {
+        defaults.config = this.savedConfig[tracks[i].prototype.id];
+      }
+
       tracks[i] = new tracks[i]($.extend(defaults, { index: i + index }));
       
       if (tracks[i].id) {
@@ -687,7 +809,8 @@ var Genoverse = Base.extend({
     }
     
     this.sortTracks();
-    
+    this.saveConfig();
+
     return tracks;
   },
   
@@ -698,24 +821,26 @@ var Genoverse = Base.extend({
   removeTracks: function (tracks) {
     var i = tracks.length;
     var track, j;
-    
+
     while (i--) {
       track = tracks[i];
-      j = this.tracks.length;
-      
+      j     = this.tracks.length;
+
       while (j--) {
         if (track === this.tracks[j]) {
           this.tracks.splice(j, 1);
           break;
         }
       }
-      
+
       if (track.id) {
         delete this.tracksById[track.id];
       }
-      
+
       track.destructor(); // Destroy DOM elements and track itself
     }
+
+    this.saveConfig();
   },
   
   sortTracks: function () {
@@ -771,6 +896,7 @@ var Genoverse = Base.extend({
     track.prop('order', order);
     
     this.sortTracks();
+    this.saveConfig();
   },
   
   updateURL: function () {
@@ -933,14 +1059,12 @@ var Genoverse = Base.extend({
       'End: '   + end   + "\n"
     );
   },
-  
-  saveConfig: $.noop,
-  
+
   on: function (events, obj, fn) {
     var browser  = this;
     var eventMap = {};
     var i, j, f, fnString;
-    
+
     function makeEventMap(types, handler) {
       types = types.split(' ');
       
@@ -948,7 +1072,7 @@ var Genoverse = Base.extend({
         eventMap[types[j]] = (eventMap[types[j]] || []).concat(handler);
       }
     }
-    
+
     function makeFnString(func) {
       return func.toString();
     }
@@ -983,7 +1107,7 @@ var Genoverse = Base.extend({
     for (i in eventMap) {
       browser.events[type][i] = browser.events[type][i] || [];
       fnString = $.map(eventMap[i], makeFnString);
-      
+
       if (!$.grep(browser.events[type][i], compare).length) {
         browser.events[type][i].push.apply(browser.events[type][i], eventMap[i]);
       }
