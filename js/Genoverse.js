@@ -168,7 +168,6 @@ var Genoverse = Base.extend({
     this.labelContainer = $('<ul class="label_container">').appendTo(this.container).sortable({
       items       : 'li:not(.unsortable)',
       handle      : '.handle',
-      placeholder : 'label',
       axis        : 'y',
       helper      : 'clone',
       cursor      : 'move',
