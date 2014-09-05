@@ -28,7 +28,13 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
           this.legends[i].track.setTracks();
         }
       },
-      afterRemoveTracks: function () {
+      afterRemoveTracks: function (tracks) {
+        for (var i in tracks) {
+          if (tracks[i].controller.legend && tracks[i].controller.legend.track.tracks.length === 0) {
+            tracks[i].controller.legend.track.remove();
+          }
+        }
+
         for (var i in this.legends) {
           this.legends[i].makeImage({});
         }
