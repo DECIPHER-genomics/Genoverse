@@ -1,23 +1,23 @@
-.gv_karyotype_container {
+.genoverse_karyotype_container {
   height: 50px;
   overflow: hidden;
   box-shadow: inset 0 0 33px -7px rgba(24, 36, 56, 0.97), inset 1px 1px 1px 0 black;
 }
 
-.gv_karyotype_container .gv_wrapper {
+.genoverse_karyotype_container .genoverse_wrapper {
   border: 0;
 }
 
-.gv_karyotype_container .gv_chromosome {
+.genoverse_karyotype_container .genoverse_chromosome {
   margin: 15px;
   position: relative;
 }
 
-.gv_karyotype_container .image_container {
+.genoverse_karyotype_container .genoverse_image_container {
   box-shadow: 0 0 33px -7px #CCC inset;
 }
 
-.gv_karyotype_container .gv_karyotype_viewpoint {
+.genoverse_karyotype_container .genoverse_karyotype_viewpoint {
   background-color: rgba(222, 84, 35, 0.37);
   border: 1px dashed #E6380D;
   box-shadow: 0 0 3px 2px rgba(237, 237, 237, 0.4) inset, 0 0 4px 0 rgba(116, 116, 116, 0.7);
@@ -31,7 +31,7 @@
   cursor: -webkit-grab;
 }
 
-.gv_karyotype_container .ui-resizable-e {
+.genoverse_karyotype_container .ui-resizable-e {
   cursor: e-resize;
   height: 100%;
   right: -5px;
@@ -39,7 +39,7 @@
   width: 7px;
 }
 
-.gv_karyotype_container .ui-resizable-w {
+.genoverse_karyotype_container .ui-resizable-w {
   cursor: w-resize;
   height: 100%;
   left: -5px;
@@ -47,7 +47,7 @@
   width: 7px;
 }
 
-.gv_karyotype_container .ui-resizable-handle {
+.genoverse_karyotype_container .ui-resizable-handle {
   display: block;
   font-size: 0.1px;
   position: absolute;

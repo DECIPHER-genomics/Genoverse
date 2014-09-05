@@ -10,7 +10,7 @@ Genoverse.Plugins.resizer = function () {
     var height     = this.prop('height');
     
     if (!resizer) {
-      resizer = this.prop('resizer', $('<div class="resizer static"><div class="handle"></div></div>').appendTo(track.prop('container')).draggable({
+      resizer = this.prop('resizer', $('<div class="genoverse_resizer static"><div class="genoverse_handle"></div></div>').appendTo(track.prop('container')).draggable({
         axis  : 'y',
         start : function () { $('body').addClass('dragging'); },
         stop  : function (e, ui) {

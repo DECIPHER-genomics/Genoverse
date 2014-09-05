@@ -11,10 +11,10 @@ Genoverse.Track.Controller.Configurable = Genoverse.Track.Controller.extend({
         
         // TODO: other control types
         if (controls[i].is('select')) {
-          prop = controls[i].data('control');
+          prop = controls[i].data('genoverse_control');
 
           controls[i].children('[value=' + (savedConfig[prop] || defaultConfig[prop]) + ']').attr('selected', true).end().change(function () {
-            $(this).data('track').setConfig($(this).data('control'), this.value);
+            $(this).data('track').setConfig($(this).data('genoverse_control'), this.value);
           });
         }
       }

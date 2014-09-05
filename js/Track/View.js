@@ -38,7 +38,7 @@ Genoverse.Track.View = Base.extend({
     this.font          = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
     this.labelUnits    = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
 
-    if (this.labels && this.labels !== 'overlay' && (this.depth || this.bump === 'labels')) {
+    if (this.labels && this.labels !== 'genoverse_overlay' && (this.depth || this.bump === 'labels')) {
       this.labels = 'separate';
     }
   },
@@ -242,7 +242,7 @@ Genoverse.Track.View = Base.extend({
     var original = feature.untruncated;
     var width    = (original || feature).width;
 
-    if (this.labels === 'overlay' && feature.labelWidth >= Math.floor(width)) {
+    if (this.labels === 'genoverse_overlay' && feature.labelWidth >= Math.floor(width)) {
       return;
     }
 
@@ -251,7 +251,7 @@ Genoverse.Track.View = Base.extend({
     }
 
     var x       = (original || feature).x;
-    var n       = this.repeatLabels && !feature.labelPosition ? Math.ceil((width - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) : 1;
+    var n       = this.repeatLabels && !feature.labelPosition ? Math.ceil((width - (this.labels === 'genoverse_overlay' ? feature.labelWidth : 0)) / this.width) : 1;
     var spacing = width / n;
     var label, start, j, y, h;
 
@@ -261,7 +261,7 @@ Genoverse.Track.View = Base.extend({
 
     context.fillStyle = feature.labelColor;
 
-    if (this.labels === 'overlay') {
+    if (this.labels === 'genoverse_overlay') {
       label = [ feature.label.join(' ') ];
       y     = feature.y + (feature.height + 1) / 2;
       h     = 0;

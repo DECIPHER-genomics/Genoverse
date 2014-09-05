@@ -38,7 +38,7 @@
   font-family: Tahoma;
 }
 
-.canvas_container .gv_wrapper {
+.genoverse_canvas_container .genoverse_wrapper {
   border-width: 1px 0 1px 1px;
 }
 
@@ -82,20 +82,20 @@ table.genoverse {
   border: none;
 }
 
-.tracksMenu td {
+.genoverse_tracksMenu td {
   padding: 5px!important;
   vertical-align: top;
   width: 50%;
 }
 
-.tracksMenu tr:first-child td {
+.genoverse_tracksMenu tr:first-child td {
   font-weight: bold;
   font-size: 1.2em;
 }
 
 
-.tracksMenu .removeTrack,
-.tracksMenu .addTrack {
+.genoverse_tracksMenu .genoverse_removeTrack,
+.genoverse_tracksMenu .genoverse_addTrack {
   -moz-user-select: none;
   background-color: #CCCCCC;
   border-radius: 3px;
@@ -114,13 +114,13 @@ table.genoverse {
   width: 18px;
 }
 
-.tracksMenu .removeTrack:hover,
-.tracksMenu .addTrack:hover {
+.genoverse_tracksMenu .genoverse_removeTrack:hover,
+.genoverse_tracksMenu .genoverse_addTrack:hover {
   background-color: #FFF;
   box-shadow: 0px 0px 5px #FFFFFF;
 }
 
-.gv_powered_by {
+.genoverse_powered_by {
   position: absolute;
   right: 0;
   bottom: -16px;
@@ -129,6 +129,6 @@ table.genoverse {
   color: black;
 }
 
-.gv_powered_by a {
+.genoverse_powered_by a {
   font-weight: bold;
 }

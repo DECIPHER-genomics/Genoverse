@@ -3,7 +3,7 @@ Genoverse.Track.SequenceVariation = Genoverse.Track.extend({
   
   populateMenu: function (feature) {
     return {
-      'title'         : 'This is the title',
+      'genoverse_title'         : 'This is the title',
       'Location'      : feature.originalFeature[0] + ':' + feature.start + '-' + feature.end,
       'Ref allele'    : feature.originalFeature[3],
       'Alt allele(s)' : feature.originalFeature[4],

@@ -2,7 +2,7 @@ body.dragging * {
   cursor: n-resize!important; 
 }
 
-div.resizer { 
+div.genoverse_resizer { 
   position: absolute!important; 
   bottom: 0; 
   opacity: 0.8; 
@@ -12,13 +12,13 @@ div.resizer {
   z-index: 2; 
 }
 
-.canvas_container .resizer.shadow {
+.genoverse_canvas_container .genoverse_resizer.shadow {
   box-shadow: 0 -3px 5px 0 #000000; 
   margin-left: -5px; 
   padding-right: 10px; 
 }
 
-.canvas_container .resizer .handle { 
+.genoverse_canvas_container .genoverse_resizer .genoverse_handle { 
   background-color: #5A5A5A; 
   border: 1px solid white; 
   border-width: 1px 0; 
@@ -27,11 +27,11 @@ div.resizer {
   width: 4%; 
 }
 
-.canvas_container .resizer.shadow .handle { 
+.genoverse_canvas_container .genoverse_resizer.shadow .genoverse_handle { 
   position: relative; 
   left: 5px 
 }
 
-.canvas_container .resizer:hover, .canvas_container .resizer.ui-draggable-dragging { 
+.genoverse_canvas_container .genoverse_resizer:hover, .genoverse_canvas_container .genoverse_resizer.ui-draggable-dragging { 
   box-shadow: -1px -3px 6px -3px #000000 inset !important;
 }

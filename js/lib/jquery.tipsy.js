@@ -90,8 +90,8 @@
         
         fixTitle: function() {
             var $e = this.$element;
-            if ($e.attr('title') || typeof($e.attr('original-title')) != 'string') {
-                $e.attr('original-title', $e.attr('title') || '').removeAttr('title');
+            if ($e.attr('genoverse_title') || typeof($e.attr('original-title')) != 'string') {
+                $e.attr('original-title', $e.attr('genoverse_title') || '').removeAttr('genoverse_title');
             }
         },
         
@@ -100,7 +100,7 @@
             this.fixTitle();
             var title, o = this.options;
             if (typeof o.title == 'string') {
-                title = $e.attr(o.title == 'title' ? 'original-title' : o.title);
+                title = $e.attr(o.title == 'genoverse_title' ? 'original-title' : o.title);
             } else if (typeof o.title == 'function') {
                 title = o.title.call($e[0]);
             }
@@ -195,7 +195,7 @@
         live: false,
         offset: 0,
         opacity: 0.8,
-        title: 'title',
+        title: 'genoverse_title',
         trigger: 'hover'
     };
     

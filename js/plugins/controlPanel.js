@@ -23,7 +23,7 @@ Genoverse.Plugins.controlPanel = function () {
       var panel = $(
         '<table cellspacing=0 cellpadding=0 class="genoverse">' +
         '  <tr>' +
-        '    <td class="canvas_container"></td>' +
+        '    <td class="genoverse_canvas_container"></td>' +
         '    <td class="genoverse_panel genoverse_panel_right">' +
         '      <div class="button_set" title="Scroll left and right by pressing and holding these buttons">' +
         '        <button class="scrollLeft">&#9668;</button><button class="scrollRight">&#9658;</button>' +
@@ -43,7 +43,7 @@ Genoverse.Plugins.controlPanel = function () {
       ).appendTo(this.container).find('.genoverse_panel');
 
       this.superContainer = this.container;
-      this.container      = $('.canvas_container', this.container);
+      this.container      = $('.genoverse_canvas_container', this.container);
       this.width         -= panel.width();
       
       panel.find('button.scrollLeft, button.scrollRight').on({
@@ -117,10 +117,10 @@ Genoverse.Plugins.controlPanel = function () {
 
       for (var i = 0; i < browser.controls.length; i++) {
         (function (control) {
-          var button = $('<button>' + control.icon + '</button>').addClass(control['class']).attr('title', control.name).on('click', function () {
+          var button = $('<button>' + control.icon + '</button>').addClass(control['class']).attr('genoverse_title', control.name).on('click', function () {
             control.action.call(this, browser);
           }).appendTo(
-            $('<div class="button_set">').attr('title', control.name).appendTo('.genoverse_panel_right')
+            $('<div class="button_set">').attr('genoverse_title', control.name).appendTo('.genoverse_panel_right')
           );
 
           if (control.init) {
@@ -163,7 +163,7 @@ Genoverse.Plugins.controlPanel = function () {
             menu = browser.makeMenu({
               'Currently enabled tracks:'         : 'Available tracks:',
               '<div class="currentTracks"></div>' : '<input placeholder="Search"><div class="availableTracks"></div>'
-            }).css(css).addClass('tracksMenu');
+            }).css(css).addClass('genoverse_tracksMenu');
             
             $('input[placeholder=Search]', menu).on('keyup', function () {
               var str = this.value.toLowerCase();
@@ -187,7 +187,7 @@ Genoverse.Plugins.controlPanel = function () {
               });
             });
             
-            $('.close', menu).on('click', function () {
+            $('.genoverse_close', menu).on('click', function () {
               $(button).removeClass('active');
             });
             
@@ -199,7 +199,7 @@ Genoverse.Plugins.controlPanel = function () {
                   if (browser.tracks[i].name && !(browser.tracks[i] instanceof Genoverse.Track.Legend)) {
                     (function (track) {
                       $('<div>')
-                        .append($('<div class="removeTrack">x</div>').on('click', function () { track.remove(); }))
+                        .append($('<div class="genoverse_removeTrack">x</div>').on('click', function () { track.remove(); }))
                         .append('<span>' + track.name + '</span>')
                         .appendTo(currentTracks);
                     })(browser.tracks[i]);
@@ -216,7 +216,7 @@ Genoverse.Plugins.controlPanel = function () {
               for (var i = 0; i < tracksLibrary.length; i++) {
                 (function (track) {
                   $('<div class="tracksLibraryItem">').append(
-                    $('<div class="addTrack">+</div> ').on('click', function () {
+                    $('<div class="genoverse_addTrack">+</div> ').on('click', function () {
                       browser.trackIds = browser.trackIds || {};
                       browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
 
@@ -245,7 +245,7 @@ Genoverse.Plugins.controlPanel = function () {
     },
     
     afterAddDomElements: function () {
-      this.wrapper.after('<div class="gv_powered_by">Powered by <a target="_blank" href="http://genoverse.org">Genoverse</a></div>');
+      this.wrapper.after('<div class="genoverse_powered_by">Powered by <a target="_blank" href="http://genoverse.org">Genoverse</a></div>');
     },
     
     'afterAddTracks afterRemoveTracks': function () {
