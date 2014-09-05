@@ -619,13 +619,13 @@ DASRegistry.prototype.sources = function(callback, failure, opts)
             var props = {};
             var propXMLs = versionXML.getElementsByTagName('PROP');
             for (var pi = 0; pi < propXMLs.length; ++pi) {
-                pusho(props, propXMLs[pi].getAttribute('name'), propXMLs[pi].getAttribute('value'));
+                pusho(props, propXMLs[pi].getAttribute('genoverse_name'), propXMLs[pi].getAttribute('value'));
             }
             
             if (uri) {
                 var source = new DASSource(uri, {
                     source_uri: sourceXML.getAttribute('uri'),
-                    name:  sourceXML.getAttribute('title'),
+                    name:  sourceXML.getAttribute('genoverse_title'),
                     desc:  sourceXML.getAttribute('description'),
                     coords: coords,
                     props: props,

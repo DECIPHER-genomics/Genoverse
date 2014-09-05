@@ -53,10 +53,10 @@ Genoverse.Track.Controller = Base.extend({
     var name = this.track.name || '';
     
     this.menus            = $();
-    this.container        = $('<div class="track_container">').appendTo(this.browser.wrapper);
-    this.scrollContainer  = $('<div class="scroll_container">').appendTo(this.container);
-    this.imgContainer     = $('<div class="image_container">').width(this.width);
-    this.messageContainer = $('<div class="message_container"><div class="messages"></div><span class="control collapse">&laquo;</span><span class="control expand">&raquo;</span></div>').appendTo(this.container);
+    this.container        = $('<div class="genoverse_track_container">').appendTo(this.browser.wrapper);
+    this.scrollContainer  = $('<div class="genoverse_scroll_container">').appendTo(this.container);
+    this.imgContainer     = $('<div class="genoverse_image_container">').width(this.width);
+    this.messageContainer = $('<div class="genoverse_message_container"><div class="genoverse_messages"></div><span class="genoverse_control collapse">&laquo;</span><span class="genoverse_control expand">&raquo;</span></div>').appendTo(this.container);
     this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.prop('height')).data('track', this.track);
     this.context          = $('<canvas>')[0].getContext('2d');
     
@@ -67,10 +67,10 @@ Genoverse.Track.Controller = Base.extend({
     if (this.prop('unsortable')) {
       this.label.addClass('unsortable');
     } else {
-      $('<div class="handle">').appendTo(this.label);
+      $('<div class="genoverse_handle">').appendTo(this.label);
     }
     
-    this.minLabelHeight = $('<span class="name" title="' + name + '">' + name + '</span>').appendTo(this.label).outerHeight(true);
+    this.minLabelHeight = $('<span class="genoverse_name" title="' + name + '">' + name + '</span>').appendTo(this.label).outerHeight(true);
     
     var h = this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight);
     
@@ -85,7 +85,7 @@ Genoverse.Track.Controller = Base.extend({
     var controller = this;
     var browser    = this.browser;
     
-    this.container.on('mouseup', '.image_container', function (e) {
+    this.container.on('mouseup', '.genoverse_image_container', function (e) {
       if ((e.which && e.which !== 1) || (typeof browser.dragStart === 'number' && browser.start !== browser.dragStart) || (browser.dragAction === 'select' && browser.selector.outerWidth(true) > 2)) {
         return; // Only show menus on left click when not dragging and not selecting
       }
@@ -94,10 +94,10 @@ Genoverse.Track.Controller = Base.extend({
     });
     
     this.messageContainer.children().on('click', function () {
-      var collapsed = controller.messageContainer.children('.messages').is(':visible') ? ' collapsed' : '';
-      var code      = controller.messageContainer.find('.msg')[0].className.replace('msg', '').replace(' ', '');
+      var collapsed = controller.messageContainer.children('.genoverse_messages').is(':visible') ? ' collapsed' : '';
+      var code      = controller.messageContainer.find('.genoverse_msg')[0].className.replace('genoverse_msg', '').replace(' ', '');
       
-      controller.messageContainer.attr('class', 'message_container' + collapsed);
+      controller.messageContainer.attr('class', 'genoverse_message_container' + collapsed);
       controller.checkHeight();
       
       if (code !== 'error') {
@@ -118,10 +118,10 @@ Genoverse.Track.Controller = Base.extend({
   
   // FIXME: messages are now hidden/shown instead of removed/added. This will cause a problem if a new message arrives with the same code as one that already exists.
   showMessage: function (code, additionalText) {
-    var messages = this.messageContainer.children('.messages');
+    var messages = this.messageContainer.children('.genoverse_messages');
     
     if (!messages.children('.' + code).show().length) {
-      var msg = $('<div class="msg ' + code + '">' + this.messages[code] + (additionalText || '') + '</div>').prependTo(messages);
+      var msg = $('<div class="genoverse_msg ' + code + '">' + this.messages[code] + (additionalText || '') + '</div>').prependTo(messages);
       
       if (code === 'resize') {
         msg.children('a.resize').on('click', $.proxy(function () {
@@ -142,7 +142,7 @@ Genoverse.Track.Controller = Base.extend({
   },
   
   hideMessage: function (code) {
-    var messages = this.messageContainer.find('.msg');
+    var messages = this.messageContainer.find('.genoverse_msg');
     
     if (code) {
       messages = messages.filter('.' + code).hide();
@@ -252,7 +252,7 @@ Genoverse.Track.Controller = Base.extend({
         this.resize(h);
       }
       
-      this.expander = (this.expander || $('<div class="expander static">').width(this.width).appendTo(this.container).on('click', function () {
+      this.expander = (this.expander || $('<div class="genoverse_expander static">').width(this.width).appendTo(this.container).on('click', function () {
         controller.resize(controller.fullVisibleHeight);
       }))[this.prop('height') === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
@@ -282,7 +282,7 @@ Genoverse.Track.Controller = Base.extend({
     
     var labels = this.prop('labels');
     
-    if (labels && labels !== 'overlay') {
+    if (labels && labels !== 'genoverse_overlay') {
       this.model.setLabelBuffer(this.browser.labelBuffer);
     }
     
@@ -458,7 +458,7 @@ Genoverse.Track.Controller = Base.extend({
     
     switch (this.prop('labels')) {
       case false     : break;
-      case 'overlay' : labelContext.textAlign = 'center'; labelContext.textBaseline = 'middle'; break;
+      case 'genoverse_overlay' : labelContext.textAlign = 'center'; labelContext.textBaseline = 'middle'; break;
       default        : labelContext.textAlign = 'left';   labelContext.textBaseline = 'top';    break;
     }
     

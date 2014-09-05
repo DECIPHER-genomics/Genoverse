@@ -1,6 +1,6 @@
 Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   textColor     : '#000000',
-  labels        : 'overlay',
+  labels        : 'genoverse_overlay',
   unsortable    : true,
   featureHeight : 12,
   
@@ -8,7 +8,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     init: function () {
       this.base();
       
-      this.container.addClass('track_container_legend');
+      this.container.addClass('genoverse_track_container_legend');
       
       this.tracks = [];
       
