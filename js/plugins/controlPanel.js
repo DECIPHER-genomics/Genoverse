@@ -11,7 +11,15 @@ Genoverse.Plugins.controlPanel = function () {
     //   }
     // }
   ];
-  
+
+  if (this.saveable) {
+    this.controls.push({
+      icon   : '&#x21bb;',
+      name   : 'Reset tracks and configuration',
+      action : function (browser) { browser.resetConfig(); }
+    });
+  }
+
   this.on({
     beforeInit: function () {
       var browser = this;
@@ -106,14 +114,6 @@ Genoverse.Plugins.controlPanel = function () {
         panel.find('button.wheelZoom').removeClass('active');
         $(this).addClass('active');
       });
-
-      if (this.saveable) {
-        this.controls.push({
-          icon   : '&#x21bb;',
-          name   : 'Reset tracks and configuration',
-          action : function (browser) { browser.resetConfig(); }
-        });
-      }
 
       for (var i = 0; i < browser.controls.length; i++) {
         (function (control) {
