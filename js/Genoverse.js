@@ -282,9 +282,9 @@ var Genoverse = Base.extend({
     var browser = this;
     
     this.menus          = $();
-    this.labelContainer = $('<ul class="label_container">').appendTo(this.container).sortable({
+    this.labelContainer = $('<ul class="genoverse_label_container">').appendTo(this.container).sortable({
       items  : 'li:not(.unsortable)',
-      handle : '.handle',
+      handle : '.genoverse_handle',
       axis   : 'y',
       helper : 'clone',
       cursor : 'move',
@@ -295,10 +295,10 @@ var Genoverse = Base.extend({
       }
     });
     
-    this.wrapper          = $('<div class="gv_wrapper">').appendTo(this.container);
-    this.selector         = $('<div class="selector crosshair">').appendTo(this.wrapper);
+    this.wrapper          = $('<div class="genoverse_wrapper">').appendTo(this.container);
+    this.selector         = $('<div class="genoverse_selector genoverse_crosshair">').appendTo(this.wrapper);
     this.selectorControls = $(
-      '<div class="selector_controls">'               +
+      '<div class="genoverse_selector_controls">'               +
       '  <button class="zoomHere">Zoom here</button>' +
       '  <button class="center">Center</button>'      +
       '  <button class="summary">Summary</button>'    +
@@ -307,7 +307,7 @@ var Genoverse = Base.extend({
     ).appendTo(this.selector);
     
     this.zoomInHighlight = $(
-      '<div class="canvas_zoom i">' +
+      '<div class="genoverse_canvas_zoom i">' +
       '  <div class="t l h"></div>' +
       '  <div class="t r h"></div>' +
       '  <div class="t l v"></div>' +
@@ -321,7 +321,7 @@ var Genoverse = Base.extend({
     
     this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('i o').appendTo('body');
     
-    this.container.addClass('canvas_container').width(width);
+    this.container.addClass('genoverse_canvas_container').width(width);
   },
   
   addUserEventHandlers: function () {
@@ -496,7 +496,7 @@ var Genoverse = Base.extend({
     this.selectorStalled = false;
     this.selectorStart   = x;
     
-    this.selector.css({ left: x, width: 0 }).removeClass('crosshair');
+    this.selector.css({ left: x, width: 0 }).removeClass('genoverse_crosshair');
     this.selectorControls.hide();
   },
   
@@ -528,7 +528,7 @@ var Genoverse = Base.extend({
     
     this.selectorStalled = false;
     
-    this.selector.addClass('crosshair').width(0);
+    this.selector.addClass('genoverse_crosshair').width(0);
     this.selectorControls.hide();
     
     if (this.dragAction === 'scroll') {
@@ -556,8 +556,8 @@ var Genoverse = Base.extend({
     this.dragAction = action;
     
     if (this.dragAction === 'select') {
-      this.selector.addClass('crosshair').width(0).show();
-    } else if (keepSelect && !this.selector.hasClass('crosshair')) {
+      this.selector.addClass('genoverse_crosshair').width(0).show();
+    } else if (keepSelect && !this.selector.hasClass('genoverse_crosshair')) {
       this.selectorStalled = false;
     } else {
       this.cancelSelect();
@@ -971,8 +971,8 @@ var Genoverse = Base.extend({
     this.failed = true;
   },
   
-  menuTemplate: $('<div class="gv_menu"><div class="close">x</div><table></table></div>').on('click', function (e) {
-    if ($(e.target).hasClass('close')) {
+  menuTemplate: $('<div class="genoverse_menu"><div class="genoverse_close">x</div><table></table></div>').on('click', function (e) {
+    if ($(e.target).hasClass('genoverse_close')) {
       $(this).fadeOut('fast', function () { 
         var data = $(this).data();
         
@@ -1033,13 +1033,13 @@ var Genoverse = Base.extend({
   closeMenus: function (obj) {
     obj = obj || this;
     
-    obj.menus.filter(':visible').children('.close').trigger('click');
+    obj.menus.filter(':visible').children('.genoverse_close').trigger('click');
     obj.menus = $();
   },
   
   hideMessages: function () {
     if (this.autoHideMessages) {
-      this.wrapper.find('.message_container').addClass('collapsed');
+      this.wrapper.find('.genoverse_message_container').addClass('genoverse_collapsed');
     }
   },
   

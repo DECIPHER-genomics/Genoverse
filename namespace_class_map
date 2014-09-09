@@ -1,0 +1,88 @@
+## Old class name    /    New class name
+active                          genoverse_active
+addTrack                        genoverse_addTrack
+auto_height                     genoverse_auto_height
+bg                              genoverse_bg
+canvas_container                genoverse_canvas_container
+canvas_zoom                     genoverse_canvas_zoom
+close                           genoverse_close
+collapse                        genoverse_collapse
+collapsed                       genoverse_collapsed
+crosshair                       genoverse_crosshair
+dragging                        genoverse_dragging
+expand                          genoverse_expand
+expander                        genoverse_expander
+fullHeight                      genoverse_fullHeight
+gv_chromosome                   genoverse_chromosome
+gv_file_drop                    genoverse_file_drop
+gv_file_drop_total_overlay      genoverse_file_drop_total_overlay
+gv_karyotype_container          genoverse_karyotype_container
+gv_karyotype_viewpoint          genoverse_karyotype_viewpoint
+gv_menu                         genoverse_menu
+gv_powered_by                   genoverse_powered_by
+gv_wrapper                      genoverse_wrapper
+handle                          genoverse_handle
+height_toggle                   genoverse_height_toggle
+height_toggler                  genoverse_height_toggler
+label_container                 genoverse_label_container
+loading                         genoverse_loading
+menu_container                  genoverse_menu_container
+message_container               genoverse_message_container
+messages                        genoverse_messages
+msg                             genoverse_msg
+partially_hidden                genoverse_partially_hidden
+removeTrack                     genoverse_removeTrack
+scroll_container                genoverse_scroll_container
+selector                        genoverse_selector
+selector_controls               genoverse_selector_controls
+shadow                          genoverse_shadow
+sortHandle                      genoverse_sortHandle
+static                          genoverse_static
+trackSelection                  genoverse_trackSelection
+track_border                    genoverse_track_border
+track_container                 genoverse_track_container
+track_container_legend          genoverse_track_container_legend
+track_container_static          genoverse_track_container_static
+track_controls                  genoverse_track_controls
+wrap                            genoverse_wrap
+#
+# Problems...
+#
+# Messes up Tooltips for some reason
+#button_set                      genoverse_button_set
+#
+# Change in Configurable .js doesn't look right, but can't see any problem
+#control                         genoverse_control
+#
+# Change in node.js          doesn't look right, but can't see any problem
+#data                            genoverse_data
+#
+# Not found anywhere else!
+#guidelines                      genoverse_guidelines
+#
+# Change in hoverLabels.js   doesn't look right, but can't see any problem
+#hidden                          genoverse_hidden
+#
+# Breaks click-and-drag scrolling!
+#image_container                 genoverse_image_container
+# 
+# Breaks summut! Srsly!
+#name                            genoverse_name
+#
+# Looks like an error in js, but can't see any problem
+#overlay                         genoverse_overlay
+#
+# Look like an error in js (plugin name conflict), but can't see any problem
+#resizer                         genoverse_resizer
+#
+# Looks like an error in js (variable name conflict), messes up track title popups
+#title                           genoverse_title
+#
+# Looks like an error in js (variable name conflict), but can't see any problem
+#track                           genoverse_track
+#
+# Stops 'add tracks' from working properly
+#tracksMenu                      genoverse_tracksMenu
+#
+# Causes an error?
+#unsortable                      genoverse_unsortable

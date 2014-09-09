@@ -16,7 +16,7 @@ Genoverse.Plugins.trackControls = function () {
       menu.show().position({ of: track.prop('container'), at: 'center top', my: 'center top', collision: 'none' });
     }),
     
-    $('<a class="height_toggle">').html('&nbsp;').on({
+    $('<a class="genoverse_height_toggle">').html('&nbsp;').on({
       click: function () {
         var track = $(this).data('track');
         var height;
@@ -38,7 +38,7 @@ Genoverse.Plugins.trackControls = function () {
         var resizer    = track.prop('resizer');
         
         this.title = autoHeight ? 'Set track to fixed height' : 'Set track to auto-adjust height';
-        $(this)[autoHeight ? 'addClass' : 'removeClass']('auto_height');
+        $(this)[autoHeight ? 'addClass' : 'removeClass']('genoverse_auto_height');
         
         if (resizer) {
           resizer[autoHeight ? 'hide' : 'show']();
@@ -75,13 +75,13 @@ Genoverse.Plugins.trackControls = function () {
       
       controls = (controls || []).concat(defaultControls);
       
-      this.trackControls = $('<div class="track_controls">').prependTo(this.container);
+      this.trackControls = $('<div class="genoverse_track_controls">').prependTo(this.container);
 
       for (var i = 0; i < controls.length; i++) {
         controls[i].clone(true).hide().data('track', this.track).appendTo(this.trackControls);
       }
       
-      this.prop('heightToggler', this.trackControls.children('.height_toggle').trigger('toggleState'));
+      this.prop('heightToggler', this.trackControls.children('.genoverse_height_toggle').trigger('toggleState'));
       
       var toggler = toggle.clone(true).data('track', this.track).appendTo(this.trackControls);
       
@@ -99,7 +99,7 @@ Genoverse.Plugins.trackControls = function () {
       var heightToggler = this.prop('heightToggler');
       
       if (this.prop('resizable') === true && heightToggler) {
-        heightToggler[this.prop('autoHeight') ? 'addClass' : 'removeClass']('auto_height');
+        heightToggler[this.prop('autoHeight') ? 'addClass' : 'removeClass']('genoverse_auto_height');
         heightToggler.trigger('toggleState');
       }
     },

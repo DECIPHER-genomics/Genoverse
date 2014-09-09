@@ -1,8 +1,8 @@
 Genoverse.Plugins.karyotype = function () {
   this.on({
     afterInit: function () {
-      var chromosome = $('<div class="gv_chromosome">');
-      var container  = $('<div class="gv_karyotype_container">').html(chromosome).insertAfter(this.labelContainer);
+      var chromosome = $('<div class="genoverse_chromosome">');
+      var container  = $('<div class="genoverse_karyotype_container">').html(chromosome).insertAfter(this.labelContainer);
 
       this.karyotype = new Genoverse({
         parent    : this,
@@ -84,7 +84,7 @@ Genoverse.Plugins.karyotype = function () {
           this.labelContainer.remove();
           this.labelContainer = $();
           
-          this.viewPoint = $('<div class="gv_karyotype_viewpoint">').appendTo(this.container).on({
+          this.viewPoint = $('<div class="genoverse_karyotype_viewpoint">').appendTo(this.container).on({
             mousemove: function (e) {
               karyotype.track.controller.click(e);
             },

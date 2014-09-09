@@ -53,21 +53,21 @@ Genoverse.Track.Controller = Base.extend({
     var name = this.track.name || '';
     
     this.menus            = $();
-    this.container        = $('<div class="track_container">').appendTo(this.browser.wrapper);
-    this.scrollContainer  = $('<div class="scroll_container">').appendTo(this.container);
+    this.container        = $('<div class="genoverse_track_container">').appendTo(this.browser.wrapper);
+    this.scrollContainer  = $('<div class="genoverse_scroll_container">').appendTo(this.container);
     this.imgContainer     = $('<div class="image_container">').width(this.width);
-    this.messageContainer = $('<div class="message_container"><div class="messages"></div><span class="control collapse">&laquo;</span><span class="control expand">&raquo;</span></div>').appendTo(this.container);
+    this.messageContainer = $('<div class="genoverse_message_container"><div class="genoverse_messages"></div><span class="control genoverse_collapse">&laquo;</span><span class="control genoverse_expand">&raquo;</span></div>').appendTo(this.container);
     this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.prop('height')).data('track', this.track);
     this.context          = $('<canvas>')[0].getContext('2d');
     
     if (this.prop('border')) {
-      $('<div class="track_border">').appendTo(this.container);
+      $('<div class="genoverse_track_border">').appendTo(this.container);
     }
     
     if (this.prop('unsortable')) {
       this.label.addClass('unsortable');
     } else {
-      $('<div class="handle">').appendTo(this.label);
+      $('<div class="genoverse_handle">').appendTo(this.label);
     }
     
     this.minLabelHeight = $('<span class="name" title="' + name + '">' + name + '</span>').appendTo(this.label).outerHeight(true);
@@ -94,10 +94,10 @@ Genoverse.Track.Controller = Base.extend({
     });
     
     this.messageContainer.children().on('click', function () {
-      var collapsed = controller.messageContainer.children('.messages').is(':visible') ? ' collapsed' : '';
-      var code      = controller.messageContainer.find('.msg')[0].className.replace('msg', '').replace(' ', '');
+      var collapsed = controller.messageContainer.children('.genoverse_messages').is(':visible') ? ' collapsed' : '';
+      var code      = controller.messageContainer.find('.genoverse_msg')[0].className.replace('genoverse_msg', '').replace(' ', '');
       
-      controller.messageContainer.attr('class', 'message_container' + collapsed);
+      controller.messageContainer.attr('class', 'genoverse_message_container' + collapsed);
       controller.checkHeight();
       
       if (code !== 'error') {
@@ -118,10 +118,10 @@ Genoverse.Track.Controller = Base.extend({
   
   // FIXME: messages are now hidden/shown instead of removed/added. This will cause a problem if a new message arrives with the same code as one that already exists.
   showMessage: function (code, additionalText) {
-    var messages = this.messageContainer.children('.messages');
+    var messages = this.messageContainer.children('.genoverse_messages');
     
     if (!messages.children('.' + code).show().length) {
-      var msg = $('<div class="msg ' + code + '">' + this.messages[code] + (additionalText || '') + '</div>').prependTo(messages);
+      var msg = $('<div class="genoverse_msg ' + code + '">' + this.messages[code] + (additionalText || '') + '</div>').prependTo(messages);
       
       if (code === 'resize') {
         msg.children('a.resize').on('click', $.proxy(function () {
@@ -129,7 +129,7 @@ Genoverse.Track.Controller = Base.extend({
         }, this));
       }
       
-      this.messageContainer[document.cookie.match([ 'gv_msg', code, this.prop('id') ].join('_') + '=1') ? 'addClass' : 'removeClass']('collapsed');
+      this.messageContainer[document.cookie.match([ 'gv_msg', code, this.prop('id') ].join('_') + '=1') ? 'addClass' : 'removeClass']('genoverse_collapsed');
     }
     
     var height = this.messageContainer.show().outerHeight(true);
@@ -142,7 +142,7 @@ Genoverse.Track.Controller = Base.extend({
   },
   
   hideMessage: function (code) {
-    var messages = this.messageContainer.find('.msg');
+    var messages = this.messageContainer.find('.genoverse_msg');
     
     if (code) {
       messages = messages.filter('.' + code).hide();
@@ -252,7 +252,7 @@ Genoverse.Track.Controller = Base.extend({
         this.resize(h);
       }
       
-      this.expander = (this.expander || $('<div class="expander static">').width(this.width).appendTo(this.container).on('click', function () {
+      this.expander = (this.expander || $('<div class="genoverse_expander genoverse_static">').width(this.width).appendTo(this.container).on('click', function () {
         controller.resize(controller.fullVisibleHeight);
       }))[this.prop('height') === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
@@ -356,10 +356,10 @@ Genoverse.Track.Controller = Base.extend({
     var controller = this;
     var tooLarge   = this.browser.length > this.threshold;
     var div        = this.imgContainer.clone().addClass((params.cls + ' loading').replace('.', '_')).css({ left: params.left, display: params.cls === this.scrollStart ? 'block' : 'none' });
-    var bgImage    = params.background ? $('<img class="bg">').hide().addClass(params.background).data(params).prependTo(div) : false;
+    var bgImage    = params.background ? $('<img class="genoverse_bg">').hide().addClass(params.background).data(params).prependTo(div) : false;
     var image      = $('<img class="data">').hide().data(params).appendTo(div).on('load', function () {
-      $(this).fadeIn('fast').parent().removeClass('loading');
-      $(this).siblings('.bg').show();
+      $(this).fadeIn('fast').parent().removeClass('genoverse_loading');
+      $(this).siblings('.genoverse_bg').show();
     });
     
     params.container = div;
@@ -424,7 +424,7 @@ Genoverse.Track.Controller = Base.extend({
       }
     }
     
-    var loading = this.imgContainer.clone().addClass('loading').css({ left: left, width: width }).prependTo(this.scrollContainer.css('left', 0));
+    var loading = this.imgContainer.clone().addClass('genoverse_loading').css({ left: left, width: width }).prependTo(this.scrollContainer.css('left', 0));
     
     function makeImages() {
       for (var i = 0; i < images.length; i++) {

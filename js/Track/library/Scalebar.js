@@ -149,7 +149,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     
     var rtn = this.base(params);
     
-    params.container.addClass('fullHeight');
+    params.container.addClass('genoverse_fullHeight');
     
     return rtn;
   },

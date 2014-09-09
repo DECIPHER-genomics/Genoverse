@@ -6,9 +6,9 @@ Genoverse.Plugins.fileDrop = function () {
     $(window).on('dragenter', function (e) {
       var dataTransfer = e.originalEvent.dataTransfer;
       
-      if (dataTransfer && dataTransfer.types && (dataTransfer.types[0] === 'Files' || dataTransfer.types[1] === 'Files' || dataTransfer.types[2] === 'Files') && !$('.gv_file_drop_total_overlay').length) {
-        var fileDropDiv      = $('<div class="gv_file_drop">').appendTo(wrapper);
-        var totalDropOverlay = $('<div class="gv_file_drop_total_overlay">').prependTo('body');
+      if (dataTransfer && dataTransfer.types && (dataTransfer.types[0] === 'Files' || dataTransfer.types[1] === 'Files' || dataTransfer.types[2] === 'Files') && !$('.genoverse_file_drop_total_overlay').length) {
+        var fileDropDiv      = $('<div class="genoverse_file_drop">').appendTo(wrapper);
+        var totalDropOverlay = $('<div class="genoverse_file_drop_total_overlay">').prependTo('body');
         
         var dragleave = function () {
           fileDropDiv.remove();
