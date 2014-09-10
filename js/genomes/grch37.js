@@ -1,4 +1,4 @@
-var grch37 = {
+window.grch37 = {
   "1": {
     "size": 249250621,
     "bands": [
