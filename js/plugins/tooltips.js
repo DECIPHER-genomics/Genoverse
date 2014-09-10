@@ -11,22 +11,22 @@ Genoverse.Plugins.tooltips = function () {
   this.controls.push({
     icon    : '?',
     name    : 'Tooltips',
-    'class' : 'genoverse-tooltip',
+    'class' : 'gv-tooltip',
     init    : $.noop,
     action  : function (browser) {
       var func = $(this).toggleClass('active').hasClass('active') ? 'show' : 'hide';
-      browser.superContainer.find('.genoverse-tooltip').each(function () { $(this).tipsy(func); });
+      browser.superContainer.find('.gv-tooltip').each(function () { $(this).tipsy(func); });
     }
   });
   
   this.on('afterInit', function () {
-    this.superContainer.find('.genoverse_panel .button_set[title]').tipsy({ gravity: 'w', fade: true, trigger: 'manual' }).addClass('genoverse-tooltip');
-    this.container.find('.resizer:last').tipsy({ gravity: 'n', fade: true, trigger: 'manual', fallback: 'Resize track by dragging this handle' }).addClass('genoverse-tooltip');
+    this.superContainer.find('.gv-panel .gv-button-set[title]').tipsy({ gravity: 'w', fade: true, trigger: 'manual' }).addClass('gv-tooltip');
+    this.container.find('.resizer:last').tipsy({ gravity: 'n', fade: true, trigger: 'manual', fallback: 'Resize track by dragging this handle' }).addClass('gv-tooltip');
     this.wrapper.tipsy({ gravity: 's', fade: true, trigger: 'manual', fallback: 'Scroll left and right by dragging with your mouse, click on any feature in any track for more info' }).addClass('genoverse-tooltip');
-    this.labelContainer.tipsy({ gravity: 'e', fade: true, trigger: 'manual', fallback: 'Reorder tracks by dragging this handle' }).addClass('genoverse-tooltip');
+    this.labelContainer.tipsy({ gravity: 'e', fade: true, trigger: 'manual', fallback: 'Reorder tracks by dragging this handle' }).addClass('gv-tooltip');
   });
   
   this.on('afterResize', 'tracks', function () {
-    this.container.find('.resizer:last').tipsy('hide');
+    this.container.find('.gv-resizer:last').tipsy('hide');
   });
 };

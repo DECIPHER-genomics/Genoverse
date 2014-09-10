@@ -9,7 +9,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     init: function () {
       this.base();
       
-      this.container.addClass('track_container_legend');
+      this.container.addClass('gv-track-container-legend');
 
       if (!this.browser.legends) {
         this.browser.legends = {};

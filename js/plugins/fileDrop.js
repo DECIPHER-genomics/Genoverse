@@ -5,16 +5,16 @@ Genoverse.Plugins.fileDrop = function () {
 
     $(window).on('dragenter', function (e) {
       var dataTransfer = e.originalEvent.dataTransfer;
-      
-      if (dataTransfer && dataTransfer.types && (dataTransfer.types[0] === 'Files' || dataTransfer.types[1] === 'Files' || dataTransfer.types[2] === 'Files') && !$('.gv_file_drop_total_overlay').length) {
-        var fileDropDiv      = $('<div class="gv_file_drop">').appendTo(wrapper);
-        var totalDropOverlay = $('<div class="gv_file_drop_total_overlay">').prependTo('body');
-        
+
+      if (dataTransfer && dataTransfer.types && (dataTransfer.types[0] === 'Files' || dataTransfer.types[1] === 'Files' || dataTransfer.types[2] === 'Files') && !$('.gv-file-drop-total-overlay').length) {
+        var fileDropDiv      = $('<div class="gv-file-drop">').appendTo(wrapper);
+        var totalDropOverlay = $('<div class="gv-file-drop-total-overlay">').prependTo('body');
+
         var dragleave = function () {
           fileDropDiv.remove();
           totalDropOverlay.remove();
         };
-        
+
         totalDropOverlay.on('dragenter', function (e) { e.preventDefault(); e.stopPropagation(); });
         totalDropOverlay.on('dragover',  function (e) { e.preventDefault(); e.stopPropagation(); });
         totalDropOverlay.on('dragleave', dragleave);
@@ -22,13 +22,13 @@ Genoverse.Plugins.fileDrop = function () {
           dragleave();
           e.preventDefault();
           e.stopPropagation();
-          
+
           var files = e.originalEvent.dataTransfer.files;
-          
+
           for (var i = 0; i < files.length; i++) {
             var file   = files[i];
             var reader = new FileReader();
-            
+
             reader.onload = function (event) {
               var track = Genoverse.Track.File[((file.name.match(/\.(\w+)$/))[1]).toUpperCase()].extend({
                 name    : file.name,
@@ -42,13 +42,13 @@ Genoverse.Plugins.fileDrop = function () {
                   }).resolveWith(this);
                 }
               });
-              
+
               browser.addTrack(track, browser.tracks.length - 1);
             };
-            
+
             reader.readAsText(file);
           }
-          
+
           return false;
         });
       }

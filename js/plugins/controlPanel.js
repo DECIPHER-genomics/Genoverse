@@ -23,96 +23,96 @@ Genoverse.Plugins.controlPanel = function () {
   this.on({
     beforeInit: function () {
       var browser = this;
-      
+
       if (!this.tracksLibrary) {
         this.tracksLibrary = $.grep(this.tracks, function (track) { return track.prototype.name; });
       }
-      
+
       var panel = $(
-        '<table cellspacing=0 cellpadding=0 class="genoverse">' +
+        '<table cellspacing=0 cellpadding=0 class="gv">' +
         '  <tr>' +
-        '    <td class="canvas_container"></td>' +
-        '    <td class="genoverse_panel genoverse_panel_right">' +
-        '      <div class="button_set" title="Scroll left and right by pressing and holding these buttons">' +
-        '        <button class="scrollLeft">&#9668;</button><button class="scrollRight">&#9658;</button>' +
+        '    <td class="gv-canvas-container"></td>' +
+        '    <td class="gv-panel gv-panel-right">' +
+        '      <div class="gv-button-set" title="Scroll left and right by pressing and holding these buttons">' +
+        '        <button class="gv-scroll-left">&#9668;</button><button class="gv-scroll-right">&#9658;</button>' +
         '      </div>' +
-        '      <div class="button_set zoom" title="Zoom-in and zoom-out">' +
-        '        <button class="zoomIn">+</button><button class="zoomOut">&#8722;</button>' +
+        '      <div class="gv-button-set gv-zoom" title="Zoom-in and zoom-out">' +
+        '        <button class="gv-zoom-in">+</button><button class="gv-zoom-out">&#8722;</button>' +
         '      </div>' +
-        '      <div class="button_set toggleDrag" title="Toggle your mouse drag action between scroll left/right and select region">' +
-        '        <button class="dragScroll">&#8596;</button><button class="dragSelect" title="Mouse wheel action to scroll the page up and down">&#9482;</button>' +
+        '      <div class="gv-button-set toggleDrag" title="Toggle your mouse drag action between scroll left/right and select region">' +
+        '        <button class="gv-drag-scroll">&#8596;</button><button class="gv-drag-select" title="Mouse wheel action to scroll the page up and down">&#9482;</button>' +
         '      </div>' +
-        '      <div class="button_set toggleWheel" title="Toggle your mouse wheel action between zoom in/out and default page scroll">' +
-        '        <button class="wheelOff" title="Mouse wheel to zoom in and out">&#8597;</button><button class="wheelZoom" title="Mouse wheel action to scroll the page up and down">&#177;</button>' +
+        '      <div class="gv-button-set gv-toggle-wheel" title="Toggle your mouse wheel action between zoom in/out and default page scroll">' +
+        '        <button class="gv-wheel-off" title="Mouse wheel to zoom in and out">&#8597;</button><button class="gv-wheel-zoom" title="Mouse wheel action to scroll the page up and down">&#177;</button>' +
         '      </div>' +
         '    </td>' +
         '  </tr>' +
         '</table>'
-      ).appendTo(this.container).find('.genoverse_panel');
+      ).appendTo(this.container).find('.gv-panel');
 
       this.superContainer = this.container;
-      this.container      = $('.canvas_container', this.container);
+      this.container      = $('.gv-canvas-container', this.container);
       this.width         -= panel.width();
-      
-      panel.find('button.scrollLeft, button.scrollRight').on({
+
+      panel.find('button.gv-scroll-left, button.gv-scroll-right').on({
         mousedown : function () { browser.startDragScroll(); },
         mouseup   : function () { browser.stopDragScroll();  }
       });
-      
-      panel.find('button.scrollLeft').mousehold(50, function () {
+
+      panel.find('button.gv-scroll-left').mousehold(50, function () {
         browser.move(browser.scrollDelta);
       });
-      
-      panel.find('button.scrollRight').mousehold(50, function () {
+
+      panel.find('button.gv-scroll-right').mousehold(50, function () {
         browser.move(-browser.scrollDelta);
       });
-      
-      panel.find('button.zoomIn').on('click', function () {
+
+      panel.find('button.gv-zoom-in').on('click', function () {
         browser.zoomIn();
       });
-      
-      panel.find('button.zoomOut').on('click', function () {
+
+      panel.find('button.gv-zoom-out').on('click', function () {
         browser.zoomOut();
       });
-      
+
       if (browser.dragAction === 'select') {
-        panel.find('button.dragSelect').addClass('active');
-        panel.find('button.dragScroll').removeClass('active');
+        panel.find('button.gv-drag-select').addClass('gv-active');
+        panel.find('button.gv-drag-scroll').removeClass('gv-active');
       } else {
-        panel.find('button.dragSelect').removeClass('active');
-        panel.find('button.dragScroll').addClass('active');
+        panel.find('button.gv-drag-select').removeClass('gv-active');
+        panel.find('button.gv-drag-scroll').addClass('gv-active');
       }
-      
-      panel.find('button.dragSelect').on('click', function () {
+
+      panel.find('button.gv-drag-select').on('click', function () {
         browser.setDragAction('select');
-        panel.find('button.dragSelect').addClass('active');
-        panel.find('button.dragScroll').removeClass('active');
+        panel.find('button.gv-drag-select').addClass('gv-active');
+        panel.find('button.gv-drag-scroll').removeClass('gv-active');
       });
-      
-      panel.find('button.dragScroll').on('click', function () {
+
+      panel.find('button.gv-drag-scroll').on('click', function () {
         browser.setDragAction('scroll');
-        panel.find('button.dragSelect').removeClass('active');
-        panel.find('button.dragScroll').addClass('active');
+        panel.find('button.gv-drag-select').removeClass('gv-active');
+        panel.find('button.gv-drag-scroll').addClass('gv-active');
       });
-      
+
       if (browser.wheelAction === 'zoom') {
-        panel.find('button.wheelZoom').addClass('active');
-        panel.find('button.wheelOff').removeClass('active');
+        panel.find('button.gv-wheel-zoom').addClass('gv-active');
+        panel.find('button.gv-wheel-off').removeClass('gv-active');
       } else {
-        panel.find('button.wheelZoom').removeClass('active');
-        panel.find('button.wheelOff').addClass('active');
+        panel.find('button.gv-wheel-zoom').removeClass('gv-active');
+        panel.find('button.gv-wheel-off').addClass('gv-active');
       }
-      
-      panel.find('button.wheelZoom').on('click', function () {
+
+      panel.find('button.gv-wheel-zoom').on('click', function () {
         browser.setWheelAction('zoom');
-        $(this).addClass('active');
-        panel.find('button.wheelOff').removeClass('active');
+        $(this).addClass('gv-active');
+        panel.find('button.gv-wheel-off').removeClass('gv-active');
       });
-      
-      panel.find('button.wheelOff').on('click', function () {
+
+      panel.find('button.gv-wheel-off').on('click', function () {
         browser.setWheelAction('off');
-        panel.find('button.wheelZoom').removeClass('active');
-        $(this).addClass('active');
+        panel.find('button.gv-wheel-zoom').removeClass('gv-active');
+        $(this).addClass('gv-active');
       });
 
       for (var i = 0; i < browser.controls.length; i++) {
@@ -120,7 +120,7 @@ Genoverse.Plugins.controlPanel = function () {
           var button = $('<button>' + control.icon + '</button>').addClass(control['class']).attr('title', control.name).on('click', function () {
             control.action.call(this, browser);
           }).appendTo(
-            $('<div class="button_set">').attr('title', control.name).appendTo(browser.superContainer.find('.genoverse_panel_right'))
+            $('<div class="gv-button-set">').attr('title', control.name).appendTo('.gv-panel-right')
           );
 
           if (control.init) {
@@ -128,50 +128,50 @@ Genoverse.Plugins.controlPanel = function () {
           }
         })(browser.controls[i]);
       }
-      
+
       // ESC key to toggle crosshair select to drag mode and close menus
       $(document).on('keydown', function (e) {
         if (e.keyCode === 27) {
-          if (panel.find('button.dragSelect').hasClass('active')) {
-            panel.find('button.dragScroll').trigger('click');
+          if (panel.find('button.gv-drag-select').hasClass('gv-active')) {
+            panel.find('button.gv-drag-scroll').trigger('click');
           }
-          
-          $('.gv_menu .close').trigger('click');
+
+          $('.gv-menu .gv-close').trigger('click');
         }
       });
     },
-    
+
     afterInit: function () {
       var browser      = this;
       var tracksButton = $('<button title="Tracks menu">&#9776; Tracks</button>').on('click', function () {
         var button = this;
-        
-        if ($(this).hasClass('active')) {
-          $('.gv_menu.tracksMenu .close').trigger('click');
-          $(this).removeClass('active');
+
+        if ($(this).hasClass('gv-active')) {
+          $('.gv-menu.gv-tracks-menu .gv-close').trigger('click');
+          $(this).removeClass('gv-active');
         } else {
           var menu = $(this).data('menu');
           var css  = browser.wrapper.offset();
-          
+
           css.top   = Math.max(css.top, $(document).scrollTop()) + 20;
           css.left += 50;
           css.width = browser.wrapper.width() - 100;
-          
+
           if (menu) {
             menu.show();
           } else {
             menu = browser.makeMenu({
-              'Currently enabled tracks:'         : 'Available tracks:',
-              '<div class="currentTracks"></div>' : '<input placeholder="Search"><div class="availableTracks"></div>'
-            }).css(css).addClass('tracksMenu');
-            
+              'Currently enabled tracks:'             : 'Available tracks:',
+              '<div class="gv-current-tracks"></div>' : '<input placeholder="Search"><div class="gv-available-tracks"></div>'
+            }).css(css).addClass('gv-tracks-menu');
+
             $('input[placeholder=Search]', menu).on('keyup', function () {
               var str = this.value.toLowerCase();
-              
-              $('.tracksLibraryItem', menu).each(function () {
+
+              $('.gv-tracks-library-item', menu).each(function () {
                 var track = $(this).data('track');
                 var match = false;
-                
+
                 if (track.name && track.name.toLowerCase().indexOf(str) >= 0) {
                   match = true;
                 } else if (track.tags) {
@@ -182,24 +182,24 @@ Genoverse.Plugins.controlPanel = function () {
                     }
                   }
                 }
-                
+
                 $(this)[match ? 'show' : 'hide']();
               });
             });
-            
-            $('.close', menu).on('click', function () {
-              $(button).removeClass('active');
+
+            $('.gv-close', menu).on('click', function () {
+              $(button).removeClass('gv-active');
             });
-            
-            var availableTracks = $('.availableTracks', menu);
-            var currentTracks   = $('.currentTracks',   menu).data({
+
+            var availableTracks = $('.gv-available-tracks', menu);
+            var currentTracks   = $('.gv-current-tracks',   menu).data({
               reload     : function () { $(this).empty().data('listTracks')(); },
               listTracks : function () {
                 for (var i = 0; i < browser.tracks.length; i++) {
                   if (browser.tracks[i].name && !(browser.tracks[i] instanceof Genoverse.Track.Legend)) {
                     (function (track) {
                       $('<div>')
-                        .append($('<div class="removeTrack">x</div>').on('click', function () { track.remove(); }))
+                        .append($('<div class="gv-remove-track">x</div>').on('click', function () { track.remove(); }))
                         .append('<span>' + track.name + '</span>')
                         .appendTo(currentTracks);
                     })(browser.tracks[i]);
@@ -207,16 +207,16 @@ Genoverse.Plugins.controlPanel = function () {
                 }
               }
             });
-            
+
             currentTracks.data('listTracks')();
-            
+
             if (browser.tracksLibrary && browser.tracksLibrary.length) {
               var tracksLibrary = $.map(browser.tracksLibrary, function (track) { return track.prototype.name ? [[ track.prototype.name.toLowerCase(), track ]] : undefined }).sort(function (a, b) { return b < a });
-              
+
               for (var i = 0; i < tracksLibrary.length; i++) {
                 (function (track) {
-                  $('<div class="tracksLibraryItem">').append(
-                    $('<div class="addTrack">+</div> ').on('click', function () {
+                  $('<div class="gv-tracks-library-item">').append(
+                    $('<div class="gv-add-track">+</div> ').on('click', function () {
                       browser.trackIds = browser.trackIds || {};
                       browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
 
@@ -229,28 +229,28 @@ Genoverse.Plugins.controlPanel = function () {
                 })(tracksLibrary[i][1]);
               }
             }
-            
+
             $(this).data('menu', menu);
           }
-          
-          $(this).addClass('active');
+
+          $(this).addClass('gv-active');
         }
       });
-      
+
       this.labelContainer.prepend(
-        $('<li class="genoverse_panel unsortable">').append(
-          $('<div class="button_set" title="Tracks menu">').append(tracksButton)
+        $('<li class="gv-panel gv-unsortable">').append(
+          $('<div class="gv-button-set" title="Tracks menu">').append(tracksButton)
         )
       );
     },
-    
+
     afterAddDomElements: function () {
-      this.wrapper.after('<div class="gv_powered_by">Powered by <a target="_blank" href="http://genoverse.org">Genoverse</a></div>');
+      this.wrapper.after('<div class="gv-powered-by">Powered by <a target="_blank" href="http://genoverse.org">Genoverse</a></div>');
     },
-    
+
     'afterAddTracks afterRemoveTracks': function () {
-      var currentTracks = this.superContainer.find('.tracksMenu .currentTracks');
-      
+      var currentTracks = this.superContainer.find('.gv-tracks-menu .gv-current-tracks');
+
       if (currentTracks.length) {
         currentTracks.data('reload').call(currentTracks);
       }

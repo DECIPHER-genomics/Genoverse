@@ -1,37 +1,36 @@
-body.dragging * { 
-  cursor: n-resize!important; 
+body.gv-dragging * {
+  cursor: n-resize!important;
 }
 
-div.resizer { 
-  position: absolute!important; 
-  bottom: 0; 
-  opacity: 0.8; 
-  /*background-color: #F0F0F0; */
-  height: 5px; 
-  cursor: n-resize; 
-  z-index: 2; 
+div.gv-resizer {
+  position: absolute!important;
+  bottom: 0;
+  opacity: 0.8;
+  height: 5px;
+  cursor: n-resize;
+  z-index: 2;
 }
 
-.canvas_container .resizer.shadow {
-  box-shadow: 0 -3px 5px 0 #000000; 
-  margin-left: -5px; 
-  padding-right: 10px; 
+.gv-canvas-container .gv-resizer.gv-shadow {
+  box-shadow: 0 -3px 5px 0 #000000;
+  margin-left: -5px;
+  padding-right: 10px;
 }
 
-.canvas_container .resizer .handle { 
-  background-color: #5A5A5A; 
-  border: 1px solid white; 
-  border-width: 1px 0; 
+.gv-canvas-container .gv-resizer .gv-handle {
+  background-color: #5A5A5A;
+  border: 1px solid white;
+  border-width: 1px 0;
   height: 1px;
-  margin: 1px 48%; 
-  width: 4%; 
+  margin: 1px 48%;
+  width: 4%;
 }
 
-.canvas_container .resizer.shadow .handle { 
-  position: relative; 
-  left: 5px 
+.gv-canvas-container .gv-resizer.gv-shadow .gv-handle {
+  position: relative;
+  left: 5px;
 }
 
-.canvas_container .resizer:hover, .canvas_container .resizer.ui-draggable-dragging { 
+.gv-canvas-container .gv-resizer:hover, .gv-canvas-container .gv-resizer.ui-draggable-dragging {
   box-shadow: -1px -3px 6px -3px #000000 inset !important;
 }

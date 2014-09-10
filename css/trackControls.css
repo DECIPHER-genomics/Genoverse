@@ -1,4 +1,4 @@
-.track_container div.track_controls {
+.gv-track-container div.gv-track-controls {
   display: block;
   white-space: nowrap;
   position: relative;
@@ -11,47 +11,47 @@
   font-size: 12px;
   font-weight: bold;
   padding: 5px 0;
-  z-index: 5;  
+  z-index: 5;
 }
 
-.track_container div.track_controls:hover {
+.gv-track-container div.gv-track-controls:hover {
   background: rgba(0, 0, 0, 0.7);
 }
 
-.track_container div.track_controls > * {
+.gv-track-container div.gv-track-controls > * {
   display: inline-block;
   width: 20px;
   text-align: center;
 }
 
-.track_container div.track_controls a {
+.gv-track-container div.gv-track-controls a {
   color: white;
 }
 
-.track_container div.track_controls a:hover {
+.gv-track-container div.gv-track-controls a:hover {
   text-decoration: underline;
 }
 
-.track_container:hover > div.track_controls {
+.gv-track-container:hover > div.gv-track-controls {
   display: block;
 }
 
-.track_container div.track_controls a.hidden {
+.gv-track-container div.gv-track-controls a.gv-hidden {
   display: none!important;
 }
 
-.track_container div.track_controls a.height_toggle {
+.gv-track-container div.gv-track-controls a.gv-height-toggle {
   background: url(../i/auto_height.png) center 1px no-repeat;
 }
 
-.track_container div.track_controls a.height_toggle.auto_height {
+.gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height {
   background-position: center -17px;
 }
 
-.track_container div.track_controls select,
-.track_container div.track_controls input,
-.track_container div.track_controls button,
-.track_container div.track_controls textarea {
+.gv-track-container div.gv-track-controls select,
+.gv-track-container div.gv-track-controls input,
+.gv-track-container div.gv-track-controls button,
+.gv-track-container div.gv-track-controls textarea {
   color: #333;
   font-weight: normal;
 }

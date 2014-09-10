@@ -1,4 +1,4 @@
-.gv_file_drop {
+.gv-file-drop {
   position: absolute;
   display: block;
   background-color: rgba(255,255,255,0.7);
@@ -11,7 +11,7 @@
   left: 0;
 }
 
-.gv_file_drop_total_overlay {
+.gv-file-drop-total-overlay {
   display: block;
   position: absolute;
   top: 0;

@@ -1,18 +1,18 @@
-.genoverse_panel div {
+.gv-panel div {
   white-space: nowrap;
 }
 
-.genoverse_panel_top {
+.gv-panel-top {
   height: 40px;
   background-color: #5F8CB0;
-  background-image: linear-gradient(left, #5F8CB0, #4A7496); 
+  background-image: linear-gradient(left, #5F8CB0, #4A7496);
   border-radius: 5px 0 0 0;
   border: 1px solid #1C5380;
-  box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);        
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);
   vertical-align: top;
 }
 
-.genoverse_panel_right {
+.gv-panel-right {
   height: 100%;
   background-color: #5F8CB0;
   background-image: -webkit-linear-gradient(left, #5F8CB0, #4A7496);
@@ -20,11 +20,11 @@
   border-radius: 0 5px 5px 0;
   border: 1px solid #1C5380!important;
   border-left: none;
-  box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);        
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);
   vertical-align: top;
 }
 
-.genoverse_panel button {
+.gv-panel button {
   background: none;
   border: none;
   border-bottom: 1px solid #1C5380;
@@ -35,67 +35,68 @@
   font-size: 18px;
   line-height: 20px;
   padding: 2px;
+  margin: 0;
   font-family: Tahoma;
 }
 
-.canvas_container .gv_wrapper {
+.canvas-container .gv-wrapper {
   border-width: 1px 0 1px 1px;
 }
 
-.genoverse_panel button:only-child {
+.gv-panel button:only-child {
   width: 100%;
 }
 
-.genoverse_panel div.button_set>button:not(:first-child) {
+.gv-panel div.gv-button-set>button:not(:first-child) {
   border-left: 1px solid #1C5380;
 }
 
-.genoverse_panel div.button_set:not(:first-child)>button {
-  box-shadow: 0 1px 1px rgba(255, 255, 255, 0.12) inset;        
+.gv-panel div.gv-button-set:not(:first-child)>button {
+  box-shadow: 0 1px 1px rgba(255, 255, 255, 0.12) inset;
 }
 
-.genoverse_panel div.button_set:last-child {
+.gv-panel div.gv-button-set:last-child {
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-.genoverse_panel button:hover {
+.gv-panel button:hover {
   background-color: rgba(255, 255, 255, 0.1);
   color: #FFFFFF;
   cursor: pointer;
 }
 
-.genoverse_panel button:active, .genoverse_panel button.active {
+.gv-panel button:active, .gv-panel button.gv-active {
   border-top: none;
   background-color: rgba(6, 54, 95, 0.35);
-  box-shadow: 0 0 1px rgba(6, 54, 95, 0.8) inset !important;        
+  box-shadow: 0 0 1px rgba(6, 54, 95, 0.8) inset !important;
 }
 
-table.genoverse {
+table.gv {
   position: relative;
   margin-bottom: 30px;
   border-collapse: separate;
 }
 
-.genoverse td {
+table.gv td {
   padding: 0;
   color: white;
   border: none;
 }
 
-.tracksMenu td {
+.gv-tracks-menu td {
   padding: 5px!important;
   vertical-align: top;
   width: 50%;
 }
 
-.tracksMenu tr:first-child td {
+.gv-tracks-menu tr:first-child td {
   font-weight: bold;
   font-size: 1.2em;
 }
 
 
-.tracksMenu .removeTrack,
-.tracksMenu .addTrack {
+.gv-tracks-menu .gv-remove-track,
+.gv-tracks-menu .gv-add-track {
   -moz-user-select: none;
   background-color: #CCCCCC;
   border-radius: 3px;
@@ -114,13 +115,13 @@ table.genoverse {
   width: 18px;
 }
 
-.tracksMenu .removeTrack:hover,
-.tracksMenu .addTrack:hover {
+.gv-tracks-menu .gv-remove-track:hover,
+.gv-tracks-menu .gv-add-track:hover {
   background-color: #FFF;
   box-shadow: 0px 0px 5px #FFFFFF;
 }
 
-.gv_powered_by {
+.gv-powered-by {
   position: absolute;
   right: 0;
   bottom: -16px;
@@ -129,6 +130,6 @@ table.genoverse {
   color: black;
 }
 
-.gv_powered_by a {
+.gv-powered-by a {
   font-weight: bold;
 }

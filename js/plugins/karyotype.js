@@ -1,8 +1,8 @@
 Genoverse.Plugins.karyotype = function () {
   this.on({
     afterInit: function () {
-      var chromosome = $('<div class="gv_chromosome">');
-      var container  = $('<div class="gv_karyotype_container">').html(chromosome).insertAfter(this.labelContainer);
+      var chromosome = $('<div class="gv-chromosome">');
+      var container  = $('<div class="gv-karyotype-container">').html(chromosome).insertAfter(this.labelContainer);
 
       this.karyotype = new Genoverse({
         parent    : this,
@@ -65,7 +65,7 @@ Genoverse.Plugins.karyotype = function () {
                   track.container.tipsy('hide');
                   track.hoverFeature = false;
                 }
-              }, '.image_container');
+              }, '.gv-image-container');
             }
           })
         ],
@@ -83,8 +83,8 @@ Genoverse.Plugins.karyotype = function () {
           
           this.labelContainer.remove();
           this.labelContainer = $();
-          
-          this.viewPoint = $('<div class="gv_karyotype_viewpoint">').appendTo(this.container).on({
+
+          this.viewPoint = $('<div class="gv-karyotype-viewpoint">').appendTo(this.container).on({
             mousemove: function (e) {
               karyotype.track.controller.click(e);
             },
@@ -138,7 +138,7 @@ Genoverse.Plugins.karyotype = function () {
       });
 
       if (!$.grep(this.plugins, function (plugin) { return plugin === 'controlPanel' }).length) {
-        $('<li class="unsortable">').height(function (i, h) {
+        $('<li class="gv-unsortable">').height(function (i, h) {
           return h + container.height();
         }).prependTo(this.labelContainer);
       }

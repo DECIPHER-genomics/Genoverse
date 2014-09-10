@@ -1313,21 +1313,21 @@ var Genoverse = Base.extend({
 
   constructor: function (config) {
     var browser = this;
-    
+
     if (!this.supported()) {
       return this.die('Your browser does not support this functionality');
     }
-    
+
     config.container = $(config.container); // Make sure container is a jquery object, jquery recognises itself automatically
-    
+
     if (!(config.container && config.container.length)) {
       config.container = $('<div id="genoverse">').appendTo('body');
     }
 
     $.extend(this, config);
-    
+
     this.events = { browser: {}, tracks: {} };
-    
+
     $.when(this.loadGenome(), this.loadPlugins()).always(function () {
       Genoverse.wrapFunctions(browser);
       browser.init();
@@ -1337,9 +1337,9 @@ var Genoverse = Base.extend({
   loadGenome: function () {
     if (typeof this.genome === 'string') {
       var genomeName = this.genome;
-      
+
       return $.ajax({
-        url      : this.origin + 'js/genomes/' + genomeName + '.js', 
+        url      : this.origin + 'js/genomes/' + genomeName + '.js',
         dataType : 'script',
         context  : this,
         success  : function () {
@@ -1357,42 +1357,42 @@ var Genoverse = Base.extend({
   loadPlugins: function () {
     var browser         = this;
     var loadPluginsTask = $.Deferred();
-    
+
     function loadPlugin(plugin) {
       if (typeof Genoverse.Plugins[plugin] === 'function') {
         Genoverse.Plugins[plugin].call(browser);
         return true;
       }
     }
-    
+
     function getScript(deferred, plugin) {
       $.getScript(browser.origin + 'js/plugins/' + plugin + '.js', function () {
         deferred.resolve.apply(deferred, [].slice.call(arguments).concat(plugin));
       });
     }
-    
+
     // Load plugins css file
     $.when.apply($, $.map(browser.plugins, function (plugin) {
       if (loadPlugin(plugin)) {
         return undefined;
       }
-      
+
       var deferred = $.Deferred();
-      
+
       if ($('link[href="' + browser.origin + 'css/' + plugin + '.css"]').length) {
         getScript(deferred, plugin);
       } else {
         $('<link href="' + browser.origin + 'css/' + plugin + '.css" rel="stylesheet">').on('load', function () { getScript(deferred, plugin); }).appendTo('body');
       }
-      
+
       return deferred;
     })).done(function () {
       var scripts = browser.plugins.length === 1 ? [ arguments ] : arguments;
       var plugin;
-      
+
       for (var i = 0; i < scripts.length; i++) {
         plugin = scripts[i][scripts[i].length - 1];
-        
+
         try {
           eval(scripts[i][0]);
           loadPlugin(plugin);
@@ -1402,21 +1402,21 @@ var Genoverse = Base.extend({
         }
       }
     }).always(loadPluginsTask.resolve);
-    
+
     return loadPluginsTask;
   },
-  
+
   init: function () {
     var width = this.width;
-    
+
     this.addDomElements(width);
     this.addUserEventHandlers();
-    
+
     if (this.isStatic) {
       this.dragAction       = this.wheelAction = 'off';
       this.urlParamTemplate = false;
     }
-    
+
     this.tracksById       = {};
     this.prev             = {};
     this.saveKey          = this.saveKey ? 'genoverse-' + this.saveKey : 'genoverse';
@@ -1431,12 +1431,12 @@ var Genoverse = Base.extend({
       .replace(/(\b(\w+=)?__START__(.)?)/, '$2(\\d+)$3')
       .replace(/(\b(\w+=)?__END__(.)?)/,   '$2(\\d+)$3') + '([;&])'
     ) : '';
-    
+
     var urlCoords = this.getURLCoords();
     var coords    = urlCoords.chr && urlCoords.start && urlCoords.end ? urlCoords : { chr: this.chr, start: this.start, end: this.end };
-    
+
     this.chr = coords.chr;
-    
+
     if (this.genome && !this.chromosomeSize) {
       this.chromosomeSize = this.genome[this.chr].size;
     }
@@ -1560,11 +1560,11 @@ var Genoverse = Base.extend({
 
   addDomElements: function (width) {
     var browser = this;
-    
+
     this.menus          = $();
-    this.labelContainer = $('<ul class="label_container">').appendTo(this.container).sortable({
-      items  : 'li:not(.unsortable)',
-      handle : '.handle',
+    this.labelContainer = $('<ul class="gv-label-container">').appendTo(this.container).sortable({
+      items  : 'li:not(.gv-unsortable)',
+      handle : '.gv-handle',
       axis   : 'y',
       helper : 'clone',
       cursor : 'move',
@@ -1574,39 +1574,38 @@ var Genoverse = Base.extend({
         ui.helper.hide();
       }
     });
-    
-    this.wrapper          = $('<div class="gv_wrapper">').appendTo(this.container);
-    this.selector         = $('<div class="selector crosshair">').appendTo(this.wrapper);
+
+    this.wrapper          = $('<div class="gv-wrapper">').appendTo(this.container);
+    this.selector         = $('<div class="gv-selector gv-crosshair">').appendTo(this.wrapper);
     this.selectorControls = $(
-      '<div class="selector_controls">'               +
-      '  <button class="zoomHere">Zoom here</button>' +
-      '  <button class="center">Center</button>'      +
-      '  <button class="summary">Summary</button>'    +
-      '  <button class="cancel">Cancel</button>'      +
+      '<div class="gv-selector-controls">'                +
+      '  <button class="gv-zoom-here">Zoom here</button>' +
+      '  <button class="gv-center">Center</button>'       +
+      '  <button class="gv-cancel">Cancel</button>'       +
       '</div>'
     ).appendTo(this.selector);
-    
+
     this.zoomInHighlight = $(
-      '<div class="canvas_zoom i">' +
-      '  <div class="t l h"></div>' +
-      '  <div class="t r h"></div>' +
-      '  <div class="t l v"></div>' +
-      '  <div class="t r v"></div>' +
-      '  <div class="b l h"></div>' +
-      '  <div class="b r h"></div>' +
-      '  <div class="b l v"></div>' +
-      '  <div class="b r v"></div>' +
+      '<div class="gv-canvas-zoom gv-i">' +
+      '  <div class="gv-t gv-l gv-h"></div>' +
+      '  <div class="gv-t gv-r gv-h"></div>' +
+      '  <div class="gv-t gv-l gv-v"></div>' +
+      '  <div class="gv-t gv-r gv-v"></div>' +
+      '  <div class="gv-b gv-l gv-h"></div>' +
+      '  <div class="gv-b gv-r gv-h"></div>' +
+      '  <div class="gv-b gv-l gv-v"></div>' +
+      '  <div class="gv-b gv-r gv-v"></div>' +
       '</div>'
     ).appendTo('body');
-    
-    this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('i o').appendTo('body');
-    
-    this.container.addClass('canvas_container').width(width);
+
+    this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('gv-i gv-o').appendTo('body');
+
+    this.container.addClass('gv-canvas-container').width(width);
   },
-  
+
   addUserEventHandlers: function () {
     var browser = this;
-    
+
     this.container.on({
       mousedown: function (e) {
         browser.hideMessages();
@@ -1615,20 +1614,20 @@ var Genoverse = Base.extend({
         if ((!e.which || e.which === 1) && !(this === browser.selector[0] && e.target !== this)) {
           browser.mousedown(e);
         }
-        
+
         return false;
       },
       mousewheel: function (e, delta, deltaX, deltaY) {
         if (browser.noWheelZoom) {
           return true;
         }
-        
+
         browser.hideMessages();
 
         if (deltaY === 0 && deltaX !== 0) {
           browser.startDragScroll(e);
           browser.move(-deltaX * 10);
-          browser.stopDragScroll(false);          
+          browser.stopDragScroll(false);
         } else if (browser.wheelAction === 'zoom') {
           return browser.mousewheelZoom(e, delta);
         }
@@ -1637,24 +1636,23 @@ var Genoverse = Base.extend({
         if (browser.isStatic) {
           return true;
         }
-        
+
         browser.hideMessages();
         browser.mousewheelZoom(e, 1);
       }
-    }, '.image_container, .selector');
-    
+    }, '.gv-image-container, .gv-selector');
+
     this.selectorControls.on('click', function (e) {
       var pos = browser.getSelectorPosition();
-      
+
       switch (e.target.className) {
-        case 'summary'  : browser.summary(pos.start, pos.end); break;
-        case 'zoomHere' : browser.setRange(pos.start, pos.end, true); break;
-        case 'center'   : browser.moveTo(pos.start, pos.end, true, true);
-        case 'cancel'   : browser.cancelSelect(); break;
-        default         : break;
+        case 'gv-zoom-here' : browser.setRange(pos.start, pos.end, true); break;
+        case 'gv-center'    : browser.moveTo(pos.start, pos.end, true, true);
+        case 'gv-cancel'    : browser.cancelSelect(); break;
+        default             : break;
       }
     });
-    
+
     $(document).on({
       'mouseup.genoverse'    : $.proxy(this.mouseup,   this),
       'mousemove.genoverse'  : $.proxy(this.mousemove, this),
@@ -1665,28 +1663,28 @@ var Genoverse = Base.extend({
           if (browser.wheelTimeout) {
             clearTimeout(browser.wheelTimeout);
           }
-          
+
           browser.noWheelZoom  = browser.noWheelZoom || e.target !== browser.container[0];
           browser.wheelTimeout = setTimeout(function () { browser.noWheelZoom = false; }, 300);
         }
       }
     });
-    
+
     $(window).on(this.useHash ? 'hashchange.genoverse' : 'popstate.genoverse', $.proxy(this.popState, this));
   },
-  
+
   onTracks: function () {
     var args = $.extend([], arguments);
     var func = args.shift();
     var mvc;
-    
+
     for (var i = 0; i < this.tracks.length; i++) {
       if (this.tracks[i].disabled) {
         continue;
       }
-      
+
       mvc = this.tracks[i]._interface[func];
-      
+
       if (mvc) {
         this.tracks[i][mvc][func].apply(this.tracks[i][mvc], args);
       } else if (this.tracks[i][func]) {
@@ -1694,29 +1692,29 @@ var Genoverse = Base.extend({
       }
     }
   },
-  
+
   reset: function () {
     this.onTracks('reset');
     this.scale = 9e99; // arbitrary value so that setScale resets track scales as well
     this.setRange(this.start, this.end);
   },
-  
+
   setWidth: function (width) {
     this.width       = width;
     this.wrapperLeft = this.labelWidth - width;
     this.width      -= this.labelWidth;
-    
+
     this.container.width(width);
     this.onTracks('setWidth', this.width);
     this.reset();
   },
-  
+
   mousewheelZoom: function (e, delta) {
     var browser = this;
-    
+
     clearTimeout(this.zoomDeltaTimeout);
     clearTimeout(this.zoomTimeout);
-    
+
     this.zoomDeltaTimeout = setTimeout(function () {
       if (delta > 0) {
         browser.zoomInHighlight.css({ left: e.pageX - 20, top: e.pageY - 20, display: 'block' }).animate({
@@ -1732,18 +1730,18 @@ var Genoverse = Base.extend({
         });
       }
     }, 100);
-    
+
     this.zoomTimeout = setTimeout(function () {
       browser[delta > 0 ? 'zoomIn' : 'zoomOut'](e.pageX - browser.container.offset().left - browser.labelWidth);
-      
+
       if (browser.dragAction === 'select') {
         browser.moveSelector(e);
       }
     }, 300);
-    
+
     return false;
   },
-  
+
   startDragScroll: function (e) {
     this.dragging    = 'scroll';
     this.scrolling   = !e;
@@ -1751,100 +1749,101 @@ var Genoverse = Base.extend({
     this.dragStart   = this.start;
     this.scrollDelta = Math.max(this.scale, this.defaultScrollDelta);
   },
-  
+
   stopDragScroll: function (update) {
     this.dragging  = false;
     this.scrolling = false;
-    
+
     if (update !== false) {
       if (this.start !== this.dragStart) {
         this.updateURL();
       }
-      
+
       this.checkTrackHeights();
     }
   },
-  
+
   startDragSelect: function (e) {
     if (!e) {
       return false;
     }
-    
+
     var x = Math.max(0, e.pageX - this.wrapper.offset().left - 2);
-    
+
     this.dragging        = 'select';
     this.selectorStalled = false;
     this.selectorStart   = x;
-    
-    this.selector.css({ left: x, width: 0 }).removeClass('crosshair');
+
+    this.selector.css({ left: x, width: 0 }).removeClass('gv-crosshair');
     this.selectorControls.hide();
   },
-  
+
   stopDragSelect: function (e) {
     if (!e) {
       return false;
     }
-    
+
     this.dragging        = false;
     this.selectorStalled = true;
-    
-    if (this.selector.outerWidth(true) < 2) { 
+
+    if (this.selector.outerWidth(true) < 2) {
       return this.cancelSelect();
     }
-    
+
     // Calculate the position, so that selectorControls appear near the mouse cursor
     var top = Math.min(e.pageY - this.wrapper.offset().top, this.wrapper.outerHeight(true) - 1.2 * this.selectorControls.outerHeight(true));
+    var pos = this.getSelectorPosition();
 
-    this.selectorControls.css({
+    this.selectorControls.find('.gv-selector-location').html(this.chr + ':' + pos.start + '-' + pos.end).end().css({
       top  : top,
       left : this.selector.outerWidth(true) / 2 - this.selectorControls.outerWidth(true) / 2
     }).show();
   },
-  
+
   cancelSelect: function (keepDragging) {
     if (!keepDragging) {
       this.dragging = false;
     }
-    
+
     this.selectorStalled = false;
-    
-    this.selector.addClass('crosshair').width(0);
+
+    this.selector.addClass('gv-crosshair').width(0);
     this.selectorControls.hide();
-    
+
     if (this.dragAction === 'scroll') {
       this.selector.hide();
     }
   },
-  
+
   dragSelect: function (e) {
     var x = e.pageX - this.wrapper.offset().left;
 
     if (x > this.selectorStart) {
-      this.selector.css({ 
-        left  : this.selectorStart, 
+      this.selector.css({
+        left  : this.selectorStart,
         width : Math.min(x - this.selectorStart, this.width - this.selectorStart - 1)
       });
     } else {
-      this.selector.css({ 
-        left  : Math.max(x, 1), 
+      this.selector.css({
+        left  : Math.max(x, 1),
         width : Math.min(this.selectorStart - x, this.selectorStart - 1)
       });
-    }    
+    }
   },
-  
+
   setDragAction: function (action, keepSelect) {
     this.dragAction = action;
-    
+
     if (this.dragAction === 'select') {
-      this.selector.addClass('crosshair').width(0).show();
-    } else if (keepSelect && !this.selector.hasClass('crosshair')) {
+      this.selector.addClass('gv-crosshair').width(0).show();
+    } else if (keepSelect && !this.selector.hasClass('gv-crosshair')) {
       this.selectorStalled = false;
     } else {
       this.cancelSelect();
       this.selector.hide();
     }
   },
-  
+
   toggleSelect: function (on) {
     if (on) {
       this.prev.dragAction = 'scroll';
@@ -1854,11 +1853,11 @@ var Genoverse = Base.extend({
       delete this.prev.dragAction;
     }
   },
-  
+
   setWheelAction: function (action) {
     this.wheelAction = action;
   },
-  
+
   keydown: function (e) {
     if (e.which === 16 && !this.prev.dragAction && this.dragAction === 'scroll') { // shift key
       this.toggleSelect(true);
@@ -1867,13 +1866,13 @@ var Genoverse = Base.extend({
       this.closeMenus();
     }
   },
-  
+
   keyup: function (e) {
     if (e.which === 16 && this.prev.dragAction) { // shift key
       this.toggleSelect();
     }
   },
-  
+
   mousedown: function (e) {
     if (e.shiftKey) {
       if (this.dragAction === 'scroll') {
@@ -1882,26 +1881,26 @@ var Genoverse = Base.extend({
     } else if (this.prev.dragAction) {
       this.toggleSelect();
     }
-    
+
     switch (this.dragAction) {
       case 'select' : this.startDragSelect(e); break;
       case 'scroll' : this.startDragScroll(e); break;
       default       : break;
     }
   },
- 
+
   mouseup: function (e, update) {
     if (!this.dragging) {
       return false;
     }
-    
+
     switch (this.dragging) {
       case 'select' : this.stopDragSelect(e);      break;
       case 'scroll' : this.stopDragScroll(update); break;
       default       : break;
     }
   },
-  
+
   mousemove: function (e) {
     if (this.dragging && !this.scrolling) {
       switch (this.dragAction) {
@@ -1913,23 +1912,23 @@ var Genoverse = Base.extend({
       this.moveSelector(e);
     }
   },
-  
+
   moveSelector: function (e) {
     if (!this.selectorStalled) {
       this.selector.css('left', e.pageX - this.wrapper.offset().left - 2);
     }
   },
-  
+
   move: function (delta) {
     var scale = this.scale;
     var start, end, left;
-    
+
     if (scale > 1) {
       delta = Math.round(delta / scale) * scale; // Force stepping by base pair when in small regions
     }
-    
+
     left = this.left + delta;
-    
+
     if (left <= this.minLeft) {
       left  = this.minLeft;
       delta = this.minLeft - this.left;
@@ -1937,44 +1936,44 @@ var Genoverse = Base.extend({
       left  = this.maxLeft;
       delta = this.maxLeft - this.left;
     }
-    
+
     start = Math.max(Math.round(this.start - delta / scale), 1);
     end   = start + this.length - 1;
-    
+
     if (end > this.chromosomeSize) {
       end   = this.chromosomeSize;
       start = end - this.length + 1;
     }
-    
+
     this.left = left;
 
     if (start !== this.dragStart) {
       this.closeMenus();
       this.cancelSelect(true);
     }
-    
+
     this.onTracks('move', delta);
     this.setRange(start, end);
   },
-  
+
   moveTo: function (start, end, update, keepLength) {
     this.setRange(start, end, update, keepLength);
-    
+
     if (this.prev.scale === this.scale) {
       this.onTracks('moveTo', this.start, this.end, (this.prev.start - this.start) * this.scale);
     }
   },
-  
+
   setRange: function (start, end, update, keepLength) {
     this.prev.start = this.start;
     this.prev.end   = this.end;
     this.start      = Math.max(typeof start === 'number' ? Math.floor(start) : parseInt(start, 10), 1);
     this.end        = Math.min(typeof end   === 'number' ? Math.floor(end)   : parseInt(end,   10), this.chromosomeSize);
-    
+
     if (this.end < this.start) {
       this.end = Math.min(this.start + this.defaultLength - 1, this.chromosomeSize);
     }
-    
+
     if (keepLength && this.end - this.start + 1 !== this.length) {
       if (this.end === this.chromosomeSize) {
         this.start = this.end - this.length + 1;
@@ -1986,19 +1985,19 @@ var Genoverse = Base.extend({
     } else {
       this.length = this.end - this.start + 1;
     }
-    
+
     this.setScale();
-    
+
     if (update === true && (this.prev.start !== this.start || this.prev.end !== this.end)) {
       this.updateURL();
     }
   },
-  
+
   setScale: function () {
     this.prev.scale  = this.scale;
     this.scale       = this.width / this.length;
     this.scaledStart = this.start * this.scale;
-    
+
     if (this.prev.scale !== this.scale) {
       this.left        = 0;
       this.minLeft     = Math.round((this.end   - this.chromosomeSize) * this.scale);
@@ -2009,76 +2008,76 @@ var Genoverse = Base.extend({
         this.cancelSelect();
         this.closeMenus();
       }
-      
+
       this.onTracks('setScale');
       this.onTracks('makeFirstImage');
     }
   },
-  
+
   checkTrackHeights: function () {
     if (this.dragging) {
       return;
     }
-    
+
     this.onTracks('checkHeight');
   },
-  
+
   resetTrackHeights: function () {
     this.onTracks('resetHeight');
   },
-  
+
   zoomIn: function (x) {
     if (!x) {
       x = this.width / 2;
     }
-    
+
     var start = Math.round(this.start + x / (2 * this.scale));
     var end   = this.length === 2 ? start : Math.round(start + (this.length - 1) / 2);
-    
+
     this.setRange(start, end, true);
   },
-  
+
   zoomOut: function (x) {
     if (!x) {
       x = this.width / 2;
     }
-    
+
     var start = Math.round(this.start - x / this.scale);
     var end   = this.length === 1 ? start + 1 : Math.round(start + 2 * (this.length - 1));
-    
+
     this.setRange(start, end, true);
   },
-  
+
   addTrack: function (track, index) {
     return this.addTracks([ track ], index)[0];
   },
-  
+
   addTracks: function (tracks, index) {
     var defaults = {
       browser : this,
       width   : this.width
     };
-    
+
     var push = !!tracks;
     var j, config;
 
     tracks = tracks || $.extend([], this.tracks);
     index  = index  || 0;
-    
+
     for (var i = 0; i < tracks.length; i++) {
       if (this.savedConfig && this.savedConfig[tracks[i].prototype.id]) {
         defaults.config = this.savedConfig[tracks[i].prototype.id];
       }
 
       tracks[i] = new tracks[i]($.extend(defaults, { index: i + index }));
-      
+
       if (tracks[i].id) {
         this.tracksById[tracks[i].id] = tracks[i];
       }
-      
+
       if (push) {
         this.tracks.push(tracks[i]);
-        
+
         if (this.scale) {
           tracks[i].controller.setScale(); // scale will only be set for tracks added after initalisation
           tracks[i].controller.makeFirstImage();
@@ -2087,17 +2086,17 @@ var Genoverse = Base.extend({
         this.tracks[i] = tracks[i];
       }
     }
-    
+
     this.sortTracks();
     this.saveConfig();
 
     return tracks;
   },
-  
+
   removeTrack: function (track) {
     this.removeTracks([ track ]);
   },
-  
+
   removeTracks: function (tracks) {
     var i = tracks.length;
     var track, j;
@@ -2122,44 +2121,44 @@ var Genoverse = Base.extend({
 
     this.saveConfig();
   },
-  
+
   sortTracks: function () {
     if ($.grep(this.tracks, function (t) { return typeof t !== 'object'; }).length) {
       return;
     }
-    
+
     var sorted     = $.extend([], this.tracks).sort(function (a, b) { return a.order - b.order; });
     var labels     = $();
     var containers = $();
-    
+
     for (var i = 0; i < sorted.length; i++) {
       sorted[i].prop('order', i);
 
       if (sorted[i].prop('menus').length) {
         sorted[i].prop('top', sorted[i].prop('container').position().top);
       }
-      
+
       labels.push(sorted[i].prop('label')[0]);
       containers.push(sorted[i].prop('container')[0]);
     }
-    
+
     this.labelContainer.append(labels);
     this.wrapper.append(containers);
-    
+
     // Correct the order
     this.tracks = sorted;
-    
+
     labels.map(function () { return $(this).data('track'); }).each(function () {
       if (this.prop('menus').length) {
         var diff = this.prop('container').position().top - this.prop('top');
         this.prop('menus').css('top', function (i, top) { return parseInt(top, 10) + diff; });
         this.prop('top', null);
       }
-    }); 
-    
+    });
+
     sorted = labels = containers = null;
   },
-  
+
   updateTrackOrder: function (e, ui) {
     var track = ui.item.data('track');
     var prev  = ui.item.prev().data('track');
@@ -2168,19 +2167,19 @@ var Genoverse = Base.extend({
     var n     = next ? next.prop('order') : 0;
     var o     = p || n;
     var order;
-    
+
     if (prev && next && Math.floor(n) === Math.floor(p)) {
       order = p + (n - p) / 2;
     } else {
       order = o + (p ? 1 : -1) * Math.abs(Math.round(o) - o || 1) / 2;
     }
-    
+
     track.prop('order', order);
-    
+
     this.sortTracks();
     this.saveConfig();
   },
-  
+
   updateURL: function () {
     if (this.urlParamTemplate) {
       if (this.useHash) {
@@ -2190,156 +2189,147 @@ var Genoverse = Base.extend({
       }
     }
   },
-  
+
   popState: function () {
     var coords = this.getURLCoords();
     var start  = parseInt(coords.start, 10);
     var end    = parseInt(coords.end,   10);
-    
+
     if (coords.start && !(start === this.start && end === this.end)) {
       // FIXME: a back action which changes scale or a zoom out will reset tracks, since scrollStart will not be the same as it was before
       this.moveTo(start, end);
     }
-    
+
     this.closeMenus();
     this.hideMessages();
   },
-  
+
   getURLCoords: function () {
     var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') || window.location.search : window.location.search) + '&').match(this.paramRegex);
     var coords = {};
     var i      = 0;
-    
+
     if (!match) {
       return coords;
     }
-    
+
     match = match.slice(2, -1);
-    
+
     $.each(this.urlParamTemplate.split('__'), function () {
       var tmp = this.match(/^(CHR|START|END)$/);
-      
+
       if (tmp) {
         coords[tmp[1].toLowerCase()] = tmp[1] === 'CHR' ? match[i++] : parseInt(match[i++], 10);
       }
     });
-    
+
     return coords;
   },
-  
+
   getQueryString: function () {
     var location = this.urlParamTemplate
       .replace('__CHR__',   this.chr)
       .replace('__START__', this.start)
       .replace('__END__',   this.end);
-    
+
     return this.useHash ? location : window.location.search ? (window.location.search + '&').replace(this.paramRegex, '$1' + location + '$5').slice(0, -1) : '?' + location;
   },
-  
+
   supported: function () {
     var el = document.createElement('canvas');
     return !!(el.getContext && el.getContext('2d'));
   },
-  
+
   die: function (error, el) {
     if (el && el.length) {
       el.html(error);
     } else {
       alert(error);
     }
-    
+
     this.failed = true;
   },
-  
-  menuTemplate: $('<div class="gv_menu"><div class="close">x</div><table></table></div>').on('click', function (e) {
-    if ($(e.target).hasClass('close')) {
-      $(this).fadeOut('fast', function () { 
+
+  menuTemplate: $('<div class="gv-menu"><div class="gv-close">x</div><table></table></div>').on('click', function (e) {
+    if ($(e.target).hasClass('gv-close')) {
+      $(this).fadeOut('fast', function () {
         var data = $(this).data();
-        
+
         if (data.track) {
           data.track.prop('menus', data.track.prop('menus').not(this));
         }
-        
+
         data.browser.menus = data.browser.menus.not(this);
       });
     }
   }),
-  
+
   makeMenu: function (feature, event, track) {
     if (!feature.menuEl) {
       var menu = this.menuTemplate.clone(true).data('browser', this);
-      
+
       $.when(track ? track.controller.populateMenu(feature) : feature).done(function (feature) {
         if (Object.prototype.toString.call(feature) !== '[object Array]') {
           feature = [ feature ];
         }
-        
+
         feature.every(function (f) {
           $('table', menu).append(
-            (f.title ? '<tr class="header"><th colspan="2" class="title">' + f.title + '</th></tr>' : '') +
+            (f.title ? '<tr class="gv-header"><th colspan="2" class="title">' + f.title + '</th></tr>' : '') +
             $.map(f, function (value, key) {
               if (key !== 'title') {
                 return '<tr><td>' + key + '</td><td>' + value + '</td></tr>';
               }
             }).join()
           );
-          
+
           return true;
         });
-        
+
         if (track) {
           menu.addClass(track.id).data('track', track);
         }
       });
-      
+
       feature.menuEl = menu.appendTo(this.superContainer || this.container);
     }
-    
+
     this.menus = this.menus.add(feature.menuEl);
-    
+
     if (track) {
       track.prop('menus', track.prop('menus').add(feature.menuEl));
     }
-    
+
     feature.menuEl.show(); // Must show before positioning, else position will be wrong
-    
+
     if (event) {
       feature.menuEl.css({ left: 0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' });
     }
 
     return feature.menuEl;
   },
-  
+
   closeMenus: function (obj) {
     obj = obj || this;
-    
-    obj.menus.filter(':visible').children('.close').trigger('click');
+
+    obj.menus.filter(':visible').children('.gv-close').trigger('click');
     obj.menus = $();
   },
-  
+
   hideMessages: function () {
     if (this.autoHideMessages) {
-      this.wrapper.find('.message_container').addClass('collapsed');
+      this.wrapper.find('.gv-message-container').addClass('gv-collapsed');
     }
   },
-  
+
   getSelectorPosition: function () {
     var left  = this.selector.position().left;
     var width = this.selector.outerWidth(true);
     var start = Math.round(left / this.scale) + this.start;
     var end   = Math.round((left + width) / this.scale) + this.start - 1;
         end   = end <= start ? start : end;
-    
+
     return { start: start, end: end, left: left, width: width };
-  },
-  
-  // Provide summary of a region (as a popup menu)
-  summary: function (start, end) {
-    alert(
-      'Not implemented' + "\n" +
-      'Start: ' + start + "\n" +
-      'End: '   + end   + "\n"
-    );
   },
 
   on: function (events, obj, fn) {
@@ -2349,7 +2339,7 @@ var Genoverse = Base.extend({
 
     function makeEventMap(types, handler) {
       types = types.split(' ');
-      
+
       for (var j = 0; j < types.length; j++) {
         eventMap[types[j]] = (eventMap[types[j]] || []).concat(handler);
       }
@@ -2368,24 +2358,24 @@ var Genoverse = Base.extend({
         }
       }
     }
-    
+
     if (typeof events === 'object') {
       for (i in events) {
         makeEventMap(i, events[i]);
       }
-      
+
       obj = obj || this;
     } else {
       if (typeof fn === 'undefined') {
         fn  = obj;
         obj = this;
       }
-      
+
       makeEventMap(events, fn);
     }
-    
+
     var type = obj instanceof Genoverse.Track || obj === 'tracks' ? 'tracks' : 'browser';
-    
+
     for (i in eventMap) {
       browser.events[type][i] = browser.events[type][i] || [];
       fnString = $.map(eventMap[i], makeFnString);
@@ -2397,7 +2387,7 @@ var Genoverse = Base.extend({
   }
 }, {
   Plugins: {},
-  
+
   wrapFunctions: function (obj) {
     for (var key in obj) {
       if (typeof obj[key] === 'function' && typeof obj[key].ancestor !== 'function' && !key.match(/^(base|extend|constructor|on|prop|loadPlugins|loadGenome)$/)) {
@@ -2405,28 +2395,28 @@ var Genoverse = Base.extend({
       }
     }
   },
-  
+
   /**
    * functionWrap - wraps event handlers and adds debugging functionality
    **/
   functionWrap: function (key, obj) {
     obj.functions = obj.functions || {};
-    
+
     if (obj.functions[key] || key.match(/^(before|after)/)) {
       return;
     }
-    
+
     var func      = key.substring(0, 1).toUpperCase() + key.substring(1);
     var isBrowser = obj instanceof Genoverse;
     var mainObj   = isBrowser || obj instanceof Genoverse.Track ? obj : obj.track;
     var events    = isBrowser ? obj.events.browser : obj.browser.events.tracks;
     var debug     = (isBrowser ? 'Genoverse' : obj.id || obj.name || 'Track') + '.' + key;
-    
+
     obj.functions[key] = obj[key];
-    
+
     obj[key] = function () {
       var i, rtn;
-      
+
       // Debugging functionality
       // Enabled by "debug": true || { functionName: true, ...} option
       if (obj.debug === true) {                                     // if "debug": true, simply log function call
@@ -2434,35 +2424,35 @@ var Genoverse = Base.extend({
       } else if (typeof obj.debug === 'object' && obj.debug[key]) { // if debug: { functionName: true, ...}, log function time
         console.time('time: ' + debug);
       }
-      
+
       if (events['before' + func]) {
         for (i = 0; i < events['before' + func].length; i++) {
           // TODO: Should it end when beforeFunc returned false??
           events['before' + func][i].apply(this, arguments);
         }
       }
-      
+
       if (typeof mainObj['before' + func] === 'function') {
         mainObj['before' + func].apply(this, arguments);
       }
-      
+
       rtn = this.functions[key].apply(this, arguments);
-      
+
       if (typeof mainObj['after' + func] === 'function') {
         mainObj['after' + func].apply(this, arguments);
       }
-      
+
       if (events['after' + func]) {
         for (i = 0; i < events['after' + func].length; i++) {
           // TODO: Should it end when afterFunc returned false??
           events['after' + func][i].apply(this, arguments);
         }
       }
-      
+
       if (typeof obj.debug === 'object' && obj.debug[key]) {
         console.timeEnd('time: ' + debug);
       }
-      
+
       return rtn;
     };
   }
@@ -2807,149 +2797,149 @@ Genoverse.Track.Controller = Base.extend({
   messages     : {
     error     : 'ERROR: ',
     threshold : 'Data for this track is not displayed in regions greater than ',
-    resize    : 'Some features are currently hidden, <a class="resize">resize to see all</a>'
+    resize    : 'Some features are currently hidden, <a class="gv-resize">resize to see all</a>'
   },
-  
+
   constructor: function (properties) {
     $.extend(this, properties);
     Genoverse.wrapFunctions(this);
     this.init();
   },
-  
+
   init: function () {
     this.imgRange    = {};
     this.scrollRange = {};
-    
+
     this.addDomElements();
     this.addUserEventHandlers();
   },
-  
+
   reset: function () {
     this.resetImages();
     this.browser.closeMenus(this);
     this.setScale();
     this.makeFirstImage();
   },
-  
+
   resetImages: function () {
     this.imgRange    = {};
     this.scrollRange = {};
     this.scrollContainer.empty();
     this.resetImageRanges();
   },
-  
+
   resetImageRanges: function () {
     this.left        = 0;
-    this.scrollStart = 'ss_' + this.browser.start + '_' + this.browser.end;
-    
+    this.scrollStart = 'ss-' + this.browser.start + '-' + this.browser.end;
+
     this.imgRange[this.scrollStart]    = this.imgRange[this.scrollStart]    || { left: this.width * -2, right: this.width * 2 };
     this.scrollRange[this.scrollStart] = this.scrollRange[this.scrollStart] || { start: this.browser.start - this.browser.length, end: this.browser.end + this.browser.length };
   },
-  
+
   rename: function (name) {
     this.track.name     = name;
-    this.minLabelHeight = $('span.name', this.label).html(name).outerHeight(true);
+    this.minLabelHeight = $('span.gv-name', this.label).html(name).outerHeight(true);
     this.label.height(this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight));
   },
-  
+
   addDomElements: function () {
     var name = this.track.name || '';
-    
+
     this.menus            = $();
-    this.container        = $('<div class="track_container">').appendTo(this.browser.wrapper);
-    this.scrollContainer  = $('<div class="scroll_container">').appendTo(this.container);
-    this.imgContainer     = $('<div class="image_container">').width(this.width);
-    this.messageContainer = $('<div class="message_container"><div class="messages"></div><span class="control collapse">&laquo;</span><span class="control expand">&raquo;</span></div>').appendTo(this.container);
+    this.container        = $('<div class="gv-track-container">').appendTo(this.browser.wrapper);
+    this.scrollContainer  = $('<div class="gv-scroll-container">').appendTo(this.container);
+    this.imgContainer     = $('<div class="gv-image-container">').width(this.width);
+    this.messageContainer = $('<div class="gv-message-container"><div class="gv-messages"></div><span class="gv-control gv-collapse">&laquo;</span><span class="gv-control gv-expand">&raquo;</span></div>').appendTo(this.container);
     this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.prop('height')).data('track', this.track);
     this.context          = $('<canvas>')[0].getContext('2d');
-    
+
     if (this.prop('border')) {
-      $('<div class="track_border">').appendTo(this.container);
+      $('<div class="gv-track-border">').appendTo(this.container);
     }
-    
+
     if (this.prop('unsortable')) {
       this.label.addClass('unsortable');
     } else {
-      $('<div class="handle">').appendTo(this.label);
+      $('<div class="gv-handle">').appendTo(this.label);
     }
-    
-    this.minLabelHeight = $('<span class="name" title="' + name + '">' + name + '</span>').appendTo(this.label).outerHeight(true);
-    
+
+    this.minLabelHeight = $('<span class="gv-name" title="' + name + '">' + name + '</span>').appendTo(this.label).outerHeight(true);
+
     var h = this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight);
-    
+
     if (this.minLabelHeight) {
       this.label.height(h);
     }
-    
+
     this.container.height(h);
   },
-  
+
   addUserEventHandlers: function () {
     var controller = this;
     var browser    = this.browser;
-    
-    this.container.on('mouseup', '.image_container', function (e) {
+
+    this.container.on('mouseup', '.gv-image-container', function (e) {
       if ((e.which && e.which !== 1) || (typeof browser.dragStart === 'number' && browser.start !== browser.dragStart) || (browser.dragAction === 'select' && browser.selector.outerWidth(true) > 2)) {
         return; // Only show menus on left click when not dragging and not selecting
       }
 
       controller.click(e);
     });
-    
+
     this.messageContainer.children().on('click', function () {
-      var collapsed = controller.messageContainer.children('.messages').is(':visible') ? ' collapsed' : '';
-      var code      = controller.messageContainer.find('.msg')[0].className.replace('msg', '').replace(' ', '');
-      
-      controller.messageContainer.attr('class', 'message_container' + collapsed);
+      var collapsed = controller.messageContainer.children('.gv-messages').is(':visible') ? ' gv-collapsed' : '';
+      var code      = controller.messageContainer.find('.gv-msg')[0].className.replace('gv-msg', '').replace(' ', '');
+
+      controller.messageContainer.attr('class', 'gv-message-container' + collapsed);
       controller.checkHeight();
-      
+
       if (code !== 'error') {
         document.cookie = [ 'gv_msg', code, controller.prop('id') ].join('_') + '=1; expires=' + (collapsed ? 'Tue, 19 Jan 2038' : 'Thu, 01 Jan 1970') + ' 00:00:00 GMT; path=/';
       }
     });
   },
-  
+
   click: function (e) {
     var x = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
     var y = e.pageY - $(e.target).offset().top;
-    var f = this[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
-    
+    var f = this[e.target.className === 'gv-labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
+
     if (f) {
       this.browser.makeMenu(f, e, this.track);
     }
   },
-  
+
   // FIXME: messages are now hidden/shown instead of removed/added. This will cause a problem if a new message arrives with the same code as one that already exists.
   showMessage: function (code, additionalText) {
-    var messages = this.messageContainer.children('.messages');
-    
-    if (!messages.children('.' + code).show().length) {
-      var msg = $('<div class="msg ' + code + '">' + this.messages[code] + (additionalText || '') + '</div>').prependTo(messages);
-      
+    var messages = this.messageContainer.children('.gv-messages');
+
+    if (!messages.children('.gv-' + code).show().length) {
+      var msg = $('<div class="gv-msg gv-' + code + '">' + this.messages[code] + (additionalText || '') + '</div>').prependTo(messages);
+
       if (code === 'resize') {
-        msg.children('a.resize').on('click', $.proxy(function () {
+        msg.children('a.gv-resize').on('click', $.proxy(function () {
           this.resize(this.fullVisibleHeight);
         }, this));
       }
-      
-      this.messageContainer[document.cookie.match([ 'gv_msg', code, this.prop('id') ].join('_') + '=1') ? 'addClass' : 'removeClass']('collapsed');
+
+      this.messageContainer[document.cookie.match([ 'gv_msg', code, this.prop('id') ].join('_') + '=1') ? 'addClass' : 'removeClass']('gv-collapsed');
     }
-    
+
     var height = this.messageContainer.show().outerHeight(true);
-    
+
     if (height > this.prop('height')) {
       this.resize(height);
     }
-    
+
     messages = null;
   },
-  
+
   hideMessage: function (code) {
-    var messages = this.messageContainer.find('.msg');
-    
+    var messages = this.messageContainer.find('.gv-msg');
+
     if (code) {
-      messages = messages.filter('.' + code).hide();
-      
+      messages = messages.filter('.gv-' + code).hide();
+
       if (messages.length && !messages.siblings().filter(function () { return this.style.display !== 'none'; }).length) {
         this.messageContainer.hide();
       }
@@ -2957,14 +2947,14 @@ Genoverse.Track.Controller = Base.extend({
       messages.hide();
       this.messageContainer.hide();
     }
-    
+
     messages = null;
   },
-  
+
   showError: function (error) {
     this.showMessage('error', error);
   },
-  
+
   checkHeight: function () {
     if (this.browser.length > this.threshold) {
       if (this.thresholdMessage) {
@@ -2976,13 +2966,13 @@ Genoverse.Track.Controller = Base.extend({
     } else if (this.thresholdMessage) {
       this.hideMessage('threshold');
     }
-    
+
     if (!this.prop('resizable')) {
       return;
     }
-    
+
     var autoHeight;
-    
+
     if (this.browser.length > this.threshold) {
       autoHeight = this.prop('autoHeight');
       this.prop('autoHeight', true);
@@ -2991,25 +2981,25 @@ Genoverse.Track.Controller = Base.extend({
       var scale    = this.scale;
       var features = this.featurePositions.search(bounds);
       var height   = Math.max.apply(Math, $.map(features, function (feature) { return feature.position[scale].bottom; }).concat(0));
-      
+
       if (this.prop('labels') === 'separate') {
         this.labelTop = height;
         height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds).concat(this.prop('repeatLabels') ? features : []), function (feature) { return feature.position[scale].label.bottom; }).concat(0));
       }
-      
+
       this.fullVisibleHeight = height || (this.messageContainer.is(':visible') ? this.messageContainer.outerHeight(true) : 0);
     }
-    
+
     this.autoResize();
-    
+
     if (typeof autoHeight !== 'undefined') {
       this.prop('autoHeight', autoHeight);
     }
   },
-  
+
   autoResize: function () {
     var autoHeight = this.prop('autoHeight');
-    
+
     if (autoHeight || this.prop('labels') === 'separate') {
       this.resize(autoHeight ? this.fullVisibleHeight : this.prop('height'), this.labelTop, false);
     } else {
@@ -3021,9 +3011,9 @@ Genoverse.Track.Controller = Base.extend({
     height = this.track.setHeight(height, arg);
 
     if (typeof arg === 'number') {
-      this.imgContainers.children('.labels').css('top', arg);
+      this.imgContainers.children('.gv-labels').css('top', arg);
     }
-    
+
     this.container.add(this.label).height(height)[height ? 'show' : 'hide']();
     this.toggleExpander();
 
@@ -3031,15 +3021,15 @@ Genoverse.Track.Controller = Base.extend({
       this.browser.saveConfig();
     }
   },
-  
+
   toggleExpander: function () {
     if (this.prop('resizable') !== true) {
       return;
     }
-    
+
     var featureMargin = this.prop('featureMargin');
     var height        = this.prop('height');
-    
+
     // Note: fullVisibleHeight - featureMargin.top - featureMargin.bottom is not actually the correct value to test against, but it's the easiest best guess to obtain.
     // fullVisibleHeight is the maximum bottom position of the track's features in the region, which includes margin at the bottom of each feature and label
     // Therefore fullVisibleHeight includes this margin for the bottom-most feature.
@@ -3047,15 +3037,15 @@ Genoverse.Track.Controller = Base.extend({
     // fullVisibleHeight - ([there are labels in this region] ? (labels === 'separate' ? 0 : featureMargin.bottom + 1) + 2 : featureMargin.bottom)
     if (this.fullVisibleHeight - featureMargin.top - featureMargin.bottom > height && !this.prop('disabled')) {
       this.showMessage('resize');
-      
+
       var controller = this;
       var h          = this.messageContainer.outerHeight(true);
-      
+
       if (h > height) {
         this.resize(h);
       }
-      
-      this.expander = (this.expander || $('<div class="expander static">').width(this.width).appendTo(this.container).on('click', function () {
+
+      this.expander = (this.expander || $('<div class="gv-expander gv-static">').width(this.width).appendTo(this.container).on('click', function () {
         controller.resize(controller.fullVisibleHeight);
       }))[this.prop('height') === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
@@ -3063,50 +3053,50 @@ Genoverse.Track.Controller = Base.extend({
       this.expander.hide();
     }
   },
-  
+
   setWidth: function (width) {
     var track = this.track;
-    
+
     $.each([ this, track, track.model, track.view ], function () {
       this.width = width;
     });
-    
+
     this.imgContainer.add(this.expander).width(width);
-    
+
   },
-  
+
   setScale: function () {
     var controller = this;
-    
+
     this.scale = this.browser.scale;
-    
+
     this.track.setMVC();
     this.resetImageRanges();
-    
+
     var labels = this.prop('labels');
-    
+
     if (labels && labels !== 'overlay') {
       this.model.setLabelBuffer(this.browser.labelBuffer);
     }
-    
+
     if (this.threshold !== Infinity && this.prop('resizable') !== 'auto') {
       this.thresholdMessage = this.view.formatLabel(this.threshold);
     }
-    
+
     $.each(this.view.setScaleSettings(this.scale), function (k, v) { controller[k] = v; });
-    
+
     this.hideMessage();
   },
-  
+
   move: function (delta) {
     this.left += delta;
     this.scrollContainer.css('left', this.left);
-    
+
     var scrollStart = this.scrollStart;
-    
+
     if (this.imgRange[scrollStart].left + this.left > -this.scrollBuffer * this.width) {
       var end = this.scrollRange[scrollStart].start - 1;
-      
+
       this.makeImage({
         scale : this.scale,
         start : end - this.browser.length + 1,
@@ -3114,14 +3104,14 @@ Genoverse.Track.Controller = Base.extend({
         left  : this.imgRange[scrollStart].left,
         cls   : scrollStart
       });
-      
+
       this.imgRange[scrollStart].left     -= this.width;
       this.scrollRange[scrollStart].start -= this.browser.length;
     }
-    
+
     if (this.imgRange[scrollStart].right + this.left < this.scrollBuffer * this.width) {
       var start = this.scrollRange[scrollStart].end + 1;
-      
+
       this.makeImage({
         scale : this.scale,
         start : start,
@@ -3129,16 +3119,16 @@ Genoverse.Track.Controller = Base.extend({
         left  : this.imgRange[scrollStart].right,
         cls   : scrollStart
       });
-      
+
       this.imgRange[scrollStart].right  += this.width;
       this.scrollRange[scrollStart].end += this.browser.length;
     }
   },
-  
+
   moveTo: function (start, end, delta) {
     var scrollRange = this.scrollRange[this.scrollStart];
-    var scrollStart = 'ss_' + start + '_' + end;
-    
+    var scrollStart = 'ss-' + start + '-' + end;
+
     if (this.scrollRange[scrollStart] || start > scrollRange.end || end < scrollRange.start) {
       this.resetImageRanges();
       this.makeFirstImage(scrollStart);
@@ -3147,46 +3137,46 @@ Genoverse.Track.Controller = Base.extend({
       this.checkHeight();
     }
   },
-  
+
   makeImage: function (params) {
     params.scaledStart   = params.scaledStart   || params.start * params.scale;
     params.width         = params.width         || this.width;
     params.height        = params.height        || this.prop('height');
     params.featureHeight = params.featureHeight || 0;
     params.labelHeight   = params.labelHeight   || 0;
-    
+
     var deferred;
     var controller = this;
     var tooLarge   = this.browser.length > this.threshold;
     var div        = this.imgContainer.clone().addClass((params.cls + ' loading').replace('.', '_')).css({ left: params.left, display: params.cls === this.scrollStart ? 'block' : 'none' });
-    var bgImage    = params.background ? $('<img class="bg">').hide().addClass(params.background).data(params).prependTo(div) : false;
-    var image      = $('<img class="data">').hide().data(params).appendTo(div).on('load', function () {
+    var bgImage    = params.background ? $('<img class="gv-bg">').hide().addClass(params.background).data(params).prependTo(div) : false;
+    var image      = $('<img class="gv-data">').hide().data(params).appendTo(div).on('load', function () {
       $(this).fadeIn('fast').parent().removeClass('loading');
-      $(this).siblings('.bg').show();
+      $(this).siblings('.gv-bg').show();
     });
-    
+
     params.container = div;
-    
+
     this.imgContainers.push(div[0]);
     this.scrollContainer.append(this.imgContainers);
-    
+
     if (!tooLarge && !this.model.checkDataRange(params.start, params.end)) {
       var buffer = this.prop('dataBuffer');
-      
+
       params.start -= buffer.start;
       params.end   += buffer.end;
       deferred      = this.model.getData(params.start, params.end);
     }
-    
+
     if (!deferred) {
       deferred = $.Deferred();
       setTimeout($.proxy(deferred.resolve, this), 1); // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
     }
-    
+
     return deferred.done(function () {
       var features = tooLarge ? [] : controller.model.findFeatures(params.start, params.end);
       controller.render(features, image);
-      
+
       if (bgImage) {
         controller.renderBackground(features, bgImage);
       }
@@ -3194,16 +3184,16 @@ Genoverse.Track.Controller = Base.extend({
       controller.showError(e);
     });
   },
-  
+
   makeFirstImage: function (moveTo) {
     if (this.scrollContainer.children().hide().filter('.' + (moveTo || this.scrollStart)).show().length) {
       if (moveTo) {
         this.scrollContainer.css('left', 0);
       }
-      
+
       return this.checkHeight();
     }
-    
+
     var controller = this;
     var start      = this.browser.start;
     var end        = this.browser.end;
@@ -3213,42 +3203,42 @@ Genoverse.Track.Controller = Base.extend({
     var images     = [{ start: start, end: end, scale: scale, cls: cls, left: 0 }];
     var left       = 0;
     var width      = this.width;
-    
+
     if (!this.browser.isStatic) {
       if (start > 1) {
         images.push({ start: start - length, end: start - 1, scale: scale, cls: cls, left: -this.width });
         left   = -this.width;
         width += this.width;
       }
-      
+
       if (end < this.browser.chromosomeSize) {
         images.push({ start: end + 1, end: end + length, scale: scale, cls: cls, left: this.width });
         width += this.width;
       }
     }
-    
-    var loading = this.imgContainer.clone().addClass('loading').css({ left: left, width: width }).prependTo(this.scrollContainer.css('left', 0));
-    
+
+    var loading = this.imgContainer.clone().addClass('gv-loading').css({ left: left, width: width }).prependTo(this.scrollContainer.css('left', 0));
+
     function makeImages() {
       for (var i = 0; i < images.length; i++) {
         controller.makeImage(images[i]);
       }
-      
+
       loading.remove();
     }
-    
+
     // FIXME: on zoom out, making more than 1 request
     if (length > this.threshold || this.model.checkDataRange(start, end)) {
       makeImages();
     } else {
       var buffer = this.prop('dataBuffer');
-      
+
       this.model.getData(start - buffer.start - length, end + buffer.end + length).done(makeImages).fail(function (e) {
         controller.showError(e);
       });
     }
   },
-  
+
   render: function (features, img) {
     var params         = img.data();
         features       = this.view.positionFeatures(this.view.scaleFeatures(features, params.scale), params); // positionFeatures alters params.featureHeight, so this must happen before the canvases are created
@@ -3256,39 +3246,39 @@ Genoverse.Track.Controller = Base.extend({
     var labelCanvas    = this.prop('labels') === 'separate' && params.labelHeight ? featureCanvas.clone().attr('height', params.labelHeight) : featureCanvas;
     var featureContext = featureCanvas[0].getContext('2d');
     var labelContext   = labelCanvas[0].getContext('2d');
-    
+
     featureContext.font = labelContext.font = this.prop('font');
-    
+
     switch (this.prop('labels')) {
       case false     : break;
       case 'overlay' : labelContext.textAlign = 'center'; labelContext.textBaseline = 'middle'; break;
       default        : labelContext.textAlign = 'left';   labelContext.textBaseline = 'top';    break;
     }
-    
+
     this.view.draw(features, featureContext, labelContext, params.scale);
-    
+
     img.attr('src', featureCanvas[0].toDataURL());
-    
+
     if (labelContext !== featureContext) {
-      img.clone(true).attr({ 'class': 'labels', src: labelCanvas[0].toDataURL() }).insertAfter(img);
+      img.clone(true).attr({ 'class': 'gv-labels', src: labelCanvas[0].toDataURL() }).insertAfter(img);
     }
-    
+
     this.checkHeight();
-    
+
     featureCanvas = labelCanvas = img = null;
   },
-  
+
   renderBackground: function (features, img, height) {
     var canvas = $('<canvas>').attr({ width: this.width, height: height || 1 })[0];
     this.view.drawBackground(features, canvas.getContext('2d'), img.data());
     img.attr('src', canvas.toDataURL());
     canvas = img = null;
   },
-  
+
   populateMenu: function (feature) {
     return feature;
   },
-  
+
   destroy: function () {
     this.container.add(this.label).add(this.menus).remove();
   }
@@ -3870,7 +3860,7 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
     
     this.image = $('<img>').appendTo(this.imgContainer);
     
-    this.container.toggleClass('track_container track_container_static').prepend(this.imgContainer);
+    this.container.toggleClass('gv-track-container gv-track-container-static').prepend(this.imgContainer);
     this.scrollContainer.add(this.messageContainer).remove();
   },
   
@@ -4359,18 +4349,18 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     majorGuideLine : '#CCCCCC',
     minorGuideLine : '#E5E5E5'
   },
-  
+
   setEvents: function () {
     var browser = this.browser;
-    
+
     function resize() {
-      $('.bg.fullHeight', browser.container).height(browser.wrapper.outerHeight(true));
+      $('.gv-bg.gv-full-height', browser.container).height(browser.wrapper.outerHeight(true));
     }
-    
+
     browser.on('afterAddTracks', resize);
     browser.on('afterResize', this, resize);
   },
-  
+
   setScale: function () {
     var max       = this.prop('width') / this.prop('minPixPerMajor');
     var divisor   = 5;
@@ -4378,25 +4368,25 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     var fromDigit = ('' + this.browser.start).split(''); // Split into array of digits
     var toDigit   = ('' + this.browser.end).split('');
     var divisions, i;
-    
+
     for (i = fromDigit.length; i < toDigit.length; i++) {
       fromDigit.unshift('0');
     }
-    
+
     for (i = toDigit.length; i < fromDigit.length; i++) {
       toDigit.unshift('0');
     }
-    
+
     // How many divisions would there be if we only kept i digits?
     for (i = 0; i < fromDigit.length; i++) {
       divisions = parseInt(toDigit.slice(0, fromDigit.length - i).join(''), 10) - parseInt(fromDigit.slice(0, fromDigit.length - i).join(''), 10);
-      
+
       if (divisions && divisions <= max) {
         majorUnit = parseInt('1' + $.map(new Array(i), function () { return '0'; }).join(''), 10);
         break;
       }
     }
-    
+
     if (majorUnit === -1) {
       majorUnit = parseInt('1' + $.map(new Array(fromDigit.length), function () { return '0'; }).join(''), 10);
       divisor   = 1;
@@ -4413,135 +4403,135 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
         majorUnit /= 2;
       }
     }
-    
+
     majorUnit = Math.max(majorUnit, 1);
-    
+
     this.prop('minorUnit',    Math.max(majorUnit / divisor, 1));
     this.prop('majorUnit',    majorUnit);
     this.prop('features',     new RTree());
     this.prop('featuresById', {});
     this.prop('seen',         {});
-    
+
     this.base();
   },
-  
+
   setFeatures: function (start, end) {
     var minorUnit = this.prop('minorUnit');
     var majorUnit = this.prop('majorUnit');
     var seen      = this.prop('seen');
-    
+
     start = Math.max(start - (start % minorUnit) - majorUnit, 0);
-    
+
     var flip  = (start / minorUnit) % 2 ? 1 : -1;
     var feature, major, label;
-    
+
     for (var x = start; x < end + minorUnit; x += minorUnit) {
       flip *= -1;
-      
+
       if (seen[x]) {
         continue;
       }
-      
+
       seen[x] = 1;
-      
+
       feature = { id: x, strand: 1, sort: x };
       major   = x && x % majorUnit === 0;
-      
+
       if (flip === 1) {
         feature.start = x;
         feature.end   = x + minorUnit - 1;
       }
-      
+
       if (major) {
         label = this.track.view.formatLabel(x);
-        
+
         if (label !== this.lastLabel) {
           feature.label = label;
-          
+
           if (!feature.end) {
             feature.start = x;
             feature.end   = x - 1;
           }
         }
-        
+
         this.lastLabel = label;
       }
-      
+
       if (feature.end) {
         this.insertFeature(feature);
       }
     }
   },
-  
+
   makeFirstImage: function (moveTo) {
     if (this.prop('strand') === -1) {
       moveTo = this.track.forwardTrack.scrollStart;
     }
-    
+
     return this.base(moveTo);
   },
-  
+
   makeImage: function (params) {
-    params.background    = 'guidelines fullHeight';
+    params.background    = 'gv-guidelines gv-full-height';
     params.featureHeight = this.prop('height');
-    
+
     this.track.setFeatures.apply(this.track.model, [ params.start, params.end ]);
-    
+
     var rtn = this.base(params);
-    
-    params.container.addClass('fullHeight');
-    
+
+    params.container.addClass('gv-full-height');
+
     return rtn;
   },
-  
+
   makeReverseImage: function (params) {
     this.imgContainers.push(params.container.clone().html(params.container.children('.data').clone(true).css('background', '#FFF'))[0]);
     this.scrollContainer.append(this.imgContainers);
   },
-  
+
   renderBackground: function (f, bgImage) {
     this.base(f, bgImage);
     bgImage.height(this.browser.wrapper.outerHeight(true));
   },
-  
+
   draw: function (features, featureContext, labelContext, scale) {
     var i         = features.length;
     var minorUnit = this.prop('minorUnit');
     var width     = Math.ceil(minorUnit * scale);
     var feature, start;
-    
+
     featureContext.textBaseline = 'top';
     featureContext.fillStyle    = this.color;
-    
+
     this.guideLines = { major: {} }; // FIXME: pass params to draw, rather than scale. set guideLines on params
-    
+
     while (i--) {
       feature = features[i];
       start   = Math.round(feature.position[scale].X);
-      
+
       this.drawFeature($.extend({}, feature, {
         x      : start,
         y      : 0,
         width  : Math.ceil(feature.position[scale].width),
         height : this.featureHeight
       }), featureContext, labelContext, scale);
-      
+
       if (feature.label) {
         if (start > -1) {
           featureContext.fillRect(start, this.featureHeight, 1, this.featureHeight);
         }
-        
+
         this.guideLines.major[feature.start] = true;
       }
-      
+
       this.guideLines[feature.start] = start;
       this.guideLines[feature.start + minorUnit] = start + width - 1;
     }
-    
+
     featureContext.fillRect(0, 0, featureContext.canvas.width, 1);
     featureContext.fillRect(0, this.featureHeight, featureContext.canvas.width, 1);
   },
-  
+
   // Draw guidelines
   drawBackground: function (f, context) {
     for (var i in this.guideLines) {
@@ -4551,7 +4541,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       }
     }
   },
-  
+
   formatLabel: function (label) {
     return this.prop('minorUnit') < 1000 ? label.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') : this.base(label);
   }
@@ -4570,7 +4560,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     init: function () {
       this.base();
       
-      this.container.addClass('track_container_legend');
+      this.container.addClass('gv-track-container-legend');
 
       if (!this.browser.legends) {
         this.browser.legends = {};

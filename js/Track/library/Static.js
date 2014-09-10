@@ -4,7 +4,7 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
     
     this.image = $('<img>').appendTo(this.imgContainer);
     
-    this.container.toggleClass('track_container track_container_static').prepend(this.imgContainer);
+    this.container.toggleClass('gv-track-container gv-track-container-static').prepend(this.imgContainer);
     this.scrollContainer.add(this.messageContainer).remove();
   },
   
