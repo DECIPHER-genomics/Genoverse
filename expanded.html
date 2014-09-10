@@ -81,7 +81,7 @@
         plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
         tracks    : [
           Genoverse.Track.Scalebar,
-         /* Genoverse.Track.extend({
+          Genoverse.Track.extend({
             name      : 'Sequence',
             model     : Genoverse.Track.Model.Sequence.Ensembl,
             view      : Genoverse.Track.View.Sequence,
@@ -112,7 +112,7 @@
             resizable       : 'auto',
             model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
             setFeatureColor : function (f) { f.color = '#AAA'; }
-          })*/
+          })
         ]
       }
 
