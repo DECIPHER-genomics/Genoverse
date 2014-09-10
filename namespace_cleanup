@@ -1,0 +1,68 @@
+## Because class names can be quiet short, we need some surrounding
+## context to disambiguat them, hence the 3/4 regexp below.
+
+while read -u3 -r x y; do 
+    echo $x to $y
+    export x
+    export y
+    
+    ## Change css classes
+    perl -p -i -e 's/\.$ENV{x}\b/.$ENV{y}/g'                  $(find ./ | grep -P '\.(css)$')
+    #git diff; git stash;
+    
+    ## Change html classes (except in js libraries)
+    perl -p -i -e 's/"(.*? )?$ENV{x}( .*?)?"/"\1$ENV{y}\2"/g' $(find ./ | grep -P '\.(js|html)$' | grep -v ./js/lib/ )
+    #git diff; git stash;
+    
+    ## Change the odd class in js (except in js libraries)
+    perl -p -i -e "s/'(\.)?${x}'/'\1${y}'/g"                  $(find ./ | grep -P '\.(js)$'      | grep -v ./js/lib/ )
+    #git diff; git stash;
+    
+    echo done
+    echo
+    #read
+done \
+    3< <(grep -v "^#" namespace_class_map)
+
+exit
+
+
+## Handle the 'resizer' class separately as there is also a plugin
+## called 'resizer'.
+export x=resizer
+export y=genoverse_resizer
+
+## Change css classes
+perl -p -i -e 's/\.$ENV{x}\b/.$ENV{y}/g' $(find ./ | grep -P '\.(css)$')
+
+## Change html classes (ug)
+perl -p -i -e 's/"(.*? )?$ENV{x}( .*?)?"/"\1$ENV{y}\2"/g' $(find ./ | grep -P '\.(js|html)$' | grep -v ./js/lib/ )
+
+
+
+## Finally... clean these up eh?
+grep -Pr "class=\"\w+\s+\w+\"" ./
+
+while read -u3 -r x y; do 
+    echo $x to $y
+    export x
+    export y
+    
+    ## Change html classes
+    perl -p -i -e 's/"(.*? )?$ENV{x}( .*?)?"/"\1$ENV{y}\2"/g' $(find ./ | grep -P '\.(js|html)$')
+
+    echo done
+    echo
+    #read
+done \
+    3< <(grep -v "^#" namespace_class_map)
+
+## We did too much!
+replace '+ genoverse_name +' '+ name +' -- js/Track/Controller.js js/genoverse.combined.js
+replace "'genoverse_title'" "'title'" -- examples/tomato/SequenceVariation.js
+
+
+
+## TODO: Some tings are still broke!
+
+## TODO: Some things aint yet prefixed!

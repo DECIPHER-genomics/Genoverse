@@ -14,7 +14,7 @@ Genoverse.Plugins.tooltips = function () {
     'class' : 'genoverse-tooltip',
     init    : $.noop,
     action  : function (browser) {
-      var func = $(this).toggleClass('active').hasClass('active') ? 'show' : 'hide';
+      var func = $(this).toggleClass('genoverse_active').hasClass('genoverse_active') ? 'show' : 'hide';
       browser.superContainer.find('.genoverse-tooltip').each(function () { $(this).tipsy(func); });
     }
   });

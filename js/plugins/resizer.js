@@ -10,11 +10,11 @@ Genoverse.Plugins.resizer = function () {
     var height     = this.prop('height');
     
     if (!resizer) {
-      resizer = this.prop('resizer', $('<div class="resizer static"><div class="handle"></div></div>').appendTo(track.prop('container')).draggable({
+      resizer = this.prop('resizer', $('<div class="resizer genoverse_static"><div class="genoverse_handle"></div></div>').appendTo(track.prop('container')).draggable({
         axis  : 'y',
-        start : function () { $('body').addClass('dragging'); },
+        start : function () { $('body').addClass('genoverse_dragging'); },
         stop  : function (e, ui) {
-          $('body').removeClass('dragging');
+          $('body').removeClass('genoverse_dragging');
           controller.resize(track.prop('height') + ui.position.top - ui.originalPosition.top, true);
           $(this).css('top', 'auto'); // returns the resizer to the bottom of the container - needed when the track is resized to 0
         }

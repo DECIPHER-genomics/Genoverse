@@ -31,7 +31,7 @@ Genoverse.Plugins.controlPanel = function () {
       var panel = $(
         '<table cellspacing=0 cellpadding=0 class="genoverse">' +
         '  <tr>' +
-        '    <td class="canvas_container"></td>' +
+        '    <td class="genoverse_canvas_container"></td>' +
         '    <td class="genoverse_panel genoverse_panel_right">' +
         '      <div class="button_set" title="Scroll left and right by pressing and holding these buttons">' +
         '        <button class="scrollLeft">&#9668;</button><button class="scrollRight">&#9658;</button>' +
@@ -51,7 +51,7 @@ Genoverse.Plugins.controlPanel = function () {
       ).appendTo(this.container).find('.genoverse_panel');
 
       this.superContainer = this.container;
-      this.container      = $('.canvas_container', this.container);
+      this.container      = $('.genoverse_canvas_container', this.container);
       this.width         -= panel.width();
       
       panel.find('button.scrollLeft, button.scrollRight').on({
@@ -76,43 +76,43 @@ Genoverse.Plugins.controlPanel = function () {
       });
       
       if (browser.dragAction === 'select') {
-        panel.find('button.dragSelect').addClass('active');
-        panel.find('button.dragScroll').removeClass('active');
+        panel.find('button.dragSelect').addClass('genoverse_active');
+        panel.find('button.dragScroll').removeClass('genoverse_active');
       } else {
-        panel.find('button.dragSelect').removeClass('active');
-        panel.find('button.dragScroll').addClass('active');
+        panel.find('button.dragSelect').removeClass('genoverse_active');
+        panel.find('button.dragScroll').addClass('genoverse_active');
       }
       
       panel.find('button.dragSelect').on('click', function () {
         browser.setDragAction('select');
-        panel.find('button.dragSelect').addClass('active');
-        panel.find('button.dragScroll').removeClass('active');
+        panel.find('button.dragSelect').addClass('genoverse_active');
+        panel.find('button.dragScroll').removeClass('genoverse_active');
       });
       
       panel.find('button.dragScroll').on('click', function () {
         browser.setDragAction('scroll');
-        panel.find('button.dragSelect').removeClass('active');
-        panel.find('button.dragScroll').addClass('active');
+        panel.find('button.dragSelect').removeClass('genoverse_active');
+        panel.find('button.dragScroll').addClass('genoverse_active');
       });
       
       if (browser.wheelAction === 'zoom') {
-        panel.find('button.wheelZoom').addClass('active');
-        panel.find('button.wheelOff').removeClass('active');
+        panel.find('button.wheelZoom').addClass('genoverse_active');
+        panel.find('button.wheelOff').removeClass('genoverse_active');
       } else {
-        panel.find('button.wheelZoom').removeClass('active');
-        panel.find('button.wheelOff').addClass('active');
+        panel.find('button.wheelZoom').removeClass('genoverse_active');
+        panel.find('button.wheelOff').addClass('genoverse_active');
       }
       
       panel.find('button.wheelZoom').on('click', function () {
         browser.setWheelAction('zoom');
-        $(this).addClass('active');
-        panel.find('button.wheelOff').removeClass('active');
+        $(this).addClass('genoverse_active');
+        panel.find('button.wheelOff').removeClass('genoverse_active');
       });
       
       panel.find('button.wheelOff').on('click', function () {
         browser.setWheelAction('off');
-        panel.find('button.wheelZoom').removeClass('active');
-        $(this).addClass('active');
+        panel.find('button.wheelZoom').removeClass('genoverse_active');
+        $(this).addClass('genoverse_active');
       });
 
       for (var i = 0; i < browser.controls.length; i++) {
@@ -132,7 +132,7 @@ Genoverse.Plugins.controlPanel = function () {
       // ESC key to toggle crosshair select to drag mode and close menus
       $(document).on('keydown', function (e) {
         if (e.keyCode === 27) {
-          if (panel.find('button.dragSelect').hasClass('active')) {
+          if (panel.find('button.dragSelect').hasClass('genoverse_active')) {
             panel.find('button.dragScroll').trigger('click');
           }
           
@@ -146,9 +146,9 @@ Genoverse.Plugins.controlPanel = function () {
       var tracksButton = $('<button title="Tracks menu">&#9776; Tracks</button>').on('click', function () {
         var button = this;
         
-        if ($(this).hasClass('active')) {
+        if ($(this).hasClass('genoverse_active')) {
           $('.gv_menu.tracksMenu .close').trigger('click');
-          $(this).removeClass('active');
+          $(this).removeClass('genoverse_active');
         } else {
           var menu = $(this).data('menu');
           var css  = browser.wrapper.offset();
@@ -187,8 +187,8 @@ Genoverse.Plugins.controlPanel = function () {
               });
             });
             
-            $('.close', menu).on('click', function () {
-              $(button).removeClass('active');
+            $('.genoverse_close', menu).on('click', function () {
+              $(button).removeClass('genoverse_active');
             });
             
             var availableTracks = $('.availableTracks', menu);
@@ -199,7 +199,7 @@ Genoverse.Plugins.controlPanel = function () {
                   if (browser.tracks[i].name && !(browser.tracks[i] instanceof Genoverse.Track.Legend)) {
                     (function (track) {
                       $('<div>')
-                        .append($('<div class="removeTrack">x</div>').on('click', function () { track.remove(); }))
+                        .append($('<div class="genoverse_removeTrack">x</div>').on('click', function () { track.remove(); }))
                         .append('<span>' + track.name + '</span>')
                         .appendTo(currentTracks);
                     })(browser.tracks[i]);
@@ -216,7 +216,7 @@ Genoverse.Plugins.controlPanel = function () {
               for (var i = 0; i < tracksLibrary.length; i++) {
                 (function (track) {
                   $('<div class="tracksLibraryItem">').append(
-                    $('<div class="addTrack">+</div> ').on('click', function () {
+                    $('<div class="genoverse_addTrack">+</div> ').on('click', function () {
                       browser.trackIds = browser.trackIds || {};
                       browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
 
@@ -233,7 +233,7 @@ Genoverse.Plugins.controlPanel = function () {
             $(this).data('menu', menu);
           }
           
-          $(this).addClass('active');
+          $(this).addClass('genoverse_active');
         }
       });
       
@@ -245,7 +245,7 @@ Genoverse.Plugins.controlPanel = function () {
     },
     
     afterAddDomElements: function () {
-      this.wrapper.after('<div class="gv_powered_by">Powered by <a target="_blank" href="http://genoverse.org">Genoverse</a></div>');
+      this.wrapper.after('<div class="genoverse_powered_by">Powered by <a target="_blank" href="http://genoverse.org">Genoverse</a></div>');
     },
     
     'afterAddTracks afterRemoveTracks': function () {

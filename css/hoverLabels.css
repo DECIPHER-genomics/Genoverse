@@ -1,12 +1,12 @@
-.canvas_container .label_container {
+.genoverse_canvas_container .genoverse_label_container {
   /*width: 20px;*/
 }
 
-.canvas_container .label_container li {
+.genoverse_canvas_container .genoverse_label_container li {
   /*overflow: visible;*/
 }
 
-.canvas_container .label_container li .name {
+.genoverse_canvas_container .genoverse_label_container li .name {
   background: rgba(0,0,0,0.7);
   height: 30px;
   padding: 5px;

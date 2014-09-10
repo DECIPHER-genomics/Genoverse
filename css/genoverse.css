@@ -1,9 +1,9 @@
-.wrap {
+.genoverse_wrap {
   margin: 10px auto;
   width: 1000px;
 }
 
-.canvas_container {
+.genoverse_canvas_container {
   cursor: pointer;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -13,59 +13,59 @@
   user-select: none;  
 }
 
-.canvas_container .gv_wrapper {
+.genoverse_canvas_container .genoverse_wrapper {
   border: 1px solid black;
   overflow: hidden;
   position: relative;
   background-color: white;
 }
 
-.canvas_container .gv_wrapper .overlay {
+.genoverse_canvas_container .genoverse_wrapper .overlay {
   position: absolute;
   height: 100%;
   z-index: 10;
   background: url(../i/loadingBG.png) repeat #ccc;
 }
 
-.canvas_container .gv_wrapper .overlay.track {
+.genoverse_canvas_container .genoverse_wrapper .overlay.track {
   background-position: center;
   background-repeat: repeat-x;
 }
 
-.canvas_container canvas {
+.genoverse_canvas_container canvas {
   display: none;
 }
 
-.canvas_container .track_container,
-.canvas_container .track_container_static {
+.genoverse_canvas_container .genoverse_track_container,
+.genoverse_canvas_container .genoverse_track_container_static {
   overflow: visible;
   position: relative;
 }
 
-.canvas_container .track_container_legend {
+.genoverse_canvas_container .genoverse_track_container_legend {
   border-top: 1px solid #000000;
   margin-top: -1px;
   z-index: 1;
 }
 
-.canvas_container .track_container_static .image_container,
-.canvas_container .track_container_static img {
+.genoverse_canvas_container .genoverse_track_container_static .image_container,
+.genoverse_canvas_container .genoverse_track_container_static img {
   background: #FFF;
   z-index: 1;
 }
 
-.track_container.partially_hidden + .track_container {
+.genoverse_track_container.genoverse_partially_hidden + .genoverse_track_container {
   box-shadow: 0 -4px 5px 2px rgba(0, 0, 0, 0.5);
 }
 
-.canvas_container .track_container .scroll_container {
+.genoverse_canvas_container .genoverse_track_container .genoverse_scroll_container {
   overflow: visible;
   position: relative;
   width: 0;
   height: 100%;
 }
 
-.canvas_container .message_container { 
+.genoverse_canvas_container .genoverse_message_container { 
   position: absolute; 
   top: 0; 
   left: -1px; 
@@ -81,41 +81,41 @@
   font-weight: bold;
 }
 
-.canvas_container .message_container:hover { 
+.genoverse_canvas_container .genoverse_message_container:hover { 
   background: rgba(0, 0, 0, 0.7);
 }
 
-.canvas_container .message_container .messages { 
+.genoverse_canvas_container .genoverse_message_container .genoverse_messages { 
   float: right; 
   padding-right: 10px; 
   padding-left: 15px; 
   margin-bottom: -6px; 
 }
 
-.canvas_container .message_container .msg { 
+.genoverse_canvas_container .genoverse_message_container .genoverse_msg { 
   margin-bottom: 6px; 
 }
 
-.canvas_container .message_container .msg a {
+.genoverse_canvas_container .genoverse_message_container .genoverse_msg a {
   color: #FFF;
   text-decoration: underline;
 }
 
-.canvas_container .message_container .control {
+.genoverse_canvas_container .genoverse_message_container .control {
   position: absolute;
   height: 14px;
   font-size: 12px; 
   cursor: pointer; 
 }
 
-.canvas_container .message_container .control:hover      { text-decoration: underline; }
-.canvas_container .message_container .expand,
-.canvas_container .message_container.collapsed .messages,
-.canvas_container .message_container.collapsed .collapse { display: none; }
-.canvas_container .message_container .collapse           { display: inline; }
-.canvas_container .message_container.collapsed .expand   { display: inline; position: relative; }
+.genoverse_canvas_container .genoverse_message_container .control:hover      { text-decoration: underline; }
+.genoverse_canvas_container .genoverse_message_container .genoverse_expand,
+.genoverse_canvas_container .genoverse_message_container.genoverse_collapsed .genoverse_messages,
+.genoverse_canvas_container .genoverse_message_container.genoverse_collapsed .genoverse_collapse { display: none; }
+.genoverse_canvas_container .genoverse_message_container .genoverse_collapse           { display: inline; }
+.genoverse_canvas_container .genoverse_message_container.genoverse_collapsed .genoverse_expand   { display: inline; position: relative; }
 
-.canvas_container .image_container {
+.genoverse_canvas_container .image_container {
   height: 100%;
   overflow-x: visible;
   overflow-y: hidden;
@@ -123,47 +123,47 @@
   margin: 0;
 }
 
-.canvas_container .image_container.fullHeight {
+.genoverse_canvas_container .image_container.genoverse_fullHeight {
   overflow-y: visible;
 }
 
-.canvas_container .image_container.loading {
+.genoverse_canvas_container .image_container.genoverse_loading {
   background: rgba(204,204,204,0.4);
 }
 
-.canvas_container .image_container img {
+.genoverse_canvas_container .image_container img {
   position: absolute;
   z-index: 1;
 }
 
-.canvas_container .image_container img.data {
+.genoverse_canvas_container .image_container img.data {
   max-width: none;
 }
 
-.canvas_container .image_container img.bg {
+.genoverse_canvas_container .image_container img.genoverse_bg {
   display: block;
   z-index: 0;
   width: 100%;
 }
 
-.canvas_container .image_container img.fullHeight {
+.genoverse_canvas_container .image_container img.genoverse_fullHeight {
   z-index: 0;
 }
 
-.canvas_container .image_container img.guidelines {
+.genoverse_canvas_container .image_container img.guidelines {
   z-index: 1;
 }
 
-.canvas_container .image_container img.static {
+.genoverse_canvas_container .image_container img.genoverse_static {
   display: block;
   top: 50%;
 }
 
-.canvas_container .height_toggler {
+.genoverse_canvas_container .genoverse_height_toggler {
   display: none;
 }
 
-.canvas_container .label_container {
+.genoverse_canvas_container .genoverse_label_container {
   position: relative;
   float: left;
   margin: 0;
@@ -179,7 +179,7 @@
   width: 100px;
 }
 
-.canvas_container .label_container li {
+.genoverse_canvas_container .genoverse_label_container li {
   position: relative;
   margin: 0;
   padding: 0;
@@ -189,7 +189,7 @@
   overflow: hidden;
 }
 
-.canvas_container .label_container li .handle {
+.genoverse_canvas_container .genoverse_label_container li .genoverse_handle {
   position: relative;
   background-image: url(../i/Grabbar.png);
   cursor: move;
@@ -200,15 +200,15 @@
   opacity: 0.7;
 }
 
-li.sortHandle {
+li.genoverse_sortHandle {
   background-color: rgba(6, 54, 95, 0.35);
 }
 
-.canvas_container .label_container li:not(:first-child) {
+.genoverse_canvas_container .genoverse_label_container li:not(:first-child) {
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 -1px 0 #38688F inset
 }
 
-.canvas_container .label_container li .name {
+.genoverse_canvas_container .genoverse_label_container li .name {
   display: inline-block;
   position: relative; 
   overflow: hidden;
@@ -225,11 +225,11 @@ li.sortHandle {
   white-space: pre-wrap;
 }
 
-.canvas_container .label_container li.unsortable .name {
+.genoverse_canvas_container .genoverse_label_container li.unsortable .name {
   left: 15px;
 }
 
-.canvas_container .menu_container {
+.genoverse_canvas_container .genoverse_menu_container {
   display: none;
   position: absolute;
   height: 100%;
@@ -237,8 +237,8 @@ li.sortHandle {
   padding-bottom: 100px;
 }
 
-.track_container .track_border,
-.track_container_static .track_border {
+.genoverse_track_container .genoverse_track_border,
+.genoverse_track_container_static .genoverse_track_border {
   position: absolute;
   display: block;
   height: 1px;
@@ -248,20 +248,20 @@ li.sortHandle {
   width: 100%;
 }
 
-.track_container.fullHeight .track_border,
-.track_container_static.fullHeight .track_border {
+.genoverse_track_container.genoverse_fullHeight .genoverse_track_border,
+.genoverse_track_container_static.genoverse_fullHeight .genoverse_track_border {
   border: none;
 }
 
-.canvas_container .track_container_legend .track_border {
+.genoverse_canvas_container .genoverse_track_container_legend .genoverse_track_border {
   border-color: #000;
 }
 
-.canvas_container .gv_wrapper > :last-child.track_container_legend .track_border {
+.genoverse_canvas_container .genoverse_wrapper > :last-child.genoverse_track_container_legend .genoverse_track_border {
   display: none;
 }
 
-.canvas_container .expander {
+.genoverse_canvas_container .genoverse_expander {
   position: absolute;
   display: block;
   height: 15px;
@@ -276,23 +276,23 @@ li.sortHandle {
   box-sizing: content-box;
 }
 
-.canvas_container .expander:hover {
+.genoverse_canvas_container .genoverse_expander:hover {
   box-shadow: 0 -5px 7px -3px #7D98B8 inset;
 }
 
-.canvas_zoom         { position: absolute; display: none; z-index: 20; }
-.canvas_zoom.i       { width: 40px; height: 40px; }
-.canvas_zoom.o       { width: 80px; height: 80px; }
-.canvas_zoom .h      { position: absolute; height: 2px;  width: 10px; background: red; }
-.canvas_zoom .v      { position: absolute; height: 10px; width: 2px;  background: red; }
-.canvas_zoom .r      { right:  0;    }
-.canvas_zoom .b      { bottom: 0;    }
-.canvas_zoom.o .t.h  { top:    10px; }
-.canvas_zoom.o .b.h  { bottom: 10px; }
-.canvas_zoom.o .l.v  { left:   8px;  }
-.canvas_zoom.o .r.v  { right:  8px;  }
+.genoverse_canvas_zoom         { position: absolute; display: none; z-index: 20; }
+.genoverse_canvas_zoom.i       { width: 40px; height: 40px; }
+.genoverse_canvas_zoom.o       { width: 80px; height: 80px; }
+.genoverse_canvas_zoom .h      { position: absolute; height: 2px;  width: 10px; background: red; }
+.genoverse_canvas_zoom .v      { position: absolute; height: 10px; width: 2px;  background: red; }
+.genoverse_canvas_zoom .r      { right:  0;    }
+.genoverse_canvas_zoom .b      { bottom: 0;    }
+.genoverse_canvas_zoom.o .t.h  { top:    10px; }
+.genoverse_canvas_zoom.o .b.h  { bottom: 10px; }
+.genoverse_canvas_zoom.o .l.v  { left:   8px;  }
+.genoverse_canvas_zoom.o .r.v  { right:  8px;  }
 
-.gv_menu {
+.genoverse_menu {
   background-color: rgba(0, 0, 0, 0.7);
   border-radius: 0px 12px 12px 12px;
   color: white;
@@ -304,15 +304,15 @@ li.sortHandle {
   margin-left: 5px;  
 }
 
-.gv_menu table td {
+.genoverse_menu table td {
   color: white;
 }
 
-.gv_menu a {
+.genoverse_menu a {
   color: white;
 }
 
-.gv_menu table {
+.genoverse_menu table {
   color: white;
   font-family: monospace;
   font-size: 12px;
@@ -320,23 +320,23 @@ li.sortHandle {
   border: none;
 }
 
-.gv_menu table th, .gv_menu table td {
+.genoverse_menu table th, .genoverse_menu table td {
   color: white;
   padding: 0;
   border: none
 }
 
-.gv_menu table .title {
+.genoverse_menu table .title {
   padding-right: 20px;
   font-weight: bold;
   text-align: left;
 }
 
-.gv_menu:not(.trackSelection) table td {
+.genoverse_menu:not(.genoverse_trackSelection) table td {
   padding: 0 1em 0 0;
 }
 
-.gv_menu .close {
+.genoverse_menu .genoverse_close {
   position: absolute;
   right: 0;
   height: 20px;
@@ -362,16 +362,16 @@ li.sortHandle {
   user-select: none;    
 }
 
-.gv_menu .close:hover {
+.genoverse_menu .genoverse_close:hover {
   background-color: #FFF;
   box-shadow: 0 0 5px #FFFFFF;
 }
 
-.gv_menu input {
+.genoverse_menu input {
   color: #000;
 }
 
-.selector {
+.genoverse_selector {
   position: absolute;
   display: none;
   height: 100%;
@@ -385,18 +385,18 @@ li.sortHandle {
   -webkit-box-sizing: border-box;
 }
 
-.selector.crosshair {
+.genoverse_selector.genoverse_crosshair {
   border-width: 0 0 0 1px;
 }
 
-.selector_controls {
+.genoverse_selector_controls {
   display: none;
   width: 100px;
   position: relative;
   top: 50%;
 }
 
-.selector_controls button {
+.genoverse_selector_controls button {
   display: block;
   width: 100%;
   cursor: pointer;

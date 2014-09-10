@@ -1,4 +1,4 @@
-.track_container div.track_controls {
+.genoverse_track_container div.genoverse_track_controls {
   display: block;
   white-space: nowrap;
   position: relative;
@@ -14,44 +14,44 @@
   z-index: 5;  
 }
 
-.track_container div.track_controls:hover {
+.genoverse_track_container div.genoverse_track_controls:hover {
   background: rgba(0, 0, 0, 0.7);
 }
 
-.track_container div.track_controls > * {
+.genoverse_track_container div.genoverse_track_controls > * {
   display: inline-block;
   width: 20px;
   text-align: center;
 }
 
-.track_container div.track_controls a {
+.genoverse_track_container div.genoverse_track_controls a {
   color: white;
 }
 
-.track_container div.track_controls a:hover {
+.genoverse_track_container div.genoverse_track_controls a:hover {
   text-decoration: underline;
 }
 
-.track_container:hover > div.track_controls {
+.genoverse_track_container:hover > div.genoverse_track_controls {
   display: block;
 }
 
-.track_container div.track_controls a.hidden {
+.genoverse_track_container div.genoverse_track_controls a.hidden {
   display: none!important;
 }
 
-.track_container div.track_controls a.height_toggle {
+.genoverse_track_container div.genoverse_track_controls a.genoverse_height_toggle {
   background: url(../i/auto_height.png) center 1px no-repeat;
 }
 
-.track_container div.track_controls a.height_toggle.auto_height {
+.genoverse_track_container div.genoverse_track_controls a.genoverse_height_toggle.genoverse_auto_height {
   background-position: center -17px;
 }
 
-.track_container div.track_controls select,
-.track_container div.track_controls input,
-.track_container div.track_controls button,
-.track_container div.track_controls textarea {
+.genoverse_track_container div.genoverse_track_controls select,
+.genoverse_track_container div.genoverse_track_controls input,
+.genoverse_track_container div.genoverse_track_controls button,
+.genoverse_track_container div.genoverse_track_controls textarea {
   color: #333;
   font-weight: normal;
 }
