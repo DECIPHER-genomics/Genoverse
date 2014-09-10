@@ -120,7 +120,7 @@ Genoverse.Plugins.controlPanel = function () {
           var button = $('<button>' + control.icon + '</button>').addClass(control['class']).attr('title', control.name).on('click', function () {
             control.action.call(this, browser);
           }).appendTo(
-            $('<div class="button_set">').attr('title', control.name).appendTo('.genoverse_panel_right')
+            $('<div class="button_set">').attr('title', control.name).appendTo(browser.superContainer.find('.genoverse_panel_right'))
           );
 
           if (control.init) {
