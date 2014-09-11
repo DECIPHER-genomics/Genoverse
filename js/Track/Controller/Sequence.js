@@ -2,7 +2,7 @@ Genoverse.Track.Controller.Sequence = Genoverse.Track.Controller.extend({
   click: function (e) {
     var x        = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
     var y        = e.pageY - $(e.target).offset().top;
-    var features = this[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; });
+    var features = this[e.target.className === 'gv-labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; });
     var seq;
     
     if (features.length) {

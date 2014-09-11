@@ -1,8 +1,3 @@
-.gv-wrap {
-  margin: 10px auto;
-  width: 1000px;
-}
-
 .gv-canvas-container {
   cursor: pointer;
   -webkit-touch-callout: none;
@@ -18,18 +13,6 @@
   overflow: hidden;
   position: relative;
   background-color: white;
-}
-
-.gv-canvas-container .gv-wrapper .gv-overlay {
-  position: absolute;
-  height: 100%;
-  z-index: 10;
-  background: url(../i/loadingBG.png) repeat #ccc;
-}
-
-.gv-canvas-container .gv-wrapper .gv-overlay.gv-track {
-  background-position: center;
-  background-repeat: repeat-x;
 }
 
 .gv-canvas-container canvas {
@@ -155,10 +138,6 @@
   top: 50%;
 }
 
-.gv-canvas-container .gv-height-toggler {
-  display: none;
-}
-
 .gv-canvas-container .gv-label-container {
   position: relative;
   float: left;
@@ -219,14 +198,6 @@
 
 .gv-canvas-container .gv-label-container li.gv-unsortable .gv-name {
   left: 15px;
-}
-
-.gv-canvas-container .gv-menu-container {
-  display: none;
-  position: absolute;
-  height: 100%;
-  overflow: hidden;
-  padding-bottom: 100px;
 }
 
 .gv-track-container .gv-track-border,

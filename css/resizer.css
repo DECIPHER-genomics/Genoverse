@@ -11,12 +11,6 @@ div.gv-resizer {
   z-index: 2;
 }
 
-.gv-canvas-container .gv-resizer.gv-shadow {
-  box-shadow: 0 -3px 5px 0 #000000;
-  margin-left: -5px;
-  padding-right: 10px;
-}
-
 .gv-canvas-container .gv-resizer .gv-handle {
   background-color: #5A5A5A;
   border: 1px solid white;
@@ -26,10 +20,6 @@ div.gv-resizer {
   width: 4%;
 }
 
-.gv-canvas-container .gv-resizer.gv-shadow .gv-handle {
-  position: relative;
-  left: 5px;
-}
 
 .gv-canvas-container .gv-resizer:hover, .gv-canvas-container .gv-resizer.ui-draggable-dragging {
   box-shadow: -1px -3px 6px -3px #000000 inset !important;

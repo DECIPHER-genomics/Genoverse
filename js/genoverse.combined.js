@@ -2848,7 +2848,7 @@ Genoverse.Track.Controller = Base.extend({
     }
 
     if (this.prop('unsortable')) {
-      this.label.addClass('unsortable');
+      this.label.addClass('gv-unsortable');
     } else {
       $('<div class="gv-handle">').appendTo(this.label);
     }
@@ -3138,10 +3138,10 @@ Genoverse.Track.Controller = Base.extend({
     var deferred;
     var controller = this;
     var tooLarge   = this.browser.length > this.threshold;
-    var div        = this.imgContainer.clone().addClass((params.cls + ' loading').replace('.', '_')).css({ left: params.left, display: params.cls === this.scrollStart ? 'block' : 'none' });
+    var div        = this.imgContainer.clone().addClass((params.cls + ' gv-loading').replace('.', '_')).css({ left: params.left, display: params.cls === this.scrollStart ? 'block' : 'none' });
     var bgImage    = params.background ? $('<img class="gv-bg">').hide().addClass(params.background).data(params).prependTo(div) : false;
     var image      = $('<img class="gv-data">').hide().data(params).appendTo(div).on('load', function () {
-      $(this).fadeIn('fast').parent().removeClass('loading');
+      $(this).fadeIn('fast').parent().removeClass('gv-loading');
       $(this).siblings('.gv-bg').show();
     });
 
@@ -4127,7 +4127,7 @@ Genoverse.Track.Controller.Sequence = Genoverse.Track.Controller.extend({
   click: function (e) {
     var x        = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
     var y        = e.pageY - $(e.target).offset().top;
-    var features = this[e.target.className === 'labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; });
+    var features = this[e.target.className === 'gv-labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; });
     var seq;
     
     if (features.length) {
@@ -4150,6 +4150,7 @@ Genoverse.Track.Controller.Sequence = Genoverse.Track.Controller.extend({
     }
   }
 });
+
 
 
 

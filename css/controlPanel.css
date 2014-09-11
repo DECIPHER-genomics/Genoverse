@@ -2,16 +2,6 @@
   white-space: nowrap;
 }
 
-.gv-panel-top {
-  height: 40px;
-  background-color: #5F8CB0;
-  background-image: linear-gradient(left, #5F8CB0, #4A7496);
-  border-radius: 5px 0 0 0;
-  border: 1px solid #1C5380;
-  box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);
-  vertical-align: top;
-}
-
 .gv-panel-right {
   height: 100%;
   background-color: #5F8CB0;
@@ -39,7 +29,7 @@
   font-family: Tahoma;
 }
 
-.canvas-container .gv-wrapper {
+.gv-canvas-container .gv-wrapper {
   border-width: 1px 0 1px 1px;
 }
 
@@ -93,7 +83,6 @@ table.gv td {
   font-weight: bold;
   font-size: 1.2em;
 }
-
 
 .gv-tracks-menu .gv-remove-track,
 .gv-tracks-menu .gv-add-track {
