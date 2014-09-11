@@ -315,7 +315,7 @@
 .gv-menu table th, .gv-menu table td {
   color: white;
   padding: 0 1em 0 0;
-  border: none
+  border: none;
 }
 
 .gv-menu table .gv-title {

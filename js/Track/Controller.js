@@ -483,7 +483,23 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   populateMenu: function (feature) {
-    return feature;
+    var f    = $.extend(true, {}, feature);
+    var menu = {
+      title    : f.label ? f.label[0] : f.id,
+      Location : this.browser.chr + ':' + f.start + '-' + f.end
+    };
+
+    delete f.start;
+    delete f.end;
+    delete f.sort;
+
+    for (var i in f) {
+      if (typeof f[i] === 'object' || menu.title === f[i]) {
+        delete f[i];
+      }
+    }
+
+    return $.extend(menu, f);
   },
 
   destroy: function () {

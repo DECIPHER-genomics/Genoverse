@@ -14,24 +14,13 @@
         100000     : false,
         resizable  : 'auto'
       }),
+      Genoverse.Track.Gene,
       Genoverse.Track.extend({
-        name   : 'Genes',
-        height : 200,
-
-        // Different settings for different zoom level
-        2000000: { // This one applies when > 2M base-pairs per screen
-          labels : false
-        },
-        100000: { // more than 100K but less then 2M
-          labels : true,
-          model  : Genoverse.Track.Model.Gene.Ensembl,
-          view   : Genoverse.Track.View.Gene.Ensembl
-        },
-        1: { // > 1 base-pair, but less then 100K
-          labels : true,
-          model  : Genoverse.Track.Model.Transcript.Ensembl,
-          view   : Genoverse.Track.View.Transcript.Ensembl
-        }
+        name            : 'Regulatory Features',
+        url             : 'http://rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=regulatory;content-type=application/json',
+        resizable       : 'auto',
+        model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
+        setFeatureColor : function (f) { f.color = '#AAA'; }
       })
     ]
   }

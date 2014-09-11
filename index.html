@@ -16,7 +16,7 @@
         <p>Data is visualized in the browser, meaning Genoverse can be installed on any website and show data from a wide range of online or local sources.</p>
         <p>Genoverse works with a variety of formats, such as XML, JSON, GFF, GFF3, BED (try drag-n-drop one), and can be customized to parse and display any data source as required.</p>
         <p>For more information on how to use Genoverse please refer to <a href="help.pdf">this tutorial</a>.</p>
-        
+
         <p style="font-weight:bold; text-align:center;">If you have any questions or need help, please contact us <a href="mailto:info@genoverse.org">info@genoverse.org</a></p>
       </div>
     </div>
@@ -41,26 +41,7 @@
             100000     : false,
             resizable  : 'auto'
           }),
-          Genoverse.Track.extend({
-            name   : 'Genes',
-            height : 200,
-            info   : 'Ensembl API genes & transcripts, see <a href="http://rest.ensembl.org/" target="_blank">rest.ensembl.org</a> for more details',
-
-            // Different settings for different zoom level
-            2000000: { // This one applies when > 2M base-pairs per screen
-              labels : false
-            },
-            100000: { // more than 100K but less then 2M
-              labels : true,
-              model  : Genoverse.Track.Model.Gene.Ensembl,
-              view   : Genoverse.Track.View.Gene.Ensembl
-            },
-            1: { // > 1 base-pair, but less then 100K
-              labels : true,
-              model  : Genoverse.Track.Model.Transcript.Ensembl,
-              view   : Genoverse.Track.View.Transcript.Ensembl
-            }
-          }),
+          Genoverse.Track.Gene,
           Genoverse.Track.extend({
             name            : 'Regulatory Features',
             url             : 'http://rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=regulatory;content-type=application/json',

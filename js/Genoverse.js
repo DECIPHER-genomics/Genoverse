@@ -995,7 +995,7 @@ var Genoverse = Base.extend({
 
         feature.every(function (f) {
           $('table', menu).append(
-            (f.title ? '<tr class="gv-header"><th colspan="2" class="title">' + f.title + '</th></tr>' : '') +
+            (f.title ? '<tr class="gv-header"><th colspan="2" class="gv-title">' + f.title + '</th></tr>' : '') +
             $.map(f, function (value, key) {
               if (key !== 'title') {
                 return '<tr><td>' + key + '</td><td>' + value + '</td></tr>';

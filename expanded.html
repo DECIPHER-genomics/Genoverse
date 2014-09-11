@@ -23,7 +23,6 @@
 
     <script type="text/javascript" src="js/Genoverse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script>
-    <script type="text/javascript" src="js/Track/library/File.js"></script>
 
     <script type="text/javascript" src="js/Track/Controller.js"></script>
     <script type="text/javascript" src="js/Track/Model.js"></script>
@@ -34,11 +33,6 @@
 
     <script type="text/javascript" src="js/Track/Controller/Stranded.js"></script>
     <script type="text/javascript" src="js/Track/Model/Stranded.js"></script>
-
-    <script type="text/javascript" src="js/Track/library/Chromosome.js"></script>
-    <script type="text/javascript" src="js/Track/library/Scaleline.js"></script>
-    <script type="text/javascript" src="js/Track/library/Scalebar.js"></script>
-    <script type="text/javascript" src="js/Track/library/Legend.js"></script>
 
     <script type="text/javascript" src="js/Track/Controller/Sequence.js"></script>
     <script type="text/javascript" src="js/Track/Model/Sequence.js"></script>
@@ -65,10 +59,17 @@
     <script type="text/javascript" src="js/Track/Model/File/GFF.js"></script>
     <script type="text/javascript" src="js/Track/Model/File/BED.js"></script>
 
+    <script type="text/javascript" src="js/Track/library/Chromosome.js"></script>
+    <script type="text/javascript" src="js/Track/library/File.js"></script>
     <script type="text/javascript" src="js/Track/library/File/GFF.js"></script>
     <script type="text/javascript" src="js/Track/library/File/GFF3.js"></script>
     <script type="text/javascript" src="js/Track/library/File/BED.js"></script>
     <script type="text/javascript" src="js/Track/library/File/VCF.js"></script>
+    <script type="text/javascript" src="js/Track/library/Gene.js"></script>
+    <script type="text/javascript" src="js/Track/library/Legend.js"></script>
+    <script type="text/javascript" src="js/Track/library/Scaleline.js"></script>
+    <script type="text/javascript" src="js/Track/library/Scalebar.js"></script>
+
 
     <script>
       var genoverseConfig = {
@@ -82,30 +83,14 @@
         tracks    : [
           Genoverse.Track.Scalebar,
           Genoverse.Track.extend({
-            name      : 'Sequence',
-            model     : Genoverse.Track.Model.Sequence.Ensembl,
-            view      : Genoverse.Track.View.Sequence,
-            resizable : 'auto',
-            100000    : false
+            name         : 'Sequence',
+            controller   : Genoverse.Track.Controller.Sequence,
+            model        : Genoverse.Track.Model.Sequence.Ensembl,
+            view         : Genoverse.Track.View.Sequence,
+            resizable    : 'auto',
+            100000       : false
           }),
-          Genoverse.Track.extend({
-            name   : 'Genes',
-            height : 200,
-            // Different settings for different zoom level
-            2000000: { // This one applies when > 2M base-pairs per screen
-              labels : false
-            },
-            100000: { // more than 100K but less then 2M
-              labels : true,
-              model  : Genoverse.Track.Model.Gene.Ensembl,
-              view   : Genoverse.Track.View.Gene.Ensembl
-            },
-            1: { // > 1 base-pair, but less then 100K
-              labels : true,
-              model  : Genoverse.Track.Model.Transcript.Ensembl,
-              view   : Genoverse.Track.View.Transcript.Ensembl
-            }
-          }),
+          Genoverse.Track.Gene,
           Genoverse.Track.extend({
             name            : 'Regulatory Features',
             url             : 'http://rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=regulatory;content-type=application/json',

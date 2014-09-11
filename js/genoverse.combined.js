@@ -2275,7 +2275,7 @@ var Genoverse = Base.extend({
 
         feature.every(function (f) {
           $('table', menu).append(
-            (f.title ? '<tr class="gv-header"><th colspan="2" class="title">' + f.title + '</th></tr>' : '') +
+            (f.title ? '<tr class="gv-header"><th colspan="2" class="gv-title">' + f.title + '</th></tr>' : '') +
             $.map(f, function (value, key) {
               if (key !== 'title') {
                 return '<tr><td>' + key + '</td><td>' + value + '</td></tr>';
@@ -2781,16 +2781,6 @@ Genoverse.Track = Base.extend({
 
 
 
-Genoverse.Track.File = Genoverse.Track.extend({
-  setInterface: function () {
-    this.base();
-    this._interface.data = 'model';
-  }
-});
-
-
-
-
 Genoverse.Track.Controller = Base.extend({
   scrollBuffer : 1.2,       // Number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
   threshold    : Infinity,  // Length above which the track is not drawn
@@ -3276,7 +3266,23 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   populateMenu: function (feature) {
-    return feature;
+    var f    = $.extend(true, {}, feature);
+    var menu = {
+      title    : f.label ? f.label[0] : f.id,
+      Location : this.browser.chr + ':' + f.start + '-' + f.end
+    };
+
+    delete f.start;
+    delete f.end;
+    delete f.sort;
+
+    for (var i in f) {
+      if (typeof f[i] === 'object' || menu.title === f[i]) {
+        delete f[i];
+      }
+    }
+
+    return $.extend(menu, f);
   },
 
   destroy: function () {
@@ -3294,16 +3300,16 @@ Genoverse.Track.Model = Base.extend({
   allData    : false,
   url        : undefined,
   urlParams  : {}, // hash of URL params
-  
+
   constructor: function (properties) {
     $.extend(this, properties);
     Genoverse.wrapFunctions(this);
     this.init();
   },
-  
+
   init: function (reset) {
     this.setDefaults(reset);
-    
+
     if (reset) {
       for (var i in this.featuresById) {
         delete this.featuresById[i].position;
@@ -3313,23 +3319,23 @@ Genoverse.Track.Model = Base.extend({
       this.features     = new RTree();
       this.featuresById = {};
     }
-    
+
     this.dataLoading = []; // tracks incomplete requests for data
   },
-  
+
   setDefaults: function (reset) {
     if (!this._url) {
       this._url = this.url; // Remember original url
     }
-    
+
     if (this.url || (this._url && reset)) {
       this.setURL(undefined, reset);
     }
   },
-  
+
   setURL: function (urlParams, update) {
     urlParams = urlParams || this.urlParams;
-    
+
     if (update && this._url) {
       this.url = this._url;
     }
@@ -3337,36 +3343,36 @@ Genoverse.Track.Model = Base.extend({
     this.url += (this.url.indexOf('?') === -1 ? '?' : '&') + decodeURIComponent($.param(urlParams, true));
     this.url  = this.url.replace(/[&?]$/, '');
   },
-  
+
   parseURL: function (start, end, url) {
     if (this.allData) {
       start = 1;
       end   = this.browser.chromosomeSize;
     }
-    
+
     return (url || this.url).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
   },
-  
+
   setLabelBuffer: function (buffer) {
     this.dataBuffer.start = Math.max(this.dataBuffer.start, buffer);
   },
-  
+
   getData: function (start, end, done) {
     start = Math.max(1, start);
     end   = Math.min(this.browser.chromosomeSize, end);
-    
+
     var model    = this;
     var deferred = $.Deferred();
     var bins     = [];
     var length   = end - start + 1;
-    
+
     if (!this.url) {
       return deferred.resolveWith(this);
     }
-   
+
     if (this.dataRequestLimit && length > this.dataRequestLimit) {
       var i = Math.ceil(length / this.dataRequestLimit);
-     
+
       while (i--) {
         bins.push([ start, i ? start += this.dataRequestLimit - 1 : end ]);
         start++;
@@ -3374,7 +3380,7 @@ Genoverse.Track.Model = Base.extend({
     } else {
       bins.push([ start, end ]);
     }
-   
+
     $.when.apply($, $.map(bins, function (bin) {
       var request = $.ajax({
         url       : model.parseURL(bin[0], bin[1]),
@@ -3385,33 +3391,33 @@ Genoverse.Track.Model = Base.extend({
         error     : function (xhr, statusText) { this.track.controller.showError(statusText + ' while getting the data, see console for more details', arguments); },
         complete  : function (xhr) { this.dataLoading = $.grep(this.dataLoading, function (t) { return xhr !== t; }); }
       });
-      
+
       request.coords = [ bin[0], bin[1] ]; // store actual start and end on the request, in case they are needed
-      
+
       if (typeof done === 'function') {
         request.done(done);
       }
-      
+
       model.dataLoading.push(request);
-      
+
       return request;
     })).done(function () { deferred.resolveWith(model); });
-    
+
     return deferred;
   },
-  
+
   receiveData: function (data, start, end) {
     start = Math.max(start, 1);
     end   = Math.min(end, this.browser.chromosomeSize);
-    
+
     this.setDataRange(start, end);
     this.parseData(data, start, end);
-    
+
     if (this.allData) {
       this.url = false;
     }
   },
-  
+
   /**
   * parseData(data, start, end) - parse raw data from the data source (e.g. online web service)
   * extract features and insert it into the internal features storage (RTree)
@@ -3435,35 +3441,35 @@ Genoverse.Track.Model = Base.extend({
     // Example of parseData function when data is an array of hashes like { start: ..., end: ... }
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];
-      
+
       feature.sort = start + i;
-      
+
       this.insertFeature(feature);
     }
   },
-  
+
   setDataRange: function (start, end) {
     if (this.allData) {
       start = 1;
       end   = this.browser.chromosomeSize;
     }
-    
+
     this.dataRanges.insert({ x: start, w: end - start + 1, y: 0, h: 1 }, [ start, end ]);
   },
-  
+
   checkDataRange: function (start, end) {
     start = Math.max(1, start);
     end   = Math.min(this.browser.chromosomeSize, end);
-    
+
     var ranges = this.dataRanges.search({ x: start, w: end - start + 1, y: 0, h: 1 }).sort(function (a, b) { return a[0] - b[0]; });
-    
+
     if (!ranges.length) {
       return false;
     }
-    
+
     var s = ranges.length === 1 ? ranges[0][0] : 9e99;
     var e = ranges.length === 1 ? ranges[0][1] : -9e99;
-    
+
     for (var i = 0; i < ranges.length - 1; i++) {
       // s0 <= s1 && ((e0 >= e1) || (e0 + 1 >= s1))
       if (ranges[i][0] <= ranges[i + 1][0] && ((ranges[i][1] >= ranges[i + 1][1]) || (ranges[i][1] + 1 >= ranges[i + 1][0]))) {
@@ -3473,48 +3479,48 @@ Genoverse.Track.Model = Base.extend({
         return false;
       }
     }
-    
+
     return start >= s && end <= e;
   },
-  
+
   insertFeature: function (feature) {
     // Make sure we have a unique ID, this method is not efficient, so better supply your own id
     if (!feature.id) {
-      feature.id = this.hashCode(JSON.stringify(feature));
+      feature.id = feature.ID || this.hashCode(JSON.stringify(feature));
     }
-    
+
     if (!this.featuresById[feature.id]) {
       this.features.insert({ x: feature.start, y: 0, w: feature.end - feature.start + 1, h: 1 }, feature);
       this.featuresById[feature.id] = feature;
     }
   },
-  
+
   findFeatures: function (start, end) {
     return this.features.search({ x: start - this.dataBuffer.start, y: 0, w: end - start + this.dataBuffer.start + this.dataBuffer.end + 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; });
   },
-  
+
   abort: function () {
     for (var i = 0; i < this.dataLoading.length; i++) {
       this.dataLoading[i].abort();
     }
-    
+
     this.dataLoading = [];
   },
-  
+
   hashCode: function (string) {
     var hash = 0;
     var chr;
-    
+
     if (!string.length) {
       return hash;
     }
-    
+
     for (var i = 0; i < string.length; i++) {
       chr  = string.charCodeAt(i);
       hash = ((hash << 5) - hash) + chr;
       hash = hash & hash; // Convert to 32bit integer
     }
-    
+
     return '' + hash;
   }
 });
@@ -4111,606 +4117,6 @@ Genoverse.Track.Model.Stranded = Genoverse.Track.Model.extend({
   findFeatures: function () {
     var strand = this.track.featureStrand;
     return $.grep(this.base.apply(this, arguments), function (feature) { return feature.strand === strand; });
-  }
-});
-
-
-
-
-Genoverse.Track.Chromosome = Genoverse.Track.extend({
-  id            : 'chromosome',
-  margin        : 1,
-  featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },
-  labels        : 'overlay',
-  url           : false,
-  allData       : true,
-  colors        : {
-    acen    : '#708090',
-    gneg    : '#FFFFFF',
-    gpos    : '#000000',
-    gpos100 : '#000000',
-    gpos25  : '#D9D9D9',
-    gpos33  : '#BFBFBF',
-    gpos50  : '#999999',
-    gpos66  : '#7F7F7F',
-    gpos75  : '#666666',
-    gvar    : '#E0E0E0',
-    stalk   : '#708090'
-  },
-  labelColors: {
-    gneg   : '#000000',
-    gvar   : '#000000',
-    gpos25 : '#000000',
-    gpos33 : '#000000'
-  },
-
-  getData: function (start, end) {
-    this.receiveData([].slice.call(this.browser.genome[this.browser.chr].bands), start, end);
-    return $.Deferred().resolveWith(this);
-  },
-
-  insertFeature: function (feature) {
-    feature.label      = feature.type === 'acen' || feature.type === 'stalk' ? false : feature.id;
-    feature.color      = this.prop('colors')[feature.type];
-    feature.labelColor = this.prop('labelColors')[feature.type] || '#FFFFFF';
-
-    this.base(feature);
-  },
-
-  drawFeature: function (feature, featureContext, labelContext, scale) {
-    if (feature.type === 'acen') {
-      featureContext.fillStyle   = feature.color;
-      featureContext.strokeStyle = '#000000';
-
-      featureContext.beginPath();
-
-      if (this.drawnAcen) {
-        featureContext.moveTo(feature.x + feature.width, 0);
-        featureContext.lineTo(feature.x + feature.width, feature.height + 0.5);
-        featureContext.lineTo(feature.x, feature.height / 2);
-      } else {
-        featureContext.moveTo(feature.x, 0);
-        featureContext.lineTo(feature.x + feature.width, feature.height / 2);
-        featureContext.lineTo(feature.x, feature.height + 0.5);
-        this.drawnAcen = true;
-      }
-
-      featureContext.closePath();
-      featureContext.fill();
-      featureContext.stroke();
-    } else if (feature.type === 'stalk') {
-      featureContext.fillStyle   = feature.color;
-      featureContext.strokeStyle = '#000000';
-
-      for (var i = 0; i < 2; i++) {
-        featureContext.beginPath();
-
-        featureContext.moveTo(feature.x, 0);
-        featureContext.lineTo(feature.x + feature.width * 0.25, feature.height * 0.25 + 0.5);
-        featureContext.lineTo(feature.x + feature.width * 0.75, feature.height * 0.25 + 0.5);
-        featureContext.lineTo(feature.x + feature.width, 0);
-
-        featureContext[i ? 'moveTo' : 'lineTo'](feature.x + feature.width, feature.height);
-        featureContext.lineTo(feature.x + feature.width * 0.75, feature.height * 0.75 - 0.5);
-        featureContext.lineTo(feature.x + feature.width * 0.25, feature.height * 0.75 - 0.5);
-        featureContext.lineTo(feature.x, feature.height);
-
-        featureContext[i ? 'stroke' : 'fill']();
-      }
-    } else {
-      this.base(feature, featureContext, labelContext, scale);
-
-      featureContext.strokeStyle = '#000000';
-
-      featureContext.beginPath();
-
-      if (feature.start === 1) {
-        featureContext.clearRect(0, 0, 5, this.prop('height'));
-
-        featureContext.fillStyle = feature.color;
-        featureContext.moveTo(5, 0.5);
-        featureContext.lineTo(feature.x + feature.width, 0.5);
-        featureContext.moveTo(5, feature.height + 0.5);
-        featureContext.lineTo(feature.x + feature.width, feature.height + 0.5);
-        featureContext.moveTo(5, 0.5);
-        featureContext.bezierCurveTo(-1, 0.5, -1, feature.height + 0.5, 5, feature.height + 0.5);
-        featureContext.fill();
-      } else if (feature.end === this.browser.chromosomeSize) {
-        featureContext.clearRect(feature.x + feature.width - 5, 0, 10, this.prop('height'));
-
-        featureContext.fillStyle = feature.color;
-        featureContext.moveTo(feature.x, 0.5);
-        featureContext.lineTo(feature.x + feature.width - 5, 0.5);
-        featureContext.moveTo(feature.x, feature.height + 0.5);
-        featureContext.lineTo(feature.x + feature.width - 5, feature.height + 0.5);
-        featureContext.moveTo(feature.x + feature.width - 5, 0.5);
-        featureContext.bezierCurveTo(this.width + 1, 0.5, this.width + 1, feature.height + 0.5, feature.x + feature.width - 5, feature.height + 0.5);
-        featureContext.fill();
-      } else {
-        featureContext.moveTo(feature.x, 0.5);
-        featureContext.lineTo(feature.x + feature.width, 0.5);
-        featureContext.moveTo(feature.x, feature.height + 0.5);
-        featureContext.lineTo(feature.x + feature.width, feature.height + 0.5);
-      }
-
-      featureContext.stroke();
-    }
-  },
-
-  drawLabel: function (feature) {
-    if ((feature.start === 1 || feature.end === this.browser.chromosomeSize) && feature.labelWidth >= Math.floor(feature.width - 5)) {
-      return;
-    }
-
-    this.base.apply(this, arguments);
-  },
-
-  populateMenu: function (feature) {
-    return {
-      title    : feature.id,
-      Position : this.browser.chr + ':' + feature.start + '-' + feature.end
-    };
-  }
-});
-
-
-
-Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
-  strand     : 1,
-  color      : '#000000',
-  height     : 12,
-  labels     : 'overlay',
-  unsortable : true,
-  
-  resize: $.noop,
-  
-  makeFirstImage: function () {
-    this.prop('scaleline', false);
-    this.base.apply(this, arguments);
-  },
-  
-  render: function (f, img) {
-    this.base(f, img);
-    this.prop('drawnScale', img.data('scale'));
-  },
-  
-  positionFeatures: function (features, params) {
-    var scaleline = this.prop('scaleline');
-    
-    if (params.scale === this.drawnScale) {
-      return false;
-    } else if (scaleline) {
-      return scaleline;
-    }
-    
-    var strand = this.prop('strand');
-    var height = this.prop('height');
-    var text   = this.formatLabel(this.browser.length);
-    var text2  = strand === 1 ? 'Forward strand' : 'Reverse strand';
-    var width1 = this.context.measureText(text).width;
-    var width2 = this.context.measureText(text2).width;
-    var bg     = this.browser.colors.background;
-    var x1, x2;
-    
-    if (strand === 1) {
-      x1 = 0;
-      x2 = this.width - width2 - 40;
-    } else {
-      x1 = 25;
-      x2 = 30;
-    }
-    
-    scaleline = [
-      { x: x1,                             y: height / 2, width: this.width - 25, height: 1, decorations: true },
-      { x: (this.width - width1 - 10) / 2, y: 0,          width: width1 + 10,     height: height, color: bg, labelColor: this.color, labelWidth: width1, label: text  },
-      { x: x2,                             y: 0,          width: width2 + 10,     height: height, color: bg, labelColor: this.color, labelWidth: width2, label: text2 }
-    ];
-    
-    return this.base(this.prop('scaleline', scaleline), params);
-  },
-  
-  decorateFeature: function (feature, context) {
-    var strand = this.prop('strand');
-    var height = this.prop('height');
-    var x      = strand === 1 ? this.width - 25 : 25;
-    
-    context.strokeStyle = this.color;
-    
-    context.beginPath();
-    context.moveTo(x,                 height * 0.25);
-    context.lineTo(x + (strand * 20), height * 0.5);
-    context.lineTo(x,                 height * 0.75);
-    context.closePath();
-    context.stroke();
-    context.fill();
-  }
-});
-
-
-
-Genoverse.Track.Scalebar = Genoverse.Track.extend({
-  unsortable     : true,
-  order          : 0,
-  orderReverse   : 1e5,
-  featureStrand  : 1,
-  controls       : 'off',
-  height         : 20,
-  featureHeight  : 3,
-  featureMargin  : { top: 0, right: 0, bottom: 2, left: 0 },
-  margin         : 0,
-  minPixPerMajor : 100, // Least number of pixels per written number
-  color          : '#000000',
-  autoHeight     : false,
-  labels         : true,
-  bump           : false,
-  resizable      : false,
-  click          : $.noop,
-  colors         : {
-    majorGuideLine : '#CCCCCC',
-    minorGuideLine : '#E5E5E5'
-  },
-
-  setEvents: function () {
-    var browser = this.browser;
-
-    function resize() {
-      $('.gv-bg.gv-full-height', browser.container).height(browser.wrapper.outerHeight(true));
-    }
-
-    browser.on('afterAddTracks', resize);
-    browser.on('afterResize', this, resize);
-  },
-
-  setScale: function () {
-    var max       = this.prop('width') / this.prop('minPixPerMajor');
-    var divisor   = 5;
-    var majorUnit = -1;
-    var fromDigit = ('' + this.browser.start).split(''); // Split into array of digits
-    var toDigit   = ('' + this.browser.end).split('');
-    var divisions, i;
-
-    for (i = fromDigit.length; i < toDigit.length; i++) {
-      fromDigit.unshift('0');
-    }
-
-    for (i = toDigit.length; i < fromDigit.length; i++) {
-      toDigit.unshift('0');
-    }
-
-    // How many divisions would there be if we only kept i digits?
-    for (i = 0; i < fromDigit.length; i++) {
-      divisions = parseInt(toDigit.slice(0, fromDigit.length - i).join(''), 10) - parseInt(fromDigit.slice(0, fromDigit.length - i).join(''), 10);
-
-      if (divisions && divisions <= max) {
-        majorUnit = parseInt('1' + $.map(new Array(i), function () { return '0'; }).join(''), 10);
-        break;
-      }
-    }
-
-    if (majorUnit === -1) {
-      majorUnit = parseInt('1' + $.map(new Array(fromDigit.length), function () { return '0'; }).join(''), 10);
-      divisor   = 1;
-    } else {
-      // Improve things by trying simple multiples of 1<n zeroes>.
-      // (eg if 100 will fit will 200, 400, 500).
-      if (divisions * 5 <= max) {
-        majorUnit /= 5;
-        divisor    = 2;
-      } else if (divisions * 4 <= max) {
-        majorUnit /= 4;
-        divisor    = 1;
-      } else if (divisions * 2 <= max) {
-        majorUnit /= 2;
-      }
-    }
-
-    majorUnit = Math.max(majorUnit, 1);
-
-    this.prop('minorUnit',    Math.max(majorUnit / divisor, 1));
-    this.prop('majorUnit',    majorUnit);
-    this.prop('features',     new RTree());
-    this.prop('featuresById', {});
-    this.prop('seen',         {});
-
-    this.base();
-  },
-
-  setFeatures: function (start, end) {
-    var minorUnit = this.prop('minorUnit');
-    var majorUnit = this.prop('majorUnit');
-    var seen      = this.prop('seen');
-
-    start = Math.max(start - (start % minorUnit) - majorUnit, 0);
-
-    var flip  = (start / minorUnit) % 2 ? 1 : -1;
-    var feature, major, label;
-
-    for (var x = start; x < end + minorUnit; x += minorUnit) {
-      flip *= -1;
-
-      if (seen[x]) {
-        continue;
-      }
-
-      seen[x] = 1;
-
-      feature = { id: x, strand: 1, sort: x };
-      major   = x && x % majorUnit === 0;
-
-      if (flip === 1) {
-        feature.start = x;
-        feature.end   = x + minorUnit - 1;
-      }
-
-      if (major) {
-        label = this.track.view.formatLabel(x);
-
-        if (label !== this.lastLabel) {
-          feature.label = label;
-
-          if (!feature.end) {
-            feature.start = x;
-            feature.end   = x - 1;
-          }
-        }
-
-        this.lastLabel = label;
-      }
-
-      if (feature.end) {
-        this.insertFeature(feature);
-      }
-    }
-  },
-
-  makeFirstImage: function (moveTo) {
-    if (this.prop('strand') === -1) {
-      moveTo = this.track.forwardTrack.scrollStart;
-    }
-
-    return this.base(moveTo);
-  },
-
-  makeImage: function (params) {
-    params.background    = 'gv-guidelines gv-full-height';
-    params.featureHeight = this.prop('height');
-
-    this.track.setFeatures.apply(this.track.model, [ params.start, params.end ]);
-
-    var rtn = this.base(params);
-
-    params.container.addClass('gv-full-height');
-
-    return rtn;
-  },
-
-  makeReverseImage: function (params) {
-    this.imgContainers.push(params.container.clone().html(params.container.children('.data').clone(true).css('background', '#FFF'))[0]);
-    this.scrollContainer.append(this.imgContainers);
-  },
-
-  renderBackground: function (f, bgImage) {
-    this.base(f, bgImage);
-    bgImage.height(this.browser.wrapper.outerHeight(true));
-  },
-
-  draw: function (features, featureContext, labelContext, scale) {
-    var i         = features.length;
-    var minorUnit = this.prop('minorUnit');
-    var width     = Math.ceil(minorUnit * scale);
-    var feature, start;
-
-    featureContext.textBaseline = 'top';
-    featureContext.fillStyle    = this.color;
-
-    this.guideLines = { major: {} }; // FIXME: pass params to draw, rather than scale. set guideLines on params
-
-    while (i--) {
-      feature = features[i];
-      start   = Math.round(feature.position[scale].X);
-
-      this.drawFeature($.extend({}, feature, {
-        x      : start,
-        y      : 0,
-        width  : Math.ceil(feature.position[scale].width),
-        height : this.featureHeight
-      }), featureContext, labelContext, scale);
-
-      if (feature.label) {
-        if (start > -1) {
-          featureContext.fillRect(start, this.featureHeight, 1, this.featureHeight);
-        }
-
-        this.guideLines.major[feature.start] = true;
-      }
-
-      this.guideLines[feature.start] = start;
-      this.guideLines[feature.start + minorUnit] = start + width - 1;
-    }
-
-    featureContext.fillRect(0, 0, featureContext.canvas.width, 1);
-    featureContext.fillRect(0, this.featureHeight, featureContext.canvas.width, 1);
-  },
-
-  // Draw guidelines
-  drawBackground: function (f, context) {
-    for (var i in this.guideLines) {
-      if (this.guideLines[i] >= 0 && this.guideLines[i] <= this.width) {
-        context.fillStyle = this.track.colors[this.guideLines.major[i] ? 'majorGuideLine' : 'minorGuideLine' ];
-        context.fillRect(this.guideLines[i], 0, 1, context.canvas.height);
-      }
-    }
-  },
-
-  formatLabel: function (label) {
-    return this.prop('minorUnit') < 1000 ? label.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') : this.base(label);
-  }
-});
-
-
-
-Genoverse.Track.Legend = Genoverse.Track.Static.extend({
-  textColor     : '#000000',
-  labels        : 'overlay',
-  unsortable    : true,
-  lockToTrack   : true,  // Always put the legend just below the last track that the legend is for
-  featureHeight : 12,
-  
-  controller: Genoverse.Track.Controller.Static.extend({
-    init: function () {
-      this.base();
-      
-      this.container.addClass('gv-track-container-legend');
-
-      if (!this.browser.legends) {
-        this.browser.legends = {};
-      }
-      
-      this.browser.legends[this.track.id] = this;
-      this.track.setTracks();
-    }
-  }),
-  
-  setEvents: function () {
-    this.browser.on({
-      'afterInit afterAddTracks afterRemoveTracks': function () {
-        for (var i in this.legends) {
-          this.legends[i].track.setTracks();
-        }
-      },
-      afterRemoveTracks: function (tracks) {
-        for (var i in tracks) {
-          if (tracks[i].controller.legend && tracks[i].controller.legend.track.tracks.length === 0) {
-            tracks[i].controller.legend.track.remove();
-          }
-        }
-
-        for (var i in this.legends) {
-          this.legends[i].makeImage({});
-        }
-      },
-      afterUpdateTrackOrder: function () {
-        for (var i in this.legends) {
-          this.legends[i].track.updateOrder();
-        }
-      }
-    });
-    
-    this.browser.on({
-      afterPositionFeatures: function (features, params) {
-        var legend = this.prop('legend');
-        
-        if (legend) {
-          setTimeout(function () { legend.makeImage(params); }, 1);
-        }
-      },
-      afterResize: function (height, userResize) {
-        var legend = this.prop('legend');
-        
-        if (legend && userResize === true) {
-          legend.makeImage({});
-        }
-      },
-      afterCheckHeight: function () {
-        var legend = this.prop('legend');
-        
-        if (legend) {
-          legend.makeImage({});
-        }
-      }
-    }, this);
-  },
-  
-  setTracks: function () {
-    var legend = this;
-    var type   = this.featureType;
-    
-    this.tracks = $.grep(this.browser.tracks, function (t) { if (t.type === type) { t.controller.legend = legend.controller; return true; } });
-    this.updateOrder();
-  },
-
-  updateOrder: function () {
-    if (!this.lockToTrack || !this.tracks.length || this.browser._constructing) {
-      return;
-    }
-
-    this.order = this.tracks[this.tracks.length - 1].order + 0.1;
-    this.browser.sortTracks();
-  },
-
-  findFeatures: function () {
-    var bounds   = { x: this.browser.scaledStart, y: 0, w: this.width };
-    var features = {};
-    
-    $.each($.map(this.track.tracks, function (track) {
-      var featurePositions = track.prop('featurePositions');
-      bounds.h = track.prop('height');
-      return featurePositions ? featurePositions.search(bounds).concat(track.prop('labelPositions').search(bounds)) : [];
-    }), function () {
-      if (this.legend) {
-        features[this.legend] = this.color;
-      }
-    });
-    
-    // sort legend alphabetically
-    return $.map(features, function (color, text) { return [[ text, color ]]; }).sort(function (a, b) {
-      var x = a[0].toLowerCase();
-      var y = b[0].toLowerCase();
-      return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-    });
-  },
-  
-  positionFeatures: function (f, params) {
-    if (params.positioned) {
-      return f;
-    }
-    
-    var cols     = 2;
-    var pad      = 5;
-    var w        = 20;
-    var x        = 0;
-    var y        = 0;
-    var xScale   = this.width / cols;
-    var yScale   = this.fontHeight + pad;
-    var features = [];
-    var xPos, yPos, labelWidth;
-    
-    for (var i = 0; i < f.length; i++) {
-      xPos       = (x * xScale) + pad;
-      yPos       = (y * yScale) + pad;
-      labelWidth = this.context.measureText(f[i][0]).width;
-      
-      features.push(
-        { x: xPos,           y: yPos, width: w,              height: this.featureHeight, color: f[i][1] },
-        { x: xPos + pad + w, y: yPos, width: labelWidth + 1, height: this.featureHeight, color: false, labelColor: this.textColor, labelWidth: labelWidth, label: f[i][0] }
-      );
-      
-      if (++x === cols) {
-        x = 0;
-        y++;
-      }
-    }
-    
-    params.height     = this.prop('height', f.length ? ((y + (x ? 1 : 0)) * yScale) + pad : 0);
-    params.width      = this.width;
-    params.positioned = true;
-    
-    return this.base(features, params);
-  },
-  
-  enable: function () {
-    this.base();
-    this.controller.makeImage({});
-  },
-  
-  disable: function () {
-    delete this.controller.stringified;
-    this.base();
-  },
-  
-  destroy: function () {
-    delete this.browser.legends[this.id];
-    this.base();
   }
 });
 
@@ -5436,6 +4842,154 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
 
 
 
+Genoverse.Track.Chromosome = Genoverse.Track.extend({
+  id            : 'chromosome',
+  margin        : 1,
+  featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },
+  labels        : 'overlay',
+  url           : false,
+  allData       : true,
+  colors        : {
+    acen    : '#708090',
+    gneg    : '#FFFFFF',
+    gpos    : '#000000',
+    gpos100 : '#000000',
+    gpos25  : '#D9D9D9',
+    gpos33  : '#BFBFBF',
+    gpos50  : '#999999',
+    gpos66  : '#7F7F7F',
+    gpos75  : '#666666',
+    gvar    : '#E0E0E0',
+    stalk   : '#708090'
+  },
+  labelColors: {
+    gneg   : '#000000',
+    gvar   : '#000000',
+    gpos25 : '#000000',
+    gpos33 : '#000000'
+  },
+
+  getData: function (start, end) {
+    this.receiveData([].slice.call(this.browser.genome[this.browser.chr].bands), start, end);
+    return $.Deferred().resolveWith(this);
+  },
+
+  insertFeature: function (feature) {
+    feature.label      = feature.type === 'acen' || feature.type === 'stalk' ? false : feature.id;
+    feature.color      = this.prop('colors')[feature.type];
+    feature.labelColor = this.prop('labelColors')[feature.type] || '#FFFFFF';
+
+    this.base(feature);
+  },
+
+  drawFeature: function (feature, featureContext, labelContext, scale) {
+    if (feature.type === 'acen') {
+      featureContext.fillStyle   = feature.color;
+      featureContext.strokeStyle = '#000000';
+
+      featureContext.beginPath();
+
+      if (this.drawnAcen) {
+        featureContext.moveTo(feature.x + feature.width, 0);
+        featureContext.lineTo(feature.x + feature.width, feature.height + 0.5);
+        featureContext.lineTo(feature.x, feature.height / 2);
+      } else {
+        featureContext.moveTo(feature.x, 0);
+        featureContext.lineTo(feature.x + feature.width, feature.height / 2);
+        featureContext.lineTo(feature.x, feature.height + 0.5);
+        this.drawnAcen = true;
+      }
+
+      featureContext.closePath();
+      featureContext.fill();
+      featureContext.stroke();
+    } else if (feature.type === 'stalk') {
+      featureContext.fillStyle   = feature.color;
+      featureContext.strokeStyle = '#000000';
+
+      for (var i = 0; i < 2; i++) {
+        featureContext.beginPath();
+
+        featureContext.moveTo(feature.x, 0);
+        featureContext.lineTo(feature.x + feature.width * 0.25, feature.height * 0.25 + 0.5);
+        featureContext.lineTo(feature.x + feature.width * 0.75, feature.height * 0.25 + 0.5);
+        featureContext.lineTo(feature.x + feature.width, 0);
+
+        featureContext[i ? 'moveTo' : 'lineTo'](feature.x + feature.width, feature.height);
+        featureContext.lineTo(feature.x + feature.width * 0.75, feature.height * 0.75 - 0.5);
+        featureContext.lineTo(feature.x + feature.width * 0.25, feature.height * 0.75 - 0.5);
+        featureContext.lineTo(feature.x, feature.height);
+
+        featureContext[i ? 'stroke' : 'fill']();
+      }
+    } else {
+      this.base(feature, featureContext, labelContext, scale);
+
+      featureContext.strokeStyle = '#000000';
+
+      featureContext.beginPath();
+
+      if (feature.start === 1) {
+        featureContext.clearRect(0, 0, 5, this.prop('height'));
+
+        featureContext.fillStyle = feature.color;
+        featureContext.moveTo(5, 0.5);
+        featureContext.lineTo(feature.x + feature.width, 0.5);
+        featureContext.moveTo(5, feature.height + 0.5);
+        featureContext.lineTo(feature.x + feature.width, feature.height + 0.5);
+        featureContext.moveTo(5, 0.5);
+        featureContext.bezierCurveTo(-1, 0.5, -1, feature.height + 0.5, 5, feature.height + 0.5);
+        featureContext.fill();
+      } else if (feature.end === this.browser.chromosomeSize) {
+        featureContext.clearRect(feature.x + feature.width - 5, 0, 10, this.prop('height'));
+
+        featureContext.fillStyle = feature.color;
+        featureContext.moveTo(feature.x, 0.5);
+        featureContext.lineTo(feature.x + feature.width - 5, 0.5);
+        featureContext.moveTo(feature.x, feature.height + 0.5);
+        featureContext.lineTo(feature.x + feature.width - 5, feature.height + 0.5);
+        featureContext.moveTo(feature.x + feature.width - 5, 0.5);
+        featureContext.bezierCurveTo(this.width + 1, 0.5, this.width + 1, feature.height + 0.5, feature.x + feature.width - 5, feature.height + 0.5);
+        featureContext.fill();
+      } else {
+        featureContext.moveTo(feature.x, 0.5);
+        featureContext.lineTo(feature.x + feature.width, 0.5);
+        featureContext.moveTo(feature.x, feature.height + 0.5);
+        featureContext.lineTo(feature.x + feature.width, feature.height + 0.5);
+      }
+
+      featureContext.stroke();
+    }
+  },
+
+  drawLabel: function (feature) {
+    if ((feature.start === 1 || feature.end === this.browser.chromosomeSize) && feature.labelWidth >= Math.floor(feature.width - 5)) {
+      return;
+    }
+
+    this.base.apply(this, arguments);
+  },
+
+  populateMenu: function (feature) {
+    return {
+      title    : feature.id,
+      Position : this.browser.chr + ':' + feature.start + '-' + feature.end
+    };
+  }
+});
+
+
+
+Genoverse.Track.File = Genoverse.Track.extend({
+  setInterface: function () {
+    this.base();
+    this._interface.data = 'model';
+  }
+});
+
+
+
+
 Genoverse.Track.File.GFF = Genoverse.Track.File.extend({
   name          : 'GFF',
   model         : Genoverse.Track.Model.File.GFF,
@@ -5547,6 +5101,508 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
   }
 });
 
+
+
+
+Genoverse.Track.Gene = Genoverse.Track.extend({
+  id     : 'genes',
+  name   : 'Genes',
+  height : 200,
+
+  populateMenu: function (feature) {
+    var url  = 'http://grch37.ensembl.org/Homo_sapiens/' + (feature.feature_type === 'transcript' ? 'Transcript' : 'Gene') + '/Summary?' + (feature.feature_type === 'transcript' ? 't' : 'g') + '=' + feature.id;
+    var menu = {
+      title    : '<a target="_blank" href="' + url + '">' + (feature.external_name ? feature.external_name + ' (' + feature.id + ')' : feature.id) + '</a>',
+      Location : this.browser.chr + ':' + feature.start + '-' + feature.end,
+      Source   : feature.source,
+      Biotype  : feature.biotype
+    };
+
+    if (feature.feature_type === 'transcript') {
+      menu.Gene = '<a target="_blank" href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g=' + feature.Parent + '">' + feature.Parent + '</a>';
+    }
+
+    return menu;
+  },
+
+  // Different settings for different zoom level
+  2000000: { // This one applies when > 2M base-pairs per screen
+    labels : false
+  },
+  100000: { // more than 100K but less then 2M
+    labels : true,
+    model  : Genoverse.Track.Model.Gene.Ensembl,
+    view   : Genoverse.Track.View.Gene.Ensembl
+  },
+  1: { // > 1 base-pair, but less then 100K
+    labels : true,
+    model  : Genoverse.Track.Model.Transcript.Ensembl,
+    view   : Genoverse.Track.View.Transcript.Ensembl,
+  }
+});
+
+
+
+
+Genoverse.Track.Legend = Genoverse.Track.Static.extend({
+  textColor     : '#000000',
+  labels        : 'overlay',
+  unsortable    : true,
+  lockToTrack   : true,  // Always put the legend just below the last track that the legend is for
+  featureHeight : 12,
+  
+  controller: Genoverse.Track.Controller.Static.extend({
+    init: function () {
+      this.base();
+      
+      this.container.addClass('gv-track-container-legend');
+
+      if (!this.browser.legends) {
+        this.browser.legends = {};
+      }
+      
+      this.browser.legends[this.track.id] = this;
+      this.track.setTracks();
+    }
+  }),
+  
+  setEvents: function () {
+    this.browser.on({
+      'afterInit afterAddTracks afterRemoveTracks': function () {
+        for (var i in this.legends) {
+          this.legends[i].track.setTracks();
+        }
+      },
+      afterRemoveTracks: function (tracks) {
+        for (var i in tracks) {
+          if (tracks[i].controller.legend && tracks[i].controller.legend.track.tracks.length === 0) {
+            tracks[i].controller.legend.track.remove();
+          }
+        }
+
+        for (var i in this.legends) {
+          this.legends[i].makeImage({});
+        }
+      },
+      afterUpdateTrackOrder: function () {
+        for (var i in this.legends) {
+          this.legends[i].track.updateOrder();
+        }
+      }
+    });
+    
+    this.browser.on({
+      afterPositionFeatures: function (features, params) {
+        var legend = this.prop('legend');
+        
+        if (legend) {
+          setTimeout(function () { legend.makeImage(params); }, 1);
+        }
+      },
+      afterResize: function (height, userResize) {
+        var legend = this.prop('legend');
+        
+        if (legend && userResize === true) {
+          legend.makeImage({});
+        }
+      },
+      afterCheckHeight: function () {
+        var legend = this.prop('legend');
+        
+        if (legend) {
+          legend.makeImage({});
+        }
+      }
+    }, this);
+  },
+  
+  setTracks: function () {
+    var legend = this;
+    var type   = this.featureType;
+    
+    this.tracks = $.grep(this.browser.tracks, function (t) { if (t.type === type) { t.controller.legend = legend.controller; return true; } });
+    this.updateOrder();
+  },
+
+  updateOrder: function () {
+    if (!this.lockToTrack || !this.tracks.length || this.browser._constructing) {
+      return;
+    }
+
+    this.order = this.tracks[this.tracks.length - 1].order + 0.1;
+    this.browser.sortTracks();
+  },
+
+  findFeatures: function () {
+    var bounds   = { x: this.browser.scaledStart, y: 0, w: this.width };
+    var features = {};
+    
+    $.each($.map(this.track.tracks, function (track) {
+      var featurePositions = track.prop('featurePositions');
+      bounds.h = track.prop('height');
+      return featurePositions ? featurePositions.search(bounds).concat(track.prop('labelPositions').search(bounds)) : [];
+    }), function () {
+      if (this.legend) {
+        features[this.legend] = this.color;
+      }
+    });
+    
+    // sort legend alphabetically
+    return $.map(features, function (color, text) { return [[ text, color ]]; }).sort(function (a, b) {
+      var x = a[0].toLowerCase();
+      var y = b[0].toLowerCase();
+      return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+  },
+  
+  positionFeatures: function (f, params) {
+    if (params.positioned) {
+      return f;
+    }
+    
+    var cols     = 2;
+    var pad      = 5;
+    var w        = 20;
+    var x        = 0;
+    var y        = 0;
+    var xScale   = this.width / cols;
+    var yScale   = this.fontHeight + pad;
+    var features = [];
+    var xPos, yPos, labelWidth;
+    
+    for (var i = 0; i < f.length; i++) {
+      xPos       = (x * xScale) + pad;
+      yPos       = (y * yScale) + pad;
+      labelWidth = this.context.measureText(f[i][0]).width;
+      
+      features.push(
+        { x: xPos,           y: yPos, width: w,              height: this.featureHeight, color: f[i][1] },
+        { x: xPos + pad + w, y: yPos, width: labelWidth + 1, height: this.featureHeight, color: false, labelColor: this.textColor, labelWidth: labelWidth, label: f[i][0] }
+      );
+      
+      if (++x === cols) {
+        x = 0;
+        y++;
+      }
+    }
+    
+    params.height     = this.prop('height', f.length ? ((y + (x ? 1 : 0)) * yScale) + pad : 0);
+    params.width      = this.width;
+    params.positioned = true;
+    
+    return this.base(features, params);
+  },
+  
+  enable: function () {
+    this.base();
+    this.controller.makeImage({});
+  },
+  
+  disable: function () {
+    delete this.controller.stringified;
+    this.base();
+  },
+  
+  destroy: function () {
+    delete this.browser.legends[this.id];
+    this.base();
+  }
+});
+
+
+
+
+Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
+  strand     : 1,
+  color      : '#000000',
+  height     : 12,
+  labels     : 'overlay',
+  unsortable : true,
+  
+  resize: $.noop,
+  
+  makeFirstImage: function () {
+    this.prop('scaleline', false);
+    this.base.apply(this, arguments);
+  },
+  
+  render: function (f, img) {
+    this.base(f, img);
+    this.prop('drawnScale', img.data('scale'));
+  },
+  
+  positionFeatures: function (features, params) {
+    var scaleline = this.prop('scaleline');
+    
+    if (params.scale === this.drawnScale) {
+      return false;
+    } else if (scaleline) {
+      return scaleline;
+    }
+    
+    var strand = this.prop('strand');
+    var height = this.prop('height');
+    var text   = this.formatLabel(this.browser.length);
+    var text2  = strand === 1 ? 'Forward strand' : 'Reverse strand';
+    var width1 = this.context.measureText(text).width;
+    var width2 = this.context.measureText(text2).width;
+    var bg     = this.browser.colors.background;
+    var x1, x2;
+    
+    if (strand === 1) {
+      x1 = 0;
+      x2 = this.width - width2 - 40;
+    } else {
+      x1 = 25;
+      x2 = 30;
+    }
+    
+    scaleline = [
+      { x: x1,                             y: height / 2, width: this.width - 25, height: 1, decorations: true },
+      { x: (this.width - width1 - 10) / 2, y: 0,          width: width1 + 10,     height: height, color: bg, labelColor: this.color, labelWidth: width1, label: text  },
+      { x: x2,                             y: 0,          width: width2 + 10,     height: height, color: bg, labelColor: this.color, labelWidth: width2, label: text2 }
+    ];
+    
+    return this.base(this.prop('scaleline', scaleline), params);
+  },
+  
+  decorateFeature: function (feature, context) {
+    var strand = this.prop('strand');
+    var height = this.prop('height');
+    var x      = strand === 1 ? this.width - 25 : 25;
+    
+    context.strokeStyle = this.color;
+    
+    context.beginPath();
+    context.moveTo(x,                 height * 0.25);
+    context.lineTo(x + (strand * 20), height * 0.5);
+    context.lineTo(x,                 height * 0.75);
+    context.closePath();
+    context.stroke();
+    context.fill();
+  }
+});
+
+
+
+Genoverse.Track.Scalebar = Genoverse.Track.extend({
+  unsortable     : true,
+  order          : 0,
+  orderReverse   : 1e5,
+  featureStrand  : 1,
+  controls       : 'off',
+  height         : 20,
+  featureHeight  : 3,
+  featureMargin  : { top: 0, right: 0, bottom: 2, left: 0 },
+  margin         : 0,
+  minPixPerMajor : 100, // Least number of pixels per written number
+  color          : '#000000',
+  autoHeight     : false,
+  labels         : true,
+  bump           : false,
+  resizable      : false,
+  click          : $.noop,
+  colors         : {
+    majorGuideLine : '#CCCCCC',
+    minorGuideLine : '#E5E5E5'
+  },
+
+  setEvents: function () {
+    var browser = this.browser;
+
+    function resize() {
+      $('.gv-bg.gv-full-height', browser.container).height(browser.wrapper.outerHeight(true));
+    }
+
+    browser.on('afterAddTracks', resize);
+    browser.on('afterResize', this, resize);
+  },
+
+  setScale: function () {
+    var max       = this.prop('width') / this.prop('minPixPerMajor');
+    var divisor   = 5;
+    var majorUnit = -1;
+    var fromDigit = ('' + this.browser.start).split(''); // Split into array of digits
+    var toDigit   = ('' + this.browser.end).split('');
+    var divisions, i;
+
+    for (i = fromDigit.length; i < toDigit.length; i++) {
+      fromDigit.unshift('0');
+    }
+
+    for (i = toDigit.length; i < fromDigit.length; i++) {
+      toDigit.unshift('0');
+    }
+
+    // How many divisions would there be if we only kept i digits?
+    for (i = 0; i < fromDigit.length; i++) {
+      divisions = parseInt(toDigit.slice(0, fromDigit.length - i).join(''), 10) - parseInt(fromDigit.slice(0, fromDigit.length - i).join(''), 10);
+
+      if (divisions && divisions <= max) {
+        majorUnit = parseInt('1' + $.map(new Array(i), function () { return '0'; }).join(''), 10);
+        break;
+      }
+    }
+
+    if (majorUnit === -1) {
+      majorUnit = parseInt('1' + $.map(new Array(fromDigit.length), function () { return '0'; }).join(''), 10);
+      divisor   = 1;
+    } else {
+      // Improve things by trying simple multiples of 1<n zeroes>.
+      // (eg if 100 will fit will 200, 400, 500).
+      if (divisions * 5 <= max) {
+        majorUnit /= 5;
+        divisor    = 2;
+      } else if (divisions * 4 <= max) {
+        majorUnit /= 4;
+        divisor    = 1;
+      } else if (divisions * 2 <= max) {
+        majorUnit /= 2;
+      }
+    }
+
+    majorUnit = Math.max(majorUnit, 1);
+
+    this.prop('minorUnit',    Math.max(majorUnit / divisor, 1));
+    this.prop('majorUnit',    majorUnit);
+    this.prop('features',     new RTree());
+    this.prop('featuresById', {});
+    this.prop('seen',         {});
+
+    this.base();
+  },
+
+  setFeatures: function (start, end) {
+    var minorUnit = this.prop('minorUnit');
+    var majorUnit = this.prop('majorUnit');
+    var seen      = this.prop('seen');
+
+    start = Math.max(start - (start % minorUnit) - majorUnit, 0);
+
+    var flip  = (start / minorUnit) % 2 ? 1 : -1;
+    var feature, major, label;
+
+    for (var x = start; x < end + minorUnit; x += minorUnit) {
+      flip *= -1;
+
+      if (seen[x]) {
+        continue;
+      }
+
+      seen[x] = 1;
+
+      feature = { id: x, strand: 1, sort: x };
+      major   = x && x % majorUnit === 0;
+
+      if (flip === 1) {
+        feature.start = x;
+        feature.end   = x + minorUnit - 1;
+      }
+
+      if (major) {
+        label = this.track.view.formatLabel(x);
+
+        if (label !== this.lastLabel) {
+          feature.label = label;
+
+          if (!feature.end) {
+            feature.start = x;
+            feature.end   = x - 1;
+          }
+        }
+
+        this.lastLabel = label;
+      }
+
+      if (feature.end) {
+        this.insertFeature(feature);
+      }
+    }
+  },
+
+  makeFirstImage: function (moveTo) {
+    if (this.prop('strand') === -1) {
+      moveTo = this.track.forwardTrack.scrollStart;
+    }
+
+    return this.base(moveTo);
+  },
+
+  makeImage: function (params) {
+    params.background    = 'gv-guidelines gv-full-height';
+    params.featureHeight = this.prop('height');
+
+    this.track.setFeatures.apply(this.track.model, [ params.start, params.end ]);
+
+    var rtn = this.base(params);
+
+    params.container.addClass('gv-full-height');
+
+    return rtn;
+  },
+
+  makeReverseImage: function (params) {
+    this.imgContainers.push(params.container.clone().html(params.container.children('.data').clone(true).css('background', '#FFF'))[0]);
+    this.scrollContainer.append(this.imgContainers);
+  },
+
+  renderBackground: function (f, bgImage) {
+    this.base(f, bgImage);
+    bgImage.height(this.browser.wrapper.outerHeight(true));
+  },
+
+  draw: function (features, featureContext, labelContext, scale) {
+    var i         = features.length;
+    var minorUnit = this.prop('minorUnit');
+    var width     = Math.ceil(minorUnit * scale);
+    var feature, start;
+
+    featureContext.textBaseline = 'top';
+    featureContext.fillStyle    = this.color;
+
+    this.guideLines = { major: {} }; // FIXME: pass params to draw, rather than scale. set guideLines on params
+
+    while (i--) {
+      feature = features[i];
+      start   = Math.round(feature.position[scale].X);
+
+      this.drawFeature($.extend({}, feature, {
+        x      : start,
+        y      : 0,
+        width  : Math.ceil(feature.position[scale].width),
+        height : this.featureHeight
+      }), featureContext, labelContext, scale);
+
+      if (feature.label) {
+        if (start > -1) {
+          featureContext.fillRect(start, this.featureHeight, 1, this.featureHeight);
+        }
+
+        this.guideLines.major[feature.start] = true;
+      }
+
+      this.guideLines[feature.start] = start;
+      this.guideLines[feature.start + minorUnit] = start + width - 1;
+    }
+
+    featureContext.fillRect(0, 0, featureContext.canvas.width, 1);
+    featureContext.fillRect(0, this.featureHeight, featureContext.canvas.width, 1);
+  },
+
+  // Draw guidelines
+  drawBackground: function (f, context) {
+    for (var i in this.guideLines) {
+      if (this.guideLines[i] >= 0 && this.guideLines[i] <= this.width) {
+        context.fillStyle = this.track.colors[this.guideLines.major[i] ? 'majorGuideLine' : 'minorGuideLine' ];
+        context.fillRect(this.guideLines[i], 0, 1, context.canvas.height);
+      }
+    }
+  },
+
+  formatLabel: function (label) {
+    return this.prop('minorUnit') < 1000 ? label.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') : this.base(label);
+  }
+});
 
 
 
