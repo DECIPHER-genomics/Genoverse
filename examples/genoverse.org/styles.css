@@ -39,3 +39,7 @@ body {
 .info p {
   padding: 0 16px;
 }
+
+.gv-tracks-menu {
+  margin-left: -445px!important;
+}
