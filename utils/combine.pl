@@ -18,6 +18,7 @@ print COMBINED "(function () {\n";
 for (@files) {
   local $|=1;  
   open my $FILE, '<', $_ or warn "Can't open '$_' for read: $!";
+  print COMBINED "/* Adding $_ */\n";
   while (<$FILE>) {
     print COMBINED;
   }
