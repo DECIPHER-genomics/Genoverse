@@ -251,7 +251,7 @@ Genoverse.Track.View = Base.extend({
     }
 
     var x       = (original || feature).x;
-    var n       = this.repeatLabels && !feature.labelPosition ? Math.ceil((width - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) : 1;
+    var n       = this.repeatLabels && !feature.labelPosition ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) : 1;
     var spacing = width / n;
     var label, start, j, y, h;
 
