@@ -256,9 +256,9 @@
 .gv-canvas-zoom.gv-o .gv-r.gv-v { right:  8px;  }
 
 .gv-menu {
+  color: white;
   background-color: rgba(0, 0, 0, 0.7);
   border-radius: 0px 12px 12px 12px;
-  color: white;
   min-width: 200px;
   padding: 0;
   position: absolute;
@@ -267,49 +267,43 @@
   margin-left: 5px;
 }
 
-.gv-menu table td {
-  color: white;
-}
-
-.gv-menu a {
-  color: white;
-}
-
-.gv-menu table {
-  color: white;
+.gv-menu .gv-menu-content {
+  margin: 10px;
   font-family: monospace;
   font-size: 12px;
-  margin: 10px;
-  border: none;
 }
 
-.gv-menu table th, .gv-menu table td {
+.gv-menu .gv-menu-content a {
+  color: white;
+}
+
+.gv-menu .gv-menu-content table {
+  border: none;
+  border-spacing: 0;
+}
+
+.gv-menu .gv-menu-content table th,
+.gv-menu .gv-menu-content table td {
   color: white;
   padding: 0 1em 0 0;
   border: none;
-}
-
-.gv-menu table .gv-title {
-  padding-right: 20px;
-  font-weight: bold;
   text-align: left;
 }
 
-.gv-menu .gv-close {
-  position: absolute;
-  right: 0;
-  height: 20px;
-  width: 20px;
-  padding: 0 0 0 1px;
-  margin: 3px;
-  background-color: #CCCCCC;
-  border-radius: 20px;
-  line-height: 17px;
-  font-size: 13px;
-  font-family: Comic Sans MS;
+.gv-menu .gv-menu-content .gv-title {
   font-weight: bold;
+  display: inline-block;
+}
+
+.gv-menu .gv-menu-content .gv-title.block {
+  margin-right: 20px;
+  display: block;
+}
+
+.gv-menu .gv-menu-button {
+  font-family: Comic Sans MS;
+  background-color: #CCCCCC;
   color: #2E2E2E;
-  text-shadow: #F5F5F5 1px 1px 0;
   cursor: pointer;
   text-align: center;
   opacity: 1;
@@ -322,12 +316,25 @@
   user-select: none;
 }
 
-.gv-menu .gv-close:hover {
+.gv-menu .gv-menu-button:hover {
   background-color: #FFF;
   box-shadow: 0 0 5px #FFFFFF;
 }
 
-.gv-menu input {
+.gv-menu .gv-close {
+  position: absolute;
+  right: 0;
+  height: 20px;
+  width: 20px;
+  margin: 3px;
+  border-radius: 20px;
+  line-height: 17px;
+  font-size: 13px;
+  font-weight: bold;
+  padding-left: 1px;
+}
+
+.gv-menu .gv-menu-content input {
   color: #000;
 }
 

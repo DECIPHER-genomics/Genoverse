@@ -86,28 +86,15 @@ table.gv td {
 
 .gv-tracks-menu .gv-remove-track,
 .gv-tracks-menu .gv-add-track {
-  -moz-user-select: none;
-  background-color: #CCCCCC;
   border-radius: 3px;
-  color: #2E2E2E;
-  cursor: pointer;
   display: inline-block;
-  font-family: Comic Sans MS;
   font-size: 13px;
   font-weight: bold;
   height: 15px;
   line-height: 12px;
   margin: 3px 5px 0 0;
   padding: 0 0 0 1px;
-  text-align: center;
-  text-shadow: 1px 1px 0 #F5F5F5;
   width: 18px;
-}
-
-.gv-tracks-menu .gv-remove-track:hover,
-.gv-tracks-menu .gv-add-track:hover {
-  background-color: #FFF;
-  box-shadow: 0px 0px 5px #FFFFFF;
 }
 
 .gv-powered-by {

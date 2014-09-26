@@ -2265,15 +2265,17 @@ var Genoverse = Base.extend({
   }),
 
   makeMenu: function (feature, event, track) {
+    var browser = this;
+
     if (!feature.menuEl) {
       var menu = this.menuTemplate.clone(true).data('browser', this);
 
-      $.when(track ? track.controller.populateMenu(feature) : feature).done(function (feature) {
-        if (Object.prototype.toString.call(feature) !== '[object Array]') {
-          feature = [ feature ];
+      $.when(track ? track.controller.populateMenu(feature) : feature).done(function (properties) {
+        if (Object.prototype.toString.call(properties) !== '[object Array]') {
+          properties = [ properties ];
         }
 
-        feature.every(function (f) {
+        properties.every(function (f) {
           $('table', menu).append(
             (f.title ? '<tr class="gv-header"><th colspan="2" class="gv-title">' + f.title + '</th></tr>' : '') +
             $.map(f, function (value, key) {
@@ -2285,11 +2287,29 @@ var Genoverse = Base.extend({
 
           return true;
         });
-
-        if (track) {
-          menu.addClass(track.id).data('track', track);
-        }
       });
+
+      if (track && feature.start && feature.end) {
+        var focus = '<th><a href="#">Focus here</a></th>';
+        var title = menu.find('.gv-header');
+
+        if (title.length) {
+          focus = $(focus).insertAfter(title.find('th').removeAttr('colspan'));
+        } else {
+          focus = $('<tr>' + focus + '</tr>').prependTo(menu.find('table')).find('th').attr('colspan', 2);
+        }
+
+        focus.on('click', function () {
+          var length  = feature.end - feature.start + 1;
+          var context = Math.max(Math.round(length / 4), 25);
+
+          browser.setRange(feature.start - context, feature.end + context, true);
+
+          return false;
+        });
+
+        menu.addClass(track.id).data('track', track);
+      }
 
       feature.menuEl = menu.appendTo(this.superContainer || this.container);
     }
@@ -3781,7 +3801,7 @@ Genoverse.Track.View = Base.extend({
     }
 
     var x       = (original || feature).x;
-    var n       = this.repeatLabels && !feature.labelPosition ? Math.ceil((width - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) : 1;
+    var n       = this.repeatLabels && !feature.labelPosition ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) : 1;
     var spacing = width / n;
     var label, start, j, y, h;
 
@@ -5412,7 +5432,9 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     var browser = this.browser;
 
     function resize() {
-      $('.gv-bg.gv-full-height', browser.container).height(browser.wrapper.outerHeight(true));
+      $('.gv-bg.gv-full-height', browser.container).height(function () {
+        return browser.wrapper.outerHeight(true) - $(this).parents('.gv-track-container').position().top;
+      });
     }
 
     browser.on('afterAddTracks', resize);
@@ -5543,7 +5565,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   },
 
   makeReverseImage: function (params) {
-    this.imgContainers.push(params.container.clone().html(params.container.children('.data').clone(true).css('background', '#FFF'))[0]);
+    this.imgContainers.push(params.container.clone().html(params.container.children('.gv-data').clone(true).css('background', '#FFF'))[0]);
     this.scrollContainer.append(this.imgContainers);
   },
 

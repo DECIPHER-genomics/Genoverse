@@ -120,7 +120,7 @@ Genoverse.Plugins.controlPanel = function () {
           var button = $('<button>' + control.icon + '</button>').addClass(control['class']).attr('title', control.name).on('click', function () {
             control.action.call(this, browser);
           }).appendTo(
-            $('<div class="gv-button-set">').attr('title', control.name).appendTo('.gv-panel-right')
+            $('<div class="gv-button-set">').attr('title', control.name).appendTo(browser.superContainer.find('.gv-panel-right'))
           );
 
           if (control.init) {
@@ -199,7 +199,7 @@ Genoverse.Plugins.controlPanel = function () {
                   if (browser.tracks[i].name && !(browser.tracks[i] instanceof Genoverse.Track.Legend)) {
                     (function (track) {
                       $('<div>')
-                        .append($('<div class="gv-remove-track">x</div>').on('click', function () { track.remove(); }))
+                        .append($('<div class="gv-remove-track gv-menu-button">x</div>').on('click', function () { track.remove(); }))
                         .append('<span>' + track.name + '</span>')
                         .appendTo(currentTracks);
                     })(browser.tracks[i]);
@@ -216,7 +216,7 @@ Genoverse.Plugins.controlPanel = function () {
               for (var i = 0; i < tracksLibrary.length; i++) {
                 (function (track) {
                   $('<div class="gv-tracks-library-item">').append(
-                    $('<div class="gv-add-track">+</div> ').on('click', function () {
+                    $('<div class="gv-add-track gv-menu-button">+</div> ').on('click', function () {
                       browser.trackIds = browser.trackIds || {};
                       browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
 
