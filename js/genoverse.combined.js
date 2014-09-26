@@ -2250,7 +2250,16 @@ var Genoverse = Base.extend({
     this.failed = true;
   },
 
-  menuTemplate: $('<div class="gv-menu"><div class="gv-close">x</div><table></table></div>').on('click', function (e) {
+  menuTemplate: $(
+    '<div class="gv-menu">'                           +
+      '<div class="gv-close gv-menu-button">x</div>'  +
+      '<div class="gv-menu-content">'                 +
+        '<div class="gv-title"></div>'                +
+        '<a class="gv-focus" href="#">Focus here</a>' +
+        '<table></table>'                             +
+      '</div>'                                        +
+    '</div>'
+  ).on('click', function (e) {
     if ($(e.target).hasClass('gv-close')) {
       $(this).fadeOut('fast', function () {
         var data = $(this).data();
@@ -2265,53 +2274,70 @@ var Genoverse = Base.extend({
   }),
 
   makeMenu: function (feature, event, track) {
-    var browser = this;
-
     if (!feature.menuEl) {
-      var menu = this.menuTemplate.clone(true).data('browser', this);
+      var browser = this;
+      var menu    = this.menuTemplate.clone(true).data('browser', this);
+      var content = $('.gv-menu-content', menu).remove();
+      var i, table, el, start, end, key, width, tdWidth;
+
+      function focus() {
+        var data    = $(this).data();
+        var length  = data.end - data.start + 1;
+        var context = Math.max(Math.round(length / 4), 25);
+
+        browser.moveTo(data.start - context, data.end + context, true);
+
+        return false;
+      }
 
       $.when(track ? track.controller.populateMenu(feature) : feature).done(function (properties) {
         if (Object.prototype.toString.call(properties) !== '[object Array]') {
           properties = [ properties ];
         }
 
-        properties.every(function (f) {
-          $('table', menu).append(
-            (f.title ? '<tr class="gv-header"><th colspan="2" class="gv-title">' + f.title + '</th></tr>' : '') +
-            $.map(f, function (value, key) {
-              if (key !== 'title') {
-                return '<tr><td>' + key + '</td><td>' + value + '</td></tr>';
-              }
-            }).join()
-          );
+        for (i = 0; i < properties.length; i++) {
+          table = '';
+          el    = content.clone().appendTo(menu);
+          start = properties[i].start || feature.start;
+          end   = properties[i].end   || feature.end;
 
-          return true;
-        });
+          $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
+
+          if (track && start && end) {
+            $('.gv-focus', el).data({ start: start, end: end }).on('click', focus);
+          } else {
+            $('.gv-focus', el).remove();
+          }
+
+          for (key in properties[i]) {
+            if (key !== 'title') {
+              table += '<tr><td>' + key + '</td><td>' + properties[i][key] + '</td></tr>';
+            }
+          }
+
+          $('table', el).html(table);
+        }
       });
 
-      if (track && feature.start && feature.end) {
-        var focus = '<th><a href="#">Focus here</a></th>';
-        var title = menu.find('.gv-header');
-
-        if (title.length) {
-          focus = $(focus).insertAfter(title.find('th').removeAttr('colspan'));
-        } else {
-          focus = $('<tr>' + focus + '</tr>').prependTo(menu.find('table')).find('th').attr('colspan', 2);
-        }
-
-        focus.on('click', function () {
-          var length  = feature.end - feature.start + 1;
-          var context = Math.max(Math.round(length / 4), 25);
-
-          browser.setRange(feature.start - context, feature.end + context, true);
-
-          return false;
-        });
-
+      if (track) {
         menu.addClass(track.id).data('track', track);
       }
 
       feature.menuEl = menu.appendTo(this.superContainer || this.container);
+
+      $('.gv-menu-content', menu).each(function () {
+        tdWidth = $('td:first', this).outerWidth();
+
+        $('.gv-title', this).width(function (i, w) {
+          width = Math.max(w, tdWidth);
+
+          if (width === w) {
+            $(this).addClass('block');
+          }
+
+          return width;
+        });
+      });
     }
 
     this.menus = this.menus.add(feature.menuEl);
