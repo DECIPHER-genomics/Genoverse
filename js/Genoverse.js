@@ -1052,7 +1052,8 @@ var Genoverse = Base.extend({
           width = Math.max(w, tdWidth);
 
           if (width === w) {
-            $(this).addClass('block');
+            $(this).addClass('gv-block');
+            return 'auto';
           }
 
           return width;

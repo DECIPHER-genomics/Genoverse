@@ -295,7 +295,7 @@
   display: inline-block;
 }
 
-.gv-menu .gv-menu-content .gv-title.block {
+.gv-menu .gv-menu-content .gv-title.gv-block {
   margin-right: 20px;
   display: block;
 }
