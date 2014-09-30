@@ -680,6 +680,7 @@ var Genoverse = Base.extend({
     this.setRange(start, end, update, keepLength);
 
     if (this.prev.scale === this.scale) {
+      this.left = Math.max(Math.min(this.left + Math.round((this.prev.start - this.start) * this.scale), this.maxLeft), this.minLeft);
       this.onTracks('moveTo', this.start, this.end, (this.prev.start - this.start) * this.scale);
     }
   },
@@ -701,6 +702,11 @@ var Genoverse = Base.extend({
         var center = (this.start + this.end) / 2;
         this.start = Math.max(Math.floor(center - this.length / 2), 1);
         this.end   = this.start + this.length - 1;
+
+        if (this.end > this.chromosomeSize) {
+          this.end   = this.chromosomeSize;
+          this.start = this.end - this.length + 1;
+        }
       }
     } else {
       this.length = this.end - this.start + 1;
