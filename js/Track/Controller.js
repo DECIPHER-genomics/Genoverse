@@ -394,9 +394,7 @@ Genoverse.Track.Controller = Base.extend({
 
   makeFirstImage: function (moveTo) {
     if (this.scrollContainer.children().hide().filter('.' + (moveTo || this.scrollStart)).show().length) {
-      if (moveTo) {
-        this.scrollContainer.css('left', 0);
-      }
+      this.scrollContainer.css('left', 0);
 
       return this.checkHeight();
     }
