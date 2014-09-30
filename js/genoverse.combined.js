@@ -1960,6 +1960,7 @@ var Genoverse = Base.extend({
     this.setRange(start, end, update, keepLength);
 
     if (this.prev.scale === this.scale) {
+      this.left = Math.max(Math.min(this.left + Math.round((this.prev.start - this.start) * this.scale), this.maxLeft), this.minLeft);
       this.onTracks('moveTo', this.start, this.end, (this.prev.start - this.start) * this.scale);
     }
   },
@@ -1981,6 +1982,11 @@ var Genoverse = Base.extend({
         var center = (this.start + this.end) / 2;
         this.start = Math.max(Math.floor(center - this.length / 2), 1);
         this.end   = this.start + this.length - 1;
+
+        if (this.end > this.chromosomeSize) {
+          this.end   = this.chromosomeSize;
+          this.start = this.end - this.length + 1;
+        }
       }
     } else {
       this.length = this.end - this.start + 1;
@@ -3224,9 +3230,7 @@ Genoverse.Track.Controller = Base.extend({
 
   makeFirstImage: function (moveTo) {
     if (this.scrollContainer.children().hide().filter('.' + (moveTo || this.scrollStart)).show().length) {
-      if (moveTo) {
-        this.scrollContainer.css('left', 0);
-      }
+      this.scrollContainer.css('left', 0);
 
       return this.checkHeight();
     }
@@ -3831,6 +3835,11 @@ Genoverse.Track.View = Base.extend({
     var n       = this.repeatLabels && !feature.labelPosition ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) : 1;
     var spacing = width / n;
     var label, start, j, y, h;
+
+    if (this.repeatLabels && scale > 1) {
+      spacing = this.browser.length * scale;
+      n = Math.ceil(width / spacing);
+    }
 
     if (!feature.labelColor) {
       this.setLabelColor(feature);
@@ -5495,7 +5504,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     }
 
     if (majorUnit === -1) {
-      majorUnit = parseInt('1' + $.map(new Array(fromDigit.length), function () { return '0'; }).join(''), 10);
+      majorUnit = this.browser.length === 1 ? 1 : parseInt('1' + $.map(new Array(fromDigit.length), function () { return '0'; }).join(''), 10);
       divisor   = 1;
     } else {
       // Improve things by trying simple multiples of 1<n zeroes>.

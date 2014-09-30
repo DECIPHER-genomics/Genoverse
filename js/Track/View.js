@@ -255,6 +255,11 @@ Genoverse.Track.View = Base.extend({
     var spacing = width / n;
     var label, start, j, y, h;
 
+    if (this.repeatLabels && scale > 1) {
+      spacing = this.browser.length * scale;
+      n = Math.ceil(width / spacing);
+    }
+
     if (!feature.labelColor) {
       this.setLabelColor(feature);
     }
