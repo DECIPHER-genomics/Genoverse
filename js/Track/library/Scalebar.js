@@ -60,7 +60,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     }
 
     if (majorUnit === -1) {
-      majorUnit = parseInt('1' + $.map(new Array(fromDigit.length), function () { return '0'; }).join(''), 10);
+      majorUnit = this.browser.length === 1 ? 1 : parseInt('1' + $.map(new Array(fromDigit.length), function () { return '0'; }).join(''), 10);
       divisor   = 1;
     } else {
       // Improve things by trying simple multiples of 1<n zeroes>.
