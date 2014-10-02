@@ -2309,7 +2309,7 @@ var Genoverse = Base.extend({
 
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
-          if (track && start && end) {
+          if (track && start && end && !browser.isStatic) {
             $('.gv-focus', el).data({ start: start, end: end }).on('click', focus);
           } else {
             $('.gv-focus', el).remove();
