@@ -1024,8 +1024,8 @@ var Genoverse = Base.extend({
         for (i = 0; i < properties.length; i++) {
           table = '';
           el    = content.clone().appendTo(menu);
-          start = properties[i].start || feature.start;
-          end   = properties[i].end   || feature.end;
+          start = typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start;
+          end   = typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end;
 
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
@@ -1036,6 +1036,10 @@ var Genoverse = Base.extend({
           }
 
           for (key in properties[i]) {
+            if (/^start|end$/.test(key) && properties[i][key] === false) {
+              continue;
+            }
+
             if (key !== 'title') {
               table += '<tr><td>' + key + '</td><td>' + properties[i][key] + '</td></tr>';
             }
