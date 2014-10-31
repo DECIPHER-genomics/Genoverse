@@ -288,6 +288,7 @@
   padding: 0 1em 0 0;
   border: none;
   text-align: left;
+  vertical-align: top;
 }
 
 .gv-menu .gv-menu-content .gv-title {
