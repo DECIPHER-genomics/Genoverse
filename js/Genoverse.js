@@ -244,7 +244,7 @@ var Genoverse = Base.extend({
   },
 
   saveConfig: function () {
-    if (this._constructing) {
+    if (this._constructing || !this.saveable) {
       return;
     }
 
