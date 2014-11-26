@@ -295,32 +295,37 @@ var Genoverse = Base.extend({
       }
     });
 
-    this.wrapper          = $('<div class="gv-wrapper">').appendTo(this.container);
-    this.selector         = $('<div class="gv-selector gv-crosshair">').appendTo(this.wrapper);
-    this.selectorControls = $(
-      '<div class="gv-selector-controls">'                +
-      '  <button class="gv-zoom-here">Zoom here</button>' +
-      '  <button class="gv-center">Center</button>'       +
-      '  <button class="gv-cancel">Cancel</button>'       +
-      '</div>'
-    ).appendTo(this.selector);
+    this.wrapper  = $('<div class="gv-wrapper">').appendTo(this.container);
+    this.selector = $('<div class="gv-selector gv-crosshair">').appendTo(this.wrapper);
 
-    this.zoomInHighlight = $(
-      '<div class="gv-canvas-zoom gv-i">' +
-      '  <div class="gv-t gv-l gv-h"></div>' +
-      '  <div class="gv-t gv-r gv-h"></div>' +
-      '  <div class="gv-t gv-l gv-v"></div>' +
-      '  <div class="gv-t gv-r gv-v"></div>' +
-      '  <div class="gv-b gv-l gv-h"></div>' +
-      '  <div class="gv-b gv-r gv-h"></div>' +
-      '  <div class="gv-b gv-l gv-v"></div>' +
-      '  <div class="gv-b gv-r gv-v"></div>' +
-      '</div>'
-    ).appendTo('body');
-
-    this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('gv-i gv-o').appendTo('body');
+    this.selectorControls = this.zoomInHighlight = this.zoomOutHighlight = $();
 
     this.container.addClass('gv-canvas-container').width(width);
+
+    if (!this.isStatic) {
+      this.selectorControls = $(
+        '<div class="gv-selector-controls">'                +
+        '  <button class="gv-zoom-here">Zoom here</button>' +
+        '  <button class="gv-center">Center</button>'       +
+        '  <button class="gv-cancel">Cancel</button>'       +
+        '</div>'
+      ).appendTo(this.selector);
+
+      this.zoomInHighlight = $(
+        '<div class="gv-canvas-zoom gv-i">' +
+        '  <div class="gv-t gv-l gv-h"></div>' +
+        '  <div class="gv-t gv-r gv-h"></div>' +
+        '  <div class="gv-t gv-l gv-v"></div>' +
+        '  <div class="gv-t gv-r gv-v"></div>' +
+        '  <div class="gv-b gv-l gv-h"></div>' +
+        '  <div class="gv-b gv-r gv-h"></div>' +
+        '  <div class="gv-b gv-l gv-v"></div>' +
+        '  <div class="gv-b gv-r gv-v"></div>' +
+        '</div>'
+      ).appendTo('body');
+
+      this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('gv-i gv-o').appendTo('body');
+    }
   },
 
   addUserEventHandlers: function () {

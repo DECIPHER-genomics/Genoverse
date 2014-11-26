@@ -23,12 +23,12 @@ Genoverse.Plugins.karyotype = function () {
             url           : false,
             allData       : true,
             unsortable    : true,
-            
+
             click: function (e) {
               var offset = this.container.parent().offset().left;
               var x      = e.pageX - offset;
               var f      = this.featurePositions.search({ x: x, y: 1, w: 1, h: 1 })[0];
-              
+
               if (f) {
                 if (e.type === 'mouseup') {
                   if (!this.browser.parent.isStatic) {
@@ -37,50 +37,55 @@ Genoverse.Plugins.karyotype = function () {
                 } else {
                   if (this.hoverFeature !== f) {
                     this.container.tipsy('hide');
-                    
+
                     if (f.label) {
                       var left = offset + f.position[this.scale].start + f.position[this.scale].width / 2;
-                      
+
                       this.container.attr('title', f.label[0]).tipsy({ trigger: 'manual', container: 'body' }).tipsy('show').data('tipsy').$tip.css('left', function () { return left - $(this).width() / 2; });
                     }
-                    
+
                     this.hoverFeature = f;
                   }
                 }
               }
             },
-            
+
             addUserEventHandlers: function () {
               var track = this;
-              
+
               this.base();
-              
+
               this.container.on({
-                mousemove : function (e) { track.click(e); },
-                mouseout  : function (e) {
+                mousemove  : function (e) { track.click(e); },
+                mouseout   : function (e) {
                   if (track.browser.viewPoint.is(e.relatedTarget) || track.browser.viewPoint.find(e.relatedTarget).length) {
                     return true;
                   }
-                  
+
                   track.container.tipsy('hide');
                   track.hoverFeature = false;
                 }
               }, '.gv-image-container');
+
+              // Don't allow zooming in and out on the karyotype image
+              this.container.on('mousewheel', '.gv-image-container, .gv-selector', function (e) {
+                e.stopPropagation();
+              });
             }
           })
         ],
-        
+
         afterInit: function () {
           this.track = this.tracks[0];
-          
+
           this.updatePosition();
           this.viewPoint.fadeIn();
         },
-        
+
         afterAddDomElements: function () {
           var karyotype = this;
           var parent    = this.parent;
-          
+
           this.labelContainer.remove();
           this.labelContainer = $();
 
@@ -90,25 +95,25 @@ Genoverse.Plugins.karyotype = function () {
             },
             mouseout: function (e) {
               var el = $(e.relatedTarget);
-              
+
               if (karyotype.viewPoint.is(el) || karyotype.viewPoint.find(el).length || (el[0].nodeName === 'IMG' && el.parent().is(karyotype.track.prop('imgContainers')[0]))) {
                 return true;
               }
-              
+
               karyotype.track.prop('container').tipsy('hide');
               karyotype.track.prop('hoverFeature', false);
             }
           });
-          
+
           if (!parent.isStatic) {
             function updateLocation(e, ui) {
               var scale = karyotype.chromosomeSize / karyotype.width;
               var start = Math.floor(ui.position.left * scale);
               var end   = e.type === 'dragstop' ? start + parent.length - 1 : Math.floor(ui.helper.width() * scale) + start;
-              
+
               parent.moveTo(start, end, true, e.type === 'dragstop');
             }
-            
+
             this.viewPoint.draggable({
               axis        : 'x',
               containment : 'parent',
@@ -118,7 +123,7 @@ Genoverse.Plugins.karyotype = function () {
               stop    : updateLocation,
               resize  : function (e, ui) {
                 ui.element.css('left', Math.max(0, ui.position.left));
-                
+
                 if (ui.position.left > 0) {
                   ui.element.width(Math.min(ui.size.width, ui.element.parent().width() - ui.position.left));
                 } else {
@@ -128,11 +133,11 @@ Genoverse.Plugins.karyotype = function () {
             });
           }
         },
-        
+
         updatePosition: function () {
           var left  =  this.width * this.parent.start / this.chromosomeSize;
           var width = (this.width * this.parent.end   / this.chromosomeSize) - left;
-          
+
           this.viewPoint.css({ left: left, width: width });
         }
       });
@@ -143,7 +148,7 @@ Genoverse.Plugins.karyotype = function () {
         }).prependTo(this.labelContainer);
       }
     },
-    
+
     afterSetRange: function () {
       if (this.karyotype) {
         this.karyotype.updatePosition();
