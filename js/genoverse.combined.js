@@ -1283,8 +1283,6 @@ var Genoverse = Base.extend({
   // Defaults
   urlParamTemplate   : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
   width              : 1000,
-  height             : 200,
-  buffer             : 1,
   longestLabel       : 30,
   defaultLength      : 5000,
   defaultScrollDelta : 100,
@@ -1297,14 +1295,9 @@ var Genoverse = Base.extend({
   saveKey            : '',               // default key for sessionStorage/localStorage configuration is 'genoverse'. saveKey will be appended to this if it is set
   storageType        : 'sessionStorage', // set to localStorage for permanence
   genome             : undefined,
+  useHash            : undefined,
   autoHideMessages   : true,
   trackAutoHeight    : false,
-  colors             : {
-    background       : '#FFFFFF',
-    majorGuideLine   : '#CCCCCC',
-    minorGuideLine   : '#E5E5E5',
-    sortHandle       : '#CFD4E7'
-  },
 
   // Default coordinates for initial view, overwrite in your config
   chr   : 1,
@@ -1524,7 +1517,7 @@ var Genoverse = Base.extend({
   },
 
   saveConfig: function () {
-    if (this._constructing) {
+    if (this._constructing || !this.saveable) {
       return;
     }
 
@@ -1570,37 +1563,42 @@ var Genoverse = Base.extend({
       cursor : 'move',
       update : $.proxy(this.updateTrackOrder, this),
       start  : function (e, ui) {
-        ui.placeholder.css({ height: ui.item.height(), visibility: 'visible', background: browser.colors.sortHandle }).html(ui.item.html());
+        ui.placeholder.css({ height: ui.item.height(), visibility: 'visible' }).html(ui.item.html());
         ui.helper.hide();
       }
     });
 
-    this.wrapper          = $('<div class="gv-wrapper">').appendTo(this.container);
-    this.selector         = $('<div class="gv-selector gv-crosshair">').appendTo(this.wrapper);
-    this.selectorControls = $(
-      '<div class="gv-selector-controls">'                +
-      '  <button class="gv-zoom-here">Zoom here</button>' +
-      '  <button class="gv-center">Center</button>'       +
-      '  <button class="gv-cancel">Cancel</button>'       +
-      '</div>'
-    ).appendTo(this.selector);
+    this.wrapper  = $('<div class="gv-wrapper">').appendTo(this.container);
+    this.selector = $('<div class="gv-selector gv-crosshair">').appendTo(this.wrapper);
 
-    this.zoomInHighlight = $(
-      '<div class="gv-canvas-zoom gv-i">' +
-      '  <div class="gv-t gv-l gv-h"></div>' +
-      '  <div class="gv-t gv-r gv-h"></div>' +
-      '  <div class="gv-t gv-l gv-v"></div>' +
-      '  <div class="gv-t gv-r gv-v"></div>' +
-      '  <div class="gv-b gv-l gv-h"></div>' +
-      '  <div class="gv-b gv-r gv-h"></div>' +
-      '  <div class="gv-b gv-l gv-v"></div>' +
-      '  <div class="gv-b gv-r gv-v"></div>' +
-      '</div>'
-    ).appendTo('body');
-
-    this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('gv-i gv-o').appendTo('body');
+    this.selectorControls = this.zoomInHighlight = this.zoomOutHighlight = $();
 
     this.container.addClass('gv-canvas-container').width(width);
+
+    if (!this.isStatic) {
+      this.selectorControls = $(
+        '<div class="gv-selector-controls">'                +
+        '  <button class="gv-zoom-here">Zoom here</button>' +
+        '  <button class="gv-center">Center</button>'       +
+        '  <button class="gv-cancel">Cancel</button>'       +
+        '</div>'
+      ).appendTo(this.selector);
+
+      this.zoomInHighlight = $(
+        '<div class="gv-canvas-zoom gv-i">' +
+        '  <div class="gv-t gv-l gv-h"></div>' +
+        '  <div class="gv-t gv-r gv-h"></div>' +
+        '  <div class="gv-t gv-l gv-v"></div>' +
+        '  <div class="gv-t gv-r gv-v"></div>' +
+        '  <div class="gv-b gv-l gv-h"></div>' +
+        '  <div class="gv-b gv-r gv-h"></div>' +
+        '  <div class="gv-b gv-l gv-v"></div>' +
+        '  <div class="gv-b gv-r gv-v"></div>' +
+        '</div>'
+      ).appendTo('body');
+
+      this.zoomOutHighlight = this.zoomInHighlight.clone().toggleClass('gv-i gv-o').appendTo('body');
+    }
   },
 
   addUserEventHandlers: function () {
@@ -2304,8 +2302,8 @@ var Genoverse = Base.extend({
         for (i = 0; i < properties.length; i++) {
           table = '';
           el    = content.clone().appendTo(menu);
-          start = properties[i].start || feature.start;
-          end   = properties[i].end   || feature.end;
+          start = typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start;
+          end   = typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end;
 
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
@@ -2316,6 +2314,10 @@ var Genoverse = Base.extend({
           }
 
           for (key in properties[i]) {
+            if (/^start|end$/.test(key) && properties[i][key] === false) {
+              continue;
+            }
+
             if (key !== 'title') {
               table += '<tr><td>' + key + '</td><td>' + properties[i][key] + '</td></tr>';
             }
@@ -5403,7 +5405,7 @@ Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
     var text2  = strand === 1 ? 'Forward strand' : 'Reverse strand';
     var width1 = this.context.measureText(text).width;
     var width2 = this.context.measureText(text2).width;
-    var bg     = this.browser.colors.background;
+    var bg     = this.prop('imgContainer').css('backgroundColor');
     var x1, x2;
     
     if (strand === 1) {
@@ -5601,7 +5603,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   },
 
   makeReverseImage: function (params) {
-    this.imgContainers.push(params.container.clone().html(params.container.children('.gv-data').clone(true).css('background', '#FFF'))[0]);
+    this.imgContainers.push(params.container.clone().html(params.container.children('.gv-data').clone(true).css('background', this.browser.wrapper.css('backgroundColor')))[0]);
     this.scrollContainer.append(this.imgContainers);
   },
 

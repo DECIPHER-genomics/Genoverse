@@ -3,8 +3,6 @@ var Genoverse = Base.extend({
   // Defaults
   urlParamTemplate   : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
   width              : 1000,
-  height             : 200,
-  buffer             : 1,
   longestLabel       : 30,
   defaultLength      : 5000,
   defaultScrollDelta : 100,
@@ -17,14 +15,9 @@ var Genoverse = Base.extend({
   saveKey            : '',               // default key for sessionStorage/localStorage configuration is 'genoverse'. saveKey will be appended to this if it is set
   storageType        : 'sessionStorage', // set to localStorage for permanence
   genome             : undefined,
+  useHash            : undefined,
   autoHideMessages   : true,
   trackAutoHeight    : false,
-  colors             : {
-    background       : '#FFFFFF',
-    majorGuideLine   : '#CCCCCC',
-    minorGuideLine   : '#E5E5E5',
-    sortHandle       : '#CFD4E7'
-  },
 
   // Default coordinates for initial view, overwrite in your config
   chr   : 1,
@@ -290,7 +283,7 @@ var Genoverse = Base.extend({
       cursor : 'move',
       update : $.proxy(this.updateTrackOrder, this),
       start  : function (e, ui) {
-        ui.placeholder.css({ height: ui.item.height(), visibility: 'visible', background: browser.colors.sortHandle }).html(ui.item.html());
+        ui.placeholder.css({ height: ui.item.height(), visibility: 'visible' }).html(ui.item.html());
         ui.helper.hide();
       }
     });

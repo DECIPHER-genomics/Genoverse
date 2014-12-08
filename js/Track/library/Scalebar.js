@@ -157,7 +157,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   },
 
   makeReverseImage: function (params) {
-    this.imgContainers.push(params.container.clone().html(params.container.children('.gv-data').clone(true).css('background', '#FFF'))[0]);
+    this.imgContainers.push(params.container.clone().html(params.container.children('.gv-data').clone(true).css('background', this.browser.wrapper.css('backgroundColor')))[0]);
     this.scrollContainer.append(this.imgContainers);
   },
 

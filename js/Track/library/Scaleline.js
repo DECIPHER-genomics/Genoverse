@@ -32,7 +32,7 @@ Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
     var text2  = strand === 1 ? 'Forward strand' : 'Reverse strand';
     var width1 = this.context.measureText(text).width;
     var width2 = this.context.measureText(text2).width;
-    var bg     = this.browser.colors.background;
+    var bg     = this.prop('imgContainer').css('backgroundColor');
     var x1, x2;
     
     if (strand === 1) {
