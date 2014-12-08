@@ -1233,7 +1233,7 @@ var Genoverse = Base.extend({
   }
 });
 
-Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/\w+/) || [])[1];
+Genoverse.prototype.origin = ($('script[src]:last').attr('src').match(/(.*)js\/\w+/) || [])[1];
 
 $(function () {
   if (!$('link[href="' + Genoverse.prototype.origin + 'css/genoverse.css"]').length) {
