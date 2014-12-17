@@ -1417,7 +1417,6 @@ var Genoverse = Base.extend({
     this.useHash          = typeof this.useHash === 'boolean' ? this.useHash : typeof window.history.pushState !== 'function';
     this.textWidth        = document.createElement('canvas').getContext('2d').measureText('W').width;
     this.labelWidth       = this.labelContainer.outerWidth(true);
-    this.wrapperLeft      = this.labelWidth - width;
     this.width           -= this.labelWidth;
     this.paramRegex       = this.urlParamTemplate ? new RegExp('([?&;])' + this.urlParamTemplate
       .replace(/(\b(\w+=)?__CHR__(.)?)/,   '$2([\\w\\.]+)$3')
@@ -1698,9 +1697,8 @@ var Genoverse = Base.extend({
   },
 
   setWidth: function (width) {
-    this.width       = width;
-    this.wrapperLeft = this.labelWidth - width;
-    this.width      -= this.labelWidth;
+    this.width  = width;
+    this.width -= this.labelWidth;
 
     this.container.width(width);
     this.onTracks('setWidth', this.width);
@@ -2513,7 +2511,7 @@ var Genoverse = Base.extend({
   }
 });
 
-Genoverse.prototype.origin = ($('script:last').attr('src').match(/(.*)js\/\w+/) || [])[1];
+Genoverse.prototype.origin = ($('script[src]:last').attr('src').match(/(.*)js\/\w+/) || [])[1];
 
 $(function () {
   if (!$('link[href="' + Genoverse.prototype.origin + 'css/genoverse.css"]').length) {

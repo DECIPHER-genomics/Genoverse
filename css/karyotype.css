@@ -52,3 +52,19 @@
   font-size: 0.1px;
   position: absolute;
 }
+
+.gv-karyotype-container .gv-chromosome .gv-label-container {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  width: 50px;
+  cursor: default;
+}
+
+.gv-karyotype-container .gv-chromosome .gv-label-container .gv-name {
+  color: #000;
+  left: 0px !important;
+  text-shadow: none;
+  margin: 0px;
+  vertical-align: middle;
+}
