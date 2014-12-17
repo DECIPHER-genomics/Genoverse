@@ -106,8 +106,8 @@ Genoverse.Plugins.karyotype = function () {
           if (!parent.isStatic) {
             function updateLocation(e, ui) {
               var scale = karyotype.chromosomeSize / karyotype.width;
-              var start = Math.floor(ui.position.left * scale);
-              var end   = e.type === 'dragstop' ? start + parent.length - 1 : Math.floor(ui.helper.width() * scale) + start;
+              var start = Math.floor((ui.position.left - karyotype.labelWidth) * scale);
+              var end   = e.type === 'dragstop' ? start + parent.length - 1 : Math.floor(ui.helper.outerWidth(true) * scale) + start;
 
               parent.moveTo(start, end, true, e.type === 'dragstop');
             }
