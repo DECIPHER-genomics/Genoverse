@@ -2302,13 +2302,13 @@ var Genoverse = Base.extend({
         for (i = 0; i < properties.length; i++) {
           table = '';
           el    = content.clone().appendTo(menu);
-          start = typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start;
-          end   = typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end;
+          start = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
+          end   = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
 
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
           if (track && start && end && !browser.isStatic) {
-            $('.gv-focus', el).data({ start: start, end: end }).on('click', focus);
+            $('.gv-focus', el).data({ start: start, end: Math.max(end, start) }).on('click', focus);
           } else {
             $('.gv-focus', el).remove();
           }
