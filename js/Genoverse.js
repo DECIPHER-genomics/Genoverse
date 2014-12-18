@@ -854,7 +854,9 @@ var Genoverse = Base.extend({
     var containers = $();
 
     for (var i = 0; i < sorted.length; i++) {
-      sorted[i].prop('order', i);
+      if (!sorted[i].prop('unsortable')) {
+        sorted[i].prop('order', i);
+      }
 
       if (sorted[i].prop('menus').length) {
         sorted[i].prop('top', sorted[i].prop('container').position().top);

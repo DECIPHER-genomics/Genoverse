@@ -4,22 +4,22 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   unsortable    : true,
   lockToTrack   : true,  // Always put the legend just below the last track that the legend is for
   featureHeight : 12,
-  
+
   controller: Genoverse.Track.Controller.Static.extend({
     init: function () {
       this.base();
-      
+
       this.container.addClass('gv-track-container-legend');
 
       if (!this.browser.legends) {
         this.browser.legends = {};
       }
-      
+
       this.browser.legends[this.track.id] = this;
       this.track.setTracks();
     }
   }),
-  
+
   setEvents: function () {
     this.browser.on({
       'afterInit afterAddTracks afterRemoveTracks': function () {
@@ -44,53 +44,61 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
         }
       }
     });
-    
+
     this.browser.on({
       afterPositionFeatures: function (features, params) {
         var legend = this.prop('legend');
-        
+
         if (legend) {
           setTimeout(function () { legend.makeImage(params); }, 1);
         }
       },
       afterResize: function (height, userResize) {
         var legend = this.prop('legend');
-        
+
         if (legend && userResize === true) {
           legend.makeImage({});
         }
       },
       afterCheckHeight: function () {
         var legend = this.prop('legend');
-        
+
         if (legend) {
           legend.makeImage({});
         }
       }
     }, this);
   },
-  
+
   setTracks: function () {
     var legend = this;
     var type   = this.featureType;
-    
-    this.tracks = $.grep(this.browser.tracks, function (t) { if (t.type === type) { t.controller.legend = legend.controller; return true; } });
+
+    this.tracks = $.grep(this.browser.tracks, function (t) { if (t.type === type && t.controller) { t.controller.legend = legend.controller; return true; } });
+
     this.updateOrder();
+
+    if (typeof this.controller === 'object') {
+      this[this.tracks.length ? 'enable' : 'disable']();
+    }
   },
 
   updateOrder: function () {
-    if (!this.lockToTrack || !this.tracks.length || this.browser._constructing) {
+    if (!this.tracks.length || this.browser._constructing) {
       return;
     }
 
-    this.order = this.tracks[this.tracks.length - 1].order + 0.1;
+    if (this.lockToTrack) {
+      this.order = this.tracks[this.tracks.length - 1].order + 0.1;
+    }
+
     this.browser.sortTracks();
   },
 
   findFeatures: function () {
     var bounds   = { x: this.browser.scaledStart, y: 0, w: this.width };
     var features = {};
-    
+
     $.each($.map(this.track.tracks, function (track) {
       var featurePositions = track.prop('featurePositions');
       bounds.h = track.prop('height');
@@ -100,7 +108,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
         features[this.legend] = this.color;
       }
     });
-    
+
     // sort legend alphabetically
     return $.map(features, function (color, text) { return [[ text, color ]]; }).sort(function (a, b) {
       var x = a[0].toLowerCase();
@@ -108,12 +116,12 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
       return ((x < y) ? -1 : ((x > y) ? 1 : 0));
     });
   },
-  
+
   positionFeatures: function (f, params) {
     if (params.positioned) {
       return f;
     }
-    
+
     var cols     = 2;
     var pad      = 5;
     var w        = 20;
@@ -123,40 +131,40 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     var yScale   = this.fontHeight + pad;
     var features = [];
     var xPos, yPos, labelWidth;
-    
+
     for (var i = 0; i < f.length; i++) {
       xPos       = (x * xScale) + pad;
       yPos       = (y * yScale) + pad;
       labelWidth = this.context.measureText(f[i][0]).width;
-      
+
       features.push(
         { x: xPos,           y: yPos, width: w,              height: this.featureHeight, color: f[i][1] },
         { x: xPos + pad + w, y: yPos, width: labelWidth + 1, height: this.featureHeight, color: false, labelColor: this.textColor, labelWidth: labelWidth, label: f[i][0] }
       );
-      
+
       if (++x === cols) {
         x = 0;
         y++;
       }
     }
-    
+
     params.height     = this.prop('height', f.length ? ((y + (x ? 1 : 0)) * yScale) + pad : 0);
     params.width      = this.width;
     params.positioned = true;
-    
+
     return this.base(features, params);
   },
-  
+
   enable: function () {
     this.base();
     this.controller.makeImage({});
   },
-  
+
   disable: function () {
     delete this.controller.stringified;
     this.base();
   },
-  
+
   destroy: function () {
     delete this.browser.legends[this.id];
     this.base();
