@@ -1107,10 +1107,10 @@ var Genoverse = Base.extend({
     return { start: start, end: end, left: left, width: width };
   },
 
-  on: function (events, obj, fn) {
+  on: function (events, obj, fn, once) {
     var browser  = this;
     var eventMap = {};
-    var i, j, f, fnString;
+    var i, j, f, fnString, event;
 
     function makeEventMap(types, handler) {
       types = types.split(' ');
@@ -1152,13 +1152,19 @@ var Genoverse = Base.extend({
     var type = obj instanceof Genoverse.Track || obj === 'tracks' ? 'tracks' : 'browser';
 
     for (i in eventMap) {
-      browser.events[type][i] = browser.events[type][i] || [];
+      event = i + (once ? '.once' : '');
+
+      browser.events[type][event] = browser.events[type][event] || [];
       fnString = $.map(eventMap[i], makeFnString);
 
-      if (!$.grep(browser.events[type][i], compare).length) {
-        browser.events[type][i].push.apply(browser.events[type][i], eventMap[i]);
+      if (!$.grep(browser.events[type][event], compare).length) {
+        browser.events[type][event].push.apply(browser.events[type][event], eventMap[i]);
       }
     }
+  },
+
+  once: function (events, obj, fn) {
+    this.on(events, obj, fn, true);
   }
 }, {
   Plugins: {},
@@ -1190,7 +1196,8 @@ var Genoverse = Base.extend({
     obj.functions[key] = obj[key];
 
     obj[key] = function () {
-      var i, rtn;
+      var args = [].slice.call(arguments);
+      var rtn;
 
       // Debugging functionality
       // Enabled by "debug": true || { functionName: true, ...} option
@@ -1200,29 +1207,22 @@ var Genoverse = Base.extend({
         console.time('time: ' + debug);
       }
 
-      if (events['before' + func]) {
-        for (i = 0; i < events['before' + func].length; i++) {
-          // TODO: Should it end when beforeFunc returned false??
-          events['before' + func][i].apply(this, arguments);
+      function trigger(when) {
+        var once  = events[when + func + '.once'] || [];
+        var funcs = (events[when + func] || []).concat(once, typeof mainObj[when + func] === 'function' ? mainObj[when + func] : []);
+
+        if (once.length) {
+          delete events[when + func + '.once'];
+        }
+
+        for (var i = 0; i < funcs.length; i++) {
+          funcs[i].apply(this, args);
         }
       }
 
-      if (typeof mainObj['before' + func] === 'function') {
-        mainObj['before' + func].apply(this, arguments);
-      }
-
-      rtn = this.functions[key].apply(this, arguments);
-
-      if (typeof mainObj['after' + func] === 'function') {
-        mainObj['after' + func].apply(this, arguments);
-      }
-
-      if (events['after' + func]) {
-        for (i = 0; i < events['after' + func].length; i++) {
-          // TODO: Should it end when afterFunc returned false??
-          events['after' + func][i].apply(this, arguments);
-        }
-      }
+      trigger.call(this, 'before');
+      rtn = this.functions[key].apply(this, args);
+      trigger.call(this, 'after');
 
       if (typeof obj.debug === 'object' && obj.debug[key]) {
         console.timeEnd('time: ' + debug);
