@@ -1171,7 +1171,7 @@ var Genoverse = Base.extend({
 
   wrapFunctions: function (obj) {
     for (var key in obj) {
-      if (typeof obj[key] === 'function' && typeof obj[key].ancestor !== 'function' && !key.match(/^(base|extend|constructor|on|prop|loadPlugins|loadGenome)$/)) {
+      if (typeof obj[key] === 'function' && typeof obj[key].ancestor !== 'function' && !key.match(/^(base|extend|constructor|on|once|prop|loadPlugins|loadGenome)$/)) {
         Genoverse.functionWrap(key, obj);
       }
     }
