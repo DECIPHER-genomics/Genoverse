@@ -15,7 +15,7 @@ Genoverse.Plugins.karyotype = function () {
         isStatic  : true,
         tracks    : [
           Genoverse.Track.Chromosome.extend({
-            name          : 'chr ' + this.chr,
+            name          : 'Chr ' + this.chr,
             height        : 20,
             featureHeight : 20,
             featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },
@@ -86,6 +86,11 @@ Genoverse.Plugins.karyotype = function () {
         afterAddDomElements: function () {
           var karyotype = this;
           var parent    = this.parent;
+
+          if (parent.karyotypeLabel === false) {
+            this.labelContainer.remove();
+            this.labelContainer = $();
+          }
 
           this.viewPoint = $('<div class="gv-karyotype-viewpoint">').appendTo(this.container).on({
             mousemove: function (e) {
