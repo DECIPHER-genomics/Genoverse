@@ -2534,6 +2534,7 @@ Genoverse.Track = Base.extend({
   unsortable : false,     // Is the track unsortable
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
+  hideEmpty  : true,      // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
 
   constructor: function (config) {
     if (this.stranded || config.stranded) {
@@ -2881,10 +2882,17 @@ Genoverse.Track.Controller = Base.extend({
     this.scrollRange[this.scrollStart] = this.scrollRange[this.scrollStart] || { start: this.browser.start - this.browser.length, end: this.browser.end + this.browser.length };
   },
 
-  rename: function (name) {
-    this.track.name     = name;
-    this.minLabelHeight = $('span.gv-name', this.label).html(name).outerHeight(true);
-    this.label.height(this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight));
+  setName: function (name) {
+    this.track.name = name;
+    this.labelName  = this.labelName || $('<span class="gv-name">').appendTo(this.label);
+
+    this.labelName.attr('title', name).html(name);
+
+    this.minLabelHeight = Math.max(this.labelName.outerHeight(true), this.labelName.outerHeight());
+
+    if (this.minLabelHeight) {
+      this.label.height(this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight));
+    }
   },
 
   addDomElements: function () {
@@ -2908,15 +2916,9 @@ Genoverse.Track.Controller = Base.extend({
       $('<div class="gv-handle">').appendTo(this.label);
     }
 
-    this.minLabelHeight = $('<span class="gv-name" title="' + name + '">' + name + '</span>').appendTo(this.label).outerHeight(true);
+    this.setName(name);
 
-    var h = this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight);
-
-    if (this.minLabelHeight) {
-      this.label.height(h);
-    }
-
-    this.container.height(h);
+    this.container.height(this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight));
   },
 
   addUserEventHandlers: function () {
@@ -3025,7 +3027,7 @@ Genoverse.Track.Controller = Base.extend({
       var bounds   = { x: this.browser.scaledStart, w: this.width, y: 0, h: 9e99 };
       var scale    = this.scale;
       var features = this.featurePositions.search(bounds);
-      var height   = Math.max.apply(Math, $.map(features, function (feature) { return feature.position[scale].bottom; }).concat(0));
+      var height   = Math.max.apply(Math, $.map(features, function (feature) { return feature.position[scale].bottom; }).concat(this.prop('hideEmpty') ? 0 : this.minLabelHeight));
 
       if (this.prop('labels') === 'separate') {
         this.labelTop = height;

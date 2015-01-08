@@ -6,6 +6,7 @@ Genoverse.Track = Base.extend({
   unsortable : false,     // Is the track unsortable
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
+  hideEmpty  : true,      // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
 
   constructor: function (config) {
     if (this.stranded || config.stranded) {
