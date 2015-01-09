@@ -185,17 +185,18 @@ Genoverse.Track.Controller = Base.extend({
       autoHeight = this.prop('autoHeight');
       this.prop('autoHeight', true);
     } else {
-      var bounds   = { x: this.browser.scaledStart, w: this.width, y: 0, h: 9e99 };
-      var scale    = this.scale;
-      var features = this.featurePositions.search(bounds);
-      var height   = Math.max.apply(Math, $.map(features, function (feature) { return feature.position[scale].bottom; }).concat(this.prop('hideEmpty') ? 0 : this.minLabelHeight));
+      var bounds    = { x: this.browser.scaledStart, w: this.width, y: 0, h: 9e99 };
+      var scale     = this.scale;
+      var features  = this.featurePositions.search(bounds);
+      var minHeight = this.prop('hideEmpty') ? 0 : this.minLabelHeight;
+      var height    = Math.max.apply(Math, $.map(features, function (feature) { return feature.position[scale].bottom; }).concat(minHeight));
 
       if (this.prop('labels') === 'separate') {
         this.labelTop = height;
-        height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds).concat(this.prop('repeatLabels') ? features : []), function (feature) { return feature.position[scale].label.bottom; }).concat(0));
+        height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds).concat(this.prop('repeatLabels') ? features : []), function (feature) { return feature.position[scale].label.bottom; }).concat(minHeight));
       }
 
-      this.fullVisibleHeight = height || (this.messageContainer.is(':visible') ? this.messageContainer.outerHeight(true) : 0);
+      this.fullVisibleHeight = height || (this.messageContainer.is(':visible') ? this.messageContainer.outerHeight(true) : minHeight);
     }
 
     this.autoResize();

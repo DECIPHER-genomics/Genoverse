@@ -3024,17 +3024,18 @@ Genoverse.Track.Controller = Base.extend({
       autoHeight = this.prop('autoHeight');
       this.prop('autoHeight', true);
     } else {
-      var bounds   = { x: this.browser.scaledStart, w: this.width, y: 0, h: 9e99 };
-      var scale    = this.scale;
-      var features = this.featurePositions.search(bounds);
-      var height   = Math.max.apply(Math, $.map(features, function (feature) { return feature.position[scale].bottom; }).concat(this.prop('hideEmpty') ? 0 : this.minLabelHeight));
+      var bounds    = { x: this.browser.scaledStart, w: this.width, y: 0, h: 9e99 };
+      var scale     = this.scale;
+      var features  = this.featurePositions.search(bounds);
+      var minHeight = this.prop('hideEmpty') ? 0 : this.minLabelHeight;
+      var height    = Math.max.apply(Math, $.map(features, function (feature) { return feature.position[scale].bottom; }).concat(minHeight));
 
       if (this.prop('labels') === 'separate') {
         this.labelTop = height;
-        height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds).concat(this.prop('repeatLabels') ? features : []), function (feature) { return feature.position[scale].label.bottom; }).concat(0));
+        height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds).concat(this.prop('repeatLabels') ? features : []), function (feature) { return feature.position[scale].label.bottom; }).concat(minHeight));
       }
 
-      this.fullVisibleHeight = height || (this.messageContainer.is(':visible') ? this.messageContainer.outerHeight(true) : 0);
+      this.fullVisibleHeight = height || (this.messageContainer.is(':visible') ? this.messageContainer.outerHeight(true) : minHeight);
     }
 
     this.autoResize();
@@ -3690,7 +3691,7 @@ Genoverse.Track.View = Base.extend({
     if (!feature.position[scale].positioned) {
       feature.position[scale].H = feature.position[scale].height + this.featureMargin.bottom;
       feature.position[scale].W = feature.position[scale].width + (feature.marginRight || this.featureMargin.right);
-      feature.position[scale].Y = typeof feature.y === 'number' ? feature.y * feature.position[scale].H : this.featureMargin.top;
+      feature.position[scale].Y = (typeof feature.y === 'number' ? feature.y * feature.position[scale].H : 0) + this.featureMargin.top;
 
       if (feature.label) {
         if (typeof feature.label === 'string') {
@@ -4931,7 +4932,7 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
   },
 
   getData: function (start, end) {
-    this.receiveData([].slice.call(this.browser.genome[this.browser.chr].bands), start, end);
+    this.receiveData($.extend(true, [], this.browser.genome[this.browser.chr].bands), start, end);
     return $.Deferred().resolveWith(this);
   },
 
