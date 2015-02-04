@@ -283,7 +283,7 @@ Genoverse.Track.View = Base.extend({
     var offset = feature.labelWidth * i;
 
     if (n > 1) {
-      i += Math.floor(-(feature.labelWidth + x) / spacing);
+      i += Math.max(Math.floor(-(feature.labelWidth + x) / spacing), 0);
     }
 
     for (; i < n; i++) {
