@@ -2282,7 +2282,7 @@ var Genoverse = Base.extend({
       var browser = this;
       var menu    = this.menuTemplate.clone(true).data('browser', this);
       var content = $('.gv-menu-content', menu).remove();
-      var i, table, el, start, end, key, width, tdWidth;
+      var i, table, el, start, end, key, width, colspan, tdWidth;
 
       function focus() {
         var data    = $(this).data();
@@ -2319,7 +2319,8 @@ var Genoverse = Base.extend({
             }
 
             if (key !== 'title') {
-              table += '<tr><td>' + key + '</td><td>' + properties[i][key] + '</td></tr>';
+              colspan = properties[i][key] === '' ? ' colspan="2"' : '';
+              table  += '<tr><td' + colspan + '>' + key + '</td>' + (colspan ? '' : '<td>' + properties[i][key] + '</td></tr>');
             }
           }
 
@@ -2840,11 +2841,7 @@ Genoverse.Track = Base.extend({
 Genoverse.Track.Controller = Base.extend({
   scrollBuffer : 1.2,       // Number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
   threshold    : Infinity,  // Length above which the track is not drawn
-  messages     : {
-    error     : 'ERROR: ',
-    threshold : 'Data for this track is not displayed in regions greater than ',
-    resize    : 'Some features are currently hidden, <a class="gv-resize">resize to see all</a>'
-  },
+  messages     : undefined,
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -2853,14 +2850,23 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   init: function () {
-    this.imgRange    = {};
-    this.scrollRange = {};
-
+    this.setDefaults();
     this.addDomElements();
     this.addUserEventHandlers();
   },
 
+  setDefaults: function () {
+    this.imgRange    = {};
+    this.scrollRange = {};
+    this.messages    = this.messages || {
+      error     : 'ERROR: ',
+      threshold : 'Data for this track is not displayed in regions greater than ',
+      resize    : 'Some features are currently hidden, <a class="gv-resize">resize to see all</a>'
+    };
+  },
+
   reset: function () {
+    this.setDefaults();
     this.resetImages();
     this.browser.closeMenus(this);
     this.setScale();
@@ -2868,8 +2874,6 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   resetImages: function () {
-    this.imgRange    = {};
-    this.scrollRange = {};
     this.scrollContainer.empty();
     this.resetImageRanges();
   },
@@ -2947,8 +2951,14 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   click: function (e) {
-    var x = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
-    var y = e.pageY - $(e.target).offset().top;
+    var target = $(e.target);
+    var x      = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
+    var y      = e.pageY - target.offset().top;
+
+    if (this.imgContainer.hasClass('gv-flip')) {
+      y = target.height() - y;
+    }
+
     var f = this[e.target.className === 'gv-labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
 
     if (f) {
@@ -3350,12 +3360,12 @@ Genoverse.Track.Controller = Base.extend({
 
 
 Genoverse.Track.Model = Base.extend({
-  dataBuffer : { start: 0, end: 0 }, // basepairs to extend data region for, when getting data from the origin
-  xhrFields  : {},
   dataType   : 'json',
   allData    : false,
+  dataBuffer : undefined, // e.g. { start: 0, end: 0 } - basepairs to extend data region for, when getting data from the origin
+  xhrFields  : undefined,
   url        : undefined,
-  urlParams  : {}, // hash of URL params
+  urlParams  : undefined, // hash of URL params
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -3380,6 +3390,10 @@ Genoverse.Track.Model = Base.extend({
   },
 
   setDefaults: function (reset) {
+    this.dataBuffer = this.dataBuffer || { start: 0, end: 0 }; // basepairs to extend data region for, when getting data from the origin
+    this.urlParams  = this.urlParams  || {};                   // hash of URL params
+    this.xhrFields  = this.xhrFields  || {};
+
     if (!this._url) {
       this._url = this.url; // Remember original url
     }
@@ -3585,18 +3599,19 @@ Genoverse.Track.Model = Base.extend({
 
 
 Genoverse.Track.View = Base.extend({
-  featureMargin  : { top: 3, right: 1, bottom: 1, left: 0 }, // left is never used
-  fontHeight     : 10,
-  fontFamily     : 'sans-serif',
-  fontWeight     : 'normal',
-  fontColor      : '#000000',
-  color          : '#000000',
-  minScaledWidth : 0.5,
-  labels         : true,
-  repeatLabels   : false,
-  bump           : false,
-  depth          : undefined,
-  featureHeight  : undefined, // defaults to track height
+  fontHeight      : 10,
+  fontFamily      : 'sans-serif',
+  fontWeight      : 'normal',
+  fontColor       : '#000000',
+  color           : '#000000',
+  minScaledWidth  : 0.5,
+  widthCorrection : 1, // Pixels to add to the end of a feature when scale > 1 - ensures that 1bp features are always at least 1px wide
+  labels          : true,
+  repeatLabels    : false,
+  bump            : false,
+  depth           : undefined,
+  featureHeight   : undefined, // defaults to track height
+  featureMargin   : undefined, // e.g. { top: 3, right: 1, bottom: 1, left: 0 }
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -3611,6 +3626,8 @@ Genoverse.Track.View = Base.extend({
   },
 
   setDefaults: function () {
+    this.featureMargin = this.featureMargin || { top: 3, right: 1, bottom: 1, left: 0 };
+
     var margin = [ 'Top', 'Right', 'Bottom', 'Left' ];
 
     for (var i = 0; i < margin.length; i++) {
@@ -3646,7 +3663,7 @@ Genoverse.Track.View = Base.extend({
   },
 
   scaleFeatures: function (features, scale) {
-    var add = Math.max(scale, 1);
+    var add = Math.max(scale, this.widthCorrection);
     var feature;
 
     for (var i = 0; i < features.length; i++) {
@@ -3924,42 +3941,42 @@ Genoverse.Track.View = Base.extend({
 Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
   addDomElements: function () {
     this.base();
-    
+
     this.image = $('<img>').appendTo(this.imgContainer);
-    
+
     this.container.toggleClass('gv-track-container gv-track-container-static').prepend(this.imgContainer);
     this.scrollContainer.add(this.messageContainer).remove();
   },
-  
+
   reset: $.noop,
-  
+
   setWidth: function (width) {
     this.base(width);
     this.image.width = width;
   },
-  
+
   makeFirstImage: function () {
     this.base.apply(this, arguments);
     this.container.css('left', 0);
     this.imgContainer.show();
   },
-  
+
   makeImage: function (params) {
     if (this.prop('disabled')) {
       return $.Deferred().resolve();
     }
-    
+
     var features = this.view.positionFeatures(this.model.findFeatures(params.start, params.end), params);
-    
+
     if (features) {
       var string = JSON.stringify(features);
-      
+
       if (this.stringified !== string) {
         var height = this.prop('height');
-        
+
         params.width         = this.width;
         params.featureHeight = height;
-        
+
         this.render(features, this.image.data(params));
         this.imgContainer.children(':last').show();
         this.resize(height, undefined, false);
@@ -3967,7 +3984,7 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
         this.stringified = string;
       }
     }
-    
+
     return $.Deferred().resolve();
   }
 });
@@ -3979,10 +3996,10 @@ Genoverse.Track.Model.Static = Genoverse.Track.Model.extend({
 
 Genoverse.Track.View.Static = Genoverse.Track.View.extend({
   featureMargin : { top: 0, right: 1, bottom: 0, left: 1 },
-  
+
   positionFeature : $.noop,
   scaleFeatures   : function (features) { return features; },
-  
+
   draw: function (features, featureContext, labelContext, scale) {
     for (var i = 0; i < features.length; i++) {
       this.drawFeature(features[i], featureContext, labelContext, scale);
@@ -4016,7 +4033,7 @@ Genoverse.Track.Controller.Configurable = Genoverse.Track.Controller.extend({
         if (controls[i].is('select')) {
           prop = controls[i].data('control');
 
-          controls[i].find('option[value=' + (savedConfig[prop] || defaultConfig[prop]) + ']').attr('selected', true).end().change(function () {
+          controls[i].find('option[value=' + (savedConfig[prop] || defaultConfig[prop] || 'all') + ']').attr('selected', true).end().change(function () {
             $(this).data('track').setConfig($(this).data('control'), this.value);
           });
         }
@@ -4029,20 +4046,28 @@ Genoverse.Track.Controller.Configurable = Genoverse.Track.Controller.extend({
 
 Genoverse.Track.Configurable = Genoverse.Track.extend({
   controller     : Genoverse.Track.Controller.Configurable,
-  configSettings : {},
-  defaultConfig  : {},
-  controls       : [],
+  config         : undefined, // {}
+  configSettings : undefined, // {}
+  defaultConfig  : undefined, // {}
+  controls       : undefined, // []
 
   setDefaults: function () {
-    this.config = this.config || {};
+    this.base();
 
+    this.config         = this.config         || {};
+    this.configSettings = this.configSettings || {};
+    this.defaultConfig  = this.defaultConfig  || {};
+    this.controls       = this.controls       || [];
+
+    this.setDefaultConfig();
+  },
+
+  setDefaultConfig: function () {
     for (var i in this.defaultConfig) {
       if (typeof this.config[i] === 'undefined') {
         this.config[i] = this.defaultConfig[i];
       }
     }
-
-    this.base();
   },
 
   setLengthMap: function () {
@@ -4090,7 +4115,7 @@ Genoverse.Track.Configurable = Genoverse.Track.extend({
     var filters  = this.prop('featureFilters');
 
     for (var i in filters) {
-      features = $.grep(features, filters[i]);
+      features = $.grep(features, $.proxy(filters[i], this));
     }
 
     return features;
@@ -5034,7 +5059,7 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
 
   populateMenu: function (feature) {
     return {
-      title    : feature.id,
+      title    : this.browser.chr + feature.id,
       Position : this.browser.chr + ':' + feature.start + '-' + feature.end
     };
   }
@@ -5675,6 +5700,173 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     return this.prop('minorUnit') < 1000 ? label.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') : this.base(label);
   }
 });
+
+
+
+Genoverse.Track.Model.Histogram = Genoverse.Track.Model.extend({
+  binSize   : 1000,
+  maxHeight : undefined, // Set to a number to make that the maximum height the histogram can take up (this will be the height of the largest bin)
+
+  init: function (reset) {
+    this.base();
+
+    if (!reset) {
+      this.originalFeatures     = new RTree();
+      this.originalFeaturesById = {};
+    }
+  },
+
+  parseURL: function (start, end, url) {
+    if (!this.allData) {
+      var region = this.getStartEnd(start, end);
+
+      start = region.start;
+      end   = region.end;
+    }
+
+    return this.base(start, end, url);
+  },
+
+  getStartEnd: function (start, end) {
+    return {
+      start : start - (start % this.binSize) + 1,
+      end   : end   - (end   % this.binSize) + (end % this.binSize ? this.binSize : 0)
+    };
+  },
+
+  parseData: function (data, start, end) {
+    this._features     = this.features;
+    this.features      = this.originalFeatures;
+    this._featuresById = this.featuresById;
+    this.featuresById  = this.originalFeaturesById;
+
+    this.base(data, start, end);
+
+    this.features     = this._features;
+    this.featuresById = this._featuresById;
+
+    delete this._features;
+    delete this._featuresById;
+
+    this.insertBinFeatures(this.getStartEnd(start, end));
+  },
+
+  insertBinFeatures: function (region) {
+    var originalFeatures, binStart;
+    var max       = this.browser.chromosomeSize;
+    var binSize   = this.binSize;
+    var maxHeight = this.prop('maxHeight');
+    var height    = this.prop('featureHeight');
+    var dataSets  = this.prop('dataSets');
+    var features  = [];
+
+    this.maxFeatures = this.maxFeatures || 0;
+
+    for (var i = 0; i < dataSets.length; i++) {
+      var set    = dataSets[i].name || i;
+      var filter = dataSets[i].filter;
+
+      for (binStart = region.start; binStart < region.end; binStart += binSize) {
+        originalFeatures = this.originalFeatures.search({ x: binStart, y: 0, w: binSize, h: 1 });
+
+        if (typeof filter === 'function') {
+          originalFeatures = $.grep(originalFeatures, filter);
+        }
+
+        if (originalFeatures.length) {
+          this.maxFeatures = Math.max(this.maxFeatures, originalFeatures.length);
+        }
+
+        features.push({
+          id               : set + ':' + binStart,
+          start            : binStart,
+          end              : Math.min(binStart + binSize - 1, max),
+          height           : originalFeatures.length,
+          count            : originalFeatures.length,
+          originalFeatures : originalFeatures,
+          sort             : binStart,
+          dataSet          : set
+        });
+      }
+    }
+
+    if (maxHeight && this.maxFeatures * height > maxHeight) {
+      height = maxHeight / this.maxFeatures;
+    }
+
+    for (var i = 0; i < features.length; i++) {
+      features[i].height *= height;
+      this.insertFeature(features[i]);
+    }
+
+    if (this.maxFeatures === 0 && this.prop('hideEmpty') !== false) {
+      this.track.disable();
+    }
+  }
+});
+
+Genoverse.Track.View.Histogram = Genoverse.Track.View.extend({
+  featureHeight : 4,
+  featureMargin : { top: 2, right: 0, bottom: 0, left: 0 },
+
+  draw: function (features, featureContext, labelContext, scale) {
+    var dataSets = this.prop('dataSets');
+    var set;
+
+    function filter(f) {
+      return f.dataSet === set && f.count;
+    }
+
+    for (var i = 0; i < dataSets.length; i++) {
+      set = dataSets[i].name || i;
+      this.base($.grep(features, filter), featureContext, labelContext, scale);
+    }
+
+   // this.drawScalebar(featureContext);
+  },
+
+  drawScalebar: function (context) {
+    var maxHeight = Math.min(this.prop('maxHeight') || 9e99, Math.round(this.prop('maxFeatures') * this.featureHeight)) + 0.5;
+
+    context.strokeStyle = context.fillStyle = 'black';
+
+    context.beginPath();
+    context.moveTo(20.5, this.featureMargin.top);
+    context.lineTo(20.5, maxHeight);
+    context.lineTo(15.5, maxHeight);
+    context.stroke();
+
+    if (this.prop('flip')) {
+      var label = this.prop('maxFeatures');
+      var w     = context.measureText(label).width;
+
+      context.save();
+      context.translate(this.width / 2, context.canvas.height / 2);
+      context.rotate(Math.PI);
+      context.scale(-1, 1);
+      context.fillText(label, -this.width / 2, -1.5 - maxHeight / 2);
+      context.restore();
+    } else {
+      context.textBaseline = 'middle';
+      context.fillText(this.prop('maxFeatures'), 0, maxHeight);
+    }
+  }
+});
+
+Genoverse.Track.Histogram = Genoverse.Track.extend({
+  model        : Genoverse.Track.Model.Histogram,
+  view         : Genoverse.Track.View.Histogram,
+  populateMenu : $.noop,
+  dataSets     : [{}],
+  flip         : false,
+
+  afterAddDomElements: function () {
+    if (this.prop('flip')) {
+      this.imgContainer.addClass('gv-flip');
+    }
+  }
+});
+
 
 
 

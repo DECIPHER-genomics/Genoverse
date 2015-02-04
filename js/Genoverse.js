@@ -1002,7 +1002,7 @@ var Genoverse = Base.extend({
       var browser = this;
       var menu    = this.menuTemplate.clone(true).data('browser', this);
       var content = $('.gv-menu-content', menu).remove();
-      var i, table, el, start, end, key, width, tdWidth;
+      var i, table, el, start, end, key, width, colspan, tdWidth;
 
       function focus() {
         var data    = $(this).data();
@@ -1039,7 +1039,8 @@ var Genoverse = Base.extend({
             }
 
             if (key !== 'title') {
-              table += '<tr><td>' + key + '</td><td>' + properties[i][key] + '</td></tr>';
+              colspan = properties[i][key] === '' ? ' colspan="2"' : '';
+              table  += '<tr><td' + colspan + '>' + key + '</td>' + (colspan ? '' : '<td>' + properties[i][key] + '</td></tr>');
             }
           }
 
