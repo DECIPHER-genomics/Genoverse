@@ -128,7 +128,7 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
 
   populateMenu: function (feature) {
     return {
-      title    : feature.id,
+      title    : this.browser.chr + feature.id,
       Position : this.browser.chr + ':' + feature.start + '-' + feature.end
     };
   }
