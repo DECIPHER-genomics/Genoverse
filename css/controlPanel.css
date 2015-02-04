@@ -29,6 +29,10 @@
   font-family: Tahoma;
 }
 
+.gv-panel button.gv-button-large {
+  font-size: 25px;
+}
+
 .gv-canvas-container .gv-wrapper {
   border-width: 1px 0 1px 1px;
 }
@@ -37,11 +41,11 @@
   width: 100%;
 }
 
-.gv-panel div.gv-button-set>button:not(:first-child) {
+.gv-panel div.gv-button-set > button:not(:first-child) {
   border-left: 1px solid #1C5380;
 }
 
-.gv-panel div.gv-button-set:not(:first-child)>button {
+.gv-panel div.gv-button-set:not(:first-child) > button {
   box-shadow: 0 1px 1px rgba(255, 255, 255, 0.12) inset;
 }
 

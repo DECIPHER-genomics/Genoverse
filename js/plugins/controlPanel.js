@@ -14,9 +14,10 @@ Genoverse.Plugins.controlPanel = function () {
 
   if (this.saveable) {
     this.controls.push({
-      icon   : '&#x21bb;',
-      name   : 'Reset tracks and configuration',
-      action : function (browser) { browser.resetConfig(); }
+      icon    : '&#x21bb;',
+      name    : 'Reset tracks and configuration',
+      'class' : 'gv-button-large',
+      action  : function (browser) { browser.resetConfig(); }
     });
   }
 
