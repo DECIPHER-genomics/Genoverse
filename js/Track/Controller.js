@@ -1,11 +1,7 @@
 Genoverse.Track.Controller = Base.extend({
   scrollBuffer : 1.2,       // Number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
   threshold    : Infinity,  // Length above which the track is not drawn
-  messages     : {
-    error     : 'ERROR: ',
-    threshold : 'Data for this track is not displayed in regions greater than ',
-    resize    : 'Some features are currently hidden, <a class="gv-resize">resize to see all</a>'
-  },
+  messages     : undefined,
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -14,14 +10,23 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   init: function () {
-    this.imgRange    = {};
-    this.scrollRange = {};
-
+    this.setDefaults();
     this.addDomElements();
     this.addUserEventHandlers();
   },
 
+  setDefaults: function () {
+    this.imgRange    = {};
+    this.scrollRange = {};
+    this.messages    = this.messages || {
+      error     : 'ERROR: ',
+      threshold : 'Data for this track is not displayed in regions greater than ',
+      resize    : 'Some features are currently hidden, <a class="gv-resize">resize to see all</a>'
+    };
+  },
+
   reset: function () {
+    this.setDefaults();
     this.resetImages();
     this.browser.closeMenus(this);
     this.setScale();
@@ -29,8 +34,6 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   resetImages: function () {
-    this.imgRange    = {};
-    this.scrollRange = {};
     this.scrollContainer.empty();
     this.resetImageRanges();
   },
@@ -108,8 +111,14 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   click: function (e) {
-    var x = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
-    var y = e.pageY - $(e.target).offset().top;
+    var target = $(e.target);
+    var x      = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
+    var y      = e.pageY - target.offset().top;
+
+    if (this.imgContainer.hasClass('gv-flip')) {
+      y = target.height() - y;
+    }
+
     var f = this[e.target.className === 'gv-labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
 
     if (f) {

@@ -1,10 +1,10 @@
 Genoverse.Track.Model = Base.extend({
-  dataBuffer : { start: 0, end: 0 }, // basepairs to extend data region for, when getting data from the origin
-  xhrFields  : {},
   dataType   : 'json',
   allData    : false,
+  dataBuffer : undefined, // e.g. { start: 0, end: 0 } - basepairs to extend data region for, when getting data from the origin
+  xhrFields  : undefined,
   url        : undefined,
-  urlParams  : {}, // hash of URL params
+  urlParams  : undefined, // hash of URL params
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -29,6 +29,10 @@ Genoverse.Track.Model = Base.extend({
   },
 
   setDefaults: function (reset) {
+    this.dataBuffer = this.dataBuffer || { start: 0, end: 0 }; // basepairs to extend data region for, when getting data from the origin
+    this.urlParams  = this.urlParams  || {};                   // hash of URL params
+    this.xhrFields  = this.xhrFields  || {};
+
     if (!this._url) {
       this._url = this.url; // Remember original url
     }

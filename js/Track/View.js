@@ -1,16 +1,17 @@
 Genoverse.Track.View = Base.extend({
-  featureMargin  : { top: 3, right: 1, bottom: 1, left: 0 }, // left is never used
-  fontHeight     : 10,
-  fontFamily     : 'sans-serif',
-  fontWeight     : 'normal',
-  fontColor      : '#000000',
-  color          : '#000000',
-  minScaledWidth : 0.5,
-  labels         : true,
-  repeatLabels   : false,
-  bump           : false,
-  depth          : undefined,
-  featureHeight  : undefined, // defaults to track height
+  fontHeight      : 10,
+  fontFamily      : 'sans-serif',
+  fontWeight      : 'normal',
+  fontColor       : '#000000',
+  color           : '#000000',
+  minScaledWidth  : 0.5,
+  widthCorrection : 1, // Pixels to add to the end of a feature when scale > 1 - ensures that 1bp features are always at least 1px wide
+  labels          : true,
+  repeatLabels    : false,
+  bump            : false,
+  depth           : undefined,
+  featureHeight   : undefined, // defaults to track height
+  featureMargin   : undefined, // e.g. { top: 3, right: 1, bottom: 1, left: 0 }
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -25,6 +26,8 @@ Genoverse.Track.View = Base.extend({
   },
 
   setDefaults: function () {
+    this.featureMargin = this.featureMargin || { top: 3, right: 1, bottom: 1, left: 0 };
+
     var margin = [ 'Top', 'Right', 'Bottom', 'Left' ];
 
     for (var i = 0; i < margin.length; i++) {
@@ -60,7 +63,7 @@ Genoverse.Track.View = Base.extend({
   },
 
   scaleFeatures: function (features, scale) {
-    var add = Math.max(scale, 1);
+    var add = Math.max(scale, this.widthCorrection);
     var feature;
 
     for (var i = 0; i < features.length; i++) {

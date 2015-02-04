@@ -13,7 +13,7 @@ Genoverse.Track.Controller.Configurable = Genoverse.Track.Controller.extend({
         if (controls[i].is('select')) {
           prop = controls[i].data('control');
 
-          controls[i].find('option[value=' + (savedConfig[prop] || defaultConfig[prop]) + ']').attr('selected', true).end().change(function () {
+          controls[i].find('option[value=' + (savedConfig[prop] || defaultConfig[prop] || 'all') + ']').attr('selected', true).end().change(function () {
             $(this).data('track').setConfig($(this).data('control'), this.value);
           });
         }
@@ -26,20 +26,28 @@ Genoverse.Track.Controller.Configurable = Genoverse.Track.Controller.extend({
 
 Genoverse.Track.Configurable = Genoverse.Track.extend({
   controller     : Genoverse.Track.Controller.Configurable,
-  configSettings : {},
-  defaultConfig  : {},
-  controls       : [],
+  config         : undefined, // {}
+  configSettings : undefined, // {}
+  defaultConfig  : undefined, // {}
+  controls       : undefined, // []
 
   setDefaults: function () {
-    this.config = this.config || {};
+    this.base();
 
+    this.config         = this.config         || {};
+    this.configSettings = this.configSettings || {};
+    this.defaultConfig  = this.defaultConfig  || {};
+    this.controls       = this.controls       || [];
+
+    this.setDefaultConfig();
+  },
+
+  setDefaultConfig: function () {
     for (var i in this.defaultConfig) {
       if (typeof this.config[i] === 'undefined') {
         this.config[i] = this.defaultConfig[i];
       }
     }
-
-    this.base();
   },
 
   setLengthMap: function () {
@@ -87,7 +95,7 @@ Genoverse.Track.Configurable = Genoverse.Track.extend({
     var filters  = this.prop('featureFilters');
 
     for (var i in filters) {
-      features = $.grep(features, filters[i]);
+      features = $.grep(features, $.proxy(filters[i], this));
     }
 
     return features;
