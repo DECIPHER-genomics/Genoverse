@@ -4088,7 +4088,14 @@ Genoverse.Track.Configurable = Genoverse.Track.extend({
       }
     }
 
-    this.extend({ 1: $.extend.apply($, args.concat({ featureFilters: featureFilters })) });
+    var baseSetting = $.extend.apply($, args.concat({ featureFilters: featureFilters }));
+
+    if (this[1]) {
+      $.extend(this[1], baseSetting);
+    } else {
+      this[1] = baseSetting;
+    }
+
     this.base();
   },
 
