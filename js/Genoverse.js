@@ -37,9 +37,12 @@ var Genoverse = Base.extend({
       config.container = $('<div id="genoverse">').appendTo('body');
     }
 
+    config.container.data('genoverse', this);
+
     $.extend(this, config);
 
-    this.events = { browser: {}, tracks: {} };
+    this.eventNamespace = '.genoverse.' + (++Genoverse.id);
+    this.events         = { browser: {}, tracks: {} };
 
     $.when(this.loadGenome(), this.loadPlugins()).always(function () {
       Genoverse.wrapFunctions(browser);
@@ -321,7 +324,8 @@ var Genoverse = Base.extend({
   },
 
   addUserEventHandlers: function () {
-    var browser = this;
+    var browser        = this;
+    var documentEvents = {};
 
     this.container.on({
       mousedown: function (e) {
@@ -370,24 +374,23 @@ var Genoverse = Base.extend({
       }
     });
 
-    $(document).on({
-      'mouseup.genoverse'    : $.proxy(this.mouseup,   this),
-      'mousemove.genoverse'  : $.proxy(this.mousemove, this),
-      'keydown.genoverse'    : $.proxy(this.keydown,   this),
-      'keyup.genoverse'      : $.proxy(this.keyup,     this),
-      'mousewheel.genoverse' : function (e) {
-        if (browser.wheelAction === 'zoom') {
-          if (browser.wheelTimeout) {
-            clearTimeout(browser.wheelTimeout);
-          }
-
-          browser.noWheelZoom  = browser.noWheelZoom || e.target !== browser.container[0];
-          browser.wheelTimeout = setTimeout(function () { browser.noWheelZoom = false; }, 300);
+    documentEvents['mouseup'    + this.eventNamespace] = $.proxy(this.mouseup,   this);
+    documentEvents['mousemove'  + this.eventNamespace] = $.proxy(this.mousemove, this);
+    documentEvents['keydown'    + this.eventNamespace] = $.proxy(this.keydown,   this);
+    documentEvents['keyup'      + this.eventNamespace] = $.proxy(this.keyup,     this);
+    documentEvents['mousewheel' + this.eventNamespace] = function (e) {
+      if (browser.wheelAction === 'zoom') {
+        if (browser.wheelTimeout) {
+          clearTimeout(browser.wheelTimeout);
         }
-      }
-    });
 
-    $(window).on(this.useHash ? 'hashchange.genoverse' : 'popstate.genoverse', $.proxy(this.popState, this));
+        browser.noWheelZoom  = browser.noWheelZoom || e.target !== browser.container[0];
+        browser.wheelTimeout = setTimeout(function () { browser.noWheelZoom = false; }, 300);
+      }
+    };
+
+    $(document).on(documentEvents);
+    $(window).on((this.useHash ? 'hashchange' : 'popstate') + this.eventNamespace, $.proxy(this.popState, this));
   },
 
   onTracks: function () {
@@ -787,11 +790,7 @@ var Genoverse = Base.extend({
     index  = index  || 0;
 
     for (var i = 0; i < tracks.length; i++) {
-      if (this.savedConfig && this.savedConfig[tracks[i].prototype.id]) {
-        defaults.config = this.savedConfig[tracks[i].prototype.id];
-      }
-
-      tracks[i] = new tracks[i]($.extend(defaults, { index: i + index }));
+      tracks[i] = new tracks[i]($.extend(defaults, { index: i + index, config: this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined }));
 
       if (tracks[i].id) {
         this.tracksById[tracks[i].id] = tracks[i];
@@ -1166,6 +1165,16 @@ var Genoverse = Base.extend({
 
   once: function (events, obj, fn) {
     this.on(events, obj, fn, true);
+  },
+
+  destroy: function () {
+    this.onTracks('destructor');
+    (this.superContainer || this.container).empty();
+    $(window).add(document).off(this.eventNamespace);
+
+    for (var key in this) {
+      delete this[key];
+    }
   }
 }, {
   Plugins: {},
@@ -1234,6 +1243,7 @@ var Genoverse = Base.extend({
   }
 });
 
+Genoverse.id = 0;
 Genoverse.prototype.origin = ($('script[src]:last').attr('src').match(/(.*)js\/\w+/) || [])[1];
 
 $(function () {
