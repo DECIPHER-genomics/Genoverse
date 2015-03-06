@@ -57,7 +57,7 @@
   background: transparent;
   box-shadow: none;
   border: none;
-  width: 50px;
+  width: 55px;
   cursor: default;
 }
 
@@ -66,5 +66,4 @@
   left: 0px !important;
   text-shadow: none;
   margin: 0px;
-  vertical-align: middle;
 }

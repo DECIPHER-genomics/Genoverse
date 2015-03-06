@@ -72,6 +72,10 @@ Genoverse.Plugins.karyotype = function () {
               this.container.on('mousewheel', '.gv-image-container, .gv-selector', function (e) {
                 e.stopPropagation();
               });
+            },
+
+            afterSetName: function () {
+              this.label.css('lineHeight', this.label.height() + 'px');
             }
           })
         ],

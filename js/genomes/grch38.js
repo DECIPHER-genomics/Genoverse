@@ -5290,5 +5290,14 @@ window.grch38 = {
         "type": "gneg"
       }
     ]
+  },
+  "MT": {
+    "size": 16569,
+    "bands": [
+      {
+        "start": 1,
+        "end": 16569
+      }
+    ]
   }
 };

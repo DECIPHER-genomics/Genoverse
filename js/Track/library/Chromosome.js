@@ -32,17 +32,18 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
 
   insertFeature: function (feature) {
     feature.label      = feature.type === 'acen' || feature.type === 'stalk' ? false : feature.id;
-    feature.color      = this.prop('colors')[feature.type];
+    feature.menuTitle  = feature.id ? this.browser.chr + feature.id : this.browser.chr + ':' + feature.start + '-' + feature.end;
+    feature.color      = this.prop('colors')[feature.type]      || '#FFFFFF';
     feature.labelColor = this.prop('labelColors')[feature.type] || '#FFFFFF';
 
     this.base(feature);
   },
 
   drawFeature: function (feature, featureContext, labelContext, scale) {
-    if (feature.type === 'acen') {
-      featureContext.fillStyle   = feature.color;
-      featureContext.strokeStyle = '#000000';
+    featureContext.fillStyle   = feature.color;
+    featureContext.strokeStyle = '#000000';
 
+    if (feature.type === 'acen') {
       featureContext.beginPath();
 
       if (this.drawnAcen) {
@@ -60,9 +61,6 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
       featureContext.fill();
       featureContext.stroke();
     } else if (feature.type === 'stalk') {
-      featureContext.fillStyle   = feature.color;
-      featureContext.strokeStyle = '#000000';
-
       for (var i = 0; i < 2; i++) {
         featureContext.beginPath();
 
@@ -81,11 +79,20 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
     } else {
       this.base(feature, featureContext, labelContext, scale);
 
-      featureContext.strokeStyle = '#000000';
-
       featureContext.beginPath();
 
-      if (feature.start === 1) {
+      if (feature.start === 1 && feature.end === this.browser.chromosomeSize) {
+        featureContext.clearRect(0, 0, 5, this.prop('height'));
+        featureContext.clearRect(feature.width - 5, 0, 10, this.prop('height'));
+
+        featureContext.fillStyle = feature.color;
+        featureContext.moveTo(5, 0.5);
+        featureContext.lineTo(feature.width - 5, 0.5);
+        featureContext.bezierCurveTo(this.width + 1, 0.5, this.width + 1, feature.height + 0.5, feature.width - 5, feature.height + 0.5);
+        featureContext.lineTo(5, feature.height + 0.5);
+        featureContext.bezierCurveTo(-1, feature.height + 0.5, -1, 0.5, 5, 0.5);
+        featureContext.fill();
+      } else if (feature.start === 1) {
         featureContext.clearRect(0, 0, 5, this.prop('height'));
 
         featureContext.fillStyle = feature.color;
@@ -128,7 +135,7 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
 
   populateMenu: function (feature) {
     return {
-      title    : this.browser.chr + feature.id,
+      title    : feature.menuTitle,
       Position : this.browser.chr + ':' + feature.start + '-' + feature.end
     };
   }

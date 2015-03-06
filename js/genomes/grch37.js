@@ -5290,5 +5290,14 @@ window.grch37 = {
         "type": "gvar"
       }
     ]
+  },
+  "MT": {
+    "size": 16569,
+    "bands": [
+      {
+        "start": 1,
+        "end": 16569
+      }
+    ]
   }
 };

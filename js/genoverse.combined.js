@@ -1317,9 +1317,12 @@ var Genoverse = Base.extend({
       config.container = $('<div id="genoverse">').appendTo('body');
     }
 
+    config.container.data('genoverse', this);
+
     $.extend(this, config);
 
-    this.events = { browser: {}, tracks: {} };
+    this.eventNamespace = '.genoverse.' + (++Genoverse.id);
+    this.events         = { browser: {}, tracks: {} };
 
     $.when(this.loadGenome(), this.loadPlugins()).always(function () {
       Genoverse.wrapFunctions(browser);
@@ -1601,7 +1604,8 @@ var Genoverse = Base.extend({
   },
 
   addUserEventHandlers: function () {
-    var browser = this;
+    var browser        = this;
+    var documentEvents = {};
 
     this.container.on({
       mousedown: function (e) {
@@ -1650,24 +1654,23 @@ var Genoverse = Base.extend({
       }
     });
 
-    $(document).on({
-      'mouseup.genoverse'    : $.proxy(this.mouseup,   this),
-      'mousemove.genoverse'  : $.proxy(this.mousemove, this),
-      'keydown.genoverse'    : $.proxy(this.keydown,   this),
-      'keyup.genoverse'      : $.proxy(this.keyup,     this),
-      'mousewheel.genoverse' : function (e) {
-        if (browser.wheelAction === 'zoom') {
-          if (browser.wheelTimeout) {
-            clearTimeout(browser.wheelTimeout);
-          }
-
-          browser.noWheelZoom  = browser.noWheelZoom || e.target !== browser.container[0];
-          browser.wheelTimeout = setTimeout(function () { browser.noWheelZoom = false; }, 300);
+    documentEvents['mouseup'    + this.eventNamespace] = $.proxy(this.mouseup,   this);
+    documentEvents['mousemove'  + this.eventNamespace] = $.proxy(this.mousemove, this);
+    documentEvents['keydown'    + this.eventNamespace] = $.proxy(this.keydown,   this);
+    documentEvents['keyup'      + this.eventNamespace] = $.proxy(this.keyup,     this);
+    documentEvents['mousewheel' + this.eventNamespace] = function (e) {
+      if (browser.wheelAction === 'zoom') {
+        if (browser.wheelTimeout) {
+          clearTimeout(browser.wheelTimeout);
         }
-      }
-    });
 
-    $(window).on(this.useHash ? 'hashchange.genoverse' : 'popstate.genoverse', $.proxy(this.popState, this));
+        browser.noWheelZoom  = browser.noWheelZoom || e.target !== browser.container[0];
+        browser.wheelTimeout = setTimeout(function () { browser.noWheelZoom = false; }, 300);
+      }
+    };
+
+    $(document).on(documentEvents);
+    $(window).on((this.useHash ? 'hashchange' : 'popstate') + this.eventNamespace, $.proxy(this.popState, this));
   },
 
   onTracks: function () {
@@ -2067,11 +2070,7 @@ var Genoverse = Base.extend({
     index  = index  || 0;
 
     for (var i = 0; i < tracks.length; i++) {
-      if (this.savedConfig && this.savedConfig[tracks[i].prototype.id]) {
-        defaults.config = this.savedConfig[tracks[i].prototype.id];
-      }
-
-      tracks[i] = new tracks[i]($.extend(defaults, { index: i + index }));
+      tracks[i] = new tracks[i]($.extend(defaults, { index: i + index, config: this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined }));
 
       if (tracks[i].id) {
         this.tracksById[tracks[i].id] = tracks[i];
@@ -2446,6 +2445,16 @@ var Genoverse = Base.extend({
 
   once: function (events, obj, fn) {
     this.on(events, obj, fn, true);
+  },
+
+  destroy: function () {
+    this.onTracks('destructor');
+    (this.superContainer || this.container).empty();
+    $(window).add(document).off(this.eventNamespace);
+
+    for (var key in this) {
+      delete this[key];
+    }
   }
 }, {
   Plugins: {},
@@ -2514,6 +2523,7 @@ var Genoverse = Base.extend({
   }
 });
 
+Genoverse.id = 0;
 Genoverse.prototype.origin = ($('script[src]:last').attr('src').match(/(.*)js\/\w+/) || [])[1];
 
 $(function () {
@@ -4971,17 +4981,18 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
 
   insertFeature: function (feature) {
     feature.label      = feature.type === 'acen' || feature.type === 'stalk' ? false : feature.id;
-    feature.color      = this.prop('colors')[feature.type];
+    feature.menuTitle  = feature.id ? this.browser.chr + feature.id : this.browser.chr + ':' + feature.start + '-' + feature.end;
+    feature.color      = this.prop('colors')[feature.type]      || '#FFFFFF';
     feature.labelColor = this.prop('labelColors')[feature.type] || '#FFFFFF';
 
     this.base(feature);
   },
 
   drawFeature: function (feature, featureContext, labelContext, scale) {
-    if (feature.type === 'acen') {
-      featureContext.fillStyle   = feature.color;
-      featureContext.strokeStyle = '#000000';
+    featureContext.fillStyle   = feature.color;
+    featureContext.strokeStyle = '#000000';
 
+    if (feature.type === 'acen') {
       featureContext.beginPath();
 
       if (this.drawnAcen) {
@@ -4999,9 +5010,6 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
       featureContext.fill();
       featureContext.stroke();
     } else if (feature.type === 'stalk') {
-      featureContext.fillStyle   = feature.color;
-      featureContext.strokeStyle = '#000000';
-
       for (var i = 0; i < 2; i++) {
         featureContext.beginPath();
 
@@ -5020,11 +5028,20 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
     } else {
       this.base(feature, featureContext, labelContext, scale);
 
-      featureContext.strokeStyle = '#000000';
-
       featureContext.beginPath();
 
-      if (feature.start === 1) {
+      if (feature.start === 1 && feature.end === this.browser.chromosomeSize) {
+        featureContext.clearRect(0, 0, 5, this.prop('height'));
+        featureContext.clearRect(feature.width - 5, 0, 10, this.prop('height'));
+
+        featureContext.fillStyle = feature.color;
+        featureContext.moveTo(5, 0.5);
+        featureContext.lineTo(feature.width - 5, 0.5);
+        featureContext.bezierCurveTo(this.width + 1, 0.5, this.width + 1, feature.height + 0.5, feature.width - 5, feature.height + 0.5);
+        featureContext.lineTo(5, feature.height + 0.5);
+        featureContext.bezierCurveTo(-1, feature.height + 0.5, -1, 0.5, 5, 0.5);
+        featureContext.fill();
+      } else if (feature.start === 1) {
         featureContext.clearRect(0, 0, 5, this.prop('height'));
 
         featureContext.fillStyle = feature.color;
@@ -5067,7 +5084,7 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
 
   populateMenu: function (feature) {
     return {
-      title    : this.browser.chr + feature.id,
+      title    : feature.menuTitle,
       Position : this.browser.chr + ':' + feature.start + '-' + feature.end
     };
   }
@@ -5708,173 +5725,6 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     return this.prop('minorUnit') < 1000 ? label.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') : this.base(label);
   }
 });
-
-
-
-Genoverse.Track.Model.Histogram = Genoverse.Track.Model.extend({
-  binSize   : 1000,
-  maxHeight : undefined, // Set to a number to make that the maximum height the histogram can take up (this will be the height of the largest bin)
-
-  init: function (reset) {
-    this.base();
-
-    if (!reset) {
-      this.originalFeatures     = new RTree();
-      this.originalFeaturesById = {};
-    }
-  },
-
-  parseURL: function (start, end, url) {
-    if (!this.allData) {
-      var region = this.getStartEnd(start, end);
-
-      start = region.start;
-      end   = region.end;
-    }
-
-    return this.base(start, end, url);
-  },
-
-  getStartEnd: function (start, end) {
-    return {
-      start : start - (start % this.binSize) + 1,
-      end   : end   - (end   % this.binSize) + (end % this.binSize ? this.binSize : 0)
-    };
-  },
-
-  parseData: function (data, start, end) {
-    this._features     = this.features;
-    this.features      = this.originalFeatures;
-    this._featuresById = this.featuresById;
-    this.featuresById  = this.originalFeaturesById;
-
-    this.base(data, start, end);
-
-    this.features     = this._features;
-    this.featuresById = this._featuresById;
-
-    delete this._features;
-    delete this._featuresById;
-
-    this.insertBinFeatures(this.getStartEnd(start, end));
-  },
-
-  insertBinFeatures: function (region) {
-    var originalFeatures, binStart;
-    var max       = this.browser.chromosomeSize;
-    var binSize   = this.binSize;
-    var maxHeight = this.prop('maxHeight');
-    var height    = this.prop('featureHeight');
-    var dataSets  = this.prop('dataSets');
-    var features  = [];
-
-    this.maxFeatures = this.maxFeatures || 0;
-
-    for (var i = 0; i < dataSets.length; i++) {
-      var set    = dataSets[i].name || i;
-      var filter = dataSets[i].filter;
-
-      for (binStart = region.start; binStart < region.end; binStart += binSize) {
-        originalFeatures = this.originalFeatures.search({ x: binStart, y: 0, w: binSize, h: 1 });
-
-        if (typeof filter === 'function') {
-          originalFeatures = $.grep(originalFeatures, filter);
-        }
-
-        if (originalFeatures.length) {
-          this.maxFeatures = Math.max(this.maxFeatures, originalFeatures.length);
-        }
-
-        features.push({
-          id               : set + ':' + binStart,
-          start            : binStart,
-          end              : Math.min(binStart + binSize - 1, max),
-          height           : originalFeatures.length,
-          count            : originalFeatures.length,
-          originalFeatures : originalFeatures,
-          sort             : binStart,
-          dataSet          : set
-        });
-      }
-    }
-
-    if (maxHeight && this.maxFeatures * height > maxHeight) {
-      height = maxHeight / this.maxFeatures;
-    }
-
-    for (var i = 0; i < features.length; i++) {
-      features[i].height *= height;
-      this.insertFeature(features[i]);
-    }
-
-    if (this.maxFeatures === 0 && this.prop('hideEmpty') !== false) {
-      this.track.disable();
-    }
-  }
-});
-
-Genoverse.Track.View.Histogram = Genoverse.Track.View.extend({
-  featureHeight : 4,
-  featureMargin : { top: 2, right: 0, bottom: 0, left: 0 },
-
-  draw: function (features, featureContext, labelContext, scale) {
-    var dataSets = this.prop('dataSets');
-    var set;
-
-    function filter(f) {
-      return f.dataSet === set && f.count;
-    }
-
-    for (var i = 0; i < dataSets.length; i++) {
-      set = dataSets[i].name || i;
-      this.base($.grep(features, filter), featureContext, labelContext, scale);
-    }
-
-   // this.drawScalebar(featureContext);
-  },
-
-  drawScalebar: function (context) {
-    var maxHeight = Math.min(this.prop('maxHeight') || 9e99, Math.round(this.prop('maxFeatures') * this.featureHeight)) + 0.5;
-
-    context.strokeStyle = context.fillStyle = 'black';
-
-    context.beginPath();
-    context.moveTo(20.5, this.featureMargin.top);
-    context.lineTo(20.5, maxHeight);
-    context.lineTo(15.5, maxHeight);
-    context.stroke();
-
-    if (this.prop('flip')) {
-      var label = this.prop('maxFeatures');
-      var w     = context.measureText(label).width;
-
-      context.save();
-      context.translate(this.width / 2, context.canvas.height / 2);
-      context.rotate(Math.PI);
-      context.scale(-1, 1);
-      context.fillText(label, -this.width / 2, -1.5 - maxHeight / 2);
-      context.restore();
-    } else {
-      context.textBaseline = 'middle';
-      context.fillText(this.prop('maxFeatures'), 0, maxHeight);
-    }
-  }
-});
-
-Genoverse.Track.Histogram = Genoverse.Track.extend({
-  model        : Genoverse.Track.Model.Histogram,
-  view         : Genoverse.Track.View.Histogram,
-  populateMenu : $.noop,
-  dataSets     : [{}],
-  flip         : false,
-
-  afterAddDomElements: function () {
-    if (this.prop('flip')) {
-      this.imgContainer.addClass('gv-flip');
-    }
-  }
-});
-
 
 
 
