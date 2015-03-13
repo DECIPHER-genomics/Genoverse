@@ -1,4 +1,6 @@
 Genoverse.Plugins.controlPanel = function () {
+  var genoverse = this;
+
   this.controls = [
     // // Uncomment this to see this example working
     // {
@@ -19,6 +21,20 @@ Genoverse.Plugins.controlPanel = function () {
       'class' : 'gv-button-large',
       action  : function (browser) { browser.resetConfig(); }
     });
+  }
+
+  function heightAdjustment() {
+    genoverse.minHeightLabel.hide();
+
+    var currentHeight    = genoverse.labelContainer.height();
+    var heightAdjustment = genoverse.controlPanelHeight - currentHeight;
+
+    if (heightAdjustment < 0) {
+      genoverse.wrapper.css('paddingBottom', 0);
+    } else {
+      genoverse.minHeightLabel.height(heightAdjustment).show();
+      genoverse.wrapper.css('paddingBottom', heightAdjustment);
+    }
   }
 
   this.on({
@@ -54,6 +70,7 @@ Genoverse.Plugins.controlPanel = function () {
       this.superContainer = this.container;
       this.container      = $('.gv-canvas-container', this.container);
       this.width         -= panel.width();
+
 
       panel.find('button.gv-scroll-left, button.gv-scroll-right').on({
         mousedown : function () { browser.startDragScroll(); },
@@ -140,6 +157,8 @@ Genoverse.Plugins.controlPanel = function () {
           $('.gv-menu .gv-close').trigger('click');
         }
       });
+
+      this.controlPanelHeight = panel.height();
     },
 
     afterInit: function () {
@@ -243,10 +262,17 @@ Genoverse.Plugins.controlPanel = function () {
           $('<div class="gv-button-set" title="Tracks menu">').append(tracksButton)
         )
       );
+
+      heightAdjustment();
     },
 
     afterAddDomElements: function () {
       this.wrapper.after('<div class="gv-powered-by">Powered by <a target="_blank" href="http://genoverse.org">Genoverse</a></div>');
+      this.minHeightLabel = $('<li>');
+    },
+
+    afterSortTracks: function () {
+      this.labelContainer.append(this.minHeightLabel);
     },
 
     'afterAddTracks afterRemoveTracks': function () {
@@ -255,6 +281,10 @@ Genoverse.Plugins.controlPanel = function () {
       if (currentTracks.length) {
         currentTracks.data('reload').call(currentTracks);
       }
+
+      heightAdjustment();
     }
   });
+
+  this.on('afterResize', 'tracks', heightAdjustment);
 };
