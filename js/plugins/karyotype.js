@@ -2,7 +2,7 @@ Genoverse.Plugins.karyotype = function () {
   this.on({
     afterInit: function () {
       var chromosome = $('<div class="gv-chromosome">');
-      var container  = $('<div class="gv-karyotype-container">').html(chromosome).insertAfter(this.labelContainer);
+      var container  = $('<div class="gv-karyotype-container">').html(chromosome).insertBefore(this.wrapper);
 
       this.karyotype = new Genoverse({
         parent    : this,
@@ -149,7 +149,7 @@ Genoverse.Plugins.karyotype = function () {
         }
       });
 
-      if (!$.grep(this.plugins, function (plugin) { return plugin === 'controlPanel' }).length) {
+      if (!this.loadedPlugins.controlPanel) {
         $('<li class="gv-unsortable">').height(function (i, h) {
           return h + container.height();
         }).prependTo(this.labelContainer);

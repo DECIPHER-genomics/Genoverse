@@ -1314,10 +1314,10 @@ var Genoverse = Base.extend({
     config.container = $(config.container); // Make sure container is a jquery object, jquery recognises itself automatically
 
     if (!(config.container && config.container.length)) {
-      config.container = $('<div id="genoverse">').appendTo('body');
+      config.container = $('<div>').appendTo('body');
     }
 
-    config.container.data('genoverse', this);
+    config.container.addClass('genoverse').data('genoverse', this);
 
     $.extend(this, config);
 
@@ -1350,26 +1350,60 @@ var Genoverse = Base.extend({
     }
   },
 
-  loadPlugins: function () {
+  loadPlugins: function (plugins) {
     var browser         = this;
     var loadPluginsTask = $.Deferred();
+    var plugins         = plugins || this.plugins;
+
+    this.loadedPlugins = this.loadedPlugins || {};
+
+    if (typeof plugins === 'string') {
+      plugins = [ plugins ];
+    }
 
     function loadPlugin(plugin) {
-      if (typeof Genoverse.Plugins[plugin] === 'function') {
-        Genoverse.Plugins[plugin].call(browser);
-        return true;
+      if (typeof Genoverse.Plugins[plugin] !== 'function' || browser.loadedPlugins[plugin]) {
+        return [];
       }
+
+      var requires = Genoverse.Plugins[plugin].requires;
+      var deferred = $.Deferred();
+
+      function initPlugin() {
+        if (!browser.loadedPlugins[plugin]) {
+          Genoverse.Plugins[plugin].call(browser);
+          browser.container.addClass('gv-' + plugin.replace(/([A-Z])/g, '-$1').toLowerCase() + '-plugin');
+          browser.loadedPlugins[plugin] = true;
+        }
+
+        deferred.resolve();
+      }
+
+      if (requires) {
+        $.when(browser.loadPlugins(requires)).done(initPlugin);
+      } else {
+        initPlugin();
+      }
+
+      return deferred;
     }
 
     function getScript(deferred, plugin) {
-      $.getScript(browser.origin + 'js/plugins/' + plugin + '.js', function () {
-        deferred.resolve.apply(deferred, [].slice.call(arguments).concat(plugin));
+      var args = [].slice.call(arguments).concat(plugin);
+      var path = browser.origin + 'js/plugins/' + plugin + '.js';
+
+      if ($('script[src="' + path + '"]').length) {
+        return deferred.resolve.apply(deferred, args);
+      }
+
+      $.getScript(path, function () {
+        deferred.resolve.apply(deferred, args);
       });
     }
 
     // Load plugins css file
-    $.when.apply($, $.map(browser.plugins, function (plugin) {
-      if (loadPlugin(plugin)) {
+    $.when.apply($, $.map(plugins, function (plugin) {
+      if (browser.loadedPlugins[plugin]) {
         return undefined;
       }
 
@@ -1378,26 +1412,31 @@ var Genoverse = Base.extend({
       if ($('link[href="' + browser.origin + 'css/' + plugin + '.css"]').length) {
         getScript(deferred, plugin);
       } else {
-        $('<link href="' + browser.origin + 'css/' + plugin + '.css" rel="stylesheet">').on('load', function () { getScript(deferred, plugin); }).appendTo('body');
+        $('<link href="' + browser.origin + 'css/' + plugin + '.css" rel="stylesheet">').on('load error', function () { getScript(deferred, plugin); }).appendTo('body');
       }
 
       return deferred;
     })).done(function () {
-      var scripts = browser.plugins.length === 1 ? [ arguments ] : arguments;
+      var scripts       = plugins.length === 1 ? [ arguments ] : arguments;
+      var pluginsLoaded = [];
       var plugin;
 
       for (var i = 0; i < scripts.length; i++) {
         plugin = scripts[i][scripts[i].length - 1];
 
         try {
-          eval(scripts[i][0]);
-          loadPlugin(plugin);
+          if (!browser.loadedPlugins[plugin]) {
+            eval(scripts[i][0]);
+            pluginsLoaded.push(loadPlugin(plugin));
+          }
         } catch (e) {
           console.log('Error evaluating plugin script "' + plugin + ': "' + e);
           console.log(scripts[i][0]);
         }
       }
-    }).always(loadPluginsTask.resolve);
+
+      $.when.apply($, pluginsLoaded).always(loadPluginsTask.resolve);
+    });
 
     return loadPluginsTask;
   },
@@ -1547,7 +1586,7 @@ var Genoverse = Base.extend({
     this._constructing = true;
     this.savedConfig   = {};
 
-    this.removeTracks(this.tracks);
+    this.removeTracks($.extend([], this.tracks)); // Shallow clone to ensure that removeTracks doesn't hit problems when splicing this.tracks
     this.addTracks($.extend([], true, this.defaultTracks));
 
     this._constructing = false;
@@ -2254,13 +2293,13 @@ var Genoverse = Base.extend({
   },
 
   menuTemplate: $(
-    '<div class="gv-menu">'                           +
-      '<div class="gv-close gv-menu-button">x</div>'  +
-      '<div class="gv-menu-content">'                 +
-        '<div class="gv-title"></div>'                +
-        '<a class="gv-focus" href="#">Focus here</a>' +
-        '<table></table>'                             +
-      '</div>'                                        +
+    '<div class="gv-menu">'                               +
+      '<div class="gv-close gv-menu-button">&#215;</div>' +
+      '<div class="gv-menu-content">'                     +
+        '<div class="gv-title"></div>'                    +
+        '<a class="gv-focus" href="#">Focus here</a>'     +
+        '<table></table>'                                 +
+      '</div>'                                            +
     '</div>'
   ).on('click', function (e) {
     if ($(e.target).hasClass('gv-close')) {

@@ -2,7 +2,7 @@ body.gv-dragging * {
   cursor: n-resize!important;
 }
 
-div.gv-resizer {
+.gv-resizer-plugin div.gv-resizer {
   position: absolute!important;
   bottom: 0;
   opacity: 0.8;
@@ -11,7 +11,7 @@ div.gv-resizer {
   z-index: 2;
 }
 
-.gv-canvas-container .gv-resizer .gv-handle {
+.gv-resizer-plugin .gv-canvas-container .gv-resizer .gv-handle {
   background-color: #5A5A5A;
   border: 1px solid white;
   border-width: 1px 0;
@@ -20,7 +20,7 @@ div.gv-resizer {
   width: 4%;
 }
 
-
-.gv-canvas-container .gv-resizer:hover, .gv-canvas-container .gv-resizer.ui-draggable-dragging {
+.gv-resizer-plugin .gv-canvas-container .gv-resizer:hover,
+.gv-resizer-plugin .gv-canvas-container .gv-resizer.ui-draggable-dragging {
   box-shadow: -1px -3px 6px -3px #000000 inset !important;
 }

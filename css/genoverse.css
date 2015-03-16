@@ -1,3 +1,9 @@
+.genoverse {
+  font-family: Verdana;
+  font-size: 12px;
+  position: relative;
+}
+
 .gv-canvas-container {
   cursor: pointer;
   -webkit-touch-callout: none;
@@ -55,8 +61,6 @@
   padding: 5px;
   margin-bottom: 4px;
   z-index: 11;
-  font-family: Verdana;
-  font-size: 12px;
   font-weight: bold;
 }
 
@@ -83,7 +87,6 @@
 .gv-canvas-container .gv-message-container .gv-control {
   position: absolute;
   height: 14px;
-  font-size: 12px;
   cursor: pointer;
 }
 
@@ -145,7 +148,7 @@
   top: 50%;
 }
 
-.gv-canvas-container .gv-label-container {
+.gv-label-container {
   position: relative;
   float: left;
   margin: 0;
@@ -161,7 +164,7 @@
   width: 100px;
 }
 
-.gv-canvas-container .gv-label-container li {
+.gv-label-container li {
   position: relative;
   margin: 0;
   padding: 0;
@@ -171,13 +174,13 @@
   overflow: hidden;
 }
 
-.gv-canvas-container .gv-label-container li .gv-handle {
+.gv-label-container li .gv-handle {
   position: relative;
   background-image: url(../i/Grabbar.png);
   cursor: move;
   display: inline-block;
-  height: 80%;
-  top: 10%;
+  height: calc(100% - 20px);
+  top: 10px;
   width: 10px;
   opacity: 0.7;
 }
@@ -186,16 +189,17 @@
   background-color: #CFD4E7;
 }
 
-.gv-canvas-container .gv-label-container li:not(:first-child) {
+.gv-label-container li:not(:first-child) {
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 -1px 0 #38688F inset
 }
 
-.gv-canvas-container .gv-label-container li .gv-name {
+.gv-label-container li .gv-name {
   display: inline-block;
   position: relative;
   overflow: hidden;
   vertical-align: top;
   margin: 8px 0;
+  padding-right: 2px;
   left: 5px;
   width: 85%;
   color: #F2F5F7;
@@ -203,11 +207,10 @@
   text-overflow: ellipsis;
   font-size: 11px;
   font-weight: bold;
-  font-family: Verdana;
   white-space: pre-wrap;
 }
 
-.gv-canvas-container .gv-label-container li.gv-unsortable .gv-name {
+.gv-label-container li.gv-unsortable .gv-name {
   left: 15px;
 }
 
@@ -280,8 +283,7 @@
 
 .gv-menu .gv-menu-content {
   margin: 10px;
-  font-family: monospace;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .gv-menu .gv-menu-content a {
@@ -300,6 +302,7 @@
   border: none;
   text-align: left;
   vertical-align: top;
+  max-width: 32em;
 }
 
 .gv-menu .gv-menu-content .gv-title {
@@ -313,7 +316,6 @@
 }
 
 .gv-menu .gv-menu-button {
-  font-family: Comic Sans MS;
   background-color: #CCCCCC;
   color: #2E2E2E;
   cursor: pointer;
@@ -340,10 +342,9 @@
   width: 20px;
   margin: 3px;
   border-radius: 20px;
-  line-height: 17px;
-  font-size: 13px;
+  line-height: 19px;
+  font-size: 14px;
   font-weight: bold;
-  padding-left: 1px;
 }
 
 .gv-menu .gv-menu-content input {

@@ -1,4 +1,4 @@
-.gv-track-container div.gv-track-controls {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls {
   display: block;
   white-space: nowrap;
   position: relative;
@@ -14,44 +14,44 @@
   z-index: 5;
 }
 
-.gv-track-container div.gv-track-controls:hover {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls:hover {
   background: rgba(0, 0, 0, 0.7);
 }
 
-.gv-track-container div.gv-track-controls > * {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls > * {
   display: inline-block;
   width: 20px;
   text-align: center;
 }
 
-.gv-track-container div.gv-track-controls a {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a {
   color: white;
 }
 
-.gv-track-container div.gv-track-controls a:hover {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a:hover {
   text-decoration: underline;
 }
 
-.gv-track-container:hover > div.gv-track-controls {
+.gv-track-controls-plugin .gv-track-container:hover > div.gv-track-controls {
   display: block;
 }
 
-.gv-track-container div.gv-track-controls a.gv-hidden {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-hidden {
   display: none!important;
 }
 
-.gv-track-container div.gv-track-controls a.gv-height-toggle {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle {
   background: url(../i/auto_height.png) center 1px no-repeat;
 }
 
-.gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height {
   background-position: center -17px;
 }
 
-.gv-track-container div.gv-track-controls select,
-.gv-track-container div.gv-track-controls input,
-.gv-track-container div.gv-track-controls button,
-.gv-track-container div.gv-track-controls textarea {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls select,
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls input,
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls button,
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls textarea {
   color: #333;
   font-weight: normal;
 }

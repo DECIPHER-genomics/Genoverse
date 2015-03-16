@@ -7,3 +7,5 @@ Genoverse.Plugins.focusRegion = function () {
     init    : function () { this.focusRegion = this.focusRegion || { start: this.start, end: this.end }; }
   });
 };
+
+Genoverse.Plugins.focusRegion.requires = 'controlPanel';
