@@ -6,7 +6,7 @@ Genoverse.Track = Base.extend({
   unsortable : false,     // Is the track unsortable
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
-  hideEmpty  : true,      // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
+  hideEmpty  : undefined, // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
 
   constructor: function (config) {
     if (this.stranded || config.stranded) {
@@ -32,6 +32,7 @@ Genoverse.Track = Base.extend({
     this.defaultHeight     = this.height;
     this.defaultAutoHeight = this.autoHeight;
     this.autoHeight        = typeof this.autoHeight !== 'undefined' ? this.autoHeight : this.browser.trackAutoHeight;
+    this.hideEmpty         = typeof this.hideEmpty  !== 'undefined' ? this.hideEmpty  : this.browser.hideEmptyTracks;
     this.height           += this.margin;
     this.initialHeight     = this.height;
 

@@ -1288,16 +1288,17 @@ var Genoverse = Base.extend({
   defaultScrollDelta : 100,
   tracks             : [],
   plugins            : [],
-  dragAction         : 'scroll',         // options are: scroll, select, off
-  wheelAction        : 'off',            // options are: zoom, off
-  isStatic           : false,            // if true, will stop drag, select and zoom actions occurring
-  saveable           : false,            // if true, track configuration and ordering will be saved in sessionStorage/localStorage
-  saveKey            : '',               // default key for sessionStorage/localStorage configuration is 'genoverse'. saveKey will be appended to this if it is set
-  storageType        : 'sessionStorage', // set to localStorage for permanence
-  genome             : undefined,
-  useHash            : undefined,
-  autoHideMessages   : true,
-  trackAutoHeight    : false,
+  dragAction         : 'scroll',         // Options are: scroll, select, off
+  wheelAction        : 'off',            // Options are: zoom, off
+  isStatic           : false,            // If true, will stop drag, select and zoom actions occurring
+  saveable           : false,            // If true, track configuration and ordering will be saved in sessionStorage/localStorage
+  saveKey            : '',               // Default key for sessionStorage/localStorage configuration is 'genoverse'. saveKey will be appended to this if it is set
+  storageType        : 'sessionStorage', // Set to localStorage for permanence
+  autoHideMessages   : true,             // Determines whether to collapse track messages by default
+  trackAutoHeight    : false,            // Determines whether to automatically resize tracks to show all their features (can be overridden by track.autoHeight)
+  hideEmptyTracks    : true,             // Determines whether to hide an automatically resized tracks if it has no features, or to show it empty (can be overridden by track.hideEmpty)
+  genome             : undefined,        // The genome used in the browser - can be an object or a string, which will be used to obtain a javascript file
+  useHash            : undefined,        // If true, window.location.hash is changed on navigation. If false, window.history.pushState is used. If undefined, pushState will be used if present in the browser
 
   // Default coordinates for initial view, overwrite in your config
   chr   : 1,
@@ -2584,7 +2585,7 @@ Genoverse.Track = Base.extend({
   unsortable : false,     // Is the track unsortable
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
-  hideEmpty  : true,      // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
+  hideEmpty  : undefined, // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
 
   constructor: function (config) {
     if (this.stranded || config.stranded) {
@@ -2610,6 +2611,7 @@ Genoverse.Track = Base.extend({
     this.defaultHeight     = this.height;
     this.defaultAutoHeight = this.autoHeight;
     this.autoHeight        = typeof this.autoHeight !== 'undefined' ? this.autoHeight : this.browser.trackAutoHeight;
+    this.hideEmpty         = typeof this.hideEmpty  !== 'undefined' ? this.hideEmpty  : this.browser.hideEmptyTracks;
     this.height           += this.margin;
     this.initialHeight     = this.height;
 
