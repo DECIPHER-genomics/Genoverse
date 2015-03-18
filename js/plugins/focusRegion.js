@@ -9,3 +9,4 @@ Genoverse.Plugins.focusRegion = function () {
 };
 
 Genoverse.Plugins.focusRegion.requires = 'controlPanel';
+Genoverse.Plugins.focusRegion.noCSS    = true;

@@ -83,15 +83,42 @@ var Genoverse = Base.extend({
     }
 
     function loadPlugin(plugin) {
-      if (typeof Genoverse.Plugins[plugin] !== 'function' || browser.loadedPlugins[plugin]) {
+      var css      = browser.origin + 'css/'        + plugin + '.css';
+      var js       = browser.origin + 'js/plugins/' + plugin + '.js';
+      var deferred = $.Deferred();
+
+      function getCSS() {
+        function done() {
+          browser.loadedPlugins[plugin] = browser.loadedPlugins[plugin] || 'script';
+          deferred.resolve(plugin);
+        }
+
+        if (Genoverse.Plugins[plugin].noCSS || $('link[href="' + css + '"]').length) {
+          return done();
+        }
+
+        $('<link href="' + css + '" rel="stylesheet">').on('load', done).appendTo('body');
+      }
+
+      if (browser.loadedPlugins[plugin] || $('script[src="' + js + '"]').length) {
+        getCSS();
+      } else {
+        $.getScript(js, getCSS);
+      }
+
+      return deferred;
+    }
+
+    function intializePlugin(plugin) {
+      if (typeof Genoverse.Plugins[plugin] !== 'function' || browser.loadedPlugins[plugin] === true) {
         return [];
       }
 
       var requires = Genoverse.Plugins[plugin].requires;
       var deferred = $.Deferred();
 
-      function initPlugin() {
-        if (!browser.loadedPlugins[plugin]) {
+      function init() {
+        if (browser.loadedPlugins[plugin] !== true) {
           Genoverse.Plugins[plugin].call(browser);
           browser.container.addClass('gv-' + plugin.replace(/([A-Z])/g, '-$1').toLowerCase() + '-plugin');
           browser.loadedPlugins[plugin] = true;
@@ -101,58 +128,24 @@ var Genoverse = Base.extend({
       }
 
       if (requires) {
-        $.when(browser.loadPlugins(requires)).done(initPlugin);
+        $.when(browser.loadPlugins(requires)).done(init);
       } else {
-        initPlugin();
+        init();
       }
 
       return deferred;
-    }
-
-    function getScript(deferred, plugin) {
-      var args = [].slice.call(arguments).concat(plugin);
-      var path = browser.origin + 'js/plugins/' + plugin + '.js';
-
-      if ($('script[src="' + path + '"]').length) {
-        return deferred.resolve.apply(deferred, args);
-      }
-
-      $.getScript(path, function () {
-        deferred.resolve.apply(deferred, args);
-      });
     }
 
     // Load plugins css file
-    $.when.apply($, $.map(plugins, function (plugin) {
-      if (browser.loadedPlugins[plugin]) {
-        return undefined;
-      }
-
-      var deferred = $.Deferred();
-
-      if ($('link[href="' + browser.origin + 'css/' + plugin + '.css"]').length) {
-        getScript(deferred, plugin);
-      } else {
-        $('<link href="' + browser.origin + 'css/' + plugin + '.css" rel="stylesheet">').on('load error', function () { getScript(deferred, plugin); }).appendTo('body');
-      }
-
-      return deferred;
-    })).done(function () {
-      var scripts       = plugins.length === 1 ? [ arguments ] : arguments;
+    $.when.apply($, $.map(plugins, loadPlugin)).done(function () {
       var pluginsLoaded = [];
       var plugin;
 
-      for (var i = 0; i < scripts.length; i++) {
-        plugin = scripts[i][scripts[i].length - 1];
+      for (var i = 0; i < arguments.length; i++) {
+        plugin = arguments[i];
 
-        try {
-          if (!browser.loadedPlugins[plugin]) {
-            eval(scripts[i][0]);
-            pluginsLoaded.push(loadPlugin(plugin));
-          }
-        } catch (e) {
-          console.log('Error evaluating plugin script "' + plugin + ': "' + e);
-          console.log(scripts[i][0]);
+        if (browser.loadedPlugins[plugin] !== true) {
+          pluginsLoaded.push(intializePlugin(plugin));
         }
       }
 
