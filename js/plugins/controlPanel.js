@@ -112,8 +112,8 @@ Genoverse.Plugins.controlPanel = function () {
     beforeInit: function () {
       var browser = this;
 
-      if (!this.tracksLibrary) {
-        this.tracksLibrary = $.grep(this.tracks, function (track) { return track.prototype.name; });
+      if (!this.libraryTracks) {
+        this.libraryTracks = $.grep(this.tracks, function (track) { return track.prototype.name; });
       }
 
       var panel = $(
@@ -128,7 +128,6 @@ Genoverse.Plugins.controlPanel = function () {
 
       this.superContainer = this.container;
       this.container      = $('.gv-canvas-container', this.container);
-      this.width         -= panel.width();
 
       for (var i = 0; i < browser.controls.length; i++) {
         (function (control) {
@@ -155,6 +154,8 @@ Genoverse.Plugins.controlPanel = function () {
           }
         })(browser.controls[i]);
       }
+
+      this.width -= panel.width();
 
       // ESC key to toggle crosshair select to drag mode and close menus
       $(document).on('keydown', function (e) {
@@ -234,10 +235,10 @@ Genoverse.Plugins.controlPanel = function () {
 
             currentTracks.data('listTracks')();
 
-            if (browser.tracksLibrary && browser.tracksLibrary.length) {
-              var tracksLibrary = $.map(browser.tracksLibrary, function (track) { return track.prototype.name ? [[ track.prototype.name.toLowerCase(), track ]] : undefined }).sort(function (a, b) { return b < a });
+            if (browser.libraryTracks && browser.libraryTracks.length) {
+              var libraryTracks = $.map(browser.libraryTracks, function (track) { return track.prototype.name ? [[ track.prototype.name.toLowerCase(), track ]] : undefined }).sort(function (a, b) { return b < a });
 
-              for (var i = 0; i < tracksLibrary.length; i++) {
+              for (var i = 0; i < libraryTracks.length; i++) {
                 (function (track) {
                   $('<div class="gv-tracks-library-item">').append(
                     $('<div class="gv-add-track gv-menu-button">+</div> ').on('click', function () {
@@ -250,7 +251,7 @@ Genoverse.Plugins.controlPanel = function () {
                       );
                     })
                   ).append('<span>' + track.prototype.name + '</span>').appendTo(availableTracks).data('track', track.prototype);
-                })(tracksLibrary[i][1]);
+                })(libraryTracks[i][1]);
               }
             }
 
