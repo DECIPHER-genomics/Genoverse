@@ -246,7 +246,7 @@ Genoverse.Plugins.controlPanel = function () {
 
                       browser.addTrack(
                         track.extend({ id: track.prototype.id + (browser.tracksById[track.prototype.id] ? browser.trackIds[track.prototype.id]++ : '') }),
-                        Math.floor(browser.tracks.sort(function (a, b) { return b.order - a.order; })[0].order + 1)
+                        Math.floor($.grep(browser.tracks, function (t) { return t.unsortable !== true; }).sort(function (a, b) { return b.order - a.order; })[0].order + 1)
                       );
                     })
                   ).append('<span>' + track.prototype.name + '</span>').appendTo(availableTracks).data('track', track.prototype);
