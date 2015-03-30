@@ -155,6 +155,8 @@ Genoverse.Plugins.controlPanel = function () {
         })(browser.controls[i]);
       }
 
+      this.superContainer.width(this.width);
+
       this.width -= panel.width();
 
       // ESC key to toggle crosshair select to drag mode and close menus
