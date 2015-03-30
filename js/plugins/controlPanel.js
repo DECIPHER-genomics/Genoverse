@@ -61,7 +61,7 @@ Genoverse.Plugins.controlPanel = function () {
         }
       }, {
         name    : 'Mouse drag action to select a region',
-        icon    : '&#8597;',
+        icon    : '&#9482;',
         'class' : 'gv-drag-select',
         action  : function (browser) {
           browser.setDragAction('select');
