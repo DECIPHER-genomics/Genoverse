@@ -96,14 +96,14 @@ Genoverse.Plugins.karyotype = function () {
             this.labelContainer = $();
           }
 
-          this.viewPoint = $('<div class="gv-karyotype-viewpoint">').appendTo(this.container).on({
+          this.viewPoint = $('<div class="gv-karyotype-viewpoint-wrapper"><div class="gv-karyotype-viewpoint"></div></div>').appendTo(container).children().on({
             mousemove: function (e) {
               karyotype.track.controller.click(e);
             },
             mouseout: function (e) {
               var el = $(e.relatedTarget);
 
-              if (karyotype.viewPoint.is(el) || karyotype.viewPoint.find(el).length || (el[0].nodeName === 'IMG' && el.parent().is(karyotype.track.prop('imgContainers')[0]))) {
+              if (karyotype.viewPoint.is(el) || karyotype.viewPoint.find(el).length || (el.prop('nodeName') === 'IMG' && el.parent().is(karyotype.track.prop('imgContainers')[0]))) {
                 return true;
               }
 
@@ -114,8 +114,16 @@ Genoverse.Plugins.karyotype = function () {
 
           if (!parent.isStatic) {
             function updateLocation(e, ui) {
+              if (e.type === 'resizestop') {
+                var axis = $(this).data('ui-resizable').axis;
+
+                if ((axis === 'e' && parent.end === karyotype.chromosomeSize) || (axis === 'w' && parent.start === 1)) {
+                  return; // Don't change location if the position didn't change (dragging off the right or left edges)
+                }
+              }
+
               var scale = karyotype.chromosomeSize / karyotype.width;
-              var start = Math.floor((ui.position.left - karyotype.labelWidth) * scale);
+              var start = Math.max(Math.floor(ui.position.left * scale), 1);
               var end   = e.type === 'dragstop' ? start + parent.length - 1 : Math.floor(ui.helper.outerWidth(true) * scale) + start;
 
               parent.moveTo(start, end, true, e.type === 'dragstop');
@@ -126,9 +134,10 @@ Genoverse.Plugins.karyotype = function () {
               containment : this.wrapper,
               stop        : updateLocation
             }).resizable({
-              handles : 'e, w',
-              stop    : updateLocation,
-              resize  : function (e, ui) {
+              handles     : 'e, w',
+              containment : 'parent',
+              stop        : updateLocation,
+              resize      : function (e, ui) {
                 ui.element.css('left', Math.max(0, ui.position.left));
 
                 if (ui.position.left > 0) {
@@ -145,7 +154,7 @@ Genoverse.Plugins.karyotype = function () {
           var left  =  this.width * this.parent.start / this.chromosomeSize;
           var width = (this.width * this.parent.end   / this.chromosomeSize) - left;
 
-          this.viewPoint.css({ left: left + this.labelWidth, width: width });
+          this.viewPoint.css({ left: left, width: width });
         }
       });
 
