@@ -75,3 +75,11 @@
   text-shadow: none;
   margin: 0px;
 }
+
+.gv-karyotype-plugin .gv-karyotype-container.gv-no-label .gv-wrapper {
+  margin-left: 0;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container.gv-no-label .gv-karyotype-viewpoint-wrapper {
+  margin-left: 15px;
+}

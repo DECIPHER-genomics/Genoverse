@@ -94,6 +94,7 @@ Genoverse.Plugins.karyotype = function () {
           if (parent.karyotypeLabel === false) {
             this.labelContainer.remove();
             this.labelContainer = $();
+            container.addClass('gv-no-label');
           }
 
           this.viewPoint = $('<div class="gv-karyotype-viewpoint-wrapper"><div class="gv-karyotype-viewpoint"></div></div>').appendTo(container).children().on({
