@@ -244,12 +244,14 @@ Genoverse.Plugins.controlPanel = function () {
                 (function (track) {
                   $('<div class="gv-tracks-library-item">').append(
                     $('<div class="gv-add-track gv-menu-button">+</div> ').on('click', function () {
+                      var sortableTracks = $.grep(browser.tracks, function (t) { return t.unsortable !== true; });
+
                       browser.trackIds = browser.trackIds || {};
                       browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
 
                       browser.addTrack(
                         track.extend({ id: track.prototype.id + (browser.tracksById[track.prototype.id] ? browser.trackIds[track.prototype.id]++ : '') }),
-                        Math.floor($.grep(browser.tracks, function (t) { return t.unsortable !== true; }).sort(function (a, b) { return b.order - a.order; })[0].order + 1)
+                        sortableTracks.length ? Math.floor(sortableTracks.sort(function (a, b) { return b.order - a.order; })[0].order + 1) : 1
                       );
                     })
                   ).append('<span>' + track.prototype.name + '</span>').appendTo(availableTracks).data('track', track.prototype);
