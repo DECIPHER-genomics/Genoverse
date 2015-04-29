@@ -1345,6 +1345,10 @@ var Genoverse = Base.extend({
 
     this.loadedPlugins = this.loadedPlugins || {};
 
+    for (var i in Genoverse.Plugins) {
+      this.loadedPlugins[i] = this.loadedPlugins[i] || 'script';
+    }
+
     if (typeof plugins === 'string') {
       plugins = [ plugins ];
     }
@@ -1558,7 +1562,10 @@ var Genoverse = Base.extend({
       }
     }
 
-    window[this.storageType].setItem(this.saveKey, JSON.stringify(config));
+    // Safari in private browsing mode does not allow writes to storage, so wrap in a try/catch to stop errors occuring
+    try {
+      window[this.storageType].setItem(this.saveKey, JSON.stringify(config));
+    } catch (e) {};
   },
 
   resetConfig: function () {
