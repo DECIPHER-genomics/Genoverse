@@ -213,7 +213,7 @@ var Genoverse = Base.extend({
       return this.addTracks();
     }
 
-    var tracksLibrary = this.tracksLibrary || [];
+    var libraryTracks = this.libraryTracks || [];
     var tracks        = [];
     var tracksById    = {};
     var tracksByName  = {};
@@ -236,9 +236,9 @@ var Genoverse = Base.extend({
       }
     }
 
-    for (i = 0; i < tracksLibrary.length; i++) {
-      if (tracksLibrary[i].prototype.name) {
-        tracksByName[tracksLibrary[i].prototype.name] = tracksLibrary[i];
+    for (i = 0; i < libraryTracks.length; i++) {
+      if (libraryTracks[i].prototype.name) {
+        tracksByName[libraryTracks[i].prototype.name] = libraryTracks[i];
       }
     }
 
