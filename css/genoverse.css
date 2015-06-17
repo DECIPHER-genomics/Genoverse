@@ -214,6 +214,11 @@
   left: 15px;
 }
 
+.gv-label-container li.gv-line-break .gv-name {
+  text-overflow: inherit;
+  word-spacing: 1000px;
+}
+
 .gv-track-container .gv-track-border,
 .gv-track-container-static .gv-track-border {
   position: absolute;
