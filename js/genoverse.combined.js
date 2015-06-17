@@ -4802,7 +4802,7 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
       featureContext.strokeRect(
         transcript.x + (exon.start - transcript.start) * scale,
         transcript.y + 1.5,
-        Math.max(1, (exon.end - exon.start) * scale),
+        Math.max(1, (exon.end - exon.start + 1) * scale),
         transcript.height - 3
       );
 
@@ -4810,7 +4810,7 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
         this.drawIntron({
           x      : transcript.x + (exons[i - 1].end - transcript.start + 1) * scale,
           y      : transcript.y + transcript.height / 2 + 0.5,
-          width  : (exon.start - exons[i - 1].end + 1) * scale,
+          width  : (exon.start - exons[i - 1].end - 1) * scale,
           height : transcript.strand > 0 ? -transcript.height / 2 : transcript.height / 2
         }, featureContext);
       }
