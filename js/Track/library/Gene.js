@@ -2,6 +2,21 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
   id     : 'genes',
   name   : 'Genes',
   height : 200,
+  legend : true,
+
+  constructor: function () {
+    this.base.apply(this, arguments);
+
+    if (this.legend === true) {
+      this.type = this.id;
+
+      this.browser.addTrack(Genoverse.Track.Legend.extend({
+        id          : this.id   + 'Legend',
+        name        : this.name + ' Legend',
+        featureType : this.type
+      }), this.order + 0.1);
+    }
+  },
 
   populateMenu: function (feature) {
     var url  = 'http://grch37.ensembl.org/Homo_sapiens/' + (feature.feature_type === 'transcript' ? 'Transcript' : 'Gene') + '/Summary?' + (feature.feature_type === 'transcript' ? 't' : 'g') + '=' + feature.id;

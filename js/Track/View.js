@@ -195,20 +195,27 @@ Genoverse.Track.View = Base.extend({
   },
 
   draw: function (features, featureContext, labelContext, scale) {
-    var feature;
+    var feature, f;
 
     for (var i = 0; i < features.length; i++) {
       feature = features[i];
 
       if (feature.position[scale].visible !== false) {
         // TODO: extend with feature.position[scale], rationalize keys
-        this.drawFeature($.extend({}, feature, {
+        f = $.extend({}, feature, {
           x             : feature.position[scale].X,
           y             : feature.position[scale].Y,
           width         : feature.position[scale].width,
           height        : feature.position[scale].height,
           labelPosition : feature.position[scale].label
-        }), featureContext, labelContext, scale);
+        });
+
+        this.drawFeature(f, featureContext, labelContext, scale);
+
+        if (f.legend && !feature.legend) {
+          feature.legend      = f.legend;
+          feature.legendColor = f.color;
+        }
       }
     }
   },

@@ -3820,20 +3820,27 @@ Genoverse.Track.View = Base.extend({
   },
 
   draw: function (features, featureContext, labelContext, scale) {
-    var feature;
+    var feature, f;
 
     for (var i = 0; i < features.length; i++) {
       feature = features[i];
 
       if (feature.position[scale].visible !== false) {
         // TODO: extend with feature.position[scale], rationalize keys
-        this.drawFeature($.extend({}, feature, {
+        f = $.extend({}, feature, {
           x             : feature.position[scale].X,
           y             : feature.position[scale].Y,
           width         : feature.position[scale].width,
           height        : feature.position[scale].height,
           labelPosition : feature.position[scale].label
-        }), featureContext, labelContext, scale);
+        });
+
+        this.drawFeature(f, featureContext, labelContext, scale);
+
+        if (f.legend && !feature.legend) {
+          feature.legend      = f.legend;
+          feature.legendColor = f.color;
+        }
       }
     }
   },
@@ -4592,23 +4599,47 @@ Genoverse.Track.View.Gene = Genoverse.Track.View.extend({
 
 Genoverse.Track.View.Gene.Ensembl = Genoverse.Track.View.Gene.extend({
   setFeatureColor: function (feature) {
-    var color = '#000000';
-    
+    var processed_transcript = {
+      'sense_intronic'           : 1,
+      'sense_overlapping'        : 1,
+      'processed_transcript'     : 1,
+      'nonsense_mediated_decay'  : 1,
+      'non_stop_decay'           : 1,
+      'antisense'                : 1,
+      'retained_intron'          : 1,
+      'tec'                      : 1,
+      'non_coding'               : 1,
+      'ambiguous_orf'            : 1,
+      'disrupted_domain'         : 1,
+      '3prime_overlapping_ncrna' : 1
+    };
+
+    feature.color = '#000000';
+
     if (feature.logic_name.indexOf('ensembl_havana') === 0) {
-      color = '#cd9b1d';
-    } else if (feature.biotype.indexOf('RNA') > -1) {
-      color = '#8b668b';
-    } else switch (feature.biotype) {
-      case 'protein_coding'       : color = '#A00000'; break;
-      case 'processed_transcript' : color = '#0000FF'; break;
-      case 'antisense'            : color = '#0000FF'; break;
-      case 'sense_intronic'       : color = '#0000FF'; break;
-      case 'pseudogene'           :
-      case 'processed_pseudogene' : color = '#666666'; break;
-      default                     : color = '#A00000'; break;
+      feature.color  = '#CD9B1D';
+      feature.legend = 'Merged Ensembl/Havana';
+    } else if (processed_transcript[feature.biotype]) {
+      feature.color  = '#0000FF';
+      feature.legend = 'Processed transcript';
+    } else if (feature.biotype === 'protein_coding') {
+      feature.color  = '#A00000';
+      feature.legend = 'Protein coding';
+    } else if (feature.biotype.indexOf('pseudogene') > -1) {
+      feature.color  = '#666666';
+      feature.legend = 'Pseudogene';
+    } else if (/rna/i.test(feature.biotype)) {
+      feature.color  = '#8B668B';
+      feature.legend = 'RNA gene';
+    } else if (/^tr_.+_gene$/i.test(feature.biotype)) {
+      feature.color  = '#CD6600';
+      feature.legend = 'TR gene';
+    } else if (/^ig_.+_gene$/i.test(feature.biotype)) {
+      feature.color  = '#8B4500';
+      feature.legend = 'IG gene';
     }
-    
-    feature.color = feature.labelColor = color;
+
+    feature.labelColor = feature.color;
   }
 });
 
@@ -4622,18 +4653,23 @@ Genoverse.Track.Model.Transcript = Genoverse.Track.Model.extend({
 Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.extend({
   url              : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=transcript;feature=exon;feature=cds;content-type=application/json',
   dataRequestLimit : 5000000, // As per e! REST API restrictions
-  
+  geneIds          : {},
+  seenGenes        : 0,
+
   // The url above responds in json format, data is an array
   // See rest.ensembl.org/documentation/info/feature_region for more details
   parseData: function (data) {
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];
-      
+
       if (feature.feature_type === 'transcript' && !this.featuresById[feature.id]) {
-        feature.label = feature.id;
+        this.geneIds[feature.Parent] = this.geneIds[feature.Parent] || ++this.seenGenes;
+
+        feature.label = feature.strand === '1' ? (feature.external_name || feature.id) + ' >' : '< ' + (feature.external_name || feature.id);
         feature.exons = [];
         feature.cds   = [];
-        
+        feature.sort  = this.geneIds[feature.Parent] * 1e10 + feature.start + i;
+
         this.insertFeature(feature);
       } else if (feature.feature_type === 'exon' && this.featuresById[feature.Parent]) {
         if (!this.featuresById[feature.Parent].exons[feature.id]) {
@@ -4642,7 +4678,7 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
         }
       } else if (feature.feature_type === 'cds' && this.featuresById[feature.Parent]) {
         feature.id = feature.start + '-' + feature.end;
-        
+
         if (!this.featuresById[feature.Parent].cds[feature.id]) {
           this.featuresById[feature.Parent].cds.push(feature);
           this.featuresById[feature.Parent].cds[feature.id] = feature;
@@ -5173,6 +5209,21 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
   id     : 'genes',
   name   : 'Genes',
   height : 200,
+  legend : true,
+
+  constructor: function () {
+    this.base.apply(this, arguments);
+
+    if (this.legend === true) {
+      this.type = this.id;
+
+      this.browser.addTrack(Genoverse.Track.Legend.extend({
+        id          : this.id   + 'Legend',
+        name        : this.name + ' Legend',
+        featureType : this.type
+      }), this.order + 0.1);
+    }
+  },
 
   populateMenu: function (feature) {
     var url  = 'http://grch37.ensembl.org/Homo_sapiens/' + (feature.feature_type === 'transcript' ? 'Transcript' : 'Gene') + '/Summary?' + (feature.feature_type === 'transcript' ? 't' : 'g') + '=' + feature.id;
@@ -5372,7 +5423,7 @@ Genoverse.Track.Model.Legend = Genoverse.Track.Model.Static.extend({
       return featurePositions ? featurePositions.search(bounds).concat(track.prop('labelPositions').search(bounds)) : [];
     }), function () {
       if (this.legend) {
-        features[this.legend] = this.color;
+        features[this.legend] = this.legendColor || this.color;
       }
     });
 

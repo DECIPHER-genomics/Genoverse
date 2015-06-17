@@ -29,7 +29,7 @@ Genoverse.Track.Model.Legend = Genoverse.Track.Model.Static.extend({
       return featurePositions ? featurePositions.search(bounds).concat(track.prop('labelPositions').search(bounds)) : [];
     }), function () {
       if (this.legend) {
-        features[this.legend] = this.color;
+        features[this.legend] = this.legendColor || this.color;
       }
     });
 
