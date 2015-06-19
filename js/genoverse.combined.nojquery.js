@@ -4665,7 +4665,7 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
       if (feature.feature_type === 'transcript' && !this.featuresById[feature.id]) {
         this.geneIds[feature.Parent] = this.geneIds[feature.Parent] || ++this.seenGenes;
 
-        feature.label = feature.strand === '1' ? (feature.external_name || feature.id) + ' >' : '< ' + (feature.external_name || feature.id);
+        feature.label = parseInt(feature.strand, 10) === 1 ? (feature.external_name || feature.id) + ' >' : '< ' + (feature.external_name || feature.id);
         feature.exons = [];
         feature.cds   = [];
         feature.sort  = this.geneIds[feature.Parent] * 1e10 + feature.start + i;
