@@ -121,6 +121,11 @@
   padding-right: 50px!important;
 }
 
+.gv-control-panel-plugin .gv-tracks-menu .gv-tracks-library-item,
+.gv-control-panel-plugin .gv-tracks-menu .gv-current-tracks {
+  white-space: nowrap;
+}
+
 .gv-control-panel-plugin .gv-tracks-menu .gv-remove-track,
 .gv-control-panel-plugin .gv-tracks-menu .gv-add-track {
   border-radius: 3px;

@@ -176,6 +176,14 @@ Genoverse.Plugins.controlPanel = function () {
       var tracksButton = $('<button title="Tracks menu">&#9776; Tracks</button>').on('click', function () {
         var button = this;
 
+        function getTrackTags(track, tags) {
+          if (track.constructor && track.constructor.ancestor && track.constructor.ancestor.prototype) {
+            tags = getTrackTags(track.constructor.ancestor.prototype, tags.concat(track.constructor.ancestor.prototype.tags || []));
+          }
+
+          return tags;
+        }
+
         if ($(this).hasClass('gv-active')) {
           $('.gv-menu.gv-tracks-menu .gv-close').trigger('click');
           $(this).removeClass('gv-active');
@@ -201,9 +209,11 @@ Genoverse.Plugins.controlPanel = function () {
 
                 if (track.name && track.name.toLowerCase().indexOf(str) >= 0) {
                   match = true;
-                } else if (track.tags) {
-                  for (var i = 0; i < track.tags.length; i++) {
-                    if (track.tags[i].toLowerCase().indexOf(str) >= 0) {
+                } else {
+                  var tags = getTrackTags(track, []).concat(track.tags || []);
+
+                  for (var i = 0; i < tags.length; i++) {
+                    if (tags[i].toLowerCase().indexOf(str) >= 0) {
                       match = true;
                       break;
                     }
