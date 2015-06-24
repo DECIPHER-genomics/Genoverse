@@ -4419,6 +4419,7 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
   featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },
   colors        : { 'default': '#CCCCCC', A: '#73E973', T: '#DE4C61', G: '#FFFF77', C: '#688EC0' },
   labelColors   : { 'default': '#000000', T: '#FFFFFF', C: '#FFFFFF' },
+  labels        : 'overlay',
 
   constructor: function () {
     this.base.apply(this, arguments);
@@ -4482,6 +4483,7 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
     }
   }
 });
+
 
 Genoverse.Track.Model.SequenceVariation = Genoverse.Track.Model.extend({
   seqModel: Genoverse.Track.Model.Sequence.Ensembl,
