@@ -1721,7 +1721,8 @@ var Genoverse = Base.extend({
   },
 
   reset: function () {
-    this.onTracks('reset');
+    this.onTracks.apply(this, [ 'reset' ].concat([].slice.call(arguments)));
+    this.prev  = {};
     this.scale = 9e99; // arbitrary value so that setScale resets track scales as well
     this.setRange(this.start, this.end);
   },
@@ -1730,9 +1731,19 @@ var Genoverse = Base.extend({
     this.width  = width;
     this.width -= this.labelWidth;
 
-    this.container.width(width);
+    if (this.controlPanel) {
+      this.width -= this.controlPanel.width();
+    }
+
+    if (this.superContainer) {
+      this.superContainer.width(width);
+      this.container.width(this.width);
+    } else {
+      this.container.width(width);
+    }
+
     this.onTracks('setWidth', this.width);
-    this.reset();
+    this.reset('resizing');
   },
 
   mousewheelZoom: function (e, delta) {
@@ -2308,7 +2319,7 @@ var Genoverse = Base.extend({
       var browser = this;
       var menu    = this.menuTemplate.clone(true).data('browser', this);
       var content = $('.gv-menu-content', menu).remove();
-      var i, table, el, start, end, key, width, colspan, tdWidth;
+      var i, j, table, el, start, end, key, width, columns, colspan, tdWidth;
 
       function focus() {
         var data    = $(this).data();
@@ -2326,10 +2337,11 @@ var Genoverse = Base.extend({
         }
 
         for (i = 0; i < properties.length; i++) {
-          table = '';
-          el    = content.clone().appendTo(menu);
-          start = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
-          end   = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
+          table   = '';
+          el      = content.clone().appendTo(menu);
+          start   = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
+          end     = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
+          columns = Math.max.apply(Math, $.map(properties[i], function (v) { return Object.prototype.toString.call(v) === '[object Array]' ? v.length : 1; }));
 
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
@@ -2345,8 +2357,22 @@ var Genoverse = Base.extend({
             }
 
             if (key !== 'title') {
-              colspan = properties[i][key] === '' ? ' colspan="2"' : '';
-              table  += '<tr><td' + colspan + '>' + key + '</td>' + (colspan ? '' : '<td>' + properties[i][key] + '</td></tr>');
+              colspan = properties[i][key] === '' ? ' colspan="' + (columns + 1) + '"' : '';
+              table  += '<tr><td' + colspan + '>' + key + '</td>';
+
+              if (!colspan) {
+                if (Object.prototype.toString.call(properties[i][key]) === '[object Array]') {
+                  for (j = 0; j < properties[i][key].length; j++) {
+                    table += '<td>' + properties[i][key][j] + '</td>';
+                  }
+                } else if (columns === 1) {
+                  table += '<td>' + properties[i][key] + '</td>';
+                } else {
+                  table += '<td colspan="' + columns + '">' + properties[i][key] + '</td>';
+                }
+              }
+
+              table += '</tr>';
             }
           }
 
@@ -2613,7 +2639,7 @@ Genoverse.Track = Base.extend({
 
     for (var i = 0; i < 3; i++) {
       for (prop in Genoverse.Track[mvc[i]].prototype) {
-        if (!/^(constructor|init)$/.test(prop)) {
+        if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(prop)) {
           this._interface[prop] = mvc[i + 3];
         }
       }
@@ -2852,7 +2878,7 @@ Genoverse.Track = Base.extend({
 
     this.view.init();
     this.setLengthMap();
-    this.controller.reset();
+    this.controller.reset.apply(this.controller, arguments);
   },
 
   remove: function () {
@@ -2871,6 +2897,7 @@ Genoverse.Track = Base.extend({
     }
   }
 });
+
 
 Genoverse.Track.Controller = Base.extend({
   scrollBuffer : 1.2,       // Number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
@@ -2903,8 +2930,11 @@ Genoverse.Track.Controller = Base.extend({
     this.setDefaults();
     this.resetImages();
     this.browser.closeMenus(this);
-    this.setScale();
-    this.makeFirstImage();
+
+    if (arguments[0] !== 'resizing') {
+      this.setScale();
+      this.makeFirstImage();
+    }
   },
 
   resetImages: function () {
@@ -3154,7 +3184,6 @@ Genoverse.Track.Controller = Base.extend({
     });
 
     this.imgContainer.add(this.expander).width(width);
-
   },
 
   setScale: function () {
@@ -3977,42 +4006,45 @@ Genoverse.Track.View = Base.extend({
 Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
   addDomElements: function () {
     this.base();
-    
+
     this.image = $('<img>').appendTo(this.imgContainer);
-    
+
     this.container.toggleClass('gv-track-container gv-track-container-static').prepend(this.imgContainer);
     this.scrollContainer.add(this.messageContainer).remove();
   },
-  
-  reset: $.noop,
-  
+
+  reset: function () {
+    delete this.stringified;
+    this.base.apply(this, arguments);
+  },
+
   setWidth: function (width) {
     this.base(width);
-    this.image.width = width;
+    this.image.width = this.width;
   },
-  
+
   makeFirstImage: function () {
     this.base.apply(this, arguments);
     this.container.css('left', 0);
     this.imgContainer.show();
   },
-  
+
   makeImage: function (params) {
     if (this.prop('disabled')) {
       return $.Deferred().resolve();
     }
-    
+
     var features = this.view.positionFeatures(this.model.findFeatures(params.start, params.end), params);
-    
+
     if (features) {
       var string = JSON.stringify(features);
-      
+
       if (this.stringified !== string) {
         var height = this.prop('height');
-        
+
         params.width         = this.width;
         params.featureHeight = height;
-        
+
         this.render(features, this.image.data(params));
         this.imgContainer.children(':last').show();
         this.resize(height, undefined, false);
@@ -4020,7 +4052,7 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
         this.stringified = string;
       }
     }
-    
+
     return $.Deferred().resolve();
   }
 });
@@ -4032,10 +4064,10 @@ Genoverse.Track.Model.Static = Genoverse.Track.Model.extend({
 
 Genoverse.Track.View.Static = Genoverse.Track.View.extend({
   featureMargin : { top: 0, right: 1, bottom: 0, left: 1 },
-  
+
   positionFeature : $.noop,
   scaleFeatures   : function (features) { return features; },
-  
+
   draw: function (features, featureContext, labelContext, scale) {
     for (var i = 0; i < features.length; i++) {
       this.drawFeature(features[i], featureContext, labelContext, scale);
@@ -4784,15 +4816,17 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
   drawFeature: function (transcript, featureContext, labelContext, scale) {
     this.setFeatureColor(transcript);
 
-    var exons = (transcript.exons || []).sort(function (a, b) { return a.start - b.start; });
-    var exon, cds, i;
+    var exons = $.map($.extend(true, {}, transcript.exons || {}), function (e) { return e; }).sort(function (a, b) { return a.start - b.start; });
+    var cds   = $.map($.extend(true, {}, transcript.cds   || {}), function (c) { return c; }).sort(function (a, b) { return a.start - b.start; });
+    var exon, i;
 
+    // Get intron lines to be drawn off the left and right edges of the image
     if (!exons.length || exons[0].start > transcript.start) {
       exons.unshift({ start: transcript.start, end: transcript.start });
     }
 
     if (!exons.length || exons[exons.length - 1].end < transcript.end) {
-      exons.push({ start: transcript.end, end: transcript.end  });
+      exons.push({ start: transcript.end, end: transcript.end });
     }
 
     for (i = 0; i < exons.length; i++) {
@@ -4818,19 +4852,15 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
       }
     }
 
-    if (transcript.cds && transcript.cds.length) {
-      for (i = 0; i < transcript.cds.length; i++) {
-        cds = transcript.cds[i];
+    for (i = 0; i < cds.length; i++) {
+      featureContext.fillStyle = cds[i].color || transcript.color || this.color;
 
-        featureContext.fillStyle = cds.color || transcript.color || this.color;
-
-        featureContext.fillRect(
-          transcript.x + (cds.start - transcript.start) * scale,
-          transcript.y,
-          Math.max(1, (cds.end - cds.start + 1) * scale),
-          transcript.height
-        );
-      }
+      featureContext.fillRect(
+        transcript.x + (cds[i].start - transcript.start) * scale,
+        transcript.y,
+        Math.max(1, (cds[i].end - cds[i].start + 1) * scale),
+        transcript.height
+      );
     }
 
     if (this.labels && transcript.label) {

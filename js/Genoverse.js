@@ -1041,7 +1041,7 @@ var Genoverse = Base.extend({
       var browser = this;
       var menu    = this.menuTemplate.clone(true).data('browser', this);
       var content = $('.gv-menu-content', menu).remove();
-      var i, table, el, start, end, key, width, colspan, tdWidth;
+      var i, j, table, el, start, end, key, width, columns, colspan, tdWidth;
 
       function focus() {
         var data    = $(this).data();
@@ -1059,10 +1059,11 @@ var Genoverse = Base.extend({
         }
 
         for (i = 0; i < properties.length; i++) {
-          table = '';
-          el    = content.clone().appendTo(menu);
-          start = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
-          end   = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
+          table   = '';
+          el      = content.clone().appendTo(menu);
+          start   = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
+          end     = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
+          columns = Math.max.apply(Math, $.map(properties[i], function (v) { return Object.prototype.toString.call(v) === '[object Array]' ? v.length : 1; }));
 
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
@@ -1078,8 +1079,22 @@ var Genoverse = Base.extend({
             }
 
             if (key !== 'title') {
-              colspan = properties[i][key] === '' ? ' colspan="2"' : '';
-              table  += '<tr><td' + colspan + '>' + key + '</td>' + (colspan ? '' : '<td>' + properties[i][key] + '</td></tr>');
+              colspan = properties[i][key] === '' ? ' colspan="' + (columns + 1) + '"' : '';
+              table  += '<tr><td' + colspan + '>' + key + '</td>';
+
+              if (!colspan) {
+                if (Object.prototype.toString.call(properties[i][key]) === '[object Array]') {
+                  for (j = 0; j < properties[i][key].length; j++) {
+                    table += '<td>' + properties[i][key][j] + '</td>';
+                  }
+                } else if (columns === 1) {
+                  table += '<td>' + properties[i][key] + '</td>';
+                } else {
+                  table += '<td colspan="' + columns + '">' + properties[i][key] + '</td>';
+                }
+              }
+
+              table += '</tr>';
             }
           }
 
