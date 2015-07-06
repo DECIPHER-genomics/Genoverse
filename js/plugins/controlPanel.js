@@ -126,6 +126,7 @@ Genoverse.Plugins.controlPanel = function () {
         '</table>'
       ).appendTo(this.container).find('.gv-panel-right');
 
+      this.controlPanel   = panel;
       this.superContainer = this.container;
       this.container      = $('.gv-canvas-container', this.container);
 

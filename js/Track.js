@@ -49,7 +49,7 @@ Genoverse.Track = Base.extend({
 
     for (var i = 0; i < 3; i++) {
       for (prop in Genoverse.Track[mvc[i]].prototype) {
-        if (!/^(constructor|init)$/.test(prop)) {
+        if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(prop)) {
           this._interface[prop] = mvc[i + 3];
         }
       }
@@ -288,7 +288,7 @@ Genoverse.Track = Base.extend({
 
     this.view.init();
     this.setLengthMap();
-    this.controller.reset();
+    this.controller.reset.apply(this.controller, arguments);
   },
 
   remove: function () {

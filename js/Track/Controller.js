@@ -29,8 +29,11 @@ Genoverse.Track.Controller = Base.extend({
     this.setDefaults();
     this.resetImages();
     this.browser.closeMenus(this);
-    this.setScale();
-    this.makeFirstImage();
+
+    if (arguments[0] !== 'resizing') {
+      this.setScale();
+      this.makeFirstImage();
+    }
   },
 
   resetImages: function () {
@@ -280,7 +283,6 @@ Genoverse.Track.Controller = Base.extend({
     });
 
     this.imgContainer.add(this.expander).width(width);
-
   },
 
   setScale: function () {

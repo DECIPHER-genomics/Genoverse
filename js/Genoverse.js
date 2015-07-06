@@ -454,7 +454,8 @@ var Genoverse = Base.extend({
   },
 
   reset: function () {
-    this.onTracks('reset');
+    this.onTracks.apply(this, [ 'reset' ].concat([].slice.call(arguments)));
+    this.prev  = {};
     this.scale = 9e99; // arbitrary value so that setScale resets track scales as well
     this.setRange(this.start, this.end);
   },
@@ -463,9 +464,19 @@ var Genoverse = Base.extend({
     this.width  = width;
     this.width -= this.labelWidth;
 
-    this.container.width(width);
+    if (this.controlPanel) {
+      this.width -= this.controlPanel.width();
+    }
+
+    if (this.superContainer) {
+      this.superContainer.width(width);
+      this.container.width(this.width);
+    } else {
+      this.container.width(width);
+    }
+
     this.onTracks('setWidth', this.width);
-    this.reset();
+    this.reset('resizing');
   },
 
   mousewheelZoom: function (e, delta) {
