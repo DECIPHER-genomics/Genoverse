@@ -9,15 +9,17 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
   drawFeature: function (transcript, featureContext, labelContext, scale) {
     this.setFeatureColor(transcript);
 
-    var exons = (transcript.exons || []).sort(function (a, b) { return a.start - b.start; });
-    var exon, cds, i;
+    var exons = $.map($.extend(true, {}, transcript.exons || {}), function (e) { return e; }).sort(function (a, b) { return a.start - b.start; });
+    var cds   = $.map($.extend(true, {}, transcript.cds   || {}), function (c) { return c; }).sort(function (a, b) { return a.start - b.start; });
+    var exon, i;
 
+    // Get intron lines to be drawn off the left and right edges of the image
     if (!exons.length || exons[0].start > transcript.start) {
       exons.unshift({ start: transcript.start, end: transcript.start });
     }
 
     if (!exons.length || exons[exons.length - 1].end < transcript.end) {
-      exons.push({ start: transcript.end, end: transcript.end  });
+      exons.push({ start: transcript.end, end: transcript.end });
     }
 
     for (i = 0; i < exons.length; i++) {
@@ -43,19 +45,15 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
       }
     }
 
-    if (transcript.cds && transcript.cds.length) {
-      for (i = 0; i < transcript.cds.length; i++) {
-        cds = transcript.cds[i];
+    for (i = 0; i < cds.length; i++) {
+      featureContext.fillStyle = cds[i].color || transcript.color || this.color;
 
-        featureContext.fillStyle = cds.color || transcript.color || this.color;
-
-        featureContext.fillRect(
-          transcript.x + (cds.start - transcript.start) * scale,
-          transcript.y,
-          Math.max(1, (cds.end - cds.start + 1) * scale),
-          transcript.height
-        );
-      }
+      featureContext.fillRect(
+        transcript.x + (cds[i].start - transcript.start) * scale,
+        transcript.y,
+        Math.max(1, (cds[i].end - cds[i].start + 1) * scale),
+        transcript.height
+      );
     }
 
     if (this.labels && transcript.label) {
