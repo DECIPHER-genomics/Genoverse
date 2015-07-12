@@ -1,4 +1,5 @@
 Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
+  id            : 'highlights',
   unsortable    : true,
   repeatLabels  : true,
   resizable     : false,
@@ -11,8 +12,10 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   color         : '#555',
   background    : '#DDD',
   labels        : 'separate',
+  depth         : 1,
   featureMargin : { top: 13, right: 0, bottom: 0, left: 0 },
   margin        : 0,
+  regions       : [],
 
   controller: Genoverse.Track.Controller.Stranded.extend({
     setDefaults: function () {
@@ -60,31 +63,27 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   }),
 
   model: Genoverse.Track.Model.Stranded.extend({
+    url: false,
+
+    insertFeature: function (feature) {
+      feature.id         = feature.start + '-' + feature.end;
+      feature.color      = feature.color      || this.prop('color');
+      feature.background = feature.background || this.prop('background');
+
+      this.base(feature);
+    },
+
+    getData: function (start, end) {
+      this.receiveData(this.prop('regions'), start, end);
+      return $.Deferred().resolveWith(this);
+    },
+
     findFeatures: function () {
       return Genoverse.Track.Model.prototype.findFeatures.apply(this, arguments);
     }
   }),
 
   view: Genoverse.Track.View.extend({
-    positionFeatures: function (originalFeatures, params) {
-      if (this.prop('strand') === -1) {
-        var scale    = params.scale;
-        var features = $.extend(true, [], originalFeatures);
-        var i        = features.length;
-
-        while (i--) {
-          delete features[i].position[scale].H;
-          delete features[i].position[scale].Y;
-          delete features[i].position[scale].bottom;
-          delete features[i].position[scale].positioned;
-        }
-
-        return this.base(features, params);
-      } else {
-        return this.base(originalFeatures.reverse(), params);
-      }
-    },
-
     draw: function (features, featureContext, labelContext, scale) {
       if (this.prop('strand') === 1) {
         featureContext.fillStyle = '#FFF';
@@ -95,13 +94,20 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     },
 
     drawBackground: function (features, context, params) {
+      if (this.prop('strand') === -1) {
+        return;
+      }
+
       for (var i = 0; i < features.length; i++) {
-        this.drawFeature($.extend({}, features[i], {
+        context.fillStyle = features[i].color;
+
+        this.drawFeature($.extend(true, {}, features[i], {
           x           : features[i].position[params.scale].X,
           y           : 0,
           width       : features[i].position[params.scale].width,
           height      : context.canvas.height,
-          color       : this.prop('background'),
+          color       : this.shadeColour(context.fillStyle, 0.8),
+          border      : features[i].color,
           label       : false,
           decorations : true
         }), context, false, params.scale);
@@ -109,25 +115,46 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     },
 
     decorateFeature: function (feature, context, scale) {
-      var x1 = feature.x + 0.5;
-      var x2 = x1 + feature.width;
+      var x1   = feature.x + 0.5;
+      var x2   = x1 + feature.width;
+      var draw = false;
 
-      context.strokeStyle = this.color;
+      context.strokeStyle = feature.border;
+
       context.lineWidth   = 2;
+      context.beginPath();
 
       if (x1 >= 0 && x1 <= this.width) {
         context.moveTo(x1, feature.y);
         context.lineTo(x1, feature.y + feature.height);
+        draw = true;
       }
 
       if (x2 >= 0 && x2 <= this.width) {
-        context.moveTo(x2, feature.y)
-        context.lineTo(x2, feature.y + feature.height)
+        context.moveTo(x2, feature.y);
+        context.lineTo(x2, feature.y + feature.height);
+        draw = true;
       }
 
-      context.stroke();
+      if (draw) {
+        context.stroke();
+      }
 
       context.lineWidth = 1;
+    },
+
+    shadeColour: function (colour, percent) {
+      var f = parseInt(colour.slice(1), 16);
+      var R = f >> 16;
+      var G = f >> 8 & 0x00FF;
+      var B = f & 0x0000FF;
+
+      return '#' + (
+        0x1000000 +
+        (Math.round((255 - R) * percent) + R) * 0x10000 +
+        (Math.round((255 - G) * percent) + G) * 0x100 +
+        (Math.round((255 - B) * percent) + B)
+      ).toString(16).slice(1);
     }
   })
 });
