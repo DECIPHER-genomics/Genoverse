@@ -256,6 +256,10 @@ Genoverse.Track.View = Base.extend({
       return;
     }
 
+    if (feature.labelPosition) {
+      context.labelPositions = context.labelPositions || new RTree();
+    }
+
     if (typeof feature.label === 'string') {
       feature.label = [ feature.label ];
     }
@@ -263,7 +267,7 @@ Genoverse.Track.View = Base.extend({
     var x       = (original || feature).x;
     var n       = this.repeatLabels ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) : 1;
     var spacing = width / n;
-    var label, start, j, y, h;
+    var label, start, j, y, currentY, h;
 
     if (this.repeatLabels && scale > 1) {
       spacing = this.browser.length * scale;
@@ -297,12 +301,22 @@ Genoverse.Track.View = Base.extend({
       start = x + (i * spacing);
 
       if (start + feature.labelWidth >= 0) {
-        if (start - offset > this.width) {
+        if ((start - offset > this.width) || (i >= 1 && start + feature.labelWidth > feature.position[scale].X + feature.position[scale].width)) {
           break;
         }
 
         for (j = 0; j < label.length; j++) {
-          context.fillText(label[j], start, y + (j * h));
+          currentY = y + (j * h);
+
+          if (context.labelPositions && context.labelPositions.search({ x: start, y: currentY, w: feature.labelWidth, h: h }).length) {
+            continue;
+          }
+
+          context.fillText(label[j], start, currentY);
+
+          if (context.labelPositions) {
+            context.labelPositions.insert({ x: start, y: currentY, w: feature.labelWidth, h: h }, label[j]);
+          }
         }
       }
     }
