@@ -342,6 +342,7 @@ var Genoverse = Base.extend({
         '<div class="gv-selector-controls">'                +
         '  <button class="gv-zoom-here">Zoom here</button>' +
         '  <button class="gv-center">Center</button>'       +
+        '  <button class="gv-highlight">Highlight</button>' +
         '  <button class="gv-cancel">Cancel</button>'       +
         '</div>'
       ).appendTo(this.selector);
@@ -408,7 +409,8 @@ var Genoverse = Base.extend({
 
       switch (e.target.className) {
         case 'gv-zoom-here' : browser.setRange(pos.start, pos.end, true); break;
-        case 'gv-center'    : browser.moveTo(pos.start, pos.end, true, true);
+        case 'gv-center'    : browser.moveTo(pos.start, pos.end, true, true); browser.cancelSelect(); break;
+        case 'gv-highlight' : browser.addHighlight(pos.start, pos.end);
         case 'gv-cancel'    : browser.cancelSelect(); break;
         default             : break;
       }
@@ -1171,6 +1173,16 @@ var Genoverse = Base.extend({
         end   = end <= start ? start : end;
 
     return { start: start, end: end, left: left, width: width };
+  },
+
+  addHighlight: function (start, end, label, color) {
+    var highlight = { start: start, end: end, label: label || (start + '-' + end), color: color };
+
+    if (this.tracksById.highlights) {
+      this.tracksById.highlights.addRegion(highlight);
+    } else {
+      this.addTrack(Genoverse.Track.HighlightRegion.extend({ regions: [ highlight ] }));
+    }
   },
 
   on: function (events, obj, fn, once) {

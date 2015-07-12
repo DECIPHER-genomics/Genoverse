@@ -1,3 +1,9 @@
+// FIXME: only first region highlighted from region select menu has bottom border
+// TODO: stop flicker when new highlight is added
+// TODO: add highlight this region link on feature menu, with different label (based on menu title if it exists)
+// TODO: move shadeColor to View
+// TODO: cycle through a group of colours for each new region highlighted
+
 Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   id            : 'highlights',
   unsortable    : true,
@@ -16,6 +22,16 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   featureMargin : { top: 13, right: 0, bottom: 0, left: 0 },
   margin        : 0,
   regions       : [],
+
+  addRegion: function (region) {
+    this.regions.push(region);
+    this.model.init();
+    this.reset();
+  },
+
+  getSettingsForLength: function () {
+    return [ 0, { regions: this.regions }];
+  },
 
   controller: Genoverse.Track.Controller.Stranded.extend({
     setDefaults: function () {
