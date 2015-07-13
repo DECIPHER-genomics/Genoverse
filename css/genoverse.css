@@ -312,12 +312,15 @@
 
 .gv-menu .gv-menu-content .gv-title {
   font-weight: bold;
-  display: inline-block;
-}
-
-.gv-menu .gv-menu-content .gv-title.gv-block {
   margin-right: 20px;
   display: block;
+}
+
+.gv-menu .gv-menu-content .gv-focus,
+.gv-menu .gv-menu-content .gv-highlight {
+  display: block;
+  margin: 5px 0;
+  outline: 0;
 }
 
 .gv-menu .gv-menu-button {

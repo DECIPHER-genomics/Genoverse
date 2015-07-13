@@ -330,6 +330,21 @@ Genoverse.Track.View = Base.extend({
     feature.labelColor = feature.color || this.fontColor || this.color;
   },
 
+  // Method to lighten a colour by an amount, adapted from http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
+  shadeColor: function (colour, percent) {
+    var f = parseInt(colour.slice(1), 16);
+    var R = f >> 16;
+    var G = f >> 8 & 0x00FF;
+    var B = f & 0x0000FF;
+
+    return '#' + (
+      0x1000000 +
+      (Math.round((255 - R) * percent) + R) * 0x10000 +
+      (Math.round((255 - G) * percent) + G) * 0x100 +
+      (Math.round((255 - B) * percent) + B)
+    ).toString(16).slice(1);
+  },
+
   // truncate features - make the features start at 1px outside the canvas to ensure no lines are drawn at the borders incorrectly
   truncateForDrawing: function (feature) {
     var start = Math.min(Math.max(feature.x, -1), this.width + 1);

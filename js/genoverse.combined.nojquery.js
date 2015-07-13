@@ -1269,6 +1269,7 @@ var Genoverse = Base.extend({
   defaultLength      : 5000,
   defaultScrollDelta : 100,
   tracks             : [],
+  highlights         : [],
   plugins            : [],
   dragAction         : 'scroll',         // Options are: scroll, select, off
   wheelAction        : 'off',            // Options are: zoom, off
@@ -1462,6 +1463,10 @@ var Genoverse = Base.extend({
     }
 
     this.setRange(coords.start, coords.end);
+
+    if (this.highlights.length) {
+      this.addHighlights(this.highlights);
+    }
   },
 
   loadConfig: function () {
@@ -1604,6 +1609,7 @@ var Genoverse = Base.extend({
         '<div class="gv-selector-controls">'                +
         '  <button class="gv-zoom-here">Zoom here</button>' +
         '  <button class="gv-center">Center</button>'       +
+        '  <button class="gv-highlight">Highlight</button>' +
         '  <button class="gv-cancel">Cancel</button>'       +
         '</div>'
       ).appendTo(this.selector);
@@ -1670,7 +1676,8 @@ var Genoverse = Base.extend({
 
       switch (e.target.className) {
         case 'gv-zoom-here' : browser.setRange(pos.start, pos.end, true); break;
-        case 'gv-center'    : browser.moveTo(pos.start, pos.end, true, true);
+        case 'gv-center'    : browser.moveTo(pos.start, pos.end, true, true); browser.cancelSelect(); break;
+        case 'gv-highlight' : browser.addHighlight({ start: pos.start, end: pos.end });
         case 'gv-cancel'    : browser.cancelSelect(); break;
         default             : break;
       }
@@ -2287,13 +2294,14 @@ var Genoverse = Base.extend({
   },
 
   menuTemplate: $(
-    '<div class="gv-menu">'                               +
-      '<div class="gv-close gv-menu-button">&#215;</div>' +
-      '<div class="gv-menu-content">'                     +
-        '<div class="gv-title"></div>'                    +
-        '<a class="gv-focus" href="#">Focus here</a>'     +
-        '<table></table>'                                 +
-      '</div>'                                            +
+    '<div class="gv-menu">'                                           +
+      '<div class="gv-close gv-menu-button">&#215;</div>'             +
+      '<div class="gv-menu-content">'                                 +
+        '<div class="gv-title"></div>'                                +
+        '<a class="gv-focus" href="#">Focus here</a>'                 +
+        '<a class="gv-highlight" href="#">Highlight this feature</a>' +
+        '<table></table>'                                             +
+      '</div>'                                                        +
     '</div>'
   ).on('click', function (e) {
     if ($(e.target).hasClass('gv-close')) {
@@ -2314,7 +2322,7 @@ var Genoverse = Base.extend({
       var browser = this;
       var menu    = this.menuTemplate.clone(true).data('browser', this);
       var content = $('.gv-menu-content', menu).remove();
-      var i, j, table, el, start, end, key, width, columns, colspan, tdWidth;
+      var i, j, table, el, start, end, linkData, key, width, columns, colspan, tdWidth;
 
       function focus() {
         var data    = $(this).data();
@@ -2323,6 +2331,11 @@ var Genoverse = Base.extend({
 
         browser.moveTo(data.start - context, data.end + context, true);
 
+        return false;
+      }
+
+      function highlight() {
+        browser.addHighlight($(this).data());
         return false;
       }
 
@@ -2341,9 +2354,12 @@ var Genoverse = Base.extend({
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
           if (track && start && end && !browser.isStatic) {
-            $('.gv-focus', el).data({ start: start, end: Math.max(end, start) }).on('click', focus);
+            linkData = { start: start, end: Math.max(end, start), label: feature.label || properties[i].title, color: feature.color };
+
+            $('.gv-focus',     el).data(linkData).on('click', focus);
+            $('.gv-highlight', el).data(linkData).on('click', highlight);
           } else {
-            $('.gv-focus', el).remove();
+            $('.gv-focus, .gv-highlight', el).remove();
           }
 
           for (key in properties[i]) {
@@ -2380,21 +2396,6 @@ var Genoverse = Base.extend({
       }
 
       feature.menuEl = menu.appendTo(this.superContainer || this.container);
-
-      $('.gv-menu-content', menu).each(function () {
-        tdWidth = $('td:first', this).outerWidth();
-
-        $('.gv-title', this).width(function (i, w) {
-          width = Math.max(w, tdWidth);
-
-          if (width === w) {
-            $(this).addClass('gv-block');
-            return 'auto';
-          }
-
-          return width;
-        });
-      });
     }
 
     this.menus = this.menus.add(feature.menuEl);
@@ -2433,6 +2434,20 @@ var Genoverse = Base.extend({
         end   = end <= start ? start : end;
 
     return { start: start, end: end, left: left, width: width };
+  },
+
+  addHighlight: function (highlight) {
+    this.addHighlights([ highlight ]);
+  },
+
+  addHighlights: function (highlights) {
+    if (!this.tracksById.highlights) {
+      this.addTrack(Genoverse.Track.HighlightRegion);
+    }
+
+    for (var i = 0; i < highlights.length; i++) {
+      this.tracksById.highlights.addHighlight({ start: highlights[i].start, end: highlights[i].end, label: highlights[i].label || (highlights[i].start + '-' + highlights[i].end), color: highlights[i].color });
+    }
   },
 
   on: function (events, obj, fn, once) {
@@ -3910,6 +3925,10 @@ Genoverse.Track.View = Base.extend({
       return;
     }
 
+    if (feature.labelPosition) {
+      context.labelPositions = context.labelPositions || new RTree();
+    }
+
     if (typeof feature.label === 'string') {
       feature.label = [ feature.label ];
     }
@@ -3917,7 +3936,7 @@ Genoverse.Track.View = Base.extend({
     var x       = (original || feature).x;
     var n       = this.repeatLabels ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) : 1;
     var spacing = width / n;
-    var label, start, j, y, h;
+    var label, start, j, y, currentY, h;
 
     if (this.repeatLabels && scale > 1) {
       spacing = this.browser.length * scale;
@@ -3951,12 +3970,22 @@ Genoverse.Track.View = Base.extend({
       start = x + (i * spacing);
 
       if (start + feature.labelWidth >= 0) {
-        if (start - offset > this.width) {
+        if ((start - offset > this.width) || (i >= 1 && start + feature.labelWidth > feature.position[scale].X + feature.position[scale].width)) {
           break;
         }
 
         for (j = 0; j < label.length; j++) {
-          context.fillText(label[j], start, y + (j * h));
+          currentY = y + (j * h);
+
+          if (context.labelPositions && context.labelPositions.search({ x: start, y: currentY, w: feature.labelWidth, h: h }).length) {
+            continue;
+          }
+
+          context.fillText(label[j], start, currentY);
+
+          if (context.labelPositions) {
+            context.labelPositions.insert({ x: start, y: currentY, w: feature.labelWidth, h: h }, label[j]);
+          }
         }
       }
     }
@@ -3968,6 +3997,21 @@ Genoverse.Track.View = Base.extend({
 
   setLabelColor: function (feature) {
     feature.labelColor = feature.color || this.fontColor || this.color;
+  },
+
+  // Method to lighten a colour by an amount, adapted from http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
+  shadeColor: function (colour, percent) {
+    var f = parseInt(colour.slice(1), 16);
+    var R = f >> 16;
+    var G = f >> 8 & 0x00FF;
+    var B = f & 0x0000FF;
+
+    return '#' + (
+      0x1000000 +
+      (Math.round((255 - R) * percent) + R) * 0x10000 +
+      (Math.round((255 - G) * percent) + G) * 0x100 +
+      (Math.round((255 - B) * percent) + B)
+    ).toString(16).slice(1);
   },
 
   // truncate features - make the features start at 1px outside the canvas to ensure no lines are drawn at the borders incorrectly
@@ -4604,18 +4648,18 @@ Genoverse.Track.Model.Gene = Genoverse.Track.Model.extend({
 Genoverse.Track.Model.Gene.Ensembl = Genoverse.Track.Model.Gene.extend({
   url              : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=gene;content-type=application/json',
   dataRequestLimit : 5000000, // As per e! REST API restrictions
-  
+
   // The url above responds in json format, data is an array
   // We assume that parents always preceed children in data array, gene -> transcript -> exon
   // See rest.ensembl.org/documentation/info/feature_region for more details
   parseData: function (data) {
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];
-      
+
       if (feature.feature_type === 'gene' && !this.featuresById[feature.id]) {
-        feature.label       = feature.external_name || feature.id;
+        feature.label       = parseInt(feature.strand, 10) === 1 ? (feature.external_name || feature.id) + ' >' : '< ' + (feature.external_name || feature.id);
         feature.transcripts = [];
-        
+
         this.insertFeature(feature);
       }
     }
@@ -5289,6 +5333,7 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
 
 
 Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
+  id            : 'highlights',
   unsortable    : true,
   repeatLabels  : true,
   resizable     : false,
@@ -5298,11 +5343,20 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   order         : -1,
   orderReverse  : 9e99,
   controls      : 'off',
-  color         : '#555',
-  background    : '#DDD',
+  colors        : [ '#777777', '#F08080', '#3CB371', '#6495ED', '#FFA500', '#9370DB' ],
   labels        : 'separate',
+  depth         : 1,
   featureMargin : { top: 13, right: 0, bottom: 0, left: 0 },
   margin        : 0,
+
+  addHighlight: function (highlight) {
+    var colors = this.colors;
+
+    this.model.insertFeature(highlight);
+    this.reset();
+
+    this.colors = colors;
+  },
 
   controller: Genoverse.Track.Controller.Stranded.extend({
     setDefaults: function () {
@@ -5350,31 +5404,29 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   }),
 
   model: Genoverse.Track.Model.Stranded.extend({
+    url: false,
+
+    insertFeature: function (feature) {
+      feature.id   = feature.start + '-' + feature.end;
+      feature.sort = feature.start;
+
+      if (!feature.color) {
+        var colors = this.prop('colors');
+        feature.color = colors.shift();
+        colors.push(feature.color);
+      }
+
+      if (!this.featuresById[feature.id]) {
+        this.base(feature);
+      }
+    },
+
     findFeatures: function () {
       return Genoverse.Track.Model.prototype.findFeatures.apply(this, arguments);
     }
   }),
 
   view: Genoverse.Track.View.extend({
-    positionFeatures: function (originalFeatures, params) {
-      if (this.prop('strand') === -1) {
-        var scale    = params.scale;
-        var features = $.extend(true, [], originalFeatures);
-        var i        = features.length;
-
-        while (i--) {
-          delete features[i].position[scale].H;
-          delete features[i].position[scale].Y;
-          delete features[i].position[scale].bottom;
-          delete features[i].position[scale].positioned;
-        }
-
-        return this.base(features, params);
-      } else {
-        return this.base(originalFeatures.reverse(), params);
-      }
-    },
-
     draw: function (features, featureContext, labelContext, scale) {
       if (this.prop('strand') === 1) {
         featureContext.fillStyle = '#FFF';
@@ -5385,13 +5437,20 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     },
 
     drawBackground: function (features, context, params) {
+      if (this.prop('strand') === -1) {
+        return;
+      }
+
       for (var i = 0; i < features.length; i++) {
-        this.drawFeature($.extend({}, features[i], {
+        context.fillStyle = features[i].color;
+
+        this.drawFeature($.extend(true, {}, features[i], {
           x           : features[i].position[params.scale].X,
           y           : 0,
           width       : features[i].position[params.scale].width,
           height      : context.canvas.height,
-          color       : this.prop('background'),
+          color       : this.shadeColor(context.fillStyle, 0.8),
+          border      : features[i].color,
           label       : false,
           decorations : true
         }), context, false, params.scale);
@@ -5399,23 +5458,29 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     },
 
     decorateFeature: function (feature, context, scale) {
-      var x1 = feature.x + 0.5;
-      var x2 = x1 + feature.width;
+      var x1   = feature.x + 0.5;
+      var x2   = x1 + feature.width;
+      var draw = false;
 
-      context.strokeStyle = this.color;
+      context.strokeStyle = feature.border;
       context.lineWidth   = 2;
+      context.beginPath();
 
       if (x1 >= 0 && x1 <= this.width) {
         context.moveTo(x1, feature.y);
         context.lineTo(x1, feature.y + feature.height);
+        draw = true;
       }
 
       if (x2 >= 0 && x2 <= this.width) {
-        context.moveTo(x2, feature.y)
-        context.lineTo(x2, feature.y + feature.height)
+        context.moveTo(x2, feature.y);
+        context.lineTo(x2, feature.y + feature.height);
+        draw = true;
       }
 
-      context.stroke();
+      if (draw) {
+        context.stroke();
+      }
 
       context.lineWidth = 1;
     }

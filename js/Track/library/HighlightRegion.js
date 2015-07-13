@@ -1,9 +1,3 @@
-// FIXME: only first region highlighted from region select menu has bottom border
-// TODO: stop flicker when new highlight is added
-// TODO: add highlight this region link on feature menu, with different label (based on menu title if it exists)
-// TODO: move shadeColor to View
-// TODO: cycle through a group of colours for each new region highlighted
-
 Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   id            : 'highlights',
   unsortable    : true,
@@ -15,22 +9,19 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   order         : -1,
   orderReverse  : 9e99,
   controls      : 'off',
-  color         : '#555',
-  background    : '#DDD',
+  colors        : [ '#777777', '#F08080', '#3CB371', '#6495ED', '#FFA500', '#9370DB' ],
   labels        : 'separate',
   depth         : 1,
   featureMargin : { top: 13, right: 0, bottom: 0, left: 0 },
   margin        : 0,
-  regions       : [],
 
-  addRegion: function (region) {
-    this.regions.push(region);
-    this.model.init();
+  addHighlight: function (highlight) {
+    var colors = this.colors;
+
+    this.model.insertFeature(highlight);
     this.reset();
-  },
 
-  getSettingsForLength: function () {
-    return [ 0, { regions: this.regions }];
+    this.colors = colors;
   },
 
   controller: Genoverse.Track.Controller.Stranded.extend({
@@ -82,16 +73,18 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     url: false,
 
     insertFeature: function (feature) {
-      feature.id         = feature.start + '-' + feature.end;
-      feature.color      = feature.color      || this.prop('color');
-      feature.background = feature.background || this.prop('background');
+      feature.id   = feature.start + '-' + feature.end;
+      feature.sort = feature.start;
 
-      this.base(feature);
-    },
+      if (!feature.color) {
+        var colors = this.prop('colors');
+        feature.color = colors.shift();
+        colors.push(feature.color);
+      }
 
-    getData: function (start, end) {
-      this.receiveData(this.prop('regions'), start, end);
-      return $.Deferred().resolveWith(this);
+      if (!this.featuresById[feature.id]) {
+        this.base(feature);
+      }
     },
 
     findFeatures: function () {
@@ -122,7 +115,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
           y           : 0,
           width       : features[i].position[params.scale].width,
           height      : context.canvas.height,
-          color       : this.shadeColour(context.fillStyle, 0.8),
+          color       : this.shadeColor(context.fillStyle, 0.8),
           border      : features[i].color,
           label       : false,
           decorations : true
@@ -136,7 +129,6 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       var draw = false;
 
       context.strokeStyle = feature.border;
-
       context.lineWidth   = 2;
       context.beginPath();
 
@@ -157,20 +149,6 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       }
 
       context.lineWidth = 1;
-    },
-
-    shadeColour: function (colour, percent) {
-      var f = parseInt(colour.slice(1), 16);
-      var R = f >> 16;
-      var G = f >> 8 & 0x00FF;
-      var B = f & 0x0000FF;
-
-      return '#' + (
-        0x1000000 +
-        (Math.round((255 - R) * percent) + R) * 0x10000 +
-        (Math.round((255 - G) * percent) + G) * 0x100 +
-        (Math.round((255 - B) * percent) + B)
-      ).toString(16).slice(1);
     }
   })
 });
