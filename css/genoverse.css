@@ -410,40 +410,23 @@
 .gv-selector-controls .gv-position {
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.75);
   border-bottom: 0;
-  width: 75%;
   margin: 5%;
   position: relative;
-  width: 5.5em;
-  display : block;
   height: 2em;
 }
 
 .gv-selector-controls .gv-position .gv-chr,
-.gv-selector-controls .gv-position .gv-start,
-.gv-selector-controls .gv-position .gv-end {
+.gv-selector-controls .gv-position .gv-start-end {
   display: inline-block;
-  float: left;
 }
 
 .gv-selector-controls .gv-position .gv-chr {
   font-size: 130%;
+  margin-right: 5px;
 }
 
 .gv-selector-controls .gv-position .gv-start,
 .gv-selector-controls .gv-position .gv-end {
-  position: absolute;
-  text-align: right;
   font-size: 75%;
-  width: 5.5em;
-  right: 0.125em;
   line-height: 1em;
 }
-
-.gv-selector-controls .gv-position .gv-start {
-  top: 0;
-}
-
-.gv-selector-controls .gv-position .gv-end {
-  bottom: 0.25em;
-}
-

@@ -347,9 +347,11 @@ var Genoverse = Base.extend({
         '<div class="gv-selector-controls gv-panel">'         +
         '  <div class="gv-button-set">'                       +
         '  <div class="gv-position">'                         +
-        '    <span class="gv-chr"></span>'                    +
-        '    <span class="gv-start"></span>'                  +
-        '    <span class="gv-end"></span>'                    +
+        '    <div class="gv-chr"></div>'                      +
+        '    <div class="gv-start-end">'                      +
+        '      <div class="gv-start"></div>'                  +
+        '      <div class="gv-end"></div>'                    +
+        '    </div>'                                          +
         '  </div>'                                            +
         '  </div>'                                            +
         '  <div class="gv-button-set">'                       +
