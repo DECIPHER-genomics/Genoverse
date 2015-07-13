@@ -1606,11 +1606,26 @@ var Genoverse = Base.extend({
 
     if (!this.isStatic) {
       this.selectorControls = $(
-        '<div class="gv-selector-controls">'                +
-        '  <button class="gv-zoom-here">Zoom here</button>' +
-        '  <button class="gv-center">Center</button>'       +
-        '  <button class="gv-highlight">Highlight</button>' +
-        '  <button class="gv-cancel">Cancel</button>'       +
+        '<div class="gv-selector-controls gv-panel">'         +
+        '  <div class="gv-button-set">'                       +
+        '  <div class="gv-position">'                         +
+        '    <span class="gv-chr"></span>'                    +
+        '    <span class="gv-start"></span>'                  +
+        '    <span class="gv-end"></span>'                    +
+        '  </div>'                                            +
+        '  </div>'                                            +
+        '  <div class="gv-button-set">'                       +
+        '    <button class="gv-zoom-here">Zoom here</button>' +
+        '  </div>'                                            +
+        '  <div class="gv-button-set">'                       +
+        '    <button class="gv-center">Center</button>'       +
+        '  </div>'                                            +
+        '  <div class="gv-button-set">'                       +
+        '    <button class="gv-highlight">Highlight</button>' +
+        '  </div>'                                            +
+        '  <div class="gv-button-set">'                       +
+        '    <button class="gv-cancel">Cancel</button>'       +
+        '  </div>'                                            +
         '</div>'
       ).appendTo(this.selector);
 
@@ -1832,6 +1847,10 @@ var Genoverse = Base.extend({
     // Calculate the position, so that selectorControls appear near the mouse cursor
     var top = Math.min(e.pageY - this.wrapper.offset().top, this.wrapper.outerHeight(true) - 1.2 * this.selectorControls.outerHeight(true));
     var pos = this.getSelectorPosition();
+
+    this.selectorControls.find('.gv-chr').html(this.chr);
+    this.selectorControls.find('.gv-start').html(pos.start);
+    this.selectorControls.find('.gv-end').html(pos.end);
 
     this.selectorControls.find('.gv-selector-location').html(this.chr + ':' + pos.start + '-' + pos.end).end().css({
       top  : top,

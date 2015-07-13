@@ -382,15 +382,68 @@
   width: 100px;
   position: relative;
   top: 50%;
+  height: auto !important;
+  text-align: center;
+  border-radius: 5px;
+  padding: 4px 0 0;
+}
+
+.gv-selector-controls > :first-child {
+  border-bottom: 1px solid #1C5380;
+}
+
+.gv-selector-controls > :last-child button {
+  border-bottom: 0 !important;
 }
 
 .gv-selector-controls button {
   display: block;
-  width: 100%;
+  width: 100% !important;
   cursor: pointer;
-  background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 12px;
-  box-shadow: 3px 3px 10px #666666;
   color: white;
   z-index: 11;
+  font-size: 100% !important;
+  font-weight: bold;
+  height: auto !important;
 }
+
+.gv-selector-controls .gv-position {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.75);
+  border-bottom: 0;
+  width: 75%;
+  margin: 5%;
+  position: relative;
+  width: 5.5em;
+  display : block;
+  height: 2em;
+}
+
+.gv-selector-controls .gv-position .gv-chr,
+.gv-selector-controls .gv-position .gv-start,
+.gv-selector-controls .gv-position .gv-end {
+  display: inline-block;
+  float: left;
+}
+
+.gv-selector-controls .gv-position .gv-chr {
+  font-size: 130%;
+}
+
+.gv-selector-controls .gv-position .gv-start,
+.gv-selector-controls .gv-position .gv-end {
+  position: absolute;
+  text-align: right;
+  font-size: 75%;
+  width: 5.5em;
+  right: 0.125em;
+  line-height: 1em;
+}
+
+.gv-selector-controls .gv-position .gv-start {
+  top: 0;
+}
+
+.gv-selector-controls .gv-position .gv-end {
+  bottom: 0.25em;
+}
+
