@@ -22,30 +22,32 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
 
   addHighlights: function (highlights) {
     for (var i = 0; i < highlights.length; i++) {
-      this.model.insertFeature({ start: highlights[i].start, end: highlights[i].end, label: highlights[i].label || (highlights[i].start + '-' + highlights[i].end), color: highlights[i].color });
+      this.model.insertFeature($.extend({ label: (highlights[i].start + '-' + highlights[i].end) }, highlights[i]));
     }
 
     this.reset();
   },
 
   removeHighlights: function (highlights) {
-    if (highlights) {
-      var features     = this.prop('features');
-      var featuresById = this.prop('featuresById');
-      var bounds;
+    var features     = this.prop('features');
+    var featuresById = this.prop('featuresById');
+    var bounds;
 
-      for (var i = 0; i < highlights.length; i++) {
-        bounds = { x: highlights[i].start, y: 0, w: highlights[i].end - highlights[i].start + 1, h: 1 };
+    highlights = highlights || $.map(featuresById, function (f) { return f; });
 
-        // RTree.remove only works if the second argument (the object to be removed) === the object found in the tree.
-        // Here, while highlight is effectively the same object as the one in the tree, it does has been cloned, so the === check fails.
-        // To fix this, search for the feature to remove in the location of highlight.
-        features.remove(bounds, features.search(bounds)[0]);
-
-        delete featuresById[highlights[i].id];
+    for (var i = 0; i < highlights.length; i++) {
+      if (highlights[i].removable === false) {
+        continue;
       }
-    } else {
-      this.model.init();
+
+      bounds = { x: highlights[i].start, y: 0, w: highlights[i].end - highlights[i].start + 1, h: 1 };
+
+      // RTree.remove only works if the second argument (the object to be removed) === the object found in the tree.
+      // Here, while highlight is effectively the same object as the one in the tree, it does has been cloned, so the === check fails.
+      // To fix this, search for the feature to remove in the location of highlight.
+      features.remove(bounds, features.search(bounds)[0]);
+
+      delete featuresById[highlights[i].id];
     }
 
     if (this.prop('strand') === 1) {
@@ -106,8 +108,10 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
 
       menu[menu.title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
 
-      menu['<a href="#" class="gv-remove-highlight">Remove this highlight</a>']  = '';
-      menu['<a href="#" class="gv-remove-highlights">Remove all highlights</a>'] = '';
+      if (feature.removable !== false) {
+        menu['<a class="gv-remove-highlight"  href="#">Remove this highlight</a>'] = '';
+        menu['<a class="gv-remove-highlights" href="#">Remove all highlights</a>'] = '';
+      }
 
       return menu;
     },
