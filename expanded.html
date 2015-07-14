@@ -79,18 +79,18 @@
         width     : 800,
         genome    : 'grch38',
         chr       : 13,
-        start     : 32889611,
-        end       : 32973805,
-        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'fullscreen', 'tooltips', 'fileDrop' ],
+        start     : 32296945,
+        end       : 32370557,
+        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
         tracks    : [
           Genoverse.Track.Scalebar,
           Genoverse.Track.extend({
-            name         : 'Sequence',
-            controller   : Genoverse.Track.Controller.Sequence,
-            model        : Genoverse.Track.Model.Sequence.Ensembl,
-            view         : Genoverse.Track.View.Sequence,
-            resizable    : 'auto',
-            100000       : false
+            name       : 'Sequence',
+            controller : Genoverse.Track.Controller.Sequence,
+            model      : Genoverse.Track.Model.Sequence.Ensembl,
+            view       : Genoverse.Track.View.Sequence,
+            resizable  : 'auto',
+            100000     : false
           }),
           Genoverse.Track.Gene,
           Genoverse.Track.extend({
