@@ -56,16 +56,18 @@ Genoverse.Plugins.fullscreen = function () {
 
   if (supported) {
     browser.controls.push({
-      icon    : '&#10530;',
-      'class' : 'gv-fullscreen-button gv-button-large',
-      name    : 'Fullscreen',
+      icon    : '<i class="fa fa-expand"></i>',
+      'class' : 'gv-fullscreen-button',
+      name    : 'Toggle fullscreen view',
       action  : function (browser) {
         if (browser.superContainer.hasClass('gv-fullscreen')) {
           document[browser.fullscreenVars.cancelName]();
+          $(this).find('.fa').removeClass('fa-compress').addClass('fa-expand');
         } else {
           document.addEventListener(browser.fullscreenVars.eventName, browser.fullscreenVars.eventListener);
           browser.superContainer[0][browser.fullscreenVars.requestName]();
           browser.fullscreenVars.enterEvent(browser);
+          $(this).find('.fa').removeClass('fa-expand').addClass('fa-compress');
         }
       }
     });

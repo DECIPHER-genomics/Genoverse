@@ -8,7 +8,7 @@ Genoverse.Plugins.trackControls = function () {
         menu = track.prop('menus', track.prop('menus').add(
           track.browser.makeMenu({
             title : track.name,
-            ' '   : track.prop('info')
+            ' '   : track.prop('info') || ''
           }).addClass('gv-track-info')
         ));
       }

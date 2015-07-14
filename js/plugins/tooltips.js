@@ -5,7 +5,7 @@
 
 Genoverse.Plugins.tooltips = function () {
   this.controls.push({
-    icon    : '?',
+    icon    : '<i class="fa fa-info-circle"></i>',
     'class' : 'gv-tooltip',
     name    : 'Tooltips',
     action  : function (browser) {

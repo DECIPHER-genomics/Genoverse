@@ -7,11 +7,11 @@ Genoverse.Plugins.controlPanel = function () {
       name    : 'Scroll left and right by pressing and holding these buttons',
       buttons : [{
         name    : 'Scroll left',
-        icon    : '&#9664;',
+        icon    : '<i class="fa fa-chevron-left"></i>',
         'class' : 'gv-scroll-left'
       }, {
         name    : 'Scroll right',
-        icon    : '&#9654;',
+        icon    : '<i class="fa fa-chevron-right"></i>',
         'class' : 'gv-scroll-right'
       }],
       init: function (browser) {
@@ -37,12 +37,12 @@ Genoverse.Plugins.controlPanel = function () {
       name    : 'Zoom-in and zoom-out',
       buttons : [{
         name    : 'Zoom in',
-        icon    : '+',
+        icon    : '<i class="fa fa-search-plus"></i>',
         'class' : 'gv-zoom-in',
         action  : function (browser) { browser.zoomIn(); }
       }, {
         name    : 'Zoom out',
-        icon    : '&#8722;',
+        icon    : '<i class="fa fa-search-minus"></i>',
         'class' : 'gv-zoom-out',
         action  : function (browser) { browser.zoomOut(); }
       }]
@@ -53,7 +53,7 @@ Genoverse.Plugins.controlPanel = function () {
       name    : 'Toggle your mouse drag action between scroll left/right and select region',
       buttons : [{
         name    : 'Mouse drag action to scroll the browser left or right',
-        icon    : '&#8596;',
+        icon    : '<i class="fa fa-arrows-h"></i>',
         'class' : 'gv-drag-scroll',
         action  : function (browser) {
           browser.setDragAction('scroll');
@@ -61,7 +61,7 @@ Genoverse.Plugins.controlPanel = function () {
         }
       }, {
         name    : 'Mouse drag action to select a region',
-        icon    : '&#9482;',
+        icon    : '<i></i>',
         'class' : 'gv-drag-select',
         action  : function (browser) {
           browser.setDragAction('select');
@@ -78,7 +78,7 @@ Genoverse.Plugins.controlPanel = function () {
       name    : 'Toggle your mouse wheel action between zoom in/out and default page scroll',
       buttons : [{
         name    : 'Mouse wheel action to scroll the page up and down',
-        icon    : '&#8597;',
+        icon    : '<i class="fa fa-arrows-v"></i>',
         'class' : 'gv-wheel-off',
         action  : function (browser) {
           browser.setWheelAction('off');
@@ -101,10 +101,9 @@ Genoverse.Plugins.controlPanel = function () {
 
   if (this.saveable) {
     this.controls.push({
-      icon    : '&#x21bb;',
-      name    : 'Reset tracks and configuration',
-      'class' : 'gv-button-large',
-      action  : function (browser) { browser.resetConfig(); }
+      icon   : '<i class="fa fa-undo"></i>',
+      name   : 'Reset tracks and configuration',
+      action : function (browser) { browser.resetConfig(); }
     });
   }
 
@@ -174,7 +173,7 @@ Genoverse.Plugins.controlPanel = function () {
 
     afterInit: function () {
       var browser      = this;
-      var tracksButton = $('<button title="Tracks menu">&#9776; Tracks</button>').on('click', function () {
+      var tracksButton = $('<button title="Tracks menu"><i class="fa fa-navicon"></i> Tracks</button>').on('click', function () {
         var button = this;
 
         function getTrackTags(track, tags) {
