@@ -1079,7 +1079,7 @@ var Genoverse = Base.extend({
   makeMenu: function (feature, event, track) {
     if (!feature.menuEl) {
       var browser = this;
-      var menu    = this.menuTemplate.clone(true).data('browser', this);
+      var menu    = this.menuTemplate.clone(true).data({ browser: this, feature: feature });
       var content = $('.gv-menu-content', menu).remove();
       var i, j, table, el, start, end, linkData, key, width, columns, colspan, tdWidth;
 
@@ -1204,9 +1204,7 @@ var Genoverse = Base.extend({
       this.addTrack(Genoverse.Track.HighlightRegion);
     }
 
-    for (var i = 0; i < highlights.length; i++) {
-      this.tracksById.highlights.addHighlight({ start: highlights[i].start, end: highlights[i].end, label: highlights[i].label || (highlights[i].start + '-' + highlights[i].end), color: highlights[i].color });
-    }
+    this.tracksById.highlights.addHighlights(highlights);
   },
 
   on: function (events, obj, fn, once) {

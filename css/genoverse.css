@@ -317,7 +317,9 @@
 }
 
 .gv-menu .gv-menu-content .gv-focus,
-.gv-menu .gv-menu-content .gv-highlight {
+.gv-menu .gv-menu-content .gv-highlight,
+.gv-menu .gv-menu-content .gv-remove-highlight,
+.gv-menu .gv-menu-content .gv-remove-highlights {
   display: block;
   margin: 5px 0;
   outline: 0;

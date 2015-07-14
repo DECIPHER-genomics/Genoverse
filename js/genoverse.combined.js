@@ -2346,7 +2346,7 @@ var Genoverse = Base.extend({
   makeMenu: function (feature, event, track) {
     if (!feature.menuEl) {
       var browser = this;
-      var menu    = this.menuTemplate.clone(true).data('browser', this);
+      var menu    = this.menuTemplate.clone(true).data({ browser: this, feature: feature });
       var content = $('.gv-menu-content', menu).remove();
       var i, j, table, el, start, end, linkData, key, width, columns, colspan, tdWidth;
 
@@ -2471,9 +2471,7 @@ var Genoverse = Base.extend({
       this.addTrack(Genoverse.Track.HighlightRegion);
     }
 
-    for (var i = 0; i < highlights.length; i++) {
-      this.tracksById.highlights.addHighlight({ start: highlights[i].start, end: highlights[i].end, label: highlights[i].label || (highlights[i].start + '-' + highlights[i].end), color: highlights[i].color });
-    }
+    this.tracksById.highlights.addHighlights(highlights);
   },
 
   on: function (events, obj, fn, once) {
@@ -3062,7 +3060,7 @@ Genoverse.Track.Controller = Base.extend({
     var f = this[e.target.className === 'gv-labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
 
     if (f) {
-      this.browser.makeMenu(f, e, this.track);
+      return this.browser.makeMenu(f, e, this.track);
     }
   },
 
@@ -5375,13 +5373,44 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   featureMargin : { top: 13, right: 0, bottom: 0, left: 0 },
   margin        : 0,
 
-  addHighlight: function (highlight) {
-    var colors = this.colors;
+  constructor: function () {
+    this.colorIndex = 0;
+    return this.base.apply(this, arguments);
+  },
 
-    this.model.insertFeature(highlight);
+  addHighlights: function (highlights) {
+    for (var i = 0; i < highlights.length; i++) {
+      this.model.insertFeature({ start: highlights[i].start, end: highlights[i].end, label: highlights[i].label || (highlights[i].start + '-' + highlights[i].end), color: highlights[i].color });
+    }
+
     this.reset();
+  },
 
-    this.colors = colors;
+  removeHighlights: function (highlights) {
+    if (highlights) {
+      var features     = this.prop('features');
+      var featuresById = this.prop('featuresById');
+      var bounds;
+
+      for (var i = 0; i < highlights.length; i++) {
+        bounds = { x: highlights[i].start, y: 0, w: highlights[i].end - highlights[i].start + 1, h: 1 };
+
+        // RTree.remove only works if the second argument (the object to be removed) === the object found in the tree.
+        // Here, while highlight is effectively the same object as the one in the tree, it does has been cloned, so the === check fails.
+        // To fix this, search for the feature to remove in the location of highlight.
+        features.remove(bounds, features.search(bounds)[0]);
+
+        delete featuresById[highlights[i].id];
+      }
+    } else {
+      this.model.init();
+    }
+
+    if (this.prop('strand') === 1) {
+      this.prop('reverseTrack').track.removeHighlights(highlights);
+    }
+
+    this.reset();
   },
 
   controller: Genoverse.Track.Controller.Stranded.extend({
@@ -5426,7 +5455,44 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       img.height(this.browser.wrapper.outerHeight(true));
     },
 
-    click: $.noop
+    populateMenu: function (feature) {
+      var location = feature.start + '-' + feature.end;
+      var menu = {
+        title: feature.label ? feature.label[0] : location,
+        start: false
+      };
+
+      menu[menu.title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
+
+      menu['<a href="#" class="gv-remove-highlight">Remove this highlight</a>']  = '';
+      menu['<a href="#" class="gv-remove-highlights">Remove all highlights</a>'] = '';
+
+      return menu;
+    },
+
+    click: function () {
+      if (this.prop('strand') !== 1) {
+        return;
+      }
+
+      var menuEl = this.base.apply(this, arguments);
+
+      if (menuEl && !menuEl.data('highlightEvents')) {
+        var track = this.track;
+
+        menuEl.find('.gv-remove-highlight').on('click', function () {
+          track.removeHighlights([ menuEl.data('feature') ]);
+          return false;
+        });
+
+        menuEl.find('.gv-remove-highlights').on('click', function () {
+          track.removeHighlights();
+          return false;
+        });
+
+        menuEl.data('highlightEvents', true);
+      }
+    }
   }),
 
   model: Genoverse.Track.Model.Stranded.extend({
@@ -5438,8 +5504,11 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
 
       if (!feature.color) {
         var colors = this.prop('colors');
-        feature.color = colors.shift();
-        colors.push(feature.color);
+        var i      = this.prop('colorIndex');
+
+        feature.color = colors[i++];
+
+        this.prop('colorIndex', colors[i] ? i : 0);
       }
 
       if (!this.featuresById[feature.id]) {
