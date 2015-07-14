@@ -37,12 +37,14 @@ Genoverse.Plugins.fullscreen = function () {
       browser.preFullscreenWidth = browser.superContainer.width();
       browser.superContainer.addClass('gv-fullscreen');
       browser.setWidth(window.innerWidth);
+      browser.controlPanel.find('.gv-fullscreen-button .fa').removeClass('fa-expand').addClass('fa-compress');
     },
 
     exitEvent: function (browser) {
       if (browser.superContainer.hasClass('gv-fullscreen')) {
         browser.superContainer.removeClass('gv-fullscreen');
         browser.setWidth(browser.preFullscreenWidth);
+        browser.controlPanel.find('.gv-fullscreen-button .fa').removeClass('fa-compress').addClass('fa-expand');
       }
     },
 
@@ -62,12 +64,10 @@ Genoverse.Plugins.fullscreen = function () {
       action  : function (browser) {
         if (browser.superContainer.hasClass('gv-fullscreen')) {
           document[browser.fullscreenVars.cancelName]();
-          $(this).find('.fa').removeClass('fa-compress').addClass('fa-expand');
         } else {
           document.addEventListener(browser.fullscreenVars.eventName, browser.fullscreenVars.eventListener);
           browser.superContainer[0][browser.fullscreenVars.requestName]();
           browser.fullscreenVars.enterEvent(browser);
-          $(this).find('.fa').removeClass('fa-expand').addClass('fa-compress');
         }
       }
     });
