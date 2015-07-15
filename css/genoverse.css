@@ -397,11 +397,11 @@
   height: auto !important;
   text-align: center;
   border-radius: 5px;
-  padding: 4px 0 0;
 }
 
 .gv-selector-controls > :first-child {
   border-bottom: 1px solid #1C5380;
+  background-color: rgba(6, 54, 95, 0.35);
 }
 
 .gv-selector-controls > :last-child button {
@@ -414,15 +414,16 @@
   cursor: pointer;
   color: white;
   z-index: 11;
-  font-size: 100% !important;
+  font-size: 12px !important;
   font-weight: bold;
   height: auto !important;
+  line-height: 16px !important;
 }
 
 .gv-selector-controls .gv-position {
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.75);
   border-bottom: 0;
-  margin: 5%;
+  padding-top: 4px;
   position: relative;
   height: 2em;
 }
