@@ -288,6 +288,14 @@
   margin-left: 5px;
 }
 
+.gv-menu .gv-menu-loading {
+  display: none;
+  padding: 10px;
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+}
+
 .gv-menu .gv-menu-content {
   margin: 10px;
   font-size: 11px;

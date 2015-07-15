@@ -1055,6 +1055,7 @@ var Genoverse = Base.extend({
   menuTemplate: $(
     '<div class="gv-menu">'                                           +
       '<div class="gv-close gv-menu-button">&#215;</div>'             +
+      '<div class="gv-menu-loading">Loading...</div>'                 +
       '<div class="gv-menu-content">'                                 +
         '<div class="gv-title"></div>'                                +
         '<a class="gv-focus" href="#">Focus here</a>'                 +
@@ -1078,9 +1079,12 @@ var Genoverse = Base.extend({
 
   makeMenu: function (feature, event, track) {
     if (!feature.menuEl) {
-      var browser = this;
-      var menu    = this.menuTemplate.clone(true).data({ browser: this, feature: feature });
-      var content = $('.gv-menu-content', menu).remove();
+      var browser    = this;
+      var menu       = this.menuTemplate.clone(true).data({ browser: this, feature: feature });
+      var content    = $('.gv-menu-content', menu).remove();
+      var loading    = $('.gv-menu-loading', menu);
+      var getMenu    = track ? track.controller.populateMenu(feature) : feature;
+      var isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
       var i, j, table, el, start, end, linkData, key, width, columns, colspan, tdWidth;
 
       function focus() {
@@ -1098,7 +1102,11 @@ var Genoverse = Base.extend({
         return false;
       }
 
-      $.when(track ? track.controller.populateMenu(feature) : feature).done(function (properties) {
+      if (isDeferred) {
+        loading.show();
+      }
+
+      $.when(getMenu).done(function (properties) {
         if (Object.prototype.toString.call(properties) !== '[object Array]') {
           properties = [ properties ];
         }
@@ -1113,7 +1121,7 @@ var Genoverse = Base.extend({
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
           if (track && start && end && !browser.isStatic) {
-            linkData = { start: start, end: Math.max(end, start), label: feature.label || properties[i].title, color: feature.color };
+            linkData = { start: start, end: Math.max(end, start), label: feature.label || (properties[i].title || '').replace(/<[^>]+>/g, ''), color: feature.color };
 
             $('.gv-focus',     el).data(linkData).on('click', focus);
             $('.gv-highlight', el).data(linkData).on('click', highlight);
@@ -1147,6 +1155,10 @@ var Genoverse = Base.extend({
           }
 
           $('table', el).html(table);
+        }
+
+        if (isDeferred) {
+          loading.hide();
         }
       });
 

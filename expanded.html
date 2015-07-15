@@ -62,6 +62,7 @@
     <script type="text/javascript" src="js/Track/Model/File/BED.js"></script>
 
     <script type="text/javascript" src="js/Track/library/Chromosome.js"></script>
+    <script type="text/javascript" src="js/Track/library/dbSNP.js"></script>
     <script type="text/javascript" src="js/Track/library/File.js"></script>
     <script type="text/javascript" src="js/Track/library/File/GFF.js"></script>
     <script type="text/javascript" src="js/Track/library/File/GFF3.js"></script>
@@ -99,7 +100,8 @@
             resizable       : 'auto',
             model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
             setFeatureColor : function (f) { f.color = '#AAA'; }
-          })
+          }),
+          Genoverse.Track.dbSNP
         ]
       }
 
