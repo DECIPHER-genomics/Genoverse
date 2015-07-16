@@ -2,6 +2,10 @@
   overflow-y: scroll;
 }
 
+.genoverse.gv-fullscreen table.gv {
+  background: #FFF;
+}
+
 .gv-control-panel-plugin .gv-panel-right .gv-fullscreen-button .fa {
   border: 1px solid #FFF;
   padding: 5px;
