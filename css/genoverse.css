@@ -92,7 +92,7 @@
   cursor: pointer;
 }
 
-.gv-canvas-container .gv-message-container .gv-control:hover      { text-decoration: underline; }
+.gv-canvas-container .gv-message-container .gv-control:hover { text-decoration: underline; }
 .gv-canvas-container .gv-message-container .gv-expand,
 .gv-canvas-container .gv-message-container.gv-collapsed .gv-messages,
 .gv-canvas-container .gv-message-container.gv-collapsed .gv-collapse { display: none; }
@@ -157,7 +157,7 @@
   padding: 0;
   list-style: none;
   background-color: #5F8CB0;
-  background-image: -moz-linear-gradient(right center , #5F8CB0, #4A7496);
+  background-image: -moz-linear-gradient(right center, #5F8CB0, #4A7496);
   background-image: -webkit-linear-gradient(right, #5F8CB0, #4A7496);
   border-radius: 5px 0 0 5px;
   border: 1px solid #1C5380;
@@ -278,7 +278,7 @@
 
 .gv-menu {
   color: white;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: #5F8CB0;
   border-radius: 0px 12px 12px 12px;
   min-width: 200px;
   padding: 0;
@@ -297,7 +297,6 @@
 }
 
 .gv-menu .gv-menu-content {
-  margin: 10px;
   font-size: 11px;
 }
 
@@ -308,11 +307,12 @@
 .gv-menu .gv-menu-content table {
   border: none;
   border-spacing: 0;
+  margin: 10px;
 }
 
 .gv-menu .gv-menu-content table th,
 .gv-menu .gv-menu-content table td {
-  color: white;
+  color: #FFF;
   padding: 0 1em 0 0;
   border: none;
   text-align: left;
@@ -322,49 +322,32 @@
 
 .gv-menu .gv-menu-content .gv-title {
   font-weight: bold;
-  margin-right: 20px;
-  display: block;
+  padding: 5px 10px 0 10px;
+  margin-bottom: 5px;
+}
+
+.gv-menu .gv-menu-content-first .gv-title {
+  background: rgba(6, 54, 95, 0.35);
+  border-radius: 0 12px 0 0;
+  padding: 5px 30px 5px 10px;
+  line-height: normal;
 }
 
 .gv-menu .gv-menu-content .gv-focus,
-.gv-menu .gv-menu-content .gv-highlight,
-.gv-menu .gv-menu-content .gv-remove-highlight,
-.gv-menu .gv-menu-content .gv-remove-highlights {
-  display: block;
-  margin: 5px 0;
-  outline: 0;
+.gv-menu .gv-menu-content .gv-highlight {
+  margin: 5px 10px;
 }
 
 .gv-menu .gv-menu-button {
-  background-color: #CCCCCC;
-  color: #2E2E2E;
+  color: #FFF;
   cursor: pointer;
-  text-align: center;
-  opacity: 1;
-  z-index: 1;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.gv-menu .gv-menu-button:hover {
-  background-color: #FFF;
-  box-shadow: 0 0 5px #FFFFFF;
 }
 
 .gv-menu .gv-close {
   position: absolute;
   right: 0;
-  height: 20px;
-  width: 20px;
-  margin: 3px;
-  border-radius: 20px;
-  line-height: 19px;
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 18px;
+  padding: 3px 5px;
 }
 
 .gv-menu .gv-menu-content input {
@@ -426,6 +409,7 @@
   padding-top: 4px;
   position: relative;
   height: 2em;
+  box-sizing: content-box;
 }
 
 .gv-selector-controls .gv-position .gv-chr,

@@ -115,16 +115,35 @@
   top: 70px;
 }
 
+.gv-control-panel-plugin .gv-tracks-menu .gv-close {
+  font-size: 20px;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu .gv-menu-content {
+  font-size: 13px;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu table {
+  margin: 0 0 10px;
+}
+
 .gv-control-panel-plugin .gv-tracks-menu td {
-  padding: 5px!important;
+  padding: 5px 10px!important;
   vertical-align: top;
   width: 50%;
 }
 
 .gv-control-panel-plugin .gv-tracks-menu tr:first-child td {
   font-weight: bold;
-  font-size: 1.2em;
   white-space: nowrap;
+  padding: 5px 30px 5px 10px;
+  margin-bottom: 5px;
+  background: rgba(6, 54, 95, 0.35);
+  line-height: normal;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu tr:first-child td:last-child {
+  border-radius: 0 12px 0 0;
 }
 
 .gv-control-panel-plugin .gv-tracks-menu tr td:first-child {
@@ -138,14 +157,8 @@
 
 .gv-control-panel-plugin .gv-tracks-menu .gv-remove-track,
 .gv-control-panel-plugin .gv-tracks-menu .gv-add-track {
-  border-radius: 3px;
-  display: inline-block;
-  font-weight: bold;
-  height: 15px;
-  line-height: 14px;
+  font-size: 14px;
   margin: 2px 5px 0 0;
-  padding: 0 0 0 1px;
-  width: 18px;
 }
 
 .gv-control-panel-plugin .gv-tracks-menu input {

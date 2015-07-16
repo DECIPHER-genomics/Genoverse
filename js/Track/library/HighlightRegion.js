@@ -105,16 +105,16 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
 
     populateMenu: function (feature) {
       var location = feature.start + '-' + feature.end;
-      var menu = {
+      var menu = [{
         title: feature.label ? feature.label[0] : location,
         start: false
-      };
+      }];
 
-      menu[menu.title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
+      menu[0][menu[0].title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
 
       if (feature.removable !== false) {
-        menu['<a class="gv-remove-highlight"  href="#">Remove this highlight</a>'] = '';
-        menu['<a class="gv-remove-highlights" href="#">Remove all highlights</a>'] = '';
+        menu.push({ '<a class="gv-remove-highlight"  href="#">Remove this highlight</a>' : '', start: false });
+        menu.push({ '<a class="gv-remove-highlights" href="#">Remove all highlights</a>' : '', start: false });
       }
 
       return menu;

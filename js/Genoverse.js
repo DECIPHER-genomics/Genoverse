@@ -1053,15 +1053,15 @@ var Genoverse = Base.extend({
   },
 
   menuTemplate: $(
-    '<div class="gv-menu">'                                           +
-      '<div class="gv-close gv-menu-button">&#215;</div>'             +
-      '<div class="gv-menu-loading">Loading...</div>'                 +
-      '<div class="gv-menu-content">'                                 +
-        '<div class="gv-title"></div>'                                +
-        '<a class="gv-focus" href="#">Focus here</a>'                 +
-        '<a class="gv-highlight" href="#">Highlight this feature</a>' +
-        '<table></table>'                                             +
-      '</div>'                                                        +
+    '<div class="gv-menu">'                                            +
+      '<div class="gv-close gv-menu-button fa fa-times-circle"></div>' +
+      '<div class="gv-menu-loading">Loading...</div>'                  +
+      '<div class="gv-menu-content">'                                  +
+        '<div class="gv-title"></div>'                                 +
+        '<a class="gv-focus" href="#">Focus here</a>'                  +
+        '<a class="gv-highlight" href="#">Highlight this feature</a>'  +
+        '<table></table>'                                              +
+      '</div>'                                                         +
     '</div>'
   ).on('click', function (e) {
     if ($(e.target).hasClass('gv-close')) {
@@ -1113,7 +1113,7 @@ var Genoverse = Base.extend({
 
         for (i = 0; i < properties.length; i++) {
           table   = '';
-          el      = content.clone().appendTo(menu);
+          el      = content.clone().addClass(i ? '' : 'gv-menu-content-first').appendTo(menu);
           start   = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
           end     = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
           columns = Math.max.apply(Math, $.map(properties[i], function (v) { return Object.prototype.toString.call(v) === '[object Array]' ? v.length : 1; }));

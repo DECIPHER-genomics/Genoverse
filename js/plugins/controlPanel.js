@@ -236,7 +236,7 @@ Genoverse.Plugins.controlPanel = function () {
                   if (browser.tracks[i].name && browser.tracks[i].removable !== false) {
                     (function (track) {
                       $('<div>')
-                        .append($('<div class="gv-remove-track gv-menu-button">&#215;</div>').on('click', function () { track.remove(); }))
+                        .append($('<i class="gv-remove-track gv-menu-button fa fa-times-circle">').on('click', function () { track.remove(); }))
                         .append('<span>' + track.name + '</span>')
                         .appendTo(currentTracks);
                     })(browser.tracks[i]);
@@ -253,7 +253,7 @@ Genoverse.Plugins.controlPanel = function () {
               for (var i = 0; i < libraryTracks.length; i++) {
                 (function (track) {
                   $('<div class="gv-tracks-library-item">').append(
-                    $('<div class="gv-add-track gv-menu-button">+</div> ').on('click', function () {
+                    $('<i class="gv-add-track gv-menu-button fa fa-plus-circle"> ').on('click', function () {
                       var sortableTracks = $.grep(browser.tracks, function (t) { return t.unsortable !== true; });
 
                       browser.trackIds = browser.trackIds || {};

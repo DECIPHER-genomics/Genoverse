@@ -2315,15 +2315,15 @@ var Genoverse = Base.extend({
   },
 
   menuTemplate: $(
-    '<div class="gv-menu">'                                           +
-      '<div class="gv-close fa fa-times-circle"></div>'               +
-      '<div class="gv-menu-loading">Loading...</div>'                 +
-      '<div class="gv-menu-content">'                                 +
-        '<div class="gv-title"></div>'                                +
-        '<a class="gv-focus" href="#">Focus here</a>'                 +
-        '<a class="gv-highlight" href="#">Highlight this feature</a>' +
-        '<table></table>'                                             +
-      '</div>'                                                        +
+    '<div class="gv-menu">'                                            +
+      '<div class="gv-close gv-menu-button fa fa-times-circle"></div>' +
+      '<div class="gv-menu-loading">Loading...</div>'                  +
+      '<div class="gv-menu-content">'                                  +
+        '<div class="gv-title"></div>'                                 +
+        '<a class="gv-focus" href="#">Focus here</a>'                  +
+        '<a class="gv-highlight" href="#">Highlight this feature</a>'  +
+        '<table></table>'                                              +
+      '</div>'                                                         +
     '</div>'
   ).on('click', function (e) {
     if ($(e.target).hasClass('gv-close')) {
