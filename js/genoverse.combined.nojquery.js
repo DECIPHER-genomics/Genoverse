@@ -2316,7 +2316,7 @@ var Genoverse = Base.extend({
 
   menuTemplate: $(
     '<div class="gv-menu">'                                           +
-      '<div class="gv-close gv-menu-button">&#215;</div>'             +
+      '<div class="gv-close fa fa-times-circle"></div>'               +
       '<div class="gv-menu-loading">Loading...</div>'                 +
       '<div class="gv-menu-content">'                                 +
         '<div class="gv-title"></div>'                                +
@@ -2375,7 +2375,7 @@ var Genoverse = Base.extend({
 
         for (i = 0; i < properties.length; i++) {
           table   = '';
-          el      = content.clone().appendTo(menu);
+          el      = content.clone().addClass(i ? '' : 'gv-menu-content-first').appendTo(menu);
           start   = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
           end     = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
           columns = Math.max.apply(Math, $.map(properties[i], function (v) { return Object.prototype.toString.call(v) === '[object Array]' ? v.length : 1; }));
@@ -5554,7 +5554,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   removeHighlights: function (highlights) {
     var features     = this.prop('features');
     var featuresById = this.prop('featuresById');
-    var bounds;
+    var bounds, h;
 
     highlights = highlights || $.map(featuresById, function (f) { return f; });
 
@@ -5568,7 +5568,11 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       // RTree.remove only works if the second argument (the object to be removed) === the object found in the tree.
       // Here, while highlight is effectively the same object as the one in the tree, it does has been cloned, so the === check fails.
       // To fix this, search for the feature to remove in the location of highlight.
-      features.remove(bounds, features.search(bounds)[0]);
+      h = $.grep(features.search(bounds), function (item) { return item.id === highlights[i].id; });
+
+      if (h.length) {
+        features.remove(bounds, h[0]);
+      }
 
       delete featuresById[highlights[i].id];
     }
@@ -5624,16 +5628,16 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
 
     populateMenu: function (feature) {
       var location = feature.start + '-' + feature.end;
-      var menu = {
+      var menu = [{
         title: feature.label ? feature.label[0] : location,
         start: false
-      };
+      }];
 
-      menu[menu.title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
+      menu[0][menu[0].title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
 
       if (feature.removable !== false) {
-        menu['<a class="gv-remove-highlight"  href="#">Remove this highlight</a>'] = '';
-        menu['<a class="gv-remove-highlights" href="#">Remove all highlights</a>'] = '';
+        menu.push({ '<a class="gv-remove-highlight"  href="#">Remove this highlight</a>' : '', start: false });
+        menu.push({ '<a class="gv-remove-highlights" href="#">Remove all highlights</a>' : '', start: false });
       }
 
       return menu;

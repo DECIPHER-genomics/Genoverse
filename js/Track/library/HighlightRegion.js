@@ -31,7 +31,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   removeHighlights: function (highlights) {
     var features     = this.prop('features');
     var featuresById = this.prop('featuresById');
-    var bounds;
+    var bounds, h;
 
     highlights = highlights || $.map(featuresById, function (f) { return f; });
 
@@ -45,7 +45,11 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       // RTree.remove only works if the second argument (the object to be removed) === the object found in the tree.
       // Here, while highlight is effectively the same object as the one in the tree, it does has been cloned, so the === check fails.
       // To fix this, search for the feature to remove in the location of highlight.
-      features.remove(bounds, features.search(bounds)[0]);
+      h = $.grep(features.search(bounds), function (item) { return item.id === highlights[i].id; });
+
+      if (h.length) {
+        features.remove(bounds, h[0]);
+      }
 
       delete featuresById[highlights[i].id];
     }
