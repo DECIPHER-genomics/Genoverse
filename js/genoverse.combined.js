@@ -5205,7 +5205,7 @@ Genoverse.Track.dbSNP = Genoverse.Track.extend({
   id               : 'dbSNP',
   name             : 'dbSNP',
   info             : 'All sequence variants from the database of Single Nucleotide Polymorphisms (dbSNP)',
-  url              : 'http://grch37.rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=variation;content-type=application/json',
+  url              : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=variation;content-type=application/json',
   dataRequestLimit : 5000000, // As per e! REST API restrictions
   threshold        : 1e5,
   labels           : false,
@@ -5290,14 +5290,14 @@ Genoverse.Track.dbSNP = Genoverse.Track.extend({
   populateMenu: function (feature) {
     var deferred = $.Deferred();
     var menu     = [{
-      title         : '<a href="http://grch37.ensembl.org/Homo_sapiens/Variation/Summary?v=' + feature.id + '">' + feature.id + '</a>',
+      title         : '<a href="http://www.ensembl.org/Homo_sapiens/Variation/Summary?v=' + feature.id + '" target="_blank">' + feature.id + '</a>',
       Location      : this.browser.chr + ':' + feature.start + '-' + feature.end,
       Consequence   : feature.consequence_type,
       'Alt alleles' : feature.alt_alleles.join(', ')
     }];
 
     $.ajax({
-      url      : 'http://grch37.rest.ensembl.org/variation/human/' + feature.id + '?population_genotypes=1;content-type=application/json',
+      url      : '//rest.ensembl.org/variation/human/' + feature.id + '?population_genotypes=1;content-type=application/json',
       dataType : 'json',
       success  : function (data) {
         var populationGenotypes = $.grep(data.population_genotypes, function (pop) { return /1000GENOMES.+ALL/.test(pop.population); }); // Only considering 1000 Genomes: ALL population
@@ -5336,7 +5336,7 @@ Genoverse.Track.dbSNP = Genoverse.Track.extend({
             end   : false
           };
 
-          pop['<a href="http://grch37.ensembl.org/Homo_sapiens/Variation/Population?v=' + feature.id + '" target="_blank">See all population genotypes</a>'] = '';
+          pop['<a href="http://www.ensembl.org/Homo_sapiens/Variation/Population?v=' + feature.id + '" target="_blank">See all population genotypes</a>'] = '';
 
           menu.push(pop);
         }
@@ -5494,7 +5494,7 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
   },
 
   populateMenu: function (feature) {
-    var url  = 'http://grch37.ensembl.org/Homo_sapiens/' + (feature.feature_type === 'transcript' ? 'Transcript' : 'Gene') + '/Summary?' + (feature.feature_type === 'transcript' ? 't' : 'g') + '=' + feature.id;
+    var url  = 'http://www.ensembl.org/Homo_sapiens/' + (feature.feature_type === 'transcript' ? 'Transcript' : 'Gene') + '/Summary?' + (feature.feature_type === 'transcript' ? 't' : 'g') + '=' + feature.id;
     var menu = {
       title    : '<a target="_blank" href="' + url + '">' + (feature.external_name ? feature.external_name + ' (' + feature.id + ')' : feature.id) + '</a>',
       Location : this.browser.chr + ':' + feature.start + '-' + feature.end,
@@ -5503,7 +5503,7 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
     };
 
     if (feature.feature_type === 'transcript') {
-      menu.Gene = '<a target="_blank" href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g=' + feature.Parent + '">' + feature.Parent + '</a>';
+      menu.Gene = '<a target="_blank" href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?g=' + feature.Parent + '">' + feature.Parent + '</a>';
     }
 
     return menu;
