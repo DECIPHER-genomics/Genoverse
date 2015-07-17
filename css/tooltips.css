@@ -1,4 +1,4 @@
-.tipsy { font-size: 10px; position: absolute; padding: 5px; z-index: 100000; }
+.tipsy { font-size: 10px; position: absolute; padding: 5px; z-index: 1000; }
 .tipsy-inner { background-color: #000; color: #FFF; max-width: 200px; padding: 5px 8px 4px 8px; text-align: center; font-family: Tahoma; font-size: 11px; }
 
 /* Rounded corners */
@@ -20,3 +20,5 @@
 .tipsy-se .tipsy-arrow { bottom: 0; right: 10px; border-top-style: solid; border-bottom: none; border-left-color: transparent; border-right-color: transparent; }
 .tipsy-e  .tipsy-arrow { right: 0; top: 50%; margin-top: -5px; border-left-style: solid; border-right: none; border-top-color: transparent; border-bottom-color: transparent; }
 .tipsy-w  .tipsy-arrow { left: 0; top: 50%; margin-top: -5px; border-right-style: solid; border-left: none; border-top-color: transparent; border-bottom-color: transparent; }
+
+.gv-wrapper-tooltip { position: absolute; left: 50%; top: 60px; }

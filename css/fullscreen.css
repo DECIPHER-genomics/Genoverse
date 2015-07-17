@@ -6,6 +6,10 @@
   background: #FFF;
 }
 
+.genoverse.gv-fullscreen .gv-powered-by {
+  display: none;
+}
+
 .gv-control-panel-plugin .gv-panel-right .gv-fullscreen-button .fa {
   border: 1px solid #FFF;
   padding: 5px;
