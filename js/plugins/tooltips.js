@@ -22,7 +22,7 @@ Genoverse.Plugins.tooltips = function () {
 
     $.each([
       [ browser.labelContainer.find('.gv-handle'), { gravity: 'w', fade: true, trigger: 'manual', fallback: 'Reorder tracks by dragging this handle' }],
-      [ browser.container.find('.gv-resizer'),     { gravity: 'n', fade: true, trigger: 'manual', fallback: 'Resize track by dragging this handle'   }],
+      [ browser.container.find('.gv-resizer'),     { gravity: 'n', fade: true, trigger: 'manual', fallback: 'Resize track by dragging this handle'   }]
     ], function () {
       var el = this[0].first();
 
