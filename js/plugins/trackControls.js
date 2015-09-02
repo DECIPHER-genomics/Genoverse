@@ -5,12 +5,10 @@ Genoverse.Plugins.trackControls = function () {
       var menu  = track.prop('menus').filter('.gv-track-info');
 
       if (!menu.length) {
-        menu = track.prop('menus', track.prop('menus').add(
-          track.browser.makeMenu({
-            title : track.name,
-            ' '   : track.prop('info') || ''
-          }).addClass('gv-track-info')
-        ));
+        menu = { title : track.name };
+        menu[track.prop('info') || ''] = '';
+
+        menu = track.prop('menus', track.prop('menus').add(track.browser.makeMenu(menu).addClass('gv-track-info')));
       }
 
       menu.show().position({ of: track.prop('container'), at: 'center top', my: 'center top', collision: 'none' });
