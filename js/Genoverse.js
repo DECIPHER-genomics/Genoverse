@@ -305,17 +305,27 @@ var Genoverse = Base.extend({
     // Safari in private browsing mode does not allow writes to storage, so wrap in a try/catch to stop errors occuring
     try {
       window[this.storageType].setItem(this.saveKey, JSON.stringify(config));
-    } catch (e) {};
+    } catch (e) {}
   },
 
   resetConfig: function () {
+    // The highlights track is controlled by adding highlights, and will be required to stay displayed if there are non removable highlights present.
+    // It should therefore be excluded from the set of tracks being removed and added.
+    function excludeHighlightTrack(track) {
+      return track.id !== 'highlights';
+    }
+
+    if (this.tracksById.highlights) {
+      this.tracksById.highlights.removeHighlights();
+    }
+
     window[this.storageType].removeItem(this.saveKey);
 
     this._constructing = true;
     this.savedConfig   = {};
 
-    this.removeTracks($.extend([], this.tracks)); // Shallow clone to ensure that removeTracks doesn't hit problems when splicing this.tracks
-    this.addTracks($.extend([], true, this.defaultTracks));
+    this.removeTracks($.extend([],    $.grep(this.tracks,        excludeHighlightTrack))); // Shallow clone to ensure that removeTracks doesn't hit problems when splicing this.tracks
+    this.addTracks($.extend([], true, $.grep(this.defaultTracks, excludeHighlightTrack)));
 
     this._constructing = false;
   },
