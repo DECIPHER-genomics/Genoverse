@@ -283,7 +283,7 @@
   min-width: 200px;
   padding: 0;
   position: absolute;
-  z-index: 2000;
+  z-index: 1001;
   box-shadow: 3px 3px 10px #666666;
   margin-left: 5px;
 }
@@ -336,6 +336,7 @@
 .gv-menu .gv-menu-content .gv-focus,
 .gv-menu .gv-menu-content .gv-highlight {
   margin: 5px 10px;
+  white-space: nowrap;
 }
 
 .gv-menu .gv-menu-button {
