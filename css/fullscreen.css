@@ -4,6 +4,7 @@
 
 .genoverse.gv-fullscreen table.gv {
   background: #FFF;
+  margin-bottom: 0;
 }
 
 .genoverse.gv-fullscreen .gv-powered-by {
