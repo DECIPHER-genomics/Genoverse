@@ -1,21 +1,45 @@
 Genoverse.Track.View.Gene.Ensembl = Genoverse.Track.View.Gene.extend({
   setFeatureColor: function (feature) {
-    var color = '#000000';
-    
+    var processed_transcript = {
+      'sense_intronic'           : 1,
+      'sense_overlapping'        : 1,
+      'processed_transcript'     : 1,
+      'nonsense_mediated_decay'  : 1,
+      'non_stop_decay'           : 1,
+      'antisense'                : 1,
+      'retained_intron'          : 1,
+      'tec'                      : 1,
+      'non_coding'               : 1,
+      'ambiguous_orf'            : 1,
+      'disrupted_domain'         : 1,
+      '3prime_overlapping_ncrna' : 1
+    };
+
+    feature.color = '#000000';
+
     if (feature.logic_name.indexOf('ensembl_havana') === 0) {
-      color = '#cd9b1d';
-    } else if (feature.biotype.indexOf('RNA') > -1) {
-      color = '#8b668b';
-    } else switch (feature.biotype) {
-      case 'protein_coding'       : color = '#A00000'; break;
-      case 'processed_transcript' : color = '#0000FF'; break;
-      case 'antisense'            : color = '#0000FF'; break;
-      case 'sense_intronic'       : color = '#0000FF'; break;
-      case 'pseudogene'           :
-      case 'processed_pseudogene' : color = '#666666'; break;
-      default                     : color = '#A00000'; break;
+      feature.color  = '#CD9B1D';
+      feature.legend = 'Merged Ensembl/Havana';
+    } else if (processed_transcript[feature.biotype]) {
+      feature.color  = '#0000FF';
+      feature.legend = 'Processed transcript';
+    } else if (feature.biotype === 'protein_coding') {
+      feature.color  = '#A00000';
+      feature.legend = 'Protein coding';
+    } else if (feature.biotype.indexOf('pseudogene') > -1) {
+      feature.color  = '#666666';
+      feature.legend = 'Pseudogene';
+    } else if (/rna/i.test(feature.biotype)) {
+      feature.color  = '#8B668B';
+      feature.legend = 'RNA gene';
+    } else if (/^tr_.+_gene$/i.test(feature.biotype)) {
+      feature.color  = '#CD6600';
+      feature.legend = 'TR gene';
+    } else if (/^ig_.+_gene$/i.test(feature.biotype)) {
+      feature.color  = '#8B4500';
+      feature.legend = 'IG gene';
     }
-    
-    feature.color = feature.labelColor = color;
+
+    feature.labelColor = feature.color;
   }
 });

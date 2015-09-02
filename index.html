@@ -5,7 +5,7 @@
     <link rel="stylesheet" type="text/css" href="examples/genoverse.org/styles.css" />
   </head>
   <body>
-    <a href="https://github.com/eugenebragin/Genoverse"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+    <a href="https://github.com/wtsi-web/Genoverse"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
     <div class="container">
       <div class="head"><h1>Genoverse - interactive HTML5 genome browser</h1></div>
       <div class="wrap">
@@ -28,9 +28,9 @@
         // chromosomeSize : 249250621, // chromosome 1, human
         genome    : 'grch38', // see js/genomes/
         chr       : 13,
-        start     : 32889611,
-        end       : 32973805,
-        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
+        start     : 32296945,
+        end       : 32370557,
+        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
         tracks    : [
           Genoverse.Track.Scalebar,
           Genoverse.Track.extend({
@@ -48,21 +48,10 @@
             resizable       : 'auto',
             model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
             setFeatureColor : function (f) { f.color = '#AAA'; }
-          })
+          }),
+          Genoverse.Track.dbSNP
         ]
       }
-    </script>
-
-    <script type="text/javascript">
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-34315286-1']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
     </script>
   </body>
 </html>

@@ -16,7 +16,7 @@ Genoverse.Plugins.resizer = function () {
         stop  : function (e, ui) {
           $('body').removeClass('gv-dragging');
           controller.resize(track.prop('height') + ui.position.top - ui.originalPosition.top, true);
-          $(this).css('top', 'auto'); // returns the resizer to the bottom of the container - needed when the track is resized to 0
+          $(this).css({ top: 'auto', bottom: 0 }); // returns the resizer to the bottom of the container - needed when the track is resized to 0
         }
       }).on('click', function () {
         var h = track.prop('fullVisibleHeight');

@@ -110,6 +110,6 @@ Genoverse.Track.View.SequenceVariation = Genoverse.Track.View.Sequence.extend({
   },
   
   setHighlightColor: function (feature) {
-    feature.highlightColor = feature.alt_allele === '.' || feature.alt_allele.length < feature.ref_allele.length ? '#D31D00' : '#1DD300';
+    feature.highlightColor = feature.alt_allele === '-' || feature.alt_allele.length < feature.ref_allele.length ? '#D31D00' : '#1DD300';
   }
 });

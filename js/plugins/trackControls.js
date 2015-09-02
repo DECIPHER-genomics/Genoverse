@@ -5,12 +5,10 @@ Genoverse.Plugins.trackControls = function () {
       var menu  = track.prop('menus').filter('.gv-track-info');
 
       if (!menu.length) {
-        menu = track.prop('menus', track.prop('menus').add(
-          track.browser.makeMenu({
-            title : track.name,
-            ' '   : track.prop('info')
-          }).addClass('gv-track-info')
-        ));
+        menu = { title : track.name };
+        menu[track.prop('info') || ''] = '';
+
+        menu = track.prop('menus', track.prop('menus').add(track.browser.makeMenu(menu).addClass('gv-track-info')));
       }
 
       menu.show().position({ of: track.prop('container'), at: 'center top', my: 'center top', collision: 'none' });
@@ -73,12 +71,39 @@ Genoverse.Plugins.trackControls = function () {
         return;
       }
 
+      var defaultConfig = this.prop('defaultConfig');
+      var savedConfig   = this.browser.savedConfig ? this.browser.savedConfig[this.prop('id')] || {} : {};
+      var prop, el, j;
+
       controls = (controls || []).concat(defaultControls);
 
       this.trackControls = $('<div class="gv-track-controls">').prependTo(this.container);
 
       for (var i = 0; i < controls.length; i++) {
-        controls[i].clone(true).hide().data('track', this.track).appendTo(this.trackControls);
+        if ($.isPlainObject(controls[i]) && controls[i].type) {
+          el = $('<' + controls[i].type + '>').data('control', controls[i].name);
+
+          if (controls[i].options) {
+            for (j = 0; j < controls[i].options.length; j++) {
+              el.append('<option value="' + controls[i].options[j].value + '">' + controls[i].options[j].text + '</option>');
+            }
+          }
+        } else if (typeof controls[i] === 'string') {
+          el = $(controls[i])
+        } else if (typeof controls[i] === 'object' && controls[i].constructor && controls[i] instanceof $) {
+          el = controls[i].clone(true);
+        }
+
+        el.hide().data('track', this.track).appendTo(this.trackControls);
+
+        // TODO: other control types
+        if (el.is('select')) {
+          prop = el.data('control');
+
+          el.find('option[value=' + (savedConfig[prop] || defaultConfig[prop] || 'all') + ']').attr('selected', true).end().change(function () {
+            $(this).data('track').setConfig($(this).data('control'), this.value);
+          });
+        }
       }
 
       this.prop('heightToggler', this.trackControls.children('.gv-height-toggle').trigger('toggleState'));

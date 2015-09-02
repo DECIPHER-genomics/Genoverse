@@ -1,10 +1,10 @@
 Genoverse.Plugins.focusRegion = function () {
   this.controls.push({
-    icon    : '&#8617;',
-    name    : 'Reset focus to ' + (this.focusRegion && this.focusRegion.name ? this.focusRegion.name : this.chr + ':' + this.start + '-' + this.end),
+    icon    : '<i class="fa fa-map-marker"></i>',
     'class' : 'gv-button-large',
+    name    : 'Reset focus to ' + (this.focusRegion && this.focusRegion.name ? this.focusRegion.name : this.chr + ':' + this.start + '-' + this.end),
     action  : function (browser) { browser.moveTo(browser.focusRegion.start, browser.focusRegion.end, true); },
-    init    : function () { this.focusRegion = this.focusRegion || { start: this.start, end: this.end }; }
+    init    : function (browser) { browser.focusRegion = browser.focusRegion || { start: browser.start, end: browser.end }; }
   });
 };
 

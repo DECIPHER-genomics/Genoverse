@@ -5,8 +5,10 @@
 
     <link rel="stylesheet" type="text/css" href="css/genoverse.css" />
     <link rel="stylesheet" type="text/css" href="css/controlPanel.css" />
+    <link rel="stylesheet" type="text/css" href="css/karyotype.css" />
     <link rel="stylesheet" type="text/css" href="css/trackControls.css" />
     <link rel="stylesheet" type="text/css" href="css/resizer.css" />
+    <link rel="stylesheet" type="text/css" href="css/fullscreen.css" />
     <link rel="stylesheet" type="text/css" href="css/tooltips.css" />
   </head>
   <body>
@@ -29,7 +31,6 @@
     <script type="text/javascript" src="js/Track/View.js"></script>
 
     <script type="text/javascript" src="js/Track/library/Static.js"></script>
-    <script type="text/javascript" src="js/Track/library/Configurable.js"></script>
 
     <script type="text/javascript" src="js/Track/Controller/Stranded.js"></script>
     <script type="text/javascript" src="js/Track/Model/Stranded.js"></script>
@@ -60,6 +61,7 @@
     <script type="text/javascript" src="js/Track/Model/File/BED.js"></script>
 
     <script type="text/javascript" src="js/Track/library/Chromosome.js"></script>
+    <script type="text/javascript" src="js/Track/library/dbSNP.js"></script>
     <script type="text/javascript" src="js/Track/library/File.js"></script>
     <script type="text/javascript" src="js/Track/library/File/GFF.js"></script>
     <script type="text/javascript" src="js/Track/library/File/GFF3.js"></script>
@@ -71,25 +73,24 @@
     <script type="text/javascript" src="js/Track/library/Scaleline.js"></script>
     <script type="text/javascript" src="js/Track/library/Scalebar.js"></script>
 
-
     <script>
       var genoverseConfig = {
         container : '#genoverse',
         width     : 800,
         genome    : 'grch38',
         chr       : 13,
-        start     : 32889611,
-        end       : 32973805,
-        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
+        start     : 32296945,
+        end       : 32370557,
+        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
         tracks    : [
           Genoverse.Track.Scalebar,
           Genoverse.Track.extend({
-            name         : 'Sequence',
-            controller   : Genoverse.Track.Controller.Sequence,
-            model        : Genoverse.Track.Model.Sequence.Ensembl,
-            view         : Genoverse.Track.View.Sequence,
-            resizable    : 'auto',
-            100000       : false
+            name       : 'Sequence',
+            controller : Genoverse.Track.Controller.Sequence,
+            model      : Genoverse.Track.Model.Sequence.Ensembl,
+            view       : Genoverse.Track.View.Sequence,
+            resizable  : 'auto',
+            100000     : false
           }),
           Genoverse.Track.Gene,
           Genoverse.Track.extend({
@@ -98,7 +99,8 @@
             resizable       : 'auto',
             model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
             setFeatureColor : function (f) { f.color = '#AAA'; }
-          })
+          }),
+          Genoverse.Track.dbSNP
         ]
       }
 

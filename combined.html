@@ -3,7 +3,7 @@
     // If no genome supplied, it must have at least chromosomeSize, e.g.:
     // chromosomeSize : 249250621, // chromosome 1, human
     genome  : 'grch38', // see js/genomes/
-    plugins : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'tooltips', 'fileDrop' ],
+    plugins : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
     tracks  : [
       Genoverse.Track.Scalebar,
       Genoverse.Track.extend({
@@ -21,7 +21,8 @@
         resizable       : 'auto',
         model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
         setFeatureColor : function (f) { f.color = '#AAA'; }
-      })
+      }),
+      Genoverse.Track.dbSNP
     ]
   }
 </script>

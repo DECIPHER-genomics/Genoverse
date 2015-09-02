@@ -7,11 +7,11 @@ Genoverse.Plugins.controlPanel = function () {
       name    : 'Scroll left and right by pressing and holding these buttons',
       buttons : [{
         name    : 'Scroll left',
-        icon    : '&#9664;',
+        icon    : '<i class="fa fa-chevron-left"></i>',
         'class' : 'gv-scroll-left'
       }, {
         name    : 'Scroll right',
-        icon    : '&#9654;',
+        icon    : '<i class="fa fa-chevron-right"></i>',
         'class' : 'gv-scroll-right'
       }],
       init: function (browser) {
@@ -37,12 +37,12 @@ Genoverse.Plugins.controlPanel = function () {
       name    : 'Zoom-in and zoom-out',
       buttons : [{
         name    : 'Zoom in',
-        icon    : '+',
+        icon    : '<i class="fa fa-search-plus"></i>',
         'class' : 'gv-zoom-in',
         action  : function (browser) { browser.zoomIn(); }
       }, {
         name    : 'Zoom out',
-        icon    : '&#8722;',
+        icon    : '<i class="fa fa-search-minus"></i>',
         'class' : 'gv-zoom-out',
         action  : function (browser) { browser.zoomOut(); }
       }]
@@ -53,7 +53,7 @@ Genoverse.Plugins.controlPanel = function () {
       name    : 'Toggle your mouse drag action between scroll left/right and select region',
       buttons : [{
         name    : 'Mouse drag action to scroll the browser left or right',
-        icon    : '&#8596;',
+        icon    : '<i class="fa fa-arrows-h"></i>',
         'class' : 'gv-drag-scroll',
         action  : function (browser) {
           browser.setDragAction('scroll');
@@ -61,7 +61,7 @@ Genoverse.Plugins.controlPanel = function () {
         }
       }, {
         name    : 'Mouse drag action to select a region',
-        icon    : '&#9482;',
+        icon    : '<i></i>',
         'class' : 'gv-drag-select',
         action  : function (browser) {
           browser.setDragAction('select');
@@ -78,7 +78,7 @@ Genoverse.Plugins.controlPanel = function () {
       name    : 'Toggle your mouse wheel action between zoom in/out and default page scroll',
       buttons : [{
         name    : 'Mouse wheel action to scroll the page up and down',
-        icon    : '&#8597;',
+        icon    : '<i class="fa fa-arrows-v"></i>',
         'class' : 'gv-wheel-off',
         action  : function (browser) {
           browser.setWheelAction('off');
@@ -101,10 +101,9 @@ Genoverse.Plugins.controlPanel = function () {
 
   if (this.saveable) {
     this.controls.push({
-      icon    : '&#x21bb;',
-      name    : 'Reset tracks and configuration',
-      'class' : 'gv-button-large',
-      action  : function (browser) { browser.resetConfig(); }
+      icon   : '<i class="fa fa-undo"></i>',
+      name   : 'Reset tracks and configuration',
+      action : function (browser) { browser.resetConfig(); }
     });
   }
 
@@ -112,8 +111,8 @@ Genoverse.Plugins.controlPanel = function () {
     beforeInit: function () {
       var browser = this;
 
-      if (!this.libraryTracks) {
-        this.libraryTracks = $.grep(this.tracks, function (track) { return track.prototype.name; });
+      if (!this.tracksLibrary) {
+        this.tracksLibrary = $.grep(this.tracks, function (track) { return track.prototype.name; });
       }
 
       var panel = $(
@@ -126,6 +125,7 @@ Genoverse.Plugins.controlPanel = function () {
         '</table>'
       ).appendTo(this.container).find('.gv-panel-right');
 
+      this.controlPanel   = panel;
       this.superContainer = this.container;
       this.container      = $('.gv-canvas-container', this.container);
 
@@ -173,8 +173,16 @@ Genoverse.Plugins.controlPanel = function () {
 
     afterInit: function () {
       var browser      = this;
-      var tracksButton = $('<button title="Tracks menu">&#9776; Tracks</button>').on('click', function () {
+      var tracksButton = $('<button title="Tracks menu"><i class="fa fa-navicon"></i> Tracks</button>').on('click', function () {
         var button = this;
+
+        function getTrackTags(track, tags) {
+          if (track.constructor && track.constructor.ancestor && track.constructor.ancestor.prototype) {
+            tags = getTrackTags(track.constructor.ancestor.prototype, tags.concat(track.constructor.ancestor.prototype.tags || []));
+          }
+
+          return tags;
+        }
 
         if ($(this).hasClass('gv-active')) {
           $('.gv-menu.gv-tracks-menu .gv-close').trigger('click');
@@ -201,9 +209,11 @@ Genoverse.Plugins.controlPanel = function () {
 
                 if (track.name && track.name.toLowerCase().indexOf(str) >= 0) {
                   match = true;
-                } else if (track.tags) {
-                  for (var i = 0; i < track.tags.length; i++) {
-                    if (track.tags[i].toLowerCase().indexOf(str) >= 0) {
+                } else {
+                  var tags = getTrackTags(track, []).concat(track.tags || []);
+
+                  for (var i = 0; i < tags.length; i++) {
+                    if (tags[i].toLowerCase().indexOf(str) >= 0) {
                       match = true;
                       break;
                     }
@@ -226,34 +236,44 @@ Genoverse.Plugins.controlPanel = function () {
                   if (browser.tracks[i].name && browser.tracks[i].removable !== false) {
                     (function (track) {
                       $('<div>')
-                        .append($('<div class="gv-remove-track gv-menu-button">&#215;</div>').on('click', function () { track.remove(); }))
+                        .append($('<i class="gv-remove-track gv-menu-button fa fa-times-circle">').on('click', function () { track.remove(); }))
                         .append('<span>' + track.name + '</span>')
-                        .appendTo(currentTracks);
+                        .appendTo(currentTracks)
+                        .data('track', track)
+                        .addClass(track.unsortable ? 'gv-unsortable' : '');
                     })(browser.tracks[i]);
                   }
                 }
               }
+            }).sortable({
+              items  : 'div:not(.gv-unsortable)',
+              cursor : 'move',
+              axis   : 'y',
+              handle : 'span',
+              update : $.proxy(browser.updateTrackOrder, browser)
             });
 
             currentTracks.data('listTracks')();
 
-            if (browser.libraryTracks && browser.libraryTracks.length) {
-              var libraryTracks = $.map(browser.libraryTracks, function (track) { return track.prototype.name ? [[ track.prototype.name.toLowerCase(), track ]] : undefined }).sort(function (a, b) { return b < a });
+            if (browser.tracksLibrary && browser.tracksLibrary.length) {
+              var tracksLibrary = $.map(browser.tracksLibrary, function (track) { return track.prototype.name ? [[ track.prototype.name.toLowerCase(), track ]] : undefined }).sort(function (a, b) { return b < a });
 
-              for (var i = 0; i < libraryTracks.length; i++) {
+              for (var i = 0; i < tracksLibrary.length; i++) {
                 (function (track) {
                   $('<div class="gv-tracks-library-item">').append(
-                    $('<div class="gv-add-track gv-menu-button">+</div> ').on('click', function () {
+                    $('<i class="gv-add-track gv-menu-button fa fa-plus-circle"> ').on('click', function () {
+                      var sortableTracks = $.grep(browser.tracks, function (t) { return t.unsortable !== true; });
+
                       browser.trackIds = browser.trackIds || {};
                       browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
 
                       browser.addTrack(
                         track.extend({ id: track.prototype.id + (browser.tracksById[track.prototype.id] ? browser.trackIds[track.prototype.id]++ : '') }),
-                        Math.floor($.grep(browser.tracks, function (t) { return t.unsortable !== true; }).sort(function (a, b) { return b.order - a.order; })[0].order + 1)
+                        sortableTracks.length ? Math.floor(sortableTracks.sort(function (a, b) { return b.order - a.order; })[0].order + 1) : 1
                       );
                     })
                   ).append('<span>' + track.prototype.name + '</span>').appendTo(availableTracks).data('track', track.prototype);
-                })(libraryTracks[i][1]);
+                })(tracksLibrary[i][1]);
               }
             }
 

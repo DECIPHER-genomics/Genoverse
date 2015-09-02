@@ -28,6 +28,10 @@ Genoverse.Track = Base.extend({
   setEvents: $.noop,
 
   setDefaults: function () {
+    this.config            = this.config         || {};
+    this.configSettings    = this.configSettings || {};
+    this.defaultConfig     = this.defaultConfig  || {};
+    this.controls          = this.controls       || [];
     this.order             = typeof this.order !== 'undefined' ? this.order : this.index;
     this.defaultHeight     = this.height;
     this.defaultAutoHeight = this.autoHeight;
@@ -39,6 +43,16 @@ Genoverse.Track = Base.extend({
     if (this.resizable === 'auto') {
       this.autoHeight = true;
     }
+
+    this.setDefaultConfig();
+  },
+
+  setDefaultConfig: function () {
+    for (var i in this.defaultConfig) {
+      if (typeof this.config[i] === 'undefined') {
+        this.config[i] = this.defaultConfig[i];
+      }
+    }
   },
 
   setInterface: function () {
@@ -49,7 +63,7 @@ Genoverse.Track = Base.extend({
 
     for (var i = 0; i < 3; i++) {
       for (prop in Genoverse.Track[mvc[i]].prototype) {
-        if (!/^(constructor|init)$/.test(prop)) {
+        if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(prop)) {
           this._interface[prop] = mvc[i + 3];
         }
       }
@@ -61,6 +75,8 @@ Genoverse.Track = Base.extend({
     if (this.model && typeof this.model.abort === 'function') { // TODO: don't abort unless model is changed?
       this.model.abort();
     }
+
+    this._defaults = this._defaults || {};
 
     var lengthSettings = this.getSettingsForLength();
     var settings       = $.extend(true, {}, this.constructor.prototype, lengthSettings[1]); // model, view, options
@@ -81,9 +97,19 @@ Genoverse.Track = Base.extend({
       if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(i) && isNaN(i)) {
         if (this._interface[i]) {
           mvcSettings[this._interface[i]][typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
-        } else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|model|view)$/.test(i)) {
+        } else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|model|view|config)$/.test(i)) {
+          if (typeof this._defaults[i] === 'undefined') {
+            this._defaults[i] = this[i];
+          }
+
           trackSettings[i] = settings[i];
         }
+      }
+    }
+
+    for (i in this._defaults) {
+      if (typeof trackSettings[i] === 'undefined') {
+        trackSettings[i] = this._defaults[i];
       }
     }
 
@@ -151,13 +177,39 @@ Genoverse.Track = Base.extend({
   },
 
   setLengthMap: function () {
-    var value, j, deepCopy;
+    var extendArgs     = [ true, {} ];
+    var featureFilters = [];
+    var settings, baseSetting, value, j, deepCopy;
 
     this.lengthMap = [];
     this.models    = {};
     this.views     = {};
 
-    for (var key in this) { // Find all scale-map like keys
+    // Find configuration settings, force them in as length settings with length = 1
+    for (var i in this.configSettings) {
+      settings = this.getConfig(i);
+
+      if (settings) {
+        extendArgs.push(settings);
+
+        if (settings.featureFilter) {
+          featureFilters.push(settings.featureFilter);
+        }
+      }
+    }
+
+    if (extendArgs.length > 2) {
+      baseSetting = $.extend.apply($, extendArgs.concat({ featureFilters: featureFilters }));
+
+      if (this[1]) {
+        $.extend(this[1], baseSetting);
+      } else {
+        this[1] = baseSetting;
+      }
+    }
+
+    // Find all scale-map like keys
+    for (var key in this) {
       if (!isNaN(key)) {
         key   = parseInt(key, 10);
         value = this[key];
@@ -266,6 +318,38 @@ Genoverse.Track = Base.extend({
     }
   },
 
+  setConfig: function (type, config) {
+    if (this.configSettings[type][config]) {
+      this.config[type] = config;
+
+      var features = this.prop('featuresById');
+
+      for (var i in features) {
+        delete features[i].menuEl;
+      }
+    }
+
+    this.reset();
+    this.browser.saveConfig();
+  },
+
+  getConfig: function (type) {
+    return this.configSettings[type][this.config[type]];
+  },
+
+  addLegend: function (config, constructor) {
+    var legendType = this.legendType || this.id;
+
+    config = $.extend({
+      id   : legendType + 'Legend',
+      name : this.name + ' Legend',
+      type : legendType
+    }, config);
+
+    this.legendType  = config.type;
+    this.legendTrack = this.browser.legends[config.id] || this.browser.addTrack((constructor || Genoverse.Track.Legend).extend(config));
+  },
+
   enable: function () {
     if (this.disabled === true) {
       this.disabled = false;
@@ -288,7 +372,7 @@ Genoverse.Track = Base.extend({
 
     this.view.init();
     this.setLengthMap();
-    this.controller.reset();
+    this.controller.reset.apply(this.controller, arguments);
   },
 
   remove: function () {

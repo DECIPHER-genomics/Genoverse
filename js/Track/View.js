@@ -195,20 +195,27 @@ Genoverse.Track.View = Base.extend({
   },
 
   draw: function (features, featureContext, labelContext, scale) {
-    var feature;
+    var feature, f;
 
     for (var i = 0; i < features.length; i++) {
       feature = features[i];
 
       if (feature.position[scale].visible !== false) {
         // TODO: extend with feature.position[scale], rationalize keys
-        this.drawFeature($.extend({}, feature, {
+        f = $.extend({}, feature, {
           x             : feature.position[scale].X,
           y             : feature.position[scale].Y,
           width         : feature.position[scale].width,
           height        : feature.position[scale].height,
           labelPosition : feature.position[scale].label
-        }), featureContext, labelContext, scale);
+        });
+
+        this.drawFeature(f, featureContext, labelContext, scale);
+
+        if (f.legend && !feature.legend) {
+          feature.legend      = f.legend;
+          feature.legendColor = f.color;
+        }
       }
     }
   },
@@ -249,6 +256,10 @@ Genoverse.Track.View = Base.extend({
       return;
     }
 
+    if (feature.labelPosition) {
+      context.labelPositions = context.labelPositions || new RTree();
+    }
+
     if (typeof feature.label === 'string') {
       feature.label = [ feature.label ];
     }
@@ -256,7 +267,7 @@ Genoverse.Track.View = Base.extend({
     var x       = (original || feature).x;
     var n       = this.repeatLabels ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) : 1;
     var spacing = width / n;
-    var label, start, j, y, h;
+    var label, start, j, y, currentY, h;
 
     if (this.repeatLabels && scale > 1) {
       spacing = this.browser.length * scale;
@@ -290,12 +301,22 @@ Genoverse.Track.View = Base.extend({
       start = x + (i * spacing);
 
       if (start + feature.labelWidth >= 0) {
-        if (start - offset > this.width) {
+        if ((start - offset > this.width) || (i >= 1 && start + feature.labelWidth > feature.position[scale].X + feature.position[scale].width)) {
           break;
         }
 
         for (j = 0; j < label.length; j++) {
-          context.fillText(label[j], start, y + (j * h));
+          currentY = y + (j * h);
+
+          if (context.labelPositions && context.labelPositions.search({ x: start, y: currentY, w: feature.labelWidth, h: h }).length) {
+            continue;
+          }
+
+          context.fillText(label[j], start, currentY);
+
+          if (context.labelPositions) {
+            context.labelPositions.insert({ x: start, y: currentY, w: feature.labelWidth, h: h }, label[j]);
+          }
         }
       }
     }
@@ -307,6 +328,21 @@ Genoverse.Track.View = Base.extend({
 
   setLabelColor: function (feature) {
     feature.labelColor = feature.color || this.fontColor || this.color;
+  },
+
+  // Method to lighten a colour by an amount, adapted from http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
+  shadeColor: function (colour, percent) {
+    var f = parseInt(colour.slice(1), 16);
+    var R = f >> 16;
+    var G = f >> 8 & 0x00FF;
+    var B = f & 0x0000FF;
+
+    return '#' + (
+      0x1000000 +
+      (Math.round((255 - R) * percent) + R) * 0x10000 +
+      (Math.round((255 - G) * percent) + G) * 0x100 +
+      (Math.round((255 - B) * percent) + B)
+    ).toString(16).slice(1);
   },
 
   // truncate features - make the features start at 1px outside the canvas to ensure no lines are drawn at the borders incorrectly

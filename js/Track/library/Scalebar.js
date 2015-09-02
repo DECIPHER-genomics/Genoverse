@@ -115,7 +115,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       }
 
       if (major) {
-        label = this.track.view.formatLabel(x);
+        label = this.view.formatLabel(x);
 
         if (label !== this.lastLabel) {
           feature.label = label;
@@ -130,7 +130,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
       }
 
       if (feature.end) {
-        this.insertFeature(feature);
+        this.model.insertFeature(feature);
       }
     }
   },
@@ -147,7 +147,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     params.background    = 'gv-guidelines gv-full-height';
     params.featureHeight = this.prop('height');
 
-    this.track.setFeatures.apply(this.track.model, [ params.start, params.end ]);
+    this.track.setFeatures(params.start, params.end);
 
     var rtn = this.base(params);
 

@@ -7,6 +7,7 @@ var Genoverse = Base.extend({
   defaultLength      : 5000,
   defaultScrollDelta : 100,
   tracks             : [],
+  highlights         : [],
   plugins            : [],
   dragAction         : 'scroll',         // Options are: scroll, select, off
   wheelAction        : 'off',            // Options are: zoom, off
@@ -74,9 +75,14 @@ var Genoverse = Base.extend({
   loadPlugins: function (plugins) {
     var browser         = this;
     var loadPluginsTask = $.Deferred();
-    var plugins         = plugins || this.plugins;
+
+    plugins = plugins || this.plugins;
 
     this.loadedPlugins = this.loadedPlugins || {};
+
+    for (var i in Genoverse.Plugins) {
+      this.loadedPlugins[i] = this.loadedPlugins[i] || 'script';
+    }
 
     if (typeof plugins === 'string') {
       plugins = [ plugins ];
@@ -168,6 +174,7 @@ var Genoverse = Base.extend({
 
     this.tracksById       = {};
     this.prev             = {};
+    this.legends          = {};
     this.saveKey          = this.saveKey ? 'genoverse-' + this.saveKey : 'genoverse';
     this.urlParamTemplate = this.urlParamTemplate || '';
     this.useHash          = typeof this.useHash === 'boolean' ? this.useHash : typeof window.history.pushState !== 'function';
@@ -196,6 +203,10 @@ var Genoverse = Base.extend({
     }
 
     this.setRange(coords.start, coords.end);
+
+    if (this.highlights.length) {
+      this.addHighlights(this.highlights);
+    }
   },
 
   loadConfig: function () {
@@ -209,11 +220,10 @@ var Genoverse = Base.extend({
       return this.addTracks();
     }
 
-    var tracksLibrary = this.tracksLibrary || [];
-    var tracks        = [];
-    var tracksById    = {};
-    var tracksByName  = {};
-    var savedConfig   = {};
+    var tracksByNamespace = Genoverse.getAllTrackTypes();
+    var tracks            = [];
+    var tracksById        = {};
+    var savedConfig       = {};
     var i, prop, track;
 
     function setConfig(track, conf) {
@@ -232,25 +242,21 @@ var Genoverse = Base.extend({
       }
     }
 
-    for (i = 0; i < tracksLibrary.length; i++) {
-      if (tracksLibrary[i].prototype.name) {
-        tracksByName[tracksLibrary[i].prototype.name] = tracksLibrary[i];
-      }
-    }
-
     for (i = 0; i < config.length; i++) {
       track = tracksById[config[i].id];
 
       if (track) {
         setConfig(track, config[i]);
         track._fromStorage = true;
-      } else if (tracksByName[config[i].name]) {
-        track = tracksByName[config[i].name];
+      } else if (tracksByNamespace[config[i].namespace]) {
+        track = tracksByNamespace[config[i].namespace];
 
         this.trackIds = this.trackIds || {};
         this.trackIds[track.prototype.id] = this.trackIds[track.prototype.id] || 1;
 
-        track = track.extend({ id: track.prototype.id + (tracksById[track.prototype.id] ? this.trackIds[track.prototype.id]++ : '') })
+        config[i].id = config[i].id || track.prototype.id;
+
+        track = track.extend({ id: !tracksById[config[i].id] ? config[i].id : track.prototype.id + (tracksById[track.prototype.id] ? this.trackIds[track.prototype.id]++ : '') });
 
         setConfig(track, config[i]);
         tracks.push(track);
@@ -277,38 +283,72 @@ var Genoverse = Base.extend({
     }
 
     var config = [];
+    var conf, j;
 
     for (var i = 0; i < this.tracks.length; i++) {
-      if (this.tracks[i].id) {
-        config.push({
-          id         : this.tracks[i].id,
-          name       : this.tracks[i].name,
-          order      : this.tracks[i].order,
-          height     : this.tracks[i].height,
-          autoHeight : this.tracks[i].autoHeight,
-          config     : this.tracks[i].config
-        });
+      if (this.tracks[i].id && !(this.tracks[i] instanceof Genoverse.Track.Legend) && !(this.tracks[i] instanceof Genoverse.Track.HighlightRegion)) {
+        conf = {
+          id        : this.tracks[i].id,
+          namespace : this.tracks[i].namespace,
+          order     : this.tracks[i].order
+        };
+
+        // defaultAutoHeight is likely to be undefined, while autoHeight will be true or false
+        if (this.tracks[i].autoHeight !== !!this.tracks[i].defaultAutoHeight) {
+          conf.autoHeight = this.tracks[i].autoHeight;
+        }
+
+        if (!this.tracks[i].autoHeight && (
+          ( this.tracks[i].defaultAutoHeight && this.tracks[i].height !== this.tracks[i].prop('fullVisibleHeight')) ||
+          (!this.tracks[i].defaultAutoHeight && this.tracks[i].height !== this.tracks[i].initialHeight)
+        )) {
+          // initialHeight is the height of the track once margins have been added, while defaultHeight is the DEFINED height of the track
+          // Subtracting the difference between them gives you back the correct height to input back into the track when loading configuration
+          conf.height = this.tracks[i].height - (this.tracks[i].initialHeight - this.tracks[i].defaultHeight);
+        }
+
+        if (this.tracks[i].config) {
+          for (j in this.tracks[i].config) {
+            if (this.tracks[i].config[j] !== this.tracks[i].defaultConfig[j]) {
+              conf.config    = conf.config || {};
+              conf.config[j] = this.tracks[i].config[j];
+            }
+          }
+        }
+
+        config.push(conf);
       }
     }
 
-    window[this.storageType].setItem(this.saveKey, JSON.stringify(config));
+    // Safari in private browsing mode does not allow writes to storage, so wrap in a try/catch to stop errors occuring
+    try {
+      window[this.storageType].setItem(this.saveKey, JSON.stringify(config));
+    } catch (e) {}
   },
 
   resetConfig: function () {
+    // The highlights track is controlled by adding highlights, and will be required to stay displayed if there are non removable highlights present.
+    // It should therefore be excluded from the set of tracks being removed and added.
+    function excludeHighlightTrack(track) {
+      return track.id !== 'highlights';
+    }
+
+    if (this.tracksById.highlights) {
+      this.tracksById.highlights.removeHighlights();
+    }
+
     window[this.storageType].removeItem(this.saveKey);
 
     this._constructing = true;
     this.savedConfig   = {};
 
-    this.removeTracks($.extend([], this.tracks)); // Shallow clone to ensure that removeTracks doesn't hit problems when splicing this.tracks
-    this.addTracks($.extend([], true, this.defaultTracks));
+    this.removeTracks($.extend([],    $.grep(this.tracks,        excludeHighlightTrack))); // Shallow clone to ensure that removeTracks doesn't hit problems when splicing this.tracks
+    this.addTracks($.extend([], true, $.grep(this.defaultTracks, excludeHighlightTrack)));
 
     this._constructing = false;
   },
 
   addDomElements: function (width) {
-    var browser = this;
-
     this.menus          = $();
     this.labelContainer = $('<ul class="gv-label-container">').appendTo(this.container).sortable({
       items  : 'li:not(.gv-unsortable)',
@@ -332,10 +372,28 @@ var Genoverse = Base.extend({
 
     if (!this.isStatic) {
       this.selectorControls = $(
-        '<div class="gv-selector-controls">'                +
-        '  <button class="gv-zoom-here">Zoom here</button>' +
-        '  <button class="gv-center">Center</button>'       +
-        '  <button class="gv-cancel">Cancel</button>'       +
+        '<div class="gv-selector-controls gv-panel">'         +
+        '  <div class="gv-button-set">'                       +
+        '  <div class="gv-position">'                         +
+        '    <div class="gv-chr"></div>'                      +
+        '    <div class="gv-start-end">'                      +
+        '      <div class="gv-start"></div>'                  +
+        '      <div class="gv-end"></div>'                    +
+        '    </div>'                                          +
+        '  </div>'                                            +
+        '  </div>'                                            +
+        '  <div class="gv-button-set">'                       +
+        '    <button class="gv-zoom-here">Zoom here</button>' +
+        '  </div>'                                            +
+        '  <div class="gv-button-set">'                       +
+        '    <button class="gv-center">Center</button>'       +
+        '  </div>'                                            +
+        '  <div class="gv-button-set">'                       +
+        '    <button class="gv-highlight">Highlight</button>' +
+        '  </div>'                                            +
+        '  <div class="gv-button-set">'                       +
+        '    <button class="gv-cancel">Cancel</button>'       +
+        '  </div>'                                            +
         '</div>'
       ).appendTo(this.selector);
 
@@ -401,7 +459,8 @@ var Genoverse = Base.extend({
 
       switch (e.target.className) {
         case 'gv-zoom-here' : browser.setRange(pos.start, pos.end, true); break;
-        case 'gv-center'    : browser.moveTo(pos.start, pos.end, true, true);
+        case 'gv-center'    : browser.moveTo(pos.start, pos.end, true, true); browser.cancelSelect(); break;
+        case 'gv-highlight' : browser.addHighlight({ start: pos.start, end: pos.end });
         case 'gv-cancel'    : browser.cancelSelect(); break;
         default             : break;
       }
@@ -447,7 +506,8 @@ var Genoverse = Base.extend({
   },
 
   reset: function () {
-    this.onTracks('reset');
+    this.onTracks.apply(this, [ 'reset' ].concat([].slice.call(arguments)));
+    this.prev  = {};
     this.scale = 9e99; // arbitrary value so that setScale resets track scales as well
     this.setRange(this.start, this.end);
   },
@@ -456,9 +516,19 @@ var Genoverse = Base.extend({
     this.width  = width;
     this.width -= this.labelWidth;
 
-    this.container.width(width);
+    if (this.controlPanel) {
+      this.width -= this.controlPanel.width();
+    }
+
+    if (this.superContainer) {
+      this.superContainer.width(width);
+      this.container.width(this.width);
+    } else {
+      this.container.width(width);
+    }
+
     this.onTracks('setWidth', this.width);
-    this.reset();
+    this.reset('resizing');
   },
 
   mousewheelZoom: function (e, delta) {
@@ -545,6 +615,10 @@ var Genoverse = Base.extend({
     // Calculate the position, so that selectorControls appear near the mouse cursor
     var top = Math.min(e.pageY - this.wrapper.offset().top, this.wrapper.outerHeight(true) - 1.2 * this.selectorControls.outerHeight(true));
     var pos = this.getSelectorPosition();
+
+    this.selectorControls.find('.gv-chr').html(this.chr);
+    this.selectorControls.find('.gv-start').html(pos.start);
+    this.selectorControls.find('.gv-end').html(pos.end);
 
     this.selectorControls.find('.gv-selector-location').html(this.chr + ':' + pos.start + '-' + pos.end).end().css({
       top  : top,
@@ -817,13 +891,47 @@ var Genoverse = Base.extend({
     };
 
     var push = !!tracks;
-    var j, config;
+    var j, namespaces, k;
 
     tracks = tracks || $.extend([], this.tracks);
     index  = index  || 0;
 
+    var trackTypes = Genoverse.getAllTrackTypes();
+
     for (var i = 0; i < tracks.length; i++) {
-      tracks[i] = new tracks[i]($.extend(defaults, { index: i + index, config: this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined }));
+      namespaces = [];
+
+      // Find all namespaces which this track could be
+      for (j in trackTypes) {
+        if (tracks[i] === trackTypes[j] || tracks[i].prototype instanceof trackTypes[j]) {
+          namespaces.push(j);
+        }
+      }
+
+      k = namespaces.length;
+
+      // Find the most specific namespace for this track - the one which isn't a parent of any other namespaces this track could be
+      while (namespaces.length > 1) {
+        for (j = 0; j < namespaces.length - 1; j++) {
+          if (trackTypes[namespaces[j]].prototype instanceof trackTypes[namespaces[j + 1]]) {
+            namespaces.splice(j + 1, 1);
+            break;
+          } else if (trackTypes[namespaces[j + 1]].prototype instanceof trackTypes[namespaces[j]]) {
+            namespaces.splice(j, 1);
+            break;
+          }
+        }
+
+        if (k-- < 0) {
+          break; // Stop infinite loop if something went really wrong
+        }
+      }
+
+      tracks[i] = new tracks[i]($.extend(defaults, {
+        namespace : namespaces[0],
+        index     : i + index,
+        config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined
+      }));
 
       if (tracks[i].id) {
         this.tracksById[tracks[i].id] = tracks[i];
@@ -1007,13 +1115,15 @@ var Genoverse = Base.extend({
   },
 
   menuTemplate: $(
-    '<div class="gv-menu">'                               +
-      '<div class="gv-close gv-menu-button">&#215;</div>' +
-      '<div class="gv-menu-content">'                     +
-        '<div class="gv-title"></div>'                    +
-        '<a class="gv-focus" href="#">Focus here</a>'     +
-        '<table></table>'                                 +
-      '</div>'                                            +
+    '<div class="gv-menu">'                                            +
+      '<div class="gv-close gv-menu-button fa fa-times-circle"></div>' +
+      '<div class="gv-menu-loading">Loading...</div>'                  +
+      '<div class="gv-menu-content">'                                  +
+        '<div class="gv-title"></div>'                                 +
+        '<a class="gv-focus" href="#">Focus here</a>'                  +
+        '<a class="gv-highlight" href="#">Highlight this feature</a>'  +
+        '<table></table>'                                              +
+      '</div>'                                                         +
     '</div>'
   ).on('click', function (e) {
     if ($(e.target).hasClass('gv-close')) {
@@ -1031,10 +1141,13 @@ var Genoverse = Base.extend({
 
   makeMenu: function (feature, event, track) {
     if (!feature.menuEl) {
-      var browser = this;
-      var menu    = this.menuTemplate.clone(true).data('browser', this);
-      var content = $('.gv-menu-content', menu).remove();
-      var i, table, el, start, end, key, width, colspan, tdWidth;
+      var browser    = this;
+      var menu       = this.menuTemplate.clone(true).data({ browser: this, feature: feature });
+      var content    = $('.gv-menu-content', menu).remove();
+      var loading    = $('.gv-menu-loading', menu);
+      var getMenu    = track ? track.controller.populateMenu(feature) : feature;
+      var isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
+      var i, j, table, el, start, end, linkData, key, columns, colspan;
 
       function focus() {
         var data    = $(this).data();
@@ -1046,23 +1159,36 @@ var Genoverse = Base.extend({
         return false;
       }
 
-      $.when(track ? track.controller.populateMenu(feature) : feature).done(function (properties) {
+      function highlight() {
+        browser.addHighlight($(this).data());
+        return false;
+      }
+
+      if (isDeferred) {
+        loading.show();
+      }
+
+      $.when(getMenu).done(function (properties) {
         if (Object.prototype.toString.call(properties) !== '[object Array]') {
           properties = [ properties ];
         }
 
         for (i = 0; i < properties.length; i++) {
-          table = '';
-          el    = content.clone().appendTo(menu);
-          start = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
-          end   = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
+          table   = '';
+          el      = content.clone().addClass(i ? '' : 'gv-menu-content-first').appendTo(menu);
+          start   = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
+          end     = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
+          columns = Math.max.apply(Math, $.map(properties[i], function (v) { return Object.prototype.toString.call(v) === '[object Array]' ? v.length : 1; }));
 
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
           if (track && start && end && !browser.isStatic) {
-            $('.gv-focus', el).data({ start: start, end: Math.max(end, start) }).on('click', focus);
+            linkData = { start: start, end: Math.max(end, start), label: feature.label || (properties[i].title || '').replace(/<[^>]+>/g, ''), color: feature.color };
+
+            $('.gv-focus',     el).data(linkData).on('click', focus);
+            $('.gv-highlight', el).data(linkData).on('click', highlight);
           } else {
-            $('.gv-focus', el).remove();
+            $('.gv-focus, .gv-highlight', el).remove();
           }
 
           for (key in properties[i]) {
@@ -1071,12 +1197,30 @@ var Genoverse = Base.extend({
             }
 
             if (key !== 'title') {
-              colspan = properties[i][key] === '' ? ' colspan="2"' : '';
-              table  += '<tr><td' + colspan + '>' + key + '</td>' + (colspan ? '' : '<td>' + properties[i][key] + '</td></tr>');
+              colspan = properties[i][key] === '' ? ' colspan="' + (columns + 1) + '"' : '';
+              table  += '<tr><td' + colspan + '>' + key + '</td>';
+
+              if (!colspan) {
+                if (Object.prototype.toString.call(properties[i][key]) === '[object Array]') {
+                  for (j = 0; j < properties[i][key].length; j++) {
+                    table += '<td>' + properties[i][key][j] + '</td>';
+                  }
+                } else if (columns === 1) {
+                  table += '<td>' + properties[i][key] + '</td>';
+                } else {
+                  table += '<td colspan="' + columns + '">' + properties[i][key] + '</td>';
+                }
+              }
+
+              table += '</tr>';
             }
           }
 
           $('table', el).html(table);
+        }
+
+        if (isDeferred) {
+          loading.hide();
         }
       });
 
@@ -1085,21 +1229,6 @@ var Genoverse = Base.extend({
       }
 
       feature.menuEl = menu.appendTo(this.superContainer || this.container);
-
-      $('.gv-menu-content', menu).each(function () {
-        tdWidth = $('td:first', this).outerWidth();
-
-        $('.gv-title', this).width(function (i, w) {
-          width = Math.max(w, tdWidth);
-
-          if (width === w) {
-            $(this).addClass('gv-block');
-            return 'auto';
-          }
-
-          return width;
-        });
-      });
     }
 
     this.menus = this.menus.add(feature.menuEl);
@@ -1138,6 +1267,18 @@ var Genoverse = Base.extend({
         end   = end <= start ? start : end;
 
     return { start: start, end: end, left: left, width: width };
+  },
+
+  addHighlight: function (highlight) {
+    this.addHighlights([ highlight ]);
+  },
+
+  addHighlights: function (highlights) {
+    if (!this.tracksById.highlights) {
+      this.addTrack(Genoverse.Track.HighlightRegion);
+    }
+
+    this.tracksById.highlights.addHighlights(highlights);
   },
 
   on: function (events, obj, fn, once) {
@@ -1273,6 +1414,34 @@ var Genoverse = Base.extend({
 
       return rtn;
     };
+  },
+
+  getAllTrackTypes: function (namespace, n) {
+    namespace = namespace || Genoverse.Track;
+
+    if (n) {
+      namespace = namespace[n];
+    }
+
+    if (!namespace) {
+      return [];
+    }
+
+    var trackTypes = {};
+
+    $.each(namespace, function (type, func) {
+      if (typeof func === 'function' && !Base[type] && !/^(Controller|Model|View|Squishable|Static)$/.test(type)) {
+        $.each(Genoverse.getAllTrackTypes(namespace, type), function (subtype, fn) {
+          if (typeof fn === 'function') {
+            trackTypes[type + '.' + subtype] = fn;
+          }
+        });
+
+        trackTypes[type] = func;
+      }
+    });
+
+    return trackTypes;
   }
 });
 
