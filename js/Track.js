@@ -337,6 +337,19 @@ Genoverse.Track = Base.extend({
     return this.configSettings[type][this.config[type]];
   },
 
+  addLegend: function (config, constructor) {
+    var legendType = this.legendType || this.id;
+
+    config = $.extend({
+      id   : legendType + 'Legend',
+      name : this.name + ' Legend',
+      type : legendType
+    }, config);
+
+    this.legendType  = config.type;
+    this.legendTrack = this.browser.legends[config.id] || this.browser.addTrack((constructor || Genoverse.Track.Legend).extend(config));
+  },
+
   enable: function () {
     if (this.disabled === true) {
       this.disabled = false;

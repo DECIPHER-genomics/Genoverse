@@ -50,13 +50,7 @@ Genoverse.Track.dbSNP = Genoverse.Track.extend({
     this.base.apply(this, arguments);
 
     if (this.legend === true) {
-      this.type = this.id;
-
-      this.browser.addTrack(Genoverse.Track.Legend.extend({
-        id          : this.id   + 'Legend',
-        name        : this.name + ' Legend',
-        featureType : this.type
-      }), this.order + 0.1);
+      this.addLegend();
     }
   },
 

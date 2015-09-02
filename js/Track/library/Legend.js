@@ -4,16 +4,13 @@ Genoverse.Track.Controller.Legend = Genoverse.Track.Controller.Static.extend({
 
     this.container.addClass('gv-track-container-legend');
 
-    if (!this.browser.legends) {
-      this.browser.legends = {};
-    }
+    this.browser.legends[this.track.id] = this.track;
 
-    this.browser.legends[this.track.id] = this;
     this.track.setTracks();
   },
 
   destroy: function () {
-    delete this.browser.legends[this.id];
+    delete this.browser.legends[this.prop('id')];
     this.base();
   }
 });
@@ -95,51 +92,66 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   model      : Genoverse.Track.Model.Legend,
   view       : Genoverse.Track.View.Legend,
 
+  setDefaults: function () {
+    this.order = typeof this.order !== 'undefined' ? this.order : 9e99;
+    this.id    = this.id   || 'legend';
+    this.type  = this.type || 'legend';
+    this.base();
+  },
+
   setEvents: function () {
     this.browser.on({
-      'afterInit afterAddTracks afterRemoveTracks': function () {
-        for (var i in this.legends) {
-          this.legends[i].track.setTracks();
+      'afterInit afterAddTracks afterRemoveTracks': function (tracks) {
+        if (tracks && tracks.length === 1 && tracks[0] instanceof Genoverse.Track.Legend) {
+          return; // Don't do anything if a legend has just been added - it will have set its own tracks in the init function
         }
+
+        for (var i in this.legends) {
+          this.legends[i].setTracks();
+        }
+
+        this.sortTracks();
       },
       afterRemoveTracks: function (tracks) {
         for (var i in tracks) {
-          if (tracks[i].controller.legend && tracks[i].controller.legend.track.tracks.length === 0) {
-            tracks[i].controller.legend.track.remove();
+          if (tracks[i].legendTrack && tracks[i].legendTrack.tracks.length === 0) {
+            tracks[i].legendTrack.remove();
           }
         }
 
         for (var i in this.legends) {
-          this.legends[i].makeImage({});
+          this.legends[i].controller.makeImage({});
         }
       },
       afterUpdateTrackOrder: function () {
         for (var i in this.legends) {
-          this.legends[i].track.updateOrder();
+          this.legends[i].updateOrder();
         }
+
+        this.sortTracks();
       }
     });
 
     this.browser.on({
       afterPositionFeatures: function (features, params) {
-        var legend = this.prop('legend');
+        var legend = this.prop('legendTrack');
 
         if (legend) {
-          setTimeout(function () { legend.makeImage(params); }, 1);
+          setTimeout(function () { legend.controller.makeImage(params); }, 1);
         }
       },
       afterResize: function (height, userResize) {
-        var legend = this.prop('legend');
+        var legend = this.prop('legendTrack');
 
         if (legend && userResize === true) {
-          legend.makeImage({});
+          legend.controller.makeImage({});
         }
       },
       afterCheckHeight: function () {
-        var legend = this.prop('legend');
+        var legend = this.prop('legendTrack');
 
         if (legend) {
-          legend.makeImage({});
+          legend.controller.makeImage({});
         }
       }
     }, this);
@@ -147,27 +159,27 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
 
   setTracks: function () {
     var legend = this;
-    var type   = this.featureType;
+    var type   = this.type;
 
-    this.tracks = $.grep(this.browser.tracks, function (t) { if (t.type === type && t.controller) { t.controller.legend = legend.controller; return true; } });
+    this.tracks = $.grep(this.browser.tracks, function (t) { if (t.legendType === type) { t.legendTrack = t.legendTrack || legend; return true; } });
 
     this.updateOrder();
 
     if (typeof this.controller === 'object') {
       this[this.tracks.length ? 'enable' : 'disable']();
+    } else {
+      this.disabled = !this.tracks.length;
     }
   },
 
   updateOrder: function () {
-    if (!this.tracks.length || this.browser._constructing) {
+    if (!this.tracks.length) {
       return;
     }
 
     if (this.lockToTrack) {
       this.order = this.tracks[this.tracks.length - 1].order + 0.1;
     }
-
-    this.browser.sortTracks();
   },
 
   enable: function () {

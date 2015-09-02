@@ -75,7 +75,8 @@ var Genoverse = Base.extend({
   loadPlugins: function (plugins) {
     var browser         = this;
     var loadPluginsTask = $.Deferred();
-    var plugins         = plugins || this.plugins;
+
+    plugins = plugins || this.plugins;
 
     this.loadedPlugins = this.loadedPlugins || {};
 
@@ -173,6 +174,7 @@ var Genoverse = Base.extend({
 
     this.tracksById       = {};
     this.prev             = {};
+    this.legends          = {};
     this.saveKey          = this.saveKey ? 'genoverse-' + this.saveKey : 'genoverse';
     this.urlParamTemplate = this.urlParamTemplate || '';
     this.useHash          = typeof this.useHash === 'boolean' ? this.useHash : typeof window.history.pushState !== 'function';
@@ -1085,7 +1087,7 @@ var Genoverse = Base.extend({
       var loading    = $('.gv-menu-loading', menu);
       var getMenu    = track ? track.controller.populateMenu(feature) : feature;
       var isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
-      var i, j, table, el, start, end, linkData, key, width, columns, colspan, tdWidth;
+      var i, j, table, el, start, end, linkData, key, columns, colspan;
 
       function focus() {
         var data    = $(this).data();
