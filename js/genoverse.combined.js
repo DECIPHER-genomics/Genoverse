@@ -1487,11 +1487,10 @@ var Genoverse = Base.extend({
       return this.addTracks();
     }
 
-    var libraryTracks = this.libraryTracks || [];
-    var tracks        = [];
-    var tracksById    = {};
-    var tracksByName  = {};
-    var savedConfig   = {};
+    var tracksByNamespace = Genoverse.getAllTrackTypes();
+    var tracks            = [];
+    var tracksById        = {};
+    var savedConfig       = {};
     var i, prop, track;
 
     function setConfig(track, conf) {
@@ -1510,25 +1509,21 @@ var Genoverse = Base.extend({
       }
     }
 
-    for (i = 0; i < libraryTracks.length; i++) {
-      if (libraryTracks[i].prototype.name) {
-        tracksByName[libraryTracks[i].prototype.name] = libraryTracks[i];
-      }
-    }
-
     for (i = 0; i < config.length; i++) {
       track = tracksById[config[i].id];
 
       if (track) {
         setConfig(track, config[i]);
         track._fromStorage = true;
-      } else if (tracksByName[config[i].name]) {
-        track = tracksByName[config[i].name];
+      } else if (tracksByNamespace[config[i].namespace]) {
+        track = tracksByNamespace[config[i].namespace];
 
         this.trackIds = this.trackIds || {};
         this.trackIds[track.prototype.id] = this.trackIds[track.prototype.id] || 1;
 
-        track = track.extend({ id: track.prototype.id + (tracksById[track.prototype.id] ? this.trackIds[track.prototype.id]++ : '') })
+        config[i].id = config[i].id || track.prototype.id;
+
+        track = track.extend({ id: !tracksById[config[i].id] ? config[i].id : track.prototype.id + (tracksById[track.prototype.id] ? this.trackIds[track.prototype.id]++ : '') });
 
         setConfig(track, config[i]);
         tracks.push(track);
@@ -1555,17 +1550,40 @@ var Genoverse = Base.extend({
     }
 
     var config = [];
+    var conf, j;
 
     for (var i = 0; i < this.tracks.length; i++) {
-      if (this.tracks[i].id) {
-        config.push({
-          id         : this.tracks[i].id,
-          name       : this.tracks[i].name,
-          order      : this.tracks[i].order,
-          height     : this.tracks[i].height,
-          autoHeight : this.tracks[i].autoHeight,
-          config     : this.tracks[i].config
-        });
+      if (this.tracks[i].id && !(this.tracks[i] instanceof Genoverse.Track.Legend) && !(this.tracks[i] instanceof Genoverse.Track.HighlightRegion)) {
+        conf = {
+          id        : this.tracks[i].id,
+          namespace : this.tracks[i].namespace,
+          order     : this.tracks[i].order
+        };
+
+        // defaultAutoHeight is likely to be undefined, while autoHeight will be true or false
+        if (this.tracks[i].autoHeight !== !!this.tracks[i].defaultAutoHeight) {
+          conf.autoHeight = this.tracks[i].autoHeight;
+        }
+
+        if (!this.tracks[i].autoHeight && (
+          ( this.tracks[i].defaultAutoHeight && this.tracks[i].height !== this.tracks[i].prop('fullVisibleHeight')) ||
+          (!this.tracks[i].defaultAutoHeight && this.tracks[i].height !== this.tracks[i].initialHeight)
+        )) {
+          // initialHeight is the height of the track once margins have been added, while defaultHeight is the DEFINED height of the track
+          // Subtracting the difference between them gives you back the correct height to input back into the track when loading configuration
+          conf.height = this.tracks[i].height - (this.tracks[i].initialHeight - this.tracks[i].defaultHeight);
+        }
+
+        if (this.tracks[i].config) {
+          for (j in this.tracks[i].config) {
+            if (this.tracks[i].config[j] !== this.tracks[i].defaultConfig[j]) {
+              conf.config    = conf.config || {};
+              conf.config[j] = this.tracks[i].config[j];
+            }
+          }
+        }
+
+        config.push(conf);
       }
     }
 
@@ -1598,8 +1616,6 @@ var Genoverse = Base.extend({
   },
 
   addDomElements: function (width) {
-    var browser = this;
-
     this.menus          = $();
     this.labelContainer = $('<ul class="gv-label-container">').appendTo(this.container).sortable({
       items  : 'li:not(.gv-unsortable)',
@@ -2142,13 +2158,47 @@ var Genoverse = Base.extend({
     };
 
     var push = !!tracks;
-    var j, config;
+    var j, namespaces, k;
 
     tracks = tracks || $.extend([], this.tracks);
     index  = index  || 0;
 
+    var trackTypes = Genoverse.getAllTrackTypes();
+
     for (var i = 0; i < tracks.length; i++) {
-      tracks[i] = new tracks[i]($.extend(defaults, { index: i + index, config: this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined }));
+      namespaces = [];
+
+      // Find all namespaces which this track could be
+      for (j in trackTypes) {
+        if (tracks[i] === trackTypes[j] || tracks[i].prototype instanceof trackTypes[j]) {
+          namespaces.push(j);
+        }
+      }
+
+      k = namespaces.length;
+
+      // Find the most specific namespace for this track - the one which isn't a parent of any other namespaces this track could be
+      while (namespaces.length > 1) {
+        for (j = 0; j < namespaces.length - 1; j++) {
+          if (trackTypes[namespaces[j]].prototype instanceof trackTypes[namespaces[j + 1]]) {
+            namespaces.splice(j + 1, 1);
+            break;
+          } else if (trackTypes[namespaces[j + 1]].prototype instanceof trackTypes[namespaces[j]]) {
+            namespaces.splice(j, 1);
+            break;
+          }
+        }
+
+        if (k-- < 0) {
+          break; // Stop infinite loop if something went really wrong
+        }
+      }
+
+      tracks[i] = new tracks[i]($.extend(defaults, {
+        namespace : namespaces[0],
+        index     : i + index,
+        config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined
+      }));
 
       if (tracks[i].id) {
         this.tracksById[tracks[i].id] = tracks[i];
@@ -2631,6 +2681,34 @@ var Genoverse = Base.extend({
 
       return rtn;
     };
+  },
+
+  getAllTrackTypes: function (namespace, n) {
+    namespace = namespace || Genoverse.Track;
+
+    if (n) {
+      namespace = namespace[n];
+    }
+
+    if (!namespace) {
+      return [];
+    }
+
+    var trackTypes = {};
+
+    $.each(namespace, function (type, func) {
+      if (typeof func === 'function' && !Base[type] && !/^(Controller|Model|View|Squishable|Static)$/.test(type)) {
+        $.each(Genoverse.getAllTrackTypes(namespace, type), function (subtype, fn) {
+          if (typeof fn === 'function') {
+            trackTypes[type + '.' + subtype] = fn;
+          }
+        });
+
+        trackTypes[type] = func;
+      }
+    });
+
+    return trackTypes;
   }
 });
 
