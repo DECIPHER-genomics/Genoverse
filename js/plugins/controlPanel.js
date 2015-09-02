@@ -238,11 +238,19 @@ Genoverse.Plugins.controlPanel = function () {
                       $('<div>')
                         .append($('<i class="gv-remove-track gv-menu-button fa fa-times-circle">').on('click', function () { track.remove(); }))
                         .append('<span>' + track.name + '</span>')
-                        .appendTo(currentTracks);
+                        .appendTo(currentTracks)
+                        .data('track', track)
+                        .addClass(track.unsortable ? 'gv-unsortable' : '');
                     })(browser.tracks[i]);
                   }
                 }
               }
+            }).sortable({
+              items  : 'div:not(.gv-unsortable)',
+              cursor : 'move',
+              axis   : 'y',
+              handle : 'span',
+              update : $.proxy(browser.updateTrackOrder, browser)
             });
 
             currentTracks.data('listTracks')();

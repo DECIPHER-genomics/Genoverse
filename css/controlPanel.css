@@ -155,6 +155,10 @@
   white-space: nowrap;
 }
 
+.gv-control-panel-plugin .gv-tracks-menu .gv-current-tracks.ui-sortable {
+  cursor: move;
+}
+
 .gv-control-panel-plugin .gv-tracks-menu .gv-remove-track,
 .gv-control-panel-plugin .gv-tracks-menu .gv-add-track {
   font-size: 14px;

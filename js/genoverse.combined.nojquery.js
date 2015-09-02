@@ -5516,7 +5516,7 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
   1: { // > 1 base-pair, but less then 100K
     labels : true,
     model  : Genoverse.Track.Model.Transcript.Ensembl,
-    view   : Genoverse.Track.View.Transcript.Ensembl,
+    view   : Genoverse.Track.View.Transcript.Ensembl
   }
 });
 
