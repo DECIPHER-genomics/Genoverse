@@ -49,8 +49,10 @@ Genoverse.Track.Model = Base.extend({
       this.url = this._url;
     }
 
-    this.url += (this.url.indexOf('?') === -1 ? '?' : '&') + decodeURIComponent($.param(urlParams, true));
-    this.url  = this.url.replace(/[&?]$/, '');
+    if (this.url !== false) {
+      this.url += (this.url.indexOf('?') === -1 ? '?' : '&') + decodeURIComponent($.param(urlParams, true));
+      this.url  = this.url.replace(/[&?]$/, '');
+    }
   },
 
   parseURL: function (start, end, url) {
@@ -206,6 +208,12 @@ Genoverse.Track.Model = Base.extend({
 
   findFeatures: function (start, end) {
     var features = this.features.search({ x: start - this.dataBuffer.start, y: 0, w: end - start + this.dataBuffer.start + this.dataBuffer.end + 1, h: 1 });
+    var filters  = this.prop('featureFilters') || [];
+
+    for (var i = 0; i < filters.length; i++) {
+      features = $.grep(features, $.proxy(filters[i], this));
+    }
+
     return this.sortFeatures(features);
   },
 
