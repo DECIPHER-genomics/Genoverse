@@ -17,11 +17,8 @@ Genoverse.Plugins.karyotype = function () {
           name          : 'Chr ' + this.chr,
           height        : 20,
           featureHeight : 20,
-          featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },
           border        : false,
           legend        : false,
-          url           : false,
-          allData       : true,
           unsortable    : true,
 
           click: function (e) {
