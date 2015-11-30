@@ -1554,32 +1554,20 @@ var Genoverse = Base.extend({
 
     for (var i = 0; i < this.tracks.length; i++) {
       if (this.tracks[i].id && !(this.tracks[i] instanceof Genoverse.Track.Legend) && !(this.tracks[i] instanceof Genoverse.Track.HighlightRegion)) {
+        // when saving height, initialHeight is the height of the track once margins have been added, while defaultHeight is the DEFINED height of the track.
+        // Subtracting the difference between them gives you back the correct height to input back into the track when loading configuration
         conf = {
-          id        : this.tracks[i].id,
-          namespace : this.tracks[i].namespace,
-          order     : this.tracks[i].order
+          id         : this.tracks[i].id,
+          namespace  : this.tracks[i].namespace,
+          order      : this.tracks[i].order,
+          autoHeight : this.tracks[i].autoHeight,
+          height     : this.tracks[i].height - (this.tracks[i].initialHeight - this.tracks[i].defaultHeight)
         };
-
-        // defaultAutoHeight is likely to be undefined, while autoHeight will be true or false
-        if (this.tracks[i].autoHeight !== !!this.tracks[i].defaultAutoHeight) {
-          conf.autoHeight = this.tracks[i].autoHeight;
-        }
-
-        if (!this.tracks[i].autoHeight && (
-          ( this.tracks[i].defaultAutoHeight && this.tracks[i].height !== this.tracks[i].prop('fullVisibleHeight')) ||
-          (!this.tracks[i].defaultAutoHeight && this.tracks[i].height !== this.tracks[i].initialHeight)
-        )) {
-          // initialHeight is the height of the track once margins have been added, while defaultHeight is the DEFINED height of the track
-          // Subtracting the difference between them gives you back the correct height to input back into the track when loading configuration
-          conf.height = this.tracks[i].height - (this.tracks[i].initialHeight - this.tracks[i].defaultHeight);
-        }
 
         if (this.tracks[i].config) {
           for (j in this.tracks[i].config) {
-            if (this.tracks[i].config[j] !== this.tracks[i].defaultConfig[j]) {
-              conf.config    = conf.config || {};
-              conf.config[j] = this.tracks[i].config[j];
-            }
+            conf.config    = conf.config || {};
+            conf.config[j] = this.tracks[i].config[j];
           }
         }
 
@@ -2496,6 +2484,8 @@ var Genoverse = Base.extend({
       }
 
       feature.menuEl = menu.appendTo(this.superContainer || this.container);
+    } else {
+      feature.menuEl.appendTo(this.superContainer || this.container); // Move the menu to the end of the container again, so that it will always be on top of other menus
     }
 
     this.menus = this.menus.add(feature.menuEl);
@@ -2903,9 +2893,9 @@ Genoverse.Track = Base.extend({
   },
 
   setLengthMap: function () {
-    var extendArgs     = [ true, {} ];
     var featureFilters = [];
-    var settings, baseSetting, value, j, deepCopy;
+    var configSettings = [];
+    var settings, value, j, deepCopy;
 
     this.lengthMap = [];
     this.models    = {};
@@ -2916,7 +2906,7 @@ Genoverse.Track = Base.extend({
       settings = this.getConfig(i);
 
       if (settings) {
-        extendArgs.push(settings);
+        configSettings.push(settings);
 
         if (settings.featureFilter) {
           featureFilters.push(settings.featureFilter);
@@ -2924,14 +2914,11 @@ Genoverse.Track = Base.extend({
       }
     }
 
-    if (extendArgs.length > 2) {
-      baseSetting = $.extend.apply($, extendArgs.concat({ featureFilters: featureFilters }));
+    if (configSettings.length) {
+      configSettings = $.extend.apply($, [ true, {} ].concat(configSettings, { featureFilters: featureFilters }));
 
-      if (this[1]) {
-        $.extend(this[1], baseSetting);
-      } else {
-        this[1] = baseSetting;
-      }
+      // Force a lengthMap to exist. All entries in lengthMap get configSettings applied to them below
+      this[1] = this[1] || {};
     }
 
     // Find all scale-map like keys
@@ -2950,6 +2937,8 @@ Genoverse.Track = Base.extend({
     }
 
     for (var i = 0; i < this.lengthMap.length; i++) {
+      $.extend(this.lengthMap[i][1], configSettings);
+
       if (this.lengthMap[i][1].model && this.lengthMap[i][1].view) {
         continue;
       }
@@ -3269,7 +3258,7 @@ Genoverse.Track.Controller = Base.extend({
     var height = this.messageContainer.show().outerHeight(true);
 
     if (height > this.prop('height')) {
-      this.resize(height);
+      this.resize(height, undefined, false);
     }
 
     messages = null;
@@ -3345,7 +3334,7 @@ Genoverse.Track.Controller = Base.extend({
     if (autoHeight || this.prop('labels') === 'separate') {
       this.resize(autoHeight ? this.fullVisibleHeight : this.prop('height'), this.labelTop, false);
     } else {
-      this.toggleExpander();
+      this.toggleExpander(false);
     }
   },
 
@@ -3364,7 +3353,7 @@ Genoverse.Track.Controller = Base.extend({
     }
   },
 
-  toggleExpander: function () {
+  toggleExpander: function (saveConfig) {
     if (this.prop('resizable') !== true) {
       return;
     }
@@ -3384,7 +3373,7 @@ Genoverse.Track.Controller = Base.extend({
       var h          = this.messageContainer.outerHeight(true);
 
       if (h > height) {
-        this.resize(h);
+        this.resize(h, undefined, saveConfig);
       }
 
       this.expander = (this.expander || $('<div class="gv-expander gv-static">').width(this.width).appendTo(this.container).on('click', function () {
@@ -3675,6 +3664,8 @@ Genoverse.Track.Model = Base.extend({
     this.urlParams  = this.urlParams  || {};                   // hash of URL params
     this.xhrFields  = this.xhrFields  || {};
 
+    this.dataBufferStart = this.dataBuffer.start; // Remember original dataBuffer.start, since dataBuffer.start is updated based on browser scale, in setLabelBuffer
+
     if (!this._url) {
       this._url = this.url; // Remember original url
     }
@@ -3707,7 +3698,7 @@ Genoverse.Track.Model = Base.extend({
   },
 
   setLabelBuffer: function (buffer) {
-    this.dataBuffer.start = Math.max(this.dataBuffer.start, buffer);
+    this.dataBuffer.start = Math.max(this.dataBufferStart, buffer);
   },
 
   getData: function (start, end, done) {
@@ -5531,7 +5522,7 @@ Genoverse.Track.File.BED = Genoverse.Track.File.extend({
   model         : Genoverse.Track.Model.File.BED,
   bump          : true,
   featureHeight : 6,
-  
+
   populateMenu: function (feature) {
     return {
       title       : '<a target=_blank href="https://genome.ucsc.edu/FAQ/FAQformat.html#format1">BED feature details</a>',
@@ -5555,7 +5546,7 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
   name       : 'VCF',
   model      : Genoverse.Track.Model.SequenceVariation.VCF,
   autoHeight : false,
-  
+
   populateMenu: function (feature) {
     return {
       title  : '<a target="_blank" href="http://www.1000genomes.org/node/101">VCF feature details</a>',
@@ -5569,13 +5560,13 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
       INFO   : feature.originalFeature[7].split(';').join('<br />')
     };
   },
-  
-  1: { 
+
+  1: {
     view: Genoverse.Track.View.Sequence.extend({
       bump          : true,
       labels        : false,
       featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },
-      
+
       draw: function (features, featureContext, labelContext, scale) {
         this.base.apply(this, arguments);
         this.highlightRef(features, featureContext, scale);
@@ -5583,7 +5574,7 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
 
       highlightRef: function (features, context, scale) {
         context.strokeStyle = 'black';
-        
+
         for (var i = 0; i < features.length; i++) {
           if (features[i].allele === 'REF') {
             context.strokeRect(features[i].position[scale].X, features[i].position[scale].Y, features[i].position[scale].width, features[i].position[scale].height);
@@ -5592,12 +5583,12 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
       }
     })
   },
-  
+
   1000: {
     view: Genoverse.Track.View.extend({
       bump   : false,
       labels : false,
-      
+
       drawFeature: function (feature) {
         if (!feature.color) {
           var QUAL  = feature.originalFeature[5];
@@ -5607,7 +5598,7 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
 
           feature.color = 'rgb(' + red + ',' + green + ',0)';
         }
-        
+
         this.base.apply(this, arguments);
       }
     })
@@ -6021,7 +6012,16 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
           this.legends[i].controller.makeImage({});
         }
       },
-      afterUpdateTrackOrder: function () {
+      afterUpdateTrackOrder: function (e, ui) {
+        var track       = ui.item.data('track');
+        var legendTrack = this.legends[track.id] || track.legendTrack;
+
+        // If a legend track, or a track with a sortable legend has been reordered, set a fixedOrder property to ensure that its lockToTrack status is ignored from now on.
+        // This allows a legend to initially be locked to a track, but then to be reordered once the browser has been initialized
+        if (legendTrack && legendTrack.lockToTrack && legendTrack.unsortable === false) {
+          legendTrack.fixedOrder = true;
+        }
+
         for (var i in this.legends) {
           this.legends[i].updateOrder();
         }
@@ -6071,7 +6071,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   },
 
   updateOrder: function () {
-    if (!this.tracks.length) {
+    if (!this.tracks.length || this.fixedOrder) {
       return;
     }
 
@@ -6098,28 +6098,28 @@ Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
   height     : 12,
   labels     : 'overlay',
   unsortable : true,
-  
+
   resize: $.noop,
-  
+
   makeFirstImage: function () {
     this.prop('scaleline', false);
     this.base.apply(this, arguments);
   },
-  
+
   render: function (f, img) {
     this.base(f, img);
     this.prop('drawnScale', img.data('scale'));
   },
-  
+
   positionFeatures: function (features, params) {
     var scaleline = this.prop('scaleline');
-    
+
     if (params.scale === this.drawnScale) {
       return false;
     } else if (scaleline) {
       return scaleline;
     }
-    
+
     var strand = this.prop('strand');
     var height = this.prop('height');
     var text   = this.formatLabel(this.browser.length);
@@ -6128,7 +6128,7 @@ Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
     var width2 = this.context.measureText(text2).width;
     var bg     = this.prop('imgContainer').css('backgroundColor');
     var x1, x2;
-    
+
     if (strand === 1) {
       x1 = 0;
       x2 = this.width - width2 - 40;
@@ -6136,23 +6136,23 @@ Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
       x1 = 25;
       x2 = 30;
     }
-    
+
     scaleline = [
       { x: x1,                             y: height / 2, width: this.width - 25, height: 1, decorations: true },
       { x: (this.width - width1 - 10) / 2, y: 0,          width: width1 + 10,     height: height, color: bg, labelColor: this.color, labelWidth: width1, label: text  },
       { x: x2,                             y: 0,          width: width2 + 10,     height: height, color: bg, labelColor: this.color, labelWidth: width2, label: text2 }
     ];
-    
+
     return this.base(this.prop('scaleline', scaleline), params);
   },
-  
+
   decorateFeature: function (feature, context) {
     var strand = this.prop('strand');
     var height = this.prop('height');
     var x      = strand === 1 ? this.width - 25 : 25;
-    
+
     context.strokeStyle = this.color;
-    
+
     context.beginPath();
     context.moveTo(x,                 height * 0.25);
     context.lineTo(x + (strand * 20), height * 0.5);

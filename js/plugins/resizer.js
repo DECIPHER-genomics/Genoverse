@@ -34,4 +34,12 @@ Genoverse.Plugins.resizer = function () {
       this.prop('initialHeight', this.prop('height'));
     }
   });
+
+  this.on('afterToggleExpander', 'tracks', function () {
+    var resizer = this.prop('resizer');
+
+    if (resizer) {
+      resizer[this.expander && this.expander.is(':visible') ? 'addClass' : 'removeClass']('gv-resizer-expander');
+    }
+  });
 };
