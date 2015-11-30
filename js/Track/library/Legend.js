@@ -123,7 +123,16 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
           this.legends[i].controller.makeImage({});
         }
       },
-      afterUpdateTrackOrder: function () {
+      afterUpdateTrackOrder: function (e, ui) {
+        var track       = ui.item.data('track');
+        var legendTrack = this.legends[track.id] || track.legendTrack;
+
+        // If a legend track, or a track with a sortable legend has been reordered, set a fixedOrder property to ensure that its lockToTrack status is ignored from now on.
+        // This allows a legend to initially be locked to a track, but then to be reordered once the browser has been initialized
+        if (legendTrack && legendTrack.lockToTrack && legendTrack.unsortable === false) {
+          legendTrack.fixedOrder = true;
+        }
+
         for (var i in this.legends) {
           this.legends[i].updateOrder();
         }
@@ -173,7 +182,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   },
 
   updateOrder: function () {
-    if (!this.tracks.length) {
+    if (!this.tracks.length || this.fixedOrder) {
       return;
     }
 
