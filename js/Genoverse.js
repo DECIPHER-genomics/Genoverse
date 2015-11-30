@@ -287,32 +287,20 @@ var Genoverse = Base.extend({
 
     for (var i = 0; i < this.tracks.length; i++) {
       if (this.tracks[i].id && !(this.tracks[i] instanceof Genoverse.Track.Legend) && !(this.tracks[i] instanceof Genoverse.Track.HighlightRegion)) {
+        // when saving height, initialHeight is the height of the track once margins have been added, while defaultHeight is the DEFINED height of the track.
+        // Subtracting the difference between them gives you back the correct height to input back into the track when loading configuration
         conf = {
-          id        : this.tracks[i].id,
-          namespace : this.tracks[i].namespace,
-          order     : this.tracks[i].order
+          id         : this.tracks[i].id,
+          namespace  : this.tracks[i].namespace,
+          order      : this.tracks[i].order,
+          autoHeight : this.tracks[i].autoHeight,
+          height     : this.tracks[i].height - (this.tracks[i].initialHeight - this.tracks[i].defaultHeight)
         };
-
-        // defaultAutoHeight is likely to be undefined, while autoHeight will be true or false
-        if (this.tracks[i].autoHeight !== !!this.tracks[i].defaultAutoHeight) {
-          conf.autoHeight = this.tracks[i].autoHeight;
-        }
-
-        if (!this.tracks[i].autoHeight && (
-          ( this.tracks[i].defaultAutoHeight && this.tracks[i].height !== this.tracks[i].prop('fullVisibleHeight')) ||
-          (!this.tracks[i].defaultAutoHeight && this.tracks[i].height !== this.tracks[i].initialHeight)
-        )) {
-          // initialHeight is the height of the track once margins have been added, while defaultHeight is the DEFINED height of the track
-          // Subtracting the difference between them gives you back the correct height to input back into the track when loading configuration
-          conf.height = this.tracks[i].height - (this.tracks[i].initialHeight - this.tracks[i].defaultHeight);
-        }
 
         if (this.tracks[i].config) {
           for (j in this.tracks[i].config) {
-            if (this.tracks[i].config[j] !== this.tracks[i].defaultConfig[j]) {
-              conf.config    = conf.config || {};
-              conf.config[j] = this.tracks[i].config[j];
-            }
+            conf.config    = conf.config || {};
+            conf.config[j] = this.tracks[i].config[j];
           }
         }
 

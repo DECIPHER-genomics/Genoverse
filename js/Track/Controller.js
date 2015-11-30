@@ -148,7 +148,7 @@ Genoverse.Track.Controller = Base.extend({
     var height = this.messageContainer.show().outerHeight(true);
 
     if (height > this.prop('height')) {
-      this.resize(height);
+      this.resize(height, undefined, false);
     }
 
     messages = null;
@@ -224,7 +224,7 @@ Genoverse.Track.Controller = Base.extend({
     if (autoHeight || this.prop('labels') === 'separate') {
       this.resize(autoHeight ? this.fullVisibleHeight : this.prop('height'), this.labelTop, false);
     } else {
-      this.toggleExpander();
+      this.toggleExpander(false);
     }
   },
 
@@ -243,7 +243,7 @@ Genoverse.Track.Controller = Base.extend({
     }
   },
 
-  toggleExpander: function () {
+  toggleExpander: function (saveConfig) {
     if (this.prop('resizable') !== true) {
       return;
     }
@@ -263,7 +263,7 @@ Genoverse.Track.Controller = Base.extend({
       var h          = this.messageContainer.outerHeight(true);
 
       if (h > height) {
-        this.resize(h);
+        this.resize(h, undefined, saveConfig);
       }
 
       this.expander = (this.expander || $('<div class="gv-expander gv-static">').width(this.width).appendTo(this.container).on('click', function () {
