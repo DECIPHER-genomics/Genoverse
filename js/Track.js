@@ -177,9 +177,9 @@ Genoverse.Track = Base.extend({
   },
 
   setLengthMap: function () {
-    var extendArgs     = [ true, {} ];
     var featureFilters = [];
-    var settings, baseSetting, value, j, deepCopy;
+    var configSettings = [];
+    var settings, value, j, deepCopy;
 
     this.lengthMap = [];
     this.models    = {};
@@ -190,7 +190,7 @@ Genoverse.Track = Base.extend({
       settings = this.getConfig(i);
 
       if (settings) {
-        extendArgs.push(settings);
+        configSettings.push(settings);
 
         if (settings.featureFilter) {
           featureFilters.push(settings.featureFilter);
@@ -198,14 +198,11 @@ Genoverse.Track = Base.extend({
       }
     }
 
-    if (extendArgs.length > 2) {
-      baseSetting = $.extend.apply($, extendArgs.concat({ featureFilters: featureFilters }));
+    if (configSettings.length) {
+      configSettings = $.extend.apply($, [ true, {} ].concat(configSettings, { featureFilters: featureFilters }));
 
-      if (this[1]) {
-        $.extend(this[1], baseSetting);
-      } else {
-        this[1] = baseSetting;
-      }
+      // Force a lengthMap to exist. All entries in lengthMap get configSettings applied to them below
+      this[1] = this[1] || {};
     }
 
     // Find all scale-map like keys
@@ -224,6 +221,8 @@ Genoverse.Track = Base.extend({
     }
 
     for (var i = 0; i < this.lengthMap.length; i++) {
+      $.extend(this.lengthMap[i][1], configSettings);
+
       if (this.lengthMap[i][1].model && this.lengthMap[i][1].view) {
         continue;
       }
