@@ -33,6 +33,8 @@ Genoverse.Track.Model = Base.extend({
     this.urlParams  = this.urlParams  || {};                   // hash of URL params
     this.xhrFields  = this.xhrFields  || {};
 
+    this.dataBufferStart = this.dataBuffer.start; // Remember original dataBuffer.start, since dataBuffer.start is updated based on browser scale, in setLabelBuffer
+
     if (!this._url) {
       this._url = this.url; // Remember original url
     }
@@ -65,7 +67,7 @@ Genoverse.Track.Model = Base.extend({
   },
 
   setLabelBuffer: function (buffer) {
-    this.dataBuffer.start = Math.max(this.dataBuffer.start, buffer);
+    this.dataBuffer.start = Math.max(this.dataBufferStart, buffer);
   },
 
   getData: function (start, end, done) {
