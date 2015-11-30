@@ -52,7 +52,7 @@ for (var i=0; i<chromosomes.length; i++) {
   (function(chr){
 
     options.path   = options.path.replace(/\w+$/, chr);
-    http.request(options, function (response) { 
+    http.request(options, function (response) {
       callback(response, chr);
     }).end();
 
