@@ -1217,6 +1217,8 @@ var Genoverse = Base.extend({
       }
 
       feature.menuEl = menu.appendTo(this.superContainer || this.container);
+    } else {
+      feature.menuEl.appendTo(this.superContainer || this.container); // Move the menu to the end of the container again, so that it will always be on top of other menus
     }
 
     this.menus = this.menus.add(feature.menuEl);
