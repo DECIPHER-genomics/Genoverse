@@ -23,30 +23,38 @@ Genoverse.Plugins.fileDrop = function () {
           e.preventDefault();
           e.stopPropagation();
 
-          var files = e.originalEvent.dataTransfer.files;
+          // Sort in order to ensure that .bam files are before their .bam.bai files
+          var files = $.map(e.originalEvent.dataTransfer.files, function (f) { return f; }).sort(function (a, b) { return a.name < b.name ? -1 : 1 });
 
           for (var i = 0; i < files.length; i++) {
-            var file   = files[i];
-            var reader = new FileReader();
+            var file  = files[i];
+            var ext   = (file.name.match(/\.(\w+)$/))[1];
+            var track = Genoverse.Track.File[ext.toUpperCase()];
+            var indexFile;
 
-            reader.onload = function (event) {
-              var track = Genoverse.Track.File[((file.name.match(/\.(\w+)$/))[1]).toUpperCase()].extend({
-                name    : file.name,
-                info    : 'Local file `' + file.name + '`, size: ' + file.size + ' bytes',
-                allData : true,
-                url     : false,
-                data    : event.target.result,
-                getData : function () {
-                  return $.Deferred().done(function () {
-                    this.receiveData(this.data, 1, this.browser.chromosomeSize);
-                  }).resolveWith(this);
-                }
-              });
+            if (typeof track === 'undefined') {
+              return;
+            }
 
-              browser.addTrack(track, browser.tracks.length - 1);
-            };
+            if (track.prototype.indexExt) {
+              i++;
 
-            reader.readAsText(file);
+              if ((files[i] || {}).name !== file.name + track.prototype.indexExt) {
+                continue;
+              }
+
+              indexFile = files[i];
+            }
+
+            track = track.extend({
+              name      : file.name,
+              info      : 'Local file `' + file.name + '`, size: ' + file.size + ' bytes',
+              isLocal   : true,
+              dataFile  : file,
+              indexFile : indexFile
+            });
+
+            browser.addTrack(track, browser.tracks.length - 1);
           }
 
           return false;
