@@ -63,7 +63,7 @@ Genoverse.Track.Model = Base.extend({
       end   = this.browser.chromosomeSize;
     }
 
-    return (url || this.url).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
+    return (url || this.url).replace(/__ASSEMBLY__/, this.browser.assembly).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
   },
 
   setLabelBuffer: function (buffer) {
