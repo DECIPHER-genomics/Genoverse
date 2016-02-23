@@ -1,27 +1,15 @@
 Genoverse.Track.Controller.Sequence = Genoverse.Track.Controller.extend({
-  click: function (e) {
-    var x        = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
-    var y        = e.pageY - $(e.target).offset().top;
-    var features = this[e.target.className === 'gv-labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; });
-    var seq;
-    
-    if (features.length) {
-      x = Math.floor(x / this.scale);
-      
-      for (var i = 0; i < features.length; i++) {
-        if (features[i].alt_allele) {
-          return this.browser.makeMenu(features[i], e, this.track);
-        }
-        
-        seq = features[i].sequence.charAt(x - features[i].start);
-        
-        if (seq) {
-          return this.browser.makeMenu({
-            title    : seq,
-            Location : this.browser.chr + ':' + x
-          }, e, this.track);
-        }
-      }
+  getClickedFeatures: function (x, y) {
+    return this.makeSeqFeatureMenu(this.base(x, y)[0], Math.floor(x / this.scale));
+  },
+
+  makeSeqFeatureMenu: function (feature, pos) {
+    feature.featureMenus      = feature.featureMenus      || {};
+    feature.featureMenus[pos] = feature.featureMenus[pos] || {
+      title    : feature.sequence.charAt(pos - feature.start),
+      Location : this.browser.chr + ':' + pos
     }
+
+    return feature.featureMenus[pos].title ? feature.featureMenus[pos] : undefined;
   }
 });

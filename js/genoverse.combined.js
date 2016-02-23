@@ -4497,38 +4497,38 @@ Genoverse.Track.Static = Genoverse.Track.extend({
 Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
   constructor: function (properties) {
     this.base(properties);
-    
+
     if (typeof this._makeImage === 'function') {
       return;
     }
-    
+
     var strand        = this.prop('strand');
     var featureStrand = this.prop('featureStrand');
-    
+
     if (strand === -1) {
       this._makeImage = this.track.makeReverseImage ? $.proxy(this.track.makeReverseImage, this) : this.makeImage;
       this.makeImage  = $.noop;
     } else {
       strand = this.prop('strand', 1);
-      
+
       this._makeImage   = this.makeImage;
       this.makeImage    = this.makeForwardImage;
       this.reverseTrack = this.browser.addTrack(this.track.constructor.extend({ strand: -1, url: false, forwardTrack: this }), this.browser.tracks.length).controller;
     }
-    
+
     if (!featureStrand) {
       this.prop('featureStrand', strand);
     }
-    
+
     if (!(this.model instanceof Genoverse.Track.Model.Stranded)) {
       this.track.lengthMap.push([ -9e99, { model: Genoverse.Track.Model.Stranded }]);
     }
   },
-  
+
   makeForwardImage: function (params) {
     var reverseTrack = this.prop('reverseTrack');
     var rtn          = this._makeImage(params);
-    
+
     if (rtn && typeof rtn.done === 'function') {
       rtn.done(function () {
         reverseTrack._makeImage(params, rtn);
@@ -4537,14 +4537,14 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
       reverseTrack._makeImage(params, rtn);
     }
   },
-  
+
   destroy: function () {
     if (this.removing) {
       return;
     }
-    
+
     this.removing = true;
-    
+
     this.browser.removeTrack((this.prop('forwardTrack') || this.prop('reverseTrack')).track);
     this.base();
   }
@@ -4576,30 +4576,18 @@ Genoverse.Track.Model.Stranded = Genoverse.Track.Model.extend({
 
 
 Genoverse.Track.Controller.Sequence = Genoverse.Track.Controller.extend({
-  click: function (e) {
-    var x        = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
-    var y        = e.pageY - $(e.target).offset().top;
-    var features = this[e.target.className === 'gv-labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; });
-    var seq;
-    
-    if (features.length) {
-      x = Math.floor(x / this.scale);
-      
-      for (var i = 0; i < features.length; i++) {
-        if (features[i].alt_allele) {
-          return this.browser.makeMenu(features[i], e, this.track);
-        }
-        
-        seq = features[i].sequence.charAt(x - features[i].start);
-        
-        if (seq) {
-          return this.browser.makeMenu({
-            title    : seq,
-            Location : this.browser.chr + ':' + x
-          }, e, this.track);
-        }
-      }
+  getClickedFeatures: function (x, y) {
+    return this.makeSeqFeatureMenu(this.base(x, y)[0], Math.floor(x / this.scale));
+  },
+
+  makeSeqFeatureMenu: function (feature, pos) {
+    feature.featureMenus      = feature.featureMenus      || {};
+    feature.featureMenus[pos] = feature.featureMenus[pos] || {
+      title    : feature.sequence.charAt(pos - feature.start),
+      Location : this.browser.chr + ':' + pos
     }
+
+    return feature.featureMenus[pos].title ? feature.featureMenus[pos] : undefined;
   }
 });
 
@@ -6029,18 +6017,29 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       img.height(this.browser.wrapper.outerHeight(true));
     },
 
-    populateMenu: function (feature) {
-      var location = feature.start + '-' + feature.end;
-      var menu = {
-        title: feature.label ? feature.label[0] : location,
-        start: false
-      };
+    populateMenu: function (features) {
+      var menu = [];
+      var location, m;
 
-      menu[menu.title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
+      if (features.length > 1) {
+        menu.push({ title: 'Highlights' });
+      }
 
-      if (feature.removable !== false) {
-        menu['<a class="gv-remove-highlight"  href="#">Remove this highlight</a>'] = '';
-        menu['<a class="gv-remove-highlights" href="#">Remove all highlights</a>'] = '';
+      for (var i = 0; i < features.length; i++) {
+        location = features[i].start + '-' + features[i].end;
+        m        = {
+          title: features[i].label ? features[i].label[0] : location,
+          start: false
+        };
+
+        m[m.title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
+
+        if (features[i].removable !== false) {
+          m['<a class="gv-remove-highlight"  href="#" data-id="' + features[i].id + '">Remove this highlight</a>'] = '';
+          m['<a class="gv-remove-highlights" href="#">Remove all highlights</a>'] = '';
+        }
+
+        menu.push(m);
       }
 
       return menu;
@@ -6057,7 +6056,8 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
         var track = this.track;
 
         menuEl.find('.gv-remove-highlight').on('click', function () {
-          track.removeHighlights([ menuEl.data('feature') ]);
+          var id = $(this).data('id');
+          track.removeHighlights($.grep(menuEl.data('feature'), function (f) { return f.id === id; }));
           return false;
         });
 
@@ -6068,6 +6068,26 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
 
         menuEl.data('highlightEvents', true);
       }
+    },
+
+    getClickedFeatures: function (x, y, target) {
+      var seen     = {};
+      var scale    = this.scale;
+      var features = $.grep(
+        // feature positions
+        this.featurePositions.search({ x: x, y: y, w: 1, h: 1 }).concat(
+          // plus label positions where the labels are visible
+          $.grep(this.labelPositions.search({ x: x, y: y, w: 1, h: 1 }), function (f) {
+            return f.position[scale].label.visible !== false;
+          })
+        ), function (f) {
+        // with duplicates removed
+        var rtn = !seen[f.id];
+        seen[f.id] = true;
+        return rtn;
+      });
+
+      return features.length ? [ this.model.sortFeatures(features) ] : false;
     }
   }),
 

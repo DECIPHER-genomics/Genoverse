@@ -1129,37 +1129,86 @@ var Genoverse = Base.extend({
     }
   }),
 
-  makeMenu: function (feature, event, track) {
+  makeMenu: function (features, event, track) {
+    if (!features) {
+      return false;
+    }
+
+    if (!$.isArray(features)) {
+      features = [ features ];
+    }
+
+    if (features.length === 0) {
+      return false;
+    } else if (features.length === 1) {
+      return this.makeFeatureMenu(features[0], event, track);
+    }
+
+    var browser = this;
+    var menu    = this.menuTemplate.clone(true).data({ browser: this });
+    var table   = $('.gv-menu-content', menu).addClass('gv-menu-content-first').find('table');
+
+    $('.gv-focus, .gv-highlight, .gv-menu-loading', menu).remove();
+    $('.gv-title', menu).html(features.length + ' features');
+
+    $.each(features.sort(function (a, b) { return a.start - b.start; }), function (i, feature) {
+      var location = (feature.chr || browser.chr) + ':' + feature.start + (feature.end === feature.start ? '' : '-' + feature.end);
+      var title    = feature.menuLabel || feature.name || ($.isArray(feature.label) ? feature.label.join(' ') : feature.label) || (feature.id + '');
+
+      $('<a href="#">').html(title.match(location) ? title : (location + ' ' + title)).on('click', function (e) {
+        browser.makeFeatureMenu(feature, e, track);
+        return false;
+      }).appendTo($('<td>').appendTo($('<tr>').appendTo(table)));
+    });
+
+    menu.appendTo(this.superContainer || this.container).show();
+
+    if (event) {
+      menu.css({ left: 0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' });
+    }
+
+    this.menus = this.menus.add(menu);
+
+    if (track) {
+      track.prop('menus', track.prop('menus').add(menu));
+    }
+
+    return menu;
+  },
+
+  makeFeatureMenu: function (feature, e, track) {
+    var browser   = this;
+    var container = this.superContainer || this.container;
+    var menu, content, loading, getMenu, isDeferred, i, j,  el, start, end, linkData, key, columns, colspan;
+
+    function focus() {
+      var data    = $(this).data();
+      var length  = data.end - data.start + 1;
+      var context = Math.max(Math.round(length / 4), 25);
+
+      browser.moveTo(data.start - context, data.end + context, true);
+
+      return false;
+    }
+
+    function highlight() {
+      browser.addHighlight($(this).data());
+      return false;
+    }
+
     if (!feature.menuEl) {
-      var browser    = this;
-      var menu       = this.menuTemplate.clone(true).data({ browser: this, feature: feature });
-      var content    = $('.gv-menu-content', menu).remove();
-      var loading    = $('.gv-menu-loading', menu);
-      var getMenu    = track ? track.controller.populateMenu(feature) : feature;
-      var isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
-      var i, j, table, el, start, end, linkData, key, columns, colspan;
-
-      function focus() {
-        var data    = $(this).data();
-        var length  = data.end - data.start + 1;
-        var context = Math.max(Math.round(length / 4), 25);
-
-        browser.moveTo(data.start - context, data.end + context, true);
-
-        return false;
-      }
-
-      function highlight() {
-        browser.addHighlight($(this).data());
-        return false;
-      }
+      menu       = browser.menuTemplate.clone(true).data({ browser: browser, feature: feature });
+      content    = $('.gv-menu-content', menu).remove();
+      loading    = $('.gv-menu-loading', menu);
+      getMenu    = track ? track.controller.populateMenu(feature) : feature;
+      isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
 
       if (isDeferred) {
         loading.show();
       }
 
       $.when(getMenu).done(function (properties) {
-        if (Object.prototype.toString.call(properties) !== '[object Array]') {
+        if (!$.isArray(properties)) {
           properties = [ properties ];
         }
 
@@ -1168,7 +1217,7 @@ var Genoverse = Base.extend({
           el      = content.clone().addClass(i ? '' : 'gv-menu-content-first').appendTo(menu);
           start   = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
           end     = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
-          columns = Math.max.apply(Math, $.map(properties[i], function (v) { return Object.prototype.toString.call(v) === '[object Array]' ? v.length : 1; }));
+          columns = Math.max.apply(Math, $.map(properties[i], function (v) { return $.isArray(v) ? v.length : 1; }));
 
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
@@ -1191,7 +1240,7 @@ var Genoverse = Base.extend({
               table  += '<tr><td' + colspan + '>' + key + '</td>';
 
               if (!colspan) {
-                if (Object.prototype.toString.call(properties[i][key]) === '[object Array]') {
+                if ($.isArray(properties[i][key])) {
                   for (j = 0; j < properties[i][key].length; j++) {
                     table += '<td>' + properties[i][key][j] + '</td>';
                   }
@@ -1206,7 +1255,7 @@ var Genoverse = Base.extend({
             }
           }
 
-          $('table', el).html(table);
+          $('table', el)[table ? 'html' : 'remove'](table);
         }
 
         if (isDeferred) {
@@ -1218,12 +1267,12 @@ var Genoverse = Base.extend({
         menu.addClass(track.id).data('track', track);
       }
 
-      feature.menuEl = menu.appendTo(this.superContainer || this.container);
+      feature.menuEl = menu.appendTo(container);
     } else {
-      feature.menuEl.appendTo(this.superContainer || this.container); // Move the menu to the end of the container again, so that it will always be on top of other menus
+      feature.menuEl.appendTo(container); // Move the menu to the end of the container again, so that it will always be on top of other menus
     }
 
-    this.menus = this.menus.add(feature.menuEl);
+    browser.menus = browser.menus.add(feature.menuEl);
 
     if (track) {
       track.prop('menus', track.prop('menus').add(feature.menuEl));
@@ -1231,8 +1280,8 @@ var Genoverse = Base.extend({
 
     feature.menuEl.show(); // Must show before positioning, else position will be wrong
 
-    if (event) {
-      feature.menuEl.css({ left: 0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' });
+    if (e) {
+      feature.menuEl.css({ left: 0, top: 0 }).position({ of: e, my: 'left top', collision: 'flipfit' });
     }
 
     return feature.menuEl;

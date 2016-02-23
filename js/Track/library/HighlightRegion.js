@@ -103,18 +103,29 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       img.height(this.browser.wrapper.outerHeight(true));
     },
 
-    populateMenu: function (feature) {
-      var location = feature.start + '-' + feature.end;
-      var menu = {
-        title: feature.label ? feature.label[0] : location,
-        start: false
-      };
+    populateMenu: function (features) {
+      var menu = [];
+      var location, m;
 
-      menu[menu.title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
+      if (features.length > 1) {
+        menu.push({ title: 'Highlights' });
+      }
 
-      if (feature.removable !== false) {
-        menu['<a class="gv-remove-highlight"  href="#">Remove this highlight</a>'] = '';
-        menu['<a class="gv-remove-highlights" href="#">Remove all highlights</a>'] = '';
+      for (var i = 0; i < features.length; i++) {
+        location = features[i].start + '-' + features[i].end;
+        m        = {
+          title: features[i].label ? features[i].label[0] : location,
+          start: false
+        };
+
+        m[m.title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
+
+        if (features[i].removable !== false) {
+          m['<a class="gv-remove-highlight"  href="#" data-id="' + features[i].id + '">Remove this highlight</a>'] = '';
+          m['<a class="gv-remove-highlights" href="#">Remove all highlights</a>'] = '';
+        }
+
+        menu.push(m);
       }
 
       return menu;
@@ -131,7 +142,8 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
         var track = this.track;
 
         menuEl.find('.gv-remove-highlight').on('click', function () {
-          track.removeHighlights([ menuEl.data('feature') ]);
+          var id = $(this).data('id');
+          track.removeHighlights($.grep(menuEl.data('feature'), function (f) { return f.id === id; }));
           return false;
         });
 
@@ -142,6 +154,26 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
 
         menuEl.data('highlightEvents', true);
       }
+    },
+
+    getClickedFeatures: function (x, y, target) {
+      var seen     = {};
+      var scale    = this.scale;
+      var features = $.grep(
+        // feature positions
+        this.featurePositions.search({ x: x, y: y, w: 1, h: 1 }).concat(
+          // plus label positions where the labels are visible
+          $.grep(this.labelPositions.search({ x: x, y: y, w: 1, h: 1 }), function (f) {
+            return f.position[scale].label.visible !== false;
+          })
+        ), function (f) {
+        // with duplicates removed
+        var rtn = !seen[f.id];
+        seen[f.id] = true;
+        return rtn;
+      });
+
+      return features.length ? [ this.model.sortFeatures(features) ] : false;
     }
   }),
 
