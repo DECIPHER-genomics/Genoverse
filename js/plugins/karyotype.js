@@ -31,18 +31,15 @@ Genoverse.Plugins.karyotype = function () {
                 if (!this.browser.parent.isStatic) {
                   this.browser.parent.moveTo(f.start, f.end, true);
                 }
-              } else {
-                if (this.hoverFeature !== f) {
-                  this.container.tipsy('hide');
+              } else if (this.hoverFeature !== f && !this.browser.hideTooltip) {
+                this.container.tipsy('hide');
 
-                  if (f.label) {
-                    var left = offset + f.position[this.scale].start + f.position[this.scale].width / 2;
-
-                    this.container.attr('title', f.label[0]).tipsy({ trigger: 'manual', container: 'body' }).tipsy('show').data('tipsy').$tip.css('left', function () { return left - $(this).width() / 2; });
-                  }
-
-                  this.hoverFeature = f;
+                if (f.label) {
+                  var left = offset + f.position[this.scale].start + f.position[this.scale].width / 2;
+                  this.container.attr('title', f.label[0]).tipsy({ trigger: 'manual', container: 'body' }).tipsy('show').data('tipsy').$tip.css('left', function () { return left - $(this).width() / 2; });
                 }
+
+                this.hoverFeature = f;
               }
             }
           },
@@ -53,8 +50,8 @@ Genoverse.Plugins.karyotype = function () {
             this.base();
 
             this.container.on({
-              mousemove  : function (e) { track.click(e); },
-              mouseout   : function (e) {
+              mousemove : function (e) { track.click(e); },
+              mouseout  : function (e) {
                 if (track.browser.viewPoint.is(e.relatedTarget) || track.browser.viewPoint.find(e.relatedTarget).length) {
                   return true;
                 }
@@ -94,10 +91,8 @@ Genoverse.Plugins.karyotype = function () {
         }
 
         this.viewPoint = $('<div class="gv-karyotype-viewpoint-wrapper"><div class="gv-karyotype-viewpoint"></div></div>').appendTo(container).children().on({
-          mousemove: function (e) {
-            karyotype.track.controller.click(e);
-          },
-          mouseout: function (e) {
+          mousemove : function (e) { karyotype.track.controller.click(e); },
+          mouseout  : function (e) {
             var el = $(e.relatedTarget);
 
             if (karyotype.viewPoint.is(el) || karyotype.viewPoint.find(el).length || (el.prop('nodeName') === 'IMG' && el.parent().is(karyotype.track.prop('imgContainers')[0]))) {
@@ -110,7 +105,14 @@ Genoverse.Plugins.karyotype = function () {
         });
 
         if (!parent.isStatic) {
+          function hideTooltip() {
+            karyotype.hideTooltip = true;
+            karyotype.track.prop('container').tipsy('hide');
+          }
+
           function updateLocation(e, ui) {
+            karyotype.hideTooltip = false;
+
             if (e.type === 'resizestop') {
               var axis = $(this).data('ui-resizable').axis;
 
@@ -129,10 +131,12 @@ Genoverse.Plugins.karyotype = function () {
           this.viewPoint.draggable({
             axis        : 'x',
             containment : this.wrapper,
+            start       : hideTooltip,
             stop        : updateLocation
           }).resizable({
             handles     : 'e, w',
             containment : 'parent',
+            start       : hideTooltip,
             stop        : updateLocation,
             resize      : function (e, ui) {
               ui.element.css('left', Math.max(0, ui.position.left));
@@ -148,8 +152,8 @@ Genoverse.Plugins.karyotype = function () {
       },
 
       updatePosition: function () {
-        var left  =  this.width * this.parent.start / this.chromosomeSize;
-        var width = (this.width * this.parent.end   / this.chromosomeSize) - left;
+        var left  =  this.parent.start * this.scale;
+        var width = (this.parent.end   * this.scale) - left;
 
         this.viewPoint.css({ left: left, width: width });
       }
