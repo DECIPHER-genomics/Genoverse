@@ -33,6 +33,8 @@ var Genoverse = Base.extend({
       return this.die('Your browser does not support this functionality');
     }
 
+    config = config || {};
+
     config.container = $(config.container); // Make sure container is a jquery object, jquery recognises itself automatically
 
     if (!(config.container && config.container.length)) {
@@ -1334,6 +1336,11 @@ var Genoverse = Base.extend({
   destroy: function () {
     this.onTracks('destructor');
     (this.superContainer || this.container).empty();
+
+    if (this.zoomInHighlight) {
+      this.zoomInHighlight.add(this.zoomOutHighlight).remove();
+    }
+
     $(window).add(document).off(this.eventNamespace);
 
     for (var key in this) {
