@@ -3261,9 +3261,10 @@ Genoverse.Track = Base.extend({
 
 
 Genoverse.Track.Controller = Base.extend({
-  scrollBuffer : 1.2,       // Number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
-  threshold    : Infinity,  // Length above which the track is not drawn
-  messages     : undefined,
+  scrollBuffer   : 1.2,      // Number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
+  threshold      : Infinity, // Length above which the track is not drawn
+  clickTolerance : 0,        // pixels of tolerance added to a click position when finding features for popup menus, when scale < 1
+  messages       : undefined,
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -3384,10 +3385,25 @@ Genoverse.Track.Controller = Base.extend({
       y = target.height() - y;
     }
 
-    var f = this[e.target.className === 'gv-labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
+    return this.browser.makeMenu(this.getClickedFeatures(x, y, target), e, this.track);
+  },
 
-    if (f) {
-      return this.browser.makeMenu(f, e, this.track);
+  getClickedFeatures: function (x, y, target) {
+    var bounds    = { x: x, y: y, w: 1, h: 1 };
+    var scale     = this.scale;
+    var tolerance = scale < 1 ? this.clickTolerance : 0;
+
+    if (tolerance) {
+      bounds.x -= tolerance / 2;
+      bounds.w += tolerance;
+    }
+
+    var features = this[target && target.hasClass('gv-labels') ? 'labelPositions' : 'featurePositions'].search(bounds);
+
+    if (tolerance) {
+      return features.sort(function (a, b) { return Math.abs(a.position[scale].start - x) - Math.abs(b.position[scale].start - x) });
+    } else {
+      return this.model.sortFeatures(features);
     }
   },
 
@@ -3846,7 +3862,7 @@ Genoverse.Track.Model = Base.extend({
       end   = this.browser.chromosomeSize;
     }
 
-    return (url || this.url).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
+    return (url || this.url).replace(/__ASSEMBLY__/, this.browser.assembly).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
   },
 
   setLabelBuffer: function (buffer) {
@@ -4300,7 +4316,7 @@ Genoverse.Track.View = Base.extend({
     }
 
     var x       = (original || feature).x;
-    var n       = this.repeatLabels ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) : 1;
+    var n       = this.repeatLabels ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) || 1 : 1;
     var spacing = width / n;
     var label, start, j, y, currentY, h;
 
@@ -4344,6 +4360,7 @@ Genoverse.Track.View = Base.extend({
           currentY = y + (j * h);
 
           if (context.labelPositions && context.labelPositions.search({ x: start, y: currentY, w: feature.labelWidth, h: h }).length) {
+            feature.position[scale].label.visible = false;
             continue;
           }
 
