@@ -15,7 +15,7 @@
  * Thanks to: Seamus Leahy for adding deltaX and deltaY
  *
  * Version: 3.0.6
- * 
+ *
  * Requires: 1.2.2+
  */
 
@@ -39,7 +39,7 @@ $.event.special.mousewheel = {
             this.onmousewheel = handler;
         }
     },
-    
+
     teardown: function() {
         if ( this.removeEventListener ) {
             for ( var i=types.length; i; ) {
@@ -55,7 +55,7 @@ $.fn.extend({
     mousewheel: function(fn) {
         return fn ? this.bind("mousewheel", fn) : this.trigger("mousewheel");
     },
-    
+
     unmousewheel: function(fn) {
         return this.unbind("mousewheel", fn);
     }
@@ -66,27 +66,27 @@ function handler(event) {
     var orgEvent = event || window.event, args = [].slice.call( arguments, 1 ), delta = 0, returnValue = true, deltaX = 0, deltaY = 0;
     event = $.event.fix(orgEvent);
     event.type = "mousewheel";
-    
+
     // Old school scrollwheel delta
     if ( orgEvent.wheelDelta ) { delta = orgEvent.wheelDelta/120; }
     if ( orgEvent.detail     ) { delta = -orgEvent.detail/3; }
-    
+
     // New school multidimensional scroll (touchpads) deltas
     deltaY = delta;
-    
+
     // Gecko
     if ( orgEvent.axis !== undefined && orgEvent.axis === orgEvent.HORIZONTAL_AXIS ) {
         deltaY = 0;
         deltaX = -1*delta;
     }
-    
+
     // Webkit
     if ( orgEvent.wheelDeltaY !== undefined ) { deltaY = orgEvent.wheelDeltaY/120; }
     if ( orgEvent.wheelDeltaX !== undefined ) { deltaX = -1*orgEvent.wheelDeltaX/120; }
-    
+
     // Add event and delta to the front of the arguments
     args.unshift(event, delta, deltaX, deltaY);
-    
+
     return ($.event.dispatch || $.event.handle).apply(this, args);
 }
 
@@ -137,7 +137,7 @@ $.fn.mousehold = function(timeout, f) {
         if (fireStep == 1) f.call(this, 1);
         fireStep = 0;
       }
-      
+
       $(this).mouseout(clearMousehold);
       $(this).mouseup(clearMousehold);
     })
@@ -407,153 +407,153 @@ $.fn.mousehold = function(timeout, f) {
 })(jQuery);
 
 /*
-	Base.js, version 1.1
-	Copyright 2006-2007, Dean Edwards
-	License: http://www.opensource.org/licenses/mit-license.php
+  Base.js, version 1.1
+  Copyright 2006-2007, Dean Edwards
+  License: http://www.opensource.org/licenses/mit-license.php
 */
 
 var Base = function() {
-	// dummy
+  // dummy
 };
 
 Base.extend = function(_instance, _static) { // subclass
-	var extend = Base.prototype.extend;
-	
-	// build the prototype
-	Base._prototyping = true;
-	var proto = new this;
-	extend.call(proto, _instance);
-	delete Base._prototyping;
-	
-	// create the wrapper for the constructor function
-	//var constructor = proto.constructor.valueOf(); //-dean
-	var constructor = proto.constructor;
-	var klass = proto.constructor = function() {
-		if (!Base._prototyping) {
-			if (this._constructing || this.constructor == klass) { // instantiation
-				this._constructing = true;
-				constructor.apply(this, arguments);
-				delete this._constructing;
-			} else if (arguments[0] != null) { // casting
-				return (arguments[0].extend || extend).call(arguments[0], proto);
-			}
-		}
-	};
-	
-	// build the class interface
-	klass.ancestor = this;
-	klass.extend = this.extend;
-	klass.forEach = this.forEach;
-	klass.implement = this.implement;
-	klass.prototype = proto;
-	klass.toString = this.toString;
-	klass.valueOf = function(type) {
-		//return (type == "object") ? klass : constructor; //-dean
-		return (type == "object") ? klass : constructor.valueOf();
-	};
-	extend.call(klass, _static);
-	// class initialisation
-	if (typeof klass.init == "function") klass.init();
-	return klass;
+  var extend = Base.prototype.extend;
+  
+  // build the prototype
+  Base._prototyping = true;
+  var proto = new this;
+  extend.call(proto, _instance);
+  delete Base._prototyping;
+  
+  // create the wrapper for the constructor function
+  //var constructor = proto.constructor.valueOf(); //-dean
+  var constructor = proto.constructor;
+  var klass = proto.constructor = function() {
+    if (!Base._prototyping) {
+      if (this._constructing || this.constructor == klass) { // instantiation
+        this._constructing = true;
+        constructor.apply(this, arguments);
+        delete this._constructing;
+      } else if (arguments[0] != null) { // casting
+        return (arguments[0].extend || extend).call(arguments[0], proto);
+      }
+    }
+  };
+  
+  // build the class interface
+  klass.ancestor = this;
+  klass.extend = this.extend;
+  klass.forEach = this.forEach;
+  klass.implement = this.implement;
+  klass.prototype = proto;
+  klass.toString = this.toString;
+  klass.valueOf = function(type) {
+    //return (type == "object") ? klass : constructor; //-dean
+    return (type == "object") ? klass : constructor.valueOf();
+  };
+  extend.call(klass, _static);
+  // class initialisation
+  if (typeof klass.init == "function") klass.init();
+  return klass;
 };
 
-Base.prototype = {	
-	extend: function(source, value) {
-		if (arguments.length > 1) { // extending with a name/value pair
-			var ancestor = this[source];
-			if (ancestor && (typeof value == "function") && // overriding a method?
-				// the valueOf() comparison is to avoid circular references
-				(!ancestor.valueOf || ancestor.valueOf() != value.valueOf()) &&
-				/\bbase\b/.test(value)) {
-				// get the underlying method
-				var method = value.valueOf();
-				// override
-				value = function() {
-					var previous = this.base || Base.prototype.base;
-					this.base = ancestor;
-					var returnValue = method.apply(this, arguments);
-					this.base = previous;
-					return returnValue;
-				};
-				// point to the underlying method
-				value.valueOf = function(type) {
-					return (type == "object") ? value : method;
-				};
-				value.toString = Base.toString;
-			}
-			this[source] = value;
-		} else if (source) { // extending with an object literal
-			var extend = Base.prototype.extend;
-			// if this object has a customised extend method then use it
-			if (!Base._prototyping && typeof this != "function") {
-				extend = this.extend || extend;
-			}
-			var proto = {toSource: null};
-			// do the "toString" and other methods manually
-			var hidden = ["constructor", "toString", "valueOf"];
-			// if we are prototyping then include the constructor
-			var i = Base._prototyping ? 0 : 1;
-			while (key = hidden[i++]) {
-				if (source[key] != proto[key]) {
-					extend.call(this, key, source[key]);
+Base.prototype = {  
+  extend: function(source, value) {
+    if (arguments.length > 1) { // extending with a name/value pair
+      var ancestor = this[source];
+      if (ancestor && (typeof value == "function") && // overriding a method?
+        // the valueOf() comparison is to avoid circular references
+        (!ancestor.valueOf || ancestor.valueOf() != value.valueOf()) &&
+        /\bbase\b/.test(value)) {
+        // get the underlying method
+        var method = value.valueOf();
+        // override
+        value = function() {
+          var previous = this.base || Base.prototype.base;
+          this.base = ancestor;
+          var returnValue = method.apply(this, arguments);
+          this.base = previous;
+          return returnValue;
+        };
+        // point to the underlying method
+        value.valueOf = function(type) {
+          return (type == "object") ? value : method;
+        };
+        value.toString = Base.toString;
+      }
+      this[source] = value;
+    } else if (source) { // extending with an object literal
+      var extend = Base.prototype.extend;
+      // if this object has a customised extend method then use it
+      if (!Base._prototyping && typeof this != "function") {
+        extend = this.extend || extend;
+      }
+      var proto = {toSource: null};
+      // do the "toString" and other methods manually
+      var hidden = ["constructor", "toString", "valueOf"];
+      // if we are prototyping then include the constructor
+      var i = Base._prototyping ? 0 : 1;
+      while (key = hidden[i++]) {
+        if (source[key] != proto[key]) {
+          extend.call(this, key, source[key]);
 
-				}
-			}
-			// copy each of the source object's properties to this object
-			for (var key in source) {
-				if (!proto[key]) extend.call(this, key, source[key]);
-			}
-		}
-		return this;
-	},
+        }
+      }
+      // copy each of the source object's properties to this object
+      for (var key in source) {
+        if (!proto[key]) extend.call(this, key, source[key]);
+      }
+    }
+    return this;
+  },
 
-	base: function() {
-		// call this method from any other method to invoke that method's ancestor
-	}
+  base: function() {
+    // call this method from any other method to invoke that method's ancestor
+  }
 };
 
 // initialise
 Base = Base.extend({
-	constructor: function() {
-		this.extend(arguments[0]);
-	}
+  constructor: function() {
+    this.extend(arguments[0]);
+  }
 }, {
-	ancestor: Object,
-	version: "1.1",
-	
-	forEach: function(object, block, context) {
-		for (var key in object) {
-			if (this.prototype[key] === undefined) {
-				block.call(context, object[key], key, object);
-			}
-		}
-	},
-		
-	implement: function() {
-		for (var i = 0; i < arguments.length; i++) {
-			if (typeof arguments[i] == "function") {
-				// if it's a function, call it
-				arguments[i](this.prototype);
-			} else {
-				// add the interface using the extend method
-				this.prototype.extend(arguments[i]);
-			}
-		}
-		return this;
-	},
-	
-	toString: function() {
-		return String(this.valueOf());
-	}
+  ancestor: Object,
+  version: "1.1",
+  
+  forEach: function(object, block, context) {
+    for (var key in object) {
+      if (this.prototype[key] === undefined) {
+        block.call(context, object[key], key, object);
+      }
+    }
+  },
+    
+  implement: function() {
+    for (var i = 0; i < arguments.length; i++) {
+      if (typeof arguments[i] == "function") {
+        // if it's a function, call it
+        arguments[i](this.prototype);
+      } else {
+        // add the interface using the extend method
+        this.prototype.extend(arguments[i]);
+      }
+    }
+    return this;
+  },
+  
+  toString: function() {
+    return String(this.valueOf());
+  }
 });
 
 
-/****************************************************************************** 
-	rtree.js - General-Purpose Non-Recursive Javascript R-Tree Library
-	Version 0.6.2, December 5st 2009
+/******************************************************************************
+  rtree.js - General-Purpose Non-Recursive Javascript R-Tree Library
+  Version 0.6.2, December 5st 2009
 
   Copyright (c) 2009 Jon-Carlos Rivera
-  
+
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
   "Software"), to deal in the Software without restriction, including
@@ -561,10 +561,10 @@ Base = Base.extend({
   distribute, sublicense, and/or sell copies of the Software, and to
   permit persons to whom the Software is furnished to do so, subject to
   the following conditions:
-  
+
   The above copyright notice and this permission notice shall be
   included in all copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -573,7 +573,7 @@ Base = Base.extend({
   OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
   WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-	Jon-Carlos Rivera - imbcmdth@hotmail.com
+  Jon-Carlos Rivera - imbcmdth@hotmail.com
 ******************************************************************************/
 
 /**
@@ -581,22 +581,22 @@ Base = Base.extend({
  * @constructor
  */
 var RTree = function(width){
-	// Variables to control tree-dimensions
-	var _Min_Width = 3;  // Minimum width of any node before a merge
-	var _Max_Width = 6;  // Maximum width of any node before a split
-	if(!isNaN(width)){ _Min_Width = Math.floor(width/2.0); _Max_Width = width;}
-	// Start with an empty root-tree
-	var _T = {x:0, y:0, w:0, h:0, id:"root", nodes:[] };
-    
-	var isArray = function(o) {
-		return Object.prototype.toString.call(o) === '[object Array]'; 
-	};
+  // Variables to control tree-dimensions
+  var _Min_Width = 3;  // Minimum width of any node before a merge
+  var _Max_Width = 6;  // Maximum width of any node before a split
+  if(!isNaN(width)){ _Min_Width = Math.floor(width/2.0); _Max_Width = width;}
+  // Start with an empty root-tree
+  var _T = {x:0, y:0, w:0, h:0, id:"root", nodes:[] };
 
-	/* @function
-	 * @description Function to generate unique strings for element IDs
-	 * @param {String} n			The prefix to use for the IDs generated.
-	 * @return {String}				A guarenteed unique ID.
-	 */
+  var isArray = function(o) {
+    return Object.prototype.toString.call(o) === '[object Array]';
+  };
+
+  /* @function
+   * @description Function to generate unique strings for element IDs
+   * @param {String} n      The prefix to use for the IDs generated.
+   * @return {String}        A guarenteed unique ID.
+   */
     var _name_to_id = (function() {
         // hide our idCache inside this closure
         var idCache = {};
@@ -613,538 +613,538 @@ var RTree = function(width){
         }
     })();
 
-	// This is my special addition to the world of r-trees
-	// every other (simple) method I found produced crap trees
-	// this skews insertions to prefering squarer and emptier nodes
-	RTree.Rectangle.squarified_ratio = function(l, w, fill) {
-	  // Area of new enlarged rectangle
-	  var lperi = (l + w) / 2.0; // Average size of a side of the new rectangle
-	  var larea = l * w; // Area of new rectangle
-	  // return the ratio of the perimeter to the area - the closer to 1 we are, 
-	  // the more "square" a rectangle is. conversly, when approaching zero the 
-	  // more elongated a rectangle is
-	  var lgeo = larea / (lperi*lperi);
-	  return(larea * fill / lgeo); 
-	};
-	
-	/* find the best specific node(s) for object to be deleted from
-	 * [ leaf node parent ] = _remove_subtree(rectangle, object, root)
-	 * @private
-	 */
-	var _remove_subtree = function(rect, obj, root) {
-		var hit_stack = []; // Contains the elements that overlap
-		var count_stack = []; // Contains the elements that overlap
-		var ret_array = [];
-		var current_depth = 1;
-		
-		if(!rect || !RTree.Rectangle.overlap_rectangle(rect, root))
-		 return ret_array;
+  // This is my special addition to the world of r-trees
+  // every other (simple) method I found produced crap trees
+  // this skews insertions to prefering squarer and emptier nodes
+  RTree.Rectangle.squarified_ratio = function(l, w, fill) {
+    // Area of new enlarged rectangle
+    var lperi = (l + w) / 2.0; // Average size of a side of the new rectangle
+    var larea = l * w; // Area of new rectangle
+    // return the ratio of the perimeter to the area - the closer to 1 we are,
+    // the more "square" a rectangle is. conversly, when approaching zero the
+    // more elongated a rectangle is
+    var lgeo = larea / (lperi*lperi);
+    return(larea * fill / lgeo);
+  };
 
-		var ret_obj = {x:rect.x, y:rect.y, w:rect.w, h:rect.h, target:obj};
-		
-		count_stack.push(root.nodes.length);
-		hit_stack.push(root);
+  /* find the best specific node(s) for object to be deleted from
+   * [ leaf node parent ] = _remove_subtree(rectangle, object, root)
+   * @private
+   */
+  var _remove_subtree = function(rect, obj, root) {
+    var hit_stack = []; // Contains the elements that overlap
+    var count_stack = []; // Contains the elements that overlap
+    var ret_array = [];
+    var current_depth = 1;
 
-		do {
-			var tree = hit_stack.pop();
-			var i = count_stack.pop()-1;
-			
-		  if("target" in ret_obj) { // We are searching for a target
-				while(i >= 0)	{
-					var ltree = tree.nodes[i];
-					if(RTree.Rectangle.overlap_rectangle(ret_obj, ltree)) {
-						if( (ret_obj.target && "leaf" in ltree && ltree.leaf === ret_obj.target)
-							||(!ret_obj.target && ("leaf" in ltree || RTree.Rectangle.contains_rectangle(ltree, ret_obj)))) { // A Match !!
-				  		// Yup we found a match...
-				  		// we can cancel search and start walking up the list
-				  		if("nodes" in ltree) {// If we are deleting a node not a leaf...
-				  			ret_array = _search_subtree(ltree, true, [], ltree);
-				  			tree.nodes.splice(i, 1); 
-				  		} else {
-								ret_array = tree.nodes.splice(i, 1); 
-							}
-							// Resize MBR down...
-							RTree.Rectangle.make_MBR(tree.nodes, tree);
-							delete ret_obj.target;
-							if(tree.nodes.length < _Min_Width) { // Underflow
-								ret_obj.nodes = _search_subtree(tree, true, [], tree);
-							}
-							break;
-			  		}/*	else if("load" in ltree) { // A load
-				  	}*/	else if("nodes" in ltree) { // Not a Leaf
-				  		current_depth += 1;
-				  		count_stack.push(i);
-				  		hit_stack.push(tree);
-				  		tree = ltree;
-				  		i = ltree.nodes.length;
-				  	}
-				  }
-					i -= 1;
-				}
-			} else if("nodes" in ret_obj) { // We are unsplitting
-				tree.nodes.splice(i+1, 1); // Remove unsplit node
-				// ret_obj.nodes contains a list of elements removed from the tree so far
-				if(tree.nodes.length > 0)
-					RTree.Rectangle.make_MBR(tree.nodes, tree);
-				for(var t = 0;t<ret_obj.nodes.length;t++)
-					_insert_subtree(ret_obj.nodes[t], tree);
-				ret_obj.nodes.length = 0;
-				if(hit_stack.length == 0 && tree.nodes.length <= 1) { // Underflow..on root!
-					ret_obj.nodes = _search_subtree(tree, true, ret_obj.nodes, tree);
-					tree.nodes.length = 0;
-					hit_stack.push(tree);
-					count_stack.push(1);
-				} else if(hit_stack.length > 0 && tree.nodes.length < _Min_Width) { // Underflow..AGAIN!
-					ret_obj.nodes = _search_subtree(tree, true, ret_obj.nodes, tree);
-					tree.nodes.length = 0;						
-				}else {
-					delete ret_obj.nodes; // Just start resizing
-				}
-			} else { // we are just resizing
-				RTree.Rectangle.make_MBR(tree.nodes, tree);
-			}
-			current_depth -= 1;
-		}while(hit_stack.length > 0);
-		
-		return(ret_array);
-	};
+    if(!rect || !RTree.Rectangle.overlap_rectangle(rect, root))
+     return ret_array;
 
-	/* choose the best damn node for rectangle to be inserted into
-	 * [ leaf node parent ] = _choose_leaf_subtree(rectangle, root to start search at)
-	 * @private
-	 */
-	var _choose_leaf_subtree = function(rect, root) {
-		var best_choice_index = -1;
-		var best_choice_stack = [];
-		var best_choice_area;
-		
-		var load_callback = function(local_tree, local_node){
-			return(function(data) { 
-				local_tree._attach_data(local_node, data);
-			});
-		};
-	
-		best_choice_stack.push(root);
-		var nodes = root.nodes;	
+    var ret_obj = {x:rect.x, y:rect.y, w:rect.w, h:rect.h, target:obj};
 
-		do {	
-			if(best_choice_index != -1)	{
-				best_choice_stack.push(nodes[best_choice_index]);
-				nodes = nodes[best_choice_index].nodes;
-				best_choice_index = -1;
-			}
-	
-			for(var i = nodes.length-1; i >= 0; i--) {
-				var ltree = nodes[i];
-				if("leaf" in ltree) {  
-					// Bail out of everything and start inserting
-					best_choice_index = -1;
-					break;
-			  } /*else if(ltree.load) {
-  				throw( "Can't insert into partially loaded tree ... yet!");
-  				//jQuery.getJSON(ltree.load, load_callback(this, ltree));
-  				//delete ltree.load;
-  			}*/
-			  // Area of new enlarged rectangle
-			  var old_lratio = RTree.Rectangle.squarified_ratio(ltree.w, ltree.h, ltree.nodes.length+1);
+    count_stack.push(root.nodes.length);
+    hit_stack.push(root);
 
-			  // Enlarge rectangle to fit new rectangle
-			  var nw = Math.max(ltree.x+ltree.w, rect.x+rect.w) - Math.min(ltree.x, rect.x);
-			  var nh = Math.max(ltree.y+ltree.h, rect.y+rect.h) - Math.min(ltree.y, rect.y);
-			  
-			  // Area of new enlarged rectangle
-			  var lratio = RTree.Rectangle.squarified_ratio(nw, nh, ltree.nodes.length+2);
-			  
-			  if(best_choice_index < 0 || Math.abs(lratio - old_lratio) < best_choice_area) {
-			  	best_choice_area = Math.abs(lratio - old_lratio); best_choice_index = i;
-			  }
-			}
-		}while(best_choice_index != -1);
+    do {
+      var tree = hit_stack.pop();
+      var i = count_stack.pop()-1;
 
-		return(best_choice_stack);
-	};
+      if("target" in ret_obj) { // We are searching for a target
+        while(i >= 0)  {
+          var ltree = tree.nodes[i];
+          if(RTree.Rectangle.overlap_rectangle(ret_obj, ltree)) {
+            if( (ret_obj.target && "leaf" in ltree && ltree.leaf === ret_obj.target)
+              ||(!ret_obj.target && ("leaf" in ltree || RTree.Rectangle.contains_rectangle(ltree, ret_obj)))) { // A Match !!
+              // Yup we found a match...
+              // we can cancel search and start walking up the list
+              if("nodes" in ltree) {// If we are deleting a node not a leaf...
+                ret_array = _search_subtree(ltree, true, [], ltree);
+                tree.nodes.splice(i, 1);
+              } else {
+                ret_array = tree.nodes.splice(i, 1);
+              }
+              // Resize MBR down...
+              RTree.Rectangle.make_MBR(tree.nodes, tree);
+              delete ret_obj.target;
+              if(tree.nodes.length < _Min_Width) { // Underflow
+                ret_obj.nodes = _search_subtree(tree, true, [], tree);
+              }
+              break;
+            }/*  else if("load" in ltree) { // A load
+            }*/  else if("nodes" in ltree) { // Not a Leaf
+              current_depth += 1;
+              count_stack.push(i);
+              hit_stack.push(tree);
+              tree = ltree;
+              i = ltree.nodes.length;
+            }
+          }
+          i -= 1;
+        }
+      } else if("nodes" in ret_obj) { // We are unsplitting
+        tree.nodes.splice(i+1, 1); // Remove unsplit node
+        // ret_obj.nodes contains a list of elements removed from the tree so far
+        if(tree.nodes.length > 0)
+          RTree.Rectangle.make_MBR(tree.nodes, tree);
+        for(var t = 0;t<ret_obj.nodes.length;t++)
+          _insert_subtree(ret_obj.nodes[t], tree);
+        ret_obj.nodes.length = 0;
+        if(hit_stack.length == 0 && tree.nodes.length <= 1) { // Underflow..on root!
+          ret_obj.nodes = _search_subtree(tree, true, ret_obj.nodes, tree);
+          tree.nodes.length = 0;
+          hit_stack.push(tree);
+          count_stack.push(1);
+        } else if(hit_stack.length > 0 && tree.nodes.length < _Min_Width) { // Underflow..AGAIN!
+          ret_obj.nodes = _search_subtree(tree, true, ret_obj.nodes, tree);
+          tree.nodes.length = 0;
+        }else {
+          delete ret_obj.nodes; // Just start resizing
+        }
+      } else { // we are just resizing
+        RTree.Rectangle.make_MBR(tree.nodes, tree);
+      }
+      current_depth -= 1;
+    }while(hit_stack.length > 0);
 
-	/* split a set of nodes into two roughly equally-filled nodes
-	 * [ an array of two new arrays of nodes ] = linear_split(array of nodes)
-	 * @private
-	 */
-	var _linear_split = function(nodes) {
-		var n = _pick_linear(nodes);
-		while(nodes.length > 0)	{
-			_pick_next(nodes, n[0], n[1]);
-		}
-		return(n);
-	};
-	
-	/* insert the best source rectangle into the best fitting parent node: a or b
-	 * [] = pick_next(array of source nodes, target node array a, target node array b)
-	 * @private
-	 */
-	var _pick_next = function(nodes, a, b) {
-	  // Area of new enlarged rectangle
-		var area_a = RTree.Rectangle.squarified_ratio(a.w, a.h, a.nodes.length+1);
-		var area_b = RTree.Rectangle.squarified_ratio(b.w, b.h, b.nodes.length+1);
-		var high_area_delta;
-		var high_area_node;
-		var lowest_growth_group;
-		
-		for(var i = nodes.length-1; i>=0;i--) {
-			var l = nodes[i];
-			var new_area_a = {};
-			new_area_a.x = Math.min(a.x, l.x); new_area_a.y = Math.min(a.y, l.y);
-			new_area_a.w = Math.max(a.x+a.w, l.x+l.w) - new_area_a.x;	new_area_a.h = Math.max(a.y+a.h, l.y+l.h) - new_area_a.y;
-			var change_new_area_a = Math.abs(RTree.Rectangle.squarified_ratio(new_area_a.w, new_area_a.h, a.nodes.length+2) - area_a);
-	
-			var new_area_b = {};
-			new_area_b.x = Math.min(b.x, l.x); new_area_b.y = Math.min(b.y, l.y);
-			new_area_b.w = Math.max(b.x+b.w, l.x+l.w) - new_area_b.x;	new_area_b.h = Math.max(b.y+b.h, l.y+l.h) - new_area_b.y;
-			var change_new_area_b = Math.abs(RTree.Rectangle.squarified_ratio(new_area_b.w, new_area_b.h, b.nodes.length+2) - area_b);
+    return(ret_array);
+  };
 
-			if( !high_area_node || !high_area_delta || Math.abs( change_new_area_b - change_new_area_a ) < high_area_delta ) {
-				high_area_node = i;
-				high_area_delta = Math.abs(change_new_area_b-change_new_area_a);
-				lowest_growth_group = change_new_area_b < change_new_area_a ? b : a;
-			}
-		}
-		var temp_node = nodes.splice(high_area_node, 1)[0];
-		if(a.nodes.length + nodes.length + 1 <= _Min_Width)	{
-			a.nodes.push(temp_node);
-			RTree.Rectangle.expand_rectangle(a, temp_node);
-		}	else if(b.nodes.length + nodes.length + 1 <= _Min_Width) {
-			b.nodes.push(temp_node);
-			RTree.Rectangle.expand_rectangle(b, temp_node);
-		}
-		else {
-			lowest_growth_group.nodes.push(temp_node);
-			RTree.Rectangle.expand_rectangle(lowest_growth_group, temp_node);
-		}
-	};
+  /* choose the best damn node for rectangle to be inserted into
+   * [ leaf node parent ] = _choose_leaf_subtree(rectangle, root to start search at)
+   * @private
+   */
+  var _choose_leaf_subtree = function(rect, root) {
+    var best_choice_index = -1;
+    var best_choice_stack = [];
+    var best_choice_area;
 
-	/* pick the "best" two starter nodes to use as seeds using the "linear" criteria
-	 * [ an array of two new arrays of nodes ] = pick_linear(array of source nodes)
-	 * @private
-	 */
-	var _pick_linear = function(nodes) {
-		var lowest_high_x = nodes.length-1;
-		var highest_low_x = 0;
-		var lowest_high_y = nodes.length-1;
-		var highest_low_y = 0;
+    var load_callback = function(local_tree, local_node){
+      return(function(data) {
+        local_tree._attach_data(local_node, data);
+      });
+    };
+
+    best_choice_stack.push(root);
+    var nodes = root.nodes;
+
+    do {
+      if(best_choice_index != -1)  {
+        best_choice_stack.push(nodes[best_choice_index]);
+        nodes = nodes[best_choice_index].nodes;
+        best_choice_index = -1;
+      }
+
+      for(var i = nodes.length-1; i >= 0; i--) {
+        var ltree = nodes[i];
+        if("leaf" in ltree) {
+          // Bail out of everything and start inserting
+          best_choice_index = -1;
+          break;
+        } /*else if(ltree.load) {
+          throw( "Can't insert into partially loaded tree ... yet!");
+          //jQuery.getJSON(ltree.load, load_callback(this, ltree));
+          //delete ltree.load;
+        }*/
+        // Area of new enlarged rectangle
+        var old_lratio = RTree.Rectangle.squarified_ratio(ltree.w, ltree.h, ltree.nodes.length+1);
+
+        // Enlarge rectangle to fit new rectangle
+        var nw = Math.max(ltree.x+ltree.w, rect.x+rect.w) - Math.min(ltree.x, rect.x);
+        var nh = Math.max(ltree.y+ltree.h, rect.y+rect.h) - Math.min(ltree.y, rect.y);
+
+        // Area of new enlarged rectangle
+        var lratio = RTree.Rectangle.squarified_ratio(nw, nh, ltree.nodes.length+2);
+
+        if(best_choice_index < 0 || Math.abs(lratio - old_lratio) < best_choice_area) {
+          best_choice_area = Math.abs(lratio - old_lratio); best_choice_index = i;
+        }
+      }
+    }while(best_choice_index != -1);
+
+    return(best_choice_stack);
+  };
+
+  /* split a set of nodes into two roughly equally-filled nodes
+   * [ an array of two new arrays of nodes ] = linear_split(array of nodes)
+   * @private
+   */
+  var _linear_split = function(nodes) {
+    var n = _pick_linear(nodes);
+    while(nodes.length > 0)  {
+      _pick_next(nodes, n[0], n[1]);
+    }
+    return(n);
+  };
+
+  /* insert the best source rectangle into the best fitting parent node: a or b
+   * [] = pick_next(array of source nodes, target node array a, target node array b)
+   * @private
+   */
+  var _pick_next = function(nodes, a, b) {
+    // Area of new enlarged rectangle
+    var area_a = RTree.Rectangle.squarified_ratio(a.w, a.h, a.nodes.length+1);
+    var area_b = RTree.Rectangle.squarified_ratio(b.w, b.h, b.nodes.length+1);
+    var high_area_delta;
+    var high_area_node;
+    var lowest_growth_group;
+
+    for(var i = nodes.length-1; i>=0;i--) {
+      var l = nodes[i];
+      var new_area_a = {};
+      new_area_a.x = Math.min(a.x, l.x); new_area_a.y = Math.min(a.y, l.y);
+      new_area_a.w = Math.max(a.x+a.w, l.x+l.w) - new_area_a.x;  new_area_a.h = Math.max(a.y+a.h, l.y+l.h) - new_area_a.y;
+      var change_new_area_a = Math.abs(RTree.Rectangle.squarified_ratio(new_area_a.w, new_area_a.h, a.nodes.length+2) - area_a);
+
+      var new_area_b = {};
+      new_area_b.x = Math.min(b.x, l.x); new_area_b.y = Math.min(b.y, l.y);
+      new_area_b.w = Math.max(b.x+b.w, l.x+l.w) - new_area_b.x;  new_area_b.h = Math.max(b.y+b.h, l.y+l.h) - new_area_b.y;
+      var change_new_area_b = Math.abs(RTree.Rectangle.squarified_ratio(new_area_b.w, new_area_b.h, b.nodes.length+2) - area_b);
+
+      if( !high_area_node || !high_area_delta || Math.abs( change_new_area_b - change_new_area_a ) < high_area_delta ) {
+        high_area_node = i;
+        high_area_delta = Math.abs(change_new_area_b-change_new_area_a);
+        lowest_growth_group = change_new_area_b < change_new_area_a ? b : a;
+      }
+    }
+    var temp_node = nodes.splice(high_area_node, 1)[0];
+    if(a.nodes.length + nodes.length + 1 <= _Min_Width)  {
+      a.nodes.push(temp_node);
+      RTree.Rectangle.expand_rectangle(a, temp_node);
+    }  else if(b.nodes.length + nodes.length + 1 <= _Min_Width) {
+      b.nodes.push(temp_node);
+      RTree.Rectangle.expand_rectangle(b, temp_node);
+    }
+    else {
+      lowest_growth_group.nodes.push(temp_node);
+      RTree.Rectangle.expand_rectangle(lowest_growth_group, temp_node);
+    }
+  };
+
+  /* pick the "best" two starter nodes to use as seeds using the "linear" criteria
+   * [ an array of two new arrays of nodes ] = pick_linear(array of source nodes)
+   * @private
+   */
+  var _pick_linear = function(nodes) {
+    var lowest_high_x = nodes.length-1;
+    var highest_low_x = 0;
+    var lowest_high_y = nodes.length-1;
+    var highest_low_y = 0;
         var t1, t2;
-		
-		for(var i = nodes.length-2; i>=0;i--)	{
-			var l = nodes[i];
-			if(l.x > nodes[highest_low_x].x ) highest_low_x = i;
-			else if(l.x+l.w < nodes[lowest_high_x].x+nodes[lowest_high_x].w) lowest_high_x = i;
-			if(l.y > nodes[highest_low_y].y ) highest_low_y = i;
-			else if(l.y+l.h < nodes[lowest_high_y].y+nodes[lowest_high_y].h) lowest_high_y = i;
-		}
-		var dx = Math.abs((nodes[lowest_high_x].x+nodes[lowest_high_x].w) - nodes[highest_low_x].x);
-		var dy = Math.abs((nodes[lowest_high_y].y+nodes[lowest_high_y].h) - nodes[highest_low_y].y);
-		if( dx > dy )	{ 
-			if(lowest_high_x > highest_low_x)	{
-				t1 = nodes.splice(lowest_high_x, 1)[0];
-				t2 = nodes.splice(highest_low_x, 1)[0];
-			}	else {
-				t2 = nodes.splice(highest_low_x, 1)[0];
-				t1 = nodes.splice(lowest_high_x, 1)[0];
-			}
-		}	else {
-			if(lowest_high_y > highest_low_y)	{
-				t1 = nodes.splice(lowest_high_y, 1)[0];
-				t2 = nodes.splice(highest_low_y, 1)[0];
-			}	else {
-				t2 = nodes.splice(highest_low_y, 1)[0];
-				t1 = nodes.splice(lowest_high_y, 1)[0];
-			}
-		}
-		return([{x:t1.x, y:t1.y, w:t1.w, h:t1.h, nodes:[t1]},
-			      {x:t2.x, y:t2.y, w:t2.w, h:t2.h, nodes:[t2]} ]);
-	};
-	
-	var _attach_data = function(node, more_tree){
-		node.nodes = more_tree.nodes;
-		node.x = more_tree.x; node.y = more_tree.y;
-		node.w = more_tree.w; node.h = more_tree.h;
-		return(node);
-	};
 
-	/* non-recursive internal search function 
-	 * [ nodes | objects ] = _search_subtree(rectangle, [return node data], [array to fill], root to begin search at)
-	 * @private
-	 */
-	var _search_subtree = function(rect, return_node, return_array, root) {
-		var hit_stack = []; // Contains the elements that overlap
-	
-		if(!RTree.Rectangle.overlap_rectangle(rect, root))
-		 return(return_array);
-	
-		var load_callback = function(local_tree, local_node){
-			return(function(data) { 
-				local_tree._attach_data(local_node, data);
-			});
-		};
-	
-		hit_stack.push(root.nodes);
-	
-		do {
-			var nodes = hit_stack.pop();
-	
-			for(var i = nodes.length-1; i >= 0; i--) {
-				var ltree = nodes[i];
-			  if(RTree.Rectangle.overlap_rectangle(rect, ltree)) {
-			  	if("nodes" in ltree) { // Not a Leaf
-			  		hit_stack.push(ltree.nodes);
-			  	} else if("leaf" in ltree) { // A Leaf !!
-			  		if(!return_node)
-		  				return_array.push(ltree.leaf);
-		  			else
-		  				return_array.push(ltree);
-		  		}/*	else if("load" in ltree) { // We need to fetch a URL for some more tree data
-	  				jQuery.getJSON(ltree.load, load_callback(this, ltree));
-	  				delete ltree.load;
-	  			//	i++; // Replay this entry
-	  			}*/
-				}
-			}
-		}while(hit_stack.length > 0);
-		
-		return(return_array);
-	};
-	
-	/* non-recursive internal insert function
-	 * [] = _insert_subtree(rectangle, object to insert, root to begin insertion at)
-	 * @private
-	 */
-	var _insert_subtree = function(node, root) {
-		var bc; // Best Current node
-		// Initial insertion is special because we resize the Tree and we don't
-		// care about any overflow (seriously, how can the first object overflow?)
-		if(root.nodes.length == 0) {
-			root.x = node.x; root.y = node.y;
-			root.w = node.w; root.h = node.h;
-			root.nodes.push(node);
-			return;
-		}
-		
-		// Find the best fitting leaf node
-		// choose_leaf returns an array of all tree levels (including root)
-		// that were traversed while trying to find the leaf
-		var tree_stack = _choose_leaf_subtree(node, root);
-		var ret_obj = node;//{x:rect.x,y:rect.y,w:rect.w,h:rect.h, leaf:obj};
-	
-		// Walk back up the tree resizing and inserting as needed
-		do {
-			//handle the case of an empty node (from a split)
-			if(bc && "nodes" in bc && bc.nodes.length == 0) {
-				var pbc = bc; // Past bc
-				bc = tree_stack.pop();
-				for(var t=0;t<bc.nodes.length;t++)
-					if(bc.nodes[t] === pbc || bc.nodes[t].nodes.length == 0) {
-						bc.nodes.splice(t, 1);
-						break;
-				}
-			} else {
-				bc = tree_stack.pop();
-			}
-			
-			// If there is data attached to this ret_obj
-			if("leaf" in ret_obj || "nodes" in ret_obj || isArray(ret_obj)) { 
-				// Do Insert
-				if(isArray(ret_obj)) {
-					for(var ai = 0; ai < ret_obj.length; ai++) {
-						RTree.Rectangle.expand_rectangle(bc, ret_obj[ai]);
-					}
-					bc.nodes = bc.nodes.concat(ret_obj); 
-				} else {
-					RTree.Rectangle.expand_rectangle(bc, ret_obj);
-					bc.nodes.push(ret_obj); // Do Insert
-				}
-	
-				if(bc.nodes.length <= _Max_Width)	{ // Start Resizeing Up the Tree
-					ret_obj = {x:bc.x,y:bc.y,w:bc.w,h:bc.h};
-				}	else { // Otherwise Split this Node
-					// linear_split() returns an array containing two new nodes
-					// formed from the split of the previous node's overflow
-					var a = _linear_split(bc.nodes);
-					ret_obj = a;//[1];
-					
-					if(tree_stack.length < 1)	{ // If are splitting the root..
-						bc.nodes.push(a[0]);
-						tree_stack.push(bc);     // Reconsider the root element
-						ret_obj = a[1];
-					} /*else {
-						delete bc;
-					}*/
-				}
-			}	else { // Otherwise Do Resize
-				//Just keep applying the new bounding rectangle to the parents..
-				RTree.Rectangle.expand_rectangle(bc, ret_obj);
-				ret_obj = {x:bc.x,y:bc.y,w:bc.w,h:bc.h};
-			}
-		} while(tree_stack.length > 0);
-	};
+    for(var i = nodes.length-2; i>=0;i--)  {
+      var l = nodes[i];
+      if(l.x > nodes[highest_low_x].x ) highest_low_x = i;
+      else if(l.x+l.w < nodes[lowest_high_x].x+nodes[lowest_high_x].w) lowest_high_x = i;
+      if(l.y > nodes[highest_low_y].y ) highest_low_y = i;
+      else if(l.y+l.h < nodes[lowest_high_y].y+nodes[lowest_high_y].h) lowest_high_y = i;
+    }
+    var dx = Math.abs((nodes[lowest_high_x].x+nodes[lowest_high_x].w) - nodes[highest_low_x].x);
+    var dy = Math.abs((nodes[lowest_high_y].y+nodes[lowest_high_y].h) - nodes[highest_low_y].y);
+    if( dx > dy )  {
+      if(lowest_high_x > highest_low_x)  {
+        t1 = nodes.splice(lowest_high_x, 1)[0];
+        t2 = nodes.splice(highest_low_x, 1)[0];
+      }  else {
+        t2 = nodes.splice(highest_low_x, 1)[0];
+        t1 = nodes.splice(lowest_high_x, 1)[0];
+      }
+    }  else {
+      if(lowest_high_y > highest_low_y)  {
+        t1 = nodes.splice(lowest_high_y, 1)[0];
+        t2 = nodes.splice(highest_low_y, 1)[0];
+      }  else {
+        t2 = nodes.splice(highest_low_y, 1)[0];
+        t1 = nodes.splice(lowest_high_y, 1)[0];
+      }
+    }
+    return([{x:t1.x, y:t1.y, w:t1.w, h:t1.h, nodes:[t1]},
+            {x:t2.x, y:t2.y, w:t2.w, h:t2.h, nodes:[t2]} ]);
+  };
 
-	/* quick 'n' dirty function for plugins or manually drawing the tree
-	 * [ tree ] = RTree.get_tree(): returns the raw tree data. useful for adding
-	 * @public
-	 * !! DEPRECATED !!
-	 */
-	this.get_tree = function() {
-		return _T;
-	};
-	
-	/* quick 'n' dirty function for plugins or manually loading the tree
-	 * [ tree ] = RTree.set_tree(sub-tree, where to attach): returns the raw tree data. useful for adding
-	 * @public
-	 * !! DEPRECATED !!
-	 */
-	this.set_tree = function(new_tree, where) {
-		if(!where)
-			where = _T;
-		return(_attach_data(where, new_tree));
-	};
-	
-	/* non-recursive search function 
-	 * [ nodes | objects ] = RTree.search(rectangle, [return node data], [array to fill])
-	 * @public
-	 */
-	this.search = function(rect, return_node, return_array) {
-		if(arguments.length < 1)
-			throw "Wrong number of arguments. RT.Search requires at least a bounding rectangle."
+  var _attach_data = function(node, more_tree){
+    node.nodes = more_tree.nodes;
+    node.x = more_tree.x; node.y = more_tree.y;
+    node.w = more_tree.w; node.h = more_tree.h;
+    return(node);
+  };
 
-		switch(arguments.length) {
-			case 1:
-				arguments[1] = false;// Add an "return node" flag - may be removed in future
-			case 2:
-				arguments[2] = []; // Add an empty array to contain results
-			case 3:
-				arguments[3] = _T; // Add root node to end of argument list
-			default:
-				arguments.length = 4;
-		}
-		return(_search_subtree.apply(this, arguments));
-	};
-		
-	/* partially-recursive toJSON function
-	 * [ string ] = RTree.toJSON([rectangle], [tree])
-	 * @public
-	 */
-	this.toJSON = function(rect, tree) {
-		var hit_stack = []; // Contains the elements that overlap
-		var count_stack = []; // Contains the elements that overlap
-		var return_stack = {}; // Contains the elements that overlap
-		var max_depth = 3;  // This triggers recursion and tree-splitting
-		var current_depth = 1;
-		var return_string = "";
-		
-		if(rect && !RTree.Rectangle.overlap_rectangle(rect, _T))
-		 return "";
-		
-		if(!tree)	{
-			count_stack.push(_T.nodes.length);
-			hit_stack.push(_T.nodes);
-			return_string += "var main_tree = {x:"+_T.x.toFixed()+",y:"+_T.y.toFixed()+",w:"+_T.w.toFixed()+",h:"+_T.h.toFixed()+",nodes:[";
-		}	else {
-			max_depth += 4;
-			count_stack.push(tree.nodes.length);
-			hit_stack.push(tree.nodes);
-			return_string += "var main_tree = {x:"+tree.x.toFixed()+",y:"+tree.y.toFixed()+",w:"+tree.w.toFixed()+",h:"+tree.h.toFixed()+",nodes:[";
-		}
-	
-		do {
-			var nodes = hit_stack.pop();
-			var i = count_stack.pop()-1;
-			
-			if(i >= 0 && i < nodes.length-1)
-				return_string += ",";
-				
-			while(i >= 0)	{
-				var ltree = nodes[i];
-			  if(!rect || RTree.Rectangle.overlap_rectangle(rect, ltree)) {
-			  	if(ltree.nodes) { // Not a Leaf
-			  		if(current_depth >= max_depth) {
-			  			var len = return_stack.length;
-			  			var nam = _name_to_id("saved_subtree");
-			  			return_string += "{x:"+ltree.x.toFixed()+",y:"+ltree.y.toFixed()+",w:"+ltree.w.toFixed()+",h:"+ltree.h.toFixed()+",load:'"+nam+".js'}";
-			  			return_stack[nam] = this.toJSON(rect, ltree);
-							if(i > 0)
-								return_string += ","
-			  		}	else {
-				  		return_string += "{x:"+ltree.x.toFixed()+",y:"+ltree.y.toFixed()+",w:"+ltree.w.toFixed()+",h:"+ltree.h.toFixed()+",nodes:[";
-				  		current_depth += 1;
-				  		count_stack.push(i);
-				  		hit_stack.push(nodes);
-				  		nodes = ltree.nodes;
-				  		i = ltree.nodes.length;
-				  	}
-			  	}	else if(ltree.leaf) { // A Leaf !!
-			  		var data = ltree.leaf.toJSON ? ltree.leaf.toJSON() : JSON.stringify(ltree.leaf);
-		  			return_string += "{x:"+ltree.x.toFixed()+",y:"+ltree.y.toFixed()+",w:"+ltree.w.toFixed()+",h:"+ltree.h.toFixed()+",leaf:" + data + "}";
-						if(i > 0)
-							return_string += ","
-		  		}	else if(ltree.load) { // A load
-		  			return_string += "{x:"+ltree.x.toFixed()+",y:"+ltree.y.toFixed()+",w:"+ltree.w.toFixed()+",h:"+ltree.h.toFixed()+",load:'" + ltree.load + "'}";
-						if(i > 0)
-							return_string += ","
-			  	}
-				}
-				i -= 1;
-			}
-			if(i < 0)	{
-					return_string += "]}"; current_depth -= 1;
-			}
-		}while(hit_stack.length > 0);
-		
-		return_string+=";";
-		
-		for(var my_key in return_stack) {
-			return_string += "\nvar " + my_key + " = function(){" + return_stack[my_key] + " return(main_tree);};";
-		}
-		return(return_string);
-	};
-	
-	/* non-recursive function that deletes a specific
-	 * [ number ] = RTree.remove(rectangle, obj)
-	 */
-	this.remove = function(rect, obj) {
-		if(arguments.length < 1)
-			throw "Wrong number of arguments. RT.remove requires at least a bounding rectangle."
+  /* non-recursive internal search function
+   * [ nodes | objects ] = _search_subtree(rectangle, [return node data], [array to fill], root to begin search at)
+   * @private
+   */
+  var _search_subtree = function(rect, return_node, return_array, root) {
+    var hit_stack = []; // Contains the elements that overlap
 
-		switch(arguments.length) {
-			case 1:
-				arguments[1] = false; // obj == false for conditionals
-			case 2:
-				arguments[2] = _T; // Add root node to end of argument list
-			default:
-				arguments.length = 3;
-		}
-		if(arguments[1] === false) { // Do area-wide delete
-			var numberdeleted = 0;
-			var ret_array = [];
-			do { 
-				numberdeleted=ret_array.length; 
-				ret_array = ret_array.concat(_remove_subtree.apply(this, arguments));
-			}while( numberdeleted !=  ret_array.length);
-			return ret_array;
-		}
-		else { // Delete a specific item
-			return(_remove_subtree.apply(this, arguments));
-		}
-	};
-		
-	/* non-recursive insert function
-	 * [] = RTree.insert(rectangle, object to insert)
-	 */
-	this.insert = function(rect, obj) {
-		if(arguments.length < 2)
-			throw "Wrong number of arguments. RT.Insert requires at least a bounding rectangle and an object."
-		
-		return(_insert_subtree({x:rect.x,y:rect.y,w:rect.w,h:rect.h,leaf:obj}, _T));
-	};
-	
-	/* non-recursive delete function
-	 * [deleted object] = RTree.remove(rectangle, [object to delete])
-	 */
+    if(!RTree.Rectangle.overlap_rectangle(rect, root))
+     return(return_array);
+
+    var load_callback = function(local_tree, local_node){
+      return(function(data) {
+        local_tree._attach_data(local_node, data);
+      });
+    };
+
+    hit_stack.push(root.nodes);
+
+    do {
+      var nodes = hit_stack.pop();
+
+      for(var i = nodes.length-1; i >= 0; i--) {
+        var ltree = nodes[i];
+        if(RTree.Rectangle.overlap_rectangle(rect, ltree)) {
+          if("nodes" in ltree) { // Not a Leaf
+            hit_stack.push(ltree.nodes);
+          } else if("leaf" in ltree) { // A Leaf !!
+            if(!return_node)
+              return_array.push(ltree.leaf);
+            else
+              return_array.push(ltree);
+          }/*  else if("load" in ltree) { // We need to fetch a URL for some more tree data
+            jQuery.getJSON(ltree.load, load_callback(this, ltree));
+            delete ltree.load;
+          //  i++; // Replay this entry
+          }*/
+        }
+      }
+    }while(hit_stack.length > 0);
+
+    return(return_array);
+  };
+
+  /* non-recursive internal insert function
+   * [] = _insert_subtree(rectangle, object to insert, root to begin insertion at)
+   * @private
+   */
+  var _insert_subtree = function(node, root) {
+    var bc; // Best Current node
+    // Initial insertion is special because we resize the Tree and we don't
+    // care about any overflow (seriously, how can the first object overflow?)
+    if(root.nodes.length == 0) {
+      root.x = node.x; root.y = node.y;
+      root.w = node.w; root.h = node.h;
+      root.nodes.push(node);
+      return;
+    }
+
+    // Find the best fitting leaf node
+    // choose_leaf returns an array of all tree levels (including root)
+    // that were traversed while trying to find the leaf
+    var tree_stack = _choose_leaf_subtree(node, root);
+    var ret_obj = node;//{x:rect.x,y:rect.y,w:rect.w,h:rect.h, leaf:obj};
+
+    // Walk back up the tree resizing and inserting as needed
+    do {
+      //handle the case of an empty node (from a split)
+      if(bc && "nodes" in bc && bc.nodes.length == 0) {
+        var pbc = bc; // Past bc
+        bc = tree_stack.pop();
+        for(var t=0;t<bc.nodes.length;t++)
+          if(bc.nodes[t] === pbc || bc.nodes[t].nodes.length == 0) {
+            bc.nodes.splice(t, 1);
+            break;
+        }
+      } else {
+        bc = tree_stack.pop();
+      }
+
+      // If there is data attached to this ret_obj
+      if("leaf" in ret_obj || "nodes" in ret_obj || isArray(ret_obj)) {
+        // Do Insert
+        if(isArray(ret_obj)) {
+          for(var ai = 0; ai < ret_obj.length; ai++) {
+            RTree.Rectangle.expand_rectangle(bc, ret_obj[ai]);
+          }
+          bc.nodes = bc.nodes.concat(ret_obj);
+        } else {
+          RTree.Rectangle.expand_rectangle(bc, ret_obj);
+          bc.nodes.push(ret_obj); // Do Insert
+        }
+
+        if(bc.nodes.length <= _Max_Width)  { // Start Resizeing Up the Tree
+          ret_obj = {x:bc.x,y:bc.y,w:bc.w,h:bc.h};
+        }  else { // Otherwise Split this Node
+          // linear_split() returns an array containing two new nodes
+          // formed from the split of the previous node's overflow
+          var a = _linear_split(bc.nodes);
+          ret_obj = a;//[1];
+
+          if(tree_stack.length < 1)  { // If are splitting the root..
+            bc.nodes.push(a[0]);
+            tree_stack.push(bc);     // Reconsider the root element
+            ret_obj = a[1];
+          } /*else {
+            delete bc;
+          }*/
+        }
+      }  else { // Otherwise Do Resize
+        //Just keep applying the new bounding rectangle to the parents..
+        RTree.Rectangle.expand_rectangle(bc, ret_obj);
+        ret_obj = {x:bc.x,y:bc.y,w:bc.w,h:bc.h};
+      }
+    } while(tree_stack.length > 0);
+  };
+
+  /* quick 'n' dirty function for plugins or manually drawing the tree
+   * [ tree ] = RTree.get_tree(): returns the raw tree data. useful for adding
+   * @public
+   * !! DEPRECATED !!
+   */
+  this.get_tree = function() {
+    return _T;
+  };
+
+  /* quick 'n' dirty function for plugins or manually loading the tree
+   * [ tree ] = RTree.set_tree(sub-tree, where to attach): returns the raw tree data. useful for adding
+   * @public
+   * !! DEPRECATED !!
+   */
+  this.set_tree = function(new_tree, where) {
+    if(!where)
+      where = _T;
+    return(_attach_data(where, new_tree));
+  };
+
+  /* non-recursive search function
+   * [ nodes | objects ] = RTree.search(rectangle, [return node data], [array to fill])
+   * @public
+   */
+  this.search = function(rect, return_node, return_array) {
+    if(arguments.length < 1)
+      throw "Wrong number of arguments. RT.Search requires at least a bounding rectangle."
+
+    switch(arguments.length) {
+      case 1:
+        arguments[1] = false;// Add an "return node" flag - may be removed in future
+      case 2:
+        arguments[2] = []; // Add an empty array to contain results
+      case 3:
+        arguments[3] = _T; // Add root node to end of argument list
+      default:
+        arguments.length = 4;
+    }
+    return(_search_subtree.apply(this, arguments));
+  };
+
+  /* partially-recursive toJSON function
+   * [ string ] = RTree.toJSON([rectangle], [tree])
+   * @public
+   */
+  this.toJSON = function(rect, tree) {
+    var hit_stack = []; // Contains the elements that overlap
+    var count_stack = []; // Contains the elements that overlap
+    var return_stack = {}; // Contains the elements that overlap
+    var max_depth = 3;  // This triggers recursion and tree-splitting
+    var current_depth = 1;
+    var return_string = "";
+
+    if(rect && !RTree.Rectangle.overlap_rectangle(rect, _T))
+     return "";
+
+    if(!tree)  {
+      count_stack.push(_T.nodes.length);
+      hit_stack.push(_T.nodes);
+      return_string += "var main_tree = {x:"+_T.x.toFixed()+",y:"+_T.y.toFixed()+",w:"+_T.w.toFixed()+",h:"+_T.h.toFixed()+",nodes:[";
+    }  else {
+      max_depth += 4;
+      count_stack.push(tree.nodes.length);
+      hit_stack.push(tree.nodes);
+      return_string += "var main_tree = {x:"+tree.x.toFixed()+",y:"+tree.y.toFixed()+",w:"+tree.w.toFixed()+",h:"+tree.h.toFixed()+",nodes:[";
+    }
+
+    do {
+      var nodes = hit_stack.pop();
+      var i = count_stack.pop()-1;
+
+      if(i >= 0 && i < nodes.length-1)
+        return_string += ",";
+
+      while(i >= 0)  {
+        var ltree = nodes[i];
+        if(!rect || RTree.Rectangle.overlap_rectangle(rect, ltree)) {
+          if(ltree.nodes) { // Not a Leaf
+            if(current_depth >= max_depth) {
+              var len = return_stack.length;
+              var nam = _name_to_id("saved_subtree");
+              return_string += "{x:"+ltree.x.toFixed()+",y:"+ltree.y.toFixed()+",w:"+ltree.w.toFixed()+",h:"+ltree.h.toFixed()+",load:'"+nam+".js'}";
+              return_stack[nam] = this.toJSON(rect, ltree);
+              if(i > 0)
+                return_string += ","
+            }  else {
+              return_string += "{x:"+ltree.x.toFixed()+",y:"+ltree.y.toFixed()+",w:"+ltree.w.toFixed()+",h:"+ltree.h.toFixed()+",nodes:[";
+              current_depth += 1;
+              count_stack.push(i);
+              hit_stack.push(nodes);
+              nodes = ltree.nodes;
+              i = ltree.nodes.length;
+            }
+          }  else if(ltree.leaf) { // A Leaf !!
+            var data = ltree.leaf.toJSON ? ltree.leaf.toJSON() : JSON.stringify(ltree.leaf);
+            return_string += "{x:"+ltree.x.toFixed()+",y:"+ltree.y.toFixed()+",w:"+ltree.w.toFixed()+",h:"+ltree.h.toFixed()+",leaf:" + data + "}";
+            if(i > 0)
+              return_string += ","
+          }  else if(ltree.load) { // A load
+            return_string += "{x:"+ltree.x.toFixed()+",y:"+ltree.y.toFixed()+",w:"+ltree.w.toFixed()+",h:"+ltree.h.toFixed()+",load:'" + ltree.load + "'}";
+            if(i > 0)
+              return_string += ","
+          }
+        }
+        i -= 1;
+      }
+      if(i < 0)  {
+        return_string += "]}"; current_depth -= 1;
+      }
+    }while(hit_stack.length > 0);
+
+    return_string+=";";
+
+    for(var my_key in return_stack) {
+      return_string += "\nvar " + my_key + " = function(){" + return_stack[my_key] + " return(main_tree);};";
+    }
+    return(return_string);
+  };
+
+  /* non-recursive function that deletes a specific
+   * [ number ] = RTree.remove(rectangle, obj)
+   */
+  this.remove = function(rect, obj) {
+    if(arguments.length < 1)
+      throw "Wrong number of arguments. RT.remove requires at least a bounding rectangle."
+
+    switch(arguments.length) {
+      case 1:
+        arguments[1] = false; // obj == false for conditionals
+      case 2:
+        arguments[2] = _T; // Add root node to end of argument list
+      default:
+        arguments.length = 3;
+    }
+    if(arguments[1] === false) { // Do area-wide delete
+      var numberdeleted = 0;
+      var ret_array = [];
+      do {
+        numberdeleted=ret_array.length;
+        ret_array = ret_array.concat(_remove_subtree.apply(this, arguments));
+      }while( numberdeleted !=  ret_array.length);
+      return ret_array;
+    }
+    else { // Delete a specific item
+      return(_remove_subtree.apply(this, arguments));
+    }
+  };
+
+  /* non-recursive insert function
+   * [] = RTree.insert(rectangle, object to insert)
+   */
+  this.insert = function(rect, obj) {
+    if(arguments.length < 2)
+      throw "Wrong number of arguments. RT.Insert requires at least a bounding rectangle and an object."
+
+    return(_insert_subtree({x:rect.x,y:rect.y,w:rect.w,h:rect.h,leaf:obj}, _T));
+  };
+
+  /* non-recursive delete function
+   * [deleted object] = RTree.remove(rectangle, [object to delete])
+   */
 
 //End of RTree
 };
@@ -1152,60 +1152,60 @@ var RTree = function(width){
 /* Rectangle - Generic rectangle object - Not yet used */
 
 RTree.Rectangle = function(ix, iy, iw, ih) { // new Rectangle(bounds) or new Rectangle(x, y, w, h)
+  var x, x2, y, y2, w, h;
+
+  if(ix.x) {
+    x = ix.x; y = ix.y;
+      if(ix.w !== 0 && !ix.w && ix.x2){
+        w = ix.x2-ix.x;  h = ix.y2-ix.y;
+      }  else {
+        w = ix.w;  h = ix.h;
+      }
+    x2 = x + w; y2 = y + h; // For extra fastitude
+  } else {
+    x = ix; y = iy;  w = iw;  h = ih;
+    x2 = x + w; y2 = y + h; // For extra fastitude
+  }
+
+  this.x1 = this.x = function(){return x;};
+  this.y1 = this.y = function(){return y;};
+  this.x2 = function(){return x2;};
+  this.y2 = function(){return y2;};
+  this.w = function(){return w;};
+  this.h = function(){return h;};
+
+  this.toJSON = function() {
+    return('{"x":'+x.toString()+', "y":'+y.toString()+', "w":'+w.toString()+', "h":'+h.toString()+'}');
+  };
+
+  this.overlap = function(a) {
+    return(this.x() < a.x2() && this.x2() > a.x() && this.y() < a.y2() && this.y2() > a.y());
+  };
+
+  this.expand = function(a) {
+    var nx = Math.min(this.x(), a.x());
+    var ny = Math.min(this.y(), a.y());
+    w = Math.max(this.x2(), a.x2()) - nx;
+    h = Math.max(this.y2(), a.y2()) - ny;
+    x = nx; y = ny;
+    return(this);
+  };
+
+  this.setRect = function(ix, iy, iw, ih) {
     var x, x2, y, y2, w, h;
-
     if(ix.x) {
-		x = ix.x; y = ix.y;	
-			if(ix.w !== 0 && !ix.w && ix.x2){
-				w = ix.x2-ix.x;	h = ix.y2-ix.y;
-			}	else {
-				w = ix.w;	h = ix.h;
-			}
-		x2 = x + w; y2 = y + h; // For extra fastitude
-	} else {
-		x = ix; y = iy;	w = iw;	h = ih;
-		x2 = x + w; y2 = y + h; // For extra fastitude
-	}
-
-	this.x1 = this.x = function(){return x;};
-	this.y1 = this.y = function(){return y;};
-	this.x2 = function(){return x2;};
-	this.y2 = function(){return y2;};		
-	this.w = function(){return w;};
-	this.h = function(){return h;};
-	
-	this.toJSON = function() {
-		return('{"x":'+x.toString()+', "y":'+y.toString()+', "w":'+w.toString()+', "h":'+h.toString()+'}');
-	};
-	
-	this.overlap = function(a) {
-		return(this.x() < a.x2() && this.x2() > a.x() && this.y() < a.y2() && this.y2() > a.y());
-	};
-	
-	this.expand = function(a) {
-		var nx = Math.min(this.x(), a.x());
-		var ny = Math.min(this.y(), a.y());
-		w = Math.max(this.x2(), a.x2()) - nx;
-		h = Math.max(this.y2(), a.y2()) - ny;
-		x = nx; y = ny;
-		return(this);
-	};
-	
-	this.setRect = function(ix, iy, iw, ih) {
-        var x, x2, y, y2, w, h;
-		if(ix.x) {
-			x = ix.x; y = ix.y;	
-			if(ix.w !== 0 && !ix.w && ix.x2) {
-				w = ix.x2-ix.x;	h = ix.y2-ix.y;
-			}	else {
-				w = ix.w;	h = ix.h;
-			}
-			x2 = x + w; y2 = y + h; // For extra fastitude
-		} else {
-			x = ix; y = iy;	w = iw;	h = ih;
-			x2 = x + w; y2 = y + h; // For extra fastitude
-		}
-	};
+      x = ix.x; y = ix.y;
+      if(ix.w !== 0 && !ix.w && ix.x2) {
+        w = ix.x2-ix.x;  h = ix.y2-ix.y;
+      } else {
+        w = ix.w;  h = ix.h;
+      }
+      x2 = x + w; y2 = y + h; // For extra fastitude
+    } else {
+      x = ix; y = iy;  w = iw;  h = ih;
+      x2 = x + w; y2 = y + h; // For extra fastitude
+    }
+  };
 //End of RTree.Rectangle
 };
 
@@ -1215,7 +1215,7 @@ RTree.Rectangle = function(ix, iy, iw, ih) { // new Rectangle(bounds) or new Rec
  * @static function
  */
 RTree.Rectangle.overlap_rectangle = function(a, b) {
-	return(a.x < (b.x+b.w) && (a.x+a.w) > b.x && a.y < (b.y+b.h) && (a.y+a.h) > b.y);
+  return(a.x < (b.x+b.w) && (a.x+a.w) > b.x && a.y < (b.y+b.h) && (a.y+a.h) > b.y);
 };
 
 /* returns true if rectangle a is contained in rectangle b
@@ -1223,20 +1223,20 @@ RTree.Rectangle.overlap_rectangle = function(a, b) {
  * @static function
  */
 RTree.Rectangle.contains_rectangle = function(a, b) {
-	return((a.x+a.w) <= (b.x+b.w) && a.x >= b.x && (a.y+a.h) <= (b.y+b.h) && a.y >= b.y);
+  return((a.x+a.w) <= (b.x+b.w) && a.x >= b.x && (a.y+a.h) <= (b.y+b.h) && a.y >= b.y);
 };
 
 /* expands rectangle A to include rectangle B, rectangle B is untouched
  * [ rectangle a ] = expand_rectangle(rectangle a, rectangle b)
  * @static function
  */
-RTree.Rectangle.expand_rectangle = function(a, b)	{
-	var nx = Math.min(a.x, b.x);
-	var ny = Math.min(a.y, b.y);
-	a.w = Math.max(a.x+a.w, b.x+b.w) - nx;
-	a.h = Math.max(a.y+a.h, b.y+b.h) - ny;
-	a.x = nx; a.y = ny;
-	return(a);
+RTree.Rectangle.expand_rectangle = function(a, b)  {
+  var nx = Math.min(a.x, b.x);
+  var ny = Math.min(a.y, b.y);
+  a.w = Math.max(a.x+a.w, b.x+b.w) - nx;
+  a.h = Math.max(a.y+a.h, b.y+b.h) - ny;
+  a.x = nx; a.y = ny;
+  return(a);
 };
 
 /* generates a minimally bounding rectangle for all rectangles in
@@ -1246,18 +1246,18 @@ RTree.Rectangle.expand_rectangle = function(a, b)	{
  * @static function
  */
 RTree.Rectangle.make_MBR = function(nodes, rect) {
-	if(nodes.length < 1)
-		return({x:0, y:0, w:0, h:0});
-		//throw "make_MBR: nodes must contain at least one rectangle!";
-	if(!rect)
-		rect = {x:nodes[0].x, y:nodes[0].y, w:nodes[0].w, h:nodes[0].h};
-	else
-		rect.x = nodes[0].x; rect.y = nodes[0].y; rect.w = nodes[0].w; rect.h = nodes[0].h;
-		
-	for(var i = nodes.length-1; i>0; i--)
-		RTree.Rectangle.expand_rectangle(rect, nodes[i]);
-		
-	return(rect);
+  if(nodes.length < 1)
+    return({x:0, y:0, w:0, h:0});
+    //throw "make_MBR: nodes must contain at least one rectangle!";
+  if(!rect)
+    rect = {x:nodes[0].x, y:nodes[0].y, w:nodes[0].w, h:nodes[0].h};
+  else
+    rect.x = nodes[0].x; rect.y = nodes[0].y; rect.w = nodes[0].w; rect.h = nodes[0].h;
+
+  for(var i = nodes.length-1; i>0; i--)
+    RTree.Rectangle.expand_rectangle(rect, nodes[i]);
+
+  return(rect);
 };
 
 (function(){function D(){}function z(){this.was=[0]}function C(a,b,c){this.hufts=new Int32Array(4320);this.window=new Uint8Array(c);this.end=c;this.checkfn=b;this.mode=0;this.reset(a,null);this.index=this.table=this.left=0;this.blens=null;this.bb=new Int32Array(1);this.tb=new Int32Array(1);this.codes=new E;this.check=this.write=this.read=this.bitb=this.bitk=this.last=0;this.inftree=new F}function E(){}function F(){}function y(a,b,c,d,h){if(0!=h){if(!a)throw"Undef src";if(!c)throw"Undef dest";if(0==
@@ -1367,6 +1367,8 @@ var Genoverse = Base.extend({
     if (!this.supported()) {
       return this.die('Your browser does not support this functionality');
     }
+
+    config = config || {};
 
     config.container = $(config.container); // Make sure container is a jquery object, jquery recognises itself automatically
 
@@ -2462,37 +2464,86 @@ var Genoverse = Base.extend({
     }
   }),
 
-  makeMenu: function (feature, event, track) {
+  makeMenu: function (features, event, track) {
+    if (!features) {
+      return false;
+    }
+
+    if (!$.isArray(features)) {
+      features = [ features ];
+    }
+
+    if (features.length === 0) {
+      return false;
+    } else if (features.length === 1) {
+      return this.makeFeatureMenu(features[0], event, track);
+    }
+
+    var browser = this;
+    var menu    = this.menuTemplate.clone(true).data({ browser: this });
+    var table   = $('.gv-menu-content', menu).addClass('gv-menu-content-first').find('table');
+
+    $('.gv-focus, .gv-highlight, .gv-menu-loading', menu).remove();
+    $('.gv-title', menu).html(features.length + ' features');
+
+    $.each(features.sort(function (a, b) { return a.start - b.start; }), function (i, feature) {
+      var location = feature.chr + ':' + feature.start + (feature.end === feature.start ? '' : '-' + feature.end);
+      var title    = feature.menuLabel || feature.name || ($.isArray(feature.label) ? feature.label.join(' ') : feature.label) || (feature.id + '');
+
+      $('<a href="#">').html(title.match(location) ? title : (location + ' ' + title)).on('click', function (e) {
+        browser.makeFeatureMenu(feature, e, track);
+        return false;
+      }).appendTo($('<td>').appendTo($('<tr>').appendTo(table)));
+    });
+
+    menu.appendTo(this.superContainer || this.container).show();
+
+    if (event) {
+      menu.css({ left: 0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' });
+    }
+
+    this.menus = this.menus.add(menu);
+
+    if (track) {
+      track.prop('menus', track.prop('menus').add(menu));
+    }
+
+    return menu;
+  },
+
+  makeFeatureMenu: function (feature, e, track) {
+    var browser   = this;
+    var container = this.superContainer || this.container;
+    var menu, content, loading, getMenu, isDeferred, i, j,  el, start, end, linkData, key, columns, colspan;
+
+    function focus() {
+      var data    = $(this).data();
+      var length  = data.end - data.start + 1;
+      var context = Math.max(Math.round(length / 4), 25);
+
+      browser.moveTo(data.start - context, data.end + context, true);
+
+      return false;
+    }
+
+    function highlight() {
+      browser.addHighlight($(this).data());
+      return false;
+    }
+
     if (!feature.menuEl) {
-      var browser    = this;
-      var menu       = this.menuTemplate.clone(true).data({ browser: this, feature: feature });
-      var content    = $('.gv-menu-content', menu).remove();
-      var loading    = $('.gv-menu-loading', menu);
-      var getMenu    = track ? track.controller.populateMenu(feature) : feature;
-      var isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
-      var i, j, table, el, start, end, linkData, key, columns, colspan;
-
-      function focus() {
-        var data    = $(this).data();
-        var length  = data.end - data.start + 1;
-        var context = Math.max(Math.round(length / 4), 25);
-
-        browser.moveTo(data.start - context, data.end + context, true);
-
-        return false;
-      }
-
-      function highlight() {
-        browser.addHighlight($(this).data());
-        return false;
-      }
+      menu       = browser.menuTemplate.clone(true).data({ browser: browser, feature: feature });
+      content    = $('.gv-menu-content', menu).remove();
+      loading    = $('.gv-menu-loading', menu);
+      getMenu    = track ? track.controller.populateMenu(feature) : feature;
+      isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
 
       if (isDeferred) {
         loading.show();
       }
 
       $.when(getMenu).done(function (properties) {
-        if (Object.prototype.toString.call(properties) !== '[object Array]') {
+        if (!$.isArray(properties)) {
           properties = [ properties ];
         }
 
@@ -2501,7 +2552,7 @@ var Genoverse = Base.extend({
           el      = content.clone().addClass(i ? '' : 'gv-menu-content-first').appendTo(menu);
           start   = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
           end     = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
-          columns = Math.max.apply(Math, $.map(properties[i], function (v) { return Object.prototype.toString.call(v) === '[object Array]' ? v.length : 1; }));
+          columns = Math.max.apply(Math, $.map(properties[i], function (v) { return $.isArray(v) ? v.length : 1; }));
 
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
@@ -2524,7 +2575,7 @@ var Genoverse = Base.extend({
               table  += '<tr><td' + colspan + '>' + key + '</td>';
 
               if (!colspan) {
-                if (Object.prototype.toString.call(properties[i][key]) === '[object Array]') {
+                if ($.isArray(properties[i][key])) {
                   for (j = 0; j < properties[i][key].length; j++) {
                     table += '<td>' + properties[i][key][j] + '</td>';
                   }
@@ -2539,7 +2590,7 @@ var Genoverse = Base.extend({
             }
           }
 
-          $('table', el).html(table);
+          $('table', el)[table ? 'html' : 'remove'](table);
         }
 
         if (isDeferred) {
@@ -2551,12 +2602,12 @@ var Genoverse = Base.extend({
         menu.addClass(track.id).data('track', track);
       }
 
-      feature.menuEl = menu.appendTo(this.superContainer || this.container);
+      feature.menuEl = menu.appendTo(container);
     } else {
-      feature.menuEl.appendTo(this.superContainer || this.container); // Move the menu to the end of the container again, so that it will always be on top of other menus
+      feature.menuEl.appendTo(container); // Move the menu to the end of the container again, so that it will always be on top of other menus
     }
 
-    this.menus = this.menus.add(feature.menuEl);
+    browser.menus = browser.menus.add(feature.menuEl);
 
     if (track) {
       track.prop('menus', track.prop('menus').add(feature.menuEl));
@@ -2564,8 +2615,8 @@ var Genoverse = Base.extend({
 
     feature.menuEl.show(); // Must show before positioning, else position will be wrong
 
-    if (event) {
-      feature.menuEl.css({ left: 0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' });
+    if (e) {
+      feature.menuEl.css({ left: 0, top: 0 }).position({ of: e, my: 'left top', collision: 'flipfit' });
     }
 
     return feature.menuEl;
@@ -2669,6 +2720,11 @@ var Genoverse = Base.extend({
   destroy: function () {
     this.onTracks('destructor');
     (this.superContainer || this.container).empty();
+
+    if (this.zoomInHighlight) {
+      this.zoomInHighlight.add(this.zoomOutHighlight).remove();
+    }
+
     $(window).add(document).off(this.eventNamespace);
 
     for (var key in this) {
@@ -2897,6 +2953,33 @@ Genoverse.Track = Base.extend({
       }
     }
 
+    /*
+     * Abandon all hope! If you've tracked a bug to this line of code, be afraid.
+     * It will almost certainly be due to the wonderful way the javascript objects work.
+     *
+     * Consider the following:
+     *
+     * var Obj = function () {};
+     *
+     * Obj.prototype = {
+     *   scalar : 1,
+     *   array  : [ 1, 2, 3 ],
+     *   hash   : { a: 1, b : 2 }
+     * };
+     *
+     * var x = new Obj();
+     *
+     * x.scalar   = 10;
+     * x.array[0] = 10;
+     * x.hash.a   = 10;
+     *
+     * var y = new Obj();
+     *
+     * y is now { scalar: 1, array: [ 10, 2, 3 ], hash: { a: 10, b : 2 } }, since memory locations of objects in prototypes are shared.
+     *
+     * This has been the cause of numerous Genoverse bugs in the past, due to property sharing between different tracks, models, views, and controllers.
+     * See also the line a bit further down: this[obj].constructor.extend(mvcSettings[obj].func);
+     */
     this.extend(trackSettings);
 
     for (i = 0; i < 3; i++) {
@@ -2920,6 +3003,7 @@ Genoverse.Track = Base.extend({
             }
           }
 
+          // Abandon all hope! (see above)
           this[obj].constructor.extend(mvcSettings[obj].func);
 
           if (obj === 'model' && typeof test.url !== 'undefined') {
@@ -4464,21 +4548,21 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
 Genoverse.Track.Model.Stranded = Genoverse.Track.Model.extend({
   init: function (reset) {
     this.base(reset);
-    
+
     if (!reset) {
       var otherTrack = this.prop('forwardTrack');
-      
+
       if (otherTrack) {
         this.features     = otherTrack.prop('features');
         this.featuresById = otherTrack.prop('featuresById');
       }
     }
   },
-  
+
   setURL: function (urlParams, update) {
     this.base($.extend(urlParams || this.urlParams, { strand: this.track.featureStrand }), update);
   },
-  
+
   findFeatures: function () {
     var strand = this.track.featureStrand;
     return $.grep(this.base.apply(this, arguments), function (feature) { return feature.strand === strand; });
@@ -4519,34 +4603,34 @@ Genoverse.Track.Controller.Sequence = Genoverse.Track.Controller.extend({
 // assumes that the data source responds with raw sequence text
 // see Fasta model for more specific example
 Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
-  threshold : 100000,  
+  threshold : 100000,
   chunkSize : 1000,
   buffer    : 0,
   dataType  : 'text',
-  
+
   init: function () {
     this.base();
     this.chunks = {};
   },
-  
+
   getData: function (start, end) {
     start = start - start % this.chunkSize + 1;
     end   = end + this.chunkSize - end % this.chunkSize;
     return this.base(start, end);
   },
-  
+
   parseData: function (data, start, end) {
     data = data.replace(/\n/g, '');
-    
+
     if (this.prop('lowerCase')) {
       data = data.toLowerCase();
     }
-    
+
     for (var i = 0; i < data.length; i += this.chunkSize) {
       if (this.chunks[start + i]) {
         continue;
       }
-      
+
       var feature = {
         id       : start + i,
         start    : start + i,
@@ -4554,7 +4638,7 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
         sequence : data.substr(i, this.chunkSize),
         sort     : start + i
       };
-      
+
       this.chunks[feature.start] = feature;
       this.insertFeature(feature);
     }
@@ -4564,23 +4648,23 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
 
 Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
   url  : 'http://genoverse.org/data/Homo_sapiens.GRCh37.72.dna.chromosome.1.fa', // Example url
-  
+
   // Following settings could be left undefined and will be detected automatically via .getStartByte()
   startByte  : undefined, // Byte in the file where the sequence actually starts
   lineLength : undefined, // Length of the sequence line in the file
-  
+
   // TODO: Check if URL provided
-  
+
   getData: function (start, end) {
     var deferred = $.Deferred();
-    
+
     $.when(this.getStartByte()).done(function () {
       start = start - start % this.chunkSize + 1;
       end   = end + this.chunkSize - end % this.chunkSize;
-      
+
       var startByte = start - 1 + Math.floor((start - 1) / this.lineLength) + this.startByte;
       var endByte   = end   - 1 + Math.floor((end   - 1) / this.lineLength) + this.startByte;
-      
+
       $.ajax({
         url       : this.parseURL(start, end),
         dataType  : this.dataType,
@@ -4591,33 +4675,33 @@ Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
         error     : this.track.controller.showError
       }).done(function () { deferred.resolveWith(this); }).fail(function () { deferred.rejectWith(this); });
     }).fail(function () { deferred.rejectWith(this); });
-    
+
     return deferred;
   },
-  
+
   getStartByte: function () {
     if (this.startByteRequest) {
       return this.startByteRequest;
     }
-    
+
     if (this.startByte === undefined || this.lineLength === undefined) {
       this.startByteRequest = $.ajax({
         url       : this.parseURL(),
         dataType  : 'text',
         context   : this,
         headers   : { 'Range': 'bytes=0-300' },
-        xhrFields : this.xhrFields,        
+        xhrFields : this.xhrFields,
         success   : function (data) {
           if (data.indexOf('>') === 0) {
             this.startByte = data.indexOf('\n') + 1;
           } else {
             this.startByte = 0;
           }
-          
+
           this.lineLength = data.indexOf('\n', this.startByte) - this.startByte;
         }
       });
-      
+
       return this.startByteRequest;
     }
   }
@@ -4766,31 +4850,31 @@ Genoverse.Track.Model.SequenceVariation = Genoverse.Track.Model.extend({
 
 Genoverse.Track.Model.SequenceVariation.VCF = Genoverse.Track.Model.SequenceVariation.extend({
   dataType: 'text',
-  
+
   parseData: function (text) {
     var lines = text.split('\n');
-    
+
     for (var i = 0; i < lines.length; i++) {
       if (!lines[i].length || lines[i].indexOf('#') === 0) {
         continue;
       }
-      
+
       var fields = lines[i].split('\t');
-      
+
       if (fields.length < 5) {
         continue;
       }
-      
+
       if (fields[0] === this.browser.chr || fields[0] === 'chr' + this.browser.chr) {
         var id      = fields.slice(0, 3).join('|');
         var start   = parseInt(fields[1], 10);
         var alleles = fields[4].split(',');
-        
+
         alleles.unshift(fields[3]);
-        
+
         for (var j = 0; j < alleles.length; j++) {
           var end = start + alleles[j].length - 1;
-          
+
           this.insertFeature({
             id              : id + '|' + alleles[j],
             sort            : j,
@@ -4802,7 +4886,7 @@ Genoverse.Track.Model.SequenceVariation.VCF = Genoverse.Track.Model.SequenceVari
             label           : alleles[j],
             labelColor      : '#FFFFFF',
             originalFeature : fields
-          });        
+          });
         }
       }
     }
@@ -4937,33 +5021,33 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
 
 
 // Basic GFF3 model for transcripts
-// See http://www.broadinstitute.org/annotation/gebo/help/gff3.html 
+// See http://www.broadinstitute.org/annotation/gebo/help/gff3.html
 Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend({
   dataType : 'text',
-  
-  // Transcript structure map for column 3 (type) 
+
+  // Transcript structure map for column 3 (type)
   typeMap : {
     exon  : 'exon',
     cds   : 'cds'
   },
-  
+
   parseData: function (text) {
     var lines = text.split('\n');
-    
+
     for (var i = 0; i < lines.length; i++) {
       if (!lines[i].length || lines[i].indexOf('#') === 0) {
         continue;
       }
-      
+
       var fields = lines[i].split('\t');
-      
+
       if (fields.length < 5) {
         continue;
       }
-      
+
       if (fields[0] === this.browser.chr || fields[0].toLowerCase() === 'chr' + this.browser.chr || fields[0].match('[^1-9]' + this.browser.chr + '$')) {
         var feature = {};
-        
+
         feature.id     = fields.slice(0, 5).join('|');
         feature.start  = parseInt(fields[3], 10);
         feature.end    = parseInt(fields[4], 10);
@@ -4971,19 +5055,19 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
         feature.type   = fields[2];
         feature.score  = fields[5];
         feature.strand = fields[6] + '1';
-        
+
         if (fields[8]) {
           var frame = fields[8].split(';');
-          
+
           for (var j = 0; j < frame.length; j++) {
             var keyValue = frame[j].split('=');
-            
+
             if (keyValue.length === 2) {
               feature[keyValue[0].toLowerCase()] = keyValue[1];
             }
           }
         }
-        
+
         // sub-feature came earlier than parent feature
         if (feature.parent && !this.featuresById[feature.parent]) {
           this.featuresById[feature.parent] = {
@@ -4991,7 +5075,7 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
             cds   : []
           };
         }
-        
+
         if (feature.parent && feature.type.toLowerCase() === this.typeMap.exon.toLowerCase()) {
           if (!$.grep(this.featuresById[feature.parent].exons, function (exon) { return exon.id === feature.id; }).length) {
             this.featuresById[feature.parent].exons.push(feature);
@@ -5003,9 +5087,9 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
         } else if (!feature.parent) {
           feature.label = feature.name || feature.id || '';
           $.extend(feature, { label: feature.name || feature.id || '', exons: [], cds: [] }, this.featuresById[feature.id] || {});
-          
+
           delete this.featuresById[feature.id];
-          
+
           this.insertFeature(feature);
         }
       }
@@ -5266,14 +5350,14 @@ Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
 Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
   parseData: function (text) {
     var lines = text.split('\n');
-    
+
     for (var i = 0; i < lines.length; i++) {
       var fields = lines[i].split('\t');
-      
+
       if (fields.length < 3) {
         continue;
       }
-      
+
       if (fields[0] === this.browser.chr || fields[0].toLowerCase() === 'chr' + this.browser.chr || fields[0].match('[^1-9]' + this.browser.chr + '$')) {
         var score = parseFloat(fields[4], 10);
         var color = '#000000';
@@ -5294,7 +5378,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
         });
       }
     }
-  },  
+  },
 
   // As per https://genome.ucsc.edu/FAQ/FAQformat.html#format1 specification
   scoreColor: function (score) {
@@ -5308,7 +5392,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
     if (score <= 944) { return 'rgb(21,21,21)';    }
     return '#000000';
   }
-});  
+});
 
 Genoverse.Track.Model.File.GFF = Genoverse.Track.Model.File.extend({
   parseData: function (text) {

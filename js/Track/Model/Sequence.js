@@ -2,34 +2,34 @@
 // assumes that the data source responds with raw sequence text
 // see Fasta model for more specific example
 Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
-  threshold : 100000,  
+  threshold : 100000,
   chunkSize : 1000,
   buffer    : 0,
   dataType  : 'text',
-  
+
   init: function () {
     this.base();
     this.chunks = {};
   },
-  
+
   getData: function (start, end) {
     start = start - start % this.chunkSize + 1;
     end   = end + this.chunkSize - end % this.chunkSize;
     return this.base(start, end);
   },
-  
+
   parseData: function (data, start, end) {
     data = data.replace(/\n/g, '');
-    
+
     if (this.prop('lowerCase')) {
       data = data.toLowerCase();
     }
-    
+
     for (var i = 0; i < data.length; i += this.chunkSize) {
       if (this.chunks[start + i]) {
         continue;
       }
-      
+
       var feature = {
         id       : start + i,
         start    : start + i,
@@ -37,7 +37,7 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
         sequence : data.substr(i, this.chunkSize),
         sort     : start + i
       };
-      
+
       this.chunks[feature.start] = feature;
       this.insertFeature(feature);
     }

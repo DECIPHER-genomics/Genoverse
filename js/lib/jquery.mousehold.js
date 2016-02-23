@@ -43,7 +43,7 @@ $.fn.mousehold = function(timeout, f) {
         if (fireStep == 1) f.call(this, 1);
         fireStep = 0;
       }
-      
+
       $(this).mouseout(clearMousehold);
       $(this).mouseup(clearMousehold);
     })
