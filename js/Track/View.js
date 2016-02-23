@@ -265,7 +265,7 @@ Genoverse.Track.View = Base.extend({
     }
 
     var x       = (original || feature).x;
-    var n       = this.repeatLabels ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) : 1;
+    var n       = this.repeatLabels ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) || 1 : 1;
     var spacing = width / n;
     var label, start, j, y, currentY, h;
 
@@ -309,6 +309,7 @@ Genoverse.Track.View = Base.extend({
           currentY = y + (j * h);
 
           if (context.labelPositions && context.labelPositions.search({ x: start, y: currentY, w: feature.labelWidth, h: h }).length) {
+            feature.position[scale].label.visible = false;
             continue;
           }
 
