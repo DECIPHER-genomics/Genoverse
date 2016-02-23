@@ -113,6 +113,33 @@ Genoverse.Track = Base.extend({
       }
     }
 
+    /*
+     * Abandon all hope! If you've tracked a bug to this line of code, be afraid.
+     * It will almost certainly be due to the wonderful way the javascript objects work.
+     *
+     * Consider the following:
+     *
+     * var Obj = function () {};
+     *
+     * Obj.prototype = {
+     *   scalar : 1,
+     *   array  : [ 1, 2, 3 ],
+     *   hash   : { a: 1, b : 2 }
+     * };
+     *
+     * var x = new Obj();
+     *
+     * x.scalar   = 10;
+     * x.array[0] = 10;
+     * x.hash.a   = 10;
+     *
+     * var y = new Obj();
+     *
+     * y is now { scalar: 1, array: [ 10, 2, 3 ], hash: { a: 10, b : 2 } }, since memory locations of objects in prototypes are shared.
+     *
+     * This has been the cause of numerous Genoverse bugs in the past, due to property sharing between different tracks, models, views, and controllers.
+     * See also the line a bit further down: this[obj].constructor.extend(mvcSettings[obj].func);
+     */
     this.extend(trackSettings);
 
     for (i = 0; i < 3; i++) {
@@ -136,6 +163,7 @@ Genoverse.Track = Base.extend({
             }
           }
 
+          // Abandon all hope! (see above)
           this[obj].constructor.extend(mvcSettings[obj].func);
 
           if (obj === 'model' && typeof test.url !== 'undefined') {
