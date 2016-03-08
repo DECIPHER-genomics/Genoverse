@@ -1,6 +1,8 @@
 Genoverse.Track.Controller.Sequence = Genoverse.Track.Controller.extend({
   getClickedFeatures: function (x, y) {
-    return this.makeSeqFeatureMenu(this.base(x, y)[0], Math.floor(x / this.scale));
+    var feature = this.base(x, y)[0];
+
+    return feature ? this.makeSeqFeatureMenu(feature, Math.floor(x / this.scale)) : false;
   },
 
   makeSeqFeatureMenu: function (feature, pos) {

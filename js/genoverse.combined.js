@@ -3242,7 +3242,7 @@ Genoverse.Track = Base.extend({
       this.model.init(true);
     }
 
-    this.view.init.apply(this.view, arguments);
+    this.view.init();
     this.setLengthMap();
     this.controller.reset.apply(this.controller, arguments);
   },
@@ -3652,11 +3652,8 @@ Genoverse.Track.Controller = Base.extend({
     var controller = this;
     var tooLarge   = this.browser.length > this.threshold;
     var div        = this.imgContainer.clone().addClass((params.cls + ' gv-loading').replace('.', '_')).css({ left: params.left, display: params.cls === this.scrollStart ? 'block' : 'none' });
-    var bgImage    = params.background ? $('<img class="gv-bg">').hide().addClass(params.background).data(params).prependTo(div) : false;
-    var image      = $('<img class="gv-data">').hide().data(params).appendTo(div).on('load', function () {
-      $(this).fadeIn('fast').parent().removeClass('gv-loading');
-      $(this).siblings('.gv-bg').show();
-    });
+    var bgCanvas   = params.background ? $('<canvas class="gv-bg">').addClass(params.background).data(params).prependTo(div) : false;
+    var canvas     = $('<canvas class="gv-data">').data(params).appendTo(div);
 
     params.container = div;
 
@@ -3678,11 +3675,14 @@ Genoverse.Track.Controller = Base.extend({
 
     return deferred.done(function () {
       var features = tooLarge ? [] : controller.model.findFeatures(params.start, params.end);
-      controller.render(features, image);
 
-      if (bgImage) {
-        controller.renderBackground(features, bgImage);
+      controller.render(features, canvas);
+
+      if (bgCanvas) {
+        controller.renderBackground(features, bgCanvas);
       }
+
+      canvas.parent().removeClass('gv-loading');
     }).fail(function (e) {
       controller.showError(e);
     });
@@ -3740,11 +3740,14 @@ Genoverse.Track.Controller = Base.extend({
     }
   },
 
-  render: function (features, img) {
-    var params         = img.data();
-        features       = this.view.positionFeatures(this.view.scaleFeatures(features, params.scale), params); // positionFeatures alters params.featureHeight, so this must happen before the canvases are created
-    var featureCanvas  = $('<canvas>').attr({ width: params.width, height: params.featureHeight || 1 });
-    var labelCanvas    = this.prop('labels') === 'separate' && params.labelHeight ? featureCanvas.clone().attr('height', params.labelHeight) : featureCanvas;
+  render: function (features, featureCanvas) {
+    var params   = featureCanvas.data();
+        features = this.view.positionFeatures(this.view.scaleFeatures(features, params.scale), params);
+
+    // positionFeatures alters params.featureHeight, so this must happen before the canvas height is set
+    featureCanvas.attr({ width: params.width, height: params.featureHeight || 1 });
+
+    var labelCanvas    = this.prop('labels') === 'separate' && params.labelHeight ? featureCanvas.clone().attr({ 'class': 'gv-labels', height: params.labelHeight }).insertAfter(featureCanvas) : featureCanvas;
     var featureContext = featureCanvas[0].getContext('2d');
     var labelContext   = labelCanvas[0].getContext('2d');
 
@@ -3757,23 +3760,17 @@ Genoverse.Track.Controller = Base.extend({
     }
 
     this.view.draw(features, featureContext, labelContext, params.scale);
-
-    img.attr('src', featureCanvas[0].toDataURL());
-
-    if (labelContext !== featureContext) {
-      img.clone(true).attr({ 'class': 'gv-labels', src: labelCanvas[0].toDataURL() }).insertAfter(img);
-    }
-
     this.checkHeight();
 
-    featureCanvas = labelCanvas = img = null;
+    featureCanvas = labelCanvas = null;
   },
 
-  renderBackground: function (features, img, height) {
-    var canvas = $('<canvas>').attr({ width: this.width, height: height || 1 })[0];
-    this.view.drawBackground(features, canvas.getContext('2d'), img.data());
-    img.attr('src', canvas.toDataURL());
-    canvas = img = null;
+  renderBackground: function (features, canvas, height) {
+    canvas.attr({ width: this.width, height: height || 1 });
+
+    this.view.drawBackground(features, canvas[0].getContext('2d'), canvas.data());
+
+    canvas = null;
   },
 
   populateMenu: function (feature) {
@@ -4081,17 +4078,6 @@ Genoverse.Track.View = Base.extend({
   init: function () {
     this.setDefaults();
     this.scaleSettings = {};
-
-    if (arguments[0] === 'resizing') {
-      var features = this.prop('featuresById');
-      var scale    = this.prop('scale');
-
-      for (var i in features) {
-        if (features[i].position[scale]) {
-          features[i].position[scale].positioned = false;
-        }
-      }
-    }
   },
 
   setDefaults: function () {
@@ -4447,7 +4433,7 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
   addDomElements: function () {
     this.base();
 
-    this.image = $('<img>').appendTo(this.imgContainer);
+    this.canvas = $('<canvas>').appendTo(this.imgContainer);
 
     this.container.toggleClass('gv-track-container gv-track-container-static').prepend(this.imgContainer);
     this.scrollContainer.add(this.messageContainer).remove();
@@ -4460,7 +4446,7 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
 
   setWidth: function (width) {
     this.base(width);
-    this.image.width = this.width;
+    this.canvas.width = this.width;
   },
 
   makeFirstImage: function () {
@@ -4485,7 +4471,7 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
         params.width         = this.width;
         params.featureHeight = height;
 
-        this.render(features, this.image.data(params));
+        this.render(features, this.canvas.data(params));
         this.imgContainer.children(':last').show();
         this.resize(height, undefined, false);
 
@@ -4607,7 +4593,9 @@ Genoverse.Track.Model.Stranded = Genoverse.Track.Model.extend({
 
 Genoverse.Track.Controller.Sequence = Genoverse.Track.Controller.extend({
   getClickedFeatures: function (x, y) {
-    return this.makeSeqFeatureMenu(this.base(x, y)[0], Math.floor(x / this.scale));
+    var feature = this.base(x, y)[0];
+
+    return feature ? this.makeSeqFeatureMenu(feature, Math.floor(x / this.scale)) : false;
   },
 
   makeSeqFeatureMenu: function (feature, pos) {
