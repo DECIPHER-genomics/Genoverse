@@ -3237,7 +3237,7 @@ Genoverse.Track = Base.extend({
       this.model.init(true);
     }
 
-    this.view.init();
+    this.view.init.apply(this.view, arguments);
     this.setLengthMap();
     this.controller.reset.apply(this.controller, arguments);
   },
@@ -3401,7 +3401,7 @@ Genoverse.Track.Controller = Base.extend({
     var features = this[target && target.hasClass('gv-labels') ? 'labelPositions' : 'featurePositions'].search(bounds);
 
     if (tolerance) {
-      return features.sort(function (a, b) { return Math.abs(a.position[scale].start - x) - Math.abs(b.position[scale].start - x) });
+      return features.sort(function (a, b) { return Math.abs(a.position[scale].start - x) - Math.abs(b.position[scale].start - x); });
     } else {
       return this.model.sortFeatures(features);
     }
@@ -3950,9 +3950,11 @@ Genoverse.Track.Model = Base.extend({
   * and call this.insertFeature(feature)
   */
   parseData: function (data, start, end) {
+    var feature;
+
     // Example of parseData function when data is an array of hashes like { start: ..., end: ... }
     for (var i = 0; i < data.length; i++) {
-      var feature = data[i];
+      feature = data[i];
 
       feature.sort = start + i;
 
@@ -4074,6 +4076,17 @@ Genoverse.Track.View = Base.extend({
   init: function () {
     this.setDefaults();
     this.scaleSettings = {};
+
+    if (arguments[0] === 'resizing') {
+      var features = this.prop('featuresById');
+      var scale    = this.prop('scale');
+
+      for (var i in features) {
+        if (features[i].position[scale]) {
+          features[i].position[scale].positioned = false;
+        }
+      }
+    }
   },
 
   setDefaults: function () {
@@ -4158,8 +4171,8 @@ Genoverse.Track.View = Base.extend({
 
     if (!feature.position[scale].positioned) {
       feature.position[scale].H = feature.position[scale].height + this.featureMargin.bottom;
-      feature.position[scale].W = feature.position[scale].width + (feature.marginRight || this.featureMargin.right);
-      feature.position[scale].Y = (typeof feature.y === 'number' ? feature.y * feature.position[scale].H : 0) + this.featureMargin.top;
+      feature.position[scale].W = feature.position[scale].width  + (feature.marginRight || this.featureMargin.right);
+      feature.position[scale].Y = (typeof feature.y === 'number' ? feature.y * feature.position[scale].H : 0) + (feature.marginTop || this.featureMargin.top);
 
       if (feature.label) {
         if (typeof feature.label === 'string') {

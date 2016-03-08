@@ -107,8 +107,8 @@ Genoverse.Track.View = Base.extend({
 
     if (!feature.position[scale].positioned) {
       feature.position[scale].H = feature.position[scale].height + this.featureMargin.bottom;
-      feature.position[scale].W = feature.position[scale].width + (feature.marginRight || this.featureMargin.right);
-      feature.position[scale].Y = (typeof feature.y === 'number' ? feature.y * feature.position[scale].H : 0) + this.featureMargin.top;
+      feature.position[scale].W = feature.position[scale].width  + (feature.marginRight || this.featureMargin.right);
+      feature.position[scale].Y = (typeof feature.y === 'number' ? feature.y * feature.position[scale].H : 0) + (feature.marginTop || this.featureMargin.top);
 
       if (feature.label) {
         if (typeof feature.label === 'string') {
