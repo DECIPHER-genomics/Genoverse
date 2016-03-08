@@ -139,7 +139,7 @@ Genoverse.Track.Controller = Base.extend({
     var features = this[target && target.hasClass('gv-labels') ? 'labelPositions' : 'featurePositions'].search(bounds);
 
     if (tolerance) {
-      return features.sort(function (a, b) { return Math.abs(a.position[scale].start - x) - Math.abs(b.position[scale].start - x) });
+      return features.sort(function (a, b) { return Math.abs(a.position[scale].start - x) - Math.abs(b.position[scale].start - x); });
     } else {
       return this.model.sortFeatures(features);
     }

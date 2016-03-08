@@ -151,9 +151,11 @@ Genoverse.Track.Model = Base.extend({
   * and call this.insertFeature(feature)
   */
   parseData: function (data, start, end) {
+    var feature;
+
     // Example of parseData function when data is an array of hashes like { start: ..., end: ... }
     for (var i = 0; i < data.length; i++) {
-      var feature = data[i];
+      feature = data[i];
 
       feature.sort = start + i;
 
