@@ -30,13 +30,13 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
       x = transcript.x + (cds[i].start - transcript.start) * scale;
       w = Math.max((cds[i].end - cds[i].start) * scale + add, this.minScaledWidth);
 
+      coding[cds[i].start + ':' + cds[i].end] = true;
+
       if (x > this.width || x + w < 0) {
         continue;
       }
 
       featureContext.fillRect(x, transcript.y, w, transcript.height);
-
-      coding[cds[i].start + ':' + cds[i].end] = true;
     }
 
     for (i = 0; i < exons.length; i++) {
