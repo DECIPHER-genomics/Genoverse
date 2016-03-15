@@ -5,6 +5,7 @@ Genoverse.Track.Model = Base.extend({
   xhrFields  : undefined,
   url        : undefined,
   urlParams  : undefined, // hash of URL params
+  data       : undefined, // is defined, will be used instead of fetching data from a source
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -15,7 +16,7 @@ Genoverse.Track.Model = Base.extend({
   init: function (reset) {
     this.setDefaults(reset);
 
-    if (reset) {
+    if (reset && !this.data) {
       for (var i in this.featuresById) {
         delete this.featuresById[i].position;
       }
@@ -74,10 +75,16 @@ Genoverse.Track.Model = Base.extend({
     start = Math.max(1, start);
     end   = Math.min(this.browser.chromosomeSize, end);
 
-    var model    = this;
     var deferred = $.Deferred();
-    var bins     = [];
-    var length   = end - start + 1;
+
+    if (typeof this.data !== 'undefined') {
+      this.receiveData(this.data.sort(function (a, b) { return a.start - b.start; }), start, end);
+      return deferred.resolveWith(this);
+    }
+
+    var model  = this;
+    var bins   = [];
+    var length = end - start + 1;
 
     if (!this.url) {
       return deferred.resolveWith(this);
@@ -161,6 +168,11 @@ Genoverse.Track.Model = Base.extend({
 
       this.insertFeature(feature);
     }
+  },
+
+  updateData: function (data) {
+    this.data = data;
+    this.track.reset();
   },
 
   setDataRange: function (start, end) {
