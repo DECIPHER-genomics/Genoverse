@@ -1421,7 +1421,17 @@ var Genoverse = Base.extend({
     var isBrowser = obj instanceof Genoverse;
     var mainObj   = isBrowser || obj instanceof Genoverse.Track ? obj : obj.track;
     var events    = isBrowser ? obj.events.browser : obj.browser.events.tracks;
-    var debug     = (isBrowser ? 'Genoverse' : obj.id || obj.name || 'Track') + '.' + key;
+    var debug;
+
+    if (mainObj.debug) {
+      debug = [ isBrowser ? 'Genoverse' : mainObj.id || mainObj.name || 'Track' ];
+
+      if (!isBrowser && obj !== mainObj) {
+        debug.push(obj instanceof Genoverse.Track.Controller ? 'Controller' : obj instanceof Genoverse.Track.Model ? 'Model' : 'View');
+      }
+
+      debug = debug.concat(key).join('.');
+    }
 
     obj.functions[key] = obj[key];
 
@@ -1430,10 +1440,10 @@ var Genoverse = Base.extend({
       var rtn;
 
       // Debugging functionality
-      // Enabled by "debug": true || { functionName: true, ...} option
-      if (obj.debug === true) {                                     // if "debug": true, simply log function call
+      // Enabled by "debug": true || 'time' || { functionName: true, ...} option
+      if (mainObj.debug === true) { // if "debug": true, simply log function call
         console.log(debug);
-      } else if (typeof obj.debug === 'object' && obj.debug[key]) { // if debug: { functionName: true, ...}, log function time
+      } else if (mainObj.debug === 'time' || (typeof mainObj.debug === 'object' && mainObj.debug[key])) { // if debug: 'time' || { functionName: true, ...}, log function time
         console.time('time: ' + debug);
       }
 
@@ -1454,7 +1464,7 @@ var Genoverse = Base.extend({
       rtn = this.functions[key].apply(this, args);
       trigger.call(this, 'after');
 
-      if (typeof obj.debug === 'object' && obj.debug[key]) {
+      if (mainObj.debug === 'time' || (typeof mainObj.debug === 'object' && mainObj.debug[key])) {
         console.timeEnd('time: ' + debug);
       }
 
