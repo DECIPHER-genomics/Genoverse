@@ -1,6 +1,6 @@
 Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
   name       : 'VCF',
-  model      : Genoverse.Track.Model.SequenceVariation.VCF,
+  model      : Genoverse.Track.Model.File.VCF,
   autoHeight : false,
 
   populateMenu: function (feature) {
