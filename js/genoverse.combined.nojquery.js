@@ -2433,7 +2433,7 @@ var Genoverse = Base.extend({
     if (el && el.length) {
       el.html(error);
     } else {
-      alert(error);
+      console.log(error);
     }
 
     this.failed = true;
@@ -2837,7 +2837,7 @@ var Genoverse = Base.extend({
 });
 
 Genoverse.id = 0;
-Genoverse.prototype.origin = ($('script[src]:last').attr('src').match(/(.*)js\/\w+/) || [])[1];
+Genoverse.prototype.origin = (($('script[src]:last').attr('src') || '').match(/(.*)js\/\w+/) || [])[1] || '';
 
 $(function () {
   if (!$('link[href="' + Genoverse.prototype.origin + 'css/genoverse.css"]').length) {
@@ -2846,6 +2846,10 @@ $(function () {
 });
 
 window.Genoverse = Genoverse;
+
+if (typeof module === 'object' && typeof module.exports === 'object') {
+  module.exports = Genoverse;
+}
 
 
 Genoverse.Track = Base.extend({
@@ -4103,11 +4107,11 @@ Genoverse.Track.View = Base.extend({
   setDefaults: function () {
     this.featureMargin = this.featureMargin || { top: 3, right: 1, bottom: 1, left: 0 };
 
-    var margin = [ 'Top', 'Right', 'Bottom', 'Left' ];
+    var margin = [ 'top', 'right', 'bottom', 'left' ];
 
     for (var i = 0; i < margin.length; i++) {
-      if (typeof this['featureMargin' + margin[i]] === 'number') {
-        this.featureMargin[margin[i].toLowerCase()] = this['featureMargin' + margin[i]];
+      if (typeof this.featureMargin[margin[i]] !== 'number') {
+        this.featureMargin[margin[i]] = 0;
       }
     }
 

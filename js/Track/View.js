@@ -28,11 +28,11 @@ Genoverse.Track.View = Base.extend({
   setDefaults: function () {
     this.featureMargin = this.featureMargin || { top: 3, right: 1, bottom: 1, left: 0 };
 
-    var margin = [ 'Top', 'Right', 'Bottom', 'Left' ];
+    var margin = [ 'top', 'right', 'bottom', 'left' ];
 
     for (var i = 0; i < margin.length; i++) {
-      if (typeof this['featureMargin' + margin[i]] === 'number') {
-        this.featureMargin[margin[i].toLowerCase()] = this['featureMargin' + margin[i]];
+      if (typeof this.featureMargin[margin[i]] !== 'number') {
+        this.featureMargin[margin[i]] = 0;
       }
     }
 
