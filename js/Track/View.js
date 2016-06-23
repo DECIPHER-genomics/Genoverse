@@ -137,7 +137,7 @@ Genoverse.Track.View = Base.extend({
         x: feature.position[scale].start,
         y: feature.position[scale].Y,
         w: feature.position[scale].W,
-        h: feature.position[scale].H + this.featureMargin.top
+        h: feature.position[scale].H + (feature.marginTop || this.featureMargin.top)
       };
 
       if (this.bump === true) {
@@ -172,7 +172,7 @@ Genoverse.Track.View = Base.extend({
 
   bumpFeature: function (bounds, feature, scale, tree) {
     var depth = 0;
-    var bump;
+    var bump, clash;
 
     do {
       if (this.depth && ++depth >= this.depth) {
@@ -183,11 +183,12 @@ Genoverse.Track.View = Base.extend({
         break;
       }
 
-      bump = false;
+      bump  = false;
+      clash = tree.search(bounds)[0];
 
-      if ((tree.search(bounds)[0] || feature).id !== feature.id) {
-        bounds.y += bounds.h;
-        bump      = true;
+      if (clash && clash.id !== feature.id) {
+        bounds.y = clash.position[scale].Y + clash.position[scale].H + (clash.marginTop || this.featureMargin.top);
+        bump     = true;
       }
     } while (bump);
 
