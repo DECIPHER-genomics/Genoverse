@@ -41,6 +41,8 @@ Genoverse.Track.View = Base.extend({
     this.font          = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
     this.labelUnits    = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
 
+    this.context.font = this.font;
+
     if (this.labels && this.labels !== 'overlay' && (this.depth || this.bump === 'labels')) {
       this.labels = 'separate';
     }
@@ -140,13 +142,15 @@ Genoverse.Track.View = Base.extend({
         h: feature.position[scale].H + (feature.marginTop || this.featureMargin.top)
       };
 
+      feature.position[scale].bounds = bounds;
+
       if (this.bump === true) {
         this.bumpFeature(bounds, feature, scale, this.scaleSettings[scale].featurePositions);
       }
 
       this.scaleSettings[scale].featurePositions.insert(bounds, feature);
 
-      feature.position[scale].bottom = feature.position[scale].Y + feature.position[scale].H + params.margin;
+      feature.position[scale].bottom = feature.position[scale].Y + bounds.h + params.margin;
 
       if (feature.position[scale].label) {
         var f = $.extend(true, {}, feature); // FIXME: hack to avoid changing feature.position[scale].Y in bumpFeature
@@ -170,8 +174,10 @@ Genoverse.Track.View = Base.extend({
     params.height        = Math.max(params.height, params.featureHeight + params.labelHeight);
   },
 
+  // FIXME: should label bumping bounds be distinct from feature bumping bounds when label is smaller than feature?
   bumpFeature: function (bounds, feature, scale, tree) {
-    var depth = 0;
+    var depth  = 0;
+    var labels = tree === this.scaleSettings[scale].labelPositions && tree !== this.scaleSettings[scale].featurePositions;
     var bump, clash;
 
     do {
@@ -187,7 +193,7 @@ Genoverse.Track.View = Base.extend({
       clash = tree.search(bounds)[0];
 
       if (clash && clash.id !== feature.id) {
-        bounds.y = clash.position[scale].Y + clash.position[scale].H + (clash.marginTop || this.featureMargin.top);
+        bounds.y = clash.position[scale].bounds.y + clash.position[scale][labels ? 'label' : 'bounds'].h;
         bump     = true;
       }
     } while (bump);
