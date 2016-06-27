@@ -2,7 +2,7 @@ Genoverse.Track.View = Base.extend({
   fontHeight      : 10,
   fontFamily      : 'sans-serif',
   fontWeight      : 'normal',
-  fontColor       : '#000000',
+  fontColor       : undefined, // label color defaults to this, or feature color, or track.color (below), in that order of precedence
   color           : '#000000',
   minScaledWidth  : 0.5,
   widthCorrection : 1, // Pixels to add to the end of a feature when scale > 1 - ensures that 1bp features are always at least 1px wide
@@ -335,7 +335,7 @@ Genoverse.Track.View = Base.extend({
   },
 
   setLabelColor: function (feature) {
-    feature.labelColor = feature.color || this.fontColor || this.color;
+    feature.labelColor = this.fontColor || feature.color || this.color;
   },
 
   // Method to lighten a colour by an amount, adapted from http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
