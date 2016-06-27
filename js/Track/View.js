@@ -276,7 +276,7 @@ Genoverse.Track.View = Base.extend({
     var spacing = width / n;
     var label, start, j, y, currentY, h;
 
-    if (this.repeatLabels && scale > 1) {
+    if (this.repeatLabels && (scale > 1 || this.labels !== 'overlay')) { // Ensure there's always a label in each image
       spacing = this.browser.length * scale;
       n = Math.ceil(width / spacing);
     }
