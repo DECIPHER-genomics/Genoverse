@@ -3587,4 +3587,8 @@
     makeBam       : makeBam,
     inflateBuffer : inflateBuffer
   };
+
+  if (typeof module === 'object' && typeof module.exports === 'object') {
+    module.exports = window.dallianceLib;
+  }
 })();

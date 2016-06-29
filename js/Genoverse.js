@@ -1560,7 +1560,7 @@ var Genoverse = Base.extend({
 });
 
 Genoverse.id = 0;
-Genoverse.prototype.origin = ($('script[src]').filter(function () { return /\/(?:Genoverse|genoverse\.combined.*)\.js$/.test(this.src); }).attr('src').match(/(.*)js\/\w+/) || [])[1];
+Genoverse.prototype.origin = (($('script[src]').filter(function () { return /\/(?:Genoverse|genoverse\.combined.*)\.js$/.test(this.src); }).attr('src') || '').match(/(.*)js\/\w+/) || [])[1] || '';
 
 $(function () {
   if (!$('link[href^="' + Genoverse.prototype.origin + 'css/genoverse.css"]').length) {
@@ -1569,3 +1569,7 @@ $(function () {
 });
 
 window.Genoverse = Genoverse;
+
+if (typeof module === 'object' && typeof module.exports === 'object') {
+  module.exports = Genoverse;
+}
