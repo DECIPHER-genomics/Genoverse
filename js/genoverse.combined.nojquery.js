@@ -5220,10 +5220,12 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
   drawFeature: function (transcript, featureContext, labelContext, scale) {
     this.setFeatureColor(transcript);
 
-    var exons  = ($.isArray(transcript.exons) ? $.extend(true, [], transcript.exons) : $.map($.extend(true, {}, transcript.exons || {}), function (e) { return e; })).sort(function (a, b) { return a.start - b.start; });
-    var cds    = ($.isArray(transcript.cds)   ? $.extend(true, [], transcript.cds)   : $.map($.extend(true, {}, transcript.cds   || {}), function (c) { return c; })).sort(function (a, b) { return a.start - b.start; });
-    var add    = Math.max(scale, this.widthCorrection);
-    var coding = {};
+    var exons    = ($.isArray(transcript.exons) ? $.extend(true, [], transcript.exons) : $.map($.extend(true, {}, transcript.exons || {}), function (e) { return e; })).sort(function (a, b) { return a.start - b.start; });
+    var cds      = ($.isArray(transcript.cds)   ? $.extend(true, [], transcript.cds)   : $.map($.extend(true, {}, transcript.cds   || {}), function (c) { return c; })).sort(function (a, b) { return a.start - b.start; });
+    var add      = Math.max(scale, this.widthCorrection);
+    var coding   = {};
+    var cdsStart = 9e99;
+    var cdsEnd   = -9e99;
     var i, x, w;
 
     // Get intron lines to be drawn off the left and right edges of the image
@@ -5242,6 +5244,9 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
       w = Math.max((cds[i].end - cds[i].start) * scale + add, this.minScaledWidth);
 
       coding[cds[i].start + ':' + cds[i].end] = true;
+
+      cdsStart = Math.min(cdsStart, cds[i].start);
+      cdsEnd   = Math.max(cdsEnd,   cds[i].end);
 
       if (x > this.width || x + w < 0) {
         continue;
@@ -5274,7 +5279,7 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
           x      : x,
           y      : transcript.y + transcript.height / 2,
           width  : w,
-          height : (transcript.height - (coding[exons[i].start + ':' + exons[i].end] ? 0 : 3)) / 2 * (transcript.strand > 0 ? -1 : 1)
+          height : (transcript.height - (exons[i - 1].end >= cdsStart && exons[i].start <= cdsEnd ? 0 : 3)) / 2 * (transcript.strand > 0 ? -1 : 1)
         }, featureContext);
       }
     }
