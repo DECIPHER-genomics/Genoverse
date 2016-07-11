@@ -78,7 +78,7 @@ Genoverse.Track.Model = Base.extend({
     var deferred = $.Deferred();
 
     if (typeof this.data !== 'undefined') {
-      this.receiveData(this.data.sort(function (a, b) { return a.start - b.start; }), start, end);
+      this.receiveData(typeof this.data.sort === 'function' ? this.data.sort(function (a, b) { return a.start - b.start; }) : this.data, start, end);
       return deferred.resolveWith(this);
     }
 

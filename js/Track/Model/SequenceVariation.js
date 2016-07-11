@@ -21,6 +21,14 @@ Genoverse.Track.Model.SequenceVariation = Genoverse.Track.Model.extend({
     return deferred;
   },
 
+  insertFeature: function (feature) {
+    return this.base($.extend(feature, {
+      end      : feature.start + feature.alt_allele.length - 1,
+      length   : feature.alt_allele.length,
+      sequence : feature.alt_allele
+    }));
+  },
+
   checkDataRange: function (start, end) {
     return this.base(start, end) && this.getSeqModel().checkDataRange(start, end);
   },

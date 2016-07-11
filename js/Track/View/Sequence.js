@@ -9,7 +9,7 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
 
     var lowerCase = this.prop('lowerCase');
 
-    this.labelYOffset = typeof this.labelYOffset === 'number' ? this.labelYOffset : (this.featureHeight + (lowerCase ? 0 : 1)) / 2;
+    this.labelYOffset = typeof this.labelYOffset === 'number' ? this.labelYOffset : (this.featureHeight + 1) / 2;
     this.widestLabel  = typeof this.widestLabel  === 'string' ? this.widestLabel : lowerCase ? 'g' : 'G';
     this.labelWidth   = {};
 
@@ -21,7 +21,7 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
       }
 
       for (key in this.labelColors) {
-        this.colors[key.toLowerCase()] = this.colors[key];
+        this.labelColors[key.toLowerCase()] = this.labelColors[key];
       }
     }
   },
