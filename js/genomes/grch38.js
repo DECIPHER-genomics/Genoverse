@@ -1,4 +1,4 @@
-window.grch38 = {
+Genoverse.Genomes.grch38 = {
   "1": {
     "size"  : 248956422,
     "bands" : [

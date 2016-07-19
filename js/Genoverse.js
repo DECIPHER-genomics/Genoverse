@@ -63,10 +63,9 @@ var Genoverse = Base.extend({
         dataType : 'script',
         context  : this,
         success  : function () {
-          try {
-            this.genome = eval(genomeName);
-          } catch (e) {
-            console.log(e);
+          this.genome = Genoverse.Genomes[genomeName];
+
+          if (!this.genome) {
             this.die('Unable to load genome ' + genomeName);
           }
         }
@@ -1397,6 +1396,7 @@ var Genoverse = Base.extend({
     }
   }
 }, {
+  Genomes: {},
   Plugins: {},
 
   wrapFunctions: function (obj) {
