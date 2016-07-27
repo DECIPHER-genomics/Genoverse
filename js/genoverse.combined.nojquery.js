@@ -5643,32 +5643,31 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
       featureContext.beginPath();
 
       if (this.drawnAcen) {
-        featureContext.moveTo(feature.x + feature.width, 0);
+        featureContext.moveTo(feature.x + feature.width, 0.5);
+        featureContext.lineTo(feature.x, (feature.height + 0.5) / 2);
         featureContext.lineTo(feature.x + feature.width, feature.height + 0.5);
-        featureContext.lineTo(feature.x, feature.height / 2);
       } else {
-        featureContext.moveTo(feature.x, 0);
-        featureContext.lineTo(feature.x + feature.width, feature.height / 2);
+        featureContext.moveTo(feature.x, 0.5);
+        featureContext.lineTo(feature.x + feature.width, (feature.height + 0.5) / 2);
         featureContext.lineTo(feature.x, feature.height + 0.5);
         this.drawnAcen = true;
       }
 
-      featureContext.closePath();
       featureContext.fill();
       featureContext.stroke();
     } else if (feature.type === 'stalk') {
       for (var i = 0; i < 2; i++) {
         featureContext.beginPath();
 
-        featureContext.moveTo(feature.x, 0);
+        featureContext.moveTo(feature.x, 0.5);
         featureContext.lineTo(feature.x + feature.width * 0.25, feature.height * 0.25 + 0.5);
         featureContext.lineTo(feature.x + feature.width * 0.75, feature.height * 0.25 + 0.5);
-        featureContext.lineTo(feature.x + feature.width, 0);
+        featureContext.lineTo(feature.x + feature.width, 0.5);
 
-        featureContext[i ? 'moveTo' : 'lineTo'](feature.x + feature.width, feature.height);
+        featureContext[i ? 'moveTo' : 'lineTo'](feature.x + feature.width, feature.height + 0.5);
         featureContext.lineTo(feature.x + feature.width * 0.75, feature.height * 0.75 - 0.5);
         featureContext.lineTo(feature.x + feature.width * 0.25, feature.height * 0.75 - 0.5);
-        featureContext.lineTo(feature.x, feature.height);
+        featureContext.lineTo(feature.x, feature.height + 0.5);
 
         featureContext[i ? 'stroke' : 'fill']();
       }
@@ -5677,39 +5676,37 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
 
       featureContext.beginPath();
 
-      if (feature.start === 1 && feature.end === this.browser.chromosomeSize) {
-        featureContext.clearRect(0, 0, 5, this.prop('height'));
-        featureContext.clearRect(feature.width - 5, 0, 10, this.prop('height'));
+      if (feature.start === 1 || feature.end === this.browser.chromosomeSize) {
+        if (feature.start === 1) {
+          var end = feature.x + feature.width - (feature.end === this.browser.chromosomeSize ? 5 : 0);
 
-        featureContext.fillStyle = feature.color;
-        featureContext.moveTo(5, 0.5);
-        featureContext.lineTo(feature.width - 5, 0.5);
-        featureContext.bezierCurveTo(this.width + 1, 0.5, this.width + 1, feature.height + 0.5, feature.width - 5, feature.height + 0.5);
-        featureContext.lineTo(5, feature.height + 0.5);
-        featureContext.bezierCurveTo(-1, feature.height + 0.5, -1, 0.5, 5, 0.5);
-        featureContext.fill();
-      } else if (feature.start === 1) {
-        featureContext.clearRect(0, 0, 5, this.prop('height'));
+          featureContext.clearRect(0, 0, 5, feature.height + 0.5);
 
-        featureContext.fillStyle = feature.color;
-        featureContext.moveTo(5, 0.5);
-        featureContext.lineTo(feature.x + feature.width, 0.5);
-        featureContext.moveTo(5, feature.height + 0.5);
-        featureContext.lineTo(feature.x + feature.width, feature.height + 0.5);
-        featureContext.moveTo(5, 0.5);
-        featureContext.bezierCurveTo(-1, 0.5, -1, feature.height + 0.5, 5, feature.height + 0.5);
-        featureContext.fill();
-      } else if (feature.end === this.browser.chromosomeSize) {
-        featureContext.clearRect(feature.x + feature.width - 5, 0, 10, this.prop('height'));
+          featureContext.fillStyle = feature.color;
+          featureContext.moveTo(5,   0.5);
+          featureContext.lineTo(end, 0.5);
+          featureContext.moveTo(5,   feature.height + 0.5);
+          featureContext.lineTo(end, feature.height + 0.5);
+          featureContext.moveTo(5, 0.5);
+          featureContext.bezierCurveTo(-1, 0.5, -1, feature.height + 0.5, 5, feature.height + 0.5);
+          featureContext.fill();
+        }
 
-        featureContext.fillStyle = feature.color;
-        featureContext.moveTo(feature.x, 0.5);
-        featureContext.lineTo(feature.x + feature.width - 5, 0.5);
-        featureContext.moveTo(feature.x, feature.height + 0.5);
-        featureContext.lineTo(feature.x + feature.width - 5, feature.height + 0.5);
-        featureContext.moveTo(feature.x + feature.width - 5, 0.5);
-        featureContext.bezierCurveTo(this.width + 1, 0.5, this.width + 1, feature.height + 0.5, feature.x + feature.width - 5, feature.height + 0.5);
-        featureContext.fill();
+        if (feature.end === this.browser.chromosomeSize) {
+          featureContext.clearRect(feature.x + feature.width - 5, 0, 5, feature.height + 0.5);
+
+          if (feature.start !== 1) {
+            featureContext.fillStyle = feature.color;
+            featureContext.moveTo(feature.x, 0.5);
+            featureContext.lineTo(feature.x + feature.width - 5, 0.5);
+            featureContext.moveTo(feature.x, feature.height + 0.5);
+            featureContext.lineTo(feature.x + feature.width - 5, feature.height + 0.5);
+          }
+
+          featureContext.moveTo(feature.x + feature.width - 5, 0.5);
+          featureContext.bezierCurveTo(this.width + 1, 0.5, this.width + 1, feature.height + 0.5, feature.x + feature.width - 5, feature.height + 0.5);
+          featureContext.fill();
+        }
       } else {
         featureContext.moveTo(feature.x, 0.5);
         featureContext.lineTo(feature.x + feature.width, 0.5);
