@@ -2439,7 +2439,7 @@ var Genoverse = Base.extend({
     if (el && el.length) {
       el.html(error);
     } else {
-      console.log(error);
+      alert(error);
     }
 
     this.failed = true;
@@ -2844,7 +2844,7 @@ var Genoverse = Base.extend({
 });
 
 Genoverse.id = 0;
-Genoverse.prototype.origin = (($('script[src]:last').attr('src') || '').match(/(.*)js\/\w+/) || [])[1] || '';
+Genoverse.prototype.origin = ($('script[src]:last').attr('src').match(/(.*)js\/\w+/) || [])[1];
 
 $(function () {
   if (!$('link[href="' + Genoverse.prototype.origin + 'css/genoverse.css"]').length) {
@@ -2853,10 +2853,6 @@ $(function () {
 });
 
 window.Genoverse = Genoverse;
-
-if (typeof module === 'object' && typeof module.exports === 'object') {
-  module.exports = Genoverse;
-}
 
 
 Genoverse.Track = Base.extend({
@@ -3898,7 +3894,7 @@ Genoverse.Track.Model = Base.extend({
     var deferred = $.Deferred();
 
     if (typeof this.data !== 'undefined') {
-      this.receiveData(this.data.sort(function (a, b) { return a.start - b.start; }), start, end);
+      this.receiveData(typeof this.data.sort === 'function' ? this.data.sort(function (a, b) { return a.start - b.start; }) : this.data, start, end);
       return deferred.resolveWith(this);
     }
 
@@ -4806,7 +4802,7 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
 
     var lowerCase = this.prop('lowerCase');
 
-    this.labelYOffset = typeof this.labelYOffset === 'number' ? this.labelYOffset : (this.featureHeight + (lowerCase ? 0 : 1)) / 2;
+    this.labelYOffset = typeof this.labelYOffset === 'number' ? this.labelYOffset : (this.featureHeight + 1) / 2;
     this.widestLabel  = typeof this.widestLabel  === 'string' ? this.widestLabel : lowerCase ? 'g' : 'G';
     this.labelWidth   = {};
 
@@ -4818,7 +4814,7 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
       }
 
       for (key in this.labelColors) {
-        this.colors[key.toLowerCase()] = this.colors[key];
+        this.labelColors[key.toLowerCase()] = this.labelColors[key];
       }
     }
   },
@@ -5001,6 +4997,14 @@ Genoverse.Track.Model.SequenceVariation = Genoverse.Track.Model.extend({
     });
 
     return deferred;
+  },
+
+  insertFeature: function (feature) {
+    return this.base($.extend(feature, {
+      end      : feature.start + feature.alt_allele.length - 1,
+      length   : feature.alt_allele.length,
+      sequence : feature.alt_allele
+    }));
   },
 
   checkDataRange: function (start, end) {
@@ -5533,7 +5537,14 @@ Genoverse.Track.Model.File.GFF = Genoverse.Track.Model.File.extend({
         continue;
       }
 
-      if (fields[0] === this.browser.chr || fields[0].toLowerCase() === 'chr' + this.browser.chr || fields[0].match('[^1-9]' + this.browser.chr + '$')) {
+      var seqId = fields[0].toLowerCase();
+
+      if (
+        seqId === this.browser.chr                       ||
+        seqId.toLowerCase() === 'chr' + this.browser.chr ||
+        seqId.match('[^1-9]' + this.browser.chr + '$')   ||
+        seqId.match('^' + this.browser.chr + '\\b')
+      ) {
         this.insertFeature({
           id     : fields.slice(0, 5).join('|'),
           start  : parseInt(fields[3], 10),
