@@ -170,7 +170,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     var i         = features.length;
     var minorUnit = this.prop('minorUnit');
     var width     = Math.ceil(minorUnit * scale);
-    var feature, start;
+    var feature, start, end;
 
     featureContext.textBaseline = 'top';
     featureContext.fillStyle    = this.color;
@@ -180,6 +180,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     while (i--) {
       feature = features[i];
       start   = Math.round(feature.position[scale].X);
+      end     = start + width - 1;
 
       this.drawFeature($.extend({}, feature, {
         x      : start,
@@ -196,8 +197,14 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
         this.guideLines.major[feature.start] = true;
       }
 
-      this.guideLines[feature.start] = start;
-      this.guideLines[feature.start + minorUnit] = start + width - 1;
+      // Fiddle the location so that these [additional major] lines overlap with normal lines
+      if (feature.end < feature.start) {
+        start--;
+        end++;
+      }
+
+      this.guideLines[feature.start]             = start;
+      this.guideLines[feature.start + minorUnit] = end;
     }
 
     featureContext.fillRect(0, 0, featureContext.canvas.width, 1);
