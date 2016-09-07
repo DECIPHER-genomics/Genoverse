@@ -1,11 +1,17 @@
 'use strict';
 
-function getDrawingInstructions(draw, region, type) {
+function getDrawingInstructions(draw, region, type, strand) {
   var instructions = {};
 
   if ($.isArray(draw)) {
-    instructions[region] = { features: draw };
+    instructions[region] = { features: $.extend(true, [], draw) };
   } else if ($.isPlainObject(draw)) {
+    draw = $.extend(true, {}, draw);
+
+    if (strand) {
+      draw = draw[strand === 1 ? 'forward' : 'reverse'] || draw;
+    }
+
     if (typeof draw[region] !== 'undefined') {
       if ($.isArray(draw[region])) {
         instructions[region] = { features: draw[region] };
@@ -30,9 +36,9 @@ function getDrawingInstructions(draw, region, type) {
 }
 
 function getTrackConfig(features, draw) {
-  function testCanvas(track, image, height, instructionType) {
+  function testCanvas(track, image, height, instructionType, strand) {
     var region       = image.data('start') + '-' + image.data('end');
-    var instructions = getDrawingInstructions(draw, region, instructionType);
+    var instructions = getDrawingInstructions(draw, region, instructionType, strand);
 
     if (instructionType === 'background' && !instructions.length) {
       return;
@@ -83,30 +89,46 @@ function getTrackConfig(features, draw) {
 
     beforeRender: function (f, image) {
       var params = image.data();
-      var length = [ true, this.prop('labels') === 'separate', !!params.background ].filter(function (v) { return v; });
 
-      params._testDeferred = length.map(function () { return $.Deferred(); });
+      params._testDeferred = {
+        features   : $.Deferred(),
+        labels     : this.prop('labels') === 'separate' ? $.Deferred() : undefined,
+        background : !!params.background                ? $.Deferred() : undefined,
+      };
 
-      this.browser._testDeferreds = this.browser._testDeferreds.concat(params._testDeferred);
+      this.browser._testDeferreds = this.browser._testDeferreds.concat($.map(params._testDeferred, function (d) { return d; }));
     },
 
     afterRender: function (f, image) {
       var track    = this;
       var separate = this.prop('labels') === 'separate' && image.next().length;
+      var strand   = this instanceof Genoverse.Track.Controller.Stranded ? this.prop('strand') : undefined;
 
       (separate ? [ image, image.next() ] : [ image ]).forEach(function (img, i) {
         var type = separate && i ? 'labels' : 'features';
 
-        testCanvas(track, img, img.data(type === 'labels' ? 'labelHeight' : 'featureHeight'), separate ? type : img.data('background') ? 'features' : '');
+        testCanvas(
+          track,
+          img,
+          img.data(type === 'labels' ? 'labelHeight' : 'featureHeight'),
+          separate ? type : img.data('background') ? 'features' : '',
+          strand
+        );
 
-        img.data('_testDeferred').shift().resolve();
+        img.data('_testDeferred')[type].resolve();
       });
     },
 
     afterRenderBackground: function (f, image, height) {
-      testCanvas(this, image, height || 1, 'background');
+      testCanvas(
+        this,
+        image,
+        height || 1,
+        'background',
+        this instanceof Genoverse.Track.Controller.Stranded ? this.prop('strand') : undefined
+      );
 
-      image.next().data('_testDeferred').shift().resolve();
+      image.next().data('_testDeferred').background.resolve();
     }
   };
 };
@@ -120,7 +142,7 @@ global.testTrackRender = function (features, track, draw, genoverseConfig) {
     width          : 100,
     chromosomeSize : 1000,
     _testDeferreds : [],
-    tracks         : [ (trackConfig._testClass || Genoverse.Track).extend(trackConfig) ]
+    tracks         : [ (trackConfig._testClass || Genoverse.Track).extend(trackConfig) ],
   }, genoverseConfig || {}));
 
   return $.when.apply($, genoverse._testDeferreds);
