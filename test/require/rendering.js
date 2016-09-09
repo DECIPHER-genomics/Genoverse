@@ -159,3 +159,7 @@ global.testTrackRender = function (features, track, draw, genoverseConfig) {
 global.testTrackRenderStatic = function (features, track, draw, genoverseConfig) {
   return testTrackRender(features, track, draw, $.extend(genoverseConfig || {}, { isStatic: true }));
 };
+
+global.afterTest = function () {
+  $('body').empty();
+};

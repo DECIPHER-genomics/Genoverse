@@ -1,6 +1,8 @@
 'use strict';
 
 describe('Correctly render transcripts where:', function () {
+  afterEach(afterTest);
+
   function doTests(subFeatureJoinStyle, feature, draw, genoverseConfig) {
     var track = {
       margin        : 0,
@@ -20,8 +22,6 @@ describe('Correctly render transcripts where:', function () {
       });
     });
   }
-
-  afterEach(function () { $('body').empty(); });
 
   describe('there is one transcript on a single image', function () {
     describe('exons without cds', function () {

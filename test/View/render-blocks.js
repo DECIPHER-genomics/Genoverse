@@ -1,7 +1,7 @@
 'use strict';
 
 describe('Correctly render blocks where:', function () {
-  afterEach(function () { $('body').empty(); });
+  afterEach(afterTest);
 
   var track = { height: 50, margin: 0, featureHeight: 10, featureMargin: {} };
 

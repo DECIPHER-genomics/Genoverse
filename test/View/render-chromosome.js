@@ -1,7 +1,7 @@
 'use strict';
 
 describe('Correctly render a chromosome:', function () {
-  afterEach(function () { $('body').empty(); });
+  afterEach(afterTest);
 
   var genome = {
     '1': {

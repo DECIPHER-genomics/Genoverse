@@ -1,7 +1,7 @@
 'use strict';
 
 describe('Correctly render stranded track:', function () {
-  afterEach(function () { $('body').empty(); });
+  afterEach(afterTest);
 
   it('features are split between forward and reverse strand tracks', function () {
     return testTrackRenderStatic(

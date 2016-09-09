@@ -5,7 +5,7 @@ var html = '<style>' + css + '</style><div id="genoverse-test-1"></div><div id="
 
 describe('Genoverse', function () {
   beforeEach(function () { $('body').html(html); });
-  afterEach(function ()  { $('body').empty();    });
+  afterEach(afterTest);
 
   describe('Creation and destruction', function () {
     it("when config is undefined",                 function () { return doTests(undefined); });

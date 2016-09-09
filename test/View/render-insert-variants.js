@@ -1,7 +1,7 @@
 'use strict';
 
 describe('Correctly render insert variants:', function () {
-  afterEach(function () { $('body').empty(); });
+  afterEach(afterTest);
 
   var track = { _testClass: Genoverse.Track.dbSNP, url: false, margin: 0, featureMargin: {} };
 

@@ -1,7 +1,7 @@
 'use strict';
 
 describe('Correctly render legends:', function () {
-  afterEach(function () { $('body').empty(); });
+  afterEach(afterTest);
 
   var track = {
     id            : 'test',

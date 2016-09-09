@@ -1,7 +1,7 @@
 'use strict';
 
 describe('Correctly render labels where:', function () {
-  afterEach(function () { $('body').empty(); });
+  afterEach(afterTest);
 
   var track = { resizable: 'auto', margin: 0, featureHeight: 15, featureMargin: {}, bump: true };
 

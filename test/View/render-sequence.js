@@ -1,7 +1,7 @@
 'use strict';
 
 describe('Correctly render sequence:', function () {
-  afterEach(function () { $('body').empty(); });
+  afterEach(afterTest);
 
   var track = {
     model     : Genoverse.Track.Model.Sequence,
@@ -43,7 +43,7 @@ describe('Correctly render sequence:', function () {
 });
 
 describe('Correctly render sequence variation:', function () {
-  afterEach(function () { $('body').empty(); });
+  afterEach(afterTest);
 
   var track = {
     model     : Genoverse.Track.Model.SequenceVariation.extend({ seqModel: Genoverse.Track.Model.Sequence.extend({ data: 'ATCGN' }) }),

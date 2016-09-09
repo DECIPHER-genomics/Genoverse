@@ -1,7 +1,7 @@
 'use strict';
 
 describe('Correctly render highlights:', function () {
-  afterEach(function () { $('body').empty(); });
+  afterEach(afterTest);
 
   var track           = { _testClass: Genoverse.Track.HighlightRegion };
   var defaultColors   = Genoverse.Track.HighlightRegion.prototype.colors;

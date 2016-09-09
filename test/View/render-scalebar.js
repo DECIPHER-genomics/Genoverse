@@ -1,6 +1,8 @@
 'use strict';
 
 describe('Correctly render scalebar:', function () {
+  afterEach(afterTest);
+
   var track = { _testClass: Genoverse.Track.Scalebar };
   var width = 1000;
 
@@ -31,8 +33,6 @@ describe('Correctly render scalebar:', function () {
 
     return draw;
   }
-
-  afterEach(function () { $('body').empty(); });
 
   describe('at different scales', function () {
     it('in bytes, scale = 1', function () {
