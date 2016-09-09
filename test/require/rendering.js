@@ -28,7 +28,7 @@ function getDrawingInstructions(draw, region, type, strand) {
   if (type) {
     instructions = instructions[type] || [];
   } else {
-    instructions = $.map(instructions, function (v) { return v; });
+    instructions = instructions.features || $.map(instructions, function (v) { return v; });
   }
 
   return instructions;
@@ -39,7 +39,7 @@ function getTrackConfig(features, draw) {
     var region       = image.data('start') + '-' + image.data('end');
     var instructions = getDrawingInstructions(draw, region, instructionType, strand);
 
-    if (instructionType === 'background' && !instructions.length) {
+    if (/^(background|legend)$/.test(instructionType) && !instructions.length) {
       return;
     }
 
@@ -93,6 +93,7 @@ function getTrackConfig(features, draw) {
         features   : $.Deferred(),
         labels     : this.prop('labels') === 'separate' ? $.Deferred() : undefined,
         background : !!params.background                ? $.Deferred() : undefined,
+        legend     : this.prop('legendTrack')           ? $.Deferred() : undefined
       };
 
       this.browser._testDeferreds = this.browser._testDeferreds.concat($.map(params._testDeferred, function (d) { return d; }));
@@ -103,18 +104,26 @@ function getTrackConfig(features, draw) {
       var separate = this.prop('labels') === 'separate' && image.next().length;
       var strand   = this instanceof Genoverse.Track.Controller.Stranded ? this.prop('strand') : undefined;
 
-      (separate ? [ image, image.next() ] : [ image ]).forEach(function (img, i) {
-        var type = separate && i ? 'labels' : 'features';
+      var tests = [{ img: image, type: 'features', instructionType: separate || image.data('background') ? 'features' : '' }];
 
+      if (separate) {
+        tests.push({ img: image.next(), type: 'labels' });
+      }
+
+      if (this.prop('legendTrack')) {
+        tests.push({ img: this.prop('legendTrack').prop('image'), type: 'legend' });
+      }
+
+      tests.forEach(function (test) {
         testCanvas(
           track,
-          img,
-          img.data(type === 'labels' ? 'labelHeight' : 'featureHeight'),
-          separate ? type : img.data('background') ? 'features' : '',
+          test.img,
+          test.img.data(test.type === 'labels' ? 'labelHeight' : 'featureHeight'),
+          typeof test.instructionType !== 'undefined' ? test.instructionType : test.type,
           strand
         );
 
-        img.data('_testDeferred')[type].resolve();
+        image.data('_testDeferred')[test.type].resolve();
       });
     },
 
