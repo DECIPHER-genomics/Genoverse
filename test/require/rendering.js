@@ -9,7 +9,7 @@ function getDrawingInstructions(draw, region, type, strand) {
     draw = $.extend(true, {}, draw);
 
     if (strand) {
-      draw = draw[strand === 1 ? 'forward' : 'reverse'] || draw;
+      return getDrawingInstructions(draw[strand === 1 ? 'forward' : 'reverse'] || draw, region, type);
     }
 
     if (typeof draw[region] !== 'undefined') {
@@ -22,7 +22,6 @@ function getDrawingInstructions(draw, region, type, strand) {
       instructions[region] = draw;
     }
   }
-
 
   instructions = instructions[region] || {};
 
@@ -81,7 +80,7 @@ function getTrackConfig(features, draw) {
       context[func].apply(context, instruction);
     });
 
-    expect(canvas.toDataURL()).toEqual(image[0].src, 'Drawing is incorrect for ' + region + ' ' + instructionType);
+    expect(canvas.toDataURL()).toEqual(image[0].src, [ 'Drawing is incorrect for', region, instructionType, (strand ? strand === 1 ? 'forward strand' : 'reverse strand' : '') ].filter(function (a) { return a; }).join(' '));
   }
 
   return {
