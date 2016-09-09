@@ -1,17 +1,18 @@
 Genoverse.Track.View = Base.extend({
-  fontHeight      : 10,
-  fontFamily      : 'sans-serif',
-  fontWeight      : 'normal',
-  fontColor       : undefined, // label color defaults to this, or feature color, or track.color (below), in that order of precedence
-  color           : '#000000',
-  minScaledWidth  : 0.5,
-  widthCorrection : 1, // Pixels to add to the end of a feature when scale > 1 - ensures that 1bp features are always at least 1px wide
-  labels          : true,
-  repeatLabels    : false,
-  bump            : false,
-  depth           : undefined,
-  featureHeight   : undefined, // defaults to track height
-  featureMargin   : undefined, // e.g. { top: 3, right: 1, bottom: 1, left: 0 }
+  fontHeight       : 10,
+  fontFamily       : 'sans-serif',
+  fontWeight       : 'normal',
+  fontColor        : undefined, // label color defaults to this, or feature color, or track.color (below), in that order of precedence
+  color            : '#000000',
+  minScaledWidth   : 0.5,
+  widthCorrection  : 1, // Pixels to add to the end of a feature when scale > 1 - ensures that 1bp features are always at least 1px wide
+  labels           : true,
+  repeatLabels     : false,
+  bump             : false,
+  alwaysReposition : false,
+  depth            : undefined,
+  featureHeight    : undefined, // defaults to track height
+  featureMargin    : undefined, // e.g. { top: 3, right: 1, bottom: 1, left: 0 }
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -107,7 +108,7 @@ Genoverse.Track.View = Base.extend({
 
     feature.position[scale].X = feature.position[scale].start - params.scaledStart; // FIXME: always have to reposition for X, in case a feature appears in 2 images. Pass scaledStart around instead?
 
-    if (!feature.position[scale].positioned) {
+    if (this.alwaysReposition || !feature.position[scale].positioned) {
       feature.position[scale].H = feature.position[scale].height + this.featureMargin.bottom;
       feature.position[scale].W = feature.position[scale].width  + (feature.marginRight || this.featureMargin.right);
       feature.position[scale].Y = (typeof feature.y === 'number' ? feature.y * feature.position[scale].H : 0) + (feature.marginTop || this.featureMargin.top);

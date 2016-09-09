@@ -4087,19 +4087,20 @@ Genoverse.Track.Model = Base.extend({
 
 
 Genoverse.Track.View = Base.extend({
-  fontHeight      : 10,
-  fontFamily      : 'sans-serif',
-  fontWeight      : 'normal',
-  fontColor       : undefined, // label color defaults to this, or feature color, or track.color (below), in that order of precedence
-  color           : '#000000',
-  minScaledWidth  : 0.5,
-  widthCorrection : 1, // Pixels to add to the end of a feature when scale > 1 - ensures that 1bp features are always at least 1px wide
-  labels          : true,
-  repeatLabels    : false,
-  bump            : false,
-  depth           : undefined,
-  featureHeight   : undefined, // defaults to track height
-  featureMargin   : undefined, // e.g. { top: 3, right: 1, bottom: 1, left: 0 }
+  fontHeight       : 10,
+  fontFamily       : 'sans-serif',
+  fontWeight       : 'normal',
+  fontColor        : undefined, // label color defaults to this, or feature color, or track.color (below), in that order of precedence
+  color            : '#000000',
+  minScaledWidth   : 0.5,
+  widthCorrection  : 1, // Pixels to add to the end of a feature when scale > 1 - ensures that 1bp features are always at least 1px wide
+  labels           : true,
+  repeatLabels     : false,
+  bump             : false,
+  alwaysReposition : false,
+  depth            : undefined,
+  featureHeight    : undefined, // defaults to track height
+  featureMargin    : undefined, // e.g. { top: 3, right: 1, bottom: 1, left: 0 }
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -4195,7 +4196,7 @@ Genoverse.Track.View = Base.extend({
 
     feature.position[scale].X = feature.position[scale].start - params.scaledStart; // FIXME: always have to reposition for X, in case a feature appears in 2 images. Pass scaledStart around instead?
 
-    if (!feature.position[scale].positioned) {
+    if (this.alwaysReposition || !feature.position[scale].positioned) {
       feature.position[scale].H = feature.position[scale].height + this.featureMargin.bottom;
       feature.position[scale].W = feature.position[scale].width  + (feature.marginRight || this.featureMargin.right);
       feature.position[scale].Y = (typeof feature.y === 'number' ? feature.y * feature.position[scale].H : 0) + (feature.marginTop || this.featureMargin.top);
@@ -6101,21 +6102,22 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
 
 
 Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
-  id            : 'highlights',
-  unsortable    : true,
-  repeatLabels  : true,
-  resizable     : false,
-  border        : false,
-  height        : 15,
-  featureHeight : 2,
-  order         : -1,
-  orderReverse  : 9e99,
-  controls      : 'off',
-  colors        : [ '#777777', '#F08080', '#3CB371', '#6495ED', '#FFA500', '#9370DB' ],
-  labels        : 'separate',
-  depth         : 1,
-  featureMargin : { top: 13, right: 0, bottom: 0, left: 0 },
-  margin        : 0,
+  id               : 'highlights',
+  unsortable       : true,
+  repeatLabels     : true,
+  resizable        : false,
+  border           : false,
+  alwaysReposition : true,
+  height           : 15,
+  featureHeight    : 2,
+  order            : -1,
+  orderReverse     : 9e99,
+  controls         : 'off',
+  colors           : [ '#777777', '#F08080', '#3CB371', '#6495ED', '#FFA500', '#9370DB' ],
+  labels           : 'separate',
+  depth            : 1,
+  featureMargin    : { top: 13, right: 0, bottom: 0, left: 0 },
+  margin           : 0,
 
   constructor: function () {
     this.colorIndex = 0;
@@ -6825,7 +6827,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     var i         = features.length;
     var minorUnit = this.prop('minorUnit');
     var width     = Math.ceil(minorUnit * scale);
-    var feature, start;
+    var feature, start, end;
 
     featureContext.textBaseline = 'top';
     featureContext.fillStyle    = this.color;
@@ -6835,6 +6837,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     while (i--) {
       feature = features[i];
       start   = Math.round(feature.position[scale].X);
+      end     = start + width - 1;
 
       this.drawFeature($.extend({}, feature, {
         x      : start,
@@ -6851,8 +6854,14 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
         this.guideLines.major[feature.start] = true;
       }
 
-      this.guideLines[feature.start] = start;
-      this.guideLines[feature.start + minorUnit] = start + width - 1;
+      // Fiddle the location so that these [additional major] lines overlap with normal lines
+      if (feature.end < feature.start) {
+        start--;
+        end++;
+      }
+
+      this.guideLines[feature.start]             = start;
+      this.guideLines[feature.start + minorUnit] = end;
     }
 
     featureContext.fillRect(0, 0, featureContext.canvas.width, 1);
