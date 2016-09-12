@@ -242,6 +242,10 @@ Genoverse.Track.View = Base.extend({
       featureContext.fillRect(feature.x, feature.y, feature.width, feature.height);
     }
 
+    if (feature.clear === true) {
+      featureContext.clearRect(feature.x, feature.y, feature.width, feature.height);
+    }
+
     if (this.labels && feature.label) {
       this.drawLabel(feature, labelContext, scale);
     }

@@ -4324,6 +4324,10 @@ Genoverse.Track.View = Base.extend({
       featureContext.fillRect(feature.x, feature.y, feature.width, feature.height);
     }
 
+    if (feature.clear === true) {
+      featureContext.clearRect(feature.x, feature.y, feature.width, feature.height);
+    }
+
     if (this.labels && feature.label) {
       this.drawLabel(feature, labelContext, scale);
     }
@@ -6612,7 +6616,6 @@ Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
     var text2  = strand === 1 ? 'Forward strand' : 'Reverse strand';
     var width1 = this.context.measureText(text).width;
     var width2 = this.context.measureText(text2).width;
-    var bg     = this.prop('imgContainer').css('backgroundColor');
     var x1, x2;
 
     if (strand === 1) {
@@ -6625,8 +6628,8 @@ Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
 
     scaleline = [
       { x: x1,                             y: height / 2, width: this.width - 25, height: 1, decorations: true },
-      { x: (this.width - width1 - 10) / 2, y: 0,          width: width1 + 10,     height: height, color: bg, labelColor: this.color, labelWidth: width1, label: text  },
-      { x: x2,                             y: 0,          width: width2 + 10,     height: height, color: bg, labelColor: this.color, labelWidth: width2, label: text2 }
+      { x: (this.width - width1 - 10) / 2, y: 0,          width: width1 + 10,     height: height, clear: true, color: false, labelColor: this.color, labelWidth: width1, label: text  },
+      { x: x2,                             y: 0,          width: width2 + 10,     height: height, clear: true, color: false, labelColor: this.color, labelWidth: width2, label: text2 }
     ];
 
     return this.base(this.prop('scaleline', scaleline), params);
