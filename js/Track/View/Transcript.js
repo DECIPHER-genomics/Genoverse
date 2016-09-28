@@ -5,16 +5,19 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
   bump            : true,
   intronStyle     : 'curve',
   intronLineWidth : 0.5,
+  utrHeight       : 7,
 
   drawFeature: function (transcript, featureContext, labelContext, scale) {
     this.setFeatureColor(transcript);
 
-    var exons    = ($.isArray(transcript.exons) ? $.extend(true, [], transcript.exons) : $.map($.extend(true, {}, transcript.exons || {}), function (e) { return e; })).sort(function (a, b) { return a.start - b.start; });
-    var cds      = ($.isArray(transcript.cds)   ? $.extend(true, [], transcript.cds)   : $.map($.extend(true, {}, transcript.cds   || {}), function (c) { return c; })).sort(function (a, b) { return a.start - b.start; });
-    var add      = Math.max(scale, this.widthCorrection);
-    var coding   = {};
-    var cdsStart = 9e99;
-    var cdsEnd   = -9e99;
+    var exons     = ($.isArray(transcript.exons) ? $.extend(true, [], transcript.exons) : $.map($.extend(true, {}, transcript.exons || {}), function (e) { return e; })).sort(function (a, b) { return a.start - b.start; });
+    var cds       = ($.isArray(transcript.cds)   ? $.extend(true, [], transcript.cds)   : $.map($.extend(true, {}, transcript.cds   || {}), function (c) { return c; })).sort(function (a, b) { return a.start - b.start; });
+    var add       = Math.max(scale, this.widthCorrection);
+    var coding    = {};
+    var cdsStart  = 9e99;
+    var cdsEnd    = -9e99;
+    var utrHeight = this.prop('utrHeight');
+    var utrOffset = (transcript.height - utrHeight) / 2;
     var i, x, w;
 
     // Get intron lines to be drawn off the left and right edges of the image
@@ -52,7 +55,7 @@ Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
 
         if (!(x > this.width || x + w < 0)) {
           featureContext.lineWidth = 1;
-          featureContext.strokeRect(x, transcript.y + 1.5, w, transcript.height - 3);
+          featureContext.strokeRect(x, transcript.y + utrOffset, w, utrHeight);
         }
       }
 
