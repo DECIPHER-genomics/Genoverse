@@ -44,7 +44,7 @@ Genoverse.Plugins.trackControls = function () {
       }
     }),
 
-    $('<a title="Close track">').html('x').on('click', function () {
+    $('<a title="Remove track">').html('<i class="fa fa-trash"></i>').on('click', function () {
       $(this).data('track').remove();
     })
   ];
@@ -89,7 +89,7 @@ Genoverse.Plugins.trackControls = function () {
             }
           }
         } else if (typeof controls[i] === 'string') {
-          el = $(controls[i])
+          el = $(controls[i]);
         } else if (typeof controls[i] === 'object' && controls[i].constructor && controls[i] instanceof $) {
           el = controls[i].clone(true);
         }
