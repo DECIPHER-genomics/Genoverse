@@ -120,6 +120,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
         };
 
         m[m.title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
+        m['<a class="gv-focus-highlight" href="#" data-start="' + features[i].start + '" data-end="' + features[i].end + '">Focus here</a>'] = '';
 
         if (features[i].removable !== false) {
           m['<a class="gv-remove-highlight"  href="#" data-id="' + features[i].id + '">Remove this highlight</a>'] = '';
@@ -150,6 +151,16 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
 
         menuEl.find('.gv-remove-highlights').on('click', function () {
           track.removeHighlights();
+          return false;
+        });
+
+        menuEl.find('.gv-focus-highlight').on('click', function () {
+          var data    = $(this).data();
+          var length  = data.end - data.start + 1;
+          var context = Math.max(Math.round(length / 4), 25);
+
+          track.browser.moveTo(data.start - context, data.end + context, true);
+
           return false;
         });
 
