@@ -213,7 +213,7 @@ Genoverse.Track.Model = Base.extend({
   insertFeature: function (feature) {
     // Make sure we have a unique ID, this method is not efficient, so better supply your own id
     if (!feature.id) {
-      feature.id = feature.ID || this.hashCode(JSON.stringify(feature));
+      feature.id = feature.ID || this.hashCode(JSON.stringify($.extend({}, feature, { sort: '' }))); // sort is dependant on the browser's region, so will change on zoom
     }
 
     if (!this.featuresById[feature.id]) {
