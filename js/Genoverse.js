@@ -193,7 +193,7 @@ var Genoverse = Base.extend({
 
     this.chr = coords.chr;
 
-    if (this.genome && !this.chromosomeSize) {
+    if (this.genome) {
       this.chromosomeSize = this.genome[this.chr].size;
     }
 
@@ -869,23 +869,25 @@ var Genoverse = Base.extend({
     this.setRange(start, end, true);
   },
 
-  addTrack: function (track, index) {
-    return this.addTracks([ track ], index)[0];
+  addTrack: function (track, after) {
+    return this.addTracks([ track ], after)[0];
   },
 
-  addTracks: function (tracks, index) {
+  addTracks: function (tracks, after) {
     var defaults = {
       browser : this,
       width   : this.width
     };
 
-    var push = !!tracks;
-    var j, namespaces, k;
+    var trackTypes = Genoverse.getAllTrackTypes();
+    var push       = !!tracks;
+    var order, j, namespaces, k;
 
     tracks = tracks || $.extend([], this.tracks);
-    index  = index  || 0;
 
-    var trackTypes = Genoverse.getAllTrackTypes();
+    if (push && !$.grep(this.tracks, function (t) { return typeof t === 'function'; }).length) {
+      order = (after ? $.grep(this.tracks, function (t) { return t.order < after; }) : this.tracks).sort(function (a, b) { return b.order - a.order; })[0].order + 0.001;
+    }
 
     for (var i = 0; i < tracks.length; i++) {
       namespaces = [];
@@ -918,7 +920,7 @@ var Genoverse = Base.extend({
 
       tracks[i] = new tracks[i]($.extend(defaults, {
         namespace : namespaces[0],
-        index     : i + index,
+        order     : (order || 0) + i,
         config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined
       }));
 
@@ -930,7 +932,7 @@ var Genoverse = Base.extend({
         this.tracks.push(tracks[i]);
 
         if (this.scale) {
-          tracks[i].controller.setScale(); // scale will only be set for tracks added after initalisation
+          tracks[i].controller.setScale(); // scale will only be set for tracks added after initalization
           tracks[i].controller.makeFirstImage();
         }
       } else {

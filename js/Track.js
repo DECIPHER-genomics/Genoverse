@@ -32,7 +32,6 @@ Genoverse.Track = Base.extend({
     this.configSettings    = this.configSettings || {};
     this.defaultConfig     = this.defaultConfig  || {};
     this.controls          = this.controls       || [];
-    this.order             = typeof this.order !== 'undefined' ? this.order : this.index;
     this.defaultHeight     = this.height;
     this.defaultAutoHeight = this.autoHeight;
     this.autoHeight        = typeof this.autoHeight !== 'undefined' ? this.autoHeight : this.browser.trackAutoHeight;
@@ -200,7 +199,6 @@ Genoverse.Track = Base.extend({
       $.extend(properties, {
         browser : this.browser,
         width   : this.width,
-        index   : this.index,
         track   : this
       })
     );

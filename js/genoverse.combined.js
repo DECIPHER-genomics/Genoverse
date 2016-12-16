@@ -2279,11 +2279,11 @@ var Genoverse = Base.extend({
     this.setRange(start, end, true);
   },
 
-  addTrack: function (track, index) {
-    return this.addTracks([ track ], index)[0];
+  addTrack: function (track, after) {
+    return this.addTracks([ track ], after)[0];
   },
 
-  addTracks: function (tracks, index) {
+  addTracks: function (tracks, after) {
     var defaults = {
       browser : this,
       width   : this.width
@@ -2294,10 +2294,9 @@ var Genoverse = Base.extend({
     var order, j, namespaces, k;
 
     tracks = tracks || $.extend([], this.tracks);
-    index  = index  || 0;
 
     if (push && !$.grep(this.tracks, function (t) { return typeof t === 'function'; }).length) {
-      order = (index ? $.grep(this.tracks, function (t) { return t.order < index; }) : this.tracks).sort(function (a, b) { return b.order - a.order; })[0].order + 0.001;
+      order = (after ? $.grep(this.tracks, function (t) { return t.order < after; }) : this.tracks).sort(function (a, b) { return b.order - a.order; })[0].order + 0.001;
     }
 
     for (var i = 0; i < tracks.length; i++) {
@@ -2331,8 +2330,7 @@ var Genoverse = Base.extend({
 
       tracks[i] = new tracks[i]($.extend(defaults, {
         namespace : namespaces[0],
-        index     : index + i,
-        order     : order,
+        order     : (order || 0) + i,
         config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined
       }));
 
@@ -2395,13 +2393,9 @@ var Genoverse = Base.extend({
     var sorted     = $.extend([], this.tracks).sort(function (a, b) { return a.order - b.order; });
     var labels     = $();
     var containers = $();
-    var prevOrder  = 0;
 
     for (var i = 0; i < sorted.length; i++) {
-      if (sorted[i].prop('unsortable')) {
-        prevOrder = Math.floor(sorted[i].prop('order'));
-      } else {
-        //sorted[i].prop('order', ++prevOrder);
+      if (!sorted[i].prop('unsortable')) {
         sorted[i].prop('order', i);
       }
 
@@ -2963,7 +2957,6 @@ Genoverse.Track = Base.extend({
     this.configSettings    = this.configSettings || {};
     this.defaultConfig     = this.defaultConfig  || {};
     this.controls          = this.controls       || [];
-    this.order             = typeof this.order !== 'undefined' ? this.order : this.index;
     this.defaultHeight     = this.height;
     this.defaultAutoHeight = this.autoHeight;
     this.autoHeight        = typeof this.autoHeight !== 'undefined' ? this.autoHeight : this.browser.trackAutoHeight;
