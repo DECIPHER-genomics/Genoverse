@@ -1343,31 +1343,75 @@ n}else throw"Unknown type "+l;k[s]=l}}if(!d||k.pos<=h&&k.pos+q>=d)void 0!==e&&m!
 var $         = jQuery; // Make sure we have local $ (this is for combined script in a function)
 var Genoverse = Base.extend({
   // Defaults
-  urlParamTemplate   : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
+  chr                : 1,
+  start              : 1,
+  end                : 1000000,
+
   width              : 1000,
-  longestLabel       : 30,
-  defaultLength      : 5000,
-  defaultScrollDelta : 100,
+
   tracks             : [],
   highlights         : [],
   plugins            : [],
-  dragAction         : 'scroll',         // Options are: scroll, select, off
-  wheelAction        : 'off',            // Options are: zoom, off
-  isStatic           : false,            // If true, will stop drag, select and zoom actions occurring
-  saveable           : false,            // If true, track configuration and ordering will be saved in sessionStorage/localStorage
-  saveKey            : '',               // Default key for sessionStorage/localStorage configuration is 'genoverse'. saveKey will be appended to this if it is set
-  storageType        : 'sessionStorage', // Set to localStorage for permanence
-  autoHideMessages   : true,             // Determines whether to collapse track messages by default
-  trackAutoHeight    : false,            // Determines whether to automatically resize tracks to show all their features (can be overridden by track.autoHeight)
-  hideEmptyTracks    : true,             // Determines whether to hide an automatically resized tracks if it has no features, or to show it empty (can be overridden by track.hideEmpty)
-  genome             : undefined,        // The genome used in the browser - can be an object or a string, which will be used to obtain a javascript file
-  useHash            : undefined,        // If true, window.location.hash is changed on navigation. If false, window.history.pushState is used. If undefined, pushState will be used if present in the browser
 
-  // Default coordinates for initial view, overwrite in your config
-  chr   : 1,
-  start : 1,
-  end   : 1000000,
+  dragAction         : 'scroll',
+  wheelAction        : 'off',
+  isStatic           : false,
 
+  saveable           : false,
+  saveKey            : '',
+  storageType        : 'sessionStorage',
+
+  autoHideMessages   : true,
+  trackAutoHeight    : false,
+  hideEmptyTracks    : true,
+
+  urlParamTemplate   : 'r=__CHR__:__START__-__END__',
+
+  longestLabel       : 30,
+  defaultLength      : 5000,
+  defaultScrollDelta : 100,
+
+  /**
+   * Creates a new instance of Genoverse
+   * @class Genoverse
+   * @param {Object} [config] - an object of parameters used to overwrite the following properties
+   *
+   * @property {(string|number)}           chr=1            - The initial chromosome to display
+   * @property {number}                    start=1          - The initial start position
+   * @property {number}                    end=1000000      - The initial end position
+   * @property {(string|Object|undefined)} genome=undefined - The genome used in the browser. Can be:
+   *   - a string (e.g. `"grch38"`) which will be used to obtain a javascript file from the js/genomes directory
+   *   - an object with keys of the number/letter/name of the chromosomes, and values in the form `{ "size": 10000 }`. Additionally an array of bands can be supplied for each chromosome for drawing purposes - see js/genomes/grch38.js for an example.
+   *   - `undefined`, in which case `chromosomeSize` **MUST** be set (see below)
+   * @property {number}                    chromosomeSize=undefined - If `genome` not is provided, `chromosomeSize` **MUST** be set to the length of the chromosome. If `genome` is provided, `chromosomeSize` will be set to the chromosome's `size` property, as defined by the genome object.
+   * @property {(string|Object|undefined)} container=undefined      - A DOM node, jQuery selector, or string to create a jQuery selector (e.g. `"#genoverse"`) inside which the instance of Genoverse will be created. If `undefined`, a `<div>` element will be appended to `document.body`.
+   * @property {number}   width=1000                                - The width for the `container` DOM element
+   * @property {Object[]} tracks=[]                                 - An array of `Genoverse.Track` definitions to be visualized
+   * @property {Object[]} highlights=[]                             - An array of regions to highlight, in the form `{ "start": 100, "end", 200, "label": "My highlight", "removable": false }`. `label` defaults to "start-end" (e.g. "100-200"). If `removable === false`, the highlight cannot be removed.
+   * @property {Object[]} plugins=[]                                - An array of `Genoverse.Plugins` to be used (from the js/plugins directory), e.g. `[ "controlPanel", "trackControls" ]`
+   * @property {("scroll"|"select"|"off")} dragAction="scroll"      - The action performed when a mouse drag happens on the genome browser
+   *   - `"scroll"` - Move the browser left or right
+   *   - `"select"` - Select the region
+   *   - `"off"`    - Do nothing
+   * @property {("zoom"|"off")} wheelAction="off" - The action performed when a mouse wheel scroll happens on the genome browser
+   *   - `"zoom"` - Zoom in or out
+   *   - `"off"`  - Do nothing
+   * @property {boolean} isStatic=true                                 - If `true`, will stop drag, select and zoom actions occurring. Default `false`
+   * @property {boolean} saveable=false                                - If `true`, track configuration and ordering will be saved in sessionStorage/localStorage.  Default `false`
+   * @property {string} saveKey=""                                     - The default key for sessionStorage/localStorage configuration is `"genoverse`". `saveKey` will be appended to this
+   * @property {string} storageType="sessionStorage"                   - The storage object used to save track configuration. Set to `"localStorage"` for permanence
+   * @property {boolean} autoHideMessages=true                         - Determines whether to collapse track messages by default. Default `true`
+   * @property {boolean} trackAutoHeight=false                         - Determines whether to automatically resize tracks to show all their features (can be overridden by `track.autoHeight`)
+   * @property {boolean} hideEmptyTracks=true                          - Determines whether to hide an automatically resized tracks if it has no features, or to show it empty (can be overridden by `track.hideEmpty`)
+   * @property {string} urlParamTemplate="r=__CHR__:__START__-__END__" - Template used to alter the web browser's URL. Should contain placeholders for chr, start and end.
+   * @property {(boolean|undefined)} useHash=undefined                 - Determines how the browser's URL gets updated on navigation
+   *   - `true`      - use `window.location.hash`
+   *   - `false`     - use `window.history.pushState`
+   *   - `undefined` - use `window.history.pushState` if present in the browser, else use `window.location.hash`
+   * @property {number} longestLabel=30        - The number of characters in the longest label to be drawn for a feature. This is needed to work out how much buffering a request for data requires in order to display the label correctly if it is close to the edge of an image.
+   * @property {number} defaultLength=5000     - The size of the region to be displayed if Genoverse's end coordinate is less than its start (this can happen via erroneous user input)
+   * @property {number} defaultScrollDelta=100 - The scaled distance to move when the control panel plugin's left or right arrows are pressed
+   */
   constructor: function (config) {
     var browser = this;
 
@@ -1396,6 +1440,12 @@ var Genoverse = Base.extend({
     });
   },
 
+  /**
+   * If the `genome` paramter is a string, attempts to get a file matching it's name from js/genomes (e.g. `genome = "grch38"` loads the file js/genomes/grch38.js)
+   * @memberof Genoverse
+   * @instance
+   * @returns {jQuery.jqXHR} a jQuery jqXHR object, which will be resolved when the genome file is loaded
+   */
   loadGenome: function () {
     if (typeof this.genome === 'string') {
       var genomeName = this.genome;
@@ -1415,6 +1465,13 @@ var Genoverse = Base.extend({
     }
   },
 
+  /**
+   * Attempts to get CSS and JavaScript files for an array of plugin names. If no argument is provided, will use the `plugins` parameter.
+   * @memberof Genoverse
+   * @instance
+   * @param {Object[]} [plugins]
+   * @returns {jQuery.Deferred} a jQuery Deferred object, which will be resolved when the plugin files are loaded
+   */
   loadPlugins: function (plugins) {
     var browser         = this;
     var loadPluginsTask = $.Deferred();
@@ -1504,6 +1561,11 @@ var Genoverse = Base.extend({
     return loadPluginsTask;
   },
 
+  /**
+   * Sets the initial state of the genome browser, including adding tracks and highlights, and reading the URL for the starting region
+   * @memberof Genoverse
+   * @instance
+   */
   init: function () {
     var width = this.width;
 
@@ -1535,7 +1597,7 @@ var Genoverse = Base.extend({
 
     this.chr = coords.chr;
 
-    if (this.genome && !this.chromosomeSize) {
+    if (this.genome) {
       this.chromosomeSize = this.genome[this.chr].size;
     }
 
@@ -2221,13 +2283,16 @@ var Genoverse = Base.extend({
       width   : this.width
     };
 
-    var push = !!tracks;
-    var j, namespaces, k;
+    var trackTypes = Genoverse.getAllTrackTypes();
+    var push       = !!tracks;
+    var order, j, namespaces, k;
 
     tracks = tracks || $.extend([], this.tracks);
     index  = index  || 0;
 
-    var trackTypes = Genoverse.getAllTrackTypes();
+    if (push && !$.grep(this.tracks, function (t) { return typeof t === 'function'; }).length) {
+      order = (index ? $.grep(this.tracks, function (t) { return t.order < index; }) : this.tracks).sort(function (a, b) { return b.order - a.order; })[0].order + 0.001;
+    }
 
     for (var i = 0; i < tracks.length; i++) {
       namespaces = [];
@@ -2260,7 +2325,8 @@ var Genoverse = Base.extend({
 
       tracks[i] = new tracks[i]($.extend(defaults, {
         namespace : namespaces[0],
-        index     : i + index,
+        index     : index + i,
+        order     : order,
         config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined
       }));
 
@@ -2272,7 +2338,7 @@ var Genoverse = Base.extend({
         this.tracks.push(tracks[i]);
 
         if (this.scale) {
-          tracks[i].controller.setScale(); // scale will only be set for tracks added after initalisation
+          tracks[i].controller.setScale(); // scale will only be set for tracks added after initalization
           tracks[i].controller.makeFirstImage();
         }
       } else {
@@ -2323,9 +2389,13 @@ var Genoverse = Base.extend({
     var sorted     = $.extend([], this.tracks).sort(function (a, b) { return a.order - b.order; });
     var labels     = $();
     var containers = $();
+    var prevOrder  = 0;
 
     for (var i = 0; i < sorted.length; i++) {
-      if (!sorted[i].prop('unsortable')) {
+      if (sorted[i].prop('unsortable')) {
+        prevOrder = Math.floor(sorted[i].prop('order'));
+      } else {
+        //sorted[i].prop('order', ++prevOrder);
         sorted[i].prop('order', i);
       }
 
@@ -2749,9 +2819,7 @@ var Genoverse = Base.extend({
     }
   },
 
-  /**
-   * functionWrap - wraps event handlers and adds debugging functionality
-   **/
+  // wraps event handlers and adds debugging functionality
   functionWrap: function (key, obj) {
     obj.functions = obj.functions || {};
 
@@ -3057,7 +3125,6 @@ Genoverse.Track = Base.extend({
       $.extend(properties, {
         browser : this.browser,
         width   : this.width,
-        index   : this.index,
         track   : this
       })
     );
