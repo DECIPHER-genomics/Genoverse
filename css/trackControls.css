@@ -55,3 +55,8 @@
   color: #333;
   font-weight: normal;
 }
+
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls select {
+  width: auto;
+  margin: 0 5px;
+}
