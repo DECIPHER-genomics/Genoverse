@@ -3889,7 +3889,7 @@ Genoverse.Track.Model = Base.extend({
   xhrFields  : undefined,
   url        : undefined,
   urlParams  : undefined, // hash of URL params
-  data       : undefined, // is defined, will be used instead of fetching data from a source
+  data       : undefined, // if defined, will be used instead of fetching data from a source
 
   constructor: function (properties) {
     $.extend(this, properties);
