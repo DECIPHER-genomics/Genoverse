@@ -194,7 +194,7 @@ Genoverse.Track.View = Base.extend({
       clash = tree.search(bounds)[0];
 
       if (clash && clash.id !== feature.id) {
-        bounds.y = clash.position[scale].bounds.y + clash.position[scale][labels ? 'label' : 'bounds'].h;
+        bounds.y = clash.position[scale][labels ? 'label' : 'bounds'].y + clash.position[scale][labels ? 'label' : 'bounds'].h;
         bump     = true;
       }
     } while (bump);
