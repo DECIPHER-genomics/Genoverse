@@ -23,10 +23,6 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
     if (!featureStrand) {
       this.prop('featureStrand', strand);
     }
-
-    if (!(this.model instanceof Genoverse.Track.Model.Stranded)) {
-      this.track.lengthMap.push([ -9e99, { model: Genoverse.Track.Model.Stranded }]);
-    }
   },
 
   makeForwardImage: function (params) {

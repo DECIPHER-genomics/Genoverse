@@ -14,6 +14,9 @@ Genoverse.Track = Base.extend({
       this.model      = this.model      || Genoverse.Track.Model.Stranded;
     }
 
+    this.models = {};
+    this.views  = {};
+
     this.setInterface();
     this.extend(config);
     this.setDefaults();
@@ -70,35 +73,25 @@ Genoverse.Track = Base.extend({
   },
 
   setMVC: function () {
-    // FIXME: if you zoom out quickly then hit the back button, the second zoom level (first one you zoomed out to) will not draw if the models/views are the same
     if (this.model && typeof this.model.abort === 'function') { // TODO: don't abort unless model is changed?
       this.model.abort();
     }
 
     this._defaults = this._defaults || {};
 
-    var lengthSettings = this.getSettingsForLength();
-    var settings       = $.extend(true, {}, this.constructor.prototype, lengthSettings[1]); // model, view, options
-    var mvc            = [ 'model', 'view', 'controller' ];
-    var mvcSettings    = {};
-    var trackSettings  = {};
-    var obj, j;
+    var settings           = $.extend(true, {}, this.constructor.prototype, this.getSettingsForLength()[1]); // model, view, options
+    var controllerSettings = { prop: {}, func: {} };
+    var trackSettings      = {};
 
     settings.controller = settings.controller || this.controller || Genoverse.Track.Controller;
-    settings.model      = this.models[lengthSettings[0]] || settings.model || this.model || Genoverse.Track.Model;
-    settings.view       = this.views[lengthSettings[0]]  || settings.view  || this.view  || Genoverse.Track.View;
-
-    for (var i = 0; i < 3; i++) {
-      mvcSettings[mvc[i]] = { prop: {}, func: {} };
-    }
 
     for (i in settings) {
       if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(i) && isNaN(i)) {
-        if (this._interface[i]) {
-          mvcSettings[this._interface[i]][typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
+        if (this._interface[i] === 'controller') {
+          controllerSettings[typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
         }
         // If we allow trackSettings to overwrite the MVC properties, we will potentially lose of information about instantiated objects that the track needs to perform future switching correctly.
-        else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|models?|views?|config)$/.test(i)) {
+        else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|models|views|config)$/.test(i)) {
           if (typeof this._defaults[i] === 'undefined') {
             this._defaults[i] = this[i];
           }
@@ -139,54 +132,17 @@ Genoverse.Track = Base.extend({
      * y is now { scalar: 1, array: [ 10, 2, 3 ], hash: { a: 10, b : 2 } }, since memory locations of objects in prototypes are shared.
      *
      * This has been the cause of numerous Genoverse bugs in the past, due to property sharing between different tracks, models, views, and controllers.
-     * See also the line a bit further down: this[obj].constructor.extend(mvcSettings[obj].func);
      */
     this.extend(trackSettings);
 
-    for (i = 0; i < 3; i++) {
-      obj = mvc[i];
-
-      if (obj === 'controller') {
-        continue;
-      }
-
-      if (typeof settings[obj] === 'function' && (!this[obj] || this[obj].constructor.ancestor !== settings[obj])) {
-        // Make a new instance of model/view if there isn't one already, or the model/view in lengthSettings is different from the existing model/view
-        this[obj] = this.newMVC(settings[obj], mvcSettings[obj].func, mvcSettings[obj].prop);
-      } else {
-        // Update the model/view with the values in mvcSettings.
-        var test = typeof settings[obj] === 'object' && this[obj] !== settings[obj] ? this[obj] = settings[obj] : this[obj + 's'][lengthSettings[0]] && this.lengthMap.length > 1 ? this[obj + 's'][lengthSettings[0]] : false;
-
-        if (test) {
-          for (j in mvcSettings[obj].prop) {
-            if (typeof test[j] !== 'undefined') {
-              this[obj][j] = mvcSettings[obj].prop[j];
-            }
-          }
-
-          // Abandon all hope! (see above)
-          this[obj].constructor.extend(mvcSettings[obj].func);
-
-          if (obj === 'model' && typeof test.url !== 'undefined') {
-            this.model.setURL(); // make sure the URL is correct
-          }
-        }
-      }
-    }
-
     if (!this.controller || typeof this.controller === 'function') {
-      this.controller = this.newMVC(settings.controller, mvcSettings.controller.func, $.extend(mvcSettings.controller.prop, { model: this.model, view: this.view }));
+      this.controller = this.newMVC(settings.controller, controllerSettings.func, $.extend(controllerSettings.prop, { model: this.model, view: this.view }));
     } else {
-      $.extend(this.controller, { model: this.model, view: this.view, threshold: mvcSettings.controller.prop.threshold || this.controller.constructor.prototype.threshold });
+      $.extend(this.controller, { model: this.model, view: this.view, threshold: controllerSettings.prop.threshold || this.controller.constructor.prototype.threshold });
     }
 
     if (this.strand === -1 && this.orderReverse) {
       this.order = this.orderReverse;
-    }
-
-    if (lengthSettings[1]) {
-      this.models[lengthSettings[0]] = this.model;
-      this.views[lengthSettings[0]]  = this.view;
     }
   },
 
@@ -205,16 +161,44 @@ Genoverse.Track = Base.extend({
   },
 
   setLengthMap: function () {
+    var mv             = [ 'model', 'view' ];
     var featureFilters = [];
     var configSettings = [];
-    var settings, value, j, deepCopy;
+    var lengthMap      = [];
+    var models         = {};
+    var views          = {};
+    var settings, value, deepCopy, prevLengthMap, mvSettings, type, prevType, i, j;
 
-    this.lengthMap = [];
-    this.models    = {};
-    this.views     = {};
+    function compare(a, b) {
+      var checked = {};
 
-    // Find configuration settings, force them in as length settings with length = 1
-    for (var i in this.configSettings) {
+      for (var key in a) {
+        checked[key] = true;
+
+        if (typeof a[key] !== typeof b[key]) {
+          return false;
+        } else if (typeof a[key] === 'function' && typeof b[key] === 'function') {
+          if (a[key].toString() !== b[key].toString()) {
+            return false;
+          }
+        } else if (typeof a[key] === 'object' && !compare(a[key], b[key])) {
+          return false;
+        } else if (a[key] !== b[key]) {
+          return false;
+        }
+      }
+
+      for (key in b) {
+        if (!checked[key]) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    // Find configuration settings, force them into each lengthMap setting
+    for (i in this.configSettings) {
       settings = this.getConfig(i);
 
       if (settings) {
@@ -228,9 +212,6 @@ Genoverse.Track = Base.extend({
 
     if (configSettings.length) {
       configSettings = $.extend.apply($, [ true, {} ].concat(configSettings, { featureFilters: featureFilters }));
-
-      // Force a lengthMap to exist. All entries in lengthMap get configSettings applied to them below
-      this[1] = this[1] || {};
     }
 
     // Find all scale-map like keys
@@ -238,52 +219,105 @@ Genoverse.Track = Base.extend({
       if (!isNaN(key)) {
         key   = parseInt(key, 10);
         value = this[key];
-        delete this[key];
-        this.lengthMap.push([ key, value === false ? { threshold: key, resizable: 'auto', featureHeight: 0, model: Genoverse.Track.Model, view: Genoverse.Track.View } : value ]);
+
+        lengthMap.push([ key, value === false ? { threshold: key, resizable: 'auto', featureHeight: 0, model: Genoverse.Track.Model, view: Genoverse.Track.View } : $.extend(true, {}, value) ]);
       }
     }
 
-    if (this.lengthMap.length) {
-      this.lengthMap.push([ -1, $.extend(true, {}, this, { view: this.view || Genoverse.Track.View, model: this.model || Genoverse.Track.Model }) ]);
-      this.lengthMap = this.lengthMap.sort(function (a, b) { return b[0] - a[0]; });
-    }
+    // Force at least one lengthMap entry to exist, containing the base model and view. lengthMap entries above -1 without a model or view will inherit from -1.
+    lengthMap.push([ -1, { view: this.view || Genoverse.Track.View, model: this.model || Genoverse.Track.Model } ]);
 
-    for (var i = 0; i < this.lengthMap.length; i++) {
-      $.extend(this.lengthMap[i][1], configSettings);
+    lengthMap = lengthMap.sort(function (a, b) { return b[0] - a[0]; });
 
-      if (this.lengthMap[i][1].model && this.lengthMap[i][1].view) {
+    for (i = 0; i < lengthMap.length; i++) {
+      $.extend(lengthMap[i][1], configSettings); // Add configSettings to the lengthMap entries
+
+      if (lengthMap[i][1].model && lengthMap[i][1].view) {
         continue;
       }
 
       deepCopy = {};
 
-      if (this.lengthMap[i][0] !== -1) {
-        for (j in this.lengthMap[i][1]) {
+      if (lengthMap[i][0] !== -1) {
+        for (j in lengthMap[i][1]) {
           if (this._interface[j]) {
             deepCopy[this._interface[j]] = true;
+          }
+
+          if (deepCopy.model && deepCopy.view) {
+            break;
           }
         }
       }
 
-      for (j = i + 1; j < this.lengthMap.length; j++) {
-        if (!this.lengthMap[i][1].model && this.lengthMap[j][1].model) {
-          this.lengthMap[i][1].model = deepCopy.model ? Genoverse.Track.Model.extend($.extend(true, {}, this.lengthMap[j][1].model.prototype)) : this.lengthMap[j][1].model;
+      // Ensure that every lengthMap entry has a model and view property, copying them from entries with smaller lengths if needed.
+      for (j = i + 1; j < lengthMap.length; j++) {
+        if (!lengthMap[i][1].model && lengthMap[j][1].model) {
+          lengthMap[i][1].model = deepCopy.model ? Genoverse.Track.Model.extend($.extend(true, {}, lengthMap[j][1].model.prototype)) : lengthMap[j][1].model;
         }
 
-        if (!this.lengthMap[i][1].view && this.lengthMap[j][1].view) {
-          this.lengthMap[i][1].view = deepCopy.view ? Genoverse.Track.View.extend($.extend(true, {}, this.lengthMap[j][1].view.prototype)) : this.lengthMap[j][1].view;
+        if (!lengthMap[i][1].view && lengthMap[j][1].view) {
+          lengthMap[i][1].view = deepCopy.view ? Genoverse.Track.View.extend($.extend(true, {}, lengthMap[j][1].view.prototype)) : lengthMap[j][1].view;
         }
 
-        if (this.lengthMap[i][1].model && this.lengthMap[i][1].view) {
+        if (lengthMap[i][1].model && lengthMap[i][1].view) {
           break;
         }
       }
     }
+
+    // Now every lengthMap entry has a model and a view class, create instances of those classes.
+    for (i = 0; i < lengthMap.length; i++) {
+      prevLengthMap = lengthMap[i - 1] ? lengthMap[i - 1][1] : {};
+      settings      = $.extend(true, {}, this.constructor.prototype, lengthMap[i][1]);
+      mvSettings    = { model: { prop: {}, func: {} }, view: { prop: {}, func: {} } };
+
+      // Work out which settings belong to models or views
+      for (j in settings) {
+        if (j !== 'constructor' && mvSettings[this._interface[j]]) {
+          mvSettings[this._interface[j]][typeof settings[j] === 'function' ? 'func' : 'prop'][j] = settings[j];
+        }
+      }
+
+      // Create models and views, if settings.model or settings.view is a class rather than an instance
+      for (j = 0; j < mv.length; j++) {
+        type = mv[j];
+
+        if (typeof settings[type] === 'function') {
+          prevType = this[mv[j] + 's'];
+
+          // If the previous lengthMap contains an instance of the class in settings, it can be reused.
+          // This allows sharing of models and views between lengthMap entries if they are the same, stopping the need to fetch identical data or draw identical images more than once
+          if (prevLengthMap[type] instanceof settings[type]) {
+            settings[type] = prevLengthMap[type];
+          } else {
+            // Make an instance of the model/view, based on the settings[type] class but with a prototype that contains the functions in mvSettings[type].func
+            settings[type] = this.newMVC(settings[type], mvSettings[type].func, mvSettings[type].prop);
+
+            // If the track already has this.models/this.views and the prototype of the new model/view is the same as the value of this.models/this.views for the same length key, reuse that value.
+            // This can happen if the track has configSettings and the user changes config but that only affects one of the model and view.
+            // Again, reusing the old value stops the need to fetch identical data or draw identical images more than once.
+            if (prevType[lengthMap[i][0]] && compare(prevType[lengthMap[i][0]].constructor.prototype, settings[type].constructor.prototype)) {
+              settings[type] = prevType[lengthMap[i][0]];
+            }
+          }
+        }
+      }
+
+      models[lengthMap[i][0]] = lengthMap[i][1].model = settings.model;
+      views[lengthMap[i][0]]  = lengthMap[i][1].view  = settings.view;
+    }
+
+    this.lengthMap = lengthMap;
+    this.models    = models;
+    this.views     = views;
   },
 
   getSettingsForLength: function () {
+    var length = this.browser.length || (this.browser.end - this.browser.start + 1);
+
     for (var i = 0; i < this.lengthMap.length; i++) {
-      if (this.browser.length > this.lengthMap[i][0] || this.browser.length === 1 && this.lengthMap[i][0] === 1) {
+      if (length > this.lengthMap[i][0] || length === 1 && this.lengthMap[i][0] === 1) {
         return this.lengthMap[i];
       }
     }
