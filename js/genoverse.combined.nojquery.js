@@ -1343,75 +1343,31 @@ n}else throw"Unknown type "+l;k[s]=l}}if(!d||k.pos<=h&&k.pos+q>=d)void 0!==e&&m!
 var $         = jQuery; // Make sure we have local $ (this is for combined script in a function)
 var Genoverse = Base.extend({
   // Defaults
-  chr                : 1,
-  start              : 1,
-  end                : 1000000,
-
+  urlParamTemplate   : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
   width              : 1000,
-
-  tracks             : [],
-  highlights         : [],
-  plugins            : [],
-
-  dragAction         : 'scroll',
-  wheelAction        : 'off',
-  isStatic           : false,
-
-  saveable           : false,
-  saveKey            : '',
-  storageType        : 'sessionStorage',
-
-  autoHideMessages   : true,
-  trackAutoHeight    : false,
-  hideEmptyTracks    : true,
-
-  urlParamTemplate   : 'r=__CHR__:__START__-__END__',
-
   longestLabel       : 30,
   defaultLength      : 5000,
   defaultScrollDelta : 100,
+  tracks             : [],
+  highlights         : [],
+  plugins            : [],
+  dragAction         : 'scroll',         // Options are: scroll, select, off
+  wheelAction        : 'off',            // Options are: zoom, off
+  isStatic           : false,            // If true, will stop drag, select and zoom actions occurring
+  saveable           : false,            // If true, track configuration and ordering will be saved in sessionStorage/localStorage
+  saveKey            : '',               // Default key for sessionStorage/localStorage configuration is 'genoverse'. saveKey will be appended to this if it is set
+  storageType        : 'sessionStorage', // Set to localStorage for permanence
+  autoHideMessages   : true,             // Determines whether to collapse track messages by default
+  trackAutoHeight    : false,            // Determines whether to automatically resize tracks to show all their features (can be overridden by track.autoHeight)
+  hideEmptyTracks    : true,             // Determines whether to hide an automatically resized tracks if it has no features, or to show it empty (can be overridden by track.hideEmpty)
+  genome             : undefined,        // The genome used in the browser - can be an object or a string, which will be used to obtain a javascript file
+  useHash            : undefined,        // If true, window.location.hash is changed on navigation. If false, window.history.pushState is used. If undefined, pushState will be used if present in the browser
 
-  /**
-   * Creates a new instance of Genoverse
-   * @class Genoverse
-   * @param {Object} [config] - an object of parameters used to overwrite the following properties
-   *
-   * @property {(string|number)}           chr=1            - The initial chromosome to display
-   * @property {number}                    start=1          - The initial start position
-   * @property {number}                    end=1000000      - The initial end position
-   * @property {(string|Object|undefined)} genome=undefined - The genome used in the browser. Can be:
-   *   - a string (e.g. `"grch38"`) which will be used to obtain a javascript file from the js/genomes directory
-   *   - an object with keys of the number/letter/name of the chromosomes, and values in the form `{ "size": 10000 }`. Additionally an array of bands can be supplied for each chromosome for drawing purposes - see js/genomes/grch38.js for an example.
-   *   - `undefined`, in which case `chromosomeSize` **MUST** be set (see below)
-   * @property {number}                    chromosomeSize=undefined - If `genome` not is provided, `chromosomeSize` **MUST** be set to the length of the chromosome. If `genome` is provided, `chromosomeSize` will be set to the chromosome's `size` property, as defined by the genome object.
-   * @property {(string|Object|undefined)} container=undefined      - A DOM node, jQuery selector, or string to create a jQuery selector (e.g. `"#genoverse"`) inside which the instance of Genoverse will be created. If `undefined`, a `<div>` element will be appended to `document.body`.
-   * @property {number}   width=1000                                - The width for the `container` DOM element
-   * @property {Object[]} tracks=[]                                 - An array of `Genoverse.Track` definitions to be visualized
-   * @property {Object[]} highlights=[]                             - An array of regions to highlight, in the form `{ "start": 100, "end", 200, "label": "My highlight", "removable": false }`. `label` defaults to "start-end" (e.g. "100-200"). If `removable === false`, the highlight cannot be removed.
-   * @property {Object[]} plugins=[]                                - An array of `Genoverse.Plugins` to be used (from the js/plugins directory), e.g. `[ "controlPanel", "trackControls" ]`
-   * @property {("scroll"|"select"|"off")} dragAction="scroll"      - The action performed when a mouse drag happens on the genome browser
-   *   - `"scroll"` - Move the browser left or right
-   *   - `"select"` - Select the region
-   *   - `"off"`    - Do nothing
-   * @property {("zoom"|"off")} wheelAction="off" - The action performed when a mouse wheel scroll happens on the genome browser
-   *   - `"zoom"` - Zoom in or out
-   *   - `"off"`  - Do nothing
-   * @property {boolean} isStatic=true                                 - If `true`, will stop drag, select and zoom actions occurring. Default `false`
-   * @property {boolean} saveable=false                                - If `true`, track configuration and ordering will be saved in sessionStorage/localStorage.  Default `false`
-   * @property {string} saveKey=""                                     - The default key for sessionStorage/localStorage configuration is `"genoverse`". `saveKey` will be appended to this
-   * @property {string} storageType="sessionStorage"                   - The storage object used to save track configuration. Set to `"localStorage"` for permanence
-   * @property {boolean} autoHideMessages=true                         - Determines whether to collapse track messages by default. Default `true`
-   * @property {boolean} trackAutoHeight=false                         - Determines whether to automatically resize tracks to show all their features (can be overridden by `track.autoHeight`)
-   * @property {boolean} hideEmptyTracks=true                          - Determines whether to hide an automatically resized tracks if it has no features, or to show it empty (can be overridden by `track.hideEmpty`)
-   * @property {string} urlParamTemplate="r=__CHR__:__START__-__END__" - Template used to alter the web browser's URL. Should contain placeholders for chr, start and end.
-   * @property {(boolean|undefined)} useHash=undefined                 - Determines how the browser's URL gets updated on navigation
-   *   - `true`      - use `window.location.hash`
-   *   - `false`     - use `window.history.pushState`
-   *   - `undefined` - use `window.history.pushState` if present in the browser, else use `window.location.hash`
-   * @property {number} longestLabel=30        - The number of characters in the longest label to be drawn for a feature. This is needed to work out how much buffering a request for data requires in order to display the label correctly if it is close to the edge of an image.
-   * @property {number} defaultLength=5000     - The size of the region to be displayed if Genoverse's end coordinate is less than its start (this can happen via erroneous user input)
-   * @property {number} defaultScrollDelta=100 - The scaled distance to move when the control panel plugin's left or right arrows are pressed
-   */
+  // Default coordinates for initial view, overwrite in your config
+  chr   : 1,
+  start : 1,
+  end   : 1000000,
+
   constructor: function (config) {
     var browser = this;
 
@@ -1440,12 +1396,6 @@ var Genoverse = Base.extend({
     });
   },
 
-  /**
-   * If the `genome` paramter is a string, attempts to get a file matching it's name from js/genomes (e.g. `genome = "grch38"` loads the file js/genomes/grch38.js)
-   * @memberof Genoverse
-   * @instance
-   * @returns {jQuery.jqXHR} a jQuery jqXHR object, which will be resolved when the genome file is loaded
-   */
   loadGenome: function () {
     if (typeof this.genome === 'string') {
       var genomeName = this.genome;
@@ -1465,13 +1415,6 @@ var Genoverse = Base.extend({
     }
   },
 
-  /**
-   * Attempts to get CSS and JavaScript files for an array of plugin names. If no argument is provided, will use the `plugins` parameter.
-   * @memberof Genoverse
-   * @instance
-   * @param {Object[]} [plugins]
-   * @returns {jQuery.Deferred} a jQuery Deferred object, which will be resolved when the plugin files are loaded
-   */
   loadPlugins: function (plugins) {
     var browser         = this;
     var loadPluginsTask = $.Deferred();
@@ -1561,11 +1504,6 @@ var Genoverse = Base.extend({
     return loadPluginsTask;
   },
 
-  /**
-   * Sets the initial state of the genome browser, including adding tracks and highlights, and reading the URL for the starting region
-   * @memberof Genoverse
-   * @instance
-   */
   init: function () {
     var width = this.width;
 
@@ -2813,7 +2751,9 @@ var Genoverse = Base.extend({
     }
   },
 
-  // wraps event handlers and adds debugging functionality
+  /**
+   * functionWrap - wraps event handlers and adds debugging functionality
+   **/
   functionWrap: function (key, obj) {
     obj.functions = obj.functions || {};
 
@@ -2933,6 +2873,9 @@ Genoverse.Track = Base.extend({
       this.model      = this.model      || Genoverse.Track.Model.Stranded;
     }
 
+    this.models = {};
+    this.views  = {};
+
     this.setInterface();
     this.extend(config);
     this.setDefaults();
@@ -2989,35 +2932,25 @@ Genoverse.Track = Base.extend({
   },
 
   setMVC: function () {
-    // FIXME: if you zoom out quickly then hit the back button, the second zoom level (first one you zoomed out to) will not draw if the models/views are the same
     if (this.model && typeof this.model.abort === 'function') { // TODO: don't abort unless model is changed?
       this.model.abort();
     }
 
     this._defaults = this._defaults || {};
 
-    var lengthSettings = this.getSettingsForLength();
-    var settings       = $.extend(true, {}, this.constructor.prototype, lengthSettings[1]); // model, view, options
-    var mvc            = [ 'model', 'view', 'controller' ];
-    var mvcSettings    = {};
-    var trackSettings  = {};
-    var obj, j;
+    var settings           = $.extend(true, {}, this.constructor.prototype, this.getSettingsForLength()[1]); // model, view, options
+    var controllerSettings = { prop: {}, func: {} };
+    var trackSettings      = {};
 
     settings.controller = settings.controller || this.controller || Genoverse.Track.Controller;
-    settings.model      = this.models[lengthSettings[0]] || settings.model || this.model || Genoverse.Track.Model;
-    settings.view       = this.views[lengthSettings[0]]  || settings.view  || this.view  || Genoverse.Track.View;
-
-    for (var i = 0; i < 3; i++) {
-      mvcSettings[mvc[i]] = { prop: {}, func: {} };
-    }
 
     for (i in settings) {
       if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(i) && isNaN(i)) {
-        if (this._interface[i]) {
-          mvcSettings[this._interface[i]][typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
+        if (this._interface[i] === 'controller') {
+          controllerSettings[typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
         }
         // If we allow trackSettings to overwrite the MVC properties, we will potentially lose of information about instantiated objects that the track needs to perform future switching correctly.
-        else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|models?|views?|config)$/.test(i)) {
+        else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|models|views|config)$/.test(i)) {
           if (typeof this._defaults[i] === 'undefined') {
             this._defaults[i] = this[i];
           }
@@ -3058,54 +2991,17 @@ Genoverse.Track = Base.extend({
      * y is now { scalar: 1, array: [ 10, 2, 3 ], hash: { a: 10, b : 2 } }, since memory locations of objects in prototypes are shared.
      *
      * This has been the cause of numerous Genoverse bugs in the past, due to property sharing between different tracks, models, views, and controllers.
-     * See also the line a bit further down: this[obj].constructor.extend(mvcSettings[obj].func);
      */
     this.extend(trackSettings);
 
-    for (i = 0; i < 3; i++) {
-      obj = mvc[i];
-
-      if (obj === 'controller') {
-        continue;
-      }
-
-      if (typeof settings[obj] === 'function' && (!this[obj] || this[obj].constructor.ancestor !== settings[obj])) {
-        // Make a new instance of model/view if there isn't one already, or the model/view in lengthSettings is different from the existing model/view
-        this[obj] = this.newMVC(settings[obj], mvcSettings[obj].func, mvcSettings[obj].prop);
-      } else {
-        // Update the model/view with the values in mvcSettings.
-        var test = typeof settings[obj] === 'object' && this[obj] !== settings[obj] ? this[obj] = settings[obj] : this[obj + 's'][lengthSettings[0]] && this.lengthMap.length > 1 ? this[obj + 's'][lengthSettings[0]] : false;
-
-        if (test) {
-          for (j in mvcSettings[obj].prop) {
-            if (typeof test[j] !== 'undefined') {
-              this[obj][j] = mvcSettings[obj].prop[j];
-            }
-          }
-
-          // Abandon all hope! (see above)
-          this[obj].constructor.extend(mvcSettings[obj].func);
-
-          if (obj === 'model' && typeof test.url !== 'undefined') {
-            this.model.setURL(); // make sure the URL is correct
-          }
-        }
-      }
-    }
-
     if (!this.controller || typeof this.controller === 'function') {
-      this.controller = this.newMVC(settings.controller, mvcSettings.controller.func, $.extend(mvcSettings.controller.prop, { model: this.model, view: this.view }));
+      this.controller = this.newMVC(settings.controller, controllerSettings.func, $.extend(controllerSettings.prop, { model: this.model, view: this.view }));
     } else {
-      $.extend(this.controller, { model: this.model, view: this.view, threshold: mvcSettings.controller.prop.threshold || this.controller.constructor.prototype.threshold });
+      $.extend(this.controller, { model: this.model, view: this.view, threshold: controllerSettings.prop.threshold || this.controller.constructor.prototype.threshold });
     }
 
     if (this.strand === -1 && this.orderReverse) {
       this.order = this.orderReverse;
-    }
-
-    if (lengthSettings[1]) {
-      this.models[lengthSettings[0]] = this.model;
-      this.views[lengthSettings[0]]  = this.view;
     }
   },
 
@@ -3124,16 +3020,44 @@ Genoverse.Track = Base.extend({
   },
 
   setLengthMap: function () {
+    var mv             = [ 'model', 'view' ];
     var featureFilters = [];
     var configSettings = [];
-    var settings, value, j, deepCopy;
+    var lengthMap      = [];
+    var models         = {};
+    var views          = {};
+    var settings, value, deepCopy, prevLengthMap, mvSettings, type, prevType, i, j;
 
-    this.lengthMap = [];
-    this.models    = {};
-    this.views     = {};
+    function compare(a, b) {
+      var checked = {};
 
-    // Find configuration settings, force them in as length settings with length = 1
-    for (var i in this.configSettings) {
+      for (var key in a) {
+        checked[key] = true;
+
+        if (typeof a[key] !== typeof b[key]) {
+          return false;
+        } else if (typeof a[key] === 'function' && typeof b[key] === 'function') {
+          if (a[key].toString() !== b[key].toString()) {
+            return false;
+          }
+        } else if (typeof a[key] === 'object' && !compare(a[key], b[key])) {
+          return false;
+        } else if (a[key] !== b[key]) {
+          return false;
+        }
+      }
+
+      for (key in b) {
+        if (!checked[key]) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    // Find configuration settings, force them into each lengthMap setting
+    for (i in this.configSettings) {
       settings = this.getConfig(i);
 
       if (settings) {
@@ -3147,9 +3071,6 @@ Genoverse.Track = Base.extend({
 
     if (configSettings.length) {
       configSettings = $.extend.apply($, [ true, {} ].concat(configSettings, { featureFilters: featureFilters }));
-
-      // Force a lengthMap to exist. All entries in lengthMap get configSettings applied to them below
-      this[1] = this[1] || {};
     }
 
     // Find all scale-map like keys
@@ -3157,52 +3078,105 @@ Genoverse.Track = Base.extend({
       if (!isNaN(key)) {
         key   = parseInt(key, 10);
         value = this[key];
-        delete this[key];
-        this.lengthMap.push([ key, value === false ? { threshold: key, resizable: 'auto', featureHeight: 0, model: Genoverse.Track.Model, view: Genoverse.Track.View } : value ]);
+
+        lengthMap.push([ key, value === false ? { threshold: key, resizable: 'auto', featureHeight: 0, model: Genoverse.Track.Model, view: Genoverse.Track.View } : $.extend(true, {}, value) ]);
       }
     }
 
-    if (this.lengthMap.length) {
-      this.lengthMap.push([ -1, $.extend(true, {}, this, { view: this.view || Genoverse.Track.View, model: this.model || Genoverse.Track.Model }) ]);
-      this.lengthMap = this.lengthMap.sort(function (a, b) { return b[0] - a[0]; });
-    }
+    // Force at least one lengthMap entry to exist, containing the base model and view. lengthMap entries above -1 without a model or view will inherit from -1.
+    lengthMap.push([ -1, { view: this.view || Genoverse.Track.View, model: this.model || Genoverse.Track.Model } ]);
 
-    for (var i = 0; i < this.lengthMap.length; i++) {
-      $.extend(this.lengthMap[i][1], configSettings);
+    lengthMap = lengthMap.sort(function (a, b) { return b[0] - a[0]; });
 
-      if (this.lengthMap[i][1].model && this.lengthMap[i][1].view) {
+    for (i = 0; i < lengthMap.length; i++) {
+      $.extend(lengthMap[i][1], configSettings); // Add configSettings to the lengthMap entries
+
+      if (lengthMap[i][1].model && lengthMap[i][1].view) {
         continue;
       }
 
       deepCopy = {};
 
-      if (this.lengthMap[i][0] !== -1) {
-        for (j in this.lengthMap[i][1]) {
+      if (lengthMap[i][0] !== -1) {
+        for (j in lengthMap[i][1]) {
           if (this._interface[j]) {
             deepCopy[this._interface[j]] = true;
+          }
+
+          if (deepCopy.model && deepCopy.view) {
+            break;
           }
         }
       }
 
-      for (j = i + 1; j < this.lengthMap.length; j++) {
-        if (!this.lengthMap[i][1].model && this.lengthMap[j][1].model) {
-          this.lengthMap[i][1].model = deepCopy.model ? Genoverse.Track.Model.extend($.extend(true, {}, this.lengthMap[j][1].model.prototype)) : this.lengthMap[j][1].model;
+      // Ensure that every lengthMap entry has a model and view property, copying them from entries with smaller lengths if needed.
+      for (j = i + 1; j < lengthMap.length; j++) {
+        if (!lengthMap[i][1].model && lengthMap[j][1].model) {
+          lengthMap[i][1].model = deepCopy.model ? Genoverse.Track.Model.extend($.extend(true, {}, lengthMap[j][1].model.prototype)) : lengthMap[j][1].model;
         }
 
-        if (!this.lengthMap[i][1].view && this.lengthMap[j][1].view) {
-          this.lengthMap[i][1].view = deepCopy.view ? Genoverse.Track.View.extend($.extend(true, {}, this.lengthMap[j][1].view.prototype)) : this.lengthMap[j][1].view;
+        if (!lengthMap[i][1].view && lengthMap[j][1].view) {
+          lengthMap[i][1].view = deepCopy.view ? Genoverse.Track.View.extend($.extend(true, {}, lengthMap[j][1].view.prototype)) : lengthMap[j][1].view;
         }
 
-        if (this.lengthMap[i][1].model && this.lengthMap[i][1].view) {
+        if (lengthMap[i][1].model && lengthMap[i][1].view) {
           break;
         }
       }
     }
+
+    // Now every lengthMap entry has a model and a view class, create instances of those classes.
+    for (i = 0; i < lengthMap.length; i++) {
+      prevLengthMap = lengthMap[i - 1] ? lengthMap[i - 1][1] : {};
+      settings      = $.extend(true, {}, this.constructor.prototype, lengthMap[i][1]);
+      mvSettings    = { model: { prop: {}, func: {} }, view: { prop: {}, func: {} } };
+
+      // Work out which settings belong to models or views
+      for (j in settings) {
+        if (j !== 'constructor' && mvSettings[this._interface[j]]) {
+          mvSettings[this._interface[j]][typeof settings[j] === 'function' ? 'func' : 'prop'][j] = settings[j];
+        }
+      }
+
+      // Create models and views, if settings.model or settings.view is a class rather than an instance
+      for (j = 0; j < mv.length; j++) {
+        type = mv[j];
+
+        if (typeof settings[type] === 'function') {
+          prevType = this[mv[j] + 's'];
+
+          // If the previous lengthMap contains an instance of the class in settings, it can be reused.
+          // This allows sharing of models and views between lengthMap entries if they are the same, stopping the need to fetch identical data or draw identical images more than once
+          if (prevLengthMap[type] instanceof settings[type]) {
+            settings[type] = prevLengthMap[type];
+          } else {
+            // Make an instance of the model/view, based on the settings[type] class but with a prototype that contains the functions in mvSettings[type].func
+            settings[type] = this.newMVC(settings[type], mvSettings[type].func, mvSettings[type].prop);
+
+            // If the track already has this.models/this.views and the prototype of the new model/view is the same as the value of this.models/this.views for the same length key, reuse that value.
+            // This can happen if the track has configSettings and the user changes config but that only affects one of the model and view.
+            // Again, reusing the old value stops the need to fetch identical data or draw identical images more than once.
+            if (prevType[lengthMap[i][0]] && compare(prevType[lengthMap[i][0]].constructor.prototype, settings[type].constructor.prototype)) {
+              settings[type] = prevType[lengthMap[i][0]];
+            }
+          }
+        }
+      }
+
+      models[lengthMap[i][0]] = lengthMap[i][1].model = settings.model;
+      views[lengthMap[i][0]]  = lengthMap[i][1].view  = settings.view;
+    }
+
+    this.lengthMap = lengthMap;
+    this.models    = models;
+    this.views     = views;
   },
 
   getSettingsForLength: function () {
+    var length = this.browser.length || (this.browser.end - this.browser.start + 1);
+
     for (var i = 0; i < this.lengthMap.length; i++) {
-      if (this.browser.length > this.lengthMap[i][0] || this.browser.length === 1 && this.lengthMap[i][0] === 1) {
+      if (length > this.lengthMap[i][0] || length === 1 && this.lengthMap[i][0] === 1) {
         return this.lengthMap[i];
       }
     }
@@ -4338,7 +4312,7 @@ Genoverse.Track.View = Base.extend({
       clash = tree.search(bounds)[0];
 
       if (clash && clash.id !== feature.id) {
-        bounds.y = clash.position[scale].bounds.y + clash.position[scale][labels ? 'label' : 'bounds'].h;
+        bounds.y = clash.position[scale][labels ? 'label' : 'bounds'].y + clash.position[scale][labels ? 'label' : 'bounds'].h;
         bump     = true;
       }
     } while (bump);
@@ -4635,10 +4609,6 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
 
     if (!featureStrand) {
       this.prop('featureStrand', strand);
-    }
-
-    if (!(this.model instanceof Genoverse.Track.Model.Stranded)) {
-      this.track.lengthMap.push([ -9e99, { model: Genoverse.Track.Model.Stranded }]);
     }
   },
 
@@ -5176,8 +5146,13 @@ Genoverse.Track.Model.Transcript = Genoverse.Track.Model.extend({
 Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.extend({
   url              : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=transcript;feature=exon;feature=cds;content-type=application/json',
   dataRequestLimit : 5000000, // As per e! REST API restrictions
-  geneIds          : {},
-  seenGenes        : 0,
+
+  setDefaults: function () {
+    this.geneIds   = {};
+    this.seenGenes = 0;
+
+    this.base.apply(this, arguments);
+  },
 
   // The url above responds in json format, data is an array
   // See rest.ensembl.org/documentation/info/feature_region for more details
