@@ -339,6 +339,10 @@
   white-space: nowrap;
 }
 
+.gv-menu.gv-wrap-values .gv-menu-content table td:last-child {
+  word-break: break-word;
+}
+
 .gv-menu .gv-menu-button {
   color: #FFF;
   cursor: pointer;

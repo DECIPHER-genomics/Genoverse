@@ -1,19 +1,20 @@
 Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
-  id            : 'highlights',
-  unsortable    : true,
-  repeatLabels  : true,
-  resizable     : false,
-  border        : false,
-  height        : 15,
-  featureHeight : 2,
-  order         : -1,
-  orderReverse  : 9e99,
-  controls      : 'off',
-  colors        : [ '#777777', '#F08080', '#3CB371', '#6495ED', '#FFA500', '#9370DB' ],
-  labels        : 'separate',
-  depth         : 1,
-  featureMargin : { top: 13, right: 0, bottom: 0, left: 0 },
-  margin        : 0,
+  id               : 'highlights',
+  unsortable       : true,
+  repeatLabels     : true,
+  resizable        : false,
+  border           : false,
+  alwaysReposition : true,
+  height           : 15,
+  featureHeight    : 2,
+  order            : -1,
+  orderReverse     : 9e99,
+  controls         : 'off',
+  colors           : [ '#777777', '#F08080', '#3CB371', '#6495ED', '#FFA500', '#9370DB' ],
+  labels           : 'separate',
+  depth            : 1,
+  featureMargin    : { top: 13, right: 0, bottom: 0, left: 0 },
+  margin           : 0,
 
   constructor: function () {
     this.colorIndex = 0;
@@ -103,18 +104,30 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       img.height(this.browser.wrapper.outerHeight(true));
     },
 
-    populateMenu: function (feature) {
-      var location = feature.start + '-' + feature.end;
-      var menu = {
-        title: feature.label ? feature.label[0] : location,
-        start: false
-      };
+    populateMenu: function (features) {
+      var menu = [];
+      var location, m;
 
-      menu[menu.title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
+      if (features.length > 1) {
+        menu.push({ title: 'Highlights' });
+      }
 
-      if (feature.removable !== false) {
-        menu['<a class="gv-remove-highlight"  href="#">Remove this highlight</a>'] = '';
-        menu['<a class="gv-remove-highlights" href="#">Remove all highlights</a>'] = '';
+      for (var i = 0; i < features.length; i++) {
+        location = features[i].start + '-' + features[i].end;
+        m        = {
+          title: features[i].label ? features[i].label[0] : location,
+          start: false
+        };
+
+        m[m.title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
+        m['<a class="gv-focus-highlight" href="#" data-start="' + features[i].start + '" data-end="' + features[i].end + '">Focus here</a>'] = '';
+
+        if (features[i].removable !== false) {
+          m['<a class="gv-remove-highlight"  href="#" data-id="' + features[i].id + '">Remove this highlight</a>'] = '';
+          m['<a class="gv-remove-highlights" href="#">Remove all highlights</a>'] = '';
+        }
+
+        menu.push(m);
       }
 
       return menu;
@@ -131,7 +144,8 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
         var track = this.track;
 
         menuEl.find('.gv-remove-highlight').on('click', function () {
-          track.removeHighlights([ menuEl.data('feature') ]);
+          var id = $(this).data('id');
+          track.removeHighlights($.grep(menuEl.data('feature'), function (f) { return f.id === id; }));
           return false;
         });
 
@@ -140,8 +154,38 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
           return false;
         });
 
+        menuEl.find('.gv-focus-highlight').on('click', function () {
+          var data    = $(this).data();
+          var length  = data.end - data.start + 1;
+          var context = Math.max(Math.round(length / 4), 25);
+
+          track.browser.moveTo(data.start - context, data.end + context, true);
+
+          return false;
+        });
+
         menuEl.data('highlightEvents', true);
       }
+    },
+
+    getClickedFeatures: function (x, y, target) {
+      var seen     = {};
+      var scale    = this.scale;
+      var features = $.grep(
+        // feature positions
+        this.featurePositions.search({ x: x, y: y, w: 1, h: 1 }).concat(
+          // plus label positions where the labels are visible
+          $.grep(this.labelPositions.search({ x: x, y: y, w: 1, h: 1 }), function (f) {
+            return f.position[scale].label.visible !== false;
+          })
+        ), function (f) {
+        // with duplicates removed
+        var rtn = !seen[f.id];
+        seen[f.id] = true;
+        return rtn;
+      });
+
+      return features.length ? [ this.model.sortFeatures(features) ] : false;
     }
   }),
 
@@ -172,6 +216,17 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   }),
 
   view: Genoverse.Track.View.extend({
+    positionFeatures: function (features, params) {
+      var rtn = this.base.apply(this, arguments);
+
+      // featureMargin.top gets used to define params.featureHeight, which is used to determine canvas height.
+      // Since featureMargin.top = 13 on forward strand, the canvas has a 13px space at the bottom, meaning there is a gap before the background starts.
+      // Reducing params.featureHeight here fixes that.
+      params.featureHeight -= this.featureMargin.top;
+
+      return rtn;
+    },
+
     draw: function (features, featureContext, labelContext, scale) {
       if (this.prop('strand') === 1) {
         featureContext.fillStyle = '#FFF';

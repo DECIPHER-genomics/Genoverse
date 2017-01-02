@@ -3,7 +3,7 @@ Genoverse.Track.File.BED = Genoverse.Track.File.extend({
   model         : Genoverse.Track.Model.File.BED,
   bump          : true,
   featureHeight : 6,
-  
+
   populateMenu: function (feature) {
     return {
       title       : '<a target=_blank href="https://genome.ucsc.edu/FAQ/FAQformat.html#format1">BED feature details</a>',

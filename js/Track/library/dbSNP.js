@@ -81,10 +81,10 @@ Genoverse.Track.dbSNP = Genoverse.Track.extend({
   populateMenu: function (feature) {
     var deferred = $.Deferred();
     var menu     = [{
-      title         : '<a href="http://www.ensembl.org/Homo_sapiens/Variation/Summary?v=' + feature.id + '" target="_blank">' + feature.id + '</a>',
-      Location      : this.browser.chr + ':' + feature.start + '-' + feature.end,
-      Consequence   : feature.consequence_type,
-      'Alt alleles' : feature.alt_alleles.join(', ')
+      title       : '<a href="http://www.ensembl.org/Homo_sapiens/Variation/Summary?v=' + feature.id + '" target="_blank">' + feature.id + '</a>',
+      Location    : this.browser.chr + ':' + feature.start + '-' + feature.end,
+      Consequence : feature.consequence_type,
+      Alleles     : feature.alleles.join(', ')
     }];
 
     $.ajax({

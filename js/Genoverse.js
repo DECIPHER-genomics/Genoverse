@@ -33,6 +33,8 @@ var Genoverse = Base.extend({
       return this.die('Your browser does not support this functionality');
     }
 
+    config = config || {};
+
     config.container = $(config.container); // Make sure container is a jquery object, jquery recognises itself automatically
 
     if (!(config.container && config.container.length)) {
@@ -61,10 +63,9 @@ var Genoverse = Base.extend({
         dataType : 'script',
         context  : this,
         success  : function () {
-          try {
-            this.genome = eval(genomeName);
-          } catch (e) {
-            console.log(e);
+          this.genome = Genoverse.Genomes[genomeName];
+
+          if (!this.genome) {
             this.die('Unable to load genome ' + genomeName);
           }
         }
@@ -192,7 +193,7 @@ var Genoverse = Base.extend({
 
     this.chr = coords.chr;
 
-    if (this.genome && !this.chromosomeSize) {
+    if (this.genome) {
       this.chromosomeSize = this.genome[this.chr].size;
     }
 
@@ -287,32 +288,20 @@ var Genoverse = Base.extend({
 
     for (var i = 0; i < this.tracks.length; i++) {
       if (this.tracks[i].id && !(this.tracks[i] instanceof Genoverse.Track.Legend) && !(this.tracks[i] instanceof Genoverse.Track.HighlightRegion)) {
+        // when saving height, initialHeight is the height of the track once margins have been added, while defaultHeight is the DEFINED height of the track.
+        // Subtracting the difference between them gives you back the correct height to input back into the track when loading configuration
         conf = {
-          id        : this.tracks[i].id,
-          namespace : this.tracks[i].namespace,
-          order     : this.tracks[i].order
+          id         : this.tracks[i].id,
+          namespace  : this.tracks[i].namespace,
+          order      : this.tracks[i].order,
+          autoHeight : this.tracks[i].autoHeight,
+          height     : this.tracks[i].height - (this.tracks[i].initialHeight - this.tracks[i].defaultHeight)
         };
-
-        // defaultAutoHeight is likely to be undefined, while autoHeight will be true or false
-        if (this.tracks[i].autoHeight !== !!this.tracks[i].defaultAutoHeight) {
-          conf.autoHeight = this.tracks[i].autoHeight;
-        }
-
-        if (!this.tracks[i].autoHeight && (
-          ( this.tracks[i].defaultAutoHeight && this.tracks[i].height !== this.tracks[i].prop('fullVisibleHeight')) ||
-          (!this.tracks[i].defaultAutoHeight && this.tracks[i].height !== this.tracks[i].initialHeight)
-        )) {
-          // initialHeight is the height of the track once margins have been added, while defaultHeight is the DEFINED height of the track
-          // Subtracting the difference between them gives you back the correct height to input back into the track when loading configuration
-          conf.height = this.tracks[i].height - (this.tracks[i].initialHeight - this.tracks[i].defaultHeight);
-        }
 
         if (this.tracks[i].config) {
           for (j in this.tracks[i].config) {
-            if (this.tracks[i].config[j] !== this.tracks[i].defaultConfig[j]) {
-              conf.config    = conf.config || {};
-              conf.config[j] = this.tracks[i].config[j];
-            }
+            conf.config    = conf.config || {};
+            conf.config[j] = this.tracks[i].config[j];
           }
         }
 
@@ -880,23 +869,25 @@ var Genoverse = Base.extend({
     this.setRange(start, end, true);
   },
 
-  addTrack: function (track, index) {
-    return this.addTracks([ track ], index)[0];
+  addTrack: function (track, after) {
+    return this.addTracks([ track ], after)[0];
   },
 
-  addTracks: function (tracks, index) {
+  addTracks: function (tracks, after) {
     var defaults = {
       browser : this,
       width   : this.width
     };
 
-    var push = !!tracks;
-    var j, namespaces, k;
+    var trackTypes = Genoverse.getAllTrackTypes();
+    var push       = !!tracks;
+    var order, j, namespaces, k;
 
     tracks = tracks || $.extend([], this.tracks);
-    index  = index  || 0;
 
-    var trackTypes = Genoverse.getAllTrackTypes();
+    if (push && !$.grep(this.tracks, function (t) { return typeof t === 'function'; }).length) {
+      order = (after ? $.grep(this.tracks, function (t) { return t.order < after; }) : this.tracks).sort(function (a, b) { return b.order - a.order; })[0].order + 0.001;
+    }
 
     for (var i = 0; i < tracks.length; i++) {
       namespaces = [];
@@ -929,7 +920,7 @@ var Genoverse = Base.extend({
 
       tracks[i] = new tracks[i]($.extend(defaults, {
         namespace : namespaces[0],
-        index     : i + index,
+        order     : (order || 0) + i,
         config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined
       }));
 
@@ -941,7 +932,7 @@ var Genoverse = Base.extend({
         this.tracks.push(tracks[i]);
 
         if (this.scale) {
-          tracks[i].controller.setScale(); // scale will only be set for tracks added after initalisation
+          tracks[i].controller.setScale(); // scale will only be set for tracks added after initalization
           tracks[i].controller.makeFirstImage();
         }
       } else {
@@ -1139,37 +1130,86 @@ var Genoverse = Base.extend({
     }
   }),
 
-  makeMenu: function (feature, event, track) {
+  makeMenu: function (features, event, track) {
+    if (!features) {
+      return false;
+    }
+
+    if (!$.isArray(features)) {
+      features = [ features ];
+    }
+
+    if (features.length === 0) {
+      return false;
+    } else if (features.length === 1) {
+      return this.makeFeatureMenu(features[0], event, track);
+    }
+
+    var browser = this;
+    var menu    = this.menuTemplate.clone(true).data({ browser: this });
+    var table   = $('.gv-menu-content', menu).addClass('gv-menu-content-first').find('table');
+
+    $('.gv-focus, .gv-highlight, .gv-menu-loading', menu).remove();
+    $('.gv-title', menu).html(features.length + ' features');
+
+    $.each(features.sort(function (a, b) { return a.start - b.start; }), function (i, feature) {
+      var location = (feature.chr || browser.chr) + ':' + feature.start + (feature.end === feature.start ? '' : '-' + feature.end);
+      var title    = feature.menuLabel || feature.name || ($.isArray(feature.label) ? feature.label.join(' ') : feature.label) || (feature.id + '');
+
+      $('<a href="#">').html(title.match(location) ? title : (location + ' ' + title)).on('click', function (e) {
+        browser.makeFeatureMenu(feature, e, track);
+        return false;
+      }).appendTo($('<td>').appendTo($('<tr>').appendTo(table)));
+    });
+
+    menu.appendTo(this.superContainer || this.container).show();
+
+    if (event) {
+      menu.css({ left: 0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' });
+    }
+
+    this.menus = this.menus.add(menu);
+
+    if (track) {
+      track.prop('menus', track.prop('menus').add(menu));
+    }
+
+    return menu;
+  },
+
+  makeFeatureMenu: function (feature, e, track) {
+    var browser   = this;
+    var container = this.superContainer || this.container;
+    var menu, content, loading, getMenu, isDeferred, i, j,  el, start, end, linkData, key, columns, colspan;
+
+    function focus() {
+      var data    = $(this).data();
+      var length  = data.end - data.start + 1;
+      var context = Math.max(Math.round(length / 4), 25);
+
+      browser.moveTo(data.start - context, data.end + context, true);
+
+      return false;
+    }
+
+    function highlight() {
+      browser.addHighlight($(this).data());
+      return false;
+    }
+
     if (!feature.menuEl) {
-      var browser    = this;
-      var menu       = this.menuTemplate.clone(true).data({ browser: this, feature: feature });
-      var content    = $('.gv-menu-content', menu).remove();
-      var loading    = $('.gv-menu-loading', menu);
-      var getMenu    = track ? track.controller.populateMenu(feature) : feature;
-      var isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
-      var i, j, table, el, start, end, linkData, key, columns, colspan;
-
-      function focus() {
-        var data    = $(this).data();
-        var length  = data.end - data.start + 1;
-        var context = Math.max(Math.round(length / 4), 25);
-
-        browser.moveTo(data.start - context, data.end + context, true);
-
-        return false;
-      }
-
-      function highlight() {
-        browser.addHighlight($(this).data());
-        return false;
-      }
+      menu       = browser.menuTemplate.clone(true).data({ browser: browser, feature: feature });
+      content    = $('.gv-menu-content', menu).remove();
+      loading    = $('.gv-menu-loading', menu);
+      getMenu    = track ? track.controller.populateMenu(feature) : feature;
+      isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
 
       if (isDeferred) {
         loading.show();
       }
 
       $.when(getMenu).done(function (properties) {
-        if (Object.prototype.toString.call(properties) !== '[object Array]') {
+        if (!$.isArray(properties)) {
           properties = [ properties ];
         }
 
@@ -1178,7 +1218,7 @@ var Genoverse = Base.extend({
           el      = content.clone().addClass(i ? '' : 'gv-menu-content-first').appendTo(menu);
           start   = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
           end     = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
-          columns = Math.max.apply(Math, $.map(properties[i], function (v) { return Object.prototype.toString.call(v) === '[object Array]' ? v.length : 1; }));
+          columns = Math.max.apply(Math, $.map(properties[i], function (v) { return $.isArray(v) ? v.length : 1; }));
 
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
@@ -1201,7 +1241,7 @@ var Genoverse = Base.extend({
               table  += '<tr><td' + colspan + '>' + key + '</td>';
 
               if (!colspan) {
-                if (Object.prototype.toString.call(properties[i][key]) === '[object Array]') {
+                if ($.isArray(properties[i][key])) {
                   for (j = 0; j < properties[i][key].length; j++) {
                     table += '<td>' + properties[i][key][j] + '</td>';
                   }
@@ -1216,7 +1256,7 @@ var Genoverse = Base.extend({
             }
           }
 
-          $('table', el).html(table);
+          $('table', el)[table ? 'html' : 'remove'](table);
         }
 
         if (isDeferred) {
@@ -1228,10 +1268,12 @@ var Genoverse = Base.extend({
         menu.addClass(track.id).data('track', track);
       }
 
-      feature.menuEl = menu.appendTo(this.superContainer || this.container);
+      feature.menuEl = menu.appendTo(container);
+    } else {
+      feature.menuEl.appendTo(container); // Move the menu to the end of the container again, so that it will always be on top of other menus
     }
 
-    this.menus = this.menus.add(feature.menuEl);
+    browser.menus = browser.menus.add(feature.menuEl);
 
     if (track) {
       track.prop('menus', track.prop('menus').add(feature.menuEl));
@@ -1239,8 +1281,8 @@ var Genoverse = Base.extend({
 
     feature.menuEl.show(); // Must show before positioning, else position will be wrong
 
-    if (event) {
-      feature.menuEl.css({ left: 0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' });
+    if (e) {
+      feature.menuEl.css({ left: 0, top: 0 }).position({ of: e, my: 'left top', collision: 'flipfit' });
     }
 
     return feature.menuEl;
@@ -1344,6 +1386,11 @@ var Genoverse = Base.extend({
   destroy: function () {
     this.onTracks('destructor');
     (this.superContainer || this.container).empty();
+
+    if (this.zoomInHighlight) {
+      this.zoomInHighlight.add(this.zoomOutHighlight).remove();
+    }
+
     $(window).add(document).off(this.eventNamespace);
 
     for (var key in this) {
@@ -1351,6 +1398,7 @@ var Genoverse = Base.extend({
     }
   }
 }, {
+  Genomes: {},
   Plugins: {},
 
   wrapFunctions: function (obj) {
@@ -1375,7 +1423,17 @@ var Genoverse = Base.extend({
     var isBrowser = obj instanceof Genoverse;
     var mainObj   = isBrowser || obj instanceof Genoverse.Track ? obj : obj.track;
     var events    = isBrowser ? obj.events.browser : obj.browser.events.tracks;
-    var debug     = (isBrowser ? 'Genoverse' : obj.id || obj.name || 'Track') + '.' + key;
+    var debug;
+
+    if (mainObj.debug) {
+      debug = [ isBrowser ? 'Genoverse' : mainObj.id || mainObj.name || 'Track' ];
+
+      if (!isBrowser && obj !== mainObj) {
+        debug.push(obj instanceof Genoverse.Track.Controller ? 'Controller' : obj instanceof Genoverse.Track.Model ? 'Model' : 'View');
+      }
+
+      debug = debug.concat(key).join('.');
+    }
 
     obj.functions[key] = obj[key];
 
@@ -1384,10 +1442,10 @@ var Genoverse = Base.extend({
       var rtn;
 
       // Debugging functionality
-      // Enabled by "debug": true || { functionName: true, ...} option
-      if (obj.debug === true) {                                     // if "debug": true, simply log function call
+      // Enabled by "debug": true || 'time' || { functionName: true, ...} option
+      if (mainObj.debug === true) { // if "debug": true, simply log function call
         console.log(debug);
-      } else if (typeof obj.debug === 'object' && obj.debug[key]) { // if debug: { functionName: true, ...}, log function time
+      } else if (mainObj.debug === 'time' || (typeof mainObj.debug === 'object' && mainObj.debug[key])) { // if debug: 'time' || { functionName: true, ...}, log function time
         console.time('time: ' + debug);
       }
 
@@ -1408,7 +1466,7 @@ var Genoverse = Base.extend({
       rtn = this.functions[key].apply(this, args);
       trigger.call(this, 'after');
 
-      if (typeof obj.debug === 'object' && obj.debug[key]) {
+      if (mainObj.debug === 'time' || (typeof mainObj.debug === 'object' && mainObj.debug[key])) {
         console.timeEnd('time: ' + debug);
       }
 

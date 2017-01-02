@@ -1,17 +1,18 @@
 Genoverse.Track.View = Base.extend({
-  fontHeight      : 10,
-  fontFamily      : 'sans-serif',
-  fontWeight      : 'normal',
-  fontColor       : '#000000',
-  color           : '#000000',
-  minScaledWidth  : 0.5,
-  widthCorrection : 1, // Pixels to add to the end of a feature when scale > 1 - ensures that 1bp features are always at least 1px wide
-  labels          : true,
-  repeatLabels    : false,
-  bump            : false,
-  depth           : undefined,
-  featureHeight   : undefined, // defaults to track height
-  featureMargin   : undefined, // e.g. { top: 3, right: 1, bottom: 1, left: 0 }
+  fontHeight       : 10,
+  fontFamily       : 'sans-serif',
+  fontWeight       : 'normal',
+  fontColor        : undefined, // label color defaults to this, or feature color, or track.color (below), in that order of precedence
+  color            : '#000000',
+  minScaledWidth   : 0.5,
+  widthCorrection  : 1, // Pixels to add to the end of a feature when scale > 1 - ensures that 1bp features are always at least 1px wide
+  labels           : true,
+  repeatLabels     : false,
+  bump             : false,
+  alwaysReposition : false,
+  depth            : undefined,
+  featureHeight    : undefined, // defaults to track height
+  featureMargin    : undefined, // e.g. { top: 3, right: 1, bottom: 1, left: 0 }
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -28,11 +29,11 @@ Genoverse.Track.View = Base.extend({
   setDefaults: function () {
     this.featureMargin = this.featureMargin || { top: 3, right: 1, bottom: 1, left: 0 };
 
-    var margin = [ 'Top', 'Right', 'Bottom', 'Left' ];
+    var margin = [ 'top', 'right', 'bottom', 'left' ];
 
     for (var i = 0; i < margin.length; i++) {
-      if (typeof this['featureMargin' + margin[i]] === 'number') {
-        this.featureMargin[margin[i].toLowerCase()] = this['featureMargin' + margin[i]];
+      if (typeof this.featureMargin[margin[i]] !== 'number') {
+        this.featureMargin[margin[i]] = 0;
       }
     }
 
@@ -40,6 +41,8 @@ Genoverse.Track.View = Base.extend({
     this.featureHeight = typeof this.featureHeight !== 'undefined' ? this.featureHeight : this.prop('defaultHeight');
     this.font          = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
     this.labelUnits    = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
+
+    this.context.font = this.font;
 
     if (this.labels && this.labels !== 'overlay' && (this.depth || this.bump === 'labels')) {
       this.labels = 'separate';
@@ -105,10 +108,10 @@ Genoverse.Track.View = Base.extend({
 
     feature.position[scale].X = feature.position[scale].start - params.scaledStart; // FIXME: always have to reposition for X, in case a feature appears in 2 images. Pass scaledStart around instead?
 
-    if (!feature.position[scale].positioned) {
+    if (this.alwaysReposition || !feature.position[scale].positioned) {
       feature.position[scale].H = feature.position[scale].height + this.featureMargin.bottom;
-      feature.position[scale].W = feature.position[scale].width + (feature.marginRight || this.featureMargin.right);
-      feature.position[scale].Y = (typeof feature.y === 'number' ? feature.y * feature.position[scale].H : 0) + this.featureMargin.top;
+      feature.position[scale].W = feature.position[scale].width  + (feature.marginRight || this.featureMargin.right);
+      feature.position[scale].Y = (typeof feature.y === 'number' ? feature.y * feature.position[scale].H : 0) + (feature.marginTop || this.featureMargin.top);
 
       if (feature.label) {
         if (typeof feature.label === 'string') {
@@ -137,8 +140,10 @@ Genoverse.Track.View = Base.extend({
         x: feature.position[scale].start,
         y: feature.position[scale].Y,
         w: feature.position[scale].W,
-        h: feature.position[scale].H + this.featureMargin.top
+        h: feature.position[scale].H + (feature.marginTop || this.featureMargin.top)
       };
+
+      feature.position[scale].bounds = bounds;
 
       if (this.bump === true) {
         this.bumpFeature(bounds, feature, scale, this.scaleSettings[scale].featurePositions);
@@ -146,7 +151,7 @@ Genoverse.Track.View = Base.extend({
 
       this.scaleSettings[scale].featurePositions.insert(bounds, feature);
 
-      feature.position[scale].bottom = feature.position[scale].Y + feature.position[scale].H + params.margin;
+      feature.position[scale].bottom = feature.position[scale].Y + bounds.h + params.margin;
 
       if (feature.position[scale].label) {
         var f = $.extend(true, {}, feature); // FIXME: hack to avoid changing feature.position[scale].Y in bumpFeature
@@ -170,9 +175,11 @@ Genoverse.Track.View = Base.extend({
     params.height        = Math.max(params.height, params.featureHeight + params.labelHeight);
   },
 
+  // FIXME: should label bumping bounds be distinct from feature bumping bounds when label is smaller than feature?
   bumpFeature: function (bounds, feature, scale, tree) {
-    var depth = 0;
-    var bump;
+    var depth  = 0;
+    var labels = tree === this.scaleSettings[scale].labelPositions && tree !== this.scaleSettings[scale].featurePositions;
+    var bump, clash;
 
     do {
       if (this.depth && ++depth >= this.depth) {
@@ -183,11 +190,12 @@ Genoverse.Track.View = Base.extend({
         break;
       }
 
-      bump = false;
+      bump  = false;
+      clash = tree.search(bounds)[0];
 
-      if ((tree.search(bounds)[0] || feature).id !== feature.id) {
-        bounds.y += bounds.h;
-        bump      = true;
+      if (clash && clash.id !== feature.id) {
+        bounds.y = clash.position[scale][labels ? 'label' : 'bounds'].y + clash.position[scale][labels ? 'label' : 'bounds'].h;
+        bump     = true;
       }
     } while (bump);
 
@@ -234,6 +242,10 @@ Genoverse.Track.View = Base.extend({
       featureContext.fillRect(feature.x, feature.y, feature.width, feature.height);
     }
 
+    if (feature.clear === true) {
+      featureContext.clearRect(feature.x, feature.y, feature.width, feature.height);
+    }
+
     if (this.labels && feature.label) {
       this.drawLabel(feature, labelContext, scale);
     }
@@ -265,11 +277,11 @@ Genoverse.Track.View = Base.extend({
     }
 
     var x       = (original || feature).x;
-    var n       = this.repeatLabels ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) : 1;
+    var n       = this.repeatLabels ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) || 1 : 1;
     var spacing = width / n;
     var label, start, j, y, currentY, h;
 
-    if (this.repeatLabels && scale > 1) {
+    if (this.repeatLabels && (scale > 1 || this.labels !== 'overlay')) { // Ensure there's always a label in each image
       spacing = this.browser.length * scale;
       n = Math.ceil(width / spacing);
     }
@@ -309,6 +321,7 @@ Genoverse.Track.View = Base.extend({
           currentY = y + (j * h);
 
           if (context.labelPositions && context.labelPositions.search({ x: start, y: currentY, w: feature.labelWidth, h: h }).length) {
+            feature.position[scale].label.visible = false;
             continue;
           }
 
@@ -327,7 +340,7 @@ Genoverse.Track.View = Base.extend({
   },
 
   setLabelColor: function (feature) {
-    feature.labelColor = feature.color || this.fontColor || this.color;
+    feature.labelColor = this.fontColor || feature.color || this.color;
   },
 
   // Method to lighten a colour by an amount, adapted from http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors

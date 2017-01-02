@@ -1,7 +1,8 @@
 Genoverse.Track.Controller = Base.extend({
-  scrollBuffer : 1.2,       // Number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
-  threshold    : Infinity,  // Length above which the track is not drawn
-  messages     : undefined,
+  scrollBuffer   : 1.2,      // Number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
+  threshold      : Infinity, // Length above which the track is not drawn
+  clickTolerance : 0,        // pixels of tolerance added to a click position when finding features for popup menus, when scale < 1
+  messages       : undefined,
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -122,10 +123,25 @@ Genoverse.Track.Controller = Base.extend({
       y = target.height() - y;
     }
 
-    var f = this[e.target.className === 'gv-labels' ? 'labelPositions' : 'featurePositions'].search({ x: x, y: y, w: 1, h: 1 }).sort(function (a, b) { return a.sort - b.sort; })[0];
+    return this.browser.makeMenu(this.getClickedFeatures(x, y, target), e, this.track);
+  },
 
-    if (f) {
-      return this.browser.makeMenu(f, e, this.track);
+  getClickedFeatures: function (x, y, target) {
+    var bounds    = { x: x, y: y, w: 1, h: 1 };
+    var scale     = this.scale;
+    var tolerance = scale < 1 ? this.clickTolerance : 0;
+
+    if (tolerance) {
+      bounds.x -= tolerance / 2;
+      bounds.w += tolerance;
+    }
+
+    var features = this[target && target.hasClass('gv-labels') ? 'labelPositions' : 'featurePositions'].search(bounds);
+
+    if (tolerance) {
+      return features.sort(function (a, b) { return Math.abs(a.position[scale].start - x) - Math.abs(b.position[scale].start - x); });
+    } else {
+      return this.model.sortFeatures(features);
     }
   },
 
@@ -148,7 +164,7 @@ Genoverse.Track.Controller = Base.extend({
     var height = this.messageContainer.show().outerHeight(true);
 
     if (height > this.prop('height')) {
-      this.resize(height);
+      this.resize(height, undefined, false);
     }
 
     messages = null;
@@ -224,7 +240,7 @@ Genoverse.Track.Controller = Base.extend({
     if (autoHeight || this.prop('labels') === 'separate') {
       this.resize(autoHeight ? this.fullVisibleHeight : this.prop('height'), this.labelTop, false);
     } else {
-      this.toggleExpander();
+      this.toggleExpander(false);
     }
   },
 
@@ -243,7 +259,7 @@ Genoverse.Track.Controller = Base.extend({
     }
   },
 
-  toggleExpander: function () {
+  toggleExpander: function (saveConfig) {
     if (this.prop('resizable') !== true) {
       return;
     }
@@ -263,7 +279,7 @@ Genoverse.Track.Controller = Base.extend({
       var h          = this.messageContainer.outerHeight(true);
 
       if (h > height) {
-        this.resize(h);
+        this.resize(h, undefined, saveConfig);
       }
 
       this.expander = (this.expander || $('<div class="gv-expander gv-static">').width(this.width).appendTo(this.container).on('click', function () {

@@ -1,14 +1,14 @@
 Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
   parseData: function (text) {
     var lines = text.split('\n');
-    
+
     for (var i = 0; i < lines.length; i++) {
       var fields = lines[i].split('\t');
-      
+
       if (fields.length < 3) {
         continue;
       }
-      
+
       if (fields[0] === this.browser.chr || fields[0].toLowerCase() === 'chr' + this.browser.chr || fields[0].match('[^1-9]' + this.browser.chr + '$')) {
         var score = parseFloat(fields[4], 10);
         var color = '#000000';
@@ -29,7 +29,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
         });
       }
     }
-  },  
+  },
 
   // As per https://genome.ucsc.edu/FAQ/FAQformat.html#format1 specification
   scoreColor: function (score) {
@@ -43,4 +43,4 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
     if (score <= 944) { return 'rgb(21,21,21)';    }
     return '#000000';
   }
-});  
+});

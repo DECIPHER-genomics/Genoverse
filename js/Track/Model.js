@@ -5,6 +5,7 @@ Genoverse.Track.Model = Base.extend({
   xhrFields  : undefined,
   url        : undefined,
   urlParams  : undefined, // hash of URL params
+  data       : undefined, // if defined, will be used instead of fetching data from a source
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -15,7 +16,7 @@ Genoverse.Track.Model = Base.extend({
   init: function (reset) {
     this.setDefaults(reset);
 
-    if (reset) {
+    if (reset && !this.data) {
       for (var i in this.featuresById) {
         delete this.featuresById[i].position;
       }
@@ -32,6 +33,8 @@ Genoverse.Track.Model = Base.extend({
     this.dataBuffer = this.dataBuffer || { start: 0, end: 0 }; // basepairs to extend data region for, when getting data from the origin
     this.urlParams  = this.urlParams  || {};                   // hash of URL params
     this.xhrFields  = this.xhrFields  || {};
+
+    this.dataBufferStart = this.dataBuffer.start; // Remember original dataBuffer.start, since dataBuffer.start is updated based on browser scale, in setLabelBuffer
 
     if (!this._url) {
       this._url = this.url; // Remember original url
@@ -61,21 +64,27 @@ Genoverse.Track.Model = Base.extend({
       end   = this.browser.chromosomeSize;
     }
 
-    return (url || this.url).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
+    return (url || this.url).replace(/__ASSEMBLY__/, this.browser.assembly).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
   },
 
   setLabelBuffer: function (buffer) {
-    this.dataBuffer.start = Math.max(this.dataBuffer.start, buffer);
+    this.dataBuffer.start = Math.max(this.dataBufferStart, buffer);
   },
 
   getData: function (start, end, done) {
     start = Math.max(1, start);
     end   = Math.min(this.browser.chromosomeSize, end);
 
-    var model    = this;
     var deferred = $.Deferred();
-    var bins     = [];
-    var length   = end - start + 1;
+
+    if (typeof this.data !== 'undefined') {
+      this.receiveData(typeof this.data.sort === 'function' ? this.data.sort(function (a, b) { return a.start - b.start; }) : this.data, start, end);
+      return deferred.resolveWith(this);
+    }
+
+    var model  = this;
+    var bins   = [];
+    var length = end - start + 1;
 
     if (!this.url) {
       return deferred.resolveWith(this);
@@ -149,14 +158,21 @@ Genoverse.Track.Model = Base.extend({
   * and call this.insertFeature(feature)
   */
   parseData: function (data, start, end) {
+    var feature;
+
     // Example of parseData function when data is an array of hashes like { start: ..., end: ... }
     for (var i = 0; i < data.length; i++) {
-      var feature = data[i];
+      feature = data[i];
 
       feature.sort = start + i;
 
       this.insertFeature(feature);
     }
+  },
+
+  updateData: function (data) {
+    this.data = data;
+    this.track.reset();
   },
 
   setDataRange: function (start, end) {
@@ -197,7 +213,7 @@ Genoverse.Track.Model = Base.extend({
   insertFeature: function (feature) {
     // Make sure we have a unique ID, this method is not efficient, so better supply your own id
     if (!feature.id) {
-      feature.id = feature.ID || this.hashCode(JSON.stringify(feature));
+      feature.id = feature.ID || this.hashCode(JSON.stringify($.extend({}, feature, { sort: '' }))); // sort is dependant on the browser's region, so will change on zoom
     }
 
     if (!this.featuresById[feature.id]) {

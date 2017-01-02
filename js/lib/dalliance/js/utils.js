@@ -1,6 +1,6 @@
 /* -*- mode: javascript; c-basic-offset: 4; indent-tabs-mode: nil -*- */
 
-// 
+//
 // Dalliance Genome Explorer
 // (c) Thomas Down 2006-2010
 //
@@ -141,7 +141,7 @@ function makeElement(tag, children, attribs, styles)
             ele.appendChild(c);
         }
     }
-    
+
     if (attribs) {
         for (var l in attribs) {
             ele[l] = attribs[l];
@@ -170,7 +170,7 @@ function makeElementNS(namespace, tag, children, attribs)
             ele.appendChild(c);
         }
     }
-    
+
     setAttrs(ele, attribs);
     return ele;
 }
@@ -325,15 +325,15 @@ Awaited.prototype.await = function(f) {
 function textXHR(url, callback, opts) {
     var req = new XMLHttpRequest();
     req.onreadystatechange = function() {
-    	if (req.readyState == 4) {
-    	    if (req.status >= 300) {
-    		    callback(null, 'Error code ' + req.status);
-    	    } else {
-    		    callback(req.responseText);
-    	    }
-    	}
+      if (req.readyState == 4) {
+          if (req.status >= 300) {
+            callback(null, 'Error code ' + req.status);
+          } else {
+            callback(req.responseText);
+          }
+      }
     };
-    
+
     req.open('GET', url, true);
     req.responseType = 'text';
 
@@ -361,7 +361,7 @@ function relativeURL(base, rel) {
 
 //
 // Missing APIs
-// 
+//
 
 if (!('trim' in String.prototype)) {
     String.prototype.trim = function() {
