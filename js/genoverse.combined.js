@@ -6598,6 +6598,14 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
         if (legend) {
           legend.controller.makeImage({});
         }
+      },
+
+      afterSetMVC: function () {
+        var legend = this.prop('legendTrack');
+
+        if (legend) {
+          legend[this.legend ? 'enable' : 'disable']();
+        }
       }
     }, this);
   },
