@@ -3029,9 +3029,13 @@ Genoverse.Track = Base.extend({
     var settings, value, deepCopy, prevLengthMap, mvSettings, type, prevType, i, j;
 
     function compare(a, b) {
-      var checked = {};
+      var checked = { browser: true, width: true, track: true }; // Properties set in newMVC should be ignored, as they will be missing if comparing an object with a prototype
 
       for (var key in a) {
+        if (checked[key]) {
+          continue;
+        }
+
         checked[key] = true;
 
         if (typeof a[key] !== typeof b[key]) {
@@ -3040,7 +3044,7 @@ Genoverse.Track = Base.extend({
           if (a[key].toString() !== b[key].toString()) {
             return false;
           }
-        } else if (typeof a[key] === 'object' && !compare(a[key], b[key])) {
+        } else if (typeof a[key] === 'object' && !(a[key] instanceof $) && !compare(a[key], b[key])) {
           return false;
         } else if (a[key] !== b[key]) {
           return false;
@@ -3156,7 +3160,7 @@ Genoverse.Track = Base.extend({
             // If the track already has this.models/this.views and the prototype of the new model/view is the same as the value of this.models/this.views for the same length key, reuse that value.
             // This can happen if the track has configSettings and the user changes config but that only affects one of the model and view.
             // Again, reusing the old value stops the need to fetch identical data or draw identical images more than once.
-            if (prevType[lengthMap[i][0]] && compare(prevType[lengthMap[i][0]].constructor.prototype, settings[type].constructor.prototype)) {
+            if (prevType[lengthMap[i][0]] && compare(prevType[lengthMap[i][0]].constructor.prototype, $.extend({}, settings[type].constructor.prototype, mvSettings[type].prop))) {
               settings[type] = prevType[lengthMap[i][0]];
             }
           }
@@ -3286,12 +3290,18 @@ Genoverse.Track = Base.extend({
   },
 
   reset: function () {
-    if (this.prop('url') !== false) {
-      this.model.init(true);
+    this.setLengthMap();
+
+    for (var i in this.models) {
+      if (this.models[i].url !== false) {
+        this.models[i].init(true);
+      }
     }
 
-    this.view.init();
-    this.setLengthMap();
+    for (i in this.views) {
+      this.views[i].init();
+    }
+
     this.controller.reset.apply(this.controller, arguments);
   },
 
