@@ -55,6 +55,8 @@ Genoverse.Track = Base.extend({
         this.config[i] = this.defaultConfig[i];
       }
     }
+
+    this._setCurrentConfig();
   },
 
   setInterface: function () {
@@ -82,6 +84,7 @@ Genoverse.Track = Base.extend({
     var settings           = $.extend(true, {}, this.constructor.prototype, this.getSettingsForLength()[1]); // model, view, options
     var controllerSettings = { prop: {}, func: {} };
     var trackSettings      = {};
+    var i;
 
     settings.controller = settings.controller || this.controller || Genoverse.Track.Controller;
 
@@ -104,6 +107,32 @@ Genoverse.Track = Base.extend({
     for (i in this._defaults) {
       if (typeof trackSettings[i] === 'undefined') {
         trackSettings[i] = this._defaults[i];
+      }
+    }
+
+    // If there are configSettings for the track, ensure that any properties in _currentConfig are set for the model/view/controller/track as appropriate.
+    // Functions in _currentConfig are accessed via Genoverse.functionWrap, so nothing needs to be done with them here.
+    if (!$.isEmptyObject(this._currentConfig)) {
+      var changed = {};
+      var type;
+
+      for (i in this._currentConfig.prop) {
+        type = this._interface[i];
+
+        if (/model|view/.test(type)) {
+          if (trackSettings[type][i] !== this._currentConfig.prop[i]) {
+            trackSettings[type][i] = this._currentConfig.prop[i];
+            changed[type] = true;
+          }
+        } else if (type === 'controller') {
+          controllerSettings.prop[i] = this._currentConfig.prop[i];
+        } else {
+          trackSettings[i] = this._currentConfig.prop[i];
+        }
+      }
+
+      for (type in changed) {
+        trackSettings[type].setDefaults(true);
       }
     }
 
@@ -138,7 +167,8 @@ Genoverse.Track = Base.extend({
     if (!this.controller || typeof this.controller === 'function') {
       this.controller = this.newMVC(settings.controller, controllerSettings.func, $.extend(controllerSettings.prop, { model: this.model, view: this.view }));
     } else {
-      $.extend(this.controller, { model: this.model, view: this.view, threshold: controllerSettings.prop.threshold || this.controller.constructor.prototype.threshold });
+      controllerSettings.prop.threshold = controllerSettings.prop.threshold || this.controller.constructor.prototype.threshold;
+      $.extend(this.controller, controllerSettings.prop, { model: this.model, view: this.view });
     }
 
     if (this.strand === -1 && this.orderReverse) {
@@ -161,12 +191,10 @@ Genoverse.Track = Base.extend({
   },
 
   setLengthMap: function () {
-    var mv             = [ 'model', 'view' ];
-    var featureFilters = [];
-    var configSettings = [];
-    var lengthMap      = [];
-    var models         = {};
-    var views          = {};
+    var mv        = [ 'model', 'view' ];
+    var lengthMap = [];
+    var models    = {};
+    var views     = {};
     var settings, value, deepCopy, prevLengthMap, mvSettings, type, prevType, i, j;
 
     function compare(a, b) {
@@ -201,23 +229,6 @@ Genoverse.Track = Base.extend({
       return true;
     }
 
-    // Find configuration settings, force them into each lengthMap setting
-    for (i in this.configSettings) {
-      settings = this.getConfig(i);
-
-      if (settings) {
-        configSettings.push(settings);
-
-        if (settings.featureFilter) {
-          featureFilters.push(settings.featureFilter);
-        }
-      }
-    }
-
-    if (configSettings.length) {
-      configSettings = $.extend.apply($, [ true, {} ].concat(configSettings, { featureFilters: featureFilters }));
-    }
-
     // Find all scale-map like keys
     for (var key in this) {
       if (!isNaN(key)) {
@@ -234,8 +245,6 @@ Genoverse.Track = Base.extend({
     lengthMap = lengthMap.sort(function (a, b) { return b[0] - a[0]; });
 
     for (i = 0; i < lengthMap.length; i++) {
-      $.extend(lengthMap[i][1], configSettings); // Add configSettings to the lengthMap entries
-
       if (lengthMap[i][1].model && lengthMap[i][1].view) {
         continue;
       }
@@ -383,19 +392,68 @@ Genoverse.Track = Base.extend({
     }
   },
 
-  setConfig: function (type, config) {
-    if (this.configSettings[type][config]) {
-      this.config[type] = config;
+  setConfig: function (config) {
+    if (typeof config === 'string' && arguments.length === 2) {
+      var _config = {};
+      _config[config] = arguments[1];
+      config = _config;
+    }
 
+    var configChanged = false;
+    var conf;
+
+    for (var type in config) {
+      conf = config[type];
+
+      if (typeof this.configSettings[type] === 'undefined' || typeof this.configSettings[type][conf] === 'undefined' || this.config[type] === conf) {
+        continue;
+      }
+
+      this.config[type] = conf;
+
+      configChanged = true;
+    }
+
+    if (configChanged) {
       var features = this.prop('featuresById');
 
       for (var i in features) {
         delete features[i].menuEl;
       }
+
+      this._setCurrentConfig();
+      this.reset();
+      this.browser.saveConfig();
+    }
+  },
+
+  _setCurrentConfig: function () {
+    var settings       = [];
+    var featureFilters = [];
+    var conf;
+
+    this._currentConfig = { prop: {}, func: {} };
+
+    for (i in this.configSettings) {
+      conf = this.getConfig(i);
+
+      if (conf) {
+        settings.push(conf);
+
+        if (conf.featureFilter) {
+          featureFilters.push(conf.featureFilter);
+        }
+      }
     }
 
-    this.reset();
-    this.browser.saveConfig();
+    if (settings.length) {
+      settings = $.extend.apply($, [ true, {} ].concat(settings, { featureFilters: featureFilters }));
+      delete settings.featureFilter;
+    }
+
+    for (i in settings) {
+      this._currentConfig[typeof settings[i] === 'function' && !/^(before|after)/.test(i) ? 'func' : 'prop'][i] = settings[i];
+    }
   },
 
   getConfig: function (type) {
