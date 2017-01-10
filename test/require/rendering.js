@@ -35,54 +35,6 @@ function getDrawingInstructions(draw, region, type, strand) {
 }
 
 function getTrackConfig(features, draw) {
-  function testCanvas(track, image, height, instructionType, strand) {
-    var region       = image.data('start') + '-' + image.data('end');
-    var instructions = getDrawingInstructions(draw, region, instructionType, strand);
-
-    if (/^(background|legend)$/.test(instructionType) && !instructions.length) {
-      return;
-    }
-
-    var canvas  = document.createElement('canvas');
-    var context = canvas.getContext('2d');
-
-    canvas.width  = image.data('width');
-    canvas.height = height;
-
-    if (track.prop('labels') === 'overlay') {
-      context.textAlign    = 'center';
-      context.textBaseline = 'middle';
-    } else {
-      context.textAlign    = 'left';
-      context.textBaseline = 'top';
-    }
-
-    context.font      = track.prop('font');
-    context.lineWidth = 1;
-
-    instructions.forEach(function (instruction) {
-      if (typeof instruction === 'function') {
-        return instruction(context);
-      }
-
-      var func   = typeof instruction[0] === 'string' ? instruction.shift() : 'fillRect';
-      var fill   = /fill/.test(func);
-      var style  = fill ? 'fillStyle' : 'strokeStyle';
-      var color;
-
-      if (typeof instruction[instruction.length - 1] === 'string') {
-        color = instruction.pop();
-      } else {
-        color = (fill ? '' : track.prop('borderColor')) || track.prop('color') || 'black';
-      }
-
-      context[style] = color;
-      context[func].apply(context, instruction);
-    });
-
-    expect(canvas.toDataURL()).toEqual(image[0].src, [ 'Drawing is incorrect for', region, instructionType, (strand ? strand === 1 ? 'forward strand' : 'reverse strand' : '') ].filter(function (a) { return a; }).join(' '));
-  }
-
   return {
     data: features,
 
@@ -117,6 +69,7 @@ function getTrackConfig(features, draw) {
       tests.forEach(function (test) {
         testCanvas(
           track,
+          draw,
           test.img,
           test.img.data(test.type === 'labels' ? 'labelHeight' : 'featureHeight'),
           typeof test.instructionType !== 'undefined' ? test.instructionType : test.type,
@@ -130,6 +83,7 @@ function getTrackConfig(features, draw) {
     afterRenderBackground: function (f, image, height) {
       testCanvas(
         this,
+        draw,
         image,
         height || 1,
         'background',
@@ -139,6 +93,54 @@ function getTrackConfig(features, draw) {
       image.next().data('_testDeferred').background.resolve();
     }
   };
+};
+
+global.testCanvas = function (track, draw, image, height, instructionType, strand) {
+  var region       = image.data('start') + '-' + image.data('end');
+  var instructions = getDrawingInstructions(draw, region, instructionType, strand);
+
+  if (/^(background|legend)$/.test(instructionType) && !instructions.length) {
+    return;
+  }
+
+  var canvas  = document.createElement('canvas');
+  var context = canvas.getContext('2d');
+
+  canvas.width  = image.data('width');
+  canvas.height = height;
+
+  if (track.prop('labels') === 'overlay') {
+    context.textAlign    = 'center';
+    context.textBaseline = 'middle';
+  } else {
+    context.textAlign    = 'left';
+    context.textBaseline = 'top';
+  }
+
+  context.font      = track.prop('font');
+  context.lineWidth = 1;
+
+  instructions.forEach(function (instruction) {
+    if (typeof instruction === 'function') {
+      return instruction(context);
+    }
+
+    var func   = typeof instruction[0] === 'string' ? instruction.shift() : 'fillRect';
+    var fill   = /fill/.test(func);
+    var style  = fill ? 'fillStyle' : 'strokeStyle';
+    var color;
+
+    if (typeof instruction[instruction.length - 1] === 'string') {
+      color = instruction.pop();
+    } else {
+      color = (fill ? '' : track.prop('borderColor')) || track.prop('color') || 'black';
+    }
+
+    context[style] = color;
+    context[func].apply(context, instruction);
+  });
+
+  expect(canvas.toDataURL()).toEqual(image[0].src, [ 'Drawing is incorrect for', region, instructionType, (strand ? strand === 1 ? 'forward strand' : 'reverse strand' : '') ].filter(function (a) { return a; }).join(' '));
 };
 
 global.testTrackRender = function (features, track, draw, genoverseConfig) {
