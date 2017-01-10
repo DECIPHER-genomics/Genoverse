@@ -1415,7 +1415,7 @@ var Genoverse = Base.extend({
   functionWrap: function (key, obj) {
     obj.functions = obj.functions || {};
 
-    if (obj.functions[key] || key.match(/^(before|after)/)) {
+    if (obj.functions[key] || /^(before|after)/.test(key)) {
       return;
     }
 
@@ -1438,7 +1438,8 @@ var Genoverse = Base.extend({
     obj.functions[key] = obj[key];
 
     obj[key] = function () {
-      var args = [].slice.call(arguments);
+      var args          = [].slice.call(arguments);
+      var currentConfig = (this._currentConfig || (this.track ? this.track._currentConfig : {}) || {}).func;
       var rtn;
 
       // Debugging functionality
@@ -1463,7 +1464,17 @@ var Genoverse = Base.extend({
       }
 
       trigger.call(this, 'before');
-      rtn = this.functions[key].apply(this, args);
+
+      if (currentConfig && currentConfig[key]) {
+         // override to add a value for this.base
+        rtn = function () {
+          this.base = this.functions[key] || function () {};
+          return currentConfig[key].apply(this, arguments);
+        }.apply(this, args);
+      } else {
+        rtn = this.functions[key].apply(this, args);
+      }
+
       trigger.call(this, 'after');
 
       if (mainObj.debug === 'time' || (typeof mainObj.debug === 'object' && mainObj.debug[key])) {

@@ -16,11 +16,13 @@ Genoverse.Track.Model = Base.extend({
   init: function (reset) {
     this.setDefaults(reset);
 
-    if (reset && !this.data) {
+    if (reset) {
       for (var i in this.featuresById) {
         delete this.featuresById[i].position;
       }
-    } else {
+    }
+
+    if (!reset || this.data) {
       this.dataRanges   = new RTree();
       this.features     = new RTree();
       this.featuresById = {};

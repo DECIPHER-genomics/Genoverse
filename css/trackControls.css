@@ -20,7 +20,7 @@
 
 .gv-track-controls-plugin .gv-track-container div.gv-track-controls > * {
   display: inline-block;
-  width: 20px;
+  min-width: 20px;
   text-align: center;
 }
 
@@ -57,6 +57,5 @@
 }
 
 .gv-track-controls-plugin .gv-track-container div.gv-track-controls select {
-  width: auto;
   margin: 0 5px;
 }
