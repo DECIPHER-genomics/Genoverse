@@ -168,7 +168,11 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
         var legend = this.prop('legendTrack');
 
         if (legend) {
-          legend[this.legend ? 'enable' : 'disable']();
+          legend.disable();
+
+          if (this.legend !== false) {
+            legend.enable();
+          }
         }
       }
     }, this);

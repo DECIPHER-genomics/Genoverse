@@ -4412,7 +4412,7 @@ Genoverse.Track.View = Base.extend({
 
         this.drawFeature(f, featureContext, labelContext, scale);
 
-        if (f.legend && !feature.legend) {
+        if (f.legend !== feature.legend) {
           feature.legend      = f.legend;
           feature.legendColor = f.color;
         }
@@ -6676,7 +6676,11 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
         var legend = this.prop('legendTrack');
 
         if (legend) {
-          legend[this.legend ? 'enable' : 'disable']();
+          legend.disable();
+
+          if (this.legend !== false) {
+            legend.enable();
+          }
         }
       }
     }, this);
