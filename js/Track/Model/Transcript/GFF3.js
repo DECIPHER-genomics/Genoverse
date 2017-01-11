@@ -9,7 +9,7 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
     cds   : 'cds'
   },
 
-  parseData: function (text) {
+  parseData: function (text, chr) {
     var lines = text.split('\n');
 
     for (var i = 0; i < lines.length; i++) {
@@ -23,10 +23,11 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
         continue;
       }
 
-      if (fields[0] === this.browser.chr || fields[0].toLowerCase() === 'chr' + this.browser.chr || fields[0].match('[^1-9]' + this.browser.chr + '$')) {
+      if (fields[0] == chr || fields[0].toLowerCase() == 'chr' + chr || fields[0].match('[^1-9]' + chr + '$')) {
         var feature = {};
 
         feature.id     = fields.slice(0, 5).join('|');
+        feature.chr    = chr;
         feature.start  = parseInt(fields[3], 10);
         feature.end    = parseInt(fields[4], 10);
         feature.source = fields[1];

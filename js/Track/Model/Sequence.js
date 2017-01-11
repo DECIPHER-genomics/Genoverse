@@ -7,18 +7,22 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
   buffer    : 0,
   dataType  : 'text',
 
-  init: function () {
+  setChrProps: function () {
+    var chr = this.browser.chr;
+
     this.base();
-    this.chunks = {};
+
+    this.chunksByChr      = this.chunksByChr || {};
+    this.chunksByChr[chr] = this.chunksByChr[chr] || {};
   },
 
-  getData: function (start, end) {
+  getData: function (chr, start, end) {
     start = start - start % this.chunkSize + 1;
     end   = end + this.chunkSize - end % this.chunkSize;
-    return this.base(start, end);
+    return this.base(chr, start, end);
   },
 
-  parseData: function (data, start, end) {
+  parseData: function (data, chr, start, end) {
     data = data.replace(/\n/g, '');
 
     if (this.prop('lowerCase')) {
@@ -26,19 +30,20 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
     }
 
     for (var i = 0; i < data.length; i += this.chunkSize) {
-      if (this.chunks[start + i]) {
+      if (this.chunksByChr[chr][start + i]) {
         continue;
       }
 
       var feature = {
-        id       : start + i,
+        id       : chr + ':' + start + i,
+        chr      : chr,
         start    : start + i,
         end      : start + i + this.chunkSize,
         sequence : data.substr(i, this.chunkSize),
         sort     : start + i
       };
 
-      this.chunks[feature.start] = feature;
+      this.chunksByChr[chr][feature.start] = feature;
       this.insertFeature(feature);
     }
   }

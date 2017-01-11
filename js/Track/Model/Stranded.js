@@ -6,8 +6,9 @@ Genoverse.Track.Model.Stranded = Genoverse.Track.Model.extend({
       var otherTrack = this.prop('forwardTrack');
 
       if (otherTrack) {
-        this.features     = otherTrack.prop('features');
-        this.featuresById = otherTrack.prop('featuresById');
+        this.featuresByChr = otherTrack.prop('featuresByChr');
+        this.features      = otherTrack.prop('features');
+        this.featuresById  = otherTrack.prop('featuresById');
       }
     }
   },

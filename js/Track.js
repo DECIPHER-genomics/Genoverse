@@ -164,6 +164,8 @@ Genoverse.Track = Base.extend({
      */
     this.extend(trackSettings);
 
+    this.model.setChrProps(); // make sure the data stores for the current chromsome are being used
+
     if (!this.controller || typeof this.controller === 'function') {
       this.controller = this.newMVC(settings.controller, controllerSettings.func, $.extend(controllerSettings.prop, { model: this.model, view: this.view }));
     } else {
@@ -471,6 +473,12 @@ Genoverse.Track = Base.extend({
 
     this.legendType  = config.type;
     this.legendTrack = this.browser.legends[config.id] || this.browser.addTrack((constructor || Genoverse.Track.Legend).extend(config));
+  },
+
+  changeChr: function () {
+    for (var i in this.models) {
+      this.models[i].setChrProps();
+    }
   },
 
   enable: function () {

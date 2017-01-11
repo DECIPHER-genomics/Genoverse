@@ -7,7 +7,7 @@ Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
 
   // TODO: Check if URL provided
 
-  getData: function (start, end) {
+  getData: function (chr, start, end) {
     var deferred = $.Deferred();
 
     $.when(this.getStartByte()).done(function () {
@@ -18,12 +18,12 @@ Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
       var endByte   = end   - 1 + Math.floor((end   - 1) / this.lineLength) + this.startByte;
 
       $.ajax({
-        url       : this.parseURL(start, end),
+        url       : this.parseURL(),
         dataType  : this.dataType,
         context   : this,
         headers   : { 'Range' : 'bytes=' + startByte + '-' + endByte },
         xhrFields : this.xhrFields,
-        success   : function (data) { this.receiveData(data, start, end); },
+        success   : function (data) { this.receiveData(data, chr, start, end); },
         error     : this.track.controller.showError
       }).done(function () { deferred.resolveWith(this); }).fail(function () { deferred.rejectWith(this); });
     }).fail(function () { deferred.rejectWith(this); });

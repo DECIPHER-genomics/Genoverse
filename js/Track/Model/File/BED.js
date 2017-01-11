@@ -1,5 +1,5 @@
 Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
-  parseData: function (text) {
+  parseData: function (text, chr) {
     var lines = text.split('\n');
 
     for (var i = 0; i < lines.length; i++) {
@@ -9,7 +9,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
         continue;
       }
 
-      if (fields[0] === this.browser.chr || fields[0].toLowerCase() === 'chr' + this.browser.chr || fields[0].match('[^1-9]' + this.browser.chr + '$')) {
+      if (fields[0] == chr || fields[0].toLowerCase() == 'chr' + chr || fields[0].match('[^1-9]' + chr + '$')) {
         var score = parseFloat(fields[4], 10);
         var color = '#000000';
 
@@ -20,9 +20,10 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
         }
 
         this.insertFeature({
+          chr             : chr,
           start           : parseInt(fields[1], 10),
           end             : parseInt(fields[2], 10),
-          id              : fields[1] + '-' + fields[3],
+          id              : chr + ':' + fields[1] + '-' + fields[3],
           label           : fields[3],
           color           : color,
           originalFeature : fields

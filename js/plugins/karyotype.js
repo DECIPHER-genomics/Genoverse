@@ -29,7 +29,7 @@ Genoverse.Plugins.karyotype = function () {
             if (f) {
               if (e.type === 'mouseup') {
                 if (!this.browser.parent.isStatic) {
-                  this.browser.parent.moveTo(f.start, f.end, true);
+                  this.browser.parent.moveTo(f.chr, f.start, f.end, true);
                 }
               } else if (this.hoverFeature !== f && !this.browser.hideTooltip) {
                 this.container.tipsy('hide');
@@ -73,16 +73,43 @@ Genoverse.Plugins.karyotype = function () {
         })
       ],
 
-      afterInit: function () {
-        this.track = this.tracks[0];
+      addUserEventHandlers: $.noop,
 
+      afterInit: function () {
         this.updatePosition();
         this.viewPoint.fadeIn();
+      },
+
+      afterAddTracks: function () {
+        this.track = this.tracks[0];
       },
 
       afterAddDomElements: function () {
         var karyotype = this;
         var parent    = this.parent;
+
+        function hideTooltip() {
+          karyotype.hideTooltip = true;
+          karyotype.track.prop('container').tipsy('hide');
+        }
+
+        function updateLocation(e, ui) {
+          karyotype.hideTooltip = false;
+
+          if (e.type === 'resizestop') {
+            var axis = $(this).data('ui-resizable').axis;
+
+            if ((axis === 'e' && parent.end === karyotype.chromosomeSize) || (axis === 'w' && parent.start === 1)) {
+              return; // Don't change location if the position didn't change (dragging off the right or left edges)
+            }
+          }
+
+          var scale = karyotype.chromosomeSize / karyotype.width;
+          var start = Math.max(Math.floor(ui.position.left * scale), 1);
+          var end   = e.type === 'dragstop' ? start + parent.length - 1 : Math.floor(ui.helper.outerWidth(true) * scale) + start;
+
+          parent.moveTo(karyotype.chr, start, end, true, e.type === 'dragstop');
+        }
 
         if (parent.karyotypeLabel === false) {
           this.labelContainer.remove();
@@ -105,29 +132,6 @@ Genoverse.Plugins.karyotype = function () {
         });
 
         if (!parent.isStatic) {
-          function hideTooltip() {
-            karyotype.hideTooltip = true;
-            karyotype.track.prop('container').tipsy('hide');
-          }
-
-          function updateLocation(e, ui) {
-            karyotype.hideTooltip = false;
-
-            if (e.type === 'resizestop') {
-              var axis = $(this).data('ui-resizable').axis;
-
-              if ((axis === 'e' && parent.end === karyotype.chromosomeSize) || (axis === 'w' && parent.start === 1)) {
-                return; // Don't change location if the position didn't change (dragging off the right or left edges)
-              }
-            }
-
-            var scale = karyotype.chromosomeSize / karyotype.width;
-            var start = Math.max(Math.floor(ui.position.left * scale), 1);
-            var end   = e.type === 'dragstop' ? start + parent.length - 1 : Math.floor(ui.helper.outerWidth(true) * scale) + start;
-
-            parent.moveTo(start, end, true, e.type === 'dragstop');
-          }
-
           this.viewPoint.draggable({
             axis        : 'x',
             containment : this.wrapper,
@@ -166,6 +170,15 @@ Genoverse.Plugins.karyotype = function () {
     }
   }
 
+  function recreateKaryotype() {
+    var container = this.karyotype.container.parent();
+
+    this.karyotype.destroy();
+    container.remove();
+
+    createKaryotype.call(this);
+  }
+
   this.on({
     afterInit: createKaryotype,
 
@@ -175,13 +188,12 @@ Genoverse.Plugins.karyotype = function () {
       }
     },
 
-    afterSetWidth: function () {
-      var container = this.karyotype.container.parent();
+    afterSetWidth: recreateKaryotype,
 
-      this.karyotype.destroy();
-      container.remove();
-
-      createKaryotype.call(this);
+    afterMoveTo: function (chr) {
+      if (this.karyotype && this.karyotype.chr !== chr) {
+        recreateKaryotype.call(this);
+      }
     }
   });
 };

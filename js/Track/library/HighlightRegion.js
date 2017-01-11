@@ -30,9 +30,9 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   },
 
   removeHighlights: function (highlights) {
-    var features     = this.prop('features');
-    var featuresById = this.prop('featuresById');
-    var bounds, h;
+    var featuresByChr = this.prop('featuresByChr');
+    var featuresById  = this.prop('featuresById');
+    var features, bounds, h;
 
     highlights = highlights || $.map(featuresById, function (f) { return f; });
 
@@ -41,7 +41,8 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
         continue;
       }
 
-      bounds = { x: highlights[i].start, y: 0, w: highlights[i].end - highlights[i].start + 1, h: 1 };
+      features = featuresByChr[highlights[i].chr];
+      bounds   = { x: highlights[i].start, y: 0, w: highlights[i].end - highlights[i].start + 1, h: 1 };
 
       // RTree.remove only works if the second argument (the object to be removed) === the object found in the tree.
       // Here, while highlight is effectively the same object as the one in the tree, it does has been cloned, so the === check fails.
@@ -119,8 +120,8 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
           start: false
         };
 
-        m[m.title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
-        m['<a class="gv-focus-highlight" href="#" data-start="' + features[i].start + '" data-end="' + features[i].end + '">Focus here</a>'] = '';
+        m[m.title === location ? 'title' : 'Location'] = features[i].chr + ':' + location;
+        m['<a class="gv-focus-highlight" href="#" data-chr="' + features[i].chr + '" data-start="' + features[i].start + '" data-end="' + features[i].end + '">Focus here</a>'] = '';
 
         if (features[i].removable !== false) {
           m['<a class="gv-remove-highlight"  href="#" data-id="' + features[i].id + '">Remove this highlight</a>'] = '';
@@ -159,7 +160,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
           var length  = data.end - data.start + 1;
           var context = Math.max(Math.round(length / 4), 25);
 
-          track.browser.moveTo(data.start - context, data.end + context, true);
+          track.browser.moveTo(data.chr, data.start - context, data.end + context, true);
 
           return false;
         });
@@ -193,7 +194,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     url: false,
 
     insertFeature: function (feature) {
-      feature.id   = feature.start + '-' + feature.end;
+      feature.id   = feature.chr + ':' + feature.start + '-' + feature.end;
       feature.sort = feature.start;
 
       if (!feature.color) {

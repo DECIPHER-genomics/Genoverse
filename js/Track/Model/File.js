@@ -13,7 +13,7 @@ Genoverse.Track.Model.File = Genoverse.Track.Model.extend({
     this.base.apply(this, arguments);
   },
 
-  getData: function () {
+  getData: function (chr) {
     var model = this;
 
     if (this.isLocal && this.dataFile) {
@@ -22,7 +22,7 @@ Genoverse.Track.Model.File = Genoverse.Track.Model.extend({
 
       reader.onload = function (e) {
         deferred.done(function () {
-          this.receiveData(e.target.result, 1, this.browser.chromosomeSize);
+          this.receiveData(e.target.result, chr, 1, this.browser.getChromosomeSize(chr));
         }).resolveWith(model);
       };
 

@@ -1545,6 +1545,8 @@ var Genoverse = Base.extend({
       this.chromosomeSize = this.genome[this.chr].size;
     }
 
+    this.canChangeChr = !!this.genome;
+
     if (this.saveable) {
       this.loadConfig();
     } else {
@@ -1796,8 +1798,8 @@ var Genoverse = Base.extend({
 
       switch (e.target.className) {
         case 'gv-zoom-here' : browser.setRange(pos.start, pos.end, true); break;
-        case 'gv-center'    : browser.moveTo(pos.start, pos.end, true, true); browser.cancelSelect(); break;
-        case 'gv-highlight' : browser.addHighlight({ start: pos.start, end: pos.end });
+        case 'gv-center'    : browser.moveTo(browser.chr, pos.start, pos.end, true, true); browser.cancelSelect(); break;
+        case 'gv-highlight' : browser.addHighlight({ chr: browser.chr, start: pos.start, end: pos.end });
         case 'gv-cancel'    : browser.cancelSelect(); break;
         default             : break;
       }
@@ -2119,20 +2121,36 @@ var Genoverse = Base.extend({
     this.setRange(start, end);
   },
 
-  moveTo: function (start, end, update, keepLength) {
+  moveTo: function (chr, start, end, update, keepLength) {
+    if (typeof chr !== 'undefined' && chr != this.chr) {
+      if (this.canChangeChr) {
+        if (this.genome && this.genome[chr]) {
+          this.chr            = chr;
+          this.chromosomeSize = this.genome[chr].size;
+          this.start          = this.end = this.scale = -1;
+        } else {
+          this.die('Chromosome cannot be found in genome');
+        }
+
+        this.onTracks('changeChr');
+      } else {
+        this.die('Chromosome changing is not allowed');
+      }
+    }
+
     this.setRange(start, end, update, keepLength);
 
     if (this.prev.scale === this.scale) {
       this.left = Math.max(Math.min(this.left + Math.round((this.prev.start - this.start) * this.scale), this.maxLeft), this.minLeft);
-      this.onTracks('moveTo', this.start, this.end, (this.prev.start - this.start) * this.scale);
+      this.onTracks('moveTo', this.chr, this.start, this.end, (this.prev.start - this.start) * this.scale);
     }
   },
 
   setRange: function (start, end, update, keepLength) {
     this.prev.start = this.start;
     this.prev.end   = this.end;
-    this.start      = Math.max(typeof start === 'number' ? Math.floor(start) : parseInt(start, 10), 1);
-    this.end        = Math.min(typeof end   === 'number' ? Math.floor(end)   : parseInt(end,   10), this.chromosomeSize);
+    this.start      = Math.min(Math.max(typeof start === 'number' ? Math.floor(start) : parseInt(start, 10), 1), this.chromosomeSize);
+    this.end        = Math.max(Math.min(typeof end   === 'number' ? Math.floor(end)   : parseInt(end,   10), this.chromosomeSize), 1);
 
     if (this.end < this.start) {
       this.end = Math.min(this.start + this.defaultLength - 1, this.chromosomeSize);
@@ -2398,9 +2416,12 @@ var Genoverse = Base.extend({
     var start  = parseInt(coords.start, 10);
     var end    = parseInt(coords.end,   10);
 
-    if (coords.start && !(start === this.start && end === this.end)) {
+    if (
+      (coords.chr && coords.chr != this.chr) ||
+      (coords.start && !(start === this.start && end === this.end))
+    ) {
       // FIXME: a back action which changes scale or a zoom out will reset tracks, since scrollStart will not be the same as it was before
-      this.moveTo(start, end);
+      this.moveTo(coords.chr, start, end);
     }
 
     this.closeMenus();
@@ -2438,6 +2459,10 @@ var Genoverse = Base.extend({
     return this.useHash ? location : window.location.search ? (window.location.search + '&').replace(this.paramRegex, '$1' + location + '$5').slice(0, -1) : '?' + location;
   },
 
+  getChromosomeSize: function (chr) {
+    return chr && this.genome && this.genome[chr] ? this.genome[chr].size : this.chromosomeSize;
+  },
+
   supported: function () {
     var el = document.createElement('canvas');
     return !!(el.getContext && el.getContext('2d'));
@@ -2447,7 +2472,7 @@ var Genoverse = Base.extend({
     if (el && el.length) {
       el.html(error);
     } else {
-      alert(error);
+      throw error;
     }
 
     this.failed = true;
@@ -2501,7 +2526,7 @@ var Genoverse = Base.extend({
     $('.gv-title', menu).html(features.length + ' features');
 
     $.each(features.sort(function (a, b) { return a.start - b.start; }), function (i, feature) {
-      var location = (feature.chr || browser.chr) + ':' + feature.start + (feature.end === feature.start ? '' : '-' + feature.end);
+      var location = feature.chr + ':' + feature.start + (feature.end === feature.start ? '' : '-' + feature.end);
       var title    = feature.menuLabel || feature.name || ($.isArray(feature.label) ? feature.label.join(' ') : feature.label) || (feature.id + '');
 
       $('<a href="#">').html(title.match(location) ? title : (location + ' ' + title)).on('click', function (e) {
@@ -2528,14 +2553,14 @@ var Genoverse = Base.extend({
   makeFeatureMenu: function (feature, e, track) {
     var browser   = this;
     var container = this.superContainer || this.container;
-    var menu, content, loading, getMenu, isDeferred, i, j,  el, start, end, linkData, key, columns, colspan;
+    var menu, content, loading, getMenu, isDeferred, i, j,  el, chr, start, end, linkData, key, columns, colspan;
 
     function focus() {
       var data    = $(this).data();
       var length  = data.end - data.start + 1;
       var context = Math.max(Math.round(length / 4), 25);
 
-      browser.moveTo(data.start - context, data.end + context, true);
+      browser.moveTo(data.chr, data.start - context, data.end + context, true);
 
       return false;
     }
@@ -2564,6 +2589,7 @@ var Genoverse = Base.extend({
         for (i = 0; i < properties.length; i++) {
           table   = '';
           el      = content.clone().addClass(i ? '' : 'gv-menu-content-first').appendTo(menu);
+          chr     = typeof properties[i].chr !== 'undefined' ? properties[i].chr : feature.chr;
           start   = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
           end     = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
           columns = Math.max.apply(Math, $.map(properties[i], function (v) { return $.isArray(v) ? v.length : 1; }));
@@ -2571,7 +2597,7 @@ var Genoverse = Base.extend({
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
           if (track && start && end && !browser.isStatic) {
-            linkData = { start: start, end: Math.max(end, start), label: feature.label || (properties[i].title || '').replace(/<[^>]+>/g, ''), color: feature.color };
+            linkData = { chr: chr, start: start, end: Math.max(end, start), label: feature.label || (properties[i].title || '').replace(/<[^>]+>/g, ''), color: feature.color };
 
             $('.gv-focus',     el).data(linkData).on('click', focus);
             $('.gv-highlight', el).data(linkData).on('click', highlight);
@@ -3040,6 +3066,8 @@ Genoverse.Track = Base.extend({
      */
     this.extend(trackSettings);
 
+    this.model.setChrProps(); // make sure the data stores for the current chromsome are being used
+
     if (!this.controller || typeof this.controller === 'function') {
       this.controller = this.newMVC(settings.controller, controllerSettings.func, $.extend(controllerSettings.prop, { model: this.model, view: this.view }));
     } else {
@@ -3349,6 +3377,12 @@ Genoverse.Track = Base.extend({
     this.legendTrack = this.browser.legends[config.id] || this.browser.addTrack((constructor || Genoverse.Track.Legend).extend(config));
   },
 
+  changeChr: function () {
+    for (var i in this.models) {
+      this.models[i].setChrProps();
+    }
+  },
+
   enable: function () {
     if (this.disabled === true) {
       this.disabled = false;
@@ -3414,6 +3448,8 @@ Genoverse.Track.Controller = Base.extend({
     this.setDefaults();
     this.addDomElements();
     this.addUserEventHandlers();
+
+    this.deferreds = []; // tracks deferreds so they can be stopped if the track is destroyed
   },
 
   setDefaults: function () {
@@ -3444,7 +3480,7 @@ Genoverse.Track.Controller = Base.extend({
 
   resetImageRanges: function () {
     this.left        = 0;
-    this.scrollStart = 'ss-' + this.browser.start + '-' + this.browser.end;
+    this.scrollStart = [ 'ss', this.browser.chr, this.browser.start, this.browser.end ].join('-');
 
     this.imgRange[this.scrollStart]    = this.imgRange[this.scrollStart]    || { left: this.width * -2, right: this.width * 2 };
     this.scrollRange[this.scrollStart] = this.scrollRange[this.scrollStart] || { start: this.browser.start - this.browser.length, end: this.browser.end + this.browser.length };
@@ -3735,6 +3771,7 @@ Genoverse.Track.Controller = Base.extend({
 
       this.makeImage({
         scale : this.scale,
+        chr   : this.browser.chr,
         start : end - this.browser.length + 1,
         end   : end,
         left  : this.imgRange[scrollStart].left,
@@ -3750,6 +3787,7 @@ Genoverse.Track.Controller = Base.extend({
 
       this.makeImage({
         scale : this.scale,
+        chr   : this.browser.chr,
         start : start,
         end   : start + this.browser.length - 1,
         left  : this.imgRange[scrollStart].right,
@@ -3761,9 +3799,9 @@ Genoverse.Track.Controller = Base.extend({
     }
   },
 
-  moveTo: function (start, end, delta) {
+  moveTo: function (chr, start, end, delta) {
     var scrollRange = this.scrollRange[this.scrollStart];
-    var scrollStart = 'ss-' + start + '-' + end;
+    var scrollStart = [ 'ss', chr, start, end ].join('-');
 
     if (this.scrollRange[scrollStart] || start > scrollRange.end || end < scrollRange.start) {
       this.resetImageRanges();
@@ -3796,12 +3834,12 @@ Genoverse.Track.Controller = Base.extend({
     this.imgContainers.push(div[0]);
     this.scrollContainer.append(this.imgContainers);
 
-    if (!tooLarge && !this.model.checkDataRange(params.start, params.end)) {
+    if (!tooLarge && !this.model.checkDataRange(params.chr, params.start, params.end)) {
       var buffer = this.prop('dataBuffer');
 
       params.start -= buffer.start;
       params.end   += buffer.end;
-      deferred      = this.model.getData(params.start, params.end);
+      deferred      = this.model.getData(params.chr, params.start, params.end);
     }
 
     if (!deferred) {
@@ -3809,8 +3847,10 @@ Genoverse.Track.Controller = Base.extend({
       setTimeout($.proxy(deferred.resolve, this), 1); // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
     }
 
+    this.deferreds.push(deferred);
+
     return deferred.done(function () {
-      var features = tooLarge ? [] : controller.model.findFeatures(params.start, params.end);
+      var features = tooLarge ? [] : controller.model.findFeatures(params.chr, params.start, params.end);
       controller.render(features, image);
 
       if (bgImage) {
@@ -3829,24 +3869,25 @@ Genoverse.Track.Controller = Base.extend({
     }
 
     var controller = this;
+    var chr        = this.browser.chr;
     var start      = this.browser.start;
     var end        = this.browser.end;
     var length     = this.browser.length;
     var scale      = this.scale;
     var cls        = this.scrollStart;
-    var images     = [{ start: start, end: end, scale: scale, cls: cls, left: 0 }];
+    var images     = [{ chr: chr, start: start, end: end, scale: scale, cls: cls, left: 0 }];
     var left       = 0;
     var width      = this.width;
 
     if (!this.browser.isStatic) {
       if (start > 1) {
-        images.push({ start: start - length, end: start - 1, scale: scale, cls: cls, left: -this.width });
+        images.push({ chr: chr, start: start - length, end: start - 1, scale: scale, cls: cls, left: -this.width });
         left   = -this.width;
         width += this.width;
       }
 
-      if (end < this.browser.chromosomeSize) {
-        images.push({ start: end + 1, end: end + length, scale: scale, cls: cls, left: this.width });
+      if (end < this.browser.getChromosomeSize(chr)) {
+        images.push({ chr: chr, start: end + 1, end: end + length, scale: scale, cls: cls, left: this.width });
         width += this.width;
       }
     }
@@ -3862,12 +3903,12 @@ Genoverse.Track.Controller = Base.extend({
     }
 
     // FIXME: on zoom out, making more than 1 request
-    if (length > this.threshold || this.model.checkDataRange(start, end)) {
+    if (length > this.threshold || this.model.checkDataRange(chr, start, end)) {
       makeImages();
     } else {
       var buffer = this.prop('dataBuffer');
 
-      this.model.getData(start - buffer.start - length, end + buffer.end + length).done(makeImages).fail(function (e) {
+      this.model.getData(chr, start - buffer.start - length, end + buffer.end + length).done(makeImages).fail(function (e) {
         controller.showError(e);
       });
     }
@@ -3913,9 +3954,10 @@ Genoverse.Track.Controller = Base.extend({
     var f    = $.extend(true, {}, feature);
     var menu = {
       title    : f.label ? f.label[0] : f.id,
-      Location : this.browser.chr + ':' + f.start + '-' + f.end
+      Location : f.chr + ':' + f.start + '-' + f.end
     };
 
+    delete f.chr;
     delete f.start;
     delete f.end;
     delete f.sort;
@@ -3930,6 +3972,12 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   destroy: function () {
+    for (var i = 0; i < this.deferreds.length; i++) {
+      if (this.deferreds[i].state() === 'pending') {
+        this.deferreds[i].reject();
+      }
+    }
+
     this.container.add(this.label).add(this.menus).remove();
   }
 });
@@ -3960,9 +4008,10 @@ Genoverse.Track.Model = Base.extend({
     }
 
     if (!reset || this.data) {
-      this.dataRanges   = new RTree();
-      this.features     = new RTree();
+      delete this.dataRangesByChr;
+      delete this.featuresByChr;
       this.featuresById = {};
+      this.setChrProps();
     }
 
     this.dataLoading = []; // tracks incomplete requests for data
@@ -3984,27 +4033,40 @@ Genoverse.Track.Model = Base.extend({
     }
   },
 
-  parseURL: function (start, end, url) {
+  setChrProps: function () {
+    var chr = this.browser.chr;
+
+    this.dataRangesByChr = this.dataRangesByChr || {};
+    this.featuresByChr   = this.featuresByChr   || {};
+
+    this.dataRangesByChr[chr] = this.dataRangesByChr[chr] || new RTree();
+    this.featuresByChr[chr]   = this.featuresByChr[chr]   || new RTree();
+  },
+
+  features   : function (chr) { return this.featuresByChr[chr];   },
+  dataRanges : function (chr) { return this.dataRangesByChr[chr]; },
+
+  parseURL: function (chr, start, end, url) {
     if (this.allData) {
       start = 1;
-      end   = this.browser.chromosomeSize;
+      end   = this.browser.getChromosomeSize(chr);
     }
 
-    return (url || this.url).replace(/__ASSEMBLY__/, this.browser.assembly).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
+    return (url || this.url).replace(/__ASSEMBLY__/, this.browser.assembly).replace(/__CHR__/, chr).replace(/__START__/, start).replace(/__END__/, end);
   },
 
   setLabelBuffer: function (buffer) {
     this.dataBuffer.start = Math.max(this.dataBufferStart, buffer);
   },
 
-  getData: function (start, end, done) {
+  getData: function (chr, start, end, done) {
     start = Math.max(1, start);
-    end   = Math.min(this.browser.chromosomeSize, end);
+    end   = Math.min(this.browser.getChromosomeSize(chr), end);
 
     var deferred = $.Deferred();
 
     if (typeof this.data !== 'undefined') {
-      this.receiveData(typeof this.data.sort === 'function' ? this.data.sort(function (a, b) { return a.start - b.start; }) : this.data, start, end);
+      this.receiveData(typeof this.data.sort === 'function' ? this.data.sort(function (a, b) { return a.start - b.start; }) : this.data, chr, start, end);
       return deferred.resolveWith(this);
     }
 
@@ -4029,16 +4091,17 @@ Genoverse.Track.Model = Base.extend({
 
     $.when.apply($, $.map(bins, function (bin) {
       var request = $.ajax({
-        url       : model.parseURL(bin[0], bin[1]),
+        url       : model.parseURL(chr, bin[0], bin[1]),
+        data      : model.urlParams,
         dataType  : model.dataType,
         context   : model,
         xhrFields : model.xhrFields,
-        success   : function (data) { this.receiveData(data, bin[0], bin[1]); },
+        success   : function (data) { this.receiveData(data, chr, bin[0], bin[1]); },
         error     : function (xhr, statusText) { this.track.controller.showError(statusText + ' while getting the data, see console for more details', arguments); },
         complete  : function (xhr) { this.dataLoading = $.grep(this.dataLoading, function (t) { return xhr !== t; }); }
       });
 
-      request.coords = [ bin[0], bin[1] ]; // store actual start and end on the request, in case they are needed
+      request.coords = [ chr, bin[0], bin[1] ]; // store actual chr, start and end on the request, in case they are needed
 
       if (typeof done === 'function') {
         request.done(done);
@@ -4052,12 +4115,12 @@ Genoverse.Track.Model = Base.extend({
     return deferred;
   },
 
-  receiveData: function (data, start, end) {
+  receiveData: function (data, chr, start, end) {
     start = Math.max(start, 1);
-    end   = Math.min(end, this.browser.chromosomeSize);
+    end   = Math.min(end, this.browser.getChromosomeSize(chr));
 
-    this.setDataRange(start, end);
-    this.parseData(data, start, end);
+    this.setDataRange(chr, start, end);
+    this.parseData(data, chr, start, end);
 
     if (this.allData) {
       this.url = false;
@@ -4065,10 +4128,11 @@ Genoverse.Track.Model = Base.extend({
   },
 
   /**
-  * parseData(data, start, end) - parse raw data from the data source (e.g. online web service)
+  * parseData(data, chr, start, end) - parse raw data from the data source (e.g. online web service)
   * extract features and insert it into the internal features storage (RTree)
   *
   * >> data  - raw data from the data source (e.g. ajax response)
+  * >> chr   - chromosome of the data
   * >> start - start location of the data
   * >> end   - end   location of the data
   * << nothing
@@ -4083,13 +4147,14 @@ Genoverse.Track.Model = Base.extend({
   *
   * and call this.insertFeature(feature)
   */
-  parseData: function (data, start, end) {
+  parseData: function (data, chr, start, end) {
     var feature;
 
     // Example of parseData function when data is an array of hashes like { start: ..., end: ... }
     for (var i = 0; i < data.length; i++) {
       feature = data[i];
 
+      feature.chr  = feature.chr || chr;
       feature.sort = start + i;
 
       this.insertFeature(feature);
@@ -4101,20 +4166,20 @@ Genoverse.Track.Model = Base.extend({
     this.track.reset();
   },
 
-  setDataRange: function (start, end) {
+  setDataRange: function (chr, start, end) {
     if (this.allData) {
       start = 1;
-      end   = this.browser.chromosomeSize;
+      end   = this.browser.getChromosomeSize(chr);
     }
 
-    this.dataRanges.insert({ x: start, w: end - start + 1, y: 0, h: 1 }, [ start, end ]);
+    this.dataRanges(chr).insert({ x: start, w: end - start + 1, y: 0, h: 1 }, [ start, end ]);
   },
 
-  checkDataRange: function (start, end) {
+  checkDataRange: function (chr, start, end) {
     start = Math.max(1, start);
-    end   = Math.min(this.browser.chromosomeSize, end);
+    end   = Math.min(this.browser.getChromosomeSize(chr), end);
 
-    var ranges = this.dataRanges.search({ x: start, w: end - start + 1, y: 0, h: 1 }).sort(function (a, b) { return a[0] - b[0]; });
+    var ranges = this.dataRanges(chr).search({ x: start, w: end - start + 1, y: 0, h: 1 }).sort(function (a, b) { return a[0] - b[0]; });
 
     if (!ranges.length) {
       return false;
@@ -4137,19 +4202,25 @@ Genoverse.Track.Model = Base.extend({
   },
 
   insertFeature: function (feature) {
+    if (!feature.chr) {
+      return;
+    }
+
     // Make sure we have a unique ID, this method is not efficient, so better supply your own id
     if (!feature.id) {
       feature.id = feature.ID || this.hashCode(JSON.stringify($.extend({}, feature, { sort: '' }))); // sort is dependant on the browser's region, so will change on zoom
     }
 
-    if (!this.featuresById[feature.id]) {
-      this.features.insert({ x: feature.start, y: 0, w: feature.end - feature.start + 1, h: 1 }, feature);
+    var features = this.features(feature.chr);
+
+    if (features && !this.featuresById[feature.id]) {
+      features.insert({ x: feature.start, y: 0, w: feature.end - feature.start + 1, h: 1 }, feature);
       this.featuresById[feature.id] = feature;
     }
   },
 
-  findFeatures: function (start, end) {
-    var features = this.features.search({ x: start - this.dataBuffer.start, y: 0, w: end - start + this.dataBuffer.start + this.dataBuffer.end + 1, h: 1 });
+  findFeatures: function (chr, start, end) {
+    var features = this.features(chr).search({ x: start - this.dataBuffer.start, y: 0, w: end - start + this.dataBuffer.start + this.dataBuffer.end + 1, h: 1 });
     var filters  = this.prop('featureFilters') || [];
 
     for (var i = 0; i < filters.length; i++) {
@@ -4173,15 +4244,15 @@ Genoverse.Track.Model = Base.extend({
 
   hashCode: function (string) {
     var hash = 0;
-    var chr;
+    var c;
 
     if (!string.length) {
       return hash;
     }
 
     for (var i = 0; i < string.length; i++) {
-      chr  = string.charCodeAt(i);
-      hash = ((hash << 5) - hash) + chr;
+      c    = string.charCodeAt(i);
+      hash = ((hash << 5) - hash) + c;
       hash = hash & hash; // Convert to 32bit integer
     }
 
@@ -4242,19 +4313,23 @@ Genoverse.Track.View = Base.extend({
   },
 
   setScaleSettings: function (scale) {
-    var featurePositions, labelPositions;
+    var chr = this.browser.chr;
 
-    if (!this.scaleSettings[scale]) {
-      featurePositions = featurePositions || new RTree();
+    if (!this.scaleSettings[chr]) {
+      this.scaleSettings[chr] = {};
+    }
 
-      this.scaleSettings[scale] = {
+    if (!this.scaleSettings[chr][scale]) {
+      var featurePositions = new RTree();
+
+      this.scaleSettings[chr][scale] = {
         imgContainers    : $(),
         featurePositions : featurePositions,
-        labelPositions   : this.labels === 'separate' ? labelPositions || new RTree() : featurePositions
+        labelPositions   : this.labels === 'separate' ? new RTree() : featurePositions
       };
     }
 
-    return this.scaleSettings[scale];
+    return this.scaleSettings[chr][scale];
   },
 
   scaleFeatures: function (features, scale) {
@@ -4296,7 +4371,8 @@ Genoverse.Track.View = Base.extend({
   },
 
   positionFeature: function (feature, params) {
-    var scale = params.scale;
+    var scale         = params.scale;
+    var scaleSettings = this.scaleSettings[feature.chr][scale];
 
     feature.position[scale].X = feature.position[scale].start - params.scaledStart; // FIXME: always have to reposition for X, in case a feature appears in 2 images. Pass scaledStart around instead?
 
@@ -4338,24 +4414,24 @@ Genoverse.Track.View = Base.extend({
       feature.position[scale].bounds = bounds;
 
       if (this.bump === true) {
-        this.bumpFeature(bounds, feature, scale, this.scaleSettings[scale].featurePositions);
+        this.bumpFeature(bounds, feature, scale, scaleSettings.featurePositions);
       }
 
-      this.scaleSettings[scale].featurePositions.insert(bounds, feature);
+      scaleSettings.featurePositions.insert(bounds, feature);
 
       feature.position[scale].bottom = feature.position[scale].Y + bounds.h + params.margin;
 
       if (feature.position[scale].label) {
         var f = $.extend(true, {}, feature); // FIXME: hack to avoid changing feature.position[scale].Y in bumpFeature
 
-        this.bumpFeature(feature.position[scale].label, f, scale, this.scaleSettings[scale].labelPositions);
+        this.bumpFeature(feature.position[scale].label, f, scale, scaleSettings.labelPositions);
 
         f.position[scale].label        = feature.position[scale].label;
         f.position[scale].label.bottom = f.position[scale].label.y + f.position[scale].label.h + params.margin;
 
         feature = f;
 
-        this.scaleSettings[scale].labelPositions.insert(feature.position[scale].label, feature);
+        scaleSettings.labelPositions.insert(feature.position[scale].label, feature);
 
         params.labelHeight = Math.max(params.labelHeight, feature.position[scale].label.bottom);
       }
@@ -4369,13 +4445,14 @@ Genoverse.Track.View = Base.extend({
 
   // FIXME: should label bumping bounds be distinct from feature bumping bounds when label is smaller than feature?
   bumpFeature: function (bounds, feature, scale, tree) {
-    var depth  = 0;
-    var labels = tree === this.scaleSettings[scale].labelPositions && tree !== this.scaleSettings[scale].featurePositions;
+    var depth         = 0;
+    var scaleSettings = this.scaleSettings[feature.chr][scale];
+    var labels        = tree === scaleSettings.labelPositions && tree !== scaleSettings.featurePositions;
     var bump, clash;
 
     do {
       if (this.depth && ++depth >= this.depth) {
-        if ($.grep(this.scaleSettings[scale].featurePositions.search(bounds), function (f) { return f.position[scale].visible !== false; }).length) {
+        if ($.grep(scaleSettings.featurePositions.search(bounds), function (f) { return f.position[scale].visible !== false; }).length) {
           feature.position[scale].visible = false;
         }
 
@@ -4609,7 +4686,7 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
       return $.Deferred().resolve();
     }
 
-    var features = this.view.positionFeatures(this.model.findFeatures(params.start, params.end), params);
+    var features = this.view.positionFeatures(this.model.findFeatures(params.chr, params.start, params.end), params);
 
     if (features) {
       var string = JSON.stringify(features);
@@ -4719,8 +4796,9 @@ Genoverse.Track.Model.Stranded = Genoverse.Track.Model.extend({
       var otherTrack = this.prop('forwardTrack');
 
       if (otherTrack) {
-        this.features     = otherTrack.prop('features');
-        this.featuresById = otherTrack.prop('featuresById');
+        this.featuresByChr = otherTrack.prop('featuresByChr');
+        this.features      = otherTrack.prop('features');
+        this.featuresById  = otherTrack.prop('featuresById');
       }
     }
   },
@@ -4751,7 +4829,7 @@ Genoverse.Track.Controller.Sequence = Genoverse.Track.Controller.extend({
     feature.featureMenus      = feature.featureMenus      || {};
     feature.featureMenus[pos] = feature.featureMenus[pos] || {
       title    : feature.sequence.charAt(pos - feature.start),
-      Location : this.browser.chr + ':' + pos
+      Location : feature.chr + ':' + pos
     }
 
     return feature.featureMenus[pos].title ? feature.featureMenus[pos] : undefined;
@@ -4768,18 +4846,22 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
   buffer    : 0,
   dataType  : 'text',
 
-  init: function () {
+  setChrProps: function () {
+    var chr = this.browser.chr;
+
     this.base();
-    this.chunks = {};
+
+    this.chunksByChr      = this.chunksByChr || {};
+    this.chunksByChr[chr] = this.chunksByChr[chr] || {};
   },
 
-  getData: function (start, end) {
+  getData: function (chr, start, end) {
     start = start - start % this.chunkSize + 1;
     end   = end + this.chunkSize - end % this.chunkSize;
-    return this.base(start, end);
+    return this.base(chr, start, end);
   },
 
-  parseData: function (data, start, end) {
+  parseData: function (data, chr, start, end) {
     data = data.replace(/\n/g, '');
 
     if (this.prop('lowerCase')) {
@@ -4787,19 +4869,20 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
     }
 
     for (var i = 0; i < data.length; i += this.chunkSize) {
-      if (this.chunks[start + i]) {
+      if (this.chunksByChr[chr][start + i]) {
         continue;
       }
 
       var feature = {
-        id       : start + i,
+        id       : chr + ':' + start + i,
+        chr      : chr,
         start    : start + i,
         end      : start + i + this.chunkSize,
         sequence : data.substr(i, this.chunkSize),
         sort     : start + i
       };
 
-      this.chunks[feature.start] = feature;
+      this.chunksByChr[chr][feature.start] = feature;
       this.insertFeature(feature);
     }
   }
@@ -4815,7 +4898,7 @@ Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
 
   // TODO: Check if URL provided
 
-  getData: function (start, end) {
+  getData: function (chr, start, end) {
     var deferred = $.Deferred();
 
     $.when(this.getStartByte()).done(function () {
@@ -4826,12 +4909,12 @@ Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
       var endByte   = end   - 1 + Math.floor((end   - 1) / this.lineLength) + this.startByte;
 
       $.ajax({
-        url       : this.parseURL(start, end),
+        url       : this.parseURL(),
         dataType  : this.dataType,
         context   : this,
         headers   : { 'Range' : 'bytes=' + startByte + '-' + endByte },
         xhrFields : this.xhrFields,
-        success   : function (data) { this.receiveData(data, start, end); },
+        success   : function (data) { this.receiveData(data, chr, start, end); },
         error     : this.track.controller.showError
       }).done(function () { deferred.resolveWith(this); }).fail(function () { deferred.rejectWith(this); });
     }).fail(function () { deferred.rejectWith(this); });
@@ -4873,38 +4956,6 @@ Genoverse.Track.Model.Sequence.Ensembl = Genoverse.Track.Model.Sequence.extend({
   dataRequestLimit : 10000000 // As per e! REST API restrictions
 });
 
-
-Genoverse.Track.Model.Sequence.DAS = Genoverse.Track.Model.Sequence.extend({
-
-  name     : 'DAS Sequence',
-  dataType : 'xml',
-  url      : 'http://www.ensembl.org/das/Homo_sapiens.GRCh37.reference/sequence?segment=__CHR__:__START__,__END__', // Example url
-
-  parseData: function (data) {
-    var track = this;
-    $(data).find('SEQUENCE').each(function (index, SEQUENCE) {
-
-      var sequence = $(SEQUENCE).text();
-      var start = parseInt(SEQUENCE.getAttribute('start'));
-
-      // Check if the sequence is multi-line or not
-      if (track.multiLine === undefined) {
-        if (sequence.indexOf("\n") !== -1) {
-          track.multiLine = true;
-        } else {
-          track.multiLine = false;
-        }
-      }
-
-      if (track.multiLine) {
-        sequence = sequence.replace(/\n/g, "");
-        sequence = sequence.toUpperCase();
-      }
-
-      track.base.apply(track, [ sequence, start ]);
-    });
-  }
-});  
 
 Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
   featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },
@@ -5099,15 +5150,15 @@ Genoverse.Track.Model.SequenceVariation = Genoverse.Track.Model.extend({
     return models.seq = models.seq || this.track.newMVC(this.seqModel);
   },
 
-  getData: function (start, end) {
+  getData: function (chr, start, end) {
     var deferred = $.Deferred();
-    var seqData  = this.getSeqModel().checkDataRange(start, end);
+    var seqData  = this.getSeqModel().checkDataRange(chr, start, end);
 
-    this.base(start, end).done(function () {
+    this.base(chr, start, end).done(function () {
       if (seqData) {
         deferred.resolve();
       } else {
-        this.getSeqModel().getData(start, end).done(deferred.resolve);
+        this.getSeqModel().getData(chr, start, end).done(deferred.resolve);
       }
     });
 
@@ -5122,14 +5173,15 @@ Genoverse.Track.Model.SequenceVariation = Genoverse.Track.Model.extend({
     }));
   },
 
-  checkDataRange: function (start, end) {
-    return this.base(start, end) && this.getSeqModel().checkDataRange(start, end);
+  checkDataRange: function (chr, start, end) {
+    return this.base(chr, start, end) && this.getSeqModel().checkDataRange(chr, start, end);
   },
 
-  findFeatures: function (start, end) {
-    return this.getSeqModel().findFeatures(start, end).concat(this.base(start, end));
+  findFeatures: function (chr, start, end) {
+    return this.getSeqModel().findFeatures(chr, start, end).concat(this.base(chr, start, end));
   }
 });
+
 
 // Abstract Gene model
 // see sub-models for more specific examples
@@ -5145,11 +5197,12 @@ Genoverse.Track.Model.Gene.Ensembl = Genoverse.Track.Model.Gene.extend({
   // The url above responds in json format, data is an array
   // We assume that parents always preceed children in data array, gene -> transcript -> exon
   // See rest.ensembl.org/documentation/info/feature_region for more details
-  parseData: function (data) {
+  parseData: function (data, chr) {
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];
 
       if (feature.feature_type === 'gene' && !this.featuresById[feature.id]) {
+        feature.chr         = feature.chr || chr;
         feature.label       = parseInt(feature.strand, 10) === 1 ? (feature.external_name || feature.id) + ' >' : '< ' + (feature.external_name || feature.id);
         feature.transcripts = [];
 
@@ -5234,13 +5287,14 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
 
   // The url above responds in json format, data is an array
   // See rest.ensembl.org/documentation/info/feature_region for more details
-  parseData: function (data) {
+  parseData: function (data, chr) {
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];
 
       if (feature.feature_type === 'transcript' && !this.featuresById[feature.id]) {
         this.geneIds[feature.Parent] = this.geneIds[feature.Parent] || ++this.seenGenes;
 
+        feature.chr   = feature.chr || chr;
         feature.label = parseInt(feature.strand, 10) === 1 ? (feature.external_name || feature.id) + ' >' : '< ' + (feature.external_name || feature.id);
         feature.sort  = (this.geneIds[feature.Parent] * 1e10) + (feature.logic_name.indexOf('ensembl_havana') === 0 ? 0 : 2e9) + (feature.biotype === 'protein_coding' ? 0 : 1e9) + feature.start + i;
         feature.exons = {};
@@ -5252,7 +5306,7 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
           this.featuresById[feature.Parent].exons[feature.id] = feature;
         }
       } else if (feature.feature_type === 'cds' && this.featuresById[feature.Parent]) {
-        feature.id = feature.start + '-' + feature.end;
+        feature.id = feature.chr + ':' + feature.start + '-' + feature.end;
 
         if (!this.featuresById[feature.Parent].cds[feature.id]) {
           this.featuresById[feature.Parent].cds[feature.id] = feature;
@@ -5274,7 +5328,7 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
     cds   : 'cds'
   },
 
-  parseData: function (text) {
+  parseData: function (text, chr) {
     var lines = text.split('\n');
 
     for (var i = 0; i < lines.length; i++) {
@@ -5288,10 +5342,11 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
         continue;
       }
 
-      if (fields[0] === this.browser.chr || fields[0].toLowerCase() === 'chr' + this.browser.chr || fields[0].match('[^1-9]' + this.browser.chr + '$')) {
+      if (fields[0] == chr || fields[0].toLowerCase() == 'chr' + chr || fields[0].match('[^1-9]' + chr + '$')) {
         var feature = {};
 
         feature.id     = fields.slice(0, 5).join('|');
+        feature.chr    = chr;
         feature.start  = parseInt(fields[3], 10);
         feature.end    = parseInt(fields[4], 10);
         feature.source = fields[1];
@@ -5339,6 +5394,7 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
     }
   }
 });
+
 
 Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
   featureHeight   : 10,
@@ -5531,7 +5587,7 @@ Genoverse.Track.Model.File = Genoverse.Track.Model.extend({
     this.base.apply(this, arguments);
   },
 
-  getData: function () {
+  getData: function (chr) {
     var model = this;
 
     if (this.isLocal && this.dataFile) {
@@ -5540,7 +5596,7 @@ Genoverse.Track.Model.File = Genoverse.Track.Model.extend({
 
       reader.onload = function (e) {
         deferred.done(function () {
-          this.receiveData(e.target.result, 1, this.browser.chromosomeSize);
+          this.receiveData(e.target.result, chr, 1, this.browser.getChromosomeSize(chr));
         }).resolveWith(model);
       };
 
@@ -5555,7 +5611,7 @@ Genoverse.Track.Model.File = Genoverse.Track.Model.extend({
 
 
 Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
-  getData: function (start, end) {
+  getData: function (chr, start, end) {
     var model    = this;
     var deferred = $.Deferred();
 
@@ -5573,11 +5629,11 @@ Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
       if (makeBamError) {
         console.log(makeBamError);
       } else {
-        bam.fetch(model.browser.chr, start, end, function (features, fetchBamError) {
+        bam.fetch(chr, start, end, function (features, fetchBamError) {
           if (fetchBamError) {
             console.log(fetchBamError);
           } else {
-            model.receiveData(features, start, end);
+            model.receiveData(features, chr, start, end);
             deferred.resolveWith(model);
           }
         });
@@ -5588,7 +5644,7 @@ Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
   },
 
   insertFeature: function (feature) {
-    feature.id       = feature.readName + ':' + feature.pos;
+    feature.id       = feature.chr + ':' + feature.readName + ':' + feature.pos;
     feature.start    = feature.pos + 1;
     feature.end      = feature.start + feature.seq.length;
     feature.sequence = feature.seq;
@@ -5599,7 +5655,7 @@ Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
 
 
 Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
-  parseData: function (text) {
+  parseData: function (text, chr) {
     var lines = text.split('\n');
 
     for (var i = 0; i < lines.length; i++) {
@@ -5609,7 +5665,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
         continue;
       }
 
-      if (fields[0] === this.browser.chr || fields[0].toLowerCase() === 'chr' + this.browser.chr || fields[0].match('[^1-9]' + this.browser.chr + '$')) {
+      if (fields[0] == chr || fields[0].toLowerCase() == 'chr' + chr || fields[0].match('[^1-9]' + chr + '$')) {
         var score = parseFloat(fields[4], 10);
         var color = '#000000';
 
@@ -5620,9 +5676,10 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
         }
 
         this.insertFeature({
+          chr             : chr,
           start           : parseInt(fields[1], 10),
           end             : parseInt(fields[2], 10),
-          id              : fields[1] + '-' + fields[3],
+          id              : chr + ':' + fields[1] + '-' + fields[3],
           label           : fields[3],
           color           : color,
           originalFeature : fields
@@ -5645,8 +5702,9 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
   }
 });
 
+
 Genoverse.Track.Model.File.GFF = Genoverse.Track.Model.File.extend({
-  parseData: function (text) {
+  parseData: function (text, chr) {
     var lines = text.split('\n');
 
     for (var i = 0; i < lines.length; i++) {
@@ -5663,13 +5721,14 @@ Genoverse.Track.Model.File.GFF = Genoverse.Track.Model.File.extend({
       var seqId = fields[0].toLowerCase();
 
       if (
-        seqId === this.browser.chr                       ||
-        seqId.toLowerCase() === 'chr' + this.browser.chr ||
-        seqId.match('[^1-9]' + this.browser.chr + '$')   ||
-        seqId.match('^' + this.browser.chr + '\\b')
+        seqId == chr                       ||
+        seqId.toLowerCase() == 'chr' + chr ||
+        seqId.match('[^1-9]' + chr + '$')  ||
+        seqId.match('^' + chr + '\\b')
       ) {
         this.insertFeature({
           id     : fields.slice(0, 5).join('|'),
+          chr    : chr,
           start  : parseInt(fields[3], 10),
           end    : parseInt(fields[4], 10),
           source : fields[1],
@@ -5685,8 +5744,9 @@ Genoverse.Track.Model.File.GFF = Genoverse.Track.Model.File.extend({
 
 Genoverse.Track.Model.File.GTF = Genoverse.Track.Model.File.GFF;
 
+
 Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
-  parseData: function (text) {
+  parseData: function (text, chr) {
     var lines = text.split('\n');
 
     for (var i = 0; i < lines.length; i++) {
@@ -5700,7 +5760,7 @@ Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
         continue;
       }
 
-      if (fields[0] === this.browser.chr || fields[0] === 'chr' + this.browser.chr) {
+      if (fields[0] == chr || fields[0] == 'chr' + chr) {
         var id      = fields.slice(0, 3).join('|');
         var start   = parseInt(fields[1], 10);
         var alleles = fields[4].split(',');
@@ -5713,6 +5773,7 @@ Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
           this.insertFeature({
             id              : id + '|' + alleles[j],
             sort            : j,
+            chr             : chr,
             start           : start,
             end             : end,
             width           : end - start,
@@ -5727,6 +5788,7 @@ Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
     }
   }
 });
+
 
 Genoverse.Track.Chromosome = Genoverse.Track.extend({
   id            : 'chromosome',
@@ -5755,16 +5817,20 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
     gpos33 : '#000000'
   },
 
-  getData: function (start, end) {
-    this.receiveData($.extend(true, [], this.browser.genome[this.browser.chr].bands), start, end);
+  getData: function (chr, start, end) {
+    this.receiveData($.extend(true, [], this.browser.genome[chr].bands), chr, start, end);
     return $.Deferred().resolveWith(this);
   },
 
   insertFeature: function (feature) {
     feature.label      = feature.type === 'acen' || feature.type === 'stalk' ? false : feature.id;
-    feature.menuTitle  = feature.id ? this.browser.chr + feature.id : this.browser.chr + ':' + feature.start + '-' + feature.end;
+    feature.menuTitle  = feature.id ? feature.chr + feature.id : feature.chr + ':' + feature.start + '-' + feature.end;
     feature.color      = this.prop('colors')[feature.type]      || '#FFFFFF';
     feature.labelColor = this.prop('labelColors')[feature.type] || '#FFFFFF';
+
+    if (feature.id) {
+      feature.id = feature.chr + feature.id;
+    }
 
     this.base(feature);
   },
@@ -5810,9 +5876,11 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
 
       featureContext.beginPath();
 
-      if (feature.start === 1 || feature.end === this.browser.chromosomeSize) {
+      var chrSize = this.browser.getChromosomeSize(feature.chr);
+
+      if (feature.start === 1 || feature.end === chrSize) {
         if (feature.start === 1) {
-          var end = feature.x + feature.width - (feature.end === this.browser.chromosomeSize ? 5 : 0);
+          var end = feature.x + feature.width - (feature.end === chrSize ? 5 : 0);
 
           featureContext.clearRect(0, 0, 5, feature.height + 0.5);
 
@@ -5826,7 +5894,7 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
           featureContext.fill();
         }
 
-        if (feature.end === this.browser.chromosomeSize) {
+        if (feature.end === chrSize) {
           featureContext.clearRect(feature.x + feature.width - 5, 0, 5, feature.height + 0.5);
 
           if (feature.start !== 1) {
@@ -5853,7 +5921,7 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
   },
 
   drawLabel: function (feature) {
-    if ((feature.start === 1 || feature.end === this.browser.chromosomeSize) && feature.labelWidth >= Math.floor(feature.width - 5)) {
+    if ((feature.start === 1 || feature.end === this.browser.getChromosomeSize(feature.chr)) && feature.labelWidth >= Math.floor(feature.width - 5)) {
       return;
     }
 
@@ -5863,10 +5931,11 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
   populateMenu: function (feature) {
     return {
       title    : feature.menuTitle,
-      Position : this.browser.chr + ':' + feature.start + '-' + feature.end
+      Position : feature.chr + ':' + feature.start + '-' + feature.end
     };
   }
 });
+
 
 Genoverse.Track.dbSNP = Genoverse.Track.extend({
   id               : 'dbSNP',
@@ -5952,7 +6021,7 @@ Genoverse.Track.dbSNP = Genoverse.Track.extend({
     var deferred = $.Deferred();
     var menu     = [{
       title       : '<a href="http://www.ensembl.org/Homo_sapiens/Variation/Summary?v=' + feature.id + '" target="_blank">' + feature.id + '</a>',
-      Location    : this.browser.chr + ':' + feature.start + '-' + feature.end,
+      Location    : feature.chr + ':' + feature.start + '-' + feature.end,
       Consequence : feature.consequence_type,
       Alleles     : feature.alleles.join(', ')
     }];
@@ -6188,7 +6257,7 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
     var url  = 'http://www.ensembl.org/Homo_sapiens/' + (feature.feature_type === 'transcript' ? 'Transcript' : 'Gene') + '/Summary?' + (feature.feature_type === 'transcript' ? 't' : 'g') + '=' + feature.id;
     var menu = {
       title    : '<a target="_blank" href="' + url + '">' + (feature.external_name ? feature.external_name + ' (' + feature.id + ')' : feature.id) + '</a>',
-      Location : this.browser.chr + ':' + feature.start + '-' + feature.end,
+      Location : feature.chr + ':' + feature.start + '-' + feature.end,
       Source   : feature.source,
       Biotype  : feature.biotype
     };
@@ -6249,9 +6318,9 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   },
 
   removeHighlights: function (highlights) {
-    var features     = this.prop('features');
-    var featuresById = this.prop('featuresById');
-    var bounds, h;
+    var featuresByChr = this.prop('featuresByChr');
+    var featuresById  = this.prop('featuresById');
+    var features, bounds, h;
 
     highlights = highlights || $.map(featuresById, function (f) { return f; });
 
@@ -6260,7 +6329,8 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
         continue;
       }
 
-      bounds = { x: highlights[i].start, y: 0, w: highlights[i].end - highlights[i].start + 1, h: 1 };
+      features = featuresByChr[highlights[i].chr];
+      bounds   = { x: highlights[i].start, y: 0, w: highlights[i].end - highlights[i].start + 1, h: 1 };
 
       // RTree.remove only works if the second argument (the object to be removed) === the object found in the tree.
       // Here, while highlight is effectively the same object as the one in the tree, it does has been cloned, so the === check fails.
@@ -6338,8 +6408,8 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
           start: false
         };
 
-        m[m.title === location ? 'title' : 'Location'] = this.browser.chr + ':' + location;
-        m['<a class="gv-focus-highlight" href="#" data-start="' + features[i].start + '" data-end="' + features[i].end + '">Focus here</a>'] = '';
+        m[m.title === location ? 'title' : 'Location'] = features[i].chr + ':' + location;
+        m['<a class="gv-focus-highlight" href="#" data-chr="' + features[i].chr + '" data-start="' + features[i].start + '" data-end="' + features[i].end + '">Focus here</a>'] = '';
 
         if (features[i].removable !== false) {
           m['<a class="gv-remove-highlight"  href="#" data-id="' + features[i].id + '">Remove this highlight</a>'] = '';
@@ -6378,7 +6448,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
           var length  = data.end - data.start + 1;
           var context = Math.max(Math.round(length / 4), 25);
 
-          track.browser.moveTo(data.start - context, data.end + context, true);
+          track.browser.moveTo(data.chr, data.start - context, data.end + context, true);
 
           return false;
         });
@@ -6412,7 +6482,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     url: false,
 
     insertFeature: function (feature) {
-      feature.id   = feature.start + '-' + feature.end;
+      feature.id   = feature.chr + ':' + feature.start + '-' + feature.end;
       feature.sort = feature.start;
 
       if (!feature.color) {
@@ -6505,6 +6575,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     }
   })
 });
+
 
 Genoverse.Track.Controller.Legend = Genoverse.Track.Controller.Static.extend({
   init: function () {
@@ -6834,6 +6905,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     var majorUnit = -1;
     var fromDigit = ('' + this.browser.start).split(''); // Split into array of digits
     var toDigit   = ('' + this.browser.end).split('');
+    var features  = {};
     var divisions, i;
 
     for (i = fromDigit.length; i < toDigit.length; i++) {
@@ -6873,23 +6945,25 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
     majorUnit = Math.max(majorUnit, 1);
 
-    this.prop('minorUnit',    Math.max(majorUnit / divisor, 1));
-    this.prop('majorUnit',    majorUnit);
-    this.prop('features',     new RTree());
-    this.prop('featuresById', {});
-    this.prop('seen',         {});
+    features[this.browser.chr] = new RTree();
+
+    this.prop('minorUnit',     Math.max(majorUnit / divisor, 1));
+    this.prop('majorUnit',     majorUnit);
+    this.prop('featuresByChr', features);
+    this.prop('featuresById',  {});
+    this.prop('seen',          {});
 
     this.base();
   },
 
-  setFeatures: function (start, end) {
+  setFeatures: function (chr, start, end) {
     var minorUnit = this.prop('minorUnit');
     var majorUnit = this.prop('majorUnit');
     var seen      = this.prop('seen');
 
     start = Math.max(start - (start % minorUnit) - majorUnit, 0);
 
-    var flip  = (start / minorUnit) % 2 ? 1 : -1;
+    var flip = (start / minorUnit) % 2 ? 1 : -1;
     var feature, major, label;
 
     for (var x = start; x < end + minorUnit; x += minorUnit) {
@@ -6901,7 +6975,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
       seen[x] = 1;
 
-      feature = { id: x, strand: 1, sort: x };
+      feature = { id: chr + ':' + x, chr: chr, strand: 1, sort: x };
       major   = x && x % majorUnit === 0;
 
       if (flip === 1) {
@@ -6942,7 +7016,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     params.background    = 'gv-guidelines gv-full-height';
     params.featureHeight = this.prop('height');
 
-    this.track.setFeatures(params.start, params.end);
+    this.track.setFeatures(params.chr, params.start, params.end);
 
     var rtn = this.base(params);
 
@@ -7020,6 +7094,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     return this.prop('minorUnit') < 1000 ? label.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,') : this.base(label);
   }
 });
+
 
 
 

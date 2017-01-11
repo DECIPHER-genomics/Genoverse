@@ -1,5 +1,5 @@
 Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
-  parseData: function (text) {
+  parseData: function (text, chr) {
     var lines = text.split('\n');
 
     for (var i = 0; i < lines.length; i++) {
@@ -13,7 +13,7 @@ Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
         continue;
       }
 
-      if (fields[0] === this.browser.chr || fields[0] === 'chr' + this.browser.chr) {
+      if (fields[0] == chr || fields[0] == 'chr' + chr) {
         var id      = fields.slice(0, 3).join('|');
         var start   = parseInt(fields[1], 10);
         var alleles = fields[4].split(',');
@@ -26,6 +26,7 @@ Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
           this.insertFeature({
             id              : id + '|' + alleles[j],
             sort            : j,
+            chr             : chr,
             start           : start,
             end             : end,
             width           : end - start,

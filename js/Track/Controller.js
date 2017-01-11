@@ -14,6 +14,8 @@ Genoverse.Track.Controller = Base.extend({
     this.setDefaults();
     this.addDomElements();
     this.addUserEventHandlers();
+
+    this.deferreds = []; // tracks deferreds so they can be stopped if the track is destroyed
   },
 
   setDefaults: function () {
@@ -44,7 +46,7 @@ Genoverse.Track.Controller = Base.extend({
 
   resetImageRanges: function () {
     this.left        = 0;
-    this.scrollStart = 'ss-' + this.browser.start + '-' + this.browser.end;
+    this.scrollStart = [ 'ss', this.browser.chr, this.browser.start, this.browser.end ].join('-');
 
     this.imgRange[this.scrollStart]    = this.imgRange[this.scrollStart]    || { left: this.width * -2, right: this.width * 2 };
     this.scrollRange[this.scrollStart] = this.scrollRange[this.scrollStart] || { start: this.browser.start - this.browser.length, end: this.browser.end + this.browser.length };
@@ -335,6 +337,7 @@ Genoverse.Track.Controller = Base.extend({
 
       this.makeImage({
         scale : this.scale,
+        chr   : this.browser.chr,
         start : end - this.browser.length + 1,
         end   : end,
         left  : this.imgRange[scrollStart].left,
@@ -350,6 +353,7 @@ Genoverse.Track.Controller = Base.extend({
 
       this.makeImage({
         scale : this.scale,
+        chr   : this.browser.chr,
         start : start,
         end   : start + this.browser.length - 1,
         left  : this.imgRange[scrollStart].right,
@@ -361,9 +365,9 @@ Genoverse.Track.Controller = Base.extend({
     }
   },
 
-  moveTo: function (start, end, delta) {
+  moveTo: function (chr, start, end, delta) {
     var scrollRange = this.scrollRange[this.scrollStart];
-    var scrollStart = 'ss-' + start + '-' + end;
+    var scrollStart = [ 'ss', chr, start, end ].join('-');
 
     if (this.scrollRange[scrollStart] || start > scrollRange.end || end < scrollRange.start) {
       this.resetImageRanges();
@@ -396,12 +400,12 @@ Genoverse.Track.Controller = Base.extend({
     this.imgContainers.push(div[0]);
     this.scrollContainer.append(this.imgContainers);
 
-    if (!tooLarge && !this.model.checkDataRange(params.start, params.end)) {
+    if (!tooLarge && !this.model.checkDataRange(params.chr, params.start, params.end)) {
       var buffer = this.prop('dataBuffer');
 
       params.start -= buffer.start;
       params.end   += buffer.end;
-      deferred      = this.model.getData(params.start, params.end);
+      deferred      = this.model.getData(params.chr, params.start, params.end);
     }
 
     if (!deferred) {
@@ -409,8 +413,10 @@ Genoverse.Track.Controller = Base.extend({
       setTimeout($.proxy(deferred.resolve, this), 1); // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
     }
 
+    this.deferreds.push(deferred);
+
     return deferred.done(function () {
-      var features = tooLarge ? [] : controller.model.findFeatures(params.start, params.end);
+      var features = tooLarge ? [] : controller.model.findFeatures(params.chr, params.start, params.end);
       controller.render(features, image);
 
       if (bgImage) {
@@ -429,24 +435,25 @@ Genoverse.Track.Controller = Base.extend({
     }
 
     var controller = this;
+    var chr        = this.browser.chr;
     var start      = this.browser.start;
     var end        = this.browser.end;
     var length     = this.browser.length;
     var scale      = this.scale;
     var cls        = this.scrollStart;
-    var images     = [{ start: start, end: end, scale: scale, cls: cls, left: 0 }];
+    var images     = [{ chr: chr, start: start, end: end, scale: scale, cls: cls, left: 0 }];
     var left       = 0;
     var width      = this.width;
 
     if (!this.browser.isStatic) {
       if (start > 1) {
-        images.push({ start: start - length, end: start - 1, scale: scale, cls: cls, left: -this.width });
+        images.push({ chr: chr, start: start - length, end: start - 1, scale: scale, cls: cls, left: -this.width });
         left   = -this.width;
         width += this.width;
       }
 
-      if (end < this.browser.chromosomeSize) {
-        images.push({ start: end + 1, end: end + length, scale: scale, cls: cls, left: this.width });
+      if (end < this.browser.getChromosomeSize(chr)) {
+        images.push({ chr: chr, start: end + 1, end: end + length, scale: scale, cls: cls, left: this.width });
         width += this.width;
       }
     }
@@ -462,12 +469,12 @@ Genoverse.Track.Controller = Base.extend({
     }
 
     // FIXME: on zoom out, making more than 1 request
-    if (length > this.threshold || this.model.checkDataRange(start, end)) {
+    if (length > this.threshold || this.model.checkDataRange(chr, start, end)) {
       makeImages();
     } else {
       var buffer = this.prop('dataBuffer');
 
-      this.model.getData(start - buffer.start - length, end + buffer.end + length).done(makeImages).fail(function (e) {
+      this.model.getData(chr, start - buffer.start - length, end + buffer.end + length).done(makeImages).fail(function (e) {
         controller.showError(e);
       });
     }
@@ -513,9 +520,10 @@ Genoverse.Track.Controller = Base.extend({
     var f    = $.extend(true, {}, feature);
     var menu = {
       title    : f.label ? f.label[0] : f.id,
-      Location : this.browser.chr + ':' + f.start + '-' + f.end
+      Location : f.chr + ':' + f.start + '-' + f.end
     };
 
+    delete f.chr;
     delete f.start;
     delete f.end;
     delete f.sort;
@@ -530,6 +538,12 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   destroy: function () {
+    for (var i = 0; i < this.deferreds.length; i++) {
+      if (this.deferreds[i].state() === 'pending') {
+        this.deferreds[i].reject();
+      }
+    }
+
     this.container.add(this.label).add(this.menus).remove();
   }
 });

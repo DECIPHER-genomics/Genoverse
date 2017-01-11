@@ -23,9 +23,10 @@ Genoverse.Track.Model = Base.extend({
     }
 
     if (!reset || this.data) {
-      this.dataRanges   = new RTree();
-      this.features     = new RTree();
+      delete this.dataRangesByChr;
+      delete this.featuresByChr;
       this.featuresById = {};
+      this.setChrProps();
     }
 
     this.dataLoading = []; // tracks incomplete requests for data
@@ -47,27 +48,40 @@ Genoverse.Track.Model = Base.extend({
     }
   },
 
-  parseURL: function (start, end, url) {
+  setChrProps: function () {
+    var chr = this.browser.chr;
+
+    this.dataRangesByChr = this.dataRangesByChr || {};
+    this.featuresByChr   = this.featuresByChr   || {};
+
+    this.dataRangesByChr[chr] = this.dataRangesByChr[chr] || new RTree();
+    this.featuresByChr[chr]   = this.featuresByChr[chr]   || new RTree();
+  },
+
+  features   : function (chr) { return this.featuresByChr[chr];   },
+  dataRanges : function (chr) { return this.dataRangesByChr[chr]; },
+
+  parseURL: function (chr, start, end, url) {
     if (this.allData) {
       start = 1;
-      end   = this.browser.chromosomeSize;
+      end   = this.browser.getChromosomeSize(chr);
     }
 
-    return (url || this.url).replace(/__ASSEMBLY__/, this.browser.assembly).replace(/__CHR__/, this.browser.chr).replace(/__START__/, start).replace(/__END__/, end);
+    return (url || this.url).replace(/__ASSEMBLY__/, this.browser.assembly).replace(/__CHR__/, chr).replace(/__START__/, start).replace(/__END__/, end);
   },
 
   setLabelBuffer: function (buffer) {
     this.dataBuffer.start = Math.max(this.dataBufferStart, buffer);
   },
 
-  getData: function (start, end, done) {
+  getData: function (chr, start, end, done) {
     start = Math.max(1, start);
-    end   = Math.min(this.browser.chromosomeSize, end);
+    end   = Math.min(this.browser.getChromosomeSize(chr), end);
 
     var deferred = $.Deferred();
 
     if (typeof this.data !== 'undefined') {
-      this.receiveData(typeof this.data.sort === 'function' ? this.data.sort(function (a, b) { return a.start - b.start; }) : this.data, start, end);
+      this.receiveData(typeof this.data.sort === 'function' ? this.data.sort(function (a, b) { return a.start - b.start; }) : this.data, chr, start, end);
       return deferred.resolveWith(this);
     }
 
@@ -92,16 +106,17 @@ Genoverse.Track.Model = Base.extend({
 
     $.when.apply($, $.map(bins, function (bin) {
       var request = $.ajax({
-        url       : model.parseURL(bin[0], bin[1]),
+        url       : model.parseURL(chr, bin[0], bin[1]),
+        data      : model.urlParams,
         dataType  : model.dataType,
         context   : model,
         xhrFields : model.xhrFields,
-        success   : function (data) { this.receiveData(data, bin[0], bin[1]); },
+        success   : function (data) { this.receiveData(data, chr, bin[0], bin[1]); },
         error     : function (xhr, statusText) { this.track.controller.showError(statusText + ' while getting the data, see console for more details', arguments); },
         complete  : function (xhr) { this.dataLoading = $.grep(this.dataLoading, function (t) { return xhr !== t; }); }
       });
 
-      request.coords = [ bin[0], bin[1] ]; // store actual start and end on the request, in case they are needed
+      request.coords = [ chr, bin[0], bin[1] ]; // store actual chr, start and end on the request, in case they are needed
 
       if (typeof done === 'function') {
         request.done(done);
@@ -115,12 +130,12 @@ Genoverse.Track.Model = Base.extend({
     return deferred;
   },
 
-  receiveData: function (data, start, end) {
+  receiveData: function (data, chr, start, end) {
     start = Math.max(start, 1);
-    end   = Math.min(end, this.browser.chromosomeSize);
+    end   = Math.min(end, this.browser.getChromosomeSize(chr));
 
-    this.setDataRange(start, end);
-    this.parseData(data, start, end);
+    this.setDataRange(chr, start, end);
+    this.parseData(data, chr, start, end);
 
     if (this.allData) {
       this.url = false;
@@ -128,10 +143,11 @@ Genoverse.Track.Model = Base.extend({
   },
 
   /**
-  * parseData(data, start, end) - parse raw data from the data source (e.g. online web service)
+  * parseData(data, chr, start, end) - parse raw data from the data source (e.g. online web service)
   * extract features and insert it into the internal features storage (RTree)
   *
   * >> data  - raw data from the data source (e.g. ajax response)
+  * >> chr   - chromosome of the data
   * >> start - start location of the data
   * >> end   - end   location of the data
   * << nothing
@@ -146,13 +162,14 @@ Genoverse.Track.Model = Base.extend({
   *
   * and call this.insertFeature(feature)
   */
-  parseData: function (data, start, end) {
+  parseData: function (data, chr, start, end) {
     var feature;
 
     // Example of parseData function when data is an array of hashes like { start: ..., end: ... }
     for (var i = 0; i < data.length; i++) {
       feature = data[i];
 
+      feature.chr  = feature.chr || chr;
       feature.sort = start + i;
 
       this.insertFeature(feature);
@@ -164,20 +181,20 @@ Genoverse.Track.Model = Base.extend({
     this.track.reset();
   },
 
-  setDataRange: function (start, end) {
+  setDataRange: function (chr, start, end) {
     if (this.allData) {
       start = 1;
-      end   = this.browser.chromosomeSize;
+      end   = this.browser.getChromosomeSize(chr);
     }
 
-    this.dataRanges.insert({ x: start, w: end - start + 1, y: 0, h: 1 }, [ start, end ]);
+    this.dataRanges(chr).insert({ x: start, w: end - start + 1, y: 0, h: 1 }, [ start, end ]);
   },
 
-  checkDataRange: function (start, end) {
+  checkDataRange: function (chr, start, end) {
     start = Math.max(1, start);
-    end   = Math.min(this.browser.chromosomeSize, end);
+    end   = Math.min(this.browser.getChromosomeSize(chr), end);
 
-    var ranges = this.dataRanges.search({ x: start, w: end - start + 1, y: 0, h: 1 }).sort(function (a, b) { return a[0] - b[0]; });
+    var ranges = this.dataRanges(chr).search({ x: start, w: end - start + 1, y: 0, h: 1 }).sort(function (a, b) { return a[0] - b[0]; });
 
     if (!ranges.length) {
       return false;
@@ -200,19 +217,25 @@ Genoverse.Track.Model = Base.extend({
   },
 
   insertFeature: function (feature) {
+    if (!feature.chr) {
+      return;
+    }
+
     // Make sure we have a unique ID, this method is not efficient, so better supply your own id
     if (!feature.id) {
       feature.id = feature.ID || this.hashCode(JSON.stringify($.extend({}, feature, { sort: '' }))); // sort is dependant on the browser's region, so will change on zoom
     }
 
-    if (!this.featuresById[feature.id]) {
-      this.features.insert({ x: feature.start, y: 0, w: feature.end - feature.start + 1, h: 1 }, feature);
+    var features = this.features(feature.chr);
+
+    if (features && !this.featuresById[feature.id]) {
+      features.insert({ x: feature.start, y: 0, w: feature.end - feature.start + 1, h: 1 }, feature);
       this.featuresById[feature.id] = feature;
     }
   },
 
-  findFeatures: function (start, end) {
-    var features = this.features.search({ x: start - this.dataBuffer.start, y: 0, w: end - start + this.dataBuffer.start + this.dataBuffer.end + 1, h: 1 });
+  findFeatures: function (chr, start, end) {
+    var features = this.features(chr).search({ x: start - this.dataBuffer.start, y: 0, w: end - start + this.dataBuffer.start + this.dataBuffer.end + 1, h: 1 });
     var filters  = this.prop('featureFilters') || [];
 
     for (var i = 0; i < filters.length; i++) {
@@ -236,15 +259,15 @@ Genoverse.Track.Model = Base.extend({
 
   hashCode: function (string) {
     var hash = 0;
-    var chr;
+    var c;
 
     if (!string.length) {
       return hash;
     }
 
     for (var i = 0; i < string.length; i++) {
-      chr  = string.charCodeAt(i);
-      hash = ((hash << 5) - hash) + chr;
+      c    = string.charCodeAt(i);
+      hash = ((hash << 5) - hash) + c;
       hash = hash & hash; // Convert to 32bit integer
     }
 

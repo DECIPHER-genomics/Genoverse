@@ -1,5 +1,5 @@
 Genoverse.Track.Model.File.GFF = Genoverse.Track.Model.File.extend({
-  parseData: function (text) {
+  parseData: function (text, chr) {
     var lines = text.split('\n');
 
     for (var i = 0; i < lines.length; i++) {
@@ -16,13 +16,14 @@ Genoverse.Track.Model.File.GFF = Genoverse.Track.Model.File.extend({
       var seqId = fields[0].toLowerCase();
 
       if (
-        seqId === this.browser.chr                       ||
-        seqId.toLowerCase() === 'chr' + this.browser.chr ||
-        seqId.match('[^1-9]' + this.browser.chr + '$')   ||
-        seqId.match('^' + this.browser.chr + '\\b')
+        seqId == chr                       ||
+        seqId.toLowerCase() == 'chr' + chr ||
+        seqId.match('[^1-9]' + chr + '$')  ||
+        seqId.match('^' + chr + '\\b')
       ) {
         this.insertFeature({
           id     : fields.slice(0, 5).join('|'),
+          chr    : chr,
           start  : parseInt(fields[3], 10),
           end    : parseInt(fields[4], 10),
           source : fields[1],

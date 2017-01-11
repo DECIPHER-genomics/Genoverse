@@ -82,7 +82,7 @@ Genoverse.Track.dbSNP = Genoverse.Track.extend({
     var deferred = $.Deferred();
     var menu     = [{
       title       : '<a href="http://www.ensembl.org/Homo_sapiens/Variation/Summary?v=' + feature.id + '" target="_blank">' + feature.id + '</a>',
-      Location    : this.browser.chr + ':' + feature.start + '-' + feature.end,
+      Location    : feature.chr + ':' + feature.start + '-' + feature.end,
       Consequence : feature.consequence_type,
       Alleles     : feature.alleles.join(', ')
     }];

@@ -50,19 +50,23 @@ Genoverse.Track.View = Base.extend({
   },
 
   setScaleSettings: function (scale) {
-    var featurePositions, labelPositions;
+    var chr = this.browser.chr;
 
-    if (!this.scaleSettings[scale]) {
-      featurePositions = featurePositions || new RTree();
+    if (!this.scaleSettings[chr]) {
+      this.scaleSettings[chr] = {};
+    }
 
-      this.scaleSettings[scale] = {
+    if (!this.scaleSettings[chr][scale]) {
+      var featurePositions = new RTree();
+
+      this.scaleSettings[chr][scale] = {
         imgContainers    : $(),
         featurePositions : featurePositions,
-        labelPositions   : this.labels === 'separate' ? labelPositions || new RTree() : featurePositions
+        labelPositions   : this.labels === 'separate' ? new RTree() : featurePositions
       };
     }
 
-    return this.scaleSettings[scale];
+    return this.scaleSettings[chr][scale];
   },
 
   scaleFeatures: function (features, scale) {
@@ -104,7 +108,8 @@ Genoverse.Track.View = Base.extend({
   },
 
   positionFeature: function (feature, params) {
-    var scale = params.scale;
+    var scale         = params.scale;
+    var scaleSettings = this.scaleSettings[feature.chr][scale];
 
     feature.position[scale].X = feature.position[scale].start - params.scaledStart; // FIXME: always have to reposition for X, in case a feature appears in 2 images. Pass scaledStart around instead?
 
@@ -146,24 +151,24 @@ Genoverse.Track.View = Base.extend({
       feature.position[scale].bounds = bounds;
 
       if (this.bump === true) {
-        this.bumpFeature(bounds, feature, scale, this.scaleSettings[scale].featurePositions);
+        this.bumpFeature(bounds, feature, scale, scaleSettings.featurePositions);
       }
 
-      this.scaleSettings[scale].featurePositions.insert(bounds, feature);
+      scaleSettings.featurePositions.insert(bounds, feature);
 
       feature.position[scale].bottom = feature.position[scale].Y + bounds.h + params.margin;
 
       if (feature.position[scale].label) {
         var f = $.extend(true, {}, feature); // FIXME: hack to avoid changing feature.position[scale].Y in bumpFeature
 
-        this.bumpFeature(feature.position[scale].label, f, scale, this.scaleSettings[scale].labelPositions);
+        this.bumpFeature(feature.position[scale].label, f, scale, scaleSettings.labelPositions);
 
         f.position[scale].label        = feature.position[scale].label;
         f.position[scale].label.bottom = f.position[scale].label.y + f.position[scale].label.h + params.margin;
 
         feature = f;
 
-        this.scaleSettings[scale].labelPositions.insert(feature.position[scale].label, feature);
+        scaleSettings.labelPositions.insert(feature.position[scale].label, feature);
 
         params.labelHeight = Math.max(params.labelHeight, feature.position[scale].label.bottom);
       }
@@ -177,13 +182,14 @@ Genoverse.Track.View = Base.extend({
 
   // FIXME: should label bumping bounds be distinct from feature bumping bounds when label is smaller than feature?
   bumpFeature: function (bounds, feature, scale, tree) {
-    var depth  = 0;
-    var labels = tree === this.scaleSettings[scale].labelPositions && tree !== this.scaleSettings[scale].featurePositions;
+    var depth         = 0;
+    var scaleSettings = this.scaleSettings[feature.chr][scale];
+    var labels        = tree === scaleSettings.labelPositions && tree !== scaleSettings.featurePositions;
     var bump, clash;
 
     do {
       if (this.depth && ++depth >= this.depth) {
-        if ($.grep(this.scaleSettings[scale].featurePositions.search(bounds), function (f) { return f.position[scale].visible !== false; }).length) {
+        if ($.grep(scaleSettings.featurePositions.search(bounds), function (f) { return f.position[scale].visible !== false; }).length) {
           feature.position[scale].visible = false;
         }
 

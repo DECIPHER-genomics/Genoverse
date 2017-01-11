@@ -12,13 +12,14 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
 
   // The url above responds in json format, data is an array
   // See rest.ensembl.org/documentation/info/feature_region for more details
-  parseData: function (data) {
+  parseData: function (data, chr) {
     for (var i = 0; i < data.length; i++) {
       var feature = data[i];
 
       if (feature.feature_type === 'transcript' && !this.featuresById[feature.id]) {
         this.geneIds[feature.Parent] = this.geneIds[feature.Parent] || ++this.seenGenes;
 
+        feature.chr   = feature.chr || chr;
         feature.label = parseInt(feature.strand, 10) === 1 ? (feature.external_name || feature.id) + ' >' : '< ' + (feature.external_name || feature.id);
         feature.sort  = (this.geneIds[feature.Parent] * 1e10) + (feature.logic_name.indexOf('ensembl_havana') === 0 ? 0 : 2e9) + (feature.biotype === 'protein_coding' ? 0 : 1e9) + feature.start + i;
         feature.exons = {};
@@ -30,7 +31,7 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
           this.featuresById[feature.Parent].exons[feature.id] = feature;
         }
       } else if (feature.feature_type === 'cds' && this.featuresById[feature.Parent]) {
-        feature.id = feature.start + '-' + feature.end;
+        feature.id = feature.chr + ':' + feature.start + '-' + feature.end;
 
         if (!this.featuresById[feature.Parent].cds[feature.id]) {
           this.featuresById[feature.Parent].cds[feature.id] = feature;

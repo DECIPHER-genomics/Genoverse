@@ -6,15 +6,15 @@ Genoverse.Track.Model.SequenceVariation = Genoverse.Track.Model.extend({
     return models.seq = models.seq || this.track.newMVC(this.seqModel);
   },
 
-  getData: function (start, end) {
+  getData: function (chr, start, end) {
     var deferred = $.Deferred();
-    var seqData  = this.getSeqModel().checkDataRange(start, end);
+    var seqData  = this.getSeqModel().checkDataRange(chr, start, end);
 
-    this.base(start, end).done(function () {
+    this.base(chr, start, end).done(function () {
       if (seqData) {
         deferred.resolve();
       } else {
-        this.getSeqModel().getData(start, end).done(deferred.resolve);
+        this.getSeqModel().getData(chr, start, end).done(deferred.resolve);
       }
     });
 
@@ -29,11 +29,11 @@ Genoverse.Track.Model.SequenceVariation = Genoverse.Track.Model.extend({
     }));
   },
 
-  checkDataRange: function (start, end) {
-    return this.base(start, end) && this.getSeqModel().checkDataRange(start, end);
+  checkDataRange: function (chr, start, end) {
+    return this.base(chr, start, end) && this.getSeqModel().checkDataRange(chr, start, end);
   },
 
-  findFeatures: function (start, end) {
-    return this.getSeqModel().findFeatures(start, end).concat(this.base(start, end));
+  findFeatures: function (chr, start, end) {
+    return this.getSeqModel().findFeatures(chr, start, end).concat(this.base(chr, start, end));
   }
 });

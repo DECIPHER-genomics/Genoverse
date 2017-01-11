@@ -197,6 +197,8 @@ var Genoverse = Base.extend({
       this.chromosomeSize = this.genome[this.chr].size;
     }
 
+    this.canChangeChr = !!this.genome;
+
     if (this.saveable) {
       this.loadConfig();
     } else {
@@ -448,8 +450,8 @@ var Genoverse = Base.extend({
 
       switch (e.target.className) {
         case 'gv-zoom-here' : browser.setRange(pos.start, pos.end, true); break;
-        case 'gv-center'    : browser.moveTo(pos.start, pos.end, true, true); browser.cancelSelect(); break;
-        case 'gv-highlight' : browser.addHighlight({ start: pos.start, end: pos.end });
+        case 'gv-center'    : browser.moveTo(browser.chr, pos.start, pos.end, true, true); browser.cancelSelect(); break;
+        case 'gv-highlight' : browser.addHighlight({ chr: browser.chr, start: pos.start, end: pos.end });
         case 'gv-cancel'    : browser.cancelSelect(); break;
         default             : break;
       }
@@ -771,20 +773,36 @@ var Genoverse = Base.extend({
     this.setRange(start, end);
   },
 
-  moveTo: function (start, end, update, keepLength) {
+  moveTo: function (chr, start, end, update, keepLength) {
+    if (typeof chr !== 'undefined' && chr != this.chr) {
+      if (this.canChangeChr) {
+        if (this.genome && this.genome[chr]) {
+          this.chr            = chr;
+          this.chromosomeSize = this.genome[chr].size;
+          this.start          = this.end = this.scale = -1;
+        } else {
+          this.die('Chromosome cannot be found in genome');
+        }
+
+        this.onTracks('changeChr');
+      } else {
+        this.die('Chromosome changing is not allowed');
+      }
+    }
+
     this.setRange(start, end, update, keepLength);
 
     if (this.prev.scale === this.scale) {
       this.left = Math.max(Math.min(this.left + Math.round((this.prev.start - this.start) * this.scale), this.maxLeft), this.minLeft);
-      this.onTracks('moveTo', this.start, this.end, (this.prev.start - this.start) * this.scale);
+      this.onTracks('moveTo', this.chr, this.start, this.end, (this.prev.start - this.start) * this.scale);
     }
   },
 
   setRange: function (start, end, update, keepLength) {
     this.prev.start = this.start;
     this.prev.end   = this.end;
-    this.start      = Math.max(typeof start === 'number' ? Math.floor(start) : parseInt(start, 10), 1);
-    this.end        = Math.min(typeof end   === 'number' ? Math.floor(end)   : parseInt(end,   10), this.chromosomeSize);
+    this.start      = Math.min(Math.max(typeof start === 'number' ? Math.floor(start) : parseInt(start, 10), 1), this.chromosomeSize);
+    this.end        = Math.max(Math.min(typeof end   === 'number' ? Math.floor(end)   : parseInt(end,   10), this.chromosomeSize), 1);
 
     if (this.end < this.start) {
       this.end = Math.min(this.start + this.defaultLength - 1, this.chromosomeSize);
@@ -1050,9 +1068,12 @@ var Genoverse = Base.extend({
     var start  = parseInt(coords.start, 10);
     var end    = parseInt(coords.end,   10);
 
-    if (coords.start && !(start === this.start && end === this.end)) {
+    if (
+      (coords.chr && coords.chr != this.chr) ||
+      (coords.start && !(start === this.start && end === this.end))
+    ) {
       // FIXME: a back action which changes scale or a zoom out will reset tracks, since scrollStart will not be the same as it was before
-      this.moveTo(start, end);
+      this.moveTo(coords.chr, start, end);
     }
 
     this.closeMenus();
@@ -1090,6 +1111,10 @@ var Genoverse = Base.extend({
     return this.useHash ? location : window.location.search ? (window.location.search + '&').replace(this.paramRegex, '$1' + location + '$5').slice(0, -1) : '?' + location;
   },
 
+  getChromosomeSize: function (chr) {
+    return chr && this.genome && this.genome[chr] ? this.genome[chr].size : this.chromosomeSize;
+  },
+
   supported: function () {
     var el = document.createElement('canvas');
     return !!(el.getContext && el.getContext('2d'));
@@ -1099,7 +1124,7 @@ var Genoverse = Base.extend({
     if (el && el.length) {
       el.html(error);
     } else {
-      alert(error);
+      throw error;
     }
 
     this.failed = true;
@@ -1153,7 +1178,7 @@ var Genoverse = Base.extend({
     $('.gv-title', menu).html(features.length + ' features');
 
     $.each(features.sort(function (a, b) { return a.start - b.start; }), function (i, feature) {
-      var location = (feature.chr || browser.chr) + ':' + feature.start + (feature.end === feature.start ? '' : '-' + feature.end);
+      var location = feature.chr + ':' + feature.start + (feature.end === feature.start ? '' : '-' + feature.end);
       var title    = feature.menuLabel || feature.name || ($.isArray(feature.label) ? feature.label.join(' ') : feature.label) || (feature.id + '');
 
       $('<a href="#">').html(title.match(location) ? title : (location + ' ' + title)).on('click', function (e) {
@@ -1180,14 +1205,14 @@ var Genoverse = Base.extend({
   makeFeatureMenu: function (feature, e, track) {
     var browser   = this;
     var container = this.superContainer || this.container;
-    var menu, content, loading, getMenu, isDeferred, i, j,  el, start, end, linkData, key, columns, colspan;
+    var menu, content, loading, getMenu, isDeferred, i, j,  el, chr, start, end, linkData, key, columns, colspan;
 
     function focus() {
       var data    = $(this).data();
       var length  = data.end - data.start + 1;
       var context = Math.max(Math.round(length / 4), 25);
 
-      browser.moveTo(data.start - context, data.end + context, true);
+      browser.moveTo(data.chr, data.start - context, data.end + context, true);
 
       return false;
     }
@@ -1216,6 +1241,7 @@ var Genoverse = Base.extend({
         for (i = 0; i < properties.length; i++) {
           table   = '';
           el      = content.clone().addClass(i ? '' : 'gv-menu-content-first').appendTo(menu);
+          chr     = typeof properties[i].chr !== 'undefined' ? properties[i].chr : feature.chr;
           start   = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
           end     = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
           columns = Math.max.apply(Math, $.map(properties[i], function (v) { return $.isArray(v) ? v.length : 1; }));
@@ -1223,7 +1249,7 @@ var Genoverse = Base.extend({
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
           if (track && start && end && !browser.isStatic) {
-            linkData = { start: start, end: Math.max(end, start), label: feature.label || (properties[i].title || '').replace(/<[^>]+>/g, ''), color: feature.color };
+            linkData = { chr: chr, start: start, end: Math.max(end, start), label: feature.label || (properties[i].title || '').replace(/<[^>]+>/g, ''), color: feature.color };
 
             $('.gv-focus',     el).data(linkData).on('click', focus);
             $('.gv-highlight', el).data(linkData).on('click', highlight);
