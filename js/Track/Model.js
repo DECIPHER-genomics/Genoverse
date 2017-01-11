@@ -42,21 +42,8 @@ Genoverse.Track.Model = Base.extend({
       this._url = this.url; // Remember original url
     }
 
-    if (this.url || (this._url && reset)) {
-      this.setURL(undefined, reset);
-    }
-  },
-
-  setURL: function (urlParams, update) {
-    urlParams = urlParams || this.urlParams;
-
-    if (update && this._url) {
+    if (reset && !this.url && this._url) {
       this.url = this._url;
-    }
-
-    if (this.url !== false) {
-      this.url += (this.url.indexOf('?') === -1 ? '?' : '&') + decodeURIComponent($.param(urlParams, true));
-      this.url  = this.url.replace(/[&?]$/, '');
     }
   },
 
