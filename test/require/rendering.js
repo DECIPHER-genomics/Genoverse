@@ -140,7 +140,7 @@ global.testCanvas = function (track, draw, image, height, instructionType, stran
     context[func].apply(context, instruction);
   });
 
-  expect(canvas.toDataURL()).toEqual(image[0].src, [ 'Drawing is incorrect for', region, instructionType, (strand ? strand === 1 ? 'forward strand' : 'reverse strand' : '') ].filter(function (a) { return a; }).join(' '));
+  expect(image[0].src).toEqual(canvas.toDataURL(), [ 'Drawing is incorrect for', region, instructionType, (strand ? strand === 1 ? 'forward strand' : 'reverse strand' : '') ].filter(function (a) { return a; }).join(' '));
 };
 
 global.testTrackRender = function (features, track, draw, genoverseConfig) {
