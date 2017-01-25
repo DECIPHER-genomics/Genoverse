@@ -2290,11 +2290,6 @@ var Genoverse = Base.extend({
 
       if (push) {
         this.tracks.push(tracks[i]);
-
-        if (this.scale) {
-          tracks[i].controller.setScale(); // scale will only be set for tracks added after initalization
-          tracks[i].controller.makeFirstImage();
-        }
       } else {
         this.tracks[i] = tracks[i];
       }
@@ -2922,6 +2917,11 @@ Genoverse.Track = Base.extend({
 
     this.setLengthMap();
     this.setMVC();
+
+    if (this.browser.scale) {
+      this.controller.setScale();
+      this.controller.makeFirstImage();
+    }
   },
 
   setEvents: $.noop,

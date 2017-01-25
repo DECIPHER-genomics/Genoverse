@@ -26,6 +26,11 @@ Genoverse.Track = Base.extend({
 
     this.setLengthMap();
     this.setMVC();
+
+    if (this.browser.scale) {
+      this.controller.setScale();
+      this.controller.makeFirstImage();
+    }
   },
 
   setEvents: $.noop,
