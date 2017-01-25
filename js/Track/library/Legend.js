@@ -167,7 +167,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
       afterSetMVC: function () {
         var legend = this.prop('legendTrack');
 
-        if (legend) {
+        if (legend && legend.tracks.length) {
           legend.disable();
 
           if (this.legend !== false) {

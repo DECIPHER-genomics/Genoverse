@@ -18,7 +18,13 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
       this._makeImage = this.makeImage;
       this.makeImage  = this.makeForwardImage;
 
-      this.track.reverseTrack = this.browser.addTrack(this.track.constructor.extend({ strand: -1, url: false, forwardTrack: this.track }), this.browser.tracks.length);
+      var track = this.track;
+
+      setTimeout(function () {
+        track.reverseTrack = track.browser.addTrack(track.constructor.extend({ strand: -1, url: false, forwardTrack: track }), track.browser.tracks.length);
+        $.each(track.controller._deferredReverseTrackImages, function (i, args) { track.controller._makeReverseTrackImage.apply(track.controller, args); });
+        delete track.controller._deferredReverseTrackImages;
+      }, 1);
     }
 
     if (!featureStrand) {
@@ -27,19 +33,23 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
   },
 
   makeForwardImage: function (params) {
-    var rtn          = this._makeImage(params);
+    this._makeReverseTrackImage(params, this._makeImage(params));
+  },
+
+  _makeReverseTrackImage: function (params, deferred) {
     var reverseTrack = this.prop('reverseTrack');
 
     if (!reverseTrack) {
+      this._deferredReverseTrackImages = (this._deferredReverseTrackImages || []).concat([[ params, deferred ]]);
       return;
     }
 
-    if (rtn && typeof rtn.done === 'function') {
-      rtn.done(function () {
-        reverseTrack.controller._makeImage(params, rtn);
+    if (deferred && typeof deferred.done === 'function') {
+      deferred.done(function () {
+        reverseTrack.controller._makeImage(params, deferred);
       });
     } else {
-      reverseTrack.controller._makeImage(params, rtn);
+      reverseTrack.controller._makeImage(params, deferred);
     }
   },
 

@@ -468,6 +468,7 @@ Genoverse.Track = Base.extend({
   },
 
   addLegend: function (config, constructor) {
+    var track      = this;
     var legendType = this.legendType || this.id;
 
     config = $.extend({
@@ -476,8 +477,11 @@ Genoverse.Track = Base.extend({
       type : legendType
     }, config);
 
-    this.legendType  = config.type;
-    this.legendTrack = this.browser.legends[config.id] || this.browser.addTrack((constructor || Genoverse.Track.Legend).extend(config));
+    this.legendType = config.type;
+
+    setTimeout(function () {
+      track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack((constructor || Genoverse.Track.Legend).extend(config));
+    }, 1);
   },
 
   changeChr: function () {

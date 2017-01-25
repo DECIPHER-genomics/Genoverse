@@ -3359,6 +3359,7 @@ Genoverse.Track = Base.extend({
   },
 
   addLegend: function (config, constructor) {
+    var track      = this;
     var legendType = this.legendType || this.id;
 
     config = $.extend({
@@ -3367,8 +3368,11 @@ Genoverse.Track = Base.extend({
       type : legendType
     }, config);
 
-    this.legendType  = config.type;
-    this.legendTrack = this.browser.legends[config.id] || this.browser.addTrack((constructor || Genoverse.Track.Legend).extend(config));
+    this.legendType = config.type;
+
+    setTimeout(function () {
+      track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack((constructor || Genoverse.Track.Legend).extend(config));
+    }, 1);
   },
 
   changeChr: function () {
@@ -4750,7 +4754,13 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
       this._makeImage = this.makeImage;
       this.makeImage  = this.makeForwardImage;
 
-      this.track.reverseTrack = this.browser.addTrack(this.track.constructor.extend({ strand: -1, url: false, forwardTrack: this.track }), this.browser.tracks.length);
+      var track = this.track;
+
+      setTimeout(function () {
+        track.reverseTrack = track.browser.addTrack(track.constructor.extend({ strand: -1, url: false, forwardTrack: track }), track.browser.tracks.length);
+        $.each(track.controller._deferredReverseTrackImages, function (i, args) { track.controller._makeReverseTrackImage.apply(track.controller, args); });
+        delete track.controller._deferredReverseTrackImages;
+      }, 1);
     }
 
     if (!featureStrand) {
@@ -4759,19 +4769,23 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
   },
 
   makeForwardImage: function (params) {
-    var rtn          = this._makeImage(params);
+    this._makeReverseTrackImage(params, this._makeImage(params));
+  },
+
+  _makeReverseTrackImage: function (params, deferred) {
     var reverseTrack = this.prop('reverseTrack');
 
     if (!reverseTrack) {
+      this._deferredReverseTrackImages = (this._deferredReverseTrackImages || []).concat([[ params, deferred ]]);
       return;
     }
 
-    if (rtn && typeof rtn.done === 'function') {
-      rtn.done(function () {
-        reverseTrack.controller._makeImage(params, rtn);
+    if (deferred && typeof deferred.done === 'function') {
+      deferred.done(function () {
+        reverseTrack.controller._makeImage(params, deferred);
       });
     } else {
-      reverseTrack.controller._makeImage(params, rtn);
+      reverseTrack.controller._makeImage(params, deferred);
     }
   },
 
@@ -6745,7 +6759,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
       afterSetMVC: function () {
         var legend = this.prop('legendTrack');
 
-        if (legend) {
+        if (legend && legend.tracks.length) {
           legend.disable();
 
           if (this.legend !== false) {
@@ -7025,7 +7039,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   },
 
   makeReverseImage: function (params) {
-    this.imgContainers.push(params.container.clone().html(params.container.children('.gv-data').clone(true).css('background', this.browser.wrapper.css('backgroundColor')))[0]);
+    this.imgContainers.push(params.container.clone().html(params.container.children('.gv-data').clone(true).css({ opacity: 1, background: this.browser.wrapper.css('backgroundColor') }))[0]);
     this.scrollContainer.append(this.imgContainers);
   },
 
