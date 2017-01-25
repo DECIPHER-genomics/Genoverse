@@ -57,7 +57,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     }
 
     if (this.prop('strand') === 1) {
-      this.prop('reverseTrack').track.removeHighlights(highlights);
+      this.prop('reverseTrack').removeHighlights(highlights);
     }
 
     this.reset();

@@ -140,7 +140,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
   makeFirstImage: function (moveTo) {
     if (this.prop('strand') === -1) {
-      moveTo = this.track.forwardTrack.scrollStart;
+      moveTo = this.track.forwardTrack.prop('scrollStart');
     }
 
     return this.base(moveTo);
