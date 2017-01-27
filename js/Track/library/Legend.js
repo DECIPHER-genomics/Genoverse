@@ -5,8 +5,6 @@ Genoverse.Track.Controller.Legend = Genoverse.Track.Controller.Static.extend({
     this.container.addClass('gv-track-container-legend');
 
     this.browser.legends[this.track.id] = this.track;
-
-    this.track.setTracks();
   },
 
   destroy: function () {
@@ -101,11 +99,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
 
   setEvents: function () {
     this.browser.on({
-      'afterInit afterAddTracks afterRemoveTracks': function (tracks) {
-        if (tracks && tracks.length === 1 && tracks[0] instanceof Genoverse.Track.Legend) {
-          return; // Don't do anything if a legend has just been added - it will have set its own tracks in the init function
-        }
-
+      'afterAddTracks afterRemoveTracks': function (tracks) {
         for (var i in this.legends) {
           this.legends[i].setTracks();
         }
@@ -127,10 +121,10 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
         var track       = ui.item.data('track');
         var legendTrack = this.legends[track.id] || track.legendTrack;
 
-        // If a legend track, or a track with a sortable legend has been reordered, set a fixedOrder property to ensure that its lockToTrack status is ignored from now on.
+        // If a legend track, or a track with a sortable legend has been reordered, its lockToTrack status is ignored from now on.
         // This allows a legend to initially be locked to a track, but then to be reordered once the browser has been initialized
         if (legendTrack && legendTrack.lockToTrack && legendTrack.unsortable === false) {
-          legendTrack.fixedOrder = true;
+          legendTrack.lockToTrack = false;
         }
 
         for (var i in this.legends) {
@@ -194,11 +188,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   },
 
   updateOrder: function () {
-    if (!this.tracks.length || this.fixedOrder) {
-      return;
-    }
-
-    if (this.lockToTrack) {
+    if (this.tracks.length && this.lockToTrack) {
       this.order = this.tracks[this.tracks.length - 1].order + 0.1;
     }
   },

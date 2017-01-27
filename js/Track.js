@@ -177,10 +177,6 @@ Genoverse.Track = Base.extend({
       controllerSettings.prop.threshold = controllerSettings.prop.threshold || this.controller.constructor.prototype.threshold;
       $.extend(this.controller, controllerSettings.prop, { model: this.model, view: this.view });
     }
-
-    if (this.strand === -1 && this.orderReverse) {
-      this.order = this.orderReverse;
-    }
   },
 
   newMVC: function (object, functions, properties) {

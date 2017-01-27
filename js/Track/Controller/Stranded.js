@@ -21,7 +21,14 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
       var track = this.track;
 
       setTimeout(function () {
-        track.reverseTrack = track.browser.addTrack(track.constructor.extend({ strand: -1, url: false, forwardTrack: track }), track.browser.tracks.length);
+        track.reverseTrack = track.browser.addTrack(track.constructor.extend({
+          id           : track.id ? track.id + 'Reverse' : undefined,
+          strand       : -1,
+          url          : false,
+          order        : typeof track.orderReverse === 'number' ? track.orderReverse : track.order,
+          forwardTrack : track
+        }));
+
         $.each(track.controller._deferredReverseTrackImages, function (i, args) { track.controller._makeReverseTrackImage.apply(track.controller, args); });
         delete track.controller._deferredReverseTrackImages;
       }, 1);

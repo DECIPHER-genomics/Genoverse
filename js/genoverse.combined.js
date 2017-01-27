@@ -1666,14 +1666,12 @@ var Genoverse = Base.extend({
   },
 
   resetConfig: function () {
-    // The highlights track is controlled by adding highlights, and will be required to stay displayed if there are non removable highlights present.
-    // It should therefore be excluded from the set of tracks being removed and added.
-    function excludeHighlightTrack(track) {
-      return track.id !== 'highlights';
-    }
+    // Non removable highlights should be re-added after reset
+    var unremovableHighlights = [];
 
     if (this.tracksById.highlights) {
       this.tracksById.highlights.removeHighlights();
+      unremovableHighlights = $.map(this.tracksById.highlights.prop('featuresById'), function (h) { return h; });
     }
 
     window[this.storageType].removeItem(this.saveKey);
@@ -1681,8 +1679,12 @@ var Genoverse = Base.extend({
     this._constructing = true;
     this.savedConfig   = {};
 
-    this.removeTracks($.extend([],    $.grep(this.tracks,        excludeHighlightTrack))); // Shallow clone to ensure that removeTracks doesn't hit problems when splicing this.tracks
-    this.addTracks($.extend([], true, $.grep(this.defaultTracks, excludeHighlightTrack)));
+    this.removeTracks($.extend([],    this.tracks)); // Shallow clone to ensure that removeTracks doesn't hit problems when splicing this.tracks
+    this.addTracks($.extend([], true, this.defaultTracks));
+
+    if (unremovableHighlights.length) {
+      this.addHighlights(unremovableHighlights);
+    }
 
     this._constructing = false;
   },
@@ -2252,7 +2254,11 @@ var Genoverse = Base.extend({
     tracks = tracks || $.extend([], this.tracks);
 
     if (push && !$.grep(this.tracks, function (t) { return typeof t === 'function'; }).length) {
-      order = (after ? $.grep(this.tracks, function (t) { return t.order < after; }) : this.tracks).sort(function (a, b) { return b.order - a.order; })[0].order + 0.001;
+      var insertAfter = (after ? $.grep(this.tracks, function (t) { return t.order < after; }) : this.tracks).sort(function (a, b) { return b.order - a.order; })[0];
+
+      if (insertAfter) {
+        order = insertAfter.order + 0.1;
+      }
     }
 
     for (var i = 0; i < tracks.length; i++) {
@@ -2286,7 +2292,7 @@ var Genoverse = Base.extend({
 
       tracks[i] = new tracks[i]($.extend(defaults, {
         namespace : namespaces[0],
-        order     : (order || 0) + i,
+        order     : typeof order === 'number' ? order : i,
         config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined
       }));
 
@@ -2346,9 +2352,7 @@ var Genoverse = Base.extend({
     var containers = $();
 
     for (var i = 0; i < sorted.length; i++) {
-      if (!sorted[i].prop('unsortable')) {
-        sorted[i].prop('order', i);
-      }
+      sorted[i].prop('order', i);
 
       if (sorted[i].prop('menus').length) {
         sorted[i].prop('top', sorted[i].prop('container').position().top);
@@ -2377,11 +2381,16 @@ var Genoverse = Base.extend({
 
   updateTrackOrder: function (e, ui) {
     var track = ui.item.data('track');
-    var prev  = ui.item.prev().data('track');
-    var next  = ui.item.next().data('track');
-    var p     = prev ? prev.prop('order') : 0;
-    var n     = next ? next.prop('order') : 0;
-    var o     = p || n;
+
+    if (track.prop('unsortable')) {
+      return;
+    }
+
+    var prev = ui.item.prev().data('track');
+    var next = ui.item.next().data('track');
+    var p    = prev ? prev.prop('order') : 0;
+    var n    = next ? next.prop('order') : 0;
+    var o    = p || n;
     var order;
 
     if (prev && next && Math.floor(n) === Math.floor(p)) {
@@ -3073,10 +3082,6 @@ Genoverse.Track = Base.extend({
     } else {
       controllerSettings.prop.threshold = controllerSettings.prop.threshold || this.controller.constructor.prototype.threshold;
       $.extend(this.controller, controllerSettings.prop, { model: this.model, view: this.view });
-    }
-
-    if (this.strand === -1 && this.orderReverse) {
-      this.order = this.orderReverse;
     }
   },
 
@@ -4763,7 +4768,14 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
       var track = this.track;
 
       setTimeout(function () {
-        track.reverseTrack = track.browser.addTrack(track.constructor.extend({ strand: -1, url: false, forwardTrack: track }), track.browser.tracks.length);
+        track.reverseTrack = track.browser.addTrack(track.constructor.extend({
+          id           : track.id ? track.id + 'Reverse' : undefined,
+          strand       : -1,
+          url          : false,
+          order        : typeof track.orderReverse === 'number' ? track.orderReverse : track.order,
+          forwardTrack : track
+        }));
+
         $.each(track.controller._deferredReverseTrackImages, function (i, args) { track.controller._makeReverseTrackImage.apply(track.controller, args); });
         delete track.controller._deferredReverseTrackImages;
       }, 1);
@@ -6603,8 +6615,6 @@ Genoverse.Track.Controller.Legend = Genoverse.Track.Controller.Static.extend({
     this.container.addClass('gv-track-container-legend');
 
     this.browser.legends[this.track.id] = this.track;
-
-    this.track.setTracks();
   },
 
   destroy: function () {
@@ -6699,11 +6709,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
 
   setEvents: function () {
     this.browser.on({
-      'afterInit afterAddTracks afterRemoveTracks': function (tracks) {
-        if (tracks && tracks.length === 1 && tracks[0] instanceof Genoverse.Track.Legend) {
-          return; // Don't do anything if a legend has just been added - it will have set its own tracks in the init function
-        }
-
+      'afterAddTracks afterRemoveTracks': function (tracks) {
         for (var i in this.legends) {
           this.legends[i].setTracks();
         }
@@ -6725,10 +6731,10 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
         var track       = ui.item.data('track');
         var legendTrack = this.legends[track.id] || track.legendTrack;
 
-        // If a legend track, or a track with a sortable legend has been reordered, set a fixedOrder property to ensure that its lockToTrack status is ignored from now on.
+        // If a legend track, or a track with a sortable legend has been reordered, its lockToTrack status is ignored from now on.
         // This allows a legend to initially be locked to a track, but then to be reordered once the browser has been initialized
         if (legendTrack && legendTrack.lockToTrack && legendTrack.unsortable === false) {
-          legendTrack.fixedOrder = true;
+          legendTrack.lockToTrack = false;
         }
 
         for (var i in this.legends) {
@@ -6792,11 +6798,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   },
 
   updateOrder: function () {
-    if (!this.tracks.length || this.fixedOrder) {
-      return;
-    }
-
-    if (this.lockToTrack) {
+    if (this.tracks.length && this.lockToTrack) {
       this.order = this.tracks[this.tracks.length - 1].order + 0.1;
     }
   },

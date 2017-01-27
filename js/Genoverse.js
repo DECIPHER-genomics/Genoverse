@@ -318,14 +318,12 @@ var Genoverse = Base.extend({
   },
 
   resetConfig: function () {
-    // The highlights track is controlled by adding highlights, and will be required to stay displayed if there are non removable highlights present.
-    // It should therefore be excluded from the set of tracks being removed and added.
-    function excludeHighlightTrack(track) {
-      return track.id !== 'highlights';
-    }
+    // Non removable highlights should be re-added after reset
+    var unremovableHighlights = [];
 
     if (this.tracksById.highlights) {
       this.tracksById.highlights.removeHighlights();
+      unremovableHighlights = $.map(this.tracksById.highlights.prop('featuresById'), function (h) { return h; });
     }
 
     window[this.storageType].removeItem(this.saveKey);
@@ -333,8 +331,12 @@ var Genoverse = Base.extend({
     this._constructing = true;
     this.savedConfig   = {};
 
-    this.removeTracks($.extend([],    $.grep(this.tracks,        excludeHighlightTrack))); // Shallow clone to ensure that removeTracks doesn't hit problems when splicing this.tracks
-    this.addTracks($.extend([], true, $.grep(this.defaultTracks, excludeHighlightTrack)));
+    this.removeTracks($.extend([],    this.tracks)); // Shallow clone to ensure that removeTracks doesn't hit problems when splicing this.tracks
+    this.addTracks($.extend([], true, this.defaultTracks));
+
+    if (unremovableHighlights.length) {
+      this.addHighlights(unremovableHighlights);
+    }
 
     this._constructing = false;
   },
@@ -904,7 +906,11 @@ var Genoverse = Base.extend({
     tracks = tracks || $.extend([], this.tracks);
 
     if (push && !$.grep(this.tracks, function (t) { return typeof t === 'function'; }).length) {
-      order = (after ? $.grep(this.tracks, function (t) { return t.order < after; }) : this.tracks).sort(function (a, b) { return b.order - a.order; })[0].order + 0.001;
+      var insertAfter = (after ? $.grep(this.tracks, function (t) { return t.order < after; }) : this.tracks).sort(function (a, b) { return b.order - a.order; })[0];
+
+      if (insertAfter) {
+        order = insertAfter.order + 0.1;
+      }
     }
 
     for (var i = 0; i < tracks.length; i++) {
@@ -938,7 +944,7 @@ var Genoverse = Base.extend({
 
       tracks[i] = new tracks[i]($.extend(defaults, {
         namespace : namespaces[0],
-        order     : (order || 0) + i,
+        order     : typeof order === 'number' ? order : i,
         config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined
       }));
 
@@ -998,9 +1004,7 @@ var Genoverse = Base.extend({
     var containers = $();
 
     for (var i = 0; i < sorted.length; i++) {
-      if (!sorted[i].prop('unsortable')) {
-        sorted[i].prop('order', i);
-      }
+      sorted[i].prop('order', i);
 
       if (sorted[i].prop('menus').length) {
         sorted[i].prop('top', sorted[i].prop('container').position().top);
@@ -1029,11 +1033,16 @@ var Genoverse = Base.extend({
 
   updateTrackOrder: function (e, ui) {
     var track = ui.item.data('track');
-    var prev  = ui.item.prev().data('track');
-    var next  = ui.item.next().data('track');
-    var p     = prev ? prev.prop('order') : 0;
-    var n     = next ? next.prop('order') : 0;
-    var o     = p || n;
+
+    if (track.prop('unsortable')) {
+      return;
+    }
+
+    var prev = ui.item.prev().data('track');
+    var next = ui.item.next().data('track');
+    var p    = prev ? prev.prop('order') : 0;
+    var n    = next ? next.prop('order') : 0;
+    var o    = p || n;
     var order;
 
     if (prev && next && Math.floor(n) === Math.floor(p)) {
