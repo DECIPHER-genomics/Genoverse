@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node_modules/.bin/mocha $(find test/require/*.js -print0 | xargs -r0 -I {} echo -n '--require {} ') --timeout 3000 --recursive"
+    "test": "node_modules/.bin/mocha $(find test/require/*.js -print0 | xargs -r0 -I {} echo -n '--require {} ') --no-timeouts --recursive"
   },
   "repository": {
     "type": "git",

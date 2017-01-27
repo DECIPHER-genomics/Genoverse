@@ -53,7 +53,7 @@ function getTrackConfig(features, draw) {
 
     afterRender: function (f, image) {
       var track    = this;
-      var separate = this.prop('labels') === 'separate' && image.next().length;
+      var separate = this.prop('labels') === 'separate';
       var strand   = this instanceof Genoverse.Track.Controller.Stranded ? this.prop('strand') : undefined;
 
       var tests = [{ img: image, type: 'features', instructionType: separate || image.data('background') ? 'features' : '' }];
@@ -67,14 +67,16 @@ function getTrackConfig(features, draw) {
       }
 
       tests.forEach(function (test) {
-        testCanvas(
-          track,
-          draw,
-          test.img,
-          test.img.data(test.type === 'labels' ? 'labelHeight' : 'featureHeight'),
-          typeof test.instructionType !== 'undefined' ? test.instructionType : test.type,
-          strand
-        );
+        if (test.img.length) {
+          testCanvas(
+            track,
+            draw,
+            test.img,
+            test.img.data(test.type === 'labels' ? 'labelHeight' : 'featureHeight'),
+            typeof test.instructionType !== 'undefined' ? test.instructionType : test.type,
+            strand
+          );
+        }
 
         image.data('_testDeferred')[test.type].resolve();
       });
@@ -155,7 +157,11 @@ global.testTrackRender = function (features, track, draw, genoverseConfig) {
     tracks         : [ (trackConfig._testClass || Genoverse.Track).extend(trackConfig) ],
   }, genoverseConfig || {}));
 
-  return $.when.apply($, genoverse._testDeferreds);
+  var d = $.Deferred();
+
+  setTimeout(function () { $.when.apply($, genoverse._testDeferreds).done(d.resolve); }, 1);
+
+  return d;
 };
 
 global.testTrackRenderStatic = function (features, track, draw, genoverseConfig) {
