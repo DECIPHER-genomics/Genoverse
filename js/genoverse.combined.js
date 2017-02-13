@@ -3392,6 +3392,10 @@ Genoverse.Track = Base.extend({
     }
   },
 
+  updateName: function (name) {
+    this.controller.setName(name); // For ease of use in external code
+  },
+
   enable: function () {
     if (this.disabled === true) {
       this.disabled = false;
