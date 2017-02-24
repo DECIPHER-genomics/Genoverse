@@ -2050,14 +2050,14 @@ var Genoverse = Base.extend({
     }
   },
 
-  mouseup: function (e, update) {
+  mouseup: function (e) {
     if (!this.dragging) {
       return false;
     }
 
     switch (this.dragging) {
-      case 'select' : this.stopDragSelect(e);      break;
-      case 'scroll' : this.stopDragScroll(update); break;
+      case 'select' : this.stopDragSelect(e); break;
+      case 'scroll' : this.stopDragScroll();  break;
       default       : break;
     }
   },
