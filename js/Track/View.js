@@ -349,9 +349,9 @@ Genoverse.Track.View = Base.extend({
     feature.labelColor = this.fontColor || feature.color || this.color;
   },
 
-  // Method to lighten a colour by an amount, adapted from http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
-  shadeColor: function (colour, percent) {
-    var f = parseInt(colour.slice(1), 16);
+  // Method to lighten a color by an amount, adapted from http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
+  shadeColor: function (color, percent) {
+    var f = parseInt(color.slice(1), 16);
     var R = f >> 16;
     var G = f >> 8 & 0x00FF;
     var B = f & 0x0000FF;
