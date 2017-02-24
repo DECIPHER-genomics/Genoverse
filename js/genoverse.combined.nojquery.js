@@ -1458,7 +1458,7 @@ var Genoverse = Base.extend({
       return deferred;
     }
 
-    function intializePlugin(plugin) {
+    function initializePlugin(plugin) {
       if (typeof Genoverse.Plugins[plugin] !== 'function' || browser.loadedPlugins[plugin] === true) {
         return [];
       }
@@ -1494,7 +1494,7 @@ var Genoverse = Base.extend({
         plugin = arguments[i];
 
         if (browser.loadedPlugins[plugin] !== true) {
-          pluginsLoaded.push(intializePlugin(plugin));
+          pluginsLoaded.push(initializePlugin(plugin));
         }
       }
 
