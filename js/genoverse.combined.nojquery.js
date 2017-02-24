@@ -3991,13 +3991,14 @@ Genoverse.Track.Controller = Base.extend({
 
 
 Genoverse.Track.Model = Base.extend({
-  dataType   : 'json',
-  allData    : false,
-  dataBuffer : undefined, // e.g. { start: 0, end: 0 } - basepairs to extend data region for, when getting data from the origin
-  xhrFields  : undefined,
-  url        : undefined,
-  urlParams  : undefined, // hash of URL params
-  data       : undefined, // if defined, will be used instead of fetching data from a source
+  dataType         : 'json',
+  allData          : false,
+  dataBuffer       : undefined, // e.g. { start: 0, end: 0 } - basepairs to extend data region for, when getting data from the origin
+  xhrFields        : undefined,
+  url              : undefined,
+  urlParams        : undefined, // hash of URL params
+  data             : undefined, // if defined, will be used instead of fetching data from a source
+  dataRequestLimit : undefined, // if defined, multiple requests will be made by getData if the region size exceeds its value
 
   constructor: function (properties) {
     $.extend(this, properties);
