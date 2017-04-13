@@ -13,7 +13,7 @@ Genoverse.Plugins.trackControls = function () {
 
       menu.show().position({ of: track.prop('container'), at: 'center top', my: 'center top', collision: 'none' });
     }),
-    
+
     $('<a class="gv-height-toggle">').html('&nbsp;').on({
       click: function () {
         var track = $(this).data('track');
@@ -43,11 +43,11 @@ Genoverse.Plugins.trackControls = function () {
         }
       }
     }),
-
-    $('<a title="Remove track">').html('<i class="fa fa-trash"></i>').on('click', function () {
-      $(this).data('track').remove();
-    })
   ];
+
+  var remove = $('<a title="Remove track">').html('<i class="fa fa-trash"></i>').on('click', function () {
+    $(this).data('track').remove();
+  });
 
   var toggle = $('<a>').html('&laquo;').on('click', function () {
     var parent = $(this).parent();
@@ -75,7 +75,7 @@ Genoverse.Plugins.trackControls = function () {
       var savedConfig   = this.browser.savedConfig ? this.browser.savedConfig[this.prop('id')] || {} : {};
       var prop, el, j;
 
-      controls = (controls || []).concat(defaultControls);
+      controls = (controls || []).concat(defaultControls, this.prop('removable') === false ? [] : remove);
 
       this.trackControls = $('<div class="gv-track-controls">').prependTo(this.container);
 
