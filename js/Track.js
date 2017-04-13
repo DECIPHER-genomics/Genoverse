@@ -1,5 +1,5 @@
 Genoverse.Track = Base.extend({
-  height     : 12,        // The height of the track_container div
+  height     : 12,        // The height of the gv-track-container div
   margin     : 2,         // The spacing between this track and the next
   resizable  : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
   border     : true,      // Does the track have a bottom border
@@ -425,7 +425,7 @@ Genoverse.Track = Base.extend({
       }
 
       this._setCurrentConfig();
-      this.reset();
+      this.reset.apply(this, configChanged ? [ 'config', config ] : []);
       this.browser.saveConfig();
     }
   },
