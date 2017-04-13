@@ -233,7 +233,7 @@ Genoverse.Plugins.controlPanel = function () {
               reload     : function () { $(this).empty().data('listTracks')(); },
               listTracks : function () {
                 for (var i = 0; i < browser.tracks.length; i++) {
-                  if (browser.tracks[i].name && browser.tracks[i].removable !== false) {
+                  if (browser.tracks[i].name && browser.tracks[i].removable !== false && !browser.tracks[i].parentTrack) {
                     (function (track) {
                       $('<div>')
                         .append($('<i class="gv-remove-track gv-menu-button fa fa-times-circle">').on('click', function () { track.remove(); }))

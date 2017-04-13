@@ -178,6 +178,7 @@
 }
 
 .gv-label-container li .gv-handle {
+  float: left;
   position: relative;
   background-image: url(../i/sort_handle.png);
   cursor: move;
@@ -197,12 +198,10 @@
 }
 
 .gv-label-container li .gv-name {
-  display: inline-block;
+  float: left;
   position: relative;
   overflow: hidden;
-  vertical-align: top;
   margin: 8px 0;
-  padding-right: 2px;
   left: 5px;
   width: 85%;
   color: #F2F5F7;
