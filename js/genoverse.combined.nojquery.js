@@ -2904,6 +2904,7 @@ Genoverse.Track = Base.extend({
   resizable  : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
   border     : true,      // Does the track have a bottom border
   unsortable : false,     // Is the track unsortable
+  invert     : false,     // If true, features are drawn from the bottom of the track, rather than from the top. This is actually achieved by performing a CSS transform on the gv-image-container div
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
   hideEmpty  : undefined, // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
@@ -3512,7 +3513,7 @@ Genoverse.Track.Controller = Base.extend({
     this.menus            = $();
     this.container        = $('<div class="gv-track-container">').appendTo(this.browser.wrapper);
     this.scrollContainer  = $('<div class="gv-scroll-container">').appendTo(this.container);
-    this.imgContainer     = $('<div class="gv-image-container">').width(this.width);
+    this.imgContainer     = $('<div class="gv-image-container">').width(this.width).addClass(this.prop('invert') ? 'gv-invert' : '');
     this.messageContainer = $('<div class="gv-message-container"><div class="gv-messages"></div><span class="gv-control gv-collapse">&laquo;</span><span class="gv-control gv-expand">&raquo;</span></div>').appendTo(this.container);
     this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.prop('height')).data('track', this.track);
     this.context          = $('<canvas>')[0].getContext('2d');
@@ -3562,7 +3563,7 @@ Genoverse.Track.Controller = Base.extend({
     var x      = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
     var y      = e.pageY - target.offset().top;
 
-    if (this.imgContainer.hasClass('gv-flip')) {
+    if (this.imgContainer.hasClass('gv-invert')) {
       y = target.height() - y;
     }
 
