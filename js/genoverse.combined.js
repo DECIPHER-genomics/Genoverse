@@ -3552,7 +3552,7 @@ Genoverse.Track.Controller = Base.extend({
 
     this.messageContainer.children().on('click', function () {
       var collapsed = controller.messageContainer.children('.gv-messages').is(':visible') ? ' gv-collapsed' : '';
-      var code      = controller.messageContainer.find('.gv-msg')[0].className.replace('gv-msg', '').replace(' ', '');
+      var code      = controller.messageContainer.find('.gv-msg').data('code');
 
       controller.messageContainer.attr('class', 'gv-message-container' + collapsed);
       controller.checkHeight();
@@ -3599,7 +3599,7 @@ Genoverse.Track.Controller = Base.extend({
     var messages = this.messageContainer.children('.gv-messages');
 
     if (!messages.children('.gv-' + code).show().length) {
-      var msg = $('<div class="gv-msg gv-' + code + '">' + this.messages[code] + (additionalText || '') + '</div>').prependTo(messages);
+      var msg = $('<div class="gv-msg gv-' + code + '">' + this.messages[code] + (additionalText || '') + '</div>').data('code', code).prependTo(messages);
 
       if (code === 'resize') {
         msg.children('a.gv-resize').on('click', $.proxy(function () {
