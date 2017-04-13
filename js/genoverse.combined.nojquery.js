@@ -6614,6 +6614,8 @@ Genoverse.Track.Controller.Legend = Genoverse.Track.Controller.Static.extend({
     this.container.addClass('gv-track-container-legend');
 
     this.browser.legends[this.track.id] = this.track;
+
+    this.track.setTracks();
   },
 
   destroy: function () {
@@ -6785,7 +6787,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     var legend = this;
     var type   = this.type;
 
-    this.tracks = $.grep(this.browser.tracks, function (t) { if (t.legendType === type) { t.legendTrack = t.legendTrack || legend; return true; } });
+    this.tracks = $.grep(this.browser.tracks, function (t) { if (t.legendType === type && !t.disabled) { t.legendTrack = t.legendTrack || legend; return true; } });
 
     this.updateOrder();
 
