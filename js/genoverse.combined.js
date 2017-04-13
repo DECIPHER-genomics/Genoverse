@@ -6547,7 +6547,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       // featureMargin.top gets used to define params.featureHeight, which is used to determine canvas height.
       // Since featureMargin.top = 13 on forward strand, the canvas has a 13px space at the bottom, meaning there is a gap before the background starts.
       // Reducing params.featureHeight here fixes that.
-      params.featureHeight -= this.featureMargin.top;
+      params.featureHeight = Math.max(params.featureHeight - this.featureMargin.top, 0);
 
       return rtn;
     },
