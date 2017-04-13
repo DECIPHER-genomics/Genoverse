@@ -59,3 +59,7 @@
 .gv-track-controls-plugin .gv-track-container div.gv-track-controls select {
   margin: 0 5px;
 }
+
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls label {
+  margin: 0 0 0 5px;
+}
