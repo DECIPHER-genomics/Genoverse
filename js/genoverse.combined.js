@@ -6797,7 +6797,17 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     var legend = this;
     var type   = this.type;
 
-    this.tracks = $.grep(this.browser.tracks, function (t) { if (t.legendType === type && !t.disabled) { t.legendTrack = t.legendTrack || legend; return true; } });
+    this.tracks = $.grep(this.browser.tracks, function (t) {
+      if (t.legendType === type && !t.disabled) {
+        t.legendTrack = t.legendTrack || legend;
+        return true;
+      }
+    });
+
+    this.tracks = this.tracks.concat($.map(this.tracks, function (t) {
+      var linkedTrack = t.prop('subtrack') || t.prop('parentTrack');
+      return linkedTrack && linkedTrack.prop('disabled') !== true ? linkedTrack : null;
+    }));
 
     this.updateOrder();
 
@@ -6809,8 +6819,10 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   },
 
   updateOrder: function () {
-    if (this.tracks.length && this.lockToTrack) {
-      this.order = this.tracks[this.tracks.length - 1].order + 0.1;
+    var tracks = this.tracks.filter(function (t) { return !t.prop('parentTrack'); });
+
+    if (tracks.length && this.lockToTrack) {
+      this.order = tracks[tracks.length - 1].order + 0.1;
     }
   },
 
