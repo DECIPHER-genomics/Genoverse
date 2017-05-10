@@ -5,6 +5,7 @@ Genoverse.Track = Base.extend({
   border     : true,      // Does the track have a bottom border
   unsortable : false,     // Is the track unsortable
   invert     : false,     // If true, features are drawn from the bottom of the track, rather than from the top. This is actually achieved by performing a CSS transform on the gv-image-container div
+  legend     : false,     // Does the track have a legend - can be true, false, or a Genoverse.Track.Legend extension/child class.
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
   hideEmpty  : undefined, // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
@@ -31,6 +32,10 @@ Genoverse.Track = Base.extend({
     if (this.browser.scale) {
       this.controller.setScale();
       this.controller.makeFirstImage();
+    }
+
+    if (this.legend) {
+      this.addLegend();
     }
   },
 
@@ -464,20 +469,24 @@ Genoverse.Track = Base.extend({
     return this.configSettings[type][this.config[type]];
   },
 
-  addLegend: function (config, constructor) {
-    var track      = this;
-    var legendType = this.legendType || this.id;
+  addLegend: function () {
+    if (!this.legend) {
+      return;
+    }
 
-    config = $.extend({
+    var track       = this;
+    var constructor = this.legend.prototype instanceof Genoverse.Track.Legend ? this.legend : Genoverse.Track.Legend;
+    var legendType  = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
+    var config      = {
       id   : legendType + 'Legend',
-      name : this.name + ' Legend',
+      name : constructor.prototype.name || (this.name + ' Legend'),
       type : legendType
-    }, config);
+    };
 
-    this.legendType = config.type;
+    this.legendType = legendType;
 
     setTimeout(function () {
-      track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack((constructor || Genoverse.Track.Legend).extend(config));
+      track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack(constructor.extend(config));
     }, 1);
   },
 

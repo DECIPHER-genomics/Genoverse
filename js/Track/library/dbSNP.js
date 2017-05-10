@@ -46,14 +46,6 @@ Genoverse.Track.dbSNP = Genoverse.Track.extend({
     intergenic_variant                 : '#636363'
   },
 
-  constructor: function () {
-    this.base.apply(this, arguments);
-
-    if (this.legend === true) {
-      this.addLegend();
-    }
-  },
-
   insertFeature: function (feature) {
     feature.color  = this.prop('colorMap')[feature.consequence_type];
     feature.legend = feature.consequence_type;

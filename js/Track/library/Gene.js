@@ -4,14 +4,6 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
   height : 200,
   legend : true,
 
-  constructor: function () {
-    this.base.apply(this, arguments);
-
-    if (this.legend === true) {
-      this.addLegend();
-    }
-  },
-
   populateMenu: function (feature) {
     var url  = 'http://www.ensembl.org/Homo_sapiens/' + (feature.feature_type === 'transcript' ? 'Transcript' : 'Gene') + '/Summary?' + (feature.feature_type === 'transcript' ? 't' : 'g') + '=' + feature.id;
     var menu = {

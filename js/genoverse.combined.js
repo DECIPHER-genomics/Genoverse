@@ -2249,7 +2249,7 @@ var Genoverse = Base.extend({
 
     var trackTypes = Genoverse.getAllTrackTypes();
     var push       = !!tracks;
-    var order, j, namespaces, k;
+    var order;
 
     tracks = tracks || $.extend([], this.tracks);
 
@@ -2262,36 +2262,8 @@ var Genoverse = Base.extend({
     }
 
     for (var i = 0; i < tracks.length; i++) {
-      namespaces = [];
-
-      // Find all namespaces which this track could be
-      for (j in trackTypes) {
-        if (tracks[i] === trackTypes[j] || tracks[i].prototype instanceof trackTypes[j]) {
-          namespaces.push(j);
-        }
-      }
-
-      k = namespaces.length;
-
-      // Find the most specific namespace for this track - the one which isn't a parent of any other namespaces this track could be
-      while (namespaces.length > 1) {
-        for (j = 0; j < namespaces.length - 1; j++) {
-          if (trackTypes[namespaces[j]].prototype instanceof trackTypes[namespaces[j + 1]]) {
-            namespaces.splice(j + 1, 1);
-            break;
-          } else if (trackTypes[namespaces[j + 1]].prototype instanceof trackTypes[namespaces[j]]) {
-            namespaces.splice(j, 1);
-            break;
-          }
-        }
-
-        if (k-- < 0) {
-          break; // Stop infinite loop if something went really wrong
-        }
-      }
-
       tracks[i] = new tracks[i]($.extend(defaults, {
-        namespace : namespaces[0],
+        namespace : Genoverse.getTrackNamespace(tracks[i]),
         order     : typeof order === 'number' ? order : i,
         config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined
       }));
@@ -2893,6 +2865,32 @@ var Genoverse = Base.extend({
     });
 
     return trackTypes;
+  },
+
+  getTrackNamespace: function (track) {
+    var trackTypes = Genoverse.getAllTrackTypes();
+    var namespaces = $.map(trackTypes, function (constructor, name) { return track === constructor || track.prototype instanceof constructor ? name : null }); // Find all namespaces which this track could be
+    var j          = namespaces.length;
+    var i;
+
+    // Find the most specific namespace for this track - the one which isn't a parent of any other namespaces this track could be
+    while (namespaces.length > 1) {
+      for (i = 0; i < namespaces.length - 1; i++) {
+        if (trackTypes[namespaces[i]].prototype instanceof trackTypes[namespaces[i + 1]]) {
+          namespaces.splice(i + 1, 1);
+          break;
+        } else if (trackTypes[namespaces[i + 1]].prototype instanceof trackTypes[namespaces[i]]) {
+          namespaces.splice(i, 1);
+          break;
+        }
+      }
+
+      if (j-- < 0) {
+        break; // Stop infinite loop if something went really wrong
+      }
+    }
+
+    return namespaces[0];
   }
 });
 
@@ -2915,6 +2913,7 @@ Genoverse.Track = Base.extend({
   border     : true,      // Does the track have a bottom border
   unsortable : false,     // Is the track unsortable
   invert     : false,     // If true, features are drawn from the bottom of the track, rather than from the top. This is actually achieved by performing a CSS transform on the gv-image-container div
+  legend     : false,     // Does the track have a legend - can be true, false, or a Genoverse.Track.Legend extension/child class.
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
   hideEmpty  : undefined, // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
@@ -2941,6 +2940,10 @@ Genoverse.Track = Base.extend({
     if (this.browser.scale) {
       this.controller.setScale();
       this.controller.makeFirstImage();
+    }
+
+    if (this.legend) {
+      this.addLegend();
     }
   },
 
@@ -3374,20 +3377,24 @@ Genoverse.Track = Base.extend({
     return this.configSettings[type][this.config[type]];
   },
 
-  addLegend: function (config, constructor) {
-    var track      = this;
-    var legendType = this.legendType || this.id;
+  addLegend: function () {
+    if (!this.legend) {
+      return;
+    }
 
-    config = $.extend({
+    var track       = this;
+    var constructor = this.legend.prototype instanceof Genoverse.Track.Legend ? this.legend : Genoverse.Track.Legend;
+    var legendType  = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
+    var config      = {
       id   : legendType + 'Legend',
-      name : this.name + ' Legend',
+      name : constructor.prototype.name || (this.name + ' Legend'),
       type : legendType
-    }, config);
+    };
 
-    this.legendType = config.type;
+    this.legendType = legendType;
 
     setTimeout(function () {
-      track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack((constructor || Genoverse.Track.Legend).extend(config));
+      track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack(constructor.extend(config));
     }, 1);
   },
 
@@ -6026,14 +6033,6 @@ Genoverse.Track.dbSNP = Genoverse.Track.extend({
     intergenic_variant                 : '#636363'
   },
 
-  constructor: function () {
-    this.base.apply(this, arguments);
-
-    if (this.legend === true) {
-      this.addLegend();
-    }
-  },
-
   insertFeature: function (feature) {
     feature.color  = this.prop('colorMap')[feature.consequence_type];
     feature.legend = feature.consequence_type;
@@ -6285,14 +6284,6 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
   name   : 'Genes',
   height : 200,
   legend : true,
-
-  constructor: function () {
-    this.base.apply(this, arguments);
-
-    if (this.legend === true) {
-      this.addLegend();
-    }
-  },
 
   populateMenu: function (feature) {
     var url  = 'http://www.ensembl.org/Homo_sapiens/' + (feature.feature_type === 'transcript' ? 'Transcript' : 'Gene') + '/Summary?' + (feature.feature_type === 'transcript' ? 't' : 'g') + '=' + feature.id;

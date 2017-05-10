@@ -901,7 +901,7 @@ var Genoverse = Base.extend({
 
     var trackTypes = Genoverse.getAllTrackTypes();
     var push       = !!tracks;
-    var order, j, namespaces, k;
+    var order;
 
     tracks = tracks || $.extend([], this.tracks);
 
@@ -914,36 +914,8 @@ var Genoverse = Base.extend({
     }
 
     for (var i = 0; i < tracks.length; i++) {
-      namespaces = [];
-
-      // Find all namespaces which this track could be
-      for (j in trackTypes) {
-        if (tracks[i] === trackTypes[j] || tracks[i].prototype instanceof trackTypes[j]) {
-          namespaces.push(j);
-        }
-      }
-
-      k = namespaces.length;
-
-      // Find the most specific namespace for this track - the one which isn't a parent of any other namespaces this track could be
-      while (namespaces.length > 1) {
-        for (j = 0; j < namespaces.length - 1; j++) {
-          if (trackTypes[namespaces[j]].prototype instanceof trackTypes[namespaces[j + 1]]) {
-            namespaces.splice(j + 1, 1);
-            break;
-          } else if (trackTypes[namespaces[j + 1]].prototype instanceof trackTypes[namespaces[j]]) {
-            namespaces.splice(j, 1);
-            break;
-          }
-        }
-
-        if (k-- < 0) {
-          break; // Stop infinite loop if something went really wrong
-        }
-      }
-
       tracks[i] = new tracks[i]($.extend(defaults, {
-        namespace : namespaces[0],
+        namespace : Genoverse.getTrackNamespace(tracks[i]),
         order     : typeof order === 'number' ? order : i,
         config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined
       }));
@@ -1545,6 +1517,32 @@ var Genoverse = Base.extend({
     });
 
     return trackTypes;
+  },
+
+  getTrackNamespace: function (track) {
+    var trackTypes = Genoverse.getAllTrackTypes();
+    var namespaces = $.map(trackTypes, function (constructor, name) { return track === constructor || track.prototype instanceof constructor ? name : null }); // Find all namespaces which this track could be
+    var j          = namespaces.length;
+    var i;
+
+    // Find the most specific namespace for this track - the one which isn't a parent of any other namespaces this track could be
+    while (namespaces.length > 1) {
+      for (i = 0; i < namespaces.length - 1; i++) {
+        if (trackTypes[namespaces[i]].prototype instanceof trackTypes[namespaces[i + 1]]) {
+          namespaces.splice(i + 1, 1);
+          break;
+        } else if (trackTypes[namespaces[i + 1]].prototype instanceof trackTypes[namespaces[i]]) {
+          namespaces.splice(i, 1);
+          break;
+        }
+      }
+
+      if (j-- < 0) {
+        break; // Stop infinite loop if something went really wrong
+      }
+    }
+
+    return namespaces[0];
   }
 });
 
