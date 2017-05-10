@@ -105,7 +105,7 @@ Genoverse.Track = Base.extend({
           controllerSettings[typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
         }
         // If we allow trackSettings to overwrite the MVC properties, we will potentially lose of information about instantiated objects that the track needs to perform future switching correctly.
-        else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|models|views|config)$/.test(i)) {
+        else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|models|views|config|disabled)$/.test(i)) {
           if (typeof this._defaults[i] === 'undefined') {
             this._defaults[i] = this[i];
           }
@@ -431,7 +431,11 @@ Genoverse.Track = Base.extend({
       }
 
       this._setCurrentConfig();
-      this.reset.apply(this, configChanged ? [ 'config', config ] : []);
+
+      if (!this.disabled) {
+        this.reset.apply(this, configChanged ? [ 'config', config ] : []);
+      }
+
       this.browser.saveConfig();
     }
   },
