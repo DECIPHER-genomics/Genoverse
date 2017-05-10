@@ -6639,8 +6639,12 @@ Genoverse.Track.Model.Legend = Genoverse.Track.Model.Static.extend({
       }
     });
 
+    return this.sortFeatures($.map(features, function (color, text) { return [[ text, color ]]; }));
+  },
+
+  sortFeatures: function (features) {
     // sort legend alphabetically
-    return $.map(features, function (color, text) { return [[ text, color ]]; }).sort(function (a, b) {
+    return features.sort(function (a, b) {
       var x = a[0].toLowerCase();
       var y = b[0].toLowerCase();
       return ((x < y) ? -1 : ((x > y) ? 1 : 0));
