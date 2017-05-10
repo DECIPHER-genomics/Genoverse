@@ -55,6 +55,7 @@
 .gv-canvas-container .gv-track-container .gv-scroll-container-offset {
   height: 100%;
   overflow: hidden;
+  position: absolute;
   /*
     margin-left to be set in the track, with the gv-scroll-container being given a margin-left of -(this element's margin-left) to hide the first n pixels of the scroll container.
     Used to stop a track with a vertical scalebar at its left edge from displaying features on top of the scalebar
@@ -442,13 +443,10 @@
   line-height: 1em;
 }
 
-.gv-canvas-container .gv-track-container canvas.gv-barchart-scalebar,
-.gv-canvas-container .gv-track-container canvas.gv-barchart-scalelines {
+.gv-canvas-container .gv-track-container canvas.gv-barchart-axis,
+.gv-canvas-container .gv-track-container canvas.gv-barchart-guide {
   display: block!important;
   height: auto;
   bottom: 0;
-}
-
-.gv-canvas-container .gv-track-container canvas.gv-barchart-scalebar {
   z-index: 1;
 }

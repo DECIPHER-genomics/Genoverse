@@ -29,6 +29,7 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   reset: function () {
+    this.abort();
     this.setDefaults();
     this.resetImages();
     this.browser.closeMenus(this);
@@ -215,18 +216,7 @@ Genoverse.Track.Controller = Base.extend({
       autoHeight = this.prop('autoHeight');
       this.prop('autoHeight', true);
     } else {
-      var bounds    = { x: this.browser.scaledStart, w: this.width, y: 0, h: 9e99 };
-      var scale     = this.scale;
-      var features  = this.featurePositions.search(bounds);
-      var minHeight = this.prop('hideEmpty') ? 0 : this.minLabelHeight;
-      var height    = Math.max.apply(Math, $.map(features, function (feature) { return feature.position[scale].bottom; }).concat(minHeight));
-
-      if (this.prop('labels') === 'separate') {
-        this.labelTop = height;
-        height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds).concat(this.prop('repeatLabels') ? features : []), function (feature) { return feature.position[scale].label.bottom; }).concat(minHeight));
-      }
-
-      this.fullVisibleHeight = height || (this.messageContainer.is(':visible') ? this.messageContainer.outerHeight(true) : minHeight);
+      this.fullVisibleHeight = this.visibleFeatureHeight() || (this.messageContainer.is(':visible') ? this.messageContainer.outerHeight(true) : this.prop('hideEmpty') ? 0 : this.minLabelHeight);
     }
 
     this.autoResize();
@@ -234,6 +224,21 @@ Genoverse.Track.Controller = Base.extend({
     if (typeof autoHeight !== 'undefined') {
       this.prop('autoHeight', autoHeight);
     }
+  },
+
+  visibleFeatureHeight: function () {
+    var bounds    = { x: this.browser.scaledStart, w: this.width, y: 0, h: 9e99 };
+    var scale     = this.scale;
+    var features  = this.featurePositions.search(bounds);
+    var minHeight = this.prop('hideEmpty') ? 0 : this.minLabelHeight;
+    var height    = Math.max.apply(Math, $.map(features, function (feature) { return feature.position[scale].bottom; }).concat(minHeight));
+
+    if (this.prop('labels') === 'separate') {
+      this.labelTop = height;
+      height += Math.max.apply(Math, $.map(this.labelPositions.search(bounds).concat(this.prop('repeatLabels') ? features : []), function (feature) { return feature.position[scale].label.bottom; }).concat(minHeight));
+    }
+
+    return height;
   },
 
   autoResize: function () {
@@ -332,7 +337,7 @@ Genoverse.Track.Controller = Base.extend({
 
     var scrollStart = this.scrollStart;
 
-    if (this.imgRange[scrollStart].left + this.left > -this.scrollBuffer * this.width) {
+    if (this.imgRange[scrollStart] && this.imgRange[scrollStart].left + this.left > -this.scrollBuffer * this.width) {
       var end = this.scrollRange[scrollStart].start - 1;
 
       this.makeImage({
@@ -344,11 +349,11 @@ Genoverse.Track.Controller = Base.extend({
         cls   : scrollStart
       });
 
-      this.imgRange[scrollStart].left     -= this.width;
-      this.scrollRange[scrollStart].start -= this.browser.length;
+      (this.imgRange[scrollStart]    || {}).left  -= this.width;
+      (this.scrollRange[scrollStart] || {}).start -= this.browser.length;
     }
 
-    if (this.imgRange[scrollStart].right + this.left < this.scrollBuffer * this.width) {
+    if (this.imgRange[scrollStart] && this.imgRange[scrollStart].right + this.left < this.scrollBuffer * this.width) {
       var start = this.scrollRange[scrollStart].end + 1;
 
       this.makeImage({
@@ -360,8 +365,8 @@ Genoverse.Track.Controller = Base.extend({
         cls   : scrollStart
       });
 
-      this.imgRange[scrollStart].right  += this.width;
-      this.scrollRange[scrollStart].end += this.browser.length;
+      (this.imgRange[scrollStart]    || {}).right += this.width;
+      (this.scrollRange[scrollStart] || {}).end   += this.browser.length;
     }
   },
 
@@ -428,10 +433,13 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   makeFirstImage: function (moveTo) {
+    var deferred = $.Deferred();
+
     if (this.scrollContainer.children().hide().filter('.' + (moveTo || this.scrollStart)).show().length) {
       this.scrollContainer.css('left', 0);
+      this.checkHeight();
 
-      return this.checkHeight();
+      return deferred.resolve();
     }
 
     var controller = this;
@@ -461,9 +469,9 @@ Genoverse.Track.Controller = Base.extend({
     var loading = this.imgContainer.clone().addClass('gv-loading').css({ left: left, width: width }).prependTo(this.scrollContainer.css('left', 0));
 
     function makeImages() {
-      for (var i = 0; i < images.length; i++) {
-        controller.makeImage(images[i]);
-      }
+      $.when.apply($, images.map(function (image) {
+        return controller.makeImage(image);
+      })).done(deferred.resolve);
 
       loading.remove();
     }
@@ -477,6 +485,8 @@ Genoverse.Track.Controller = Base.extend({
         controller.showError(e);
       });
     }
+
+    return deferred;
   },
 
   render: function (features, img) {
@@ -536,13 +546,18 @@ Genoverse.Track.Controller = Base.extend({
     return $.extend(menu, f);
   },
 
-  destroy: function () {
+  abort: function () {
     for (var i = 0; i < this.deferreds.length; i++) {
       if (this.deferreds[i].state() === 'pending') {
         this.deferreds[i].reject();
       }
     }
 
+    this.deferreds = [];
+  },
+
+  destroy: function () {
+    this.abort();
     this.container.add(this.label).add(this.menus).remove();
   }
 });

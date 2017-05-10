@@ -111,6 +111,10 @@ Genoverse.Track.View = Base.extend({
     var scale         = params.scale;
     var scaleSettings = this.scaleSettings[feature.chr][scale];
 
+    if (!scaleSettings) {
+      return;
+    }
+
     feature.position[scale].X = feature.position[scale].start - params.scaledStart; // FIXME: always have to reposition for X, in case a feature appears in 2 images. Pass scaledStart around instead?
 
     if (this.alwaysReposition || !feature.position[scale].positioned) {
