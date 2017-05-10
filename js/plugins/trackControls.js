@@ -42,7 +42,7 @@ Genoverse.Plugins.trackControls = function () {
           resizer[autoHeight ? 'hide' : 'show']();
         }
       }
-    }),
+    })
   ];
 
   var remove = $('<a title="Remove track">').html('<i class="fa fa-trash"></i>').on('click', function () {
