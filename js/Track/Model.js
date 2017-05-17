@@ -208,7 +208,7 @@ Genoverse.Track.Model = Base.extend({
       // s0 <= s1 && ((e0 >= e1) || (e0 + 1 >= s1))
       if (ranges[i][0] <= ranges[i + 1][0] && ((ranges[i][1] >= ranges[i + 1][1]) || (ranges[i][1] + 1 >= ranges[i + 1][0]))) {
         s = Math.min(s, ranges[i][0]);
-        e = Math.max(e, ranges[i + 1][1]);
+        e = Math.max(e, ranges[i][1], ranges[i + 1][1]);
       } else {
         return false;
       }

@@ -468,7 +468,6 @@ Genoverse.Track.Controller = Base.extend({
       loading.remove();
     }
 
-    // FIXME: on zoom out, making more than 1 request
     if (length > this.threshold || this.model.checkDataRange(chr, start, end)) {
       makeImages();
     } else {
