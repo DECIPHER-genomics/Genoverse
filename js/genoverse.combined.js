@@ -4705,6 +4705,10 @@ Genoverse.Track.View = Base.extend({
 
 Genoverse.Track.Controller.LineGraph = Genoverse.Track.Controller.extend({
   setYRange: function (min, max) {
+    if (this.browser.dragging) {
+      return;
+    }
+
     if (this.prop('showZeroY')) {
       this.prop('range', [ Math.min(min, 0), Math.max(max, 0) ]);
     } else {

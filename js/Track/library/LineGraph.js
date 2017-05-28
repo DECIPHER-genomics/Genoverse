@@ -60,8 +60,6 @@ Genoverse.Track.Controller.LineGraph = Genoverse.Track.Controller.extend({
   },
 
   autoResize: function () {
-
-
     if (this.prop('rescaleable') === 'auto') {
       var visibleFeatures = this.model.findFeatures(this.browser.chr, this.browser.start, this.browser.end);
 
