@@ -4464,24 +4464,21 @@ Genoverse.Track.View = Base.extend({
 
       scaleSettings.featurePositions.insert(bounds, feature);
 
-      feature.position[scale].bottom = feature.position[scale].Y + bounds.h + params.margin;
+      feature.position[scale].bottom     = feature.position[scale].Y + bounds.h + params.margin;
+      feature.position[scale].positioned = true;
+    }
 
-      if (feature.position[scale].label) {
-        var f = $.extend(true, {}, feature); // FIXME: hack to avoid changing feature.position[scale].Y in bumpFeature
+    if (this.labels === 'separate' && feature.position[scale].label) {
+      if (this.alwaysReposition || !feature.position[scale].label.positioned) {
+        this.bumpFeature(feature.position[scale].label, feature, scale, scaleSettings.labelPositions);
 
-        this.bumpFeature(feature.position[scale].label, f, scale, scaleSettings.labelPositions);
-
-        f.position[scale].label        = feature.position[scale].label;
-        f.position[scale].label.bottom = f.position[scale].label.y + f.position[scale].label.h + params.margin;
-
-        feature = f;
+        feature.position[scale].label.bottom     = feature.position[scale].label.y + feature.position[scale].label.h + params.margin;
+        feature.position[scale].label.positioned = true;
 
         scaleSettings.labelPositions.insert(feature.position[scale].label, feature);
-
-        params.labelHeight = Math.max(params.labelHeight, feature.position[scale].label.bottom);
       }
 
-      feature.position[scale].positioned = true;
+      params.labelHeight = Math.max(params.labelHeight, feature.position[scale].label.bottom);
     }
 
     params.featureHeight = Math.max(params.featureHeight, feature.position[scale].bottom);
@@ -4497,7 +4494,7 @@ Genoverse.Track.View = Base.extend({
 
     do {
       if (this.depth && ++depth >= this.depth) {
-        if ($.grep(scaleSettings.featurePositions.search(bounds), function (f) { return f.position[scale].visible !== false; }).length) {
+        if (!labels && $.grep(scaleSettings.featurePositions.search(bounds), function (f) { return f.position[scale].visible !== false; }).length) {
           feature.position[scale].visible = false;
         }
 
@@ -4513,7 +4510,9 @@ Genoverse.Track.View = Base.extend({
       }
     } while (bump);
 
-    feature.position[scale].Y = bounds.y;
+    if (!labels) {
+      feature.position[scale].Y = bounds.y;
+    }
   },
 
   draw: function (features, featureContext, labelContext, scale) {
