@@ -4252,6 +4252,17 @@ Genoverse.Track.Model = Base.extend({
     var features = this.features(feature.chr);
 
     if (features && !this.featuresById[feature.id]) {
+      if (feature.subFeatures) {
+        for (var i = 0; i < feature.subFeatures.length; i++) {
+          feature.subFeatures[i].start = Math.min(Math.max(feature.subFeatures[i].start, feature.start), feature.end);
+          feature.subFeatures[i].end   = Math.max(Math.min(feature.subFeatures[i].end,   feature.end),   feature.start);
+        }
+
+        // Add "fake" sub-features at the start and end of the feature - this will allow joins to be drawn when there are no sub-features in the current region.
+        feature.subFeatures.unshift({ start: feature.start, end: feature.start, fake: true });
+        feature.subFeatures.push   ({ start: feature.end,   end: feature.end,   fake: true });
+      }
+
       features.insert({ x: feature.start, y: 0, w: feature.end - feature.start + 1, h: 1 }, feature);
       this.featuresById[feature.id] = feature;
     }
@@ -4315,6 +4326,9 @@ Genoverse.Track.View = Base.extend({
   featureHeight    : undefined, // defaults to track height
   featureMargin    : undefined, // e.g. { top: 3, right: 1, bottom: 1, left: 0 }
 
+  subFeatureJoinStyle     : false, // Can be 'line', 'peak', 'curve'
+  subFeatureJoinLineWidth : 0.5,
+
   constructor: function (properties) {
     $.extend(this, properties);
     Genoverse.wrapFunctions(this);
@@ -4372,7 +4386,7 @@ Genoverse.Track.View = Base.extend({
 
   scaleFeatures: function (features, scale) {
     var add = Math.max(scale, this.widthCorrection);
-    var feature;
+    var feature, j;
 
     for (var i = 0; i < features.length; i++) {
       feature = features[i];
@@ -4387,6 +4401,16 @@ Genoverse.Track.View = Base.extend({
           width  : Math.max((feature.end - feature.start) * scale + add, this.minScaledWidth),
           height : feature.height || this.featureHeight
         };
+      }
+
+      if (feature.subFeatures) {
+        for (j = 0; j < feature.subFeatures.length; j++) {
+          if (typeof feature.subFeatures[j].height === 'undefined') {
+            feature.subFeatures[j].height = feature.position[scale].height;
+          }
+        }
+
+        this.scaleFeatures(feature.subFeatures, scale);
       }
     }
 
@@ -4416,7 +4440,19 @@ Genoverse.Track.View = Base.extend({
       return;
     }
 
+    var subFeatures = feature.subFeatures || [];
+    var i;
+
     feature.position[scale].X = feature.position[scale].start - params.scaledStart; // FIXME: always have to reposition for X, in case a feature appears in 2 images. Pass scaledStart around instead?
+
+    for (i = 0; i < subFeatures.length; i++) {
+      subFeatures[i].position[scale].x = subFeatures[i].position[scale].start - params.scaledStart;
+
+      if (this.subFeatureJoinStyle) {
+        subFeatures[i].position[scale].join   = subFeatures[i].position[scale].join || {};
+        subFeatures[i].position[scale].join.x = subFeatures[i].position[scale].start + subFeatures[i].position[scale].width - params.scaledStart;
+      }
+    }
 
     if (this.alwaysReposition || !feature.position[scale].positioned) {
       feature.position[scale].H = feature.position[scale].height + this.featureMargin.bottom;
@@ -4466,6 +4502,19 @@ Genoverse.Track.View = Base.extend({
 
       feature.position[scale].bottom     = feature.position[scale].Y + bounds.h + params.margin;
       feature.position[scale].positioned = true;
+    }
+
+    var join = this.subFeatureJoinStyle && subFeatures.length ? {
+      height : Math.max.apply(Math, subFeatures.map(function (c) { return c.fake ? 0 : c.position[scale].height; })) / 2 * (feature.strand > 0 ? -1 : 1),
+      y      : feature.position[scale].Y + feature.position[scale].height / 2
+    } : false;
+
+    for (i = 0; i < subFeatures.length; i++) {
+      subFeatures[i].position[scale].y = feature.position[scale].Y + (feature.position[scale].height - subFeatures[i].position[scale].height) / 2;
+
+      if (join && subFeatures[i + 1]) {
+        $.extend(subFeatures[i].position[scale].join, { width: subFeatures[i + 1].position[scale].x - subFeatures[i].position[scale].join.x }, join);
+      }
     }
 
     if (this.labels === 'separate' && feature.position[scale].label) {
@@ -4542,34 +4591,53 @@ Genoverse.Track.View = Base.extend({
   },
 
   drawFeature: function (feature, featureContext, labelContext, scale) {
-    if (feature.x < 0 || feature.x + feature.width > this.width) {
-      this.truncateForDrawing(feature);
+    if (feature.color !== false && !feature.color) {
+      this.setFeatureColor(feature);
     }
 
-    if (feature.color !== false) {
-      if (!feature.color) {
-        this.setFeatureColor(feature);
+    if (feature.subFeatures) {
+      this.drawSubFeatures(feature, featureContext, labelContext, scale);
+    } else {
+      if (feature.x < 0 || feature.x + feature.width > this.width) {
+        this.truncateForDrawing(feature);
       }
 
-      featureContext.fillStyle = feature.color;
-      featureContext.fillRect(feature.x, feature.y, feature.width, feature.height);
-    }
+      if (feature.color !== false) {
+        featureContext.fillStyle = feature.color;
+        featureContext.fillRect(feature.x, feature.y, feature.width, feature.height);
+      }
 
-    if (feature.clear === true) {
-      featureContext.clearRect(feature.x, feature.y, feature.width, feature.height);
+      if (feature.clear === true) {
+        featureContext.clearRect(feature.x, feature.y, feature.width, feature.height);
+      }
+
+      if (feature.borderColor) {
+        featureContext.strokeStyle = feature.borderColor;
+        featureContext.strokeRect(feature.x, Math.floor(feature.y) + 0.5, feature.width, feature.height);
+      }
     }
 
     if (this.labels && feature.label) {
       this.drawLabel(feature, labelContext, scale);
     }
 
-    if (feature.borderColor) {
-      featureContext.strokeStyle = feature.borderColor;
-      featureContext.strokeRect(feature.x, feature.y + 0.5, feature.width, feature.height);
-    }
-
     if (feature.decorations) {
       this.decorateFeature(feature, featureContext, scale);
+    }
+  },
+
+  drawSubFeatures: function (feature, featureContext, labelContext, scale) {
+    var subFeatures = $.extend(true, [], feature.subFeatures);
+    var joinColor   = feature.joinColor || feature.color;
+
+    for (var i = 0; i < subFeatures.length; i++) {
+      if (!subFeatures[i].fake) {
+        this.drawFeature($.extend(true, {}, feature, { subFeatures: false, label: false }, subFeatures[i].position[scale], subFeatures[i]), featureContext, labelContext, scale);
+      }
+
+      if (subFeatures[i].position[scale].join && subFeatures[i].position[scale].join.width > 0) {
+        this.drawSubFeatureJoin($.extend({ color: joinColor }, subFeatures[i].position[scale].join), featureContext);
+      }
     }
   },
 
@@ -4683,6 +4751,96 @@ Genoverse.Track.View = Base.extend({
     feature.untruncated = { x: feature.x, width: feature.width };
     feature.x           = start;
     feature.width       = Math.max(width, 0);
+  },
+
+  drawSubFeatureJoin: function (join, context) {
+    var coords = this.truncateSubFeatureJoinForDrawing(join);
+
+    if (!coords) {
+      return;
+    }
+
+    var lineWidth = context.lineWidth;
+
+    context.strokeStyle = join.color;
+    context.lineWidth   = this.subFeatureJoinLineWidth;
+
+    context.beginPath();
+    context.moveTo(coords.x1, coords.y1);
+
+    switch (this.subFeatureJoinStyle) {
+      case 'line':
+        context.lineTo(coords.x3, coords.y1);
+        break;
+      case 'peak':
+        context.lineTo(coords.x2, coords.y2);
+        context.lineTo(coords.x3, coords.y3);
+        break;
+      case 'curve':
+        context.quadraticCurveTo(coords.x2, coords.y2, coords.x3, coords.y3);
+        break;
+      default: break;
+    }
+
+    context.stroke();
+
+    context.lineWidth = lineWidth;
+  },
+
+  truncateSubFeatureJoinForDrawing: function (coords) {
+    var y1 = coords.y; // y coord of the ends of the line (half way down the exon box)
+    var y3 = y1;
+
+    if (this.subFeatureJoinStyle === 'line') {
+      this.truncateForDrawing(coords);
+      y1 += 0.5; // Sharpen line
+    }
+
+    var x1 = coords.x;                // x coord of the right edge of the first exon
+    var x3 = coords.x + coords.width; // x coord of the left edge of the second exon
+
+    // Skip if completely outside the image's region
+    if (x3 < 0 || x1 > this.width) {
+      return false;
+    }
+
+    var x2, y2, xMid, yScale;
+
+    // Truncate the coordinates of the line being drawn, so it is inside the image's region
+    if (this.subFeatureJoinStyle === 'peak') {
+      xMid   = (x1 + x3) / 2;
+      x2     = xMid;                     // x coord of the peak of the peak/curve
+      y2     = coords.y + coords.height; // y coord of the peak of the peak/curve (level with the top (forward strand) or bottom (reverse strand) of the exon box)
+      yScale = (y2 - y1) / (xMid - x1);  // Scale factor for recalculating coords if points lie outside the image region
+
+      if (xMid < 0) {
+        y2 = coords.y + (yScale * x3);
+        x2 = 0;
+      } else if (xMid > this.width) {
+        y2 = coords.y + (yScale * (this.width - coords.x));
+        x2 = this.width;
+      }
+
+      if (x1 < 0) {
+        y1 = xMid < 0 ? y2 : coords.y - (yScale * coords.x);
+        x1 = 0;
+      }
+
+      if (x3 > this.width) {
+        y3 = xMid > this.width ? y2 : y2 - (yScale * (this.width - x2));
+        x3 = this.width;
+      }
+    } else if (this.subFeatureJoinStyle === 'curve') {
+      // TODO: try truncating when style is curve
+      x2 = coords.x + coords.width / 2;
+      y2 = coords.y + coords.height;
+    }
+
+    return {
+      x1: x1, y1: y1,
+      x2: x2, y2: y2,
+      x3: x3, y3: y3
+    };
   },
 
   formatLabel: function (label) {
@@ -5945,33 +6103,55 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
   },
 
   // The url above responds in json format, data is an array
-  // See rest.ensembl.org/documentation/info/feature_region for more details
+  // See rest.ensembl.org/documentation/info/overlap_region for more details
   parseData: function (data, chr) {
-    for (var i = 0; i < data.length; i++) {
-      var feature = data[i];
+    var model        = this;
+    var featuresById = this.featuresById;
+    var ids          = [];
 
-      if (feature.feature_type === 'transcript' && !this.featuresById[feature.id]) {
-        this.geneIds[feature.Parent] = this.geneIds[feature.Parent] || ++this.seenGenes;
+    data.filter(function (d) { return d.feature_type === 'transcript'; }).forEach(function (feature, i) {
+      if (!featuresById[feature.id]) {
+        model.geneIds[feature.Parent] = model.geneIds[feature.Parent] || ++model.seenGenes;
 
-        feature.chr   = feature.chr || chr;
-        feature.label = parseInt(feature.strand, 10) === 1 ? (feature.external_name || feature.id) + ' >' : '< ' + (feature.external_name || feature.id);
-        feature.sort  = (this.geneIds[feature.Parent] * 1e10) + (feature.logic_name.indexOf('ensembl_havana') === 0 ? 0 : 2e9) + (feature.biotype === 'protein_coding' ? 0 : 1e9) + feature.start + i;
-        feature.exons = {};
-        feature.cds   = {};
+        feature.chr         = feature.chr || chr;
+        feature.label       = parseInt(feature.strand, 10) === 1 ? (feature.external_name || feature.id) + ' >' : '< ' + (feature.external_name || feature.id);
+        feature.sort        = (model.geneIds[feature.Parent] * 1e10) + (feature.logic_name.indexOf('ensembl_havana') === 0 ? 0 : 2e9) + (feature.biotype === 'protein_coding' ? 0 : 1e9) + feature.start + i;
+        feature.cdsStart    = Infinity;
+        feature.cdsEnd      = -Infinity;
+        feature.exons       = {};
+        feature.subFeatures = [];
 
-        this.insertFeature(feature);
-      } else if (feature.feature_type === 'exon' && this.featuresById[feature.Parent]) {
-        if (!this.featuresById[feature.Parent].exons[feature.id]) {
-          this.featuresById[feature.Parent].exons[feature.id] = feature;
-        }
-      } else if (feature.feature_type === 'cds' && this.featuresById[feature.Parent]) {
-        feature.id = feature.chr + ':' + feature.start + '-' + feature.end;
-
-        if (!this.featuresById[feature.Parent].cds[feature.id]) {
-          this.featuresById[feature.Parent].cds[feature.id] = feature;
-        }
+        model.insertFeature(feature);
       }
-    }
+
+      ids.push(feature.id);
+    });
+
+    data.filter(function (d) { return d.feature_type === 'cds' && featuresById[d.Parent]; }).forEach(function (cds) {
+      featuresById[cds.Parent].cdsStart = Math.min(featuresById[cds.Parent].cdsStart, cds.start);
+      featuresById[cds.Parent].cdsEnd   = Math.max(featuresById[cds.Parent].cdsEnd,   cds.end);
+    });
+
+    data.filter(function (d) { return d.feature_type === 'exon' && featuresById[d.Parent] && !featuresById[d.Parent].exons[d.id]; }).forEach(function (exon) {
+      if (exon.end < featuresById[exon.Parent].cdsStart || exon.start > featuresById[exon.Parent].cdsEnd) {
+        exon.utr = true;
+      } else if (exon.start < featuresById[exon.Parent].cdsStart) {
+        featuresById[exon.Parent].subFeatures.push($.extend({ utr: true }, exon, { end: featuresById[exon.Parent].cdsStart }));
+
+        exon.start = featuresById[exon.Parent].cdsStart;
+      } else if (exon.end > featuresById[exon.Parent].cdsEnd) {
+        featuresById[exon.Parent].subFeatures.push($.extend({ utr: true }, exon, { start: featuresById[exon.Parent].cdsEnd }));
+
+        exon.end = featuresById[exon.Parent].cdsEnd;
+      }
+
+      featuresById[exon.Parent].subFeatures.push(exon);
+      featuresById[exon.Parent].exons[exon.id] = exon;
+    });
+
+    ids.forEach(function (id) {
+      featuresById[id].subFeatures.sort(function (a, b) { return a.start - b.start; });
+    });
   }
 });
 
@@ -6056,178 +6236,44 @@ Genoverse.Track.Model.Transcript.GFF3 = Genoverse.Track.Model.Transcript.extend(
 
 
 Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
-  featureHeight   : 10,
-  labels          : true,
-  repeatLabels    : true,
-  bump            : true,
-  intronStyle     : 'curve',
-  intronLineWidth : 0.5,
-  utrHeight       : 7,
+  featureHeight       : 10,
+  utrHeight           : 7,
+  labels              : true,
+  repeatLabels        : true,
+  bump                : true,
+  subFeatureJoinStyle : 'curve',
 
-  drawFeature: function (transcript, featureContext, labelContext, scale) {
-    this.setFeatureColor(transcript);
+  scaleFeatures: function (features, scale) {
+    var subFeatures, j;
 
-    var exons     = ($.isArray(transcript.exons) ? $.extend(true, [], transcript.exons) : $.map($.extend(true, {}, transcript.exons || {}), function (e) { return e; })).sort(function (a, b) { return a.start - b.start; });
-    var cds       = ($.isArray(transcript.cds)   ? $.extend(true, [], transcript.cds)   : $.map($.extend(true, {}, transcript.cds   || {}), function (c) { return c; })).sort(function (a, b) { return a.start - b.start; });
-    var add       = Math.max(scale, this.widthCorrection);
-    var coding    = {};
-    var cdsStart  = 9e99;
-    var cdsEnd    = -9e99;
-    var utrHeight = this.prop('utrHeight');
-    var utrOffset = (transcript.height - utrHeight) / 2;
-    var i, x, w;
+    for (var i = 0; i < features.length; i++) {
+      subFeatures = features[i].subFeatures || [];
 
-    // Get intron lines to be drawn off the left and right edges of the image
-    if (!exons.length || exons[0].start > transcript.start) {
-      exons.unshift({ start: transcript.start, end: transcript.start });
-    }
-
-    if (!exons.length || exons[exons.length - 1].end < transcript.end) {
-      exons.push({ start: transcript.end, end: transcript.end });
-    }
-
-    featureContext.fillStyle = featureContext.strokeStyle = transcript.color || this.color;
-
-    for (i = 0; i < cds.length; i++) {
-      x = transcript.x + (cds[i].start - transcript.start) * scale;
-      w = Math.max((cds[i].end - cds[i].start) * scale + add, this.minScaledWidth);
-
-      coding[cds[i].start + ':' + cds[i].end] = true;
-
-      cdsStart = Math.min(cdsStart, cds[i].start);
-      cdsEnd   = Math.max(cdsEnd,   cds[i].end);
-
-      if (x > this.width || x + w < 0) {
-        continue;
-      }
-
-      featureContext.fillRect(x, transcript.y, w, transcript.height);
-    }
-
-    for (i = 0; i < exons.length; i++) {
-      // No need to draw the strokeRect if it is entirely inside a fillRect
-      if (!coding[exons[i].start + ':' + exons[i].end]) {
-        x = transcript.x + (exons[i].start - transcript.start) * scale;
-        w = Math.max((exons[i].end - exons[i].start) * scale + add, this.minScaledWidth);
-
-        if (!(x > this.width || x + w < 0)) {
-          featureContext.lineWidth = 1;
-          featureContext.strokeRect(x, transcript.y + utrOffset, w, utrHeight);
-        }
-      }
-
-      if (i) {
-        x = transcript.x + (exons[i - 1].end - transcript.start) * scale + add;
-        w = (exons[i].start - exons[i - 1].end) * scale - add;
-
-        if (x > this.width || x + w < 0) {
-          continue;
+      if (subFeatures.length) {
+        for (j = 0; j < subFeatures.length; j++) {
+          if (subFeatures[j].utr) {
+            subFeatures[j].height = this.utrHeight;
+          }
         }
 
-        this.drawIntron({
-          x      : x,
-          y      : transcript.y + transcript.height / 2,
-          width  : w,
-          height : (transcript.height - (exons[i - 1].end >= cdsStart && exons[i].start <= cdsEnd ? 0 : 3)) / 2 * (transcript.strand > 0 ? -1 : 1)
-        }, featureContext);
+        features[i].height = Math.max.apply(Math, subFeatures.map(function (c) { return c.fake ? 0 : c.height || 0; }).concat(this.featureHeight));
       }
     }
 
-    if (this.labels && transcript.label) {
-      this.drawLabel(transcript, labelContext, scale);
-    }
-  },
-
-  drawIntron: function (intron, context) {
-    var coords = this.getTruncatedIntronCoords(intron);
-
-    if (!coords) {
-      return;
-    }
-
-    context.beginPath();
-    context.moveTo(coords.x1, coords.y1);
-
-    context.lineWidth = this.intronLineWidth;
-
-    switch (this.intronStyle) {
-      case 'line':
-        context.lineTo(coords.x3, coords.y1);
-        break;
-      case 'hat':
-        context.lineTo(coords.x2, coords.y2);
-        context.lineTo(coords.x3, coords.y3);
-        break;
-      case 'curve':
-        context.quadraticCurveTo(coords.x2, coords.y2, coords.x3, coords.y3);
-        break;
-      default: break;
-    }
-
-    context.stroke();
-  },
-
-  getTruncatedIntronCoords: function (intron) {
-    var y1 = intron.y; // y coord of the ends of the line (half way down the exon box)
-    var y3 = y1;
-
-    if (this.intronStyle === 'line') {
-      this.truncateForDrawing(intron);
-      y1 += 0.5; // Sharpen line
-    }
-
-    var x1 = intron.x;                // x coord of the right edge of the first exon
-    var x3 = intron.x + intron.width; // x coord of the left edge of the second exon
-
-    // Skip if completely outside the image's region
-    if (x3 < 0 || x1 > this.width) {
-      return false;
-    }
-
-    var x2, y2, xMid, yScale;
-
-    // Truncate the coordinates of the line being drawn, so it is inside the image's region
-    if (this.intronStyle === 'hat') {
-      xMid   = (x1 + x3) / 2;
-      x2     = xMid;                     // x coord of the peak of the hat/curve
-      y2     = intron.y + intron.height; // y coord of the peak of the hat/curve (level with the top (forward strand) or bottom (reverse strand) of the exon box)
-      yScale = (y2 - y1) / (xMid - x1);  // Scale factor for recalculating coords if points lie outside the image region
-
-      if (xMid < 0) {
-        y2 = intron.y + (yScale * x3);
-        x2 = 0;
-      } else if (xMid > this.width) {
-        y2 = intron.y + (yScale * (this.width - intron.x));
-        x2 = this.width;
-      }
-
-      if (x1 < 0) {
-        y1 = xMid < 0 ? y2 : intron.y - (yScale * intron.x);
-        x1 = 0;
-      }
-
-      if (x3 > this.width) {
-        y3 = xMid > this.width ? y2 : y2 - (yScale * (this.width - x2));
-        x3 = this.width;
-      }
-    } else if (this.intronStyle === 'curve') {
-      // TODO: try truncating when style is curve
-      x2 = intron.x + intron.width / 2;
-      y2 = intron.y + intron.height;
-    }
-
-    return {
-      x1: x1, y1: y1,
-      x2: x2, y2: y2,
-      x3: x3, y3: y3
-    };
+    return this.base(features, scale);
   }
 });
-
 
 Genoverse.Track.View.Transcript.Ensembl = Genoverse.Track.View.Transcript.extend({
   setFeatureColor: function (feature) {
     Genoverse.Track.View.Gene.Ensembl.prototype.setFeatureColor(feature);
+
+    for (var i = 0; i < (feature.subFeatures || []).length; i++) {
+      if (feature.subFeatures[i].utr) {
+        feature.subFeatures[i].color       = false;
+        feature.subFeatures[i].borderColor = feature.color;
+      }
+    }
   }
 });
 

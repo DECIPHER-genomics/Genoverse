@@ -230,6 +230,17 @@ Genoverse.Track.Model = Base.extend({
     var features = this.features(feature.chr);
 
     if (features && !this.featuresById[feature.id]) {
+      if (feature.subFeatures) {
+        for (var i = 0; i < feature.subFeatures.length; i++) {
+          feature.subFeatures[i].start = Math.min(Math.max(feature.subFeatures[i].start, feature.start), feature.end);
+          feature.subFeatures[i].end   = Math.max(Math.min(feature.subFeatures[i].end,   feature.end),   feature.start);
+        }
+
+        // Add "fake" sub-features at the start and end of the feature - this will allow joins to be drawn when there are no sub-features in the current region.
+        feature.subFeatures.unshift({ start: feature.start, end: feature.start, fake: true });
+        feature.subFeatures.push   ({ start: feature.end,   end: feature.end,   fake: true });
+      }
+
       features.insert({ x: feature.start, y: 0, w: feature.end - feature.start + 1, h: 1 }, feature);
       this.featuresById[feature.id] = feature;
     }
