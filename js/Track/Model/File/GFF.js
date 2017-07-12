@@ -16,9 +16,9 @@ Genoverse.Track.Model.File.GFF = Genoverse.Track.Model.File.extend({
       var seqId = fields[0].toLowerCase();
 
       if (
-        seqId == chr                       ||
-        seqId.toLowerCase() == 'chr' + chr ||
-        seqId.match('[^1-9]' + chr + '$')  ||
+        seqId == chr                      ||
+        seqId == 'chr' + chr              ||
+        seqId.match('[^1-9]' + chr + '$') ||
         seqId.match('^' + chr + '\\b')
       ) {
         this.insertFeature({
@@ -29,7 +29,7 @@ Genoverse.Track.Model.File.GFF = Genoverse.Track.Model.File.extend({
           source : fields[1],
           type   : fields[2],
           score  : fields[5],
-          strand : fields[6] + '1',
+          strand : fields[6] === '-' ? -1 : 1,
           label  : fields[1] + ' ' + fields[2] + ' ' + fields[3] + '-' + fields[4]
         });
       }
