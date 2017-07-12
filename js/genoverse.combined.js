@@ -6379,7 +6379,8 @@ Genoverse.Track.Model.File.GTF = Genoverse.Track.Model.File.GFF;
 
 Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
   parseData: function (text, chr) {
-    var lines = text.split('\n');
+    var lines   = text.split('\n');
+    var maxQual = this.allData ? this.prop('maxQual') || 0 : false;
 
     for (var i = 0; i < lines.length; i++) {
       if (!lines[i].length || lines[i].indexOf('#') === 0) {
@@ -6416,7 +6417,15 @@ Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
             originalFeature : fields
           });
         }
+
+        if (maxQual !== false) {
+          maxQual = Math.max(maxQual, fields[5]);
+        }
       }
+    }
+
+    if (maxQual) {
+      this.prop('maxQual', maxQual);
     }
   }
 });
@@ -6796,6 +6805,7 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
   name       : 'VCF',
   model      : Genoverse.Track.Model.File.VCF,
   autoHeight : false,
+  maxQual    : undefined, // Set this to the maximum value of the QUAL field in the file in order to color features by QUAL. Only required for large (tabix indexed) files - small ones can calculate this value automatically
 
   populateMenu: function (feature) {
     return {
@@ -6840,9 +6850,10 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
       labels : false,
 
       drawFeature: function (feature) {
-        if (!feature.color) {
-          var QUAL  = feature.originalFeature[5];
-          var heat  = Math.min(255, Math.floor(255 * QUAL / this.maxQUAL)) - 127;
+        var maxQual = this.prop('maxQual');
+
+        if (maxQual && !feature.color) {
+          var heat  = Math.min(255, Math.floor(255 * (feature.originalFeature[5] || 0) / maxQual)) - 127;
           var red   = heat > 0 ? 255 : 127 + heat;
           var green = heat < 0 ? 255 : 127 - heat;
 

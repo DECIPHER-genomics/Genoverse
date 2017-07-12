@@ -1,6 +1,7 @@
 Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
   parseData: function (text, chr) {
-    var lines = text.split('\n');
+    var lines   = text.split('\n');
+    var maxQual = this.allData ? this.prop('maxQual') || 0 : false;
 
     for (var i = 0; i < lines.length; i++) {
       if (!lines[i].length || lines[i].indexOf('#') === 0) {
@@ -37,7 +38,15 @@ Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
             originalFeature : fields
           });
         }
+
+        if (maxQual !== false) {
+          maxQual = Math.max(maxQual, fields[5]);
+        }
       }
+    }
+
+    if (maxQual) {
+      this.prop('maxQual', maxQual);
     }
   }
 });

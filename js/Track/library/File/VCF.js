@@ -2,6 +2,7 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
   name       : 'VCF',
   model      : Genoverse.Track.Model.File.VCF,
   autoHeight : false,
+  maxQual    : undefined, // Set this to the maximum value of the QUAL field in the file in order to color features by QUAL. Only required for large (tabix indexed) files - small ones can calculate this value automatically
 
   populateMenu: function (feature) {
     return {
@@ -46,9 +47,10 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
       labels : false,
 
       drawFeature: function (feature) {
-        if (!feature.color) {
-          var QUAL  = feature.originalFeature[5];
-          var heat  = Math.min(255, Math.floor(255 * QUAL / this.maxQUAL)) - 127;
+        var maxQual = this.prop('maxQual');
+
+        if (maxQual && !feature.color) {
+          var heat  = Math.min(255, Math.floor(255 * (feature.originalFeature[5] || 0) / maxQual)) - 127;
           var red   = heat > 0 ? 255 : 127 + heat;
           var green = heat < 0 ? 255 : 127 - heat;
 
