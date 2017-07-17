@@ -3584,6 +3584,7 @@
   window.dallianceLib = {
     URLFetchable  : URLFetchable,
     BlobFetchable : BlobFetchable,
-    makeBam       : makeBam
+    makeBam       : makeBam,
+    inflateBuffer : inflateBuffer	
   };
 })();
