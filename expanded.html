@@ -22,7 +22,9 @@
 
     <script type="text/javascript" src="js/lib/Base.js"></script>
     <script type="text/javascript" src="js/lib/rtree.js"></script>
-    <script type="text/javascript" src="js/lib/dalliance-lib.min.js"></script>
+    <script type="text/javascript" src="js/lib/dalliance-lib.js"></script>
+    <script type="text/javascript" src="js/lib/jDataview.js"></script>
+    <script type="text/javascript" src="js/lib/jParser.js"></script>
 
     <script type="text/javascript" src="js/Genoverse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script>
@@ -62,6 +64,7 @@
     <script type="text/javascript" src="js/Track/Model/File/BED.js"></script>
     <script type="text/javascript" src="js/Track/Model/File/GFF.js"></script>
     <script type="text/javascript" src="js/Track/Model/File/VCF.js"></script>
+    <script type="text/javascript" src="js/Track/Model/File/GZ.js"></script>
 
     <script type="text/javascript" src="js/Track/library/Chromosome.js"></script>
     <script type="text/javascript" src="js/Track/library/dbSNP.js"></script>
@@ -71,6 +74,7 @@
     <script type="text/javascript" src="js/Track/library/File/GFF.js"></script>
     <script type="text/javascript" src="js/Track/library/File/GFF3.js"></script>
     <script type="text/javascript" src="js/Track/library/File/VCF.js"></script>
+    <script type="text/javascript" src="js/Track/library/File/GZ.js"></script>
     <script type="text/javascript" src="js/Track/library/Gene.js"></script>
     <script type="text/javascript" src="js/Track/library/HighlightRegion.js"></script>
     <script type="text/javascript" src="js/Track/library/Legend.js"></script>
@@ -82,7 +86,7 @@
         container : '#genoverse',
         width     : 800,
         genome    : 'grch38',
-        chr       : 13,
+        chr       : 1,
         start     : 32296945,
         end       : 32370557,
         plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
@@ -104,7 +108,11 @@
             model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
             setFeatureColor : function (f) { f.color = '#AAA'; }
           }),
-          Genoverse.Track.dbSNP
+          Genoverse.Track.dbSNP,
+          Genoverse.Track.File.GZ.extend({
+              name : 'vcf-test',
+              url  : 'http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr1.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz'
+          })
         ]
       }
 
