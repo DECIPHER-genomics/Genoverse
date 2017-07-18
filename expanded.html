@@ -25,6 +25,7 @@
     <script type="text/javascript" src="js/lib/dalliance-lib.js"></script>
     <script type="text/javascript" src="js/lib/jDataview.js"></script>
     <script type="text/javascript" src="js/lib/jParser.js"></script>
+    <script type="text/javascript" src="js/lib/VCFReader.js"></script>
 
     <script type="text/javascript" src="js/Genoverse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script>
@@ -109,9 +110,10 @@
             setFeatureColor : function (f) { f.color = '#AAA'; }
           }),
           Genoverse.Track.dbSNP,
-          Genoverse.Track.File.GZ.extend({
+          Genoverse.Track.File.VCF.extend({
               name : 'vcf-test',
-              url  : 'data/vcfExampleTwo.vcf.gz'
+              url  : 'data/vcfExampleTwo.vcf.gz',
+              gz   : true
           })
         ]
       }

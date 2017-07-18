@@ -1,5 +1,6 @@
 Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
   name       : 'VCF',
+  indexExt   : '.tbi',
   model      : Genoverse.Track.Model.File.VCF,
   autoHeight : false,
 

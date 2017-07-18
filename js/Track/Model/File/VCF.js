@@ -1,4 +1,38 @@
 Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
+  cachedVCF : false,
+  getData : function(chr, start, end){
+    var deferred = $.Deferred();
+    var model = this;
+
+    if(!this.prop('gz')){
+      return this.base.apply(this, arguments);
+    }
+
+    console.log("gzipped VCF");
+    if (!this.vcfFile) {
+	    if (this.url) {
+	      this.vcfFile = new dallianceLib.URLFetchable(this.url);
+	      this.tbiFile = new dallianceLib.URLFetchable(this.url + this.prop('indexExt'));
+	    } else if (this.dataFile && this.indexFile) {
+	      this.vcfFile = new dallianceLib.BlobFetchable(this.dataFile);
+	      this.tbiFile = new dallianceLib.BlobFetchable(this.indexFile);
+	    }
+	  }
+
+    this.makeVCF(this.vcfFile, this.tbiFile).then(function(vcf){
+			model.cachedVCF = vcf;
+			console.log(vcf.tabix.head.names);
+			console.log(chr, start, end);
+
+      vcf.getRecords(chr, start, end, function(records){
+				console.log(records);
+				model.receiveData(records, chr, start, end);
+				deferred.resolveWith(model);
+			});
+		});
+
+    return deferred;
+  },
   parseData: function (text, chr) {
     var lines = text.split('\n');
 
@@ -39,5 +73,19 @@ Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
         }
       }
     }
-  }
+  },
+  makeVCF : function(vcfFile, tbiFile){
+		var d = $.Deferred();
+
+		if(!this.cachedVCF){
+			var vcf = new VCFReader(vcfFile, tbiFile);
+			vcf.readTabix(function(tabix){
+				vcf.tabix = tabix;
+				d.resolve(vcf);
+			});
+		}else{
+			d.resolve(this.cachedVCF);
+		}
+		return d;
+	}
 });
