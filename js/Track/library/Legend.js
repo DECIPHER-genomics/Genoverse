@@ -61,6 +61,7 @@ Genoverse.Track.View.Legend = Genoverse.Track.View.Static.extend({
     var xScale   = this.width / cols;
     var yScale   = this.fontHeight + pad;
     var features = [];
+    var xOffest  = params.xOffset || 0;
     var xPos, yPos, labelWidth;
 
     for (var i = 0; i < f.length; i++) {
@@ -69,8 +70,8 @@ Genoverse.Track.View.Legend = Genoverse.Track.View.Static.extend({
       labelWidth = this.context.measureText(f[i][0]).width;
 
       features.push(
-        { x: xPos,           y: yPos, width: w,              height: this.featureHeight, color: f[i][1] },
-        { x: xPos + pad + w, y: yPos, width: labelWidth + 1, height: this.featureHeight, color: false, labelColor: this.textColor, labelWidth: labelWidth, label: f[i][0] }
+        { x: xPos + xOffest,           y: yPos, width: w,              height: this.featureHeight, color: f[i][1] },
+        { x: xPos + xOffest + pad + w, y: yPos, width: labelWidth + 1, height: this.featureHeight, color: false, labelColor: this.textColor, labelWidth: labelWidth, label: f[i][0] }
       );
 
       if (++x === cols) {
