@@ -6,6 +6,7 @@ Genoverse.Track = Base.extend({
   unsortable : false,     // Is the track unsortable
   invert     : false,     // If true, features are drawn from the bottom of the track, rather than from the top. This is actually achieved by performing a CSS transform on the gv-image-container div
   legend     : false,     // Does the track have a legend - can be true, false, or a Genoverse.Track.Legend extension/child class.
+  children   : undefined, // Does the track have any child tracks - can be one or an array of Genoverse.Track extension/child classes.
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
   hideEmpty  : undefined, // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
