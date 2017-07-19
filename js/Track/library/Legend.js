@@ -163,7 +163,6 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
           legend.controller.makeImage({});
         }
       },
-
       afterSetMVC: function () {
         var legend = this.prop('legendTrack');
 
@@ -182,17 +181,14 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     var legend = this;
     var type   = this.type;
 
-    this.tracks = $.grep(this.browser.tracks, function (t) {
-      if (t.legendType === type && !t.disabled) {
+    this.tracks = $.map(this.browser.tracks.filter(function (t) {
+      if (t.legendType === type) {
         t.legendTrack = t.legendTrack || legend;
         return true;
       }
+    }), function (track) {
+      return [ track ].concat(track.prop('childTracks'), track.prop('parentTrack')).filter(function (t) { return t && t !== legend && !t.prop('disabled'); })
     });
-
-    this.tracks = this.tracks.concat($.map(this.tracks, function (t) {
-      var linkedTrack = t.prop('subtrack') || t.prop('parentTrack');
-      return linkedTrack && linkedTrack.prop('disabled') !== true ? linkedTrack : null;
-    }));
 
     this.updateOrder();
 
@@ -204,10 +200,12 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   },
 
   updateOrder: function () {
-    var tracks = this.tracks.filter(function (t) { return !t.prop('parentTrack'); });
+    if (this.lockToTrack) {
+      var tracks = this.tracks.filter(function (t) { return !t.prop('parentTrack'); });
 
-    if (tracks.length && this.lockToTrack) {
-      this.order = tracks[tracks.length - 1].order + 0.1;
+      if (tracks.length) {
+        this.order = tracks[tracks.length - 1].order + 0.1;
+      }
     }
   },
 

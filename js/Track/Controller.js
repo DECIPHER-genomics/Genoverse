@@ -61,9 +61,7 @@ Genoverse.Track.Controller = Base.extend({
 
     this.minLabelHeight = Math.max(this.labelName.outerHeight(true), this.labelName.outerHeight());
 
-    if (this.minLabelHeight) {
-      this.label.height(this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight));
-    }
+    this.setLabelHeight();
   },
 
   addDomElements: function () {
@@ -85,6 +83,18 @@ Genoverse.Track.Controller = Base.extend({
       this.label.addClass('gv-unsortable');
     } else {
       $('<div class="gv-handle">').appendTo(this.label);
+    }
+
+    if (this.prop('children')) {
+      this.superContainer = $('<div class="gv-track-container gv-track-super-container">').insertAfter(this.container);
+      this.container.appendTo(this.superContainer);
+    } else if (this.prop('parentTrack')) {
+      this.superContainer = this.prop('parentTrack').prop('superContainer');
+
+      this.container.appendTo(this.superContainer);
+      this.label.remove();
+
+      this.label = this.prop('parentTrack').prop('label');
     }
 
     this.setName(name);
@@ -258,7 +268,8 @@ Genoverse.Track.Controller = Base.extend({
       this.imgContainers.children('.gv-labels').css('top', arg);
     }
 
-    this.container.add(this.label).height(height)[height ? 'show' : 'hide']();
+    this.container.height(height)[height ? 'show' : 'hide']();
+    this.setLabelHeight();
     this.toggleExpander();
 
     if (saveConfig !== false) {
@@ -295,6 +306,32 @@ Genoverse.Track.Controller = Base.extend({
     } else if (this.expander) {
       this.hideMessage('resize');
       this.expander.hide();
+    }
+  },
+
+  setLabelHeight: function () {
+    var parent = this.prop('parentTrack');
+
+    if (parent) {
+      return parent.controller.setLabelHeight();
+    }
+
+    if (this.minLabelHeight) {
+      var tracks = [ this ].concat(this.prop('childTracks') || []);
+      var height = tracks.reduce(function (h, track) { return h + (track.prop('disabled') ? 0 : track.prop('height')); }, 0);
+
+      this.label.height(this.prop('disabled') ? 0 : Math.max(height, this.minLabelHeight));
+
+      if (tracks.length > 1) {
+        var top = tracks[0].prop('height');
+
+        tracks.slice(1).forEach(function (track) {
+          var h = track.prop('height');
+
+          track.prop('labelName').css('top', top)[h ? 'removeClass' : 'addClass']('gv-hide');
+          top += h;
+        });
+      }
     }
   },
 

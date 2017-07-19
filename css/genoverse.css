@@ -209,10 +209,10 @@
 
 .gv-label-container li .gv-name {
   float: left;
-  position: relative;
+  position: absolute;
   overflow: hidden;
   margin: 8px 0;
-  left: 5px;
+  left: 15px;
   width: 85%;
   color: #F2F5F7;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.75);
@@ -220,10 +220,6 @@
   font-size: 11px;
   font-weight: bold;
   white-space: pre-wrap;
-}
-
-.gv-label-container li.gv-unsortable .gv-name {
-  left: 15px;
 }
 
 .gv-label-container li.gv-line-break .gv-name {
@@ -251,7 +247,8 @@
   border-color: #000;
 }
 
-.gv-canvas-container .gv-wrapper > :last-child.gv-track-container-legend .gv-track-border {
+.gv-canvas-container .gv-wrapper > :last-child.gv-track-container-legend .gv-track-border,
+.gv-canvas-container .gv-wrapper > :last-child.gv-track-super-container > :last-child.gv-track-container-legend .gv-track-border {
   display: none;
 }
 
@@ -449,4 +446,8 @@
   height: auto;
   bottom: 0;
   z-index: 1;
+}
+
+.gv-hide {
+  display: none!important;
 }

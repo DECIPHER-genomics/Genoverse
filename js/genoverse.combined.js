@@ -2286,7 +2286,7 @@ var Genoverse = Base.extend({
   },
 
   removeTrack: function (track) {
-    this.removeTracks([ track ]);
+    this.removeTracks((track.prop('childTracks') || []).concat(track));
   },
 
   removeTracks: function (tracks) {
@@ -2322,6 +2322,7 @@ var Genoverse = Base.extend({
     var sorted     = $.extend([], this.tracks).sort(function (a, b) { return a.order - b.order; });
     var labels     = $();
     var containers = $();
+    var container;
 
     for (var i = 0; i < sorted.length; i++) {
       if (sorted[i].prop('parentTrack')) {
@@ -2330,12 +2331,14 @@ var Genoverse = Base.extend({
 
       sorted[i].prop('order', i);
 
+      container = sorted[i].prop('superContainer') || sorted[i].prop('container');
+
       if (sorted[i].prop('menus').length) {
-        sorted[i].prop('top', sorted[i].prop('container').position().top);
+        sorted[i].prop('top', container.position().top);
       }
 
       labels.push(sorted[i].prop('label')[0]);
-      containers.push(sorted[i].prop('container')[0]);
+      containers.push(container[0]);
     }
 
     this.labelContainer.append(labels);
@@ -2346,7 +2349,7 @@ var Genoverse = Base.extend({
 
     labels.map(function () { return $(this).data('track'); }).each(function () {
       if (this.prop('menus').length) {
-        var diff = this.prop('container').position().top - this.prop('top');
+        var diff = (this.prop('superContainer') || this.prop('container')).position().top - this.prop('top');
         this.prop('menus').css('top', function (i, top) { return parseInt(top, 10) + diff; });
         this.prop('top', null);
       }
@@ -2942,6 +2945,10 @@ Genoverse.Track = Base.extend({
       this.controller.makeFirstImage();
     }
 
+    if (this.children) {
+      this.addChildTracks();
+    }
+
     if (this.legend) {
       this.addLegend();
     }
@@ -3344,6 +3351,10 @@ Genoverse.Track = Base.extend({
         this.reset.apply(this, configChanged ? [ 'config', config ] : []);
       }
 
+      (this.prop('childTracks') || []).forEach(function (track) {
+        track.setConfig(config);
+      });
+
       this.browser.saveConfig();
     }
   },
@@ -3381,13 +3392,41 @@ Genoverse.Track = Base.extend({
     return this.configSettings[type][this.config[type]];
   },
 
-  addLegend: function () {
-    if (!this.legend) {
+  addChildTracks: function () {
+    if (!this.children) {
       return;
     }
 
+    var track    = this;
+    var browser  = this.browser;
+    var children = ($.isArray(this.children) ? this.children : [ this.children ]).filter(function (child) { return child.prototype instanceof Genoverse.Track; });
+    var config   = {
+      parentTrack : track,
+      controls    : 'off',
+      threshold   : track.prop('threshold')
+    };
+
+    setTimeout(function () {
+      track.childTracks = children.map(function (child) {
+        if (child.prototype instanceof Genoverse.Track.Legend || child === Genoverse.Track.Legend) {
+          return track.addLegend(child.extend(config), true);
+        } else {
+          return browser.addTrack(child.extend(config));
+        }
+      });
+
+      track.controller.setLabelHeight();
+    }, 1);
+  },
+
+  addLegend: function (constructor, now) {
+    if (!(constructor || this.legend)) {
+      return;
+    }
+
+    constructor = constructor || (this.legend.prototype instanceof Genoverse.Track.Legend ? this.legend : Genoverse.Track.Legend);
+
     var track       = this;
-    var constructor = this.legend.prototype instanceof Genoverse.Track.Legend ? this.legend : Genoverse.Track.Legend;
     var legendType  = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
     var config      = {
       id   : legendType + 'Legend',
@@ -3397,9 +3436,15 @@ Genoverse.Track = Base.extend({
 
     this.legendType = legendType;
 
-    setTimeout(function () {
-      track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack(constructor.extend(config));
-    }, 1);
+    function makeLegendTrack() {
+      return track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack(constructor.extend(config));
+    }
+
+    if (now === true) {
+      return makeLegendTrack();
+    } else {
+      setTimeout(makeLegendTrack, 1);
+    }
   },
 
   changeChr: function () {
@@ -3524,9 +3569,7 @@ Genoverse.Track.Controller = Base.extend({
 
     this.minLabelHeight = Math.max(this.labelName.outerHeight(true), this.labelName.outerHeight());
 
-    if (this.minLabelHeight) {
-      this.label.height(this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight));
-    }
+    this.setLabelHeight();
   },
 
   addDomElements: function () {
@@ -3548,6 +3591,18 @@ Genoverse.Track.Controller = Base.extend({
       this.label.addClass('gv-unsortable');
     } else {
       $('<div class="gv-handle">').appendTo(this.label);
+    }
+
+    if (this.prop('children')) {
+      this.superContainer = $('<div class="gv-track-container gv-track-super-container">').insertAfter(this.container);
+      this.container.appendTo(this.superContainer);
+    } else if (this.prop('parentTrack')) {
+      this.superContainer = this.prop('parentTrack').prop('superContainer');
+
+      this.container.appendTo(this.superContainer);
+      this.label.remove();
+
+      this.label = this.prop('parentTrack').prop('label');
     }
 
     this.setName(name);
@@ -3721,7 +3776,8 @@ Genoverse.Track.Controller = Base.extend({
       this.imgContainers.children('.gv-labels').css('top', arg);
     }
 
-    this.container.add(this.label).height(height)[height ? 'show' : 'hide']();
+    this.container.height(height)[height ? 'show' : 'hide']();
+    this.setLabelHeight();
     this.toggleExpander();
 
     if (saveConfig !== false) {
@@ -3758,6 +3814,32 @@ Genoverse.Track.Controller = Base.extend({
     } else if (this.expander) {
       this.hideMessage('resize');
       this.expander.hide();
+    }
+  },
+
+  setLabelHeight: function () {
+    var parent = this.prop('parentTrack');
+
+    if (parent) {
+      return parent.controller.setLabelHeight();
+    }
+
+    if (this.minLabelHeight) {
+      var tracks = [ this ].concat(this.prop('childTracks') || []);
+      var height = tracks.reduce(function (h, track) { return h + (track.prop('disabled') ? 0 : track.prop('height')); }, 0);
+
+      this.label.height(this.prop('disabled') ? 0 : Math.max(height, this.minLabelHeight));
+
+      if (tracks.length > 1) {
+        var top = tracks[0].prop('height');
+
+        tracks.slice(1).forEach(function (track) {
+          var h = track.prop('height');
+
+          track.prop('labelName').css('top', top)[h ? 'removeClass' : 'addClass']('gv-hide');
+          top += h;
+        });
+      }
     }
   },
 
@@ -7362,7 +7444,6 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
           legend.controller.makeImage({});
         }
       },
-
       afterSetMVC: function () {
         var legend = this.prop('legendTrack');
 
@@ -7381,17 +7462,14 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     var legend = this;
     var type   = this.type;
 
-    this.tracks = $.grep(this.browser.tracks, function (t) {
-      if (t.legendType === type && !t.disabled) {
+    this.tracks = $.map(this.browser.tracks.filter(function (t) {
+      if (t.legendType === type) {
         t.legendTrack = t.legendTrack || legend;
         return true;
       }
+    }), function (track) {
+      return [ track ].concat(track.prop('childTracks'), track.prop('parentTrack')).filter(function (t) { return t && t !== legend && !t.prop('disabled'); })
     });
-
-    this.tracks = this.tracks.concat($.map(this.tracks, function (t) {
-      var linkedTrack = t.prop('subtrack') || t.prop('parentTrack');
-      return linkedTrack && linkedTrack.prop('disabled') !== true ? linkedTrack : null;
-    }));
 
     this.updateOrder();
 
@@ -7403,10 +7481,12 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   },
 
   updateOrder: function () {
-    var tracks = this.tracks.filter(function (t) { return !t.prop('parentTrack'); });
+    if (this.lockToTrack) {
+      var tracks = this.tracks.filter(function (t) { return !t.prop('parentTrack'); });
 
-    if (tracks.length && this.lockToTrack) {
-      this.order = tracks[tracks.length - 1].order + 0.1;
+      if (tracks.length) {
+        this.order = tracks[tracks.length - 1].order + 0.1;
+      }
     }
   },
 

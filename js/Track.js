@@ -34,6 +34,10 @@ Genoverse.Track = Base.extend({
       this.controller.makeFirstImage();
     }
 
+    if (this.children) {
+      this.addChildTracks();
+    }
+
     if (this.legend) {
       this.addLegend();
     }
@@ -436,6 +440,10 @@ Genoverse.Track = Base.extend({
         this.reset.apply(this, configChanged ? [ 'config', config ] : []);
       }
 
+      (this.prop('childTracks') || []).forEach(function (track) {
+        track.setConfig(config);
+      });
+
       this.browser.saveConfig();
     }
   },
@@ -473,13 +481,41 @@ Genoverse.Track = Base.extend({
     return this.configSettings[type][this.config[type]];
   },
 
-  addLegend: function () {
-    if (!this.legend) {
+  addChildTracks: function () {
+    if (!this.children) {
       return;
     }
 
+    var track    = this;
+    var browser  = this.browser;
+    var children = ($.isArray(this.children) ? this.children : [ this.children ]).filter(function (child) { return child.prototype instanceof Genoverse.Track; });
+    var config   = {
+      parentTrack : track,
+      controls    : 'off',
+      threshold   : track.prop('threshold')
+    };
+
+    setTimeout(function () {
+      track.childTracks = children.map(function (child) {
+        if (child.prototype instanceof Genoverse.Track.Legend || child === Genoverse.Track.Legend) {
+          return track.addLegend(child.extend(config), true);
+        } else {
+          return browser.addTrack(child.extend(config));
+        }
+      });
+
+      track.controller.setLabelHeight();
+    }, 1);
+  },
+
+  addLegend: function (constructor, now) {
+    if (!(constructor || this.legend)) {
+      return;
+    }
+
+    constructor = constructor || (this.legend.prototype instanceof Genoverse.Track.Legend ? this.legend : Genoverse.Track.Legend);
+
     var track       = this;
-    var constructor = this.legend.prototype instanceof Genoverse.Track.Legend ? this.legend : Genoverse.Track.Legend;
     var legendType  = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
     var config      = {
       id   : legendType + 'Legend',
@@ -489,9 +525,15 @@ Genoverse.Track = Base.extend({
 
     this.legendType = legendType;
 
-    setTimeout(function () {
-      track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack(constructor.extend(config));
-    }, 1);
+    function makeLegendTrack() {
+      return track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack(constructor.extend(config));
+    }
+
+    if (now === true) {
+      return makeLegendTrack();
+    } else {
+      setTimeout(makeLegendTrack, 1);
+    }
   },
 
   changeChr: function () {
