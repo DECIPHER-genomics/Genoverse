@@ -231,6 +231,8 @@ Genoverse.Track.Model = Base.extend({
 
     if (features && !this.featuresById[feature.id]) {
       if (feature.subFeatures) {
+        feature.subFeatures.sort(function (a, b) { return a.start - b.start; });
+
         for (var i = 0; i < feature.subFeatures.length; i++) {
           feature.subFeatures[i].start = Math.min(Math.max(feature.subFeatures[i].start, feature.start), feature.end);
           feature.subFeatures[i].end   = Math.max(Math.min(feature.subFeatures[i].end,   feature.end),   feature.start);
