@@ -981,7 +981,9 @@ var Genoverse = Base.extend({
         continue;
       }
 
-      sorted[i].prop('order', i);
+      if (!sorted[i].prop('fixedOrder')) {
+        sorted[i].prop('order', i);
+      }
 
       container = sorted[i].prop('superContainer') || sorted[i].prop('container');
 
@@ -1013,7 +1015,7 @@ var Genoverse = Base.extend({
   updateTrackOrder: function (e, ui) {
     var track = ui.item.data('track');
 
-    if (track.prop('unsortable')) {
+    if (track.prop('unsortable') || track.prop('fixedOrder')) {
       return;
     }
 

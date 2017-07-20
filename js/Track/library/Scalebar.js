@@ -1,5 +1,6 @@
 Genoverse.Track.Scalebar = Genoverse.Track.extend({
   unsortable     : true,
+  fixedOrder     : true,
   order          : 0,
   orderReverse   : 1e5,
   featureStrand  : 1,

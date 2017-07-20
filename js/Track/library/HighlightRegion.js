@@ -1,6 +1,7 @@
 Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   id               : 'highlights',
   unsortable       : true,
+  fixedOrder       : true,
   repeatLabels     : true,
   resizable        : false,
   border           : false,

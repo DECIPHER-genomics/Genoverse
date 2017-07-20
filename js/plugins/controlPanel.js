@@ -262,7 +262,7 @@ Genoverse.Plugins.controlPanel = function () {
                 (function (track) {
                   $('<div class="gv-tracks-library-item">').append(
                     $('<i class="gv-add-track gv-menu-button fa fa-plus-circle"> ').on('click', function () {
-                      var sortableTracks = $.grep(browser.tracks, function (t) { return t.unsortable !== true; });
+                      var sortableTracks = browser.tracks.filter(function (t) { return !(t.fixedOrder || t.unsortable); });
 
                       browser.trackIds = browser.trackIds || {};
                       browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;

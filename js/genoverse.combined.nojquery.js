@@ -2323,7 +2323,9 @@ var Genoverse = Base.extend({
         continue;
       }
 
-      sorted[i].prop('order', i);
+      if (!sorted[i].prop('fixedOrder')) {
+        sorted[i].prop('order', i);
+      }
 
       container = sorted[i].prop('superContainer') || sorted[i].prop('container');
 
@@ -2355,7 +2357,7 @@ var Genoverse = Base.extend({
   updateTrackOrder: function (e, ui) {
     var track = ui.item.data('track');
 
-    if (track.prop('unsortable')) {
+    if (track.prop('unsortable') || track.prop('fixedOrder')) {
       return;
     }
 
@@ -2908,7 +2910,8 @@ Genoverse.Track = Base.extend({
   margin     : 2,         // The spacing between this track and the next
   resizable  : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
   border     : true,      // Does the track have a bottom border
-  unsortable : false,     // Is the track unsortable
+  unsortable : false,     // Is the track unsortable by the user
+  fixedOrder : false,     // Is the track unsortable by the user or automatically - use for tracks which always need to go at the top/bottom
   invert     : false,     // If true, features are drawn from the bottom of the track, rather than from the top. This is actually achieved by performing a CSS transform on the gv-image-container div
   legend     : false,     // Does the track have a legend - can be true, false, or a Genoverse.Track.Legend extension/child class.
   children   : undefined, // Does the track have any child tracks - can be one or an array of Genoverse.Track extension/child classes.
@@ -3396,9 +3399,9 @@ Genoverse.Track = Base.extend({
     var browser  = this.browser;
     var children = ($.isArray(this.children) ? this.children : [ this.children ]).filter(function (child) { return child.prototype instanceof Genoverse.Track; });
     var config   = {
-      parentTrack : track,
+      parentTrack : this,
       controls    : 'off',
-      threshold   : track.prop('threshold')
+      threshold   : this.prop('threshold')
     };
 
     setTimeout(function () {
@@ -6986,6 +6989,7 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
 Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
   id               : 'highlights',
   unsortable       : true,
+  fixedOrder       : true,
   repeatLabels     : true,
   resizable        : false,
   border           : false,
@@ -7504,6 +7508,7 @@ Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
   height     : 12,
   labels     : 'overlay',
   unsortable : true,
+  fixedOrder : true,
 
   resize: $.noop,
 
@@ -7570,6 +7575,7 @@ Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
 
 Genoverse.Track.Scalebar = Genoverse.Track.extend({
   unsortable     : true,
+  fixedOrder     : true,
   order          : 0,
   orderReverse   : 1e5,
   featureStrand  : 1,

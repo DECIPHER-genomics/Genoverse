@@ -4,6 +4,7 @@ Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
   height     : 12,
   labels     : 'overlay',
   unsortable : true,
+  fixedOrder : true,
 
   resize: $.noop,
 
