@@ -82,8 +82,7 @@
 
 .gv-canvas-container .gv-message-container .gv-messages {
   float: right;
-  padding-right: 10px;
-  padding-left: 15px;
+  padding: 0 5px;
   margin-bottom: -6px;
 }
 
@@ -96,18 +95,11 @@
   text-decoration: underline;
 }
 
-.gv-canvas-container .gv-message-container .gv-control {
-  position: absolute;
-  height: 14px;
-  cursor: pointer;
-}
-
 .gv-canvas-container .gv-message-container .gv-control:hover { text-decoration: underline; }
 .gv-canvas-container .gv-message-container .gv-expand,
 .gv-canvas-container .gv-message-container.gv-collapsed .gv-messages,
 .gv-canvas-container .gv-message-container.gv-collapsed .gv-collapse { display: none; }
-.gv-canvas-container .gv-message-container .gv-collapse              { display: inline; }
-.gv-canvas-container .gv-message-container.gv-collapsed .gv-expand   { display: inline; position: relative; }
+.gv-canvas-container .gv-message-container.gv-collapsed .gv-expand   { display: inline; }
 
 .gv-canvas-container .gv-image-container {
   height: 100%;

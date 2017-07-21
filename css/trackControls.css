@@ -18,7 +18,17 @@
   background: rgba(0, 0, 0, 0.7);
 }
 
-.gv-track-controls-plugin .gv-track-container div.gv-track-controls > * {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls .gv-track-controls-container {
+  display: none;
+}
+
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls.gv-maximized .gv-track-controls-container {
+  display: inline-block;
+  border-right: 1px solid white;
+  padding-right: 5px;
+}
+
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls .gv-track-controls-container > * {
   display: inline-block;
   min-width: 20px;
   text-align: center;
@@ -32,20 +42,50 @@
   text-decoration: underline;
 }
 
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.fa:hover {
+  text-decoration: none;
+}
+
 .gv-track-controls-plugin .gv-track-container:hover > div.gv-track-controls {
   display: block;
 }
 
-.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-hidden {
-  display: none!important;
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-track-controls-toggle {
+  padding-left: 5px;
+}
+
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls.gv-maximized a.gv-track-controls-toggle {
+  padding: 0 5px 0 10px;
+}
+
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-track-controls-toggle .fa {
+  margin-right: 5px;
+}
+
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls:not(.gv-maximized) a.gv-track-controls-toggle > :last-child,
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls.gv-maximized       a.gv-track-controls-toggle > :first-child {
+  display: none;
 }
 
 .gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle {
-  background: url(../i/auto_height.png) center 1px no-repeat;
+  position: relative;
 }
 
-.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height {
-  background-position: center -17px;
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle .fa-sort-asc,
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle .fa-sort-desc,
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height .fa-sort {
+  display: none;
+}
+
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height .fa-sort-asc,
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height .fa-sort-desc {
+  display: inline-block;
+  position: absolute;
+  left: 6px;
+  top: -4px;
+}
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height .fa-sort-desc {
+  top: -15px;
 }
 
 .gv-track-controls-plugin .gv-track-container div.gv-track-controls select,
@@ -62,4 +102,8 @@
 
 .gv-track-controls-plugin .gv-track-container div.gv-track-controls label {
   margin: 0 0 0 5px;
+}
+
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls .gv-track-controls-container > :first-child:not(select):not(label) {
+  margin-left: 5px;
 }
