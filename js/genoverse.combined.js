@@ -3573,7 +3573,7 @@ Genoverse.Track.Controller = Base.extend({
 
     this.minLabelHeight = Math.max(this.labelName.outerHeight(true), this.labelName.outerHeight());
 
-    this.setLabelHeight();
+    this.setLabelHeight(true);
   },
 
   addDomElements: function () {
@@ -3821,29 +3821,27 @@ Genoverse.Track.Controller = Base.extend({
     }
   },
 
-  setLabelHeight: function () {
+  setLabelHeight: function (enforceMinHeight) {
     var parent = this.prop('parentTrack');
 
     if (parent) {
       return parent.controller.setLabelHeight();
     }
 
-    if (this.minLabelHeight) {
-      var tracks = [ this ].concat(this.prop('childTracks') || []);
-      var height = tracks.reduce(function (h, track) { return h + (track.prop('disabled') ? 0 : track.prop('height')); }, 0);
+    var tracks = [ this ].concat(this.prop('childTracks') || []);
+    var height = tracks.reduce(function (h, track) { return h + (track.prop('disabled') ? 0 : track.prop('height')); }, 0);
 
-      this.label.height(this.prop('disabled') ? 0 : Math.max(height, this.minLabelHeight));
+    this.label.height(this.prop('disabled') ? 0 : enforceMinHeight && this.minLabelHeight ? Math.max(height, this.minLabelHeight) : height);
 
-      if (tracks.length > 1) {
-        var top = tracks[0].prop('height');
+    if (tracks.length > 1) {
+      var top = tracks[0].prop('height');
 
-        tracks.slice(1).forEach(function (track) {
-          var h = track.prop('height');
+      tracks.slice(1).forEach(function (track) {
+        var h = track.prop('height');
 
-          track.prop('labelName').css('top', top)[h ? 'removeClass' : 'addClass']('gv-hide');
-          top += h;
-        });
-      }
+        track.prop('labelName').css('top', top)[h ? 'removeClass' : 'addClass']('gv-hide');
+        top += h;
+      });
     }
   },
 
