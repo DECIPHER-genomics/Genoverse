@@ -6234,6 +6234,10 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
       featuresById[exon.Parent].subFeatures.push(exon);
       featuresById[exon.Parent].exons[exon.id] = exon;
     });
+
+    ids.forEach(function (id) {
+      featuresById[id].subFeatures.sort(function (a, b) { return a.start - b.start; });
+    });
   }
 });
 
