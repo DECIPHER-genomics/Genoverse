@@ -10,26 +10,26 @@ Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
 
     console.log("gzipped VCF");
     if (!this.vcfFile) {
-	    if (this.url) {
-	      this.vcfFile = new dallianceLib.URLFetchable(this.url);
-	      this.tbiFile = new dallianceLib.URLFetchable(this.url + this.prop('indexExt'));
-	    } else if (this.dataFile && this.indexFile) {
-	      this.vcfFile = new dallianceLib.BlobFetchable(this.dataFile);
-	      this.tbiFile = new dallianceLib.BlobFetchable(this.indexFile);
-	    }
-	  }
+      if (this.url) {
+        this.vcfFile = new dallianceLib.URLFetchable(this.url);
+        this.tbiFile = new dallianceLib.URLFetchable(this.url + this.prop('indexExt'));
+      } else if (this.dataFile && this.indexFile) {
+        this.vcfFile = new dallianceLib.BlobFetchable(this.dataFile);
+        this.tbiFile = new dallianceLib.BlobFetchable(this.indexFile);
+      }
+    }
 
     this.makeVCF(this.vcfFile, this.tbiFile).then(function(vcf){
-			model.cachedVCF = vcf;
-			console.log(vcf.tabix.head.names);
-			console.log(chr, start, end);
+      model.cachedVCF = vcf;
+      console.log(vcf.tabix.head.names);
+      console.log(chr, start, end);
 
       vcf.getRecords(chr, start, end, function(records){
-				console.log(records);
-				model.receiveData(records, chr, start, end);
-				deferred.resolveWith(model);
-			});
-		});
+        console.log(records);
+        model.receiveData(records, chr, start, end);
+        deferred.resolveWith(model);
+      });
+    });
 
     return deferred;
   },
@@ -75,17 +75,17 @@ Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
     }
   },
   makeVCF : function(vcfFile, tbiFile){
-		var d = $.Deferred();
+    var d = $.Deferred();
 
-		if(!this.cachedVCF){
-			var vcf = new VCFReader(vcfFile, tbiFile);
-			vcf.readTabix(function(tabix){
-				vcf.tabix = tabix;
-				d.resolve(vcf);
-			});
-		}else{
-			d.resolve(this.cachedVCF);
-		}
-		return d;
-	}
+    if(!this.cachedVCF){
+      var vcf = new VCFReader(vcfFile, tbiFile);
+      vcf.readTabix(function(tabix){
+        vcf.tabix = tabix;
+        d.resolve(vcf);
+      });
+    }else{
+      d.resolve(this.cachedVCF);
+    }
+    return d;
+  }
 });
