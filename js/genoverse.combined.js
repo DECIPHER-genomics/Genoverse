@@ -1988,6 +1988,14 @@ var Genoverse = Base.extend({
         if (prop === 'config') {
           savedConfig[conf.id] = conf[prop];
         } else {
+          if (prop === 'height') {
+            conf[prop] = parseInt(conf[prop], 10);
+
+            if (isNaN(conf[prop])) {
+              continue;
+            }
+          }
+
           track.prototype[prop] = conf[prop];
         }
       }
