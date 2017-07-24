@@ -23,6 +23,9 @@
     <script type="text/javascript" src="js/lib/Base.js"></script>
     <script type="text/javascript" src="js/lib/rtree.js"></script>
     <script type="text/javascript" src="js/lib/dalliance-lib.min.js"></script>
+    <script type="text/javascript" src="js/lib/jDataview.js"></script>
+    <script type="text/javascript" src="js/lib/jParser.js"></script>
+    <script type="text/javascript" src="js/lib/VCFReader.js"></script>
 
     <script type="text/javascript" src="js/Genoverse.js"></script>
     <script type="text/javascript" src="js/Track.js"></script>
@@ -97,7 +100,7 @@
           Genoverse.Track.Gene,
           Genoverse.Track.extend({
             name            : 'Regulatory Features',
-            url             : 'http://rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=regulatory;content-type=application/json',
+            url             : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=regulatory;content-type=application/json',
             resizable       : 'auto',
             model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
             setFeatureColor : function (f) { f.color = '#AAA'; }
