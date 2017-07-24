@@ -1,4 +1,51 @@
 Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
+  getData: function (chr, start, end) {
+    var deferred = $.Deferred();
+    var model    = this;
+
+    if (!this.prop('gz')) {
+      return this.base.apply(this, arguments);
+    }
+
+    if (!this.vcfFile) {
+      if (this.url) {
+        this.vcfFile = new dallianceLib.URLFetchable(this.url);
+        this.tbiFile = new dallianceLib.URLFetchable(this.url + this.prop('indexExt'));
+      } else if (this.dataFile && this.indexFile) {
+        this.vcfFile = new dallianceLib.BlobFetchable(this.dataFile);
+        this.tbiFile = new dallianceLib.BlobFetchable(this.indexFile);
+      }
+    }
+
+    this.makeVCF(this.vcfFile, this.tbiFile).then(function (vcf) {
+      model.cachedVCF = vcf;
+
+      vcf.getRecords(chr, start, end, function (records) {
+        model.receiveData(records, chr, start, end);
+        deferred.resolveWith(model);
+      });
+    });
+
+    return deferred;
+  },
+
+  makeVCF: function (vcfFile, tbiFile) {
+    var deferred = $.Deferred();
+
+    if (this.cachedVCF) {
+      deferred.resolve(this.cachedVCF);
+    } else {
+      var vcf = new VCFReader(vcfFile, tbiFile);
+
+      vcf.readTabix(function (tabix) {
+        vcf.tabix = tabix;
+        deferred.resolve(vcf);
+      });
+    }
+
+    return deferred;
+  },
+
   parseData: function (text, chr) {
     var lines   = text.split('\n');
     var maxQual = this.allData ? this.prop('maxQual') || 0 : false;

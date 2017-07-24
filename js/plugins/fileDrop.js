@@ -28,7 +28,9 @@ Genoverse.Plugins.fileDrop = function () {
 
           for (var i = 0; i < files.length; i++) {
             var file  = files[i];
-            var ext   = (file.name.match(/\.(\w+)$/))[1];
+            var parts = file.name.split('.').reverse();
+            var gz    = parts[0] === 'gz';
+            var ext   = parts[gz ? 1 : 0];
             var track = Genoverse.Track.File[ext.toUpperCase()];
             var indexFile;
 
@@ -51,7 +53,8 @@ Genoverse.Plugins.fileDrop = function () {
               info      : 'Local file `' + file.name + '`, size: ' + file.size + ' bytes',
               isLocal   : true,
               dataFile  : file,
-              indexFile : indexFile
+              indexFile : indexFile,
+              gz        : gz
             });
 
             browser.addTrack(track, browser.tracks.length - 1);
