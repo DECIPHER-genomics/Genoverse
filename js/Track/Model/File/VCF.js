@@ -14,6 +14,8 @@ Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
       } else if (this.dataFile && this.indexFile) {
         this.vcfFile = new dallianceLib.BlobFetchable(this.dataFile);
         this.tbiFile = new dallianceLib.BlobFetchable(this.indexFile);
+      } else {
+        return deferred.rejectWith(model, [ 'GZipped VCF files must be accompanied by a .tbi index file' ]);
       }
     }
 

@@ -5,6 +5,12 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
   autoHeight : false,
   maxQual    : undefined, // Set this to the maximum value of the QUAL field in the file in order to color features by QUAL. Only required for large (tabix indexed) files - small ones can calculate this value automatically
 
+  afterSetMVC: function () {
+    if (this.prop('gz')) {
+      this.prop('threshold', 1e5);
+    }
+  },
+
   populateMenu: function (feature) {
     return {
       title  : '<a target="_blank" href="http://www.1000genomes.org/node/101">VCF feature details</a>',

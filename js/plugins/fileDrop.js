@@ -38,14 +38,8 @@ Genoverse.Plugins.fileDrop = function () {
               return;
             }
 
-            if (track.prototype.indexExt) {
-              i++;
-
-              if ((files[i] || {}).name !== file.name + track.prototype.indexExt) {
-                continue;
-              }
-
-              indexFile = files[i];
+            if (track.prototype.indexExt && (files[i + 1] || {}).name === file.name + track.prototype.indexExt) {
+              indexFile = files[++i];
             }
 
             track = track.extend({

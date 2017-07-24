@@ -10,6 +10,8 @@ Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
       } else if (this.dataFile && this.indexFile) {
         this.bamFile = new dallianceLib.BlobFetchable(this.dataFile);
         this.baiFile = new dallianceLib.BlobFetchable(this.indexFile);
+      } else {
+        return deferred.rejectWith(model, [ 'BAM files must be accompanied by a .bai index file' ]);
       }
     }
 

@@ -6,7 +6,7 @@ Genoverse.Track.Model.File = Genoverse.Track.Model.extend({
       this.url = false;
     }
 
-    if (!this.largeFile) {
+    if (!(this.largeFile || this.indexFile)) {
       this.allData = true;
     }
 
