@@ -1,6 +1,6 @@
 (function () {
   var tabi_fmt = {
-    string0: function(size) {
+    string0: function (size) {
       return this.parse(['string', size]).replace(/\0+$/, '');
     },
     header: {
@@ -13,7 +13,7 @@
       meta    : 'int32',
       skip    : 'int32',
       l_nm    : 'int32',
-      names   : ['string0', function(){return this.current.l_nm;}]
+      names   : ['string0', function () { return this.current.l_nm; }]
     },
     chunk: {
       cnk_beg: 'uint64',
@@ -22,17 +22,17 @@
     bin: {
       bin      : 'uint32',
       n_chunk  : 'int32',
-      chunkseq : ['array', 'chunk', function(){return this.current.n_chunk;}]
+      chunkseq : ['array', 'chunk', function () { return this.current.n_chunk; }]
     },
     index: {
       n_bin     : 'int32',
-      binseq    : ['array', 'bin', function(){return this.current.n_bin;}],
+      binseq    : ['array', 'bin', function () { return this.current.n_bin; }],
       n_intv    : 'int32',
-      intervseq : ['array', 'uint64', function(){return this.current.n_intv;}]
+      intervseq : ['array', 'uint64', function () { return this.current.n_intv; }]
     },
     tabix: {
       head     : 'header',
-      indexseq : ['array', 'index', function(){return this.current.head.n_ref;}]
+      indexseq : ['array', 'index', function () { return this.current.head.n_ref; }]
     }
   };
 
@@ -156,7 +156,7 @@
     var blocks  = [];
     var vcfThis = this;
 
-    var cb = function (block, nextBlockOffset){
+    var cb = function (block, nextBlockOffset) {
       blocks.push(block);
 
       if (nextBlockOffset == -1) {
