@@ -5487,6 +5487,10 @@ Genoverse.Track.Controller.LineGraph = Genoverse.Track.Controller.extend({
   },
 
   populateMenu: function (features) {
+    if (!features[0].clickedCoords.length) {
+      return [];
+    }
+
     var start = features[0].clickedCoords[0][0];
     var end   = features[0].clickedCoords[features[0].clickedCoords.length - 1][0];
     var avg   = start !== end;
