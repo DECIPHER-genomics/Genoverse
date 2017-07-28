@@ -1,12 +1,10 @@
 Genoverse.Track.File.BED = Genoverse.Track.File.extend({
   name          : 'BED',
   model         : Genoverse.Track.Model.File.BED,
-  view          : Genoverse.Track.View.extend({
-    bump          : true,
-    height        : 100,
-    featureHeight : 15,
-    subFeatureJoinStyle : "curve",
-    populateMenu: function (feature) {
+  bump          : true,
+  featureHeight : 6,
+  subFeatureJoinStyle : "curve",
+  populateMenu: function (feature) {
       return {
         title       : '<a target=_blank href="https://genome.ucsc.edu/FAQ/FAQformat.html#format1">BED feature details</a>',
         chrom       : feature.originalFeature[0],
@@ -22,6 +20,5 @@ Genoverse.Track.File.BED = Genoverse.Track.File.extend({
         blockSizes  : feature.originalFeature[10],
         blockStarts : feature.originalFeature[11]
       };
-    }
-  })
+  }
 });
