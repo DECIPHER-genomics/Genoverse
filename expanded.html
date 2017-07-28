@@ -83,9 +83,9 @@
         container : '#genoverse',
         width     : 800,
         genome    : 'grch38',
-        chr       : 13,
-        start     : 32296945,
-        end       : 32370557,
+        chr       : 7,
+        start     : 55122273,
+        end       : 55187809,
         plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
         tracks    : [
           Genoverse.Track.Scalebar,
@@ -98,6 +98,7 @@
             100000     : false
           }),
           Genoverse.Track.Gene,
+          /*
           Genoverse.Track.extend({
             name            : 'Regulatory Features',
             url             : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=regulatory;content-type=application/json',
@@ -105,7 +106,12 @@
             model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
             setFeatureColor : function (f) { f.color = '#AAA'; }
           }),
-          Genoverse.Track.dbSNP
+          Genoverse.Track.dbSNP,
+          */
+          Genoverse.Track.File.BED.extend({
+            url : '../../testdata/egfr_hg38.bed',
+            name : "test-bed"
+          })
         ]
       }
 
