@@ -8,7 +8,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
       if (fields.length < 3 || fields[0] == 'track' || fields[0] == 'browser') {
         continue;
       }
-      console.log(fields);
+      
       var len = fields.length;
 
       if (fields[0] == chr || fields[0].toLowerCase() == 'chr' + chr || fields[0].match('[^1-9]' + chr + '$')) {
@@ -18,13 +18,13 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
         feature.end   = parseInt(fields[2], 10);
         feature.name  = fields[3];
 
-        if (len > 3) feature.score = parseFloat(fields[4], 10);
+        if (len > 3) feature.score  = parseFloat(fields[4], 10);
         if (len > 5) feature.strand = fields[5];
 
         if (len > 7) {
-          feature.thickStart = fields[6];
-          feature.thickEnd   = fields[7];
-          if(feature.thickEnd == feature.thickStart == feature.chromStart) feature.drawThickBlock = false;
+          feature.thickStart  = fields[6];
+          feature.thickEnd    = fields[7];
+          if(feature.thickEnd == feature.thickStart == feature.start) feature.drawThickBlock = false;
         }
 
         var color = '#000000';
@@ -38,23 +38,23 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
         if(len == 12){ //subfeatures present
           feature.blockCount = parseInt(fields[9],10);
           var subfeatures = [];
-          var blockSizes = fields[10].split(",");
+          var blockSizes  = fields[10].split(",");
           var blockStarts = fields[11].split(",");
           blockSizes.pop();
           blockStarts.pop();
 
           for(var j = 0; j < blockSizes.length; j++){
-            var subfeature = {};
-            subfeature.start = feature.start + parseInt(blockStarts[j]);
-            subfeature.end = subfeature.start + parseInt(blockSizes[j]);
+            var subfeature    = {};
+            subfeature.start  = feature.start + parseInt(blockStarts[j], 10);
+            subfeature.end    = subfeature.start + parseInt(blockSizes[j], 10);
             subfeature.height = 7;
-            subfeature.color = 'black';
+            subfeature.color  = 'black';
             subfeatures.push(subfeature);
           }
 
-          feature.subFeatures = subfeatures;
+          if(subfeatures.length) feature.subFeatures = subfeatures;
         }
-        console.log(feature);
+       
         this.insertFeature(feature);
       }
     }
