@@ -1,12 +1,14 @@
 Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
   parseData: function (text, chr) {
     var lines = text.split('\n');
+
     for (var i = 0; i < lines.length; i++) {
       var fields = lines[i].split('\t');
-
+     
       if (fields.length < 3 || fields[0] == 'track' || fields[0] == 'browser') {
         continue;
       }
+      console.log(fields);
       var len = fields.length;
 
       if (fields[0] == chr || fields[0].toLowerCase() == 'chr' + chr || fields[0].match('[^1-9]' + chr + '$')) {
@@ -24,6 +26,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
           feature.thickEnd   = fields[7];
           if(feature.thickEnd == feature.thickStart == feature.chromStart) feature.drawThickBlock = false;
         }
+
         var color = '#000000';
 
         if (fields[8]) {
@@ -34,16 +37,16 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
 
         if(len == 12){ //subfeatures present
           feature.blockCount = parseInt(fields[9],10);
+          var subfeatures = [];
           var blockSizes = fields[10].split(",");
           var blockStarts = fields[11].split(",");
           blockSizes.pop();
           blockStarts.pop();
-          var subfeatures = [];
 
-          for(var i = 0; i < blockSizes.length; i++){
+          for(var j = 0; j < blockSizes.length; j++){
             var subfeature = {};
-            subfeature.start = feature.start + parseInt(blockStarts[i]);
-            subfeature.end = subfeature.start + parseInt(blockSizes[i]);
+            subfeature.start = feature.start + parseInt(blockStarts[j]);
+            subfeature.end = subfeature.start + parseInt(blockSizes[j]);
             subfeature.height = 7;
             subfeature.color = 'black';
             subfeatures.push(subfeature);
