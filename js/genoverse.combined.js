@@ -5997,7 +5997,8 @@ Genoverse.Track.View.Graph.Bar = Genoverse.Track.View.Graph.extend({
   draw: function (features, featureContext, labelContext, scale) {
     var datasets     = this.featureDataSets(features);
     var marginBottom = this.prop('margin');
-    var conf, set, setFeatures, j;
+    var binSize      = scale < 1 ? Math.ceil(1 / scale) : 0;
+    var conf, set, setFeatures, j, binnedFeatures, bin, f;
 
     var defaults = {
       color       : this.color,
@@ -6012,6 +6013,27 @@ Genoverse.Track.View.Graph.Bar = Genoverse.Track.View.Graph.extend({
       if (!setFeatures.length) {
         continue;
       }
+
+      if (binSize) {
+        binnedFeatures = [];
+
+        for (j = 0; j < setFeatures.length; j += binSize) {
+          bin = setFeatures.slice(j, j + binSize);
+          f   = $.extend(true, {}, bin[0], {
+            height : bin.reduce(function (a, b) { return a + b.height; }, 0) / bin.length,
+            end    : bin[bin.length - 1].end
+          });
+
+          [ 'H', 'W', 'height', 'width' ].forEach(function (attr) { // what about Y?
+            f.position[scale][attr] = bin.reduce(function (a, b) { return a + b.position[scale][attr]; }, 0) / bin.length
+          });
+
+          binnedFeatures.push(f);
+        }
+
+        setFeatures = binnedFeatures;
+      }
+
 
       for (j = 0; j < setFeatures.length; j++) {
         setFeatures[j].color = conf.color;
@@ -6250,7 +6272,7 @@ Genoverse.Track.View.Graph.Line = Genoverse.Track.View.Graph.extend({
     var marginTop    = this.prop('marginTop');
     var marginBottom = this.prop('margin');
     var baseline     = Math.min(Math.max(marginTop, marginTop - this.prop('range')[0] * this.track.getYScale()), height - marginTop);
-    var binSize      = scale < 1 ? Math.floor(1 / scale) : 1;
+    var binSize      = scale < 1 ? Math.floor(1 / scale) : 0;
     var set, conf, feature, coords, binnedFeatures, lastBinSize, j, k, c, x;
 
     var defaults = {
@@ -6269,7 +6291,7 @@ Genoverse.Track.View.Graph.Line = Genoverse.Track.View.Graph.extend({
         coords  = feature.coordPositions;
 
         if (coords.length) {
-          if (scale < 1) {
+          if (binSize) {
             binnedFeatures = [];
 
             for (k = 0; k < coords.length; k += binSize) {

@@ -214,7 +214,7 @@ Genoverse.Track.View.Graph.Line = Genoverse.Track.View.Graph.extend({
     var marginTop    = this.prop('marginTop');
     var marginBottom = this.prop('margin');
     var baseline     = Math.min(Math.max(marginTop, marginTop - this.prop('range')[0] * this.track.getYScale()), height - marginTop);
-    var binSize      = scale < 1 ? Math.floor(1 / scale) : 1;
+    var binSize      = scale < 1 ? Math.floor(1 / scale) : 0;
     var set, conf, feature, coords, binnedFeatures, lastBinSize, j, k, c, x;
 
     var defaults = {
@@ -233,7 +233,7 @@ Genoverse.Track.View.Graph.Line = Genoverse.Track.View.Graph.extend({
         coords  = feature.coordPositions;
 
         if (coords.length) {
-          if (scale < 1) {
+          if (binSize) {
             binnedFeatures = [];
 
             for (k = 0; k < coords.length; k += binSize) {
