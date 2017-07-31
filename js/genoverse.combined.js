@@ -5962,14 +5962,6 @@ Genoverse.Track.Controller.Graph.Bar = Genoverse.Track.Controller.Graph.extend({
 
     return menu;
   }
-
-
-  /*__populateMenu: function (feature) {
-    return {
-      title: feature.dataset,
-      Value: feature.height
-    }
-  }*/
 });
 
 Genoverse.Track.Model.Graph.Bar = Genoverse.Track.Model.Graph.extend({
