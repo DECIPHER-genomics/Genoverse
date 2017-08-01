@@ -490,7 +490,7 @@ Genoverse.Track = Base.extend({
 
     var track    = this;
     var browser  = this.browser;
-    var children = ($.isArray(this.children) ? this.children : [ this.children ]).filter(function (child) { return child.prototype instanceof Genoverse.Track; });
+    var children = (Array.isArray(this.children) ? this.children : [ this.children ]).filter(function (child) { return child.prototype instanceof Genoverse.Track; });
     var config   = {
       parentTrack : this,
       controls    : 'off',

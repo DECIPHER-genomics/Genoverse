@@ -1153,7 +1153,7 @@ var Genoverse = Base.extend({
       return false;
     }
 
-    if (!$.isArray(features)) {
+    if (!Array.isArray(features)) {
       features = [ features ];
     }
 
@@ -1172,7 +1172,7 @@ var Genoverse = Base.extend({
 
     $.each(features.sort(function (a, b) { return a.start - b.start; }), function (i, feature) {
       var location = feature.chr + ':' + feature.start + (feature.end === feature.start ? '' : '-' + feature.end);
-      var title    = feature.menuLabel || feature.name || ($.isArray(feature.label) ? feature.label.join(' ') : feature.label) || (feature.id + '');
+      var title    = feature.menuLabel || feature.name || (Array.isArray(feature.label) ? feature.label.join(' ') : feature.label) || (feature.id + '');
 
       $('<a href="#">').html(title.match(location) ? title : (location + ' ' + title)).on('click', function (e) {
         browser.makeFeatureMenu(feature, e, track);
@@ -1227,7 +1227,7 @@ var Genoverse = Base.extend({
       }
 
       $.when(getMenu).done(function (properties) {
-        if (!$.isArray(properties)) {
+        if (!Array.isArray(properties)) {
           properties = [ properties ];
         }
 
@@ -1237,7 +1237,7 @@ var Genoverse = Base.extend({
           chr     = typeof properties[i].chr !== 'undefined' ? properties[i].chr : feature.chr;
           start   = parseInt(typeof properties[i].start !== 'undefined' ? properties[i].start : feature.start, 10);
           end     = parseInt(typeof properties[i].end   !== 'undefined' ? properties[i].end   : feature.end,   10);
-          columns = Math.max.apply(Math, $.map(properties[i], function (v) { return $.isArray(v) ? v.length : 1; }));
+          columns = Math.max.apply(Math, $.map(properties[i], function (v) { return Array.isArray(v) ? v.length : 1; }));
 
           $('.gv-title', el)[properties[i].title ? 'html' : 'remove'](properties[i].title);
 
@@ -1260,7 +1260,7 @@ var Genoverse = Base.extend({
               table  += '<tr><td' + colspan + '>' + key + '</td>';
 
               if (!colspan) {
-                if ($.isArray(properties[i][key])) {
+                if (Array.isArray(properties[i][key])) {
                   for (j = 0; j < properties[i][key].length; j++) {
                     table += '<td>' + properties[i][key][j] + '</td>';
                   }
