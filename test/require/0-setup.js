@@ -1,16 +1,14 @@
 'use strict';
 
-global.document  = require('jsdom').jsdom('');
-global.window    = document.defaultView;
+global.window    = (new (require('jsdom').JSDOM)('', { url: 'http://localhost/' })).window;
+global.document  = window.window.document;
 global.navigator = window.navigator;
 global.expect    = require('expect');
-
 global.Base      = require('basejs');
 global.RTree     = require('rtree');
 global.jdataview = require('jdataview');
 global.jParser   = require('jParser');
-
-global.jQuery = global.$ = require('jquery');
+global.jQuery    = global.$ = require('jquery');
 
 require('../../js/lib/jquery-ui');
 
