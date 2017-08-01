@@ -2167,7 +2167,7 @@ var Genoverse = Base.extend({
     this.savedConfig   = {};
 
     this.removeTracks($.extend([],    this.tracks)); // Shallow clone to ensure that removeTracks doesn't hit problems when splicing this.tracks
-    this.addTracks($.extend([], true, this.defaultTracks));
+    this.addTracks($.extend(true, [], this.defaultTracks));
 
     if (unremovableHighlights.length) {
       this.addHighlights(unremovableHighlights);
