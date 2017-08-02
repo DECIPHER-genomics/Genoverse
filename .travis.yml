@@ -1,0 +1,22 @@
+language: node_js
+node_js:
+  - "6"
+branches:
+  only:
+  - gh-pages
+  - /.*/
+
+# The following is needed for canvas to compile (taken from https://github.com/Automattic/node-canvas/blob/master/.travis.yml)
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - libcairo2-dev
+      - libjpeg8-dev
+      - libpango1.0-dev
+      - libgif-dev
+      - g++-4.9
+env:
+  - CXX=g++-4.9
+sudo: false
