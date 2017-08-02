@@ -4,11 +4,11 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
 
     for (var i = 0; i < lines.length; i++) {
       var fields = lines[i].split('\t');
-     
+
       if (fields.length < 3 || fields[0] == 'track' || fields[0] == 'browser') {
         continue;
       }
-      
+
       var len = fields.length;
 
       if (fields[0] == chr || fields[0].toLowerCase() == 'chr' + chr || fields[0].match('[^1-9]' + chr + '$')) {
@@ -38,10 +38,8 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
         if(len == 12){ //subfeatures present
           feature.blockCount = parseInt(fields[9],10);
           var subfeatures = [];
-          var blockSizes  = fields[10].split(",");
-          var blockStarts = fields[11].split(",");
-          blockSizes.pop();
-          blockStarts.pop();
+          var blockSizes  = fields[10].split(",").filter(function(n){ return n; });
+          var blockStarts = fields[11].split(",").filter(function(n){ return n; });
 
           for(var j = 0; j < blockSizes.length; j++){
             var subfeature    = {};
@@ -54,7 +52,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
 
           if(subfeatures.length) feature.subFeatures = subfeatures;
         }
-       
+
         this.insertFeature(feature);
       }
     }
