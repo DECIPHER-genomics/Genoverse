@@ -48,7 +48,7 @@ var Genoverse = Base.extend({
     this.eventNamespace = '.genoverse.' + (++Genoverse.id);
     this.events         = { browser: {}, tracks: {} };
 
-    $.when(this.loadGenome(), this.loadPlugins()).always(function () {
+    $.when(Genoverse.ready, this.loadGenome(), this.loadPlugins()).always(function () {
       Genoverse.wrapFunctions(browser);
       browser.init();
     });
@@ -1417,6 +1417,7 @@ var Genoverse = Base.extend({
   }
 }, {
   id      : 0,
+  ready   : $.Deferred(),
   origin  : (($('script[src]').filter(function () { return /\/(?:Genoverse|genoverse\.min.*)\.js$/.test(this.src); }).attr('src') || '').match(/(.*)js\/\w+/) || [])[1] || '',
   Genomes : {},
   Plugins : {},
@@ -1561,8 +1562,10 @@ var Genoverse = Base.extend({
 });
 
 $(function () {
-  if (!$('link[href^="' + Genoverse.prototype.origin + 'css/genoverse.css"]').length) {
-    $('<link href="' + Genoverse.prototype.origin + 'css/genoverse.css" rel="stylesheet">').appendTo('body');
+  if ($('link[href^="' + Genoverse.origin + 'css/genoverse.css"]').length) {
+    Genoverse.ready.resolve();
+  } else {
+    $('<link href="' + Genoverse.origin + 'css/genoverse.css" rel="stylesheet">').appendTo('body').on('load', Genoverse.ready.resolve);
   }
 });
 
