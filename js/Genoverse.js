@@ -1,4 +1,3 @@
-var $         = jQuery; // Make sure we have local $ (this is for combined script in a function)
 var Genoverse = Base.extend({
   // Defaults
   urlParamTemplate   : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
