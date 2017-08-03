@@ -35,7 +35,7 @@ Genoverse.Track.Controller.Graph.Bar = Genoverse.Track.Controller.Graph.extend({
     var end   = features[features.length - 1].end;
     var avg   = features[0].start !== features[features.length - 1].start;
     var menu  = { title: features[0].chr + ':' + (start === end ? start : start + '-' + end) };
-    var m, values;
+    var values;
 
     function getValues(_features) {
       var values = _features.map(function (f) { return f.height; }).sort(function (a, b) { return a - b });

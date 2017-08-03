@@ -1881,7 +1881,7 @@ var Genoverse = Base.extend({
       var genomeName = this.genome;
 
       return $.ajax({
-        url      : this.origin + 'js/genomes/' + genomeName + '.js',
+        url      : Genoverse.origin + 'js/genomes/' + genomeName + '.js',
         dataType : 'script',
         context  : this,
         success  : function () {
@@ -1912,8 +1912,8 @@ var Genoverse = Base.extend({
     }
 
     function loadPlugin(plugin) {
-      var css      = browser.origin + 'css/'        + plugin + '.css';
-      var js       = browser.origin + 'js/plugins/' + plugin + '.js';
+      var css      = Genoverse.origin + 'css/'        + plugin + '.css';
+      var js       = Genoverse.origin + 'js/plugins/' + plugin + '.js';
       var deferred = $.Deferred();
 
       function getCSS() {
@@ -2729,8 +2729,7 @@ var Genoverse = Base.extend({
       width   : this.width
     };
 
-    var trackTypes = Genoverse.getAllTrackTypes();
-    var push       = !!tracks;
+    var push = !!tracks;
     var order;
 
     tracks = tracks || $.extend([], this.tracks);
@@ -3239,8 +3238,10 @@ var Genoverse = Base.extend({
     }
   }
 }, {
-  Genomes: {},
-  Plugins: {},
+  id      : 0,
+  origin  : (($('script[src]').filter(function () { return /\/(?:Genoverse|genoverse\.min.*)\.js$/.test(this.src); }).attr('src') || '').match(/(.*)js\/\w+/) || [])[1] || '',
+  Genomes : {},
+  Plugins : {},
 
   wrapFunctions: function (obj) {
     for (var key in obj) {
@@ -3340,7 +3341,7 @@ var Genoverse = Base.extend({
     var trackTypes = {};
 
     $.each(namespace, function (type, func) {
-      if (typeof func === 'function' && !Base[type] && !/^(Controller|Model|View|Squishable|Static)$/.test(type)) {
+      if (typeof func === 'function' && !Base[type] && !/^(Controller|Model|View)$/.test(type)) {
         $.each(Genoverse.getAllTrackTypes(namespace, type), function (subtype, fn) {
           if (typeof fn === 'function') {
             trackTypes[type + '.' + subtype] = fn;
@@ -3380,9 +3381,6 @@ var Genoverse = Base.extend({
     return namespaces[0];
   }
 });
-
-Genoverse.id = 0;
-Genoverse.prototype.origin = (($('script[src]').filter(function () { return /\/(?:Genoverse|genoverse\.combined.*)\.js$/.test(this.src); }).attr('src') || '').match(/(.*)js\/\w+/) || [])[1] || '';
 
 $(function () {
   if (!$('link[href^="' + Genoverse.prototype.origin + 'css/genoverse.css"]').length) {
@@ -5976,7 +5974,7 @@ Genoverse.Track.Controller.Graph.Bar = Genoverse.Track.Controller.Graph.extend({
     var end   = features[features.length - 1].end;
     var avg   = features[0].start !== features[features.length - 1].start;
     var menu  = { title: features[0].chr + ':' + (start === end ? start : start + '-' + end) };
-    var m, values;
+    var values;
 
     function getValues(_features) {
       var values = _features.map(function (f) { return f.height; }).sort(function (a, b) { return a - b });
@@ -7083,12 +7081,28 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
     for (var i = 0; i < lines.length; i++) {
       var fields = lines[i].split('\t');
 
-      if (fields.length < 3) {
+      if (fields.length < 3 || fields[0] == 'track' || fields[0] == 'browser') {
         continue;
       }
 
+      var len = fields.length;
+
       if (fields[0] == chr || fields[0].toLowerCase() == 'chr' + chr || fields[0].match('[^1-9]' + chr + '$')) {
-        var score = parseFloat(fields[4], 10);
+        var feature = {};
+        feature.chr = chr;
+        feature.start = parseInt(fields[1], 10);
+        feature.end   = parseInt(fields[2], 10);
+        feature.name  = fields[3];
+
+        if (len > 3) feature.score  = parseFloat(fields[4], 10);
+        if (len > 5) feature.strand = fields[5];
+
+        if (len > 7) {
+          feature.thickStart  = fields[6];
+          feature.thickEnd    = fields[7];
+          if(feature.thickEnd == feature.thickStart == feature.start) feature.drawThickBlock = false;
+        }
+
         var color = '#000000';
 
         if (fields[8]) {
@@ -7097,15 +7111,25 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
           color = this.scoreColor(isNaN(score) ? 1000 : score);
         }
 
-        this.insertFeature({
-          chr             : chr,
-          start           : parseInt(fields[1], 10),
-          end             : parseInt(fields[2], 10),
-          id              : chr + ':' + fields[1] + '-' + fields[3],
-          label           : fields[3],
-          color           : color,
-          originalFeature : fields
-        });
+        if(len == 12){ //subfeatures present
+          feature.blockCount = parseInt(fields[9],10);
+          var subfeatures = [];
+          var blockSizes  = fields[10].split(",").filter(function(n){ return n; });
+          var blockStarts = fields[11].split(",").filter(function(n){ return n; });
+
+          for(var j = 0; j < blockSizes.length; j++){
+            var subfeature    = {};
+            subfeature.start  = feature.start + parseInt(blockStarts[j], 10);
+            subfeature.end    = subfeature.start + parseInt(blockSizes[j], 10);
+            subfeature.height = 7;
+            subfeature.color  = 'black';
+            subfeatures.push(subfeature);
+          }
+
+          if(subfeatures.length) feature.subFeatures = subfeatures;
+        }
+
+        this.insertFeature(feature);
       }
     }
   },
@@ -7610,25 +7634,26 @@ Genoverse.Track.File.BED = Genoverse.Track.File.extend({
   model         : Genoverse.Track.Model.File.BED,
   bump          : true,
   featureHeight : 6,
-
+  subFeatureJoinStyle : "curve",
   populateMenu: function (feature) {
-    return {
-      title       : '<a target=_blank href="https://genome.ucsc.edu/FAQ/FAQformat.html#format1">BED feature details</a>',
-      chrom       : feature.originalFeature[0],
-      chromStart  : feature.originalFeature[1],
-      chromEnd    : feature.originalFeature[2],
-      name        : feature.originalFeature[3],
-      score       : feature.originalFeature[4],
-      strand      : feature.originalFeature[5],
-      thickStart  : feature.originalFeature[6],
-      thickEnd    : feature.originalFeature[7],
-      itemRgb     : feature.originalFeature[8],
-      blockCount  : feature.originalFeature[9],
-      blockSizes  : feature.originalFeature[10],
-      blockStarts : feature.originalFeature[11]
-    };
+      return {
+        title       : '<a target=_blank href="https://genome.ucsc.edu/FAQ/FAQformat.html#format1">BED feature details</a>',
+        chrom       : feature.originalFeature[0],
+        chromStart  : feature.originalFeature[1],
+        chromEnd    : feature.originalFeature[2],
+        name        : feature.originalFeature[3],
+        score       : feature.originalFeature[4],
+        strand      : feature.originalFeature[5],
+        thickStart  : feature.originalFeature[6],
+        thickEnd    : feature.originalFeature[7],
+        itemRgb     : feature.originalFeature[8],
+        blockCount  : feature.originalFeature[9],
+        blockSizes  : feature.originalFeature[10],
+        blockStarts : feature.originalFeature[11]
+      };
   }
 });
+
 
 Genoverse.Track.File.GFF = Genoverse.Track.File.extend({
   name          : 'GFF',
@@ -7800,7 +7825,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       bounds   = { x: highlights[i].start, y: 0, w: highlights[i].end - highlights[i].start + 1, h: 1 };
 
       // RTree.remove only works if the second argument (the object to be removed) === the object found in the tree.
-      // Here, while highlight is effectively the same object as the one in the tree, it does has been cloned, so the === check fails.
+      // Here, while highlight is effectively the same object as the one in the tree, it has been cloned, so the === check fails.
       // To fix this, search for the feature to remove in the location of highlight.
       h = $.grep(features.search(bounds), function (item) { return item.id === highlights[i].id; });
 

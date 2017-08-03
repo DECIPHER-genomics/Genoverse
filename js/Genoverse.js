@@ -59,7 +59,7 @@ var Genoverse = Base.extend({
       var genomeName = this.genome;
 
       return $.ajax({
-        url      : this.origin + 'js/genomes/' + genomeName + '.js',
+        url      : Genoverse.origin + 'js/genomes/' + genomeName + '.js',
         dataType : 'script',
         context  : this,
         success  : function () {
@@ -90,8 +90,8 @@ var Genoverse = Base.extend({
     }
 
     function loadPlugin(plugin) {
-      var css      = browser.origin + 'css/'        + plugin + '.css';
-      var js       = browser.origin + 'js/plugins/' + plugin + '.js';
+      var css      = Genoverse.origin + 'css/'        + plugin + '.css';
+      var js       = Genoverse.origin + 'js/plugins/' + plugin + '.js';
       var deferred = $.Deferred();
 
       function getCSS() {
@@ -907,8 +907,7 @@ var Genoverse = Base.extend({
       width   : this.width
     };
 
-    var trackTypes = Genoverse.getAllTrackTypes();
-    var push       = !!tracks;
+    var push = !!tracks;
     var order;
 
     tracks = tracks || $.extend([], this.tracks);
@@ -1417,8 +1416,10 @@ var Genoverse = Base.extend({
     }
   }
 }, {
-  Genomes: {},
-  Plugins: {},
+  id      : 0,
+  origin  : (($('script[src]').filter(function () { return /\/(?:Genoverse|genoverse\.min.*)\.js$/.test(this.src); }).attr('src') || '').match(/(.*)js\/\w+/) || [])[1] || '',
+  Genomes : {},
+  Plugins : {},
 
   wrapFunctions: function (obj) {
     for (var key in obj) {
@@ -1518,7 +1519,7 @@ var Genoverse = Base.extend({
     var trackTypes = {};
 
     $.each(namespace, function (type, func) {
-      if (typeof func === 'function' && !Base[type] && !/^(Controller|Model|View|Squishable|Static)$/.test(type)) {
+      if (typeof func === 'function' && !Base[type] && !/^(Controller|Model|View)$/.test(type)) {
         $.each(Genoverse.getAllTrackTypes(namespace, type), function (subtype, fn) {
           if (typeof fn === 'function') {
             trackTypes[type + '.' + subtype] = fn;
@@ -1558,9 +1559,6 @@ var Genoverse = Base.extend({
     return namespaces[0];
   }
 });
-
-Genoverse.id = 0;
-Genoverse.prototype.origin = (($('script[src]').filter(function () { return /\/(?:Genoverse|genoverse\.combined.*)\.js$/.test(this.src); }).attr('src') || '').match(/(.*)js\/\w+/) || [])[1] || '';
 
 $(function () {
   if (!$('link[href^="' + Genoverse.prototype.origin + 'css/genoverse.css"]').length) {
