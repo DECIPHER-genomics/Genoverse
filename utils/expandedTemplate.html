@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    __CSS__
+  </head>
+  <body>
+    <div id="genoverse"></div>
+
+    __JS__
+
+    <script>
+      window.genoverse = new Genoverse({
+        container : '#genoverse',
+        width     : 800,
+        genome    : 'grch38',
+        chr       : 13,
+        start     : 32296945,
+        end       : 32370557,
+        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
+        tracks    : [
+          Genoverse.Track.Scalebar,
+          Genoverse.Track.extend({
+            name       : 'Sequence',
+            controller : Genoverse.Track.Controller.Sequence,
+            model      : Genoverse.Track.Model.Sequence.Ensembl,
+            view       : Genoverse.Track.View.Sequence,
+            resizable  : 'auto',
+            100000     : false
+          }),
+          Genoverse.Track.Gene,
+          Genoverse.Track.extend({
+            name            : 'Regulatory Features',
+            url             : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=regulatory;content-type=application/json',
+            resizable       : 'auto',
+            model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
+            setFeatureColor : function (f) { f.color = '#AAA'; }
+          }),
+          Genoverse.Track.dbSNP
+        ]
+      });
+    </script>
+  </body>
+</html>
