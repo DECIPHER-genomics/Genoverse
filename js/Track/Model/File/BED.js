@@ -24,7 +24,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
         if (len > 7) {
           feature.thickStart  = fields[6];
           feature.thickEnd    = fields[7];
-          if(feature.thickEnd == feature.thickStart == feature.start) feature.drawThickBlock = false;
+          feature.drawThick = (feature.thickStart == feature.thickEnd) ? false : true;
         }
 
         var color = '#000000';
@@ -45,19 +45,50 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
             var subfeature    = {};
             subfeature.start  = feature.start + parseInt(blockStarts[j], 10);
             subfeature.end    = subfeature.start + parseInt(blockSizes[j], 10);
-            subfeature.height = 7;
-            subfeature.color  = 'black';
-            subfeatures.push(subfeature);
+            subfeature.height = this.prop('thinHeight'); // if subfeature lies entirely left / right to [ thickStart, thickEnd ]
+
+            if(feature.drawThick && subfeature.start <= feature.thickEnd && subfeature.end >= feature.thickStart){
+              //some kind of an overlap for sure
+              if(subfeature.start > feature.thickStart && subfeature.end < feature.thickEnd){
+                // subfeature within thickBlock, draw thick
+                subfeature.height = this.prop('thickHeight');
+                subfeatures.push(subfeature);
+              }
+              else if(subfeature.start < feature.thickStart && subfeature.end <= feature.thickEnd){
+                //left overlap, split subfeature into 2 - thin | thick
+                var thinFeature  = $.extend({}, subfeature, { end : feature.thickStart });
+                var thickFeature = $.extend({}, subfeature, { start : feature.thickStart, height : this.prop('thickHeight') });
+
+                subfeatures = subfeatures.concat([thinFeature, thickFeature]);
+              }
+              else if(subfeature.start >= feature.thickStart && subfeature.end > feature.thickEnd){
+                //right overlap, split subfeature into 2 - thick | thin
+                var thinFeature  = $.extend({}, subfeature, { start : feature.thickEnd });
+                var thickFeature = $.extend({}, subfeature, { end : feature.thickEnd, height : this.prop('thickHeight') });
+
+                subfeatures = subfeatures.concat([thickFeature, thinFeature]);
+              }else{
+                //thickBlock lies within subfeature, split into 3 - thin | thick | thin
+                // the least possible case but lets be prepared for the outliers
+                var thinFeature1 = $.extend({}, subfeature, { end : feature.thickStart });
+                var thickFeature = { start : feature.thickStart, end : feature.thickEnd, height: this.prop('thickHeight') };
+                var thinFeature2 = $.extend({}, subfeature, { start : feature.thickEnd });
+
+                subfeatures = subfeatures.concat([thinFeature1, thickFeature, thinFeature2]);
+              }
+            }else{
+              // no thick block
+              subfeatures.push(subfeature);
+            }
+
           }
 
           if(subfeatures.length) feature.subFeatures = subfeatures;
         }
-
         this.insertFeature(feature);
       }
     }
   },
-
   // As per https://genome.ucsc.edu/FAQ/FAQformat.html#format1 specification
   scoreColor: function (score) {
     if (score <= 166) { return 'rgb(219,219,219)'; }
