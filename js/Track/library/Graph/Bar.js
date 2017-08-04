@@ -23,7 +23,7 @@ Genoverse.Track.Controller.Graph.Bar = Genoverse.Track.Controller.Graph.extend({
       }
     }
 
-    return features.length ? [ features ] : [];
+    return features.length ? [ this.model.sortFeatures(features) ] : [];
   },
 
   populateMenu: function (features) {
@@ -129,7 +129,7 @@ Genoverse.Track.View.Graph.Bar = Genoverse.Track.View.Graph.extend({
     var datasets     = this.featureDataSets(features);
     var marginBottom = this.prop('margin');
     var binSize      = scale < 1 ? Math.ceil(1 / scale) : 0;
-    var conf, set, setFeatures, j, binnedFeatures, bin, f;
+    var conf, set, setFeatures, j, binnedFeatures, binStart, bin, f;
 
     var defaults = {
       color       : this.color,
@@ -147,16 +147,23 @@ Genoverse.Track.View.Graph.Bar = Genoverse.Track.View.Graph.extend({
 
       if (binSize) {
         binnedFeatures = [];
+        j              = 0;
 
-        for (j = 0; j < setFeatures.length; j += binSize) {
-          bin = setFeatures.slice(j, j + binSize);
-          f   = $.extend(true, {}, bin[0], {
+        while (j < setFeatures.length) {
+          binStart = setFeatures[j].start;
+          bin      = [];
+
+          while (setFeatures[j] && setFeatures[j].start - binStart < binSize) {
+            bin.push(setFeatures[j++]);
+          }
+
+          f = $.extend(true, {}, bin[0], {
             height : bin.reduce(function (a, b) { return a + b.height; }, 0) / bin.length,
             end    : bin[bin.length - 1].end
           });
 
-          [ 'H', 'W', 'height', 'width' ].forEach(function (attr) { // what about Y?
-            f.position[scale][attr] = bin.reduce(function (a, b) { return a + b.position[scale][attr]; }, 0) / bin.length
+          [ 'H', 'W', 'height', 'width' ].forEach(function (attr) {
+            f.position[scale][attr] = bin.reduce(function (a, b) { return a + b.position[scale][attr]; }, 0) / bin.length;
           });
 
           binnedFeatures.push(f);
@@ -164,7 +171,6 @@ Genoverse.Track.View.Graph.Bar = Genoverse.Track.View.Graph.extend({
 
         setFeatures = binnedFeatures;
       }
-
 
       for (j = 0; j < setFeatures.length; j++) {
         setFeatures[j].color = conf.color;

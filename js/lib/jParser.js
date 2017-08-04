@@ -1,7 +1,7 @@
 (function () {
 
 if (typeof jDataView === 'undefined' && typeof require !== 'undefined') {
-	jDataView = require('jDataView');
+	jDataView = require('./jDataView.js');
 }
 
 // Extend code from underscorejs (modified for fast inheritance using prototypes)
@@ -184,5 +184,9 @@ if (typeof self !== 'undefined') {
 }
 // Browser + Web Worker
 all.jParser = jParser;
+
+if (typeof module === 'object' && typeof module.exports === 'object') {
+  module.exports = jParser;
+}
 
 })();
