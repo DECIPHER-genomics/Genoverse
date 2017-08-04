@@ -45,7 +45,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
             var subfeature    = {};
             subfeature.start  = feature.start + parseInt(blockStarts[j], 10);
             subfeature.end    = subfeature.start + parseInt(blockSizes[j], 10);
-            subfeature.height = 7; // if subfeature lies entirely left / right to [ thickStart, thickEnd ]
+            subfeature.height = this.prop('thinHeight'); // if subfeature lies entirely left / right to [ thickStart, thickEnd ]
 
             if(feature.drawThick && subfeature.start <= feature.thickEnd && subfeature.end >= feature.thickStart){
               //some kind of an overlap for sure

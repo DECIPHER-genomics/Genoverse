@@ -2,8 +2,9 @@ Genoverse.Track.File.BED = Genoverse.Track.File.extend({
   name          : 'BED',
   model         : Genoverse.Track.Model.File.BED,
   bump          : true,
-  featureHeight : 12,
+  featureHeight : 10,
   thickHeight   : 10,
+  thinHeight    : 7,
   subFeatureJoinStyle : "curve",
   populateMenu: function (feature) {
       return {

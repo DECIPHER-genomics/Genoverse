@@ -84,9 +84,9 @@
         container : '#genoverse',
         width     : 800,
         genome    : 'grch38',
-        chr       : 13,
-        start     : 32296945,
-        end       : 32370557,
+        chr       : 7,
+        start     : 55018031,
+        end       : 55020031,
         plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
         tracks    : [
           Genoverse.Track.Scalebar,
@@ -106,7 +106,10 @@
             model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
             setFeatureColor : function (f) { f.color = '#AAA'; }
           }),
-          Genoverse.Track.dbSNP
+          Genoverse.Track.dbSNP,
+          Genoverse.Track.File.BED.extend({
+            url : '../../testdata/egfr_hg38.bed'
+          })
         ]
       });
     </script>
