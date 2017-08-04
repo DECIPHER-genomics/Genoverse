@@ -58,6 +58,7 @@
     <script type="text/javascript" src="js/Track/Model/File/BED.js"></script>
     <script type="text/javascript" src="js/Track/Model/File/GFF.js"></script>
     <script type="text/javascript" src="js/Track/Model/File/VCF.js"></script>
+    <script type="text/javascript" src="js/Track/Model/File/WIG.js"></script>
     <script type="text/javascript" src="js/Track/library/Chromosome.js"></script>
     <script type="text/javascript" src="js/Track/library/dbSNP.js"></script>
     <script type="text/javascript" src="js/Track/library/File.js"></script>
@@ -65,6 +66,7 @@
     <script type="text/javascript" src="js/Track/library/File/BED.js"></script>
     <script type="text/javascript" src="js/Track/library/File/GFF.js"></script>
     <script type="text/javascript" src="js/Track/library/File/VCF.js"></script>
+    <script type="text/javascript" src="js/Track/library/File/WIG.js"></script>
     <script type="text/javascript" src="js/Track/library/Gene.js"></script>
     <script type="text/javascript" src="js/Track/library/HighlightRegion.js"></script>
     <script type="text/javascript" src="js/Track/library/Legend.js"></script>
@@ -84,9 +86,9 @@
         container : '#genoverse',
         width     : 800,
         genome    : 'grch38',
-        chr       : 7,
-        start     : 55018031,
-        end       : 55020031,
+        chr       : 13,
+        start     : 32296945,
+        end       : 32370557,
         plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
         tracks    : [
           Genoverse.Track.Scalebar,
@@ -106,10 +108,7 @@
             model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
             setFeatureColor : function (f) { f.color = '#AAA'; }
           }),
-          Genoverse.Track.dbSNP,
-          Genoverse.Track.File.BED.extend({
-            url : '../../testdata/egfr_hg38.bed'
-          })
+          Genoverse.Track.dbSNP
         ]
       });
     </script>
