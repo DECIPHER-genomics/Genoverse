@@ -37,13 +37,11 @@ Genoverse.Track.Model.File.WIG = Genoverse.Track.Model.Graph.Bar.extend({
 
     if(type == 3){ //fixedStep parsing
       for(var i = 0; i < lines.length; i++){
-        var fields = lines[i].split(' ');
-
         var feature    = {};
         feature.chr    = chrom;
         feature.start  = start;
-        feature.end    = start+span;
-        feature.height = parseFloat(fields[0]);
+        feature.end    = start + span;
+        feature.height = parseFloat(lines[i]);
         features.push(feature);
         start += step;
       }
@@ -55,7 +53,7 @@ Genoverse.Track.Model.File.WIG = Genoverse.Track.Model.Graph.Bar.extend({
         var feature    = {};
         feature.chr    = chrom;
         feature.start  = parseInt(fields[0], 10);
-        feature.end    = feature.start+span;
+        feature.end    = feature.start + span;
         feature.height = parseFloat(fields[1]);
         features.push(feature);
       }
