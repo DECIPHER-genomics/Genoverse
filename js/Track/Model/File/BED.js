@@ -12,7 +12,6 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
       var len = fields.length;
 
       if (fields[0] == chr || fields[0].toLowerCase() == 'chr' + chr || fields[0].match('[^1-9]' + chr + '$')) {
-        console.log("forming feature");
         var feature = {};
         feature.chr = chr;
         feature.start = parseInt(fields[1], 10);
@@ -86,7 +85,6 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
 
           if(subfeatures.length) feature.subFeatures = subfeatures;
         }
-        console.log(feature);
         this.insertFeature(feature);
       }
     }
