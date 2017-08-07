@@ -35,10 +35,10 @@ Genoverse.Track.Controller.Graph.Bar = Genoverse.Track.Controller.Graph.extend({
     var end   = features[features.length - 1].end;
     var avg   = features[0].start !== features[features.length - 1].start;
     var menu  = { title: features[0].chr + ':' + (start === end ? start : start + '-' + end) };
-    var values;
+    var values, i;
 
     function getValues(_features) {
-      var values = _features.map(function (f) { return f.height; }).sort(function (a, b) { return a - b });
+      var values = _features.map(function (f) { return f.height; }).sort(function (a, b) { return a - b; });
 
       return {
         avg: values.reduce(function (n, v) { return n + v; }, 0) / values.length,
@@ -63,7 +63,7 @@ Genoverse.Track.Controller.Graph.Bar = Genoverse.Track.Controller.Graph.extend({
         if (datasets.length) {
           featuresByDataset = datasets.reduce(function (hash, d) { hash[d.name] = []; return hash; }, {});
 
-          for (var i = 0; i < features.length; i++) {
+          for (i = 0; i < features.length; i++) {
             featuresByDataset[features[i].dataset].push(features[i]);
           }
         } else {
@@ -85,7 +85,7 @@ Genoverse.Track.Controller.Graph.Bar = Genoverse.Track.Controller.Graph.extend({
       if (features.length === 1) {
         menu.Value = features[0].height;
       } else {
-        for (var i = 0; i < features.length; i++) {
+        for (i = 0; i < features.length; i++) {
           menu[features[i].dataset] = features[i].height;
         }
       }

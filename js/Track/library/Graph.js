@@ -16,7 +16,7 @@ Genoverse.Track.Controller.Graph = Genoverse.Track.Controller.extend({
   },
 
   yCoordsFromFeatures: function (features) {
-    return features.reduce(function (arr, f) { return arr.concat(f.height); }, []);
+    return features.reduce(function (arr, f) { return arr.concat(isNaN(f.height) ? 0 : f.height); }, []);
   },
 
   afterSetName: function () {
@@ -26,7 +26,7 @@ Genoverse.Track.Controller.Graph = Genoverse.Track.Controller.extend({
   visibleFeatureHeight: function () {
     if (this.prop('rescaleable') === 'auto') {
       var yScale = this.track.getYScale();
-      var y      = this.yCoordsFromFeatures(this.model.findFeatures(this.browser.chr, this.browser.start, this.browser.end)).sort(function (a, b) { return a - b });
+      var y      = this.yCoordsFromFeatures(this.model.findFeatures(this.browser.chr, this.browser.start, this.browser.end)).sort(function (a, b) { return a - b; });
 
       return Math.ceil(Math.max(yScale * (y[y.length - 1] - y[0]), this.prop('hideEmpty') ? 0 : this.minLabelHeight));
     }
@@ -67,7 +67,7 @@ Genoverse.Track.Controller.Graph = Genoverse.Track.Controller.extend({
 
       if (visibleFeatures.length) {
         var range = this.prop('range');
-        var y     = this.yCoordsFromFeatures(visibleFeatures).sort(function (a, b) { return a - b });
+        var y     = this.yCoordsFromFeatures(visibleFeatures).sort(function (a, b) { return a - b; });
 
         if (y.length) {
           var maxDP = Math.max.apply(null, range.map(function (r) { return (r.toString().split('.')[1] || '').length; }));
@@ -78,6 +78,10 @@ Genoverse.Track.Controller.Graph = Genoverse.Track.Controller.extend({
           if (this.prop('showZeroY')) {
             minY = Math.min(minY, 0);
             maxY = Math.max(maxY, 0);
+          }
+
+          if (minY === maxY) {
+            maxY++;
           }
 
           if (minY !== range[0] || maxY !== range[1]) {
@@ -214,7 +218,7 @@ Genoverse.Track.Graph = Genoverse.Track.extend({
         .width(this.width)
         .insertAfter(scrollContainer)
         .append(scrollContainer)
-        .before(this.yAxisPlaceholder)
+        .before(this.yAxisPlaceholder);
 
       this.drawAxes();
     }
@@ -305,7 +309,7 @@ Genoverse.Track.Graph = Genoverse.Track.extend({
       y = marginTop + (parseFloat(yAxisLabels[i], 10) - range[0]) * yScale;
       y = invert ? height - y : y;
 
-      linesContext.fillRect(0, y, width, 1);                 // Horizontal line, indicating the y-position of a numerical value
+      linesContext.fillRect(0, y, width, 1);                  // Horizontal line, indicating the y-position of a numerical value
       axisContext.fillRect(axisWidth - 4, y, 4, 1);           // Horizontal line, indicating the y-position of a numerical value
       axisContext.fillText(yAxisLabels[i], axisWidth - 6, y); // The numerical value for the horizontal line
     }
