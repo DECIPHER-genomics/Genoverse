@@ -1,6 +1,6 @@
 Genoverse.Track.Controller.Graph.Line = Genoverse.Track.Controller.Graph.extend({
   yCoordsFromFeatures: function (features) {
-    return features.reduce(function (arr, f) { return arr.concat(f.coords.map(function (c) { return c[1] })); }, []);
+    return features.reduce(function (arr, f) { return arr.concat(f.coords.map(function (c) { return isNaN(c[1]) ? 0 : c[1]; })); }, []);
   },
 
   click: function () {
@@ -11,7 +11,7 @@ Genoverse.Track.Controller.Graph.Line = Genoverse.Track.Controller.Graph.extend(
     }
   },
 
-  getClickedFeatures: function (x, y) {
+  getClickedFeatures: function (x) {
     var bounds    = { x: x, y: 0, w: 1, h: 9e99 };
     var features  = this.featurePositions.search(bounds);
     var tolerance = this.scale > 1 ? 0 : 1 / this.scale;
@@ -34,10 +34,10 @@ Genoverse.Track.Controller.Graph.Line = Genoverse.Track.Controller.Graph.extend(
     var end   = features[0].clickedCoords[features[0].clickedCoords.length - 1][0];
     var avg   = start !== end;
     var menu  = { title: features[0].chr + ':' + (start === end ? start : start + '-' + end) };
-    var m, values;
+    var m, values, i;
 
     function getValues(coords) {
-      var values = coords.map(function (c) { return c[1]; }).sort(function (a, b) { return a - b });
+      var values = coords.map(function (c) { return c[1]; }).sort(function (a, b) { return a - b; });
 
       return {
         avg: values.reduce(function (n, v) { return n + v; }, 0) / values.length,
@@ -56,7 +56,7 @@ Genoverse.Track.Controller.Graph.Line = Genoverse.Track.Controller.Graph.extend(
       } else {
         menu = [ menu ];
 
-        for (var i = 0; i < features.length; i++) {
+        for (i = 0; i < features.length; i++) {
           values    = getValues(features[i].clickedCoords);
           m         = { title: features[i].dataset };
           m.Average = values.avg;
@@ -70,7 +70,7 @@ Genoverse.Track.Controller.Graph.Line = Genoverse.Track.Controller.Graph.extend(
       if (features.length === 1) {
         menu.Value = features[0].clickedCoords[0][1];
       } else {
-        for (var i = 0; i < features.length; i++) {
+        for (i = 0; i < features.length; i++) {
           menu[features[i].dataset] = features[i].clickedCoords[0][1];
         }
       }
@@ -89,9 +89,9 @@ Genoverse.Track.Model.Graph.Line = Genoverse.Track.Model.Graph.extend({
       return typeof f.x !== 'undefined' ? f.x : f.start + (f.start === f.end ? 0 : (f.end - f.start + 1) / 2);
     }
 
-    data.sort(function (a, b) { return (a.start - b.start) || (a.x - b.x); })
+    data.sort(function (a, b) { return (a.start - b.start) || (a.x - b.x); });
 
-    for (var i = 0; i < data.length; i++) {
+    for (i = 0; i < data.length; i++) {
       if (typeof data[i].y !== 'undefined' && !data[i].coords) {
         x = getX(data[i]);
 
