@@ -54,6 +54,7 @@ require(__dirname + '/js/Track/Model/File/BAM.js');
 require(__dirname + '/js/Track/Model/File/BED.js');
 require(__dirname + '/js/Track/Model/File/GFF.js');
 require(__dirname + '/js/Track/Model/File/VCF.js');
+require(__dirname + '/js/Track/Model/File/WIG.js');
 
 require(__dirname + '/js/Track/library/Chromosome.js');
 require(__dirname + '/js/Track/library/dbSNP.js');
@@ -62,6 +63,7 @@ require(__dirname + '/js/Track/library/File/BAM.js');
 require(__dirname + '/js/Track/library/File/BED.js');
 require(__dirname + '/js/Track/library/File/GFF.js');
 require(__dirname + '/js/Track/library/File/VCF.js');
+require(__dirname + '/js/Track/library/File/WIG.js');
 require(__dirname + '/js/Track/library/Gene.js');
 require(__dirname + '/js/Track/library/HighlightRegion.js');
 require(__dirname + '/js/Track/library/Legend.js');
