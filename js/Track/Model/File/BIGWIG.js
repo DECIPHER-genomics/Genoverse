@@ -4,16 +4,25 @@ Genoverse.Track.Model.File.BIGWIG = Genoverse.Track.Model.Graph.Bar.extend({
     var model = this;
     var deferred = $.Deferred();
 
-    if(!this.url) this.data = new dallianceLib.BlobFetchable(this.track.dataFile);
-    else this.data = new dallianceLib.URLFetchable(this.url);
+    if(!this.bigwigFile){
+      this.bigwigFile = this.bigwigFile || (this.url ? new dallianceLib.URLFetchable(this.url) : new dallianceLib.BlobFetchable(this.track.dataFile));
+    }
 
-    new BWReader(this.data, this.name, function(bw){
-      bw.getValues(chr, start, end, function(features){
+    new BWReader(this.bigwigFile, function(bw){
+      if(bw == null){
+        model.receiveData([], chr, start, end);
+        deferred.resolveWith(model);
+        return deferred;
+      }
+
+      bw.getValues(chr, start, end, function(features, error){
+        if(error) console.log("error: " + error);
+        console.log(features);
         model.receiveData(features, chr, start, end);
         deferred.resolveWith(model);
-			});
-		});
+      });
+    });
 
     return deferred;
   }
-})
+});
