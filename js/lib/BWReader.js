@@ -23,14 +23,23 @@
     var M3 = 256*256*256;
     var M4 = 256*256*256*256;
 
-    var bbi = {};
+    var bbi = {
+      fetchedData: {}
+    };
 
     function init() {
       checkSignature();
     }
 
     function getData(start, length, cb) {
-      data.slice(start, length).fetch(cb);
+      if (bbi.fetchedData[start + ':' + length]) {
+        cb(bbi.fetchedData[start + ':' + length]);
+      } else {
+        data.slice(start, length).fetch(function (d) {
+          bbi.fetchedData[start + ':' + length] = d;
+          cb(d);
+        });
+      }
     }
 
     function checkSignature() {
