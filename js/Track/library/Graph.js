@@ -108,7 +108,10 @@ Genoverse.Track.Controller.Graph = Genoverse.Track.Controller.extend({
 
 Genoverse.Track.Model.Graph = Genoverse.Track.Model.extend({
   dataBuffer     : { start: 1, end: 1 },
-  setLabelBuffer : $.noop
+  setLabelBuffer : $.noop,
+  sortFeatures   : function (features) {
+    return features.sort(function (a, b) { return a.start - b.start; });
+  }
 });
 
 Genoverse.Track.View.Graph = Genoverse.Track.View.extend({
