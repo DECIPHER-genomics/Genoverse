@@ -398,21 +398,16 @@
       }
 
       function getBlocks() {
-        if (vals.length === 0) {
-          cb([]);
-        } else {
-          var result = [];
+        var parser = bbi.type == 'bigwig' ? WiggleParser : bbi.type == 'bigbed' ? BEDParser : false;
+        var result = [];
 
+        if (parser && vals.length) {
           for (var i = 0; i < vals.length; i++) {
-            result = result.concat(processBlocks(vals[i].data, query));
+            result = result.concat(parser(vals[i].data, query));
           }
-
-          cb(result);
         }
-      }
 
-      function processBlocks(data) {
-        return bbi.type == 'bigwig' ? WiggleParser(data, query) : bbi.type == 'bigbed' ? BEDparser() : [];
+        cb(result);
       }
 
       traverseRTree();
@@ -426,7 +421,8 @@
       var fa         = new Float32Array(data);
       var chromId    = la[0];
       var chr        = parseInt(bbi.chroms[chromId].replace('chr', ''), 10);
-      var blockStart = la[1];
+      var blockStart = la[1] + 1;
+      var blockEnd   = la[2];
       var itemStep   = la[3];
       var itemSpan   = la[4];
       var blockType  = ba[20];
@@ -435,11 +431,11 @@
 
       if (blockType === BIG_WIG_TYPE_FSTEP) { // fixedStep wiggle
         for (i = 0; i < itemCount; i++) {
-          start = blockStart + i*itemStep + 1;
+          start = blockStart + i*itemStep;
           end   = start + itemSpan - 1;
           score = fa[i + 6];
 
-          if (chromId == query.chrom && start <= query.end && end >= query.start) {
+          if (chromId == query.chrom) {
             arr.push({
               chr    : chr,
               start  : start,
@@ -454,7 +450,7 @@
           end   = start + itemSpan - 1;
           score = fa[i*2 + 7];
 
-          if (chromId == query.chrom && start <= query.end && end >= query.start) {
+          if (chromId == query.chrom) {
             arr.push({
               chr    : chr,
               start  : start,
@@ -473,7 +469,7 @@
             start = end;
           }
 
-          if (chromId == query.chrom && start <= query.end && end >= query.start) {
+          if (chromId == query.chrom) {
             arr.push({
               chr    : chr,
               start  : start,
@@ -488,8 +484,8 @@
     }
 
     // this huge chunk of code handles BED data parsing and should totally go into its own module for the
-    // well being of our eyes >_< ( TODO : BEDparser and readAutoSQL to be shifted to BED module)
-    function BEDparser() {
+    // well being of our eyes >_< ( TODO : BEDParser and readAutoSQL to be shifted to BED module)
+    function BEDParser() {
       var dfc = bbi.definedFieldCount;
       var arr = [];
       var bbRecord, customFields, extraFields, ch, bedColumns, col, spans, i, bbRecordChild, intersection;
