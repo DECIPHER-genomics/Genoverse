@@ -24,7 +24,7 @@
     var M4 = 256*256*256*256;
 
     var bbi = {
-      fetchedData: {}
+      fetchedData: new RTree()
     };
 
     function init() {
@@ -32,11 +32,14 @@
     }
 
     function getData(start, length, cb) {
-      if (bbi.fetchedData[start + ':' + length]) {
-        cb(bbi.fetchedData[start + ':' + length]);
+      var end     = start + length;
+      var fetched = bbi.fetchedData.search({ x: start, w: length, y: 0, h: 1 }).filter(function (d) { return d[0] <= start && d[1] >= end; });
+
+      if (fetched.length == 1) {
+        cb(fetched[0][2].slice(start - fetched[0][0], start + length));
       } else {
         data.slice(start, length).fetch(function (d) {
-          bbi.fetchedData[start + ':' + length] = d;
+          bbi.fetchedData.insert({ x: start, w: length, y: 0, h: 1 }, [ start, start + length, d ]);
           cb(d);
         });
       }
