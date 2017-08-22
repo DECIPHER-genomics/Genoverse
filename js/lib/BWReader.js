@@ -246,7 +246,7 @@
       var sa       = new Uint16Array(treedata);
       var la       = new Uint32Array(treedata);
       var children = sa[offset/2 + 1];
-      var lo;
+      var lo, i;
 
       var node = {
         isLeaf      : ba[offset],
@@ -262,12 +262,16 @@
       if (node.isLeaf) {
         node.x.size = new Array(children);
       } else {
-        node.x.child = new Array(children).fill(-1);
+        node.x.child = new Array(children);
+
+        for (i = 0; i < children; i++) {
+          node.x.child[i] = -1;
+        }
       }
 
       offset += 4;
 
-      for (var i = 0; i< node.children; i++) {
+      for (i = 0; i < children; i++) {
         lo = offset / 4;
 
         node.chrIdxStart[i] = la[lo];
