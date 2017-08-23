@@ -1,26 +1,28 @@
-Genoverse.Track.Controller.Graph.Line = Genoverse.Track.Controller.Graph.extend({
-  yCoordsFromFeatures: function (features) {
-    return features.reduce(function (arr, f) { return arr.concat(f.coords.map(function (c) { return isNaN(c[1]) ? 0 : c[1]; })); }, []);
-  },
-
+Genoverse.Track.Controller.Graph.Line = {
   click: function () {
     if (this.prop('showPopups')) {
       this.prop('menus').hide(); // Hide first, because closeMenus causes fadeOut to happen, which doens't look great in this scenario
       this.browser.closeMenus(this);
-      return this.base.apply(this, arguments);
+      return Genoverse.Track.Controller.prototype.click.apply(this, arguments);
     }
   },
 
   getClickedFeatures: function (x) {
     var bounds    = { x: x, y: 0, w: 1, h: 9e99 };
-    var features  = this.featurePositions.search(bounds);
     var tolerance = this.scale > 1 ? 0 : 1 / this.scale;
     var xMid      = bounds.x / this.scale;
     var xRange    = tolerance ? [ Math.floor(xMid - tolerance), Math.ceil(xMid + tolerance) ] : [ Math.floor(xMid), Math.floor(xMid) ];
+    var features  = {};
+
+    this.featurePositions.search(bounds).forEach(function (f) {
+      if (!features[f.dataset]) {
+        features[f.dataset] = f;
+      }
+    });
 
     return [
-      this.model.sortFeatures(features.map(function (f) {
-        return $.extend(true, {}, f, { clickedCoords: f.coords.filter(function (c) { return c[0] >= xRange[0] && c[0] <= xRange[1]; }) });
+      this.model.sortFeatures(Object.keys(features).map(function (k) {
+        return $.extend(true, {}, features[k], { clickedCoords: features[k].coords.filter(function (c) { return c[0] >= xRange[0] && c[0] <= xRange[1]; }) });
       }))
     ];
   },
@@ -78,7 +80,7 @@ Genoverse.Track.Controller.Graph.Line = Genoverse.Track.Controller.Graph.extend(
 
     return menu;
   }
-});
+};
 
 Genoverse.Track.Model.Graph.Line = Genoverse.Track.Model.Graph.extend({
   parseData: function (data, chr, start, end) {
@@ -123,10 +125,8 @@ Genoverse.Track.Model.Graph.Line = Genoverse.Track.Model.Graph.extend({
   },
 
   insertFeature: function (feature) {
-    var datasets         = this.prop('datasets');
-    var featureTree      = this.features(feature.chr);
-    var bounds           = { x: feature.start, y: 0, w: feature.end - feature.start + 1, h: 1 };
-    var existingFeatures = this.sortFeatures(featureTree.search(bounds));
+    var datasets = this.prop('datasets');
+    var bounds   = { x: feature.start, y: 0, w: feature.end - feature.start + 1, h: 1 };
     var x, removeExisting;
 
     if (feature.coords) {
@@ -140,43 +140,6 @@ Genoverse.Track.Model.Graph.Line = Genoverse.Track.Model.Graph.extend({
     if (datasets.length) {
       feature.legend = feature.dataset;
       feature.color  = (datasets.filter(function (s) { return s.name === feature.dataset; })[0] || { color: this.color }).color;
-
-      existingFeatures = existingFeatures.filter(function (f) { return f.dataset === feature.dataset; });
-    }
-
-    for (var i = 0; i < existingFeatures.length; i++) {
-      removeExisting = false;
-
-      // new feature is entirely within existing feature
-      if (feature.start >= existingFeatures[i].start && feature.end <= existingFeatures[i].end) {
-        return;
-      }
-
-      // existing feature is entirely within new feature
-      if (feature.start < existingFeatures[i].start && feature.end > existingFeatures[i].end) {
-        removeExisting = true;
-      } else {
-        // new feature overlaps existing feature to the right
-        if (feature.start > existingFeatures[i].start) {
-          x              = feature.coords[0][0];
-          removeExisting = true;
-          feature.coords = existingFeatures[i].coords.filter(function (c) { return c[0] < x; }).concat(feature.coords);
-          feature.start  = existingFeatures[i].start;
-        }
-
-        // new feature overlaps existing feature to the left
-        if (feature.end < existingFeatures[i].end) {
-          x              = feature.coords[feature.coords.length - 1][0];
-          removeExisting = true;
-          feature.coords = feature.coords.concat(existingFeatures[i].coords.filter(function (c) { return c[0] > x; }));
-          feature.end    = existingFeatures[i].end;
-        }
-      }
-
-      if (removeExisting) {
-        featureTree.remove(bounds, existingFeatures[i]);
-        delete this.featuresById[existingFeatures[i].id];
-      }
     }
 
     feature.id = feature.id || [ feature.chr, feature.start, feature.end, feature.dataset || '' ].join(':');
@@ -291,10 +254,10 @@ Genoverse.Track.View.Graph.Line = Genoverse.Track.View.Graph.extend({
 });
 
 Genoverse.Track.Graph.Line = Genoverse.Track.Graph.extend({
-  showPopups : true,      // If true, clicking on the track will show popups. If false, popups will not appear.
+  type       : 'Line',
+  showPopups : true, // If true, clicking on the track will show popups. If false, popups will not appear.
   fill       : false,
   lineWidth  : 1,
-  controller : Genoverse.Track.Controller.Graph.Line,
   model      : Genoverse.Track.Model.Graph.Line,
   view       : Genoverse.Track.View.Graph.Line
 });

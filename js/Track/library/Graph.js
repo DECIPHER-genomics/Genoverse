@@ -15,8 +15,33 @@ Genoverse.Track.Controller.Graph = Genoverse.Track.Controller.extend({
     this.track.reset();
   },
 
-  yCoordsFromFeatures: function (features) {
-    return features.reduce(function (arr, f) { return arr.concat(isNaN(f.height) ? 0 : f.height); }, []);
+  yMinMaxFromFeatures: function (features) {
+    var min =  Infinity;
+    var max = -Infinity;
+    var i, j;
+
+    if (this.prop('type') === 'Line') {
+      for (i = 0; i < features.length; i++) {
+        for (j = 0; j < features[i].coords.length; j++) {
+          if (!isNaN(features[i].coords[j][1])) {
+            min = Math.min(min, features[i].coords[j][1]);
+            max = Math.max(max, features[i].coords[j][1]);
+          }
+        }
+      }
+    } else {
+      for (i = 0; i < features.length; i++) {
+        if (!isNaN(features[i].height)) {
+          min = Math.min(min, features[i].height);
+          max = Math.max(max, features[i].height);
+        }
+      }
+    }
+
+    min = min ===  Infinity ? 0 : min;
+    max = max === -Infinity ? 0 : max;
+
+    return { min: min, max: max };
   },
 
   afterSetName: function () {
@@ -26,9 +51,9 @@ Genoverse.Track.Controller.Graph = Genoverse.Track.Controller.extend({
   visibleFeatureHeight: function () {
     if (this.prop('rescaleable') === 'auto') {
       var yScale = this.track.getYScale();
-      var y      = this.yCoordsFromFeatures(this.model.findFeatures(this.browser.chr, this.browser.start, this.browser.end)).sort(function (a, b) { return a - b; });
+      var y      = this.yMinMaxFromFeatures(this.model.findFeatures(this.browser.chr, this.browser.start, this.browser.end));
 
-      return Math.ceil(Math.max(yScale * (y[y.length - 1] - y[0]), this.prop('hideEmpty') ? 0 : this.minLabelHeight));
+      return Math.ceil(Math.max(yScale * (y.max - y.min), this.prop('hideEmpty') ? 0 : this.minLabelHeight));
     }
 
     return this.prop('height');
@@ -67,13 +92,13 @@ Genoverse.Track.Controller.Graph = Genoverse.Track.Controller.extend({
 
       if (visibleFeatures.length) {
         var range = this.prop('range');
-        var y     = this.yCoordsFromFeatures(visibleFeatures).sort(function (a, b) { return a - b; });
+        var y     = this.yMinMaxFromFeatures(visibleFeatures);
 
         if (y.length) {
           var maxDP = Math.max.apply(null, range.map(function (r) { return (r.toString().split('.')[1] || '').length; }));
           var round = Math.pow(10, maxDP);
-          var minY  = parseFloat((Math.floor(y[0]            * round) / round).toFixed(maxDP), 10);
-          var maxY  = parseFloat((Math.ceil (y[y.length - 1] * round) / round).toFixed(maxDP), 10);
+          var minY  = parseFloat((Math.floor(y.min * round) / round).toFixed(maxDP), 10);
+          var maxY  = parseFloat((Math.ceil (y.max * round) / round).toFixed(maxDP), 10);
 
           if (this.prop('showZeroY')) {
             minY = Math.min(minY, 0);
@@ -103,15 +128,18 @@ Genoverse.Track.Controller.Graph = Genoverse.Track.Controller.extend({
         .prepend(controller.prop('guidelinesCanvas'))
         .before(controller.prop('yAxisCanvas').removeClass('gv-loading'));
     });
-  }
+  },
+
+  typeWrapper        : function (func, args) { return (Genoverse.Track.Controller.Graph[this.prop('type')][func] || Genoverse.Track.Controller.prototype[func]).apply(this, args); },
+  click              : function () { return this.typeWrapper('click',              arguments); },
+  getClickedFeatures : function () { return this.typeWrapper('getClickedFeatures', arguments); },
+  populateMenu       : function () { return this.typeWrapper('populateMenu',       arguments); }
 });
 
 Genoverse.Track.Model.Graph = Genoverse.Track.Model.extend({
   dataBuffer     : { start: 1, end: 1 },
   setLabelBuffer : $.noop,
-  sortFeatures   : function (features) {
-    return features.sort(function (a, b) { return a.start - b.start; });
-  }
+  sortFeatures   : function (features) { return features.sort(function (a, b) { return a.start - b.start; }); }
 });
 
 Genoverse.Track.View.Graph = Genoverse.Track.View.extend({
@@ -138,6 +166,7 @@ Genoverse.Track.View.Graph = Genoverse.Track.View.extend({
 });
 
 Genoverse.Track.Graph = Genoverse.Track.extend({
+  controller   : Genoverse.Track.Controller.Graph,
   margin       : 10,        // Same as fontHeight - needed to allow axis labels for range[0] and range[1] to be drawn without being cut off by the edge of the image
   invert       : true,
   yAxisLabels  : undefined, // An array of numerical labels for the y-axis. Should not be configured manually if the track is resizable.
