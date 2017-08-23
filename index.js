@@ -11,6 +11,7 @@ global.RTree        = require(__dirname + '/js/lib/rtree.js');
 global.dallianceLib = require(__dirname + '/js/lib/dalliance-lib.min.js');
 global.jDataView    = require(__dirname + '/js/lib/jDataView.js');
 global.jParser      = require(__dirname + '/js/lib/jParser.js');
+global.BWReader     = require(__dirname + '/js/lib/BWReader.js');
 global.VCFReader    = require(__dirname + '/js/lib/VCFReader.js');
 
 global.Genoverse = require(__dirname + '/js/Genoverse.js');
@@ -27,8 +28,8 @@ require(__dirname + '/js/Track/Controller/Stranded.js');
 require(__dirname + '/js/Track/Model/Stranded.js');
 
 require(__dirname + '/js/Track/library/Graph.js');
-require(__dirname + '/js/Track/library/Graph/Bar.js');
 require(__dirname + '/js/Track/library/Graph/Line.js');
+require(__dirname + '/js/Track/library/Graph/Bar.js'); // Graph.Bar depends on Graph.Line
 
 require(__dirname + '/js/Track/Controller/Sequence.js');
 require(__dirname + '/js/Track/Model/Sequence.js');
@@ -61,6 +62,7 @@ require(__dirname + '/js/Track/library/dbSNP.js');
 require(__dirname + '/js/Track/library/File.js');
 require(__dirname + '/js/Track/library/File/BAM.js');
 require(__dirname + '/js/Track/library/File/BED.js');
+require(__dirname + '/js/Track/library/File/BIGWIG.js');
 require(__dirname + '/js/Track/library/File/GFF.js');
 require(__dirname + '/js/Track/library/File/VCF.js');
 require(__dirname + '/js/Track/library/File/WIG.js');
