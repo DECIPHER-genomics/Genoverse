@@ -3,7 +3,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
     var lines = text.split('\n');
 
     for (var i = 0; i < lines.length; i++) {
-      var fields = lines[i].split('\t');
+      var fields = lines[i].split('\t').filter(function(n){ return n; });
 
       if (fields.length < 3 || fields[0] == 'track' || fields[0] == 'browser') {
         continue;
@@ -32,7 +32,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
         if (fields[8]) {
           color = 'rgb(' + fields[8] + ')';
         } else {
-          color = this.scoreColor(isNaN(score) ? 1000 : score);
+          color = this.scoreColor(isNaN(feature.score) ? 1000 : score);
         }
 
         if(len == 12){ //subfeatures present
