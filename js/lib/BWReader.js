@@ -438,7 +438,6 @@
       var chromId    = la[0];
       var chr        = parseInt(bbi.chroms[chromId].replace('chr', ''), 10);
       var blockStart = la[1] + 1;
-      var blockEnd   = la[2];
       var itemStep   = la[3];
       var itemSpan   = la[4];
       var blockType  = ba[20];
@@ -499,119 +498,42 @@
       return arr;
     }
 
-    // this huge chunk of code handles BED data parsing and should totally go into its own module for the
-    // well being of our eyes >_< ( TODO : BEDParser and readAutoSQL to be shifted to BED module)
-    function BEDParser() {
-      var dfc = bbi.definedFieldCount;
-      var arr = [];
-      var bbRecord, customFields, extraFields, ch, bedColumns, col, spans, i, bbRecordChild, intersection;
+    function BEDParser(data, query) {
+      var arr      = [];
+      var ba       = new Uint8Array(data);
+      var la       = new Int32Array(data);
+      var offset   = 0;
+      var bbRecord, ch, rest;
 
-      while (pos < ba.length) {
-        customFields = [];
-        extraFields  = '';
-        ch           = undefined;
-        bbRecord     = {
-          chromid : read32Bit(),
-          start   : read32Bit() + 1,
-          end     : read32Bit()
+      while (offset < la.length) {
+        bbRecord = {
+          chromid : la[offset],
+          chr     : bbi.chroms[la[offset]],
+          start   : la[offset + 1],
+          end     : la[offset + 2]
         };
 
+        offset += 12;
+
         while (true) {
-          ch = ba[pos++];
+          ch = ba[offset++];
 
           if (ch !== 0) {
-            extraFields += String.fromCharCode(ch);
+            rest += String.fromCharCode(ch);
           } else {
             break;
           }
         }
 
-        if (bbRecord.start <= bbi.query.end && bbRecord.end >= bbi.query.start && bbRecord.chromid == bbi.query.chromid) {
-          bbRecord.chrom = bbi.query.chromid;
-
-          if (extraFields) {
-            bedColumns = extraFields.split('\t');
-
-            // parsing extraFields
-            if (bedColumns.length > 0 && dfc > 3)  bbRecord.name        = bedColumns[0];
-            if (bedColumns.length > 1 && dfc > 4)  bbRecord.score       = parseInt(bedColumns[1], 10);
-            if (bedColumns.length > 2 && dfc > 5)  bbRecord.strand      = bedColumns[2];
-            if (bedColumns.length > 3 && dfc > 6)  bbRecord.thickStart  = parseInt(bedColumns[3], 10);
-            if (bedColumns.length > 4 && dfc > 7)  bbRecord.thickEnd    = parseInt(bedColumns[4], 10);
-            if (bedColumns.length > 5 && dfc > 8)  bbRecord.itemRGB     = bedColumns[5];
-            if (bedColumns.length > 6 && dfc > 9)  bbRecord.blockCount  = parseInt(bedColumns[6], 10);
-            if (bedColumns.length > 7 && dfc > 10) bbRecord.blockSizes  = bedColumns[7].split(',').map(function (s) { return parseInt(s, 10); });
-            if (bedColumns.length > 8 && dfc > 11) bbRecord.blockStarts = bedColumns[8].split(',').map(function (s) { return parseInt(s, 10); });
-
-            if (bedColumns.length > dfc - 3 && bbi.schema) {
-              for (col = dfc - 3; col < bedColumns.length; col++) {
-                customFields[bbi.schema.fields[col + 3].name] = bedColumns[col];
-              }
-
-              bbRecord.customFields = customFields;
-            }
-          }
-
-          if (dfc < 12) {
-            bbRecord.type = 'bigbed';
-            arr.push(bbRecord);
-          } else {
-            spans = [];
-
-            for (i = 0; i < bbRecord.blockCount; i++) {
-              bbRecordChild = {
-                name    : bbRecord.name,
-                chrom   : bbRecord.chrom,
-                start   : bbRecord.blockStarts[i] + bbRecord.start,
-                strand  : bbRecord.strand,
-                score   : bbRecord.score,
-                itemRGB : bbRecord.itemRGB
-              };
-
-              bbRecordChild.end = bbRecordChild.start + bbRecord.blockSizes[i] - 1;
-
-              if (bbRecord.customFields) {
-                bbRecordChild.customFields = bbRecord.customFields;
-              }
-
-              arr.push(bbRecordChild);
-              spans.push([ bbRecordChild.start, bbRecordChild.end ]);
-            }
-
-            if (bbRecord.thickStart && bbRecord.thickEnd > bbRecord.thickStart){
-              // find intersections with blocks with [thickStart, thickEnd]
-              intersection = [];
-
-              for (i = 0; i < spans.length; i++) {
-                if (bbRecord.thickEnd < spans[i][0]) {
-                  break;
-                } else if (bbRecord.thickStart > spans[i][1]) {
-                  continue;
-                } else {
-                  intersection.push(spans[i]);
-                }
-              }
-
-              for (i = 0; i < intersection.length; i++) {
-                arr.push({
-                  name   : bbRecord.name,
-                  chrom  : bbRecord.chrom,
-                  start  : intersection[i][0],
-                  end    : intersection[i][1],
-                  strand : bbRecord.strand,
-                  score  : bbRecord.score,
-                  type   : 'translation'
-                });
-              }
-            }
-          }
+        if (bbRecord.chromid === query.chrom) {
+          arr.push([ bbRecord.chr, bbRecord.start, bbRecord.end, rest ].join('\t'));
         }
       }
 
       return arr;
     }
 
-    //reads 8 bytes from data
+    // reads 8 bytes from data
     function read64Bit(ba, o) {
       var val = ba[o] + ba[o+1]*M1 + ba[o+2]*M2 + ba[o+3]*M3 + ba[o+4]*M4;
       return val;

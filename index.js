@@ -62,6 +62,7 @@ require(__dirname + '/js/Track/library/dbSNP.js');
 require(__dirname + '/js/Track/library/File.js');
 require(__dirname + '/js/Track/library/File/BAM.js');
 require(__dirname + '/js/Track/library/File/BED.js');
+require(__dirname + '/js/Track/library/File/BIGBED.js');
 require(__dirname + '/js/Track/library/File/BIGWIG.js');
 require(__dirname + '/js/Track/library/File/GFF.js');
 require(__dirname + '/js/Track/library/File/VCF.js');
