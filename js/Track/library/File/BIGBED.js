@@ -14,8 +14,9 @@ Genoverse.Track.File.BIGBED = Genoverse.Track.File.BED.extend({
           if (!error) {
             features.sort(function (a, b) { return a.start - b.start; });
             model.receiveData(features, chr, features[0].start, features[features.length - 1].end);
-            deferred.resolveWith(model);
           }
+
+          deferred.resolveWith(model);
         });
       });
 
