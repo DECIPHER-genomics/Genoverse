@@ -126,8 +126,6 @@ Genoverse.Track.Model.Graph.Line = Genoverse.Track.Model.Graph.extend({
 
   insertFeature: function (feature) {
     var datasets = this.prop('datasets');
-    var bounds   = { x: feature.start, y: 0, w: feature.end - feature.start + 1, h: 1 };
-    var x, removeExisting;
 
     if (feature.coords) {
       feature.coords = feature.coords.map(function (c, i) { return c.length > 1 ? c : [ feature.start + i, c ]; }).filter(function (c) { return c[0] >= feature.start && c[0] <= feature.end; });
@@ -158,8 +156,12 @@ Genoverse.Track.View.Graph.Line = Genoverse.Track.View.Graph.extend({
     var zeroY  = margin - this.prop('range')[0] * yScale;
     var add    = (scale > 1 ? scale / 2 : 0) - params.scaledStart;
 
+    function setCoords(c) {
+      return [ c[0] * scale + add, c[1] * yScale + zeroY ];
+    }
+
     for (var i = 0; i < features.length; i++) {
-      features[i].coordPositions = features[i].coords.map(function (c) { return [ c[0] * scale + add, c[1] * yScale + zeroY ]; });
+      features[i].coordPositions = features[i].coords.map(setCoords);
     }
 
     params.featureHeight = this.prop('height');
@@ -178,7 +180,7 @@ Genoverse.Track.View.Graph.Line = Genoverse.Track.View.Graph.extend({
     var marginBottom = this.prop('margin');
     var baseline     = Math.min(Math.max(marginTop, marginTop - this.prop('range')[0] * this.track.getYScale()), height - marginTop);
     var binSize      = scale < 1 ? Math.floor(1 / scale) : 0;
-    var set, conf, feature, coords, binnedFeatures, lastBinSize, j, k, c, x;
+    var set, conf, feature, coords, binnedFeatures, lastBinSize, j, k, binStart, bin, l;
 
     var defaults = {
       color       : this.color,
@@ -198,18 +200,27 @@ Genoverse.Track.View.Graph.Line = Genoverse.Track.View.Graph.extend({
         if (coords.length) {
           if (binSize) {
             binnedFeatures = [];
+            k              = 0;
 
-            for (k = 0; k < coords.length; k += binSize) {
-              c = coords.slice(k, k + binSize);
-              x = Math.round(c.reduce(function (a, b) { return a + b[0]; }, 0) / c.length);
+            while (k < coords.length) {
+              binStart = feature.coords[k][0];
+              bin      = [];
 
-              if (binnedFeatures.length && x === binnedFeatures[binnedFeatures.length - 1][0]) {
-                binnedFeatures[binnedFeatures.length - 1][1] = (binnedFeatures[binnedFeatures.length - 1][1] * lastBinSize + c.reduce(function (a, b) { return a + b[1]; }, 0)) / (lastBinSize + c.length);
-              } else {
-                binnedFeatures.push([ x, c.reduce(function (a, b) { return a + b[1]; }, 0) / c.length ]);
+              while (coords[k] && feature.coords[k][0] - binStart < binSize) {
+                bin.push(coords[k++]);
               }
 
-              lastBinSize = c.length;
+              l      = bin.length;
+              bin    = bin.reduce(function (arr, b) { arr[0] += b[0]; arr[1] += b[1]; return arr; }, [ 0, 0 ]);
+              bin[0] = Math.round(bin[0] / l);
+
+              if (binnedFeatures.length && bin[0] === binnedFeatures[binnedFeatures.length - 1][0]) {
+                binnedFeatures[binnedFeatures.length - 1][1] = (binnedFeatures[binnedFeatures.length - 1][1] * lastBinSize + bin[1]) / (lastBinSize + l);
+              } else {
+                binnedFeatures.push([ bin[0], bin[1] / l ]);
+              }
+
+              lastBinSize = l;
             }
 
             coords = binnedFeatures;

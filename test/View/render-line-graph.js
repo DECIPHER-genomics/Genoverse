@@ -191,13 +191,20 @@ describe('Correctly render line graph where:', function () {
   });
 
   describe('data is spaced at > 1', function () {
-    var genoverseConf = { width: 100, start: 1, end: 100 };
-    var features      = [{ start: 1, end: 100, coords: data[0].slice(0, 9).map((d, i) => [ i + 1, d ]).filter((d, i) => i % 2) }];
+    var features = [{ start: 1, end: 100, coords: data[0].slice(0, 9).map((d, i) => [ i + 1, d ]).filter((d, i) => i % 2) }];
 
     [
-      { why: 'the graph has no fill', conf: { margin: 0, fill: false }, coords: [         [1, 60], [3, 100], [5, 50], [7, 90]         ] },
-      { why: 'the graph has fill',    conf: { margin: 0, fill: true  }, coords: [ [1, 0], [1, 60], [3, 100], [5, 50], [7, 90], [7, 0] ] }
-    ].forEach(test => it(test.why, () => testTrackRenderStatic(features, ...draw(test), genoverseConf)));
+      { why: 'scale > 1', width: 200, coords: [[3, 60], [7, 100], [11, 50], [15, 90]] },
+      { why: 'scale = 1', width: 100, coords: [[1, 60], [3, 100], [5,  50], [7,  90]] },
+      { why: 'scale < 1', width: 25,  coords: [[1, 80], [2, 70]]                      }
+    ].forEach(function (testSet) {
+      describe(testSet.why, function () {
+        [
+          { why: 'the graph has no fill', conf: { margin: 0, fill: false }, coords: testSet.coords },
+          { why: 'the graph has fill',    conf: { margin: 0, fill: true  }, coords: [[ testSet.coords[0][0], 0 ]].concat(testSet.coords).concat([[ testSet.coords[testSet.coords.length - 1][0], 0 ]]) }
+        ].forEach(test => it(test.why, () => testTrackRenderStatic(features, ...draw(test), { width: testSet.width, start: 1, end: 100 })));
+      });
+    });
   });
 
   describe('features are defined with', function () {
