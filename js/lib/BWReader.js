@@ -571,4 +571,8 @@
   };
 
   window.BWReader = BWReader;
+
+  if (typeof module === 'object' && typeof module.exports === 'object') {
+    module.exports = BWReader;
+  }
 })();
