@@ -23,7 +23,7 @@
   "homepage": "http://wtsi-web.github.io/Genoverse/",
   "devDependencies": {
     "canvas": "latest",
-    "expect": "latest",
+    "expect": "1.20.2",
     "jsdom": "latest",
     "mocha": "latest",
     "webpack": "latest"
