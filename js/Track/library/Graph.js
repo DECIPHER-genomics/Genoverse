@@ -94,7 +94,7 @@ Genoverse.Track.Controller.Graph = Genoverse.Track.Controller.extend({
         var range = this.prop('range');
         var y     = this.yMinMaxFromFeatures(visibleFeatures);
 
-        if (y.length) {
+        if (y.min || y.max) {
           var maxDP = Math.max.apply(null, range.map(function (r) { return (r.toString().split('.')[1] || '').length; }));
           var round = Math.pow(10, maxDP);
           var minY  = parseFloat((Math.floor(y.min * round) / round).toFixed(maxDP), 10);
