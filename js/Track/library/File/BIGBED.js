@@ -13,7 +13,12 @@ Genoverse.Track.File.BIGBED = Genoverse.Track.File.BED.extend({
         model.bwReader.getValues(chr, start, end, function (features, error) {
           if (!error) {
             features.sort(function (a, b) { return a.start - b.start; });
-            model.receiveData(features, chr, features[0].start, features[features.length - 1].end);
+
+            if (features.length) {
+              model.receiveData(features, chr, features[0].start, features[features.length - 1].end);
+            } else {
+              model.receiveData(features, chr, start, end);
+            }
           }
 
           deferred.resolveWith(model);
