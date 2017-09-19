@@ -358,6 +358,16 @@
   color: #000;
 }
 
+.gv-menu .gv-menu-content .gv-menu-scroll-wrapper {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 10px 10px 10px 0;
+}
+
+.gv-menu .gv-menu-content .gv-menu-scroll-wrapper table {
+  margin: 0 10px;
+}
+
 .gv-selector {
   position: absolute;
   display: none;

@@ -1161,9 +1161,10 @@ var Genoverse = Base.extend({
       return this.makeFeatureMenu(features[0], event, track);
     }
 
-    var browser = this;
-    var menu    = this.menuTemplate.clone(true).data({ browser: this });
-    var table   = $('.gv-menu-content', menu).addClass('gv-menu-content-first').find('table');
+    var browser   = this;
+    var menu      = this.menuTemplate.clone(true).data({ browser: this });
+    var contentEl = $('.gv-menu-content', menu).addClass('gv-menu-content-first');
+    var table     = $('table', contentEl);
 
     $('.gv-focus, .gv-highlight, .gv-menu-loading', menu).remove();
     $('.gv-title', menu).html(features.length + ' features');
@@ -1177,6 +1178,8 @@ var Genoverse = Base.extend({
         return false;
       }).appendTo($('<td>').appendTo($('<tr>').appendTo(table)));
     });
+
+    $('<div class="gv-menu-scroll-wrapper">').append(table).appendTo(contentEl)
 
     menu.appendTo(this.superContainer || this.container).show();
 
