@@ -36,13 +36,13 @@ $.fn.mousehold = function(timeout, f) {
           f.call(t, ctr);
           fireStep = 2;
         }, timeout);
-      })
+      });
 
-      clearMousehold = function() {
+      var clearMousehold = function() {
         clearInterval(timer);
         if (fireStep == 1) f.call(this, 1);
         fireStep = 0;
-      }
+      };
 
       $(this).mouseout(clearMousehold);
       $(this).mouseup(clearMousehold);
