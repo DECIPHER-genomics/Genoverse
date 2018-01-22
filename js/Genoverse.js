@@ -716,10 +716,6 @@ var Genoverse = Base.extend({
   },
 
   mouseup: function (e) {
-    if (!this.dragging) {
-      return false;
-    }
-
     switch (this.dragging) {
       case 'select' : this.stopDragSelect(e); break;
       case 'scroll' : this.stopDragScroll();  break;
