@@ -22,10 +22,24 @@
   },
   "homepage": "http://wtsi-web.github.io/Genoverse/",
   "devDependencies": {
+    "browser-sync": "^2.23.5",
     "canvas": "latest",
+    "del": "^3.0.0",
     "expect": "1.20.2",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^4.1.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-cssnano": "^2.1.2",
+    "gulp-if": "^2.0.2",
+    "gulp-load-plugins": "^1.5.0",
+    "gulp-newer": "^1.4.0",
+    "gulp-sass": "^3.1.0",
+    "gulp-size": "^3.0.0",
+    "gulp-sourcemaps": "^1.12.1",
+    "gulp-uglify": "^3.0.0",
     "jsdom": "latest",
     "mocha": "latest",
+    "run-sequence": "^2.2.1",
     "webpack": "latest"
   }
 }

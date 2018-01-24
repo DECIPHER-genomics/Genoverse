@@ -9,29 +9,17 @@ var gulpLoadPlugins = require('gulp-load-plugins');
 var $ = gulpLoadPlugins();
 var reload = browserSync.reload;
 
-// Lint JavaScript
-gulp.task('lint', function() {
-  gulp.src(['app/scripts/**/*.js','!node_modules/**'])
-    .pipe($.eslint())
-    .pipe($.eslint.format())
-    .pipe($.if(!browserSync.active, $.eslint.failAfterError()))
-});
 
-// Copy all files at the root level (app)
+// Copy all files at the root level to dest folder
 gulp.task('copy', function() {
-  gulp.src([
-    'app/*',
-    '!app/*.html',
-    'node_modules/apache-server-configs/dist/.htaccess'
-  ], {
-    dot: true
-  }).pipe(gulp.dest('dist'))
+  gulp.src(['index.html', 'index.js'], { dot: true})
+    .pipe(gulp.dest('dist'))
     .pipe($.size({title: 'copy'}))
 });
 
 // Compile and automatically prefix stylesheets
 gulp.task('styles', function () {
-  const AUTOPREFIXER_BROWSERS = [
+  var AUTOPREFIXER_BROWSERS = [
     'ie >= 10',
     'ie_mob >= 10',
     'ff >= 30',
@@ -44,10 +32,7 @@ gulp.task('styles', function () {
   ];
 
   // For best performance, don't add Sass partials to `gulp.src`
-  return gulp.src([
-    'app/styles/**/*.scss',
-    'app/styles/**/*.css'
-  ])
+  return gulp.src(['css/**/*.scss', 'css/**/*.css'])
     .pipe($.newer('.tmp/styles'))
     .pipe($.sourcemaps.init())
     .pipe($.sass({
@@ -70,15 +55,17 @@ gulp.task('scripts', function () {
   gulp.src([
     // We explicitly list scripts in the right order to be concatenated;
     // Alternatively, we can use 'useref' to automatically list them.
-    './app/scripts/main.js'
-
+    'js/**/*.js',
+    '!js/genoverse.min.js'
   ])
     .pipe($.newer('.tmp/scripts'))
     .pipe($.sourcemaps.init())
     .pipe($.sourcemaps.write())
     .pipe(gulp.dest('.tmp/scripts'))
-    .pipe($.concat('main.min.js'))
-    .pipe($.uglify({preserveComments: 'some'}))
+    .pipe($.concat('genoverse.min.js'))
+    .pipe($.uglify().on('error', function(e) {
+      console.log(e);
+    }))
     // Output files
     .pipe($.size({title: 'scripts'}))
     .pipe($.sourcemaps.write('.'))
@@ -90,7 +77,7 @@ gulp.task('scripts', function () {
 gulp.task('clean', function () { del(['.tmp', 'dist/*', '!dist/.git'], {dot: true}) });
 
 // Watch files for changes & reload
-gulp.task('serve', ['scripts', 'styles'], function () {
+gulp.task('serve', ['copy', 'scripts', 'styles'], function () {
   browserSync({
     notify: false,
     // Customize the Browsersync console logging prefix
@@ -107,7 +94,7 @@ gulp.task('serve', ['scripts', 'styles'], function () {
 
   gulp.watch(['index.html'], reload);
   gulp.watch(['css/**/*.{scss,css}'], ['styles', reload]);
-  gulp.watch(['js/**/*.js'], ['lint', 'scripts', reload]);
+  gulp.watch(['js/**/*.js'], ['scripts', reload]);
   gulp.watch(['i/**/*'], reload);
 });
 
@@ -131,7 +118,7 @@ gulp.task('serve:dist', ['default'], function () {
 gulp.task('default', ['clean'], function(cb) {
   runSequence(
     'styles',
-    ['lint', 'html', 'scripts', 'images', 'copy'],
+    ['scripts', 'copy'],
     cb
   )
 });
