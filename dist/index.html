@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+      body       { background: #2A313A; font-family: Verdana; font-size: 14px; margin: 0; }
+      .container { background: white; position: relative; width: 1020px; top: 10px; left: 50%; margin-left: -510px; padding-bottom: 1px; border-radius: 5px; }
+      .head      { background: #5F8CB0; width: 100%; height: 40px; border-bottom: 1px solid black; border-radius: 5px 5px 0 0; }
+      .head h1   { color: white; font-size: 30px; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.75); margin-left: 10px; }
+      .wrap      { margin: 10px auto; width: 1000px; }
+      .info p    { padding: 0 16px; }
+      .fork      { position: absolute; top: 0; right: 0; border: 0; }
+      .help      { font-weight: bold; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <a class="fork" href="https://github.com/wtsi-web/Genoverse"><img src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+    <div class="container">
+      <div class="head"><h1>Genoverse - interactive HTML5 genome browser</h1></div>
+      <div class="wrap">
+        <div id="genoverse"></div>
+      </div>
+      <div class="info">
+        <p>Genoverse is a portable, customizable, back-end independent JavaScript and HTML5 based genome browser which allows the user to explore data interactively.</p>
+        <p>Data is visualized in the browser, meaning Genoverse can be installed on any website and show data from a wide range of online or local sources.</p>
+        <p>Genoverse works with a variety of formats, such as XML, JSON, GFF, GFF3, BED (try drag-n-drop one), and can be customized to parse and display any data source as required.</p>
+        <p>For more information on how to use Genoverse please refer to <a href="help.pdf">this tutorial</a>.</p>
+
+        <p class="help">If you have any questions or need help, please contact us <a href="mailto:info@genoverse.org">info@genoverse.org</a></p>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="js/genoverse.min.js"></script>
+    <script>
+      new Genoverse({
+        container : '#genoverse', // Where to inject Genoverse (css/jQuery selector/DOM element)
+        // If no genome supplied, it must have at least chromosomeSize, e.g.:
+        // chromosomeSize : 249250621, // chromosome 1, human
+        genome    : 'grch38', // see js/genomes/
+        chr       : 13,
+        start     : 32296945,
+        end       : 32370557,
+        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
+        tracks    : [
+          Genoverse.Track.Scalebar,
+          Genoverse.Track.extend({
+            name       : 'Sequence',
+            controller : Genoverse.Track.Controller.Sequence,
+            model      : Genoverse.Track.Model.Sequence.Ensembl,
+            view       : Genoverse.Track.View.Sequence,
+            100000     : false,
+            resizable  : 'auto'
+          }),
+          Genoverse.Track.Gene,
+          Genoverse.Track.extend({
+            name            : 'Regulatory Features',
+            url             : 'http://rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=regulatory;content-type=application/json',
+            resizable       : 'auto',
+            model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
+            setFeatureColor : function (f) { f.color = '#AAA'; }
+          }),
+          Genoverse.Track.dbSNP
+        ]
+      });
+    </script>
+  </body>
+</html>

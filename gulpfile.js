@@ -58,7 +58,7 @@ gulp.task('scripts', function () {
     'js/**/*.js',
     '!js/genoverse.min.js'
   ])
-    .pipe($.newer('.tmp/scripts'))
+    // .pipe($.newer('.tmp/scripts'))
     .pipe($.sourcemaps.init())
     .pipe($.sourcemaps.write())
     .pipe(gulp.dest('.tmp/scripts'))
