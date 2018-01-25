@@ -50,6 +50,7 @@ gulp.task('styles', function () {
 gulp.task('fonts', function() {
   return gulp.src(['fonts/**/*'])
     .pipe($.newer('.tmp/fonts')) // re-build only if .tmp/fonts contains older versions
+    .pipe($.size({title: 'fonts'})) // report size to the console
     .pipe(gulp.dest('dist/fonts'))  // output results to /dist/fonts
     .pipe(gulp.dest('.tmp/fonts'))  // also output results to /.tmp/fonts
 });
@@ -57,6 +58,7 @@ gulp.task('fonts', function() {
 gulp.task('images', function() {
   return gulp.src(['i/**/*'])
     .pipe($.newer('.tmp/i')) // re-build only if .tmp/i contains older versions
+    .pipe($.size({title: 'images'})) // report size to the console
     .pipe(gulp.dest('dist/i'))  // output results to /dist/i
     .pipe(gulp.dest('.tmp/i'))  // also output results to /.tmp/i
 });
@@ -224,7 +226,7 @@ gulp.task('serve', ['copy', 'styles', 'fonts', 'images', 'scripts:all', 'scripts
   gulp.watch(['css/**/*.{scss,css}'], ['styles', reload]);
   gulp.watch(['fonts/**/*'], reload);
   gulp.watch(['i/**/*'], reload);
-  gulp.watch(['js/**/*.js'], ['scripts', reload]);
+  gulp.watch(['js/**/*.js'], ['scripts:all', reload]);
 });
 
 // Build and serve the output from the dist build
