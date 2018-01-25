@@ -205,7 +205,7 @@ gulp.task('scripts:nodeps', function() {
 });
 
 // Clean /dist and /.tmp directories
-gulp.task('clean', function () { del(['.tmp', 'dist/*', '!dist/.git'], {dot: true}) });
+gulp.task('clean', function () { return del(['.tmp', 'dist/*', '!dist/.git'], {dot: true}) });
 
 // Watch files for changes & reload
 gulp.task('serve', ['copy', 'styles', 'fonts', 'images', 'scripts:all', 'scripts:nodeps'], function () {
