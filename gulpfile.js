@@ -48,14 +48,99 @@ gulp.task('styles', function () {
     .pipe(gulp.dest('.tmp/styles'));
 });
 
+var genoverseFiles = [
+  'js/lib/Base.js',
+  'js/lib/rtree.js',
+  'js/lib/dalliance-lib.min.js',
+  'js/lib/jDataView.js',
+  'js/lib/jParser.js',
+  'js/lib/BWReader.js',
+  'js/lib/VCFReader.js',
+
+  'js/Genoverse.js',
+
+  'js/Track.js',
+
+  'js/Track/Controller.js',
+  'js/Track/Model.js',
+  'js/Track/View.js',
+
+  'js/Track/library/Static.js',
+
+  'js/Track/Controller/Stranded.js',
+  'js/Track/Model/Stranded.js',
+
+  'js/Track/library/Graph.js',
+  'js/Track/library/Graph/Line.js',
+  'js/Track/library/Graph/Bar.js', // Graph.Bar depends on Graph.Line
+
+  'js/Track/Controller/Sequence.js',
+  'js/Track/Model/Sequence.js',
+  'js/Track/Model/Sequence/Fasta.js',
+  'js/Track/Model/Sequence/Ensembl.js',
+  'js/Track/View/Sequence.js',
+  'js/Track/View/Sequence/Variation.js',
+
+  'js/Track/Model/SequenceVariation.js',
+
+  'js/Track/Model/Gene.js',
+  'js/Track/Model/Gene/Ensembl.js',
+  'js/Track/View/Gene.js',
+  'js/Track/View/Gene/Ensembl.js',
+
+  'js/Track/Model/Transcript.js',
+  'js/Track/Model/Transcript/Ensembl.js',
+  'js/Track/View/Transcript.js',
+  'js/Track/View/Transcript/Ensembl.js',
+
+  'js/Track/Model/File.js',
+  'js/Track/Model/File/BAM.js',
+  'js/Track/Model/File/BED.js',
+  'js/Track/Model/File/GFF.js',
+  'js/Track/Model/File/VCF.js',
+  'js/Track/Model/File/WIG.js',
+
+  'js/Track/library/Chromosome.js',
+  'js/Track/library/dbSNP.js',
+  'js/Track/library/File.js',
+  'js/Track/library/File/BAM.js',
+  'js/Track/library/File/BED.js',
+  'js/Track/library/File/BIGBED.js',
+  'js/Track/library/File/BIGWIG.js',
+  'js/Track/library/File/GFF.js',
+  'js/Track/library/File/VCF.js',
+  'js/Track/library/File/WIG.js',
+  'js/Track/library/Gene.js',
+  'js/Track/library/HighlightRegion.js',
+  'js/Track/library/Legend.js',
+  'js/Track/library/Scaleline.js',
+  'js/Track/library/Scalebar.js'
+];
+
+var genoverseDependencies = [
+  'js/lib/jquery.js',
+  'js/lib/jquery-ui.js',
+  'js/lib/jquery.mousewheel.js',
+  'js/lib/jquery.mousehold.js',
+  'js/lib/jquery.tipsy.js'
+];
+
+var genoversePlugins = [
+  'js/plugins/controlPanel.js',
+  'js/plugins/fileDrop.js',
+  'js/plugins/focusRegion.js',
+  'js/plugins/fullscreen.js',
+  'js/plugins/karyotype.js',
+  'js/plugins/resizer.js',
+  'js/plugins/tooltips.js',
+  'js/plugins/trackControls.js'
+];
+
 // Concatenate and minify JavaScript.
 gulp.task('scripts:all', function () {
-  gulp.src([
-    // We explicitly list scripts in the right order to be concatenated;
-    // Alternatively, we can use 'useref' to automatically list them.
-    'js/**/*.js',
-    '!js/genoverse.min.js'
-  ])
+  gulp.src(
+    genoverseDependencies.concat(genoverseFiles).concat(genoversePlugins)
+  )
     .pipe($.newer('.tmp/scripts'))
     .pipe($.sourcemaps.init())
     .pipe($.sourcemaps.write())
@@ -80,74 +165,7 @@ gulp.task('scripts:all', function () {
 //   - jquery.tipsy.js
 // - Genoverse plugins (Genoverse can load them asynchronously)
 gulp.task('scripts:nodeps', function() {
-  gulp.src([
-    'js/lib/Base.js',
-    'js/lib/rtree.js',
-    'js/lib/dalliance-lib.min.js',
-    'js/lib/jDataView.js',
-    'js/lib/jParser.js',
-    'js/lib/BWReader.js',
-    'js/lib/VCFReader.js',
-
-    'js/Genoverse.js',
-
-    'js/Track.js',
-
-    'js/Track/Controller.js',
-    'js/Track/Model.js',
-    'js/Track/View.js',
-
-    'js/Track/library/Static.js',
-
-    'js/Track/Controller/Stranded.js',
-    'js/Track/Model/Stranded.js',
-
-    'js/Track/library/Graph.js',
-    'js/Track/library/Graph/Line.js',
-    'js/Track/library/Graph/Bar.js', // Graph.Bar depends on Graph.Line
-
-    'js/Track/Controller/Sequence.js',
-    'js/Track/Model/Sequence.js',
-    'js/Track/Model/Sequence/Fasta.js',
-    'js/Track/Model/Sequence/Ensembl.js',
-    'js/Track/View/Sequence.js',
-    'js/Track/View/Sequence/Variation.js',
-
-    'js/Track/Model/SequenceVariation.js',
-
-    'js/Track/Model/Gene.js',
-    'js/Track/Model/Gene/Ensembl.js',
-    'js/Track/View/Gene.js',
-    'js/Track/View/Gene/Ensembl.js',
-
-    'js/Track/Model/Transcript.js',
-    'js/Track/Model/Transcript/Ensembl.js',
-    'js/Track/View/Transcript.js',
-    'js/Track/View/Transcript/Ensembl.js',
-
-    '/js/Track/Model/File.js',
-    '/js/Track/Model/File/BAM.js',
-    '/js/Track/Model/File/BED.js',
-    '/js/Track/Model/File/GFF.js',
-    '/js/Track/Model/File/VCF.js',
-    '/js/Track/Model/File/WIG.js',
-
-    'js/Track/library/Chromosome.js',
-    'js/Track/library/dbSNP.js',
-    'js/Track/library/File.js',
-    'js/Track/library/File/BAM.js',
-    'js/Track/library/File/BED.js',
-    'js/Track/library/File/BIGBED.js',
-    'js/Track/library/File/BIGWIG.js',
-    'js/Track/library/File/GFF.js',
-    'js/Track/library/File/VCF.js',
-    'js/Track/library/File/WIG.js',
-    'js/Track/library/Gene.js',
-    'js/Track/library/HighlightRegion.js',
-    'js/Track/library/Legend.js',
-    'js/Track/library/Scaleline.js',
-    'js/Track/library/Scalebar.js'
-  ])
+  gulp.src(genoverseFiles)
     .pipe($.newer('.tmp/scripts/nodeps'))
     .pipe($.sourcemaps.init())
     .pipe($.sourcemaps.write())
