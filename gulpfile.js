@@ -47,6 +47,13 @@ gulp.task('styles', function () {
     .pipe(gulp.dest('.tmp/css')); // also output results to /.tmp/css
 });
 
+gulp.task('fonts', function() {
+  return gulp.src(['fonts/**/*'])
+    .pipe($.newer('.tmp/fonts')) // re-build only if .tmp/fonts contains older versions
+    .pipe(gulp.dest('dist/fonts'))  // output results to /dist/fonts
+    .pipe(gulp.dest('.tmp/fonts'))  // also output results to /.tmp/fonts
+});
+
 // genoverseFiles array includes all the modules of Genoverse, except by plugins
 var genoverseFiles = [
   'js/lib/Base.js',
@@ -180,7 +187,7 @@ gulp.task('scripts:nodeps', function() {
 gulp.task('clean', function () { del(['.tmp', 'dist/*', '!dist/.git'], {dot: true}) });
 
 // Watch files for changes & reload
-gulp.task('serve', ['copy', 'scripts:all', 'scripts:nodeps', 'styles'], function () {
+gulp.task('serve', ['copy', 'styles', 'fonts', 'scripts:all', 'scripts:nodeps'], function () {
   browserSync({ // see: https://browsersync.io/docs/gulp
     notify: false,
     logPrefix: 'WSK', // Customize the Browsersync console logging prefix
@@ -196,6 +203,7 @@ gulp.task('serve', ['copy', 'scripts:all', 'scripts:nodeps', 'styles'], function
   // if any source files change, call BrowserSync's reload() to reflect changes
   gulp.watch(['index.html'], reload);
   gulp.watch(['css/**/*.{scss,css}'], ['styles', reload]);
+  gulp.watch(['fonts/**/*'], reload);
   gulp.watch(['js/**/*.js'], ['scripts', reload]);
   gulp.watch(['i/**/*'], reload);
 });
@@ -219,6 +227,7 @@ gulp.task('serve:dist', ['default'], function () {
 gulp.task('default', ['clean'], function(cb) {
   runSequence(
     'styles',
+    'fonts',
     ['scripts:all', 'scripts:nodeps', 'copy'],
     cb
   )
