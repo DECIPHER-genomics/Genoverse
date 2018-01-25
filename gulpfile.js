@@ -54,6 +54,13 @@ gulp.task('fonts', function() {
     .pipe(gulp.dest('.tmp/fonts'))  // also output results to /.tmp/fonts
 });
 
+gulp.task('images', function() {
+  return gulp.src(['i/**/*'])
+    .pipe($.newer('.tmp/i')) // re-build only if .tmp/i contains older versions
+    .pipe(gulp.dest('dist/i'))  // output results to /dist/i
+    .pipe(gulp.dest('.tmp/i'))  // also output results to /.tmp/i
+});
+
 // genoverseFiles array includes all the modules of Genoverse, except by plugins
 var genoverseFiles = [
   'js/lib/Base.js',
@@ -199,7 +206,7 @@ gulp.task('scripts:nodeps', function() {
 gulp.task('clean', function () { del(['.tmp', 'dist/*', '!dist/.git'], {dot: true}) });
 
 // Watch files for changes & reload
-gulp.task('serve', ['copy', 'styles', 'fonts', 'scripts:all', 'scripts:nodeps'], function () {
+gulp.task('serve', ['copy', 'styles', 'fonts', 'images', 'scripts:all', 'scripts:nodeps'], function () {
   browserSync({ // see: https://browsersync.io/docs/gulp
     notify: false,
     logPrefix: 'WSK', // Customize the Browsersync console logging prefix
@@ -216,8 +223,8 @@ gulp.task('serve', ['copy', 'styles', 'fonts', 'scripts:all', 'scripts:nodeps'],
   gulp.watch(['index.html'], reload);
   gulp.watch(['css/**/*.{scss,css}'], ['styles', reload]);
   gulp.watch(['fonts/**/*'], reload);
-  gulp.watch(['js/**/*.js'], ['scripts', reload]);
   gulp.watch(['i/**/*'], reload);
+  gulp.watch(['js/**/*.js'], ['scripts', reload]);
 });
 
 // Build and serve the output from the dist build
@@ -240,6 +247,7 @@ gulp.task('default', ['clean'], function(cb) {
   runSequence(
     'styles',
     'fonts',
+    'images',
     ['scripts:all', 'scripts:nodeps', 'copy'],
     cb
   )
