@@ -122,8 +122,6 @@ var genoverseFiles = [
   'js/Track/library/Legend.js',
   'js/Track/library/Scaleline.js',
   'js/Track/library/Scalebar.js',
-
-  'js/genomes/*.js' // added by me - for browserSync
 ];
 
 // standard jquery & friends, available from npm
@@ -147,6 +145,10 @@ var genoversePlugins = [
   'js/plugins/trackControls.js'
 ];
 
+var genoverseGenomes = [
+  'js/genomes/*.js'
+];
+
 // Concatenate and minify JavaScript.
 gulp.task('scripts:all', function () {
   gulp.src(
@@ -162,7 +164,12 @@ gulp.task('scripts:all', function () {
     .pipe($.size({title: 'js'})) // report bundle size to the console
     .pipe($.sourcemaps.write('.')) // write sourcemaps as standalone .maps files
     .pipe(gulp.dest('dist/js')) // write results to /dist/js
-    .pipe(gulp.dest('.tmp/js')) // write results to ./tmp/js
+    .pipe(gulp.dest('.tmp/js')); // write results to ./tmp/js
+
+  gulp.src(genoverseGenomes, {base: './js/'})
+    .pipe($.newer('.tmp/js/'))
+    .pipe(gulp.dest('dist/js'))
+    .pipe(gulp.dest('.tmp/js/'));
 });
 
 // The scripts:nodeps bundles do NOT contain:
@@ -179,8 +186,13 @@ gulp.task('scripts:nodeps', function() {
     // Output files
     .pipe($.size({title: 'scripts'})) // report bundle size to the console
     .pipe($.sourcemaps.write('.')) // write sourcemaps as standalone .maps files
-    .pipe(gulp.dest('dist/js'))  // write results to /dist/js
-    .pipe(gulp.dest('.tmp/js/nodeps')) // write results to .tmp/js/nodeps
+    .pipe(gulp.dest('dist/js')) // write results to /dist/js
+    .pipe(gulp.dest('.tmp/js/nodeps')); // write results to .tmp/js/nodeps
+
+  gulp.src(genoverseGenomes, {base: './js/'})
+    .pipe($.newer('.tmp/js/'))
+    .pipe(gulp.dest('dist/js'))
+    .pipe(gulp.dest('.tmp/js/'));
 });
 
 // Clean /dist and /.tmp directories
