@@ -12,8 +12,9 @@ var reload = browserSync.reload;
 
 // Copy files at the root level to dest folder
 gulp.task('copy', function() {
-  gulp.src(['index.html', 'index.js'], { dot: true}) // copies index.html and index.js for testing purposes
+  gulp.src(['index.html'], { dot: true}) // copies index.html and index.js for testing purposes
     .pipe(gulp.dest('dist')) // writes them to /dist folder
+    .pipe(gulp.dest('.tmp')) // writes them to /.tmp folder for development server
     .pipe($.size({title: 'copy'})) // reports size of those files to the console
 });
 
@@ -33,17 +34,17 @@ gulp.task('styles', function () {
 
   // For best performance, don't add Sass partials to `gulp.src`
   return gulp.src(['css/**/*.scss', 'css/**/*.css'])
-    .pipe($.newer('.tmp/styles')) // re-build only if .tmp/styles contains older versions
+    .pipe($.newer('.tmp/css')) // re-build only if .tmp/css contains older versions
     .pipe($.sourcemaps.init()) // create sitemaps
     .pipe($.sass({ precision: 10 }).on('error', $.sass.logError)) // if any SASS in sources, compile it to css
     .pipe($.autoprefixer(AUTOPREFIXER_BROWSERS)) // add browser-specific prefixes
-    .pipe(gulp.dest('.tmp/styles')) // output results to .tmp/styles
+    .pipe(gulp.dest('.tmp/css')) // output results to .tmp/css
     // Concatenate and minify styles
     .pipe($.if('*.css', $.cssnano())) // uglify css with cssnano
     .pipe($.size({title: 'styles'})) // report bundle size to the console
     .pipe($.sourcemaps.write('./')) // not sure about this, it's supposed to write sourcemaps file, but I can't see it
-    .pipe(gulp.dest('dist/styles'))  // output results to /dist/styles
-    .pipe(gulp.dest('.tmp/styles')); // also output results to /.tmp/styles
+    .pipe(gulp.dest('dist/css'))  // output results to /dist/css
+    .pipe(gulp.dest('.tmp/css')); // also output results to /.tmp/css
 });
 
 // genoverseFiles array includes all the modules of Genoverse, except by plugins
@@ -113,7 +114,9 @@ var genoverseFiles = [
   'js/Track/library/HighlightRegion.js',
   'js/Track/library/Legend.js',
   'js/Track/library/Scaleline.js',
-  'js/Track/library/Scalebar.js'
+  'js/Track/library/Scalebar.js',
+
+  'js/genomes/*.js' // added by me - for browserSync
 ];
 
 // standard jquery & friends, available from npm
@@ -140,37 +143,37 @@ var genoversePlugins = [
 // Concatenate and minify JavaScript.
 gulp.task('scripts:all', function () {
   gulp.src(
-    genoverseDependencies.concat(genoverseFiles).concat(genoversePlugins)
+    genoverseDependencies.concat(genoverseFiles).concat(genoversePlugins), {base: './js/'}
   )
-    .pipe($.newer('.tmp/scripts')) // re-build only if .tmp/styles contains older versions
+    .pipe($.newer('.tmp/js')) // re-build only if .tmp/js contains older versions
     .pipe($.sourcemaps.init())
     .pipe($.sourcemaps.write()) // create inline sitemaps within the input stream files
-    .pipe(gulp.dest('.tmp/scripts')) // output raw files to /.tmp/scripts folder
+    .pipe(gulp.dest('.tmp/js')) // output raw files to /.tmp/js folder
     .pipe($.concat('genoverse.min.js')) // create a concatenated bundle
     .pipe($.uglify().on('error', function(e) { console.log(e); })) // uglify bundle; if error, report it to console
     // Output files
-    .pipe($.size({title: 'scripts'})) // report bundle size to the console
+    .pipe($.size({title: 'js'})) // report bundle size to the console
     .pipe($.sourcemaps.write('.')) // write sourcemaps as standalone .maps files
-    .pipe(gulp.dest('dist/scripts')) // write results to /dist/scripts
-    .pipe(gulp.dest('.tmp/scripts')) // write results to ./tmp/scripts
+    .pipe(gulp.dest('dist/js')) // write results to /dist/js
+    .pipe(gulp.dest('.tmp/js')) // write results to ./tmp/js
 });
 
 // The scripts:nodeps bundles do NOT contain:
 // - standard javascript libraries (jquery, jquery-ui, jquery-mousewheel, jquery-mousehold and jquery.tipsy)
 // - Genoverse plugins (Genoverse can load them asynchronously)
 gulp.task('scripts:nodeps', function() {
-  gulp.src(genoverseFiles)
-    .pipe($.newer('.tmp/scripts/nodeps')) // re-build only if .tmp/styles/nodeps contains older versions
+  gulp.src(genoverseFiles, {base: './js/'})
+    .pipe($.newer('.tmp/js/nodeps')) // re-build only if .tmp/js/nodeps contains older versions
     .pipe($.sourcemaps.init())
     .pipe($.sourcemaps.write()) // create inline sitemaps within the input stream files
-    .pipe(gulp.dest('.tmp/scripts/nodeps')) // write javascript subtree into a separate .tmp/scripts/nodeps subfolder
+    .pipe(gulp.dest('.tmp/js/nodeps')) // write javascript subtree into a separate .tmp/js/nodeps subfolder
     .pipe($.concat('genoverse.nodeps.min.js')) // concatenate only Genoverse without jquery and Genoverse plugins
     .pipe($.uglify().on('error', function(e) { console.log(e); })) // uglify js; report error to the console, if any
     // Output files
     .pipe($.size({title: 'scripts'})) // report bundle size to the console
     .pipe($.sourcemaps.write('.')) // write sourcemaps as standalone .maps files
-    .pipe(gulp.dest('dist/scripts'))  // write results to /dist/scripts
-    .pipe(gulp.dest('.tmp/scripts/nodeps')) // write results to .tmp/scripts/nodeps
+    .pipe(gulp.dest('dist/js'))  // write results to /dist/js
+    .pipe(gulp.dest('.tmp/js/nodeps')) // write results to .tmp/js/nodeps
 });
 
 // Clean /dist and /.tmp directories
