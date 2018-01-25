@@ -10,11 +10,11 @@ var $ = gulpLoadPlugins();
 var reload = browserSync.reload;
 
 
-// Copy all files at the root level to dest folder
+// Copy files at the root level to dest folder
 gulp.task('copy', function() {
-  gulp.src(['index.html', 'index.js'], { dot: true})
-    .pipe(gulp.dest('dist'))
-    .pipe($.size({title: 'copy'}))
+  gulp.src(['index.html', 'index.js'], { dot: true}) // copies index.html and index.js for testing purposes
+    .pipe(gulp.dest('dist')) // writes them to /dist folder
+    .pipe($.size({title: 'copy'})) // reports size of those files to the console
 });
 
 // Compile and automatically prefix stylesheets
@@ -33,21 +33,20 @@ gulp.task('styles', function () {
 
   // For best performance, don't add Sass partials to `gulp.src`
   return gulp.src(['css/**/*.scss', 'css/**/*.css'])
-    .pipe($.newer('.tmp/styles'))
-    .pipe($.sourcemaps.init())
-    .pipe($.sass({
-      precision: 10
-    }).on('error', $.sass.logError))
-    .pipe($.autoprefixer(AUTOPREFIXER_BROWSERS))
-    .pipe(gulp.dest('.tmp/styles'))
+    .pipe($.newer('.tmp/styles')) // re-build only if .tmp/styles contains older versions
+    .pipe($.sourcemaps.init()) // create sitemaps
+    .pipe($.sass({ precision: 10 }).on('error', $.sass.logError)) // if any SASS in sources, compile it to css
+    .pipe($.autoprefixer(AUTOPREFIXER_BROWSERS)) // add browser-specific prefixes
+    .pipe(gulp.dest('.tmp/styles')) // output results to .tmp/styles
     // Concatenate and minify styles
-    .pipe($.if('*.css', $.cssnano()))
-    .pipe($.size({title: 'styles'}))
-    .pipe($.sourcemaps.write('./'))
-    .pipe(gulp.dest('dist/styles'))
-    .pipe(gulp.dest('.tmp/styles'));
+    .pipe($.if('*.css', $.cssnano())) // uglify css with cssnano
+    .pipe($.size({title: 'styles'})) // report bundle size to the console
+    .pipe($.sourcemaps.write('./')) // not sure about this, it's supposed to write sourcemaps file, but I can't see it
+    .pipe(gulp.dest('dist/styles'))  // output results to /dist/styles
+    .pipe(gulp.dest('.tmp/styles')); // also output results to /.tmp/styles
 });
 
+// genoverseFiles array includes all the modules of Genoverse, except by plugins
 var genoverseFiles = [
   'js/lib/Base.js',
   'js/lib/rtree.js',
@@ -117,6 +116,7 @@ var genoverseFiles = [
   'js/Track/library/Scalebar.js'
 ];
 
+// standard jquery & friends, available from npm
 var genoverseDependencies = [
   'js/lib/jquery.js',
   'js/lib/jquery-ui.js',
@@ -125,6 +125,7 @@ var genoverseDependencies = [
   'js/lib/jquery.tipsy.js'
 ];
 
+// Genoverse plugins that Genoverse itself can asynchronously download from server
 var genoversePlugins = [
   'js/plugins/controlPanel.js',
   'js/plugins/fileDrop.js',
@@ -141,52 +142,43 @@ gulp.task('scripts:all', function () {
   gulp.src(
     genoverseDependencies.concat(genoverseFiles).concat(genoversePlugins)
   )
-    .pipe($.newer('.tmp/scripts'))
+    .pipe($.newer('.tmp/scripts')) // re-build only if .tmp/styles contains older versions
     .pipe($.sourcemaps.init())
-    .pipe($.sourcemaps.write())
-    .pipe(gulp.dest('.tmp/scripts'))
-    .pipe($.concat('genoverse.min.js'))
-    .pipe($.uglify().on('error', function(e) {
-      console.log(e);
-    }))
+    .pipe($.sourcemaps.write()) // create inline sitemaps within the input stream files
+    .pipe(gulp.dest('.tmp/scripts')) // output raw files to /.tmp/scripts folder
+    .pipe($.concat('genoverse.min.js')) // create a concatenated bundle
+    .pipe($.uglify().on('error', function(e) { console.log(e); })) // uglify bundle; if error, report it to console
     // Output files
-    .pipe($.size({title: 'scripts'}))
-    .pipe($.sourcemaps.write('.'))
-    .pipe(gulp.dest('dist/scripts'))
-    .pipe(gulp.dest('.tmp/scripts'))
+    .pipe($.size({title: 'scripts'})) // report bundle size to the console
+    .pipe($.sourcemaps.write('.')) // write sourcemaps as standalone .maps files
+    .pipe(gulp.dest('dist/scripts')) // write results to /dist/scripts
+    .pipe(gulp.dest('.tmp/scripts')) // write results to ./tmp/scripts
 });
 
 // The scripts:nodeps bundles do NOT contain:
-// - standard javascript libraries:
-//   - jquery
-//   - jquery-ui
-//   - jquery-mousewheel
-//   - jquery-mousehold
-//   - jquery.tipsy.js
+// - standard javascript libraries (jquery, jquery-ui, jquery-mousewheel, jquery-mousehold and jquery.tipsy)
 // - Genoverse plugins (Genoverse can load them asynchronously)
 gulp.task('scripts:nodeps', function() {
   gulp.src(genoverseFiles)
-    .pipe($.newer('.tmp/scripts/nodeps'))
+    .pipe($.newer('.tmp/scripts/nodeps')) // re-build only if .tmp/styles/nodeps contains older versions
     .pipe($.sourcemaps.init())
-    .pipe($.sourcemaps.write())
-    .pipe(gulp.dest('.tmp/scripts/nodeps'))
-    .pipe($.concat('genoverse.nodeps.min.js'))
-    .pipe($.uglify().on('error', function(e) {
-      console.log(e);
-    }))
+    .pipe($.sourcemaps.write()) // create inline sitemaps within the input stream files
+    .pipe(gulp.dest('.tmp/scripts/nodeps')) // write javascript subtree into a separate .tmp/scripts/nodeps subfolder
+    .pipe($.concat('genoverse.nodeps.min.js')) // concatenate only Genoverse without jquery and Genoverse plugins
+    .pipe($.uglify().on('error', function(e) { console.log(e); })) // uglify js; report error to the console, if any
     // Output files
-    .pipe($.size({title: 'scripts'}))
-    .pipe($.sourcemaps.write('.'))
-    .pipe(gulp.dest('dist/scripts'))
-    .pipe(gulp.dest('.tmp/scripts/nodeps'))
+    .pipe($.size({title: 'scripts'})) // report bundle size to the console
+    .pipe($.sourcemaps.write('.')) // write sourcemaps as standalone .maps files
+    .pipe(gulp.dest('dist/scripts'))  // write results to /dist/scripts
+    .pipe(gulp.dest('.tmp/scripts/nodeps')) // write results to .tmp/scripts/nodeps
 });
 
-// Clean output directory
+// Clean /dist and /.tmp directories
 gulp.task('clean', function () { del(['.tmp', 'dist/*', '!dist/.git'], {dot: true}) });
 
 // Watch files for changes & reload
 gulp.task('serve', ['copy', 'scripts:all', 'scripts:nodeps', 'styles'], function () {
-  browserSync({
+  browserSync({ // see: https://browsersync.io/docs/gulp
     notify: false,
     logPrefix: 'WSK', // Customize the Browsersync console logging prefix
     scrollElementMapping: ['main', '.mdl-layout'], // Allow scroll syncing across breakpoints
@@ -194,10 +186,11 @@ gulp.task('serve', ['copy', 'scripts:all', 'scripts:nodeps', 'styles'], function
     // Note: this uses an unsigned certificate which on first access
     //       will present a certificate warning in the browser.
     // https: true,
-    server: ['.tmp', 'app'],
+    server: '.tmp',
     port: 3000
   });
 
+  // if any source files change, call BrowserSync's reload() to reflect changes
   gulp.watch(['index.html'], reload);
   gulp.watch(['css/**/*.{scss,css}'], ['styles', reload]);
   gulp.watch(['js/**/*.js'], ['scripts', reload]);
@@ -206,7 +199,7 @@ gulp.task('serve', ['copy', 'scripts:all', 'scripts:nodeps', 'styles'], function
 
 // Build and serve the output from the dist build
 gulp.task('serve:dist', ['default'], function () {
-  browserSync({
+  browserSync({ // see: https://browsersync.io/docs/gulp
     notify: false,
     logPrefix: 'WSK',
     scrollElementMapping: ['main', '.mdl-layout'], // Allow scroll syncing across breakpoints
