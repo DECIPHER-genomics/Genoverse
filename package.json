@@ -26,7 +26,7 @@
     "jquery": "^3.2.1",
     "jquery-ui": "^1.12.1",
     "jquery.mousehold": "^1.0.0",
-    "jquery.mousewheel": "^3.0.6",
+    "jquery.mousewheel": "^3.1.9",
     "jquery.tipsy": "^1.0.3"
   },
   "devDependencies": {
