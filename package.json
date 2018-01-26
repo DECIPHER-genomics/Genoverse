@@ -22,7 +22,8 @@
     "url": "https://github.com/wtsi-web/Genoverse/issues"
   },
   "homepage": "http://wtsi-web.github.io/Genoverse/",
-  "dependencies": {
+  "dependencies": {},
+  "peerDependencies": {
     "jquery": "^3.2.1",
     "jquery-ui": "^1.12.1",
     "jquery.mousehold": "^1.0.0",
