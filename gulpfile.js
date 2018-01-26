@@ -47,6 +47,7 @@ gulp.task('styles', function () {
     .pipe(gulp.dest('.tmp/css')); // also output results to /.tmp/css
 });
 
+// Copy-paste fonts to /.tmp and /dist
 gulp.task('fonts', function() {
   return gulp.src(['fonts/**/*'])
     .pipe($.newer('.tmp/fonts')) // re-build only if .tmp/fonts contains older versions
@@ -55,6 +56,7 @@ gulp.task('fonts', function() {
     .pipe(gulp.dest('.tmp/fonts'))  // also output results to /.tmp/fonts
 });
 
+// Copy-paste images to /.tmp and /dist
 gulp.task('images', function() {
   return gulp.src(['i/**/*'])
     .pipe($.newer('.tmp/i')) // re-build only if .tmp/i contains older versions
@@ -154,6 +156,7 @@ var genoversePlugins = [
   'js/plugins/trackControls.js'
 ];
 
+// Genoverse attempts to download genomes from ./genomes subfolder of the same folder, where its bundle resides
 var genoverseGenomes = [
   'js/genomes/*.js'
 ];
@@ -185,7 +188,7 @@ gulp.task('scripts:all', function () {
 // - standard javascript libraries (jquery, jquery-ui, jquery-mousewheel, jquery-mousehold and jquery.tipsy)
 // - Genoverse plugins (Genoverse can load them asynchronously)
 gulp.task('scripts:nodeps', function() {
-  gulp.src(genoverseFiles, {base: './js/'})
+  gulp.src(genoverseFiles.concat(genoversePlugins), {base: './js/'})
     .pipe($.newer('.tmp/js/nodeps')) // re-build only if .tmp/js/nodeps contains older versions
     .pipe($.sourcemaps.init())
     .pipe($.sourcemaps.write()) // create inline sitemaps within the input stream files
