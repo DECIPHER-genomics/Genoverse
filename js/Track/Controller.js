@@ -46,11 +46,13 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   resetImageRanges: function () {
+    var browser = this.browser;
+
     this.left        = 0;
-    this.scrollStart = [ 'ss', this.browser.chr, this.browser.start, this.browser.end ].join('-');
+    this.scrollStart = [ 'ss', browser.chr, browser.start, browser.end ].join('-');
 
     this.imgRange[this.scrollStart]    = this.imgRange[this.scrollStart]    || { left: this.width * -2, right: this.width * 2 };
-    this.scrollRange[this.scrollStart] = this.scrollRange[this.scrollStart] || { start: this.browser.start - this.browser.length, end: this.browser.end + this.browser.length };
+    this.scrollRange[this.scrollStart] = this.scrollRange[this.scrollStart] || { start: Math.max(browser.start - browser.length, 1), end: Math.min(browser.end + browser.length, browser.chromosomeSize) };
   },
 
   setName: function (name) {
