@@ -96,19 +96,14 @@ Genoverse.Plugins.karyotype = function () {
         function updateLocation(e, ui) {
           karyotype.hideTooltip = false;
 
-          if (e.type === 'resizestop') {
-            var axis = $(this).data('ui-resizable').axis;
-
-            if ((axis === 'e' && parent.end === karyotype.chromosomeSize) || (axis === 'w' && parent.start === 1)) {
-              return; // Don't change location if the position didn't change (dragging off the right or left edges)
-            }
-          }
-
           var scale = karyotype.chromosomeSize / karyotype.width;
-          var start = Math.max(Math.floor(ui.position.left * scale), 1);
-          var end   = e.type === 'dragstop' ? start + parent.length - 1 : Math.floor(ui.helper.outerWidth(true) * scale) + start;
+          var axis  = e.type === 'resizestop' ? $(this).data('ui-resizable').axis : undefined;
+          var start = axis === 'e' ? parent.start : Math.max(Math.floor(ui.position.left * scale), 1);
+          var end   = axis === 'w' ? parent.end   : e.type === 'dragstop' ? start + parent.length - 1 : Math.floor(ui.helper.outerWidth(true) * scale) + start;
 
-          parent.moveTo(karyotype.chr, start, end, true, e.type === 'dragstop');
+          if (start !== parent.start || end !== parent.end) {
+            parent.moveTo(karyotype.chr, start, end, true, e.type === 'dragstop');
+          }
         }
 
         if (parent.karyotypeLabel === false) {
