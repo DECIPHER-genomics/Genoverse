@@ -193,7 +193,7 @@ gulp.task('scripts:nodeps', function() {
     .pipe($.sourcemaps.init())
     .pipe($.sourcemaps.write()) // create inline sitemaps within the input stream files
     .pipe(gulp.dest('.tmp/js/nodeps')) // write javascript subtree into a separate .tmp/js/nodeps subfolder
-    .pipe($.concat('genoverse.nodeps.min.js')) // concatenate only Genoverse without jquery and Genoverse plugins
+    .pipe($.concat('genoverse.min.nodeps.js')) // concatenate only Genoverse without jquery and Genoverse plugins
     .pipe($.uglify().on('error', function(e) { console.log(e); })) // uglify js; report error to the console, if any
     // Output files
     .pipe($.size({title: 'scripts:deps'})) // report bundle size to the console
