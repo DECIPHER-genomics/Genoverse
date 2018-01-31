@@ -44,7 +44,7 @@
     "jquery-ui-bundle": "^1.12.1",
     "jquery.mousehold": "^2.0.0",
     "jquery.mousewheel": "^3.1.9",
-    "jquery.tooltips": "^1.0.0",
+    "tipsy-1a": "^1.0.0",
     "mocha": "latest",
     "run-sequence": "^2.2.1",
     "webpack": "latest"
