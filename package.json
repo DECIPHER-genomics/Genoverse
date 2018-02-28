@@ -26,6 +26,7 @@
     "expect": "1.20.2",
     "jsdom": "latest",
     "mocha": "latest",
+    "request": "^2.83.0",
     "webpack": "3.11"
   }
 }
