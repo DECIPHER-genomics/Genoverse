@@ -204,7 +204,9 @@ var Genoverse = Base.extend({
       this.addTracks();
     }
 
-    this.setRange(coords.start, coords.end);
+    if (this.width > 0) {
+      this.setRange(coords.start, coords.end);
+    }
 
     if (this.highlights.length) {
       this.addHighlights(this.highlights);

@@ -31,7 +31,7 @@ Genoverse.Track = Base.extend({
     this.setLengthMap();
     this.setMVC();
 
-    if (this.browser.scale) {
+    if (this.browser.scale > 0) {
       this.controller.setScale();
       this.controller.makeFirstImage();
     }
