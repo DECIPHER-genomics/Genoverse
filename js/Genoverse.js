@@ -1416,7 +1416,7 @@ var Genoverse = Base.extend({
 }, {
   id      : 0,
   ready   : $.Deferred(),
-  origin  : (($('script[src]').filter(function () { return /\/(?:Genoverse|genoverse\.min.*)\.js$/.test(this.src); }).attr('src') || '').match(/(.*)js\/\w+/) || [])[1] || '',
+  origin  : (($('script[src]').filter(function () { return /\/(?:Genoverse|genoverse\.min.*|genoverse\.concat.*)\.js$/.test(this.src); }).attr('src') || '').match(/(.*)js\/\w+/) || [])[1] || '',
   Genomes : {},
   Plugins : {},
 

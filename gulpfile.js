@@ -167,10 +167,12 @@ gulp.task('scripts:all', function () {
     genoverseDependencies.concat(genoverseFiles).concat(genoversePlugins), {base: './js/'}
   )
     .pipe($.newer('.tmp/js')) // re-build only if .tmp/js contains older versions
-    .pipe($.sourcemaps.init())
-    .pipe($.sourcemaps.write()) // create inline sitemaps within the input stream files
+    .pipe($.sourcemaps.init()) // make sitemaps track the initial files
+    // .pipe($.sourcemaps.write()) // create inline sitemaps within the input stream files
     .pipe(gulp.dest('.tmp/js')) // output raw files to /.tmp/js folder
-    .pipe($.concat('genoverse.min.js')) // create a concatenated bundle
+    .pipe($.concat('genoverse.concat.js')) // create a concatenated bundle
+    .pipe(gulp.dest('dist/js')) // output concatenated, but non-minified
+    .pipe($.rename('genoverse.min.js')) // rename output stream to min.js
     .pipe($.uglify().on('error', function(e) { console.log(e); })) // uglify bundle; if error, report it to console
     // Output files
     .pipe($.size({title: 'scripts:all'})) // report bundle size to the console
@@ -191,12 +193,14 @@ gulp.task('scripts:nodeps', function() {
   gulp.src(genoverseFiles.concat(genoversePlugins), {base: './js/'})
     .pipe($.newer('.tmp/js/nodeps')) // re-build only if .tmp/js/nodeps contains older versions
     .pipe($.sourcemaps.init())
-    .pipe($.sourcemaps.write()) // create inline sitemaps within the input stream files
+    // .pipe($.sourcemaps.write()) // create inline sitemaps within the input stream files
     .pipe(gulp.dest('.tmp/js/nodeps')) // write javascript subtree into a separate .tmp/js/nodeps subfolder
-    .pipe($.concat('genoverse.min.nodeps.js')) // concatenate only Genoverse without jquery and Genoverse plugins
+    .pipe($.concat('genoverse.concat.nodeps.js')) // create a concatenated bundle
+    .pipe(gulp.dest('dist/js')) // output concatenated, but non-minified
+    .pipe($.rename('genoverse.min.nodeps.js')) // concatenate only Genoverse without jquery and Genoverse plugins
     .pipe($.uglify().on('error', function(e) { console.log(e); })) // uglify js; report error to the console, if any
     // Output files
-    .pipe($.size({title: 'scripts:deps'})) // report bundle size to the console
+    .pipe($.size({title: 'scripts:nodeps'})) // report bundle size to the console
     .pipe($.sourcemaps.write('.')) // write sourcemaps as standalone .maps files
     .pipe(gulp.dest('dist/js')) // write results to /dist/js
     .pipe(gulp.dest('.tmp/js/nodeps')); // write results to .tmp/js/nodeps
