@@ -172,6 +172,7 @@ gulp.task('scripts:all', function () {
     .pipe(gulp.dest('.tmp/js')) // output raw files to /.tmp/js folder
     .pipe($.concat('genoverse.concat.js')) // create a concatenated bundle
     .pipe(gulp.dest('dist/js')) // output concatenated, but non-minified
+    .pipe(gulp.dest('.tmp/js')) // output concatenated, but non-minified
     .pipe($.rename('genoverse.min.js')) // rename output stream to min.js
     .pipe($.uglify().on('error', function(e) { console.log(e); })) // uglify bundle; if error, report it to console
     // Output files
@@ -197,6 +198,7 @@ gulp.task('scripts:nodeps', function() {
     .pipe(gulp.dest('.tmp/js/nodeps')) // write javascript subtree into a separate .tmp/js/nodeps subfolder
     .pipe($.concat('genoverse.concat.nodeps.js')) // create a concatenated bundle
     .pipe(gulp.dest('dist/js')) // output concatenated, but non-minified
+    .pipe(gulp.dest('.tmp/js/nodeps')) // output concatenated, but non-minified
     .pipe($.rename('genoverse.min.nodeps.js')) // concatenate only Genoverse without jquery and Genoverse plugins
     .pipe($.uglify().on('error', function(e) { console.log(e); })) // uglify js; report error to the console, if any
     // Output files
