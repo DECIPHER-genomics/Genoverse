@@ -21,22 +21,22 @@ describe('Correctly render sequence:', function () {
     it('with labels', function () {
       return testTrackRenderStatic(sequence, track, [
         [ 0, 0, 20, 12, '#73E973' ], [ 20, 0, 20, 12, '#DE4C61' ], [ 40, 0, 20, 12, '#688EC0' ], [ 60, 0, 20, 12, '#FFFF77' ], [ 80, 0, 20, 12, '#CCCCCC' ],
-        [ 'fillText', 'A', 9,    6.5, '#000000' ],
-        [ 'fillText', 'T', 29.5, 6.5, '#FFFFFF' ],
-        [ 'fillText', 'C', 49,   6.5, '#FFFFFF' ],
-        [ 'fillText', 'G', 69.5, 6.5, '#000000' ],
-        [ 'fillText', 'N', 89,   6.5, '#000000' ],
+        [ 'fillText', 'A', 10, 6.5, '#000000' ],
+        [ 'fillText', 'T', 30, 6.5, '#FFFFFF' ],
+        [ 'fillText', 'C', 50, 6.5, '#FFFFFF' ],
+        [ 'fillText', 'G', 70, 6.5, '#000000' ],
+        [ 'fillText', 'N', 90, 6.5, '#000000' ],
       ], { start: 1, end: 5 });
     });
 
     it('with lower case labels', function () {
       return testTrackRenderStatic(sequence.toLowerCase(), $.extend({ lowerCase: true }, track), [
         [ 0, 0, 20, 12, '#73E973' ], [ 20, 0, 20, 12, '#DE4C61' ], [ 40, 0, 20, 12, '#688EC0' ], [ 60, 0, 20, 12, '#FFFF77' ], [ 80, 0, 20, 12, '#CCCCCC' ],
-        [ 'fillText', 'a', 9.5,  6.5, '#000000' ],
-        [ 'fillText', 't', 29.5, 6.5, '#FFFFFF' ],
-        [ 'fillText', 'c', 49.5, 6.5, '#FFFFFF' ],
-        [ 'fillText', 'g', 69.5, 6.5, '#000000' ],
-        [ 'fillText', 'n', 89.5, 6.5, '#000000' ],
+        [ 'fillText', 'a', 10, 6.5, '#000000' ],
+        [ 'fillText', 't', 30, 6.5, '#FFFFFF' ],
+        [ 'fillText', 'c', 50, 6.5, '#FFFFFF' ],
+        [ 'fillText', 'g', 70, 6.5, '#000000' ],
+        [ 'fillText', 'n', 90, 6.5, '#000000' ],
       ], { start: 1, end: 5 });
     });
   });
@@ -92,11 +92,11 @@ describe('Correctly render sequence variation:', function () {
     it('with labels', function () {
       return testTrackRenderStatic([{ start: 2, end: 2, ref_allele: 'T', alt_allele: 'C' }], track, [
         [ 0, 0, 20, 15, '#73E973' ], [ 20, 0, 20, 15, '#DE4C61' ], [ 40, 0, 20, 15, '#688EC0' ], [ 60, 0, 20, 15, '#FFFF77' ], [ 80, 0, 20, 15, '#CCCCCC' ],
-        [ 'fillText', 'A', 9,    8, '#000000' ],
-        [ 'fillText', 'T', 29.5, 8, '#FFFFFF' ],
-        [ 'fillText', 'C', 49,   8, '#FFFFFF' ],
-        [ 'fillText', 'G', 69.5, 8, '#000000' ],
-        [ 'fillText', 'N', 89,   8, '#000000' ],
+        [ 'fillText', 'A', 10, 8, '#000000' ],
+        [ 'fillText', 'T', 30, 8, '#FFFFFF' ],
+        [ 'fillText', 'C', 50, 8, '#FFFFFF' ],
+        [ 'fillText', 'G', 70, 8, '#000000' ],
+        [ 'fillText', 'N', 90, 8, '#000000' ],
         function (context) {
           context.strokeStyle = context.fillStyle = '#1DD300';
           context.lineWidth   = 2;
@@ -114,7 +114,7 @@ describe('Correctly render sequence variation:', function () {
           context.fill();
           context.globalAlpha = 1;
         },
-        [ 20, 19, 20, 15, '#688EC0' ], [ 'fillText', 'C', 29, 27, '#FFFFFF' ],
+        [ 20, 19, 20, 15, '#688EC0' ], [ 'fillText', 'C', 30, 27, '#FFFFFF' ],
         function (context) {
           context.strokeStyle = '#1DD300';
           context.lineWidth   = 2;
@@ -175,11 +175,11 @@ describe('Correctly render sequence variation:', function () {
     it('with labels', function () {
       return testTrackRenderStatic([{ start: 2, end: 3, ref_allele: 'TC', alt_allele: '-' }], track, [
         [ 0, 0, 20, 15, '#73E973' ], [ 20, 0, 20, 15, '#DE4C61' ], [ 40, 0, 20, 15, '#688EC0' ], [ 60, 0, 20, 15, '#FFFF77' ], [ 80, 0, 20, 15, '#CCCCCC' ],
-        [ 'fillText', 'A', 9,    8, '#000000' ],
-        [ 'fillText', 'T', 29.5, 8, '#FFFFFF' ],
-        [ 'fillText', 'C', 49,   8, '#FFFFFF' ],
-        [ 'fillText', 'G', 69.5, 8, '#000000' ],
-        [ 'fillText', 'N', 89,   8, '#000000' ],
+        [ 'fillText', 'A', 10, 8, '#000000' ],
+        [ 'fillText', 'T', 30, 8, '#FFFFFF' ],
+        [ 'fillText', 'C', 50, 8, '#FFFFFF' ],
+        [ 'fillText', 'G', 70, 8, '#000000' ],
+        [ 'fillText', 'N', 90, 8, '#000000' ],
         function (context) {
           context.strokeStyle = context.fillStyle = '#D31D00';
           context.lineWidth   = 2;
@@ -199,7 +199,7 @@ describe('Correctly render sequence variation:', function () {
           context.fill();
           context.globalAlpha = 1;
         },
-        [ 20, 19, 20, 15, '#CCCCCC' ], [ 'fillText', '-', 29.5, 27 ],
+        [ 20, 19, 20, 15, '#CCCCCC' ], [ 'fillText', '-', 30, 27 ],
         function (context) {
           context.strokeStyle = '#D31D00';
           context.lineWidth   = 2;
@@ -260,11 +260,11 @@ describe('Correctly render sequence variation:', function () {
     it('with labels', function () {
       return testTrackRenderStatic([{ start: 2, end: 3, ref_allele: 'T', alt_allele: 'AGA' }], track, [
         [ 0, 0, 20, 15, '#73E973' ], [ 20, 0, 20, 15, '#DE4C61' ], [ 40, 0, 20, 15, '#688EC0' ], [ 60, 0, 20, 15, '#FFFF77' ], [ 80, 0, 20, 15, '#CCCCCC' ],
-        [ 'fillText', 'A', 9,    8, '#000000' ],
-        [ 'fillText', 'T', 29.5, 8, '#FFFFFF' ],
-        [ 'fillText', 'C', 49,   8, '#FFFFFF' ],
-        [ 'fillText', 'G', 69.5, 8, '#000000' ],
-        [ 'fillText', 'N', 89,   8, '#000000' ],
+        [ 'fillText', 'A', 10, 8, '#000000' ],
+        [ 'fillText', 'T', 30, 8, '#FFFFFF' ],
+        [ 'fillText', 'C', 50, 8, '#FFFFFF' ],
+        [ 'fillText', 'G', 70, 8, '#000000' ],
+        [ 'fillText', 'N', 90, 8, '#000000' ],
         function (context) {
           context.strokeStyle = context.fillStyle = '#1DD300';
           context.lineWidth   = 2;
@@ -285,7 +285,7 @@ describe('Correctly render sequence variation:', function () {
           context.globalAlpha = 1;
         },
         [ 20, 19, 20, 15, '#73E973' ], [ 40, 19, 20, 15, '#FFFF77' ], [ 60, 19, 20, 15, '#73E973' ],
-        [ 'fillText', 'A', 29, 27 ], [ 'fillText', 'G', 49.5, 27 ], [ 'fillText', 'A', 69, 27 ],
+        [ 'fillText', 'A', 30, 27 ], [ 'fillText', 'G', 50, 27 ], [ 'fillText', 'A', 70, 27 ],
         function (context) {
           context.strokeStyle = '#1DD300';
           context.lineWidth   = 2;
@@ -374,11 +374,11 @@ describe('Correctly render sequence variation:', function () {
     it('with labels', function () {
       return testTrackRenderStatic([{ start: 2, end: 3, ref_allele: 'TC', alt_allele: 'AGA' }, { start: 3, end: 4, ref_allele: 'CG', alt_allele: 'A' }], track, [
         [ 0, 0, 20, 15, '#73E973' ], [ 20, 0, 20, 15, '#DE4C61' ], [ 40, 0, 20, 15, '#688EC0' ], [ 60, 0, 20, 15, '#FFFF77' ], [ 80, 0, 20, 15, '#CCCCCC' ],
-        [ 'fillText', 'A', 9,    8, '#000000' ],
-        [ 'fillText', 'T', 29.5, 8, '#FFFFFF' ],
-        [ 'fillText', 'C', 49,   8, '#FFFFFF' ],
-        [ 'fillText', 'G', 69.5, 8, '#000000' ],
-        [ 'fillText', 'N', 89,   8, '#000000' ],
+        [ 'fillText', 'A', 10, 8, '#000000' ],
+        [ 'fillText', 'T', 30, 8, '#FFFFFF' ],
+        [ 'fillText', 'C', 50, 8, '#FFFFFF' ],
+        [ 'fillText', 'G', 70, 8, '#000000' ],
+        [ 'fillText', 'N', 90, 8, '#000000' ],
         function (context) {
           context.strokeStyle = context.fillStyle = '#1DD300';
           context.lineWidth   = 2;
@@ -417,9 +417,9 @@ describe('Correctly render sequence variation:', function () {
           context.globalAlpha = 1;
         },
         [ 20, 19, 20, 15, '#73E973' ], [ 40, 19, 20, 15, '#FFFF77' ], [ 60, 19, 20, 15, '#73E973' ],
-        [ 'fillText', 'A', 29, 27 ], [ 'fillText', 'G', 49.5, 27 ], [ 'fillText', 'A', 69, 27 ],
+        [ 'fillText', 'A', 30, 27 ], [ 'fillText', 'G', 50, 27 ], [ 'fillText', 'A', 70, 27 ],
         [ 40, 38, 20, 15, '#73E973' ],
-        [ 'fillText', 'A', 49, 46 ],
+        [ 'fillText', 'A', 50, 46 ],
         function (context) {
           context.strokeStyle = '#1DD300';
           context.lineWidth   = 2;

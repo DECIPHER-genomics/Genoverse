@@ -28,7 +28,7 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
 
   draw: function (features, featureContext, labelContext, scale) {
     featureContext.textBaseline = 'middle';
-    featureContext.textAlign    = 'left';
+    featureContext.textAlign    = 'center';
 
     var width = Math.max(scale, this.minScaledWidth);
 
@@ -53,13 +53,9 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
       context.fillStyle = this.colors[bp] || this.colors['default'];
       context.fillRect(start, feature.position[scale].Y, width, this.featureHeight);
 
-      if (!this.labelWidth[bp]) {
-        this.labelWidth[bp] = Math.ceil(context.measureText(bp).width) + 1;
-      }
-
       if (drawLabels) {
         context.fillStyle = this.labelColors[bp] || this.labelColors['default'];
-        context.fillText(bp, start + (width - this.labelWidth[bp]) / 2, feature.position[scale].Y + this.labelYOffset);
+        context.fillText(bp, start + (width / 2), feature.position[scale].Y + this.labelYOffset);
       }
     }
   }
