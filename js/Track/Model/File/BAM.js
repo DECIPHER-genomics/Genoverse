@@ -6,7 +6,11 @@ Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
     if (!this.bamFile) {
       if (this.url) {
         this.bamFile = new dallianceLib.URLFetchable(this.url);
-        this.baiFile = new dallianceLib.URLFetchable(this.url + this.prop('indexExt'));
+        if (this.bai) {
+          this.baiFile = new dallianceLib.URLFetchable(this.bai);
+        } else {
+          this.baiFile = new dallianceLib.URLFetchable(this.url + this.prop('indexExt'));
+        }
       } else if (this.dataFile && this.indexFile) {
         this.bamFile = new dallianceLib.BlobFetchable(this.dataFile);
         this.baiFile = new dallianceLib.BlobFetchable(this.indexFile);
