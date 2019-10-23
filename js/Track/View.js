@@ -315,12 +315,13 @@ Genoverse.Track.View = Base.extend({
   },
 
   drawSubFeatures: function (feature, featureContext, labelContext, scale) {
-    var subFeatures = $.extend(true, [], feature.subFeatures);
-    var joinColor   = feature.joinColor || feature.color;
+    var clonedFeature = $.extend(true, {}, feature, { subFeatures: false, label: false });
+    var subFeatures   = $.extend(true, [], feature.subFeatures);
+    var joinColor     = feature.joinColor || feature.color;
 
     for (var i = 0; i < subFeatures.length; i++) {
       if (!subFeatures[i].fake) {
-        this.drawFeature($.extend(true, {}, feature, { subFeatures: false, label: false }, subFeatures[i].position[scale], subFeatures[i]), featureContext, labelContext, scale);
+        this.drawFeature($.extend({}, clonedFeature, subFeatures[i].position[scale], subFeatures[i]), featureContext, labelContext, scale);
       }
 
       if (subFeatures[i].position[scale].join && subFeatures[i].position[scale].join.width > 0) {
