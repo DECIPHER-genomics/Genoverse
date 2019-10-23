@@ -181,7 +181,7 @@ var Genoverse = Base.extend({
     this.urlParamTemplate = this.urlParamTemplate || '';
     this.useHash          = typeof this.useHash === 'boolean' ? this.useHash : typeof window.history.pushState !== 'function';
     this.textWidth        = document.createElement('canvas').getContext('2d').measureText('W').width;
-    this.labelWidth       = this.labelContainer.outerWidth(true);
+    this.labelWidth       = this.labelContainer.outerWidth(true) || 0;
     this.width           -= this.labelWidth;
     this.paramRegex       = this.urlParamTemplate ? new RegExp('([?&;])' + this.urlParamTemplate
       .replace(/(\b(\w+=)?__CHR__(.)?)/,   '$2([\\w\\.]+)$3')
