@@ -75,12 +75,13 @@ var Genoverse = Base.extend({
   loadPlugins: function (plugins) {
     var browser         = this;
     var loadPluginsTask = $.Deferred();
+    var i;
 
     plugins = plugins || this.plugins;
 
     this.loadedPlugins = this.loadedPlugins || {};
 
-    for (var i in Genoverse.Plugins) {
+    for (i in Genoverse.Plugins) {
       this.loadedPlugins[i] = this.loadedPlugins[i] || 'script';
     }
 
@@ -147,7 +148,7 @@ var Genoverse = Base.extend({
       var pluginsLoaded = [];
       var plugin;
 
-      for (var i = 0; i < arguments.length; i++) {
+      for (i = 0; i < arguments.length; i++) {
         plugin = arguments[i];
 
         if (browser.loadedPlugins[plugin] !== true) {
@@ -228,9 +229,9 @@ var Genoverse = Base.extend({
     var tracks            = [];
     var tracksById        = {};
     var savedConfig       = {};
-    var i, prop, track;
+    var i, prop, track, trackId;
 
-    function setConfig(track, conf) {
+    function setConfig($track, conf) {
       for (prop in conf) {
         if (prop === 'config') {
           savedConfig[conf.id] = conf[prop];
@@ -243,7 +244,7 @@ var Genoverse = Base.extend({
             }
           }
 
-          track.prototype[prop] = conf[prop];
+          $track.prototype[prop] = conf[prop];
         }
       }
     }
@@ -1008,7 +1009,7 @@ var Genoverse = Base.extend({
     labels.map(function () { return $(this).data('track'); }).each(function () {
       if (this.prop('menus').length) {
         var diff = (this.prop('superContainer') || this.prop('container')).position().top - this.prop('top');
-        this.prop('menus').css('top', function (i, top) { return parseInt(top, 10) + diff; });
+        this.prop('menus').css('top', function (j, top) { return parseInt(top, 10) + diff; });
         this.prop('top', null);
       }
     });
@@ -1033,7 +1034,7 @@ var Genoverse = Base.extend({
     if (prev && next && Math.floor(n) === Math.floor(p)) {
       order = p + (n - p) / 2;
     } else {
-      order = o + (p ? 1 : -1) * Math.abs(Math.round(o) - o || 1) / 2;
+      order = o + ((p ? 1 : -1) * Math.abs(Math.round(o) - o || 1)) / 2;
     }
 
     track.prop('order', order);
@@ -1155,7 +1156,9 @@ var Genoverse = Base.extend({
 
     if (features.length === 0) {
       return false;
-    } else if (features.length === 1) {
+    }
+
+    if (features.length === 1) {
       return this.makeFeatureMenu(features[0], event, track);
     }
 
@@ -1177,7 +1180,7 @@ var Genoverse = Base.extend({
       }).appendTo($('<td>').appendTo($('<tr>').appendTo(table)));
     });
 
-    $('<div class="gv-menu-scroll-wrapper">').append(table).appendTo(contentEl)
+    $('<div class="gv-menu-scroll-wrapper">').append(table).appendTo(contentEl);
 
     menu.appendTo(this.superContainer || this.container).show();
 
@@ -1226,6 +1229,8 @@ var Genoverse = Base.extend({
       }
 
       $.when(getMenu).done(function (properties) {
+        var table;
+
         if (!Array.isArray(properties)) {
           properties = [ properties ];
         }
@@ -1349,7 +1354,7 @@ var Genoverse = Base.extend({
     function makeEventMap(types, handler) {
       types = types.split(' ');
 
-      for (var j = 0; j < types.length; j++) {
+      for (j = 0; j < types.length; j++) {
         eventMap[types[j]] = (eventMap[types[j]] || []).concat(handler);
       }
     }
@@ -1432,7 +1437,7 @@ var Genoverse = Base.extend({
 
   /**
    * functionWrap - wraps event handlers and adds debugging functionality
-   **/
+   */
   functionWrap: function (key, obj) {
     obj.functions = obj.functions || {};
 
@@ -1487,7 +1492,7 @@ var Genoverse = Base.extend({
       trigger.call(this, 'before');
 
       if (currentConfig && currentConfig[key]) {
-         // override to add a value for this.base
+        // override to add a value for this.base
         rtn = function () {
           this.base = this.functions[key] || function () {};
           return currentConfig[key].apply(this, arguments);
@@ -1536,7 +1541,7 @@ var Genoverse = Base.extend({
 
   getTrackNamespace: function (track) {
     var trackTypes = Genoverse.getAllTrackTypes();
-    var namespaces = $.map(trackTypes, function (constructor, name) { return track === constructor || track.prototype instanceof constructor ? name : null }); // Find all namespaces which this track could be
+    var namespaces = $.map(trackTypes, function (constructor, name) { return track === constructor || track.prototype instanceof constructor ? name : null; }); // Find all namespaces which this track could be
     var j          = namespaces.length;
     var i;
 

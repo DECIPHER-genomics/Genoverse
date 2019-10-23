@@ -214,8 +214,9 @@ Genoverse.Track = Base.extend({
 
     function compare(a, b) {
       var checked = { browser: true, width: true, track: true }; // Properties set in newMVC should be ignored, as they will be missing if comparing an object with a prototype
+      var key;
 
-      for (var key in a) {
+      for (key in a) {
         if (checked[key]) {
           continue;
         }
@@ -224,7 +225,9 @@ Genoverse.Track = Base.extend({
 
         if (typeof a[key] !== typeof b[key]) {
           return false;
-        } else if (typeof a[key] === 'function' && typeof b[key] === 'function') {
+        }
+
+        if (typeof a[key] === 'function' && typeof b[key] === 'function') {
           if (a[key].toString() !== b[key].toString()) {
             return false;
           }
@@ -345,7 +348,7 @@ Genoverse.Track = Base.extend({
     var length = this.browser.length || (this.browser.end - this.browser.start + 1);
 
     for (var i = 0; i < this.lengthMap.length; i++) {
-      if (length > this.lengthMap[i][0] || length === 1 && this.lengthMap[i][0] === 1) {
+      if (length > this.lengthMap[i][0] || (length === 1 && this.lengthMap[i][0] === 1)) {
         return this.lengthMap[i];
       }
     }
@@ -500,10 +503,11 @@ Genoverse.Track = Base.extend({
     setTimeout(function () {
       track.childTracks = children.map(function (child) {
         if (child.prototype instanceof Genoverse.Track.Legend || child === Genoverse.Track.Legend) {
-          return track.addLegend(child.extend(config), true);
-        } else {
-          return browser.addTrack(child.extend(config));
+          track.addLegend(child.extend(config), true);
+          return track.legendTrack;
         }
+
+        return browser.addTrack(child.extend(config));
       });
 
       track.controller.setLabelHeight();
@@ -528,11 +532,12 @@ Genoverse.Track = Base.extend({
     this.legendType = legendType;
 
     function makeLegendTrack() {
-      return track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack(constructor.extend(config));
+      track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack(constructor.extend(config));
+      return track.legendTrack;
     }
 
     if (now === true) {
-      return makeLegendTrack();
+      makeLegendTrack();
     } else {
       setTimeout(makeLegendTrack, 1);
     }
@@ -564,9 +569,11 @@ Genoverse.Track = Base.extend({
   },
 
   reset: function () {
+    var i;
+
     this.setLengthMap();
 
-    for (var i in this.models) {
+    for (i in this.models) {
       if (this.models[i].url !== false) {
         this.models[i].init(true);
       }

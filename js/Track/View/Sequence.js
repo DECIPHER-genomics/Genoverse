@@ -8,6 +8,7 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
     this.base.apply(this, arguments);
 
     var lowerCase = this.prop('lowerCase');
+    var key;
 
     this.labelYOffset = typeof this.labelYOffset === 'number' ? this.labelYOffset : (this.featureHeight + 1) / 2;
     this.widestLabel  = typeof this.widestLabel  === 'string' ? this.widestLabel : lowerCase ? 'g' : 'G';
@@ -16,7 +17,7 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
     this.labelWidth[this.widestLabel] = Math.ceil(this.context.measureText(this.widestLabel).width) + 1;
 
     if (lowerCase) {
-      for (var key in this.colors) {
+      for (key in this.colors) {
         this.colors[key.toLowerCase()] = this.colors[key];
       }
 
@@ -50,11 +51,11 @@ Genoverse.Track.View.Sequence = Genoverse.Track.View.extend({
 
       bp = feature.sequence.charAt(i);
 
-      context.fillStyle = this.colors[bp] || this.colors['default'];
+      context.fillStyle = this.colors[bp] || this.colors.default;
       context.fillRect(start, feature.position[scale].Y, width, this.featureHeight);
 
       if (drawLabels) {
-        context.fillStyle = this.labelColors[bp] || this.labelColors['default'];
+        context.fillStyle = this.labelColors[bp] || this.labelColors.default;
         context.fillText(bp, start + (width / 2), feature.position[scale].Y + this.labelYOffset);
       }
     }

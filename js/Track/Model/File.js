@@ -29,8 +29,8 @@ Genoverse.Track.Model.File = Genoverse.Track.Model.extend({
       reader.readAsText(this.dataFile);
 
       return deferred;
-    } else {
-      return this.base.apply(this, arguments);
     }
+
+    return this.base.apply(this, arguments);
   }
 });

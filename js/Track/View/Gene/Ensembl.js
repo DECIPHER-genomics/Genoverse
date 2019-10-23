@@ -1,6 +1,6 @@
 Genoverse.Track.View.Gene.Ensembl = Genoverse.Track.View.Gene.extend({
   setFeatureColor: function (feature) {
-    var processed_transcript = {
+    var processedTranscript = {
       'sense_intronic'           : 1,
       'sense_overlapping'        : 1,
       'processed_transcript'     : 1,
@@ -20,7 +20,7 @@ Genoverse.Track.View.Gene.Ensembl = Genoverse.Track.View.Gene.extend({
     if (feature.logic_name.indexOf('ensembl_havana') === 0) {
       feature.color  = '#CD9B1D';
       feature.legend = 'Merged Ensembl/Havana';
-    } else if (processed_transcript[feature.biotype]) {
+    } else if (processedTranscript[feature.biotype]) {
       feature.color  = '#0000FF';
       feature.legend = 'Processed transcript';
     } else if (feature.biotype === 'protein_coding') {

@@ -133,10 +133,9 @@ Genoverse.Plugins.controlPanel = function () {
         (function (control) {
           var buttonSet = $('<div class="gv-button-set">').attr('title', control.name).appendTo(browser.superContainer.find('.gv-panel-right'));
           var buttons   = control.buttons || [ control ];
-          var el;
 
-          $.each(buttons, function (i, button) {
-            var el = $('<button>' + button.icon + '</button>').addClass(button['class']).attr('title', button.name).appendTo(buttonSet);
+          $.each(buttons, function (j, button) {
+            var el = $('<button>' + button.icon + '</button>').addClass(button.class).attr('title', button.name).appendTo(buttonSet);
 
             if (button.action) {
               el.on('click', function () {
@@ -264,8 +263,6 @@ Genoverse.Plugins.controlPanel = function () {
                 (function (track) {
                   $('<div class="gv-tracks-library-item">').append(
                     $('<i class="gv-add-track gv-menu-button fa fa-plus-circle"> ').on('click', function () {
-                      var sortableTracks = browser.tracks.filter(function (t) { return !(t.fixedOrder || t.unsortable); });
-
                       browser.trackIds = browser.trackIds || {};
                       browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
 

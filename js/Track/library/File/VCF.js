@@ -57,7 +57,7 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
         var maxQual = this.prop('maxQual');
 
         if (maxQual && !feature.color) {
-          var heat  = Math.min(255, Math.floor(255 * (feature.originalFeature[5] || 0) / maxQual)) - 127;
+          var heat  = Math.min(255, Math.floor((255 * (feature.originalFeature[5] || 0)) / maxQual)) - 127;
           var red   = heat > 0 ? 255 : 127 + heat;
           var green = heat < 0 ? 255 : 127 - heat;
 

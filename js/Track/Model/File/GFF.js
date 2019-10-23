@@ -17,7 +17,7 @@ Genoverse.Track.Model.File.GFF = Genoverse.Track.Model.File.extend({
 
       if (
         seqId == chr                      ||
-        seqId == 'chr' + chr              ||
+        seqId === 'chr' + chr             ||
         seqId.match('[^1-9]' + chr + '$') ||
         seqId.match('^' + chr + '\\b')
       ) {

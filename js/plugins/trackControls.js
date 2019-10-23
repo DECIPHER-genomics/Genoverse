@@ -116,7 +116,6 @@ Genoverse.Plugins.trackControls = function () {
       toggler.trigger('click');
       this.minLabelHeight = Math.max(this.minLabelHeight, this.trackControls.outerHeight(true) + this.prop('margin'));
       toggler.trigger('click');
-
     },
     afterResize: function () {
       if (this.trackControls) {

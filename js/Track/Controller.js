@@ -155,9 +155,9 @@ Genoverse.Track.Controller = Base.extend({
 
     if (tolerance) {
       return features.sort(function (a, b) { return Math.abs(a.position[scale].start - x) - Math.abs(b.position[scale].start - x); });
-    } else {
-      return this.model.sortFeatures(features);
     }
+
+    return this.model.sortFeatures(features);
   },
 
   // FIXME: messages are now hidden/shown instead of removed/added. This will cause a problem if a new message arrives with the same code as one that already exists.

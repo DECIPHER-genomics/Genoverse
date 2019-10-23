@@ -3,10 +3,12 @@ Genoverse.Track.Model.SequenceVariation = Genoverse.Track.Model.extend({
 
   getSeqModel: function () {
     var models = this.prop('models');
-    return models.seq = models.seq || this.track.newMVC(this.seqModel);
+    models.seq = models.seq || this.track.newMVC(this.seqModel);
+    return models.seq;
   },
 
   getData: function (chr, start, end) {
+    var model    = this;
     var deferred = $.Deferred();
     var seqData  = this.getSeqModel().checkDataRange(chr, start, end);
 
@@ -14,7 +16,7 @@ Genoverse.Track.Model.SequenceVariation = Genoverse.Track.Model.extend({
       if (seqData) {
         deferred.resolve();
       } else {
-        this.getSeqModel().getData(chr, start, end).done(deferred.resolve);
+        model.getSeqModel().getData(chr, start, end).done(deferred.resolve);
       }
     });
 

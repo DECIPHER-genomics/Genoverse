@@ -22,7 +22,7 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
     return this.base(chr, start, end);
   },
 
-  parseData: function (data, chr, start, end) {
+  parseData: function (data, chr, start) {
     data = data.replace(/\n/g, '');
 
     if (this.prop('lowerCase')) {

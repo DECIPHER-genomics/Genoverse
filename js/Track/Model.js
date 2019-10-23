@@ -280,9 +280,9 @@ Genoverse.Track.Model = Base.extend({
     }
 
     for (var i = 0; i < string.length; i++) {
-      c    = string.charCodeAt(i);
-      hash = ((hash << 5) - hash) + c;
-      hash = hash & hash; // Convert to 32bit integer
+      c     = string.charCodeAt(i);
+      hash  = ((hash << 5) - hash) + c;
+      hash &= hash; // Convert to 32bit integer
     }
 
     return '' + hash;

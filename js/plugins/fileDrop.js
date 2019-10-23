@@ -15,16 +15,16 @@ Genoverse.Plugins.fileDrop = function () {
           totalDropOverlay.remove();
         };
 
-        totalDropOverlay.on('dragenter', function (e) { e.preventDefault(); e.stopPropagation(); });
-        totalDropOverlay.on('dragover',  function (e) { e.preventDefault(); e.stopPropagation(); });
+        totalDropOverlay.on('dragenter', function (ev) { ev.preventDefault(); ev.stopPropagation(); });
+        totalDropOverlay.on('dragover',  function (ev) { ev.preventDefault(); ev.stopPropagation(); });
         totalDropOverlay.on('dragleave', dragleave);
-        totalDropOverlay.on('drop', function (e) {
+        totalDropOverlay.on('drop', function (ev) {
           dragleave();
-          e.preventDefault();
-          e.stopPropagation();
+          ev.preventDefault();
+          ev.stopPropagation();
 
           // Sort in order to ensure that .bam files are before their .bam.bai files
-          var files = $.map(e.originalEvent.dataTransfer.files, function (f) { return f; }).sort(function (a, b) { return a.name < b.name ? -1 : 1 });
+          var files = $.map(ev.originalEvent.dataTransfer.files, function (f) { return f; }).sort(function (a, b) { return a.name < b.name ? -1 : 1; });
 
           for (var i = 0; i < files.length; i++) {
             var file  = files[i];

@@ -193,7 +193,7 @@ Genoverse.Track.View = Base.extend({
     }
 
     var join = this.subFeatureJoinStyle && subFeatures.length ? {
-      height : Math.max.apply(Math, subFeatures.map(function (c) { return c.fake ? 0 : c.position[scale].height; })) / 2 * (feature.strand > 0 ? -1 : 1),
+      height : (Math.max.apply(Math, subFeatures.map(function (c) { return c.fake ? 0 : c.position[scale].height; })) / 2) * (feature.strand > 0 ? -1 : 1),
       y      : feature.position[scale].Y + feature.position[scale].height / 2
     } : false;
 
@@ -416,7 +416,7 @@ Genoverse.Track.View = Base.extend({
   shadeColor: function (color, percent) {
     var f = parseInt(color.slice(1), 16);
     var R = f >> 16;
-    var G = f >> 8 & 0x00FF;
+    var G = (f >> 8) & 0x00FF;
     var B = f & 0x0000FF;
 
     return '#' + (

@@ -11,8 +11,8 @@ Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
     var deferred = $.Deferred();
 
     $.when(this.getStartByte()).done(function () {
-      start = start - start % this.chunkSize + 1;
-      end   = end + this.chunkSize - end % this.chunkSize;
+      start = start - (start % this.chunkSize) + 1;
+      end   = end + this.chunkSize - (end % this.chunkSize);
 
       var startByte = start - 1 + Math.floor((start - 1) / this.lineLength) + this.startByte;
       var endByte   = end   - 1 + Math.floor((end   - 1) / this.lineLength) + this.startByte;

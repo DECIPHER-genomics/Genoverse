@@ -18,7 +18,7 @@ Genoverse.Track.Model.File.WIG = Genoverse.Track.Model.Graph.Bar.extend({
     var fields, chrom, start, step, span, line, feature, i;
 
     while (lines.length && (line = lines.shift())) {
-      if (line.indexOf('#') != -1 || line.indexOf('browser') != -1 || line.indexOf('track') != -1) {
+      if (line.indexOf('#') !== -1 || line.indexOf('browser') !== -1 || line.indexOf('track') !== -1) {
         continue;
       } else {
         break;
@@ -27,14 +27,14 @@ Genoverse.Track.Model.File.WIG = Genoverse.Track.Model.Graph.Bar.extend({
 
     if (line) {
       fields = line.split(/\s+/);
-      chrom  = parseInt(fields[1].split('=')[1].replace('chr',''));
+      chrom  = parseInt(fields[1].split('=')[1].replace('chr', ''), 10);
 
-      if (fields[0] == 'fixedStep') {
-        start = parseInt(fields[2].split('=')[1]);
-        step  = parseInt(fields[3].split('=')[1]);
-        span  = fields[4] ? parseInt(fields[4].split('=')[1]) : 1;
+      if (fields[0] === 'fixedStep') {
+        start = parseInt(fields[2].split('=')[1], 10);
+        step  = parseInt(fields[3].split('=')[1], 10);
+        span  = fields[4] ? parseInt(fields[4].split('=')[1], 10) : 1;
 
-        for (i = 0; i < lines.length; i++){
+        for (i = 0; i < lines.length; i++) {
           features.push({
             chr    : chrom,
             start  : start,
@@ -44,10 +44,10 @@ Genoverse.Track.Model.File.WIG = Genoverse.Track.Model.Graph.Bar.extend({
 
           start += step;
         }
-      } else if (fields[0] == 'variableStep') {
-        span = fields[2] ? parseInt(fields[2].split('=')[1]) : 1;
+      } else if (fields[0] === 'variableStep') {
+        span = fields[2] ? parseInt(fields[2].split('=')[1], 10) : 1;
 
-        for (i = 0; i < lines.length; i++){
+        for (i = 0; i < lines.length; i++) {
           fields  = lines[i].split(/\s+/);
           feature = {
             chr    : chrom,
