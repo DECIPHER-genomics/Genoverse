@@ -67,9 +67,9 @@ describe('Config settings', function () {
           if (j === 'featureFilter') {
             expect(track.prop('featureFilters').filter(function (f) {
               return f === settings[j];
-            }).length).toEqual(settings[j] === false ? 0 : 1, 'featureFilter is incorrect for default config setting ' + i + ' = ' + conf[i]);
+            }).length).to.equal(settings[j] === false ? 0 : 1, 'featureFilter is incorrect for default config setting ' + i + ' = ' + conf[i]);
           } else {
-            expect(track.prop(j)).toEqual(settings[j], j + ' is incorrect for default config setting ' + i + ' = ' + conf[i]);
+            expect(track.prop(j)).to.eql(settings[j], j + ' is incorrect for default config setting ' + i + ' = ' + conf[i]);
           }
         }
       }
@@ -82,7 +82,7 @@ describe('Config settings', function () {
         $.each(configSetting, function (config) {
           it(type + ' = ' + config, function () {
             track.setConfig(type, config);
-            expect(track.config[type]).toEqual(config, 'Track config ' + type + ' is incorrect');
+            expect(track.config[type]).to.equal(config, 'Track config ' + type + ' is incorrect');
             checkSettings(track);
           });
         });
@@ -147,7 +147,7 @@ describe('Config settings', function () {
 
     function test(obj, a, b) {
       if (testNow) {
-        expect(a).toEqual(b, 'Incorrect attribute value in ' + obj);
+        expect(a).to.eql(b, 'Incorrect attribute value in ' + obj);
       }
     }
 
@@ -191,43 +191,43 @@ describe('Config settings', function () {
     var track = genoverse.tracks[0];
 
     it('Initial properties are correct', function () {
-      expect(track.prop('xhrFields')).toEqual({ test: 1 }, 'Incorrect xhrFields');
-      expect(track.prop('depth')).toEqual(1,               'Incorrect depth');
+      expect(track.prop('xhrFields')).to.eql({ test: 1 }, 'Incorrect xhrFields');
+      expect(track.prop('depth')).to.equal(1,             'Incorrect depth');
 
-      expect(track.model._testId).toEqual(1, 'Incorrect model');
-      expect(track.view._testId).toEqual(1,  'Incorrect view');
+      expect(track.model._testId).to.equal(1, 'Incorrect model');
+      expect(track.view._testId).to.equal(1,  'Incorrect view');
     });
 
     it('After setConfig and then zooming out to a new model/view, properties defined in setConfig are still used', function () {
       track.setConfig('test', 2);
       genoverse.moveTo(1, 1, 1001);
 
-      expect(track.prop('xhrFields')).toEqual({ test: 2 }, 'Incorrect xhrFields');
-      expect(track.prop('depth')).toEqual(2,               'Incorrect depth');
+      expect(track.prop('xhrFields')).to.eql({ test: 2 }, 'Incorrect xhrFields');
+      expect(track.prop('depth')).to.equal(2,             'Incorrect depth');
 
-      expect(track.model._testId).toEqual(1000, 'Incorrect model');
-      expect(track.view._testId).toEqual(1000,  'Incorrect view');
+      expect(track.model._testId).to.equal(1000, 'Incorrect model');
+      expect(track.view._testId).to.equal(1000,  'Incorrect view');
     });
 
     it('After zooming back in to an existing model/view, properties defined in previous setConfig are still used', function () {
       genoverse.moveTo(1, 1, 20);
 
-      expect(track.prop('xhrFields')).toEqual({ test: 2 }, 'Incorrect xhrFields');
-      expect(track.prop('depth')).toEqual(2,               'Incorrect depth');
+      expect(track.prop('xhrFields')).to.eql({ test: 2 }, 'Incorrect xhrFields');
+      expect(track.prop('depth')).to.equal(2,             'Incorrect depth');
 
-      expect(track.model._testId).toEqual(1, 'Incorrect model');
-      expect(track.view._testId).toEqual(1,  'Incorrect view');
+      expect(track.model._testId).to.equal(1, 'Incorrect model');
+      expect(track.view._testId).to.equal(1,  'Incorrect view');
     });
 
     it('After setConfig and then zooming out to an existing model/view, properties defined in setConfig are still used', function () {
       track.setConfig('test', 3);
       genoverse.moveTo(1, 1, 1001);
 
-      expect(track.prop('xhrFields')).toEqual({ test: 3 }, 'Incorrect xhrFields');
-      expect(track.prop('depth')).toEqual(3,               'Incorrect depth');
+      expect(track.prop('xhrFields')).to.eql({ test: 3 }, 'Incorrect xhrFields');
+      expect(track.prop('depth')).to.equal(3,             'Incorrect depth');
 
-      expect(track.model._testId).toEqual(1000, 'Incorrect model');
-      expect(track.view._testId).toEqual(1000,  'Incorrect view');
+      expect(track.model._testId).to.equal(1000, 'Incorrect model');
+      expect(track.view._testId).to.equal(1000,  'Incorrect view');
     });
   });
 

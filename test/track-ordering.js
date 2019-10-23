@@ -1,16 +1,20 @@
 'use strict';
 
+var sandbox = require('sinon').createSandbox();
+
 //TODO: unsortable, particularly with unsortable order=9e99, then adding another track
 
 describe('Track ordering', function () {
   after(afterTest);
 
   // Want saveable to be able to run resetConfig, but don't actually want to be able to save anything
-  window.sessionStorage = {
-    setItem    : function () {},
-    getItem    : function () {},
-    removeItem : function () {}
-  };
+  sandbox.replaceGetter(window, 'sessionStorage', function () {
+    return {
+      setItem    : function () {},
+      getItem    : function () {},
+      removeItem : function () {}
+    }
+  });
 
   function newGenoverse(tracks) {
     var g = new Genoverse({
@@ -91,7 +95,7 @@ describe('Track ordering', function () {
           genoverse.removeTracks(addTracks.map(function (t) { return genoverse.tracksById[t.id]; }));
         }
 
-        expect(orderedIds).toEqual(expected, msg); // Test must be after removing tracks, since if the test fails, nothing else executes
+        expect(orderedIds).to.equal(expected, msg); // Test must be after removing tracks, since if the test fails, nothing else executes
 
         deferred.resolve();
       }, 1);

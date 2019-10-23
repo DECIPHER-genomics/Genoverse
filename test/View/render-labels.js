@@ -478,7 +478,7 @@ describe('Correctly render labels where:', function () {
       { why: 'track.depth is set and track.labels = false',        track: Genoverse.Track.extend({ depth : 1,        labels: false     }), expected: false      }
     ].forEach(function (test) {
       it('because ' + test.why, function () {
-        expect(new Genoverse({ tracks: [ test.track ], chromosomeSize: 1000 }).tracks[0].prop('labels')).toEqual(test.expected);
+        expect(new Genoverse({ tracks: [ test.track ], chromosomeSize: 1000 }).tracks[0].prop('labels')).to.equal(test.expected);
       });
     });
   });

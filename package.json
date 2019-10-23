@@ -22,11 +22,12 @@
   },
   "homepage": "http://wtsi-web.github.io/Genoverse/",
   "devDependencies": {
-    "canvas": "^1.6.11",
-    "expect": "1.20.2",
-    "jsdom": "^11.10.0",
-    "mocha": "^5.2.0",
+    "canvas": "^2.6.0",
+    "chai": "^4.2.0",
+    "jsdom": "^15.2.0",
+    "mocha": "^6.2.2",
     "request": "^2.87.0",
+    "sinon": "^7.5.0",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.9"
   }

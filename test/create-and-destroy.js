@@ -27,30 +27,30 @@ function doTests(cfg) {
     afterInit: function () {
       var container = this.container;
 
-      expect(container.length).toEqual(1, 'Incorrect container length');
-      expect(container.hasClass('genoverse')).toBe(true, 'Incorrect container class');
+      expect(container.length).to.equal(1, 'Incorrect container length');
+      expect(container.hasClass('genoverse')).to.equal(true, 'Incorrect container class');
 
       if (cfg) {
         if (config.container) {
           if (containerExists) {
-            expect(container.attr('id')).toEqual($(config.container)[0].id.replace('#', ''), 'Incorrect container id');
+            expect(container.attr('id')).to.equal($(config.container)[0].id.replace('#', ''), 'Incorrect container id');
           } else {
-            expect(container.attr('id')).toNotExist('Container should not exist');
+            expect(container.attr('id')).to.be.undefined;
           }
         }
 
         if (config.width) {
-          expect(container.width()).toEqual(config.width, 'Incorrect container width');
-          expect(this.width).toEqual(config.width - this.labelWidth, 'Incorrect Genoverse width');
+          expect(container.width()).to.equal(config.width, 'Incorrect container width');
+          expect(this.width).to.equal(config.width - this.labelWidth, 'Incorrect Genoverse width');
         }
       }
 
       this.destroy();
 
-      expect(Object.keys(this).length).toEqual(0, 'Genoverse has not been emptied');
-      expect(container.parents('body').length).toEqual(1, 'container is not in body');
-      expect(container.children().length).toEqual(0, 'container is not empty');
-      expect($('*').length).toEqual(elCount + (containerExists ? 0 : 1), 'Destructor left too many elements behind'); // + 1 because container is left behind when Genoverse is destroyed
+      expect(Object.keys(this).length).to.equal(0, 'Genoverse has not been emptied');
+      expect(container.parents('body').length).to.equal(1, 'container is not in body');
+      expect(container.children().length).to.equal(0, 'container is not empty');
+      expect($('*').length).to.equal(elCount + (containerExists ? 0 : 1), 'Destructor left too many elements behind'); // + 1 because container is left behind when Genoverse is destroyed
 
       container.remove();
 
