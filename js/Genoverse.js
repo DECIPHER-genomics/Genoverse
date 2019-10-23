@@ -419,43 +419,47 @@ var Genoverse = Base.extend({
 
   addUserEventHandlers: function () {
     var browser        = this;
+    var eventNamespace = this.eventNamespace;
     var documentEvents = {};
+    var events         = {};
 
-    this.container.on({
-      mousedown: function (e) {
-        browser.hideMessages();
+    events['mousedown' + eventNamespace] = function (e) {
+      browser.hideMessages();
 
-        // Only scroll on left click, and do nothing if clicking on a button in selectorControls
-        if ((!e.which || e.which === 1) && !(this === browser.selector[0] && e.target !== this)) {
-          browser.mousedown(e);
-        }
-
-        return false;
-      },
-      mousewheel: function (e, delta, deltaX, deltaY) {
-        if (browser.noWheelZoom) {
-          return true;
-        }
-
-        browser.hideMessages();
-
-        if (deltaY === 0 && deltaX !== 0) {
-          browser.startDragScroll(e);
-          browser.move(-deltaX * 10);
-          browser.stopDragScroll(false);
-        } else if (browser.wheelAction === 'zoom') {
-          return browser.mousewheelZoom(e, delta);
-        }
-      },
-      dblclick: function (e) {
-        if (browser.isStatic) {
-          return true;
-        }
-
-        browser.hideMessages();
-        browser.mousewheelZoom(e, 1);
+      // Only scroll on left click, and do nothing if clicking on a button in selectorControls
+      if ((!e.which || e.which === 1) && !(this === browser.selector[0] && e.target !== this)) {
+        browser.mousedown(e);
       }
-    }, '.gv-image-container, .gv-selector');
+
+      return false;
+    };
+
+    events['mousewheel' + eventNamespace] = function (e, delta, deltaX, deltaY) {
+      if (browser.noWheelZoom) {
+        return true;
+      }
+
+      browser.hideMessages();
+
+      if (deltaY === 0 && deltaX !== 0) {
+        browser.startDragScroll(e);
+        browser.move(-deltaX * 10);
+        browser.stopDragScroll(false);
+      } else if (browser.wheelAction === 'zoom') {
+        return browser.mousewheelZoom(e, delta);
+      }
+    };
+
+    events['dblclick' + eventNamespace] = function (e) {
+      if (browser.isStatic) {
+        return true;
+      }
+
+      browser.hideMessages();
+      browser.mousewheelZoom(e, 1);
+    };
+
+    this.container.on(events, '.gv-image-container, .gv-selector');
 
     this.selectorControls.on('click', function (e) {
       var pos = browser.getSelectorPosition();
@@ -1414,6 +1418,7 @@ var Genoverse = Base.extend({
       this.zoomInHighlight.add(this.zoomOutHighlight).remove();
     }
 
+    this.container.off(this.eventNamespace);
     $(window).add(document).off(this.eventNamespace);
 
     for (var key in this) {
