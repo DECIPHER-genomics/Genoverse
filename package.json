@@ -27,6 +27,7 @@
     "jsdom": "^11.10.0",
     "mocha": "^5.2.0",
     "request": "^2.87.0",
-    "webpack": "3.11.0"
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9"
   }
 }
