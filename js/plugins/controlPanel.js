@@ -151,7 +151,7 @@ Genoverse.Plugins.controlPanel = function () {
           if (control.init) {
             control.init.call(buttonSet, browser);
           }
-        })(browser.controls[i]);
+        }(browser.controls[i]));
       }
 
       this.superContainer.width(this.width);
@@ -240,7 +240,7 @@ Genoverse.Plugins.controlPanel = function () {
                         .appendTo(currentTracks)
                         .data('track', track)
                         .addClass(track.unsortable ? 'gv-unsortable' : '');
-                    })(browser.tracks[i]);
+                    }(browser.tracks[i]));
                   }
                 }
               }
@@ -269,7 +269,7 @@ Genoverse.Plugins.controlPanel = function () {
                       browser.addTrack(track.extend({ id: track.prototype.id + (browser.tracksById[track.prototype.id] ? browser.trackIds[track.prototype.id]++ : '') }));
                     })
                   ).append('<span>' + track.prototype.name + '</span>').appendTo(availableTracks).data('track', track.prototype);
-                })(tracksLibrary[i][1]);
+                }(tracksLibrary[i][1]));
               }
             }
 
