@@ -215,7 +215,7 @@ var Genoverse = Base.extend({
   },
 
   loadConfig: function () {
-    this.defaultTracks = $.extend([], true, this.tracks);
+    this.defaultTracks = $.extend(true, [], this.tracks);
 
     var config = window[this.storageType].getItem(this.saveKey);
 
