@@ -176,6 +176,7 @@ var Genoverse = Base.extend({
     this.tracksById       = {};
     this.prev             = {};
     this.legends          = {};
+    this.initialLocation  = { chr: this.chr, start: this.start, end: this.end };
     this.saveKey          = this.saveKey ? 'genoverse-' + this.saveKey : 'genoverse';
     this.urlParamTemplate = this.urlParamTemplate || '';
     this.useHash          = typeof this.useHash === 'boolean' ? this.useHash : typeof window.history.pushState !== 'function';
@@ -188,8 +189,7 @@ var Genoverse = Base.extend({
       .replace(/(\b(\w+=)?__END__(.)?)/,   '$2(\\d+)$3') + '([;&])'
     ) : '';
 
-    var urlCoords = this.getURLCoords();
-    var coords    = urlCoords.chr && urlCoords.start && urlCoords.end ? urlCoords : { chr: this.chr, start: this.start, end: this.end };
+    var coords = this.getCoords();
 
     this.chr = coords.chr;
 
@@ -1058,7 +1058,7 @@ var Genoverse = Base.extend({
   },
 
   popState: function () {
-    var coords = this.getURLCoords();
+    var coords = this.getCoords();
     var start  = parseInt(coords.start, 10);
     var end    = parseInt(coords.end,   10);
 
@@ -1074,13 +1074,13 @@ var Genoverse = Base.extend({
     this.hideMessages();
   },
 
-  getURLCoords: function () {
+  getCoords: function () {
     var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') || window.location.search : window.location.search) + '&').match(this.paramRegex);
     var coords = {};
     var i      = 0;
 
     if (!match) {
-      return coords;
+      return this.initialLocation;
     }
 
     match = match.slice(2, -1);
@@ -1093,7 +1093,7 @@ var Genoverse = Base.extend({
       }
     });
 
-    return coords;
+    return coords.chr && coords.start && coords.end ? coords : this.initialLocation;
   },
 
   getQueryString: function () {
