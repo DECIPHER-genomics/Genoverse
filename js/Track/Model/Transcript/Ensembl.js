@@ -11,31 +11,58 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
   },
 
   // The url above responds in json format, data is an array
-  // See rest.ensembl.org/documentation/info/feature_region for more details
-  parseData: function (data) {
-    for (var i = 0; i < data.length; i++) {
-      var feature = data[i];
+  // See rest.ensembl.org/documentation/info/overlap_region for more details
+  parseData: function (data, chr) {
+    var model        = this;
+    var featuresById = this.featuresById;
+    var ids          = [];
 
-      if (feature.feature_type === 'transcript' && !this.featuresById[feature.id]) {
-        this.geneIds[feature.Parent] = this.geneIds[feature.Parent] || ++this.seenGenes;
+    data.filter(function (d) { return d.feature_type === 'transcript'; }).forEach(function (feature, i) {
+      if (!featuresById[feature.id]) {
+        model.geneIds[feature.Parent] = model.geneIds[feature.Parent] || ++model.seenGenes;
 
-        feature.label = parseInt(feature.strand, 10) === 1 ? (feature.external_name || feature.id) + ' >' : '< ' + (feature.external_name || feature.id);
-        feature.sort  = (this.geneIds[feature.Parent] * 1e10) + (feature.logic_name.indexOf('ensembl_havana') === 0 ? 0 : 2e9) + (feature.biotype === 'protein_coding' ? 0 : 1e9) + feature.start + i;
-        feature.exons = {};
-        feature.cds   = {};
+        feature.chr         = feature.chr || chr;
+        feature.label       = parseInt(feature.strand, 10) === 1 ? (feature.external_name || feature.id) + ' >' : '< ' + (feature.external_name || feature.id);
+        feature.sort        = (model.geneIds[feature.Parent] * 1e10) + (feature.logic_name.indexOf('ensembl_havana') === 0 ? 0 : 2e9) + (feature.biotype === 'protein_coding' ? 0 : 1e9) + feature.start + i;
+        feature.cdsStart    = Infinity;
+        feature.cdsEnd      = -Infinity;
+        feature.exons       = {};
+        feature.subFeatures = [];
 
-        this.insertFeature(feature);
-      } else if (feature.feature_type === 'exon' && this.featuresById[feature.Parent]) {
-        if (!this.featuresById[feature.Parent].exons[feature.id]) {
-          this.featuresById[feature.Parent].exons[feature.id] = feature;
+        model.insertFeature(feature);
+      }
+
+      ids.push(feature.id);
+    });
+
+    data.filter(function (d) { return d.feature_type === 'cds' && featuresById[d.Parent]; }).forEach(function (cds) {
+      featuresById[cds.Parent].cdsStart = Math.min(featuresById[cds.Parent].cdsStart, cds.start);
+      featuresById[cds.Parent].cdsEnd   = Math.max(featuresById[cds.Parent].cdsEnd,   cds.end);
+    });
+
+    data.filter(function (d) { return d.feature_type === 'exon' && featuresById[d.Parent] && !featuresById[d.Parent].exons[d.id]; }).forEach(function (exon) {
+      if (exon.end < featuresById[exon.Parent].cdsStart || exon.start > featuresById[exon.Parent].cdsEnd) {
+        exon.utr = true;
+      } else {
+        if (exon.start < featuresById[exon.Parent].cdsStart) {
+          featuresById[exon.Parent].subFeatures.push($.extend({ utr: true }, exon, { end: featuresById[exon.Parent].cdsStart }));
+
+          exon.start = featuresById[exon.Parent].cdsStart;
         }
-      } else if (feature.feature_type === 'cds' && this.featuresById[feature.Parent]) {
-        feature.id = feature.start + '-' + feature.end;
 
-        if (!this.featuresById[feature.Parent].cds[feature.id]) {
-          this.featuresById[feature.Parent].cds[feature.id] = feature;
+        if (exon.end > featuresById[exon.Parent].cdsEnd) {
+          featuresById[exon.Parent].subFeatures.push($.extend({ utr: true }, exon, { start: featuresById[exon.Parent].cdsEnd }));
+
+          exon.end = featuresById[exon.Parent].cdsEnd;
         }
       }
-    }
+
+      featuresById[exon.Parent].subFeatures.push(exon);
+      featuresById[exon.Parent].exons[exon.id] = exon;
+    });
+
+    ids.forEach(function (id) {
+      featuresById[id].subFeatures.sort(function (a, b) { return a.start - b.start; });
+    });
   }
 });

@@ -9,7 +9,7 @@ Genoverse.Track.Controller.Sequence = Genoverse.Track.Controller.extend({
     feature.featureMenus      = feature.featureMenus      || {};
     feature.featureMenus[pos] = feature.featureMenus[pos] || {
       title    : feature.sequence.charAt(pos - feature.start),
-      Location : this.browser.chr + ':' + pos
+      Location : feature.chr + ':' + pos
     }
 
     return feature.featureMenus[pos].title ? feature.featureMenus[pos] : undefined;

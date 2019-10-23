@@ -1,5 +1,6 @@
 Genoverse.Track.Scalebar = Genoverse.Track.extend({
   unsortable     : true,
+  fixedOrder     : true,
   order          : 0,
   orderReverse   : 1e5,
   featureStrand  : 1,
@@ -39,6 +40,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     var majorUnit = -1;
     var fromDigit = ('' + this.browser.start).split(''); // Split into array of digits
     var toDigit   = ('' + this.browser.end).split('');
+    var features  = {};
     var divisions, i;
 
     for (i = fromDigit.length; i < toDigit.length; i++) {
@@ -78,23 +80,25 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
     majorUnit = Math.max(majorUnit, 1);
 
-    this.prop('minorUnit',    Math.max(majorUnit / divisor, 1));
-    this.prop('majorUnit',    majorUnit);
-    this.prop('features',     new RTree());
-    this.prop('featuresById', {});
-    this.prop('seen',         {});
+    features[this.browser.chr] = new RTree();
+
+    this.prop('minorUnit',     Math.max(majorUnit / divisor, 1));
+    this.prop('majorUnit',     majorUnit);
+    this.prop('featuresByChr', features);
+    this.prop('featuresById',  {});
+    this.prop('seen',          {});
 
     this.base();
   },
 
-  setFeatures: function (start, end) {
+  setFeatures: function (chr, start, end) {
     var minorUnit = this.prop('minorUnit');
     var majorUnit = this.prop('majorUnit');
     var seen      = this.prop('seen');
 
     start = Math.max(start - (start % minorUnit) - majorUnit, 0);
 
-    var flip  = (start / minorUnit) % 2 ? 1 : -1;
+    var flip = (start / minorUnit) % 2 ? 1 : -1;
     var feature, major, label;
 
     for (var x = start; x < end + minorUnit; x += minorUnit) {
@@ -106,7 +110,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
       seen[x] = 1;
 
-      feature = { id: x, strand: 1, sort: x };
+      feature = { id: chr + ':' + x, chr: chr, strand: 1, sort: x };
       major   = x && x % majorUnit === 0;
 
       if (flip === 1) {
@@ -137,7 +141,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
 
   makeFirstImage: function (moveTo) {
     if (this.prop('strand') === -1) {
-      moveTo = this.track.forwardTrack.scrollStart;
+      moveTo = this.track.forwardTrack.prop('scrollStart');
     }
 
     return this.base(moveTo);
@@ -147,7 +151,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     params.background    = 'gv-guidelines gv-full-height';
     params.featureHeight = this.prop('height');
 
-    this.track.setFeatures(params.start, params.end);
+    this.track.setFeatures(params.chr, params.start, params.end);
 
     var rtn = this.base(params);
 
@@ -157,7 +161,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   },
 
   makeReverseImage: function (params) {
-    this.imgContainers.push(params.container.clone().html(params.container.children('.gv-data').clone(true).css('background', this.browser.wrapper.css('backgroundColor')))[0]);
+    this.imgContainers.push(params.container.clone().html(params.container.children('.gv-data').clone(true).css({ opacity: 1, background: this.browser.wrapper.css('backgroundColor') }))[0]);
     this.scrollContainer.append(this.imgContainers);
   },
 

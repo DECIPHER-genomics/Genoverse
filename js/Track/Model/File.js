@@ -6,14 +6,14 @@ Genoverse.Track.Model.File = Genoverse.Track.Model.extend({
       this.url = false;
     }
 
-    if (!this.largeFile) {
+    if (!(this.largeFile || this.indexFile)) {
       this.allData = true;
     }
 
     this.base.apply(this, arguments);
   },
 
-  getData: function () {
+  getData: function (chr) {
     var model = this;
 
     if (this.isLocal && this.dataFile) {
@@ -22,15 +22,15 @@ Genoverse.Track.Model.File = Genoverse.Track.Model.extend({
 
       reader.onload = function (e) {
         deferred.done(function () {
-          this.receiveData(e.target.result, 1, this.browser.chromosomeSize);
+          this.receiveData(e.target.result, chr, 1, this.browser.getChromosomeSize(chr));
         }).resolveWith(model);
       };
 
       reader.readAsText(this.dataFile);
 
       return deferred;
-    } else {
-      return this.base.apply(this, arguments);
     }
+
+    return this.base.apply(this, arguments);
   }
 });

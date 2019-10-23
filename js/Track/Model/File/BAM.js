@@ -1,5 +1,5 @@
 Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
-  getData: function (start, end) {
+  getData: function (chr, start, end) {
     var model    = this;
     var deferred = $.Deferred();
 
@@ -10,6 +10,8 @@ Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
       } else if (this.dataFile && this.indexFile) {
         this.bamFile = new dallianceLib.BlobFetchable(this.dataFile);
         this.baiFile = new dallianceLib.BlobFetchable(this.indexFile);
+      } else {
+        return deferred.rejectWith(model, [ 'BAM files must be accompanied by a .bai index file' ]);
       }
     }
 
@@ -17,11 +19,11 @@ Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
       if (makeBamError) {
         console.log(makeBamError);
       } else {
-        bam.fetch(model.browser.chr, start, end, function (features, fetchBamError) {
+        bam.fetch(chr, start, end, function (features, fetchBamError) {
           if (fetchBamError) {
             console.log(fetchBamError);
           } else {
-            model.receiveData(features, start, end);
+            model.receiveData(features, chr, start, end);
             deferred.resolveWith(model);
           }
         });
@@ -32,7 +34,7 @@ Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
   },
 
   insertFeature: function (feature) {
-    feature.id       = feature.readName + ':' + feature.pos;
+    feature.id       = feature.chr + ':' + feature.readName + ':' + feature.pos;
     feature.start    = feature.pos + 1;
     feature.end      = feature.start + feature.seq.length;
     feature.sequence = feature.seq;

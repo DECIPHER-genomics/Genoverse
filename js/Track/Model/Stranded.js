@@ -6,14 +6,19 @@ Genoverse.Track.Model.Stranded = Genoverse.Track.Model.extend({
       var otherTrack = this.prop('forwardTrack');
 
       if (otherTrack) {
-        this.features     = otherTrack.prop('features');
-        this.featuresById = otherTrack.prop('featuresById');
+        this.featuresByChr = otherTrack.prop('featuresByChr');
+        this.features      = otherTrack.prop('features');
+        this.featuresById  = otherTrack.prop('featuresById');
       }
     }
   },
 
-  setURL: function (urlParams, update) {
-    this.base($.extend(urlParams || this.urlParams, { strand: this.track.featureStrand }), update);
+  parseURL: function () {
+    if (!this.urlParams.strand) {
+      this.urlParams.strand = this.prop('featureStrand');
+    }
+
+    return this.base.apply(this, arguments);
   },
 
   findFeatures: function () {

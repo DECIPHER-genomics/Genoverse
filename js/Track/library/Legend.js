@@ -30,8 +30,12 @@ Genoverse.Track.Model.Legend = Genoverse.Track.Model.Static.extend({
       }
     });
 
+    return this.sortFeatures($.map(features, function (color, text) { return [[ text, color ]]; }));
+  },
+
+  sortFeatures: function (features) {
     // sort legend alphabetically
-    return $.map(features, function (color, text) { return [[ text, color ]]; }).sort(function (a, b) {
+    return features.sort(function (a, b) {
       var x = a[0].toLowerCase();
       var y = b[0].toLowerCase();
       return ((x < y) ? -1 : ((x > y) ? 1 : 0));
@@ -57,6 +61,7 @@ Genoverse.Track.View.Legend = Genoverse.Track.View.Static.extend({
     var xScale   = this.width / cols;
     var yScale   = this.fontHeight + pad;
     var features = [];
+    var xOffest  = params.xOffset || 0;
     var xPos, yPos, labelWidth;
 
     for (var i = 0; i < f.length; i++) {
@@ -65,8 +70,8 @@ Genoverse.Track.View.Legend = Genoverse.Track.View.Static.extend({
       labelWidth = this.context.measureText(f[i][0]).width;
 
       features.push(
-        { x: xPos,           y: yPos, width: w,              height: this.featureHeight, color: f[i][1] },
-        { x: xPos + pad + w, y: yPos, width: labelWidth + 1, height: this.featureHeight, color: false, labelColor: this.textColor, labelWidth: labelWidth, label: f[i][0] }
+        { x: xPos + xOffest,           y: yPos, width: w,              height: this.featureHeight, color: f[i][1] },
+        { x: xPos + xOffest + pad + w, y: yPos, width: labelWidth + 1, height: this.featureHeight, color: false, labelColor: this.textColor, labelWidth: labelWidth, label: f[i][0] }
       );
 
       if (++x === cols) {
@@ -101,11 +106,7 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
 
   setEvents: function () {
     this.browser.on({
-      'afterInit afterAddTracks afterRemoveTracks': function (tracks) {
-        if (tracks && tracks.length === 1 && tracks[0] instanceof Genoverse.Track.Legend) {
-          return; // Don't do anything if a legend has just been added - it will have set its own tracks in the init function
-        }
-
+      'afterAddTracks afterRemoveTracks': function (tracks) {
         for (var i in this.legends) {
           this.legends[i].setTracks();
         }
@@ -127,10 +128,10 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
         var track       = ui.item.data('track');
         var legendTrack = this.legends[track.id] || track.legendTrack;
 
-        // If a legend track, or a track with a sortable legend has been reordered, set a fixedOrder property to ensure that its lockToTrack status is ignored from now on.
+        // If a legend track, or a track with a sortable legend has been reordered, its lockToTrack status is ignored from now on.
         // This allows a legend to initially be locked to a track, but then to be reordered once the browser has been initialized
         if (legendTrack && legendTrack.lockToTrack && legendTrack.unsortable === false) {
-          legendTrack.fixedOrder = true;
+          legendTrack.lockToTrack = false;
         }
 
         for (var i in this.legends) {
@@ -163,12 +164,15 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
           legend.controller.makeImage({});
         }
       },
-
       afterSetMVC: function () {
         var legend = this.prop('legendTrack');
 
-        if (legend) {
-          legend[this.legend ? 'enable' : 'disable']();
+        if (legend && legend.tracks.length) {
+          legend.disable();
+
+          if (this.legend !== false) {
+            legend.enable();
+          }
         }
       }
     }, this);
@@ -178,7 +182,14 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     var legend = this;
     var type   = this.type;
 
-    this.tracks = $.grep(this.browser.tracks, function (t) { if (t.legendType === type) { t.legendTrack = t.legendTrack || legend; return true; } });
+    this.tracks = $.map(this.browser.tracks.filter(function (t) {
+      if (t.legendType === type) {
+        t.legendTrack = t.legendTrack || legend;
+        return true;
+      }
+    }), function (track) {
+      return [ track ].concat(track.prop('childTracks'), track.prop('parentTrack')).filter(function (t) { return t && t !== legend && !t.prop('disabled'); })
+    });
 
     this.updateOrder();
 
@@ -190,12 +201,12 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
   },
 
   updateOrder: function () {
-    if (!this.tracks.length || this.fixedOrder) {
-      return;
-    }
-
     if (this.lockToTrack) {
-      this.order = this.tracks[this.tracks.length - 1].order + 0.1;
+      var tracks = this.tracks.filter(function (t) { return !t.prop('parentTrack'); });
+
+      if (tracks.length) {
+        this.order = tracks[tracks.length - 1].order + 0.1;
+      }
     }
   },
 

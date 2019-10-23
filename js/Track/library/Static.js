@@ -29,7 +29,7 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
       return $.Deferred().resolve();
     }
 
-    var features = this.view.positionFeatures(this.model.findFeatures(params.start, params.end), params);
+    var features = this.view.positionFeatures(this.model.findFeatures(params.chr, params.start, params.end), params);
 
     if (features) {
       var string = JSON.stringify(features);

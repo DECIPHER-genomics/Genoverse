@@ -1,9 +1,13 @@
 Genoverse.Track = Base.extend({
-  height     : 12,        // The height of the track_container div
+  height     : 12,        // The height of the gv-track-container div
   margin     : 2,         // The spacing between this track and the next
   resizable  : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
   border     : true,      // Does the track have a bottom border
-  unsortable : false,     // Is the track unsortable
+  unsortable : false,     // Is the track unsortable by the user
+  fixedOrder : false,     // Is the track unsortable by the user or automatically - use for tracks which always need to go at the top/bottom
+  invert     : false,     // If true, features are drawn from the bottom of the track, rather than from the top. This is actually achieved by performing a CSS transform on the gv-image-container div
+  legend     : false,     // Does the track have a legend - can be true, false, or a Genoverse.Track.Legend extension/child class.
+  children   : undefined, // Does the track have any child tracks - can be one or an array of Genoverse.Track extension/child classes.
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
   hideEmpty  : undefined, // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
@@ -26,6 +30,19 @@ Genoverse.Track = Base.extend({
 
     this.setLengthMap();
     this.setMVC();
+
+    if (this.browser.scale > 0) {
+      this.controller.setScale();
+      this.controller.makeFirstImage();
+    }
+
+    if (this.children) {
+      this.addChildTracks();
+    }
+
+    if (this.legend) {
+      this.addLegend();
+    }
   },
 
   setEvents: $.noop,
@@ -94,7 +111,7 @@ Genoverse.Track = Base.extend({
           controllerSettings[typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
         }
         // If we allow trackSettings to overwrite the MVC properties, we will potentially lose of information about instantiated objects that the track needs to perform future switching correctly.
-        else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|models|views|config)$/.test(i)) {
+        else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|models|views|config|disabled)$/.test(i)) {
           if (typeof this._defaults[i] === 'undefined') {
             this._defaults[i] = this[i];
           }
@@ -164,15 +181,13 @@ Genoverse.Track = Base.extend({
      */
     this.extend(trackSettings);
 
+    this.model.setChrProps(); // make sure the data stores for the current chromsome are being used
+
     if (!this.controller || typeof this.controller === 'function') {
       this.controller = this.newMVC(settings.controller, controllerSettings.func, $.extend(controllerSettings.prop, { model: this.model, view: this.view }));
     } else {
       controllerSettings.prop.threshold = controllerSettings.prop.threshold || this.controller.constructor.prototype.threshold;
       $.extend(this.controller, controllerSettings.prop, { model: this.model, view: this.view });
-    }
-
-    if (this.strand === -1 && this.orderReverse) {
-      this.order = this.orderReverse;
     }
   },
 
@@ -199,8 +214,9 @@ Genoverse.Track = Base.extend({
 
     function compare(a, b) {
       var checked = { browser: true, width: true, track: true }; // Properties set in newMVC should be ignored, as they will be missing if comparing an object with a prototype
+      var key;
 
-      for (var key in a) {
+      for (key in a) {
         if (checked[key]) {
           continue;
         }
@@ -209,7 +225,9 @@ Genoverse.Track = Base.extend({
 
         if (typeof a[key] !== typeof b[key]) {
           return false;
-        } else if (typeof a[key] === 'function' && typeof b[key] === 'function') {
+        }
+
+        if (typeof a[key] === 'function' && typeof b[key] === 'function') {
           if (a[key].toString() !== b[key].toString()) {
             return false;
           }
@@ -330,7 +348,7 @@ Genoverse.Track = Base.extend({
     var length = this.browser.length || (this.browser.end - this.browser.start + 1);
 
     for (var i = 0; i < this.lengthMap.length; i++) {
-      if (length > this.lengthMap[i][0] || length === 1 && this.lengthMap[i][0] === 1) {
+      if (length > this.lengthMap[i][0] || (length === 1 && this.lengthMap[i][0] === 1)) {
         return this.lengthMap[i];
       }
     }
@@ -422,7 +440,15 @@ Genoverse.Track = Base.extend({
       }
 
       this._setCurrentConfig();
-      this.reset();
+
+      if (!this.disabled) {
+        this.reset.apply(this, configChanged ? [ 'config', config ] : []);
+      }
+
+      (this.prop('childTracks') || []).forEach(function (track) {
+        track.setConfig(config);
+      });
+
       this.browser.saveConfig();
     }
   },
@@ -460,17 +486,71 @@ Genoverse.Track = Base.extend({
     return this.configSettings[type][this.config[type]];
   },
 
-  addLegend: function (config, constructor) {
-    var legendType = this.legendType || this.id;
+  addChildTracks: function () {
+    if (!this.children) {
+      return;
+    }
 
-    config = $.extend({
+    var track    = this;
+    var browser  = this.browser;
+    var children = (Array.isArray(this.children) ? this.children : [ this.children ]).filter(function (child) { return child.prototype instanceof Genoverse.Track; });
+    var config   = {
+      parentTrack : this,
+      controls    : 'off',
+      threshold   : this.prop('threshold')
+    };
+
+    setTimeout(function () {
+      track.childTracks = children.map(function (child) {
+        if (child.prototype instanceof Genoverse.Track.Legend || child === Genoverse.Track.Legend) {
+          track.addLegend(child.extend(config), true);
+          return track.legendTrack;
+        }
+
+        return browser.addTrack(child.extend(config));
+      });
+
+      track.controller.setLabelHeight();
+    }, 1);
+  },
+
+  addLegend: function (constructor, now) {
+    if (!(constructor || this.legend)) {
+      return;
+    }
+
+    constructor = constructor || (this.legend.prototype instanceof Genoverse.Track.Legend ? this.legend : Genoverse.Track.Legend);
+
+    var track       = this;
+    var legendType  = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
+    var config      = {
       id   : legendType + 'Legend',
-      name : this.name + ' Legend',
+      name : constructor.prototype.name || (this.name + ' Legend'),
       type : legendType
-    }, config);
+    };
 
-    this.legendType  = config.type;
-    this.legendTrack = this.browser.legends[config.id] || this.browser.addTrack((constructor || Genoverse.Track.Legend).extend(config));
+    this.legendType = legendType;
+
+    function makeLegendTrack() {
+      track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack(constructor.extend(config));
+      return track.legendTrack;
+    }
+
+    if (now === true) {
+      makeLegendTrack();
+    } else {
+      setTimeout(makeLegendTrack, 1);
+    }
+  },
+
+  changeChr: function () {
+    for (var i in this.models) {
+      this.models[i].setChrProps();
+    }
+  },
+
+  updateName: function (name) {
+    this.controller.setName(name); // For ease of use in external code
   },
 
   enable: function () {
@@ -489,9 +569,11 @@ Genoverse.Track = Base.extend({
   },
 
   reset: function () {
+    var i;
+
     this.setLengthMap();
 
-    for (var i in this.models) {
+    for (i in this.models) {
       if (this.models[i].url !== false) {
         this.models[i].init(true);
       }

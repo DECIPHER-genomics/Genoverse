@@ -14,6 +14,9 @@ Genoverse.Track.View = Base.extend({
   featureHeight    : undefined, // defaults to track height
   featureMargin    : undefined, // e.g. { top: 3, right: 1, bottom: 1, left: 0 }
 
+  subFeatureJoinStyle     : false, // Can be 'line', 'peak', 'curve'
+  subFeatureJoinLineWidth : 0.5,
+
   constructor: function (properties) {
     $.extend(this, properties);
     Genoverse.wrapFunctions(this);
@@ -50,24 +53,28 @@ Genoverse.Track.View = Base.extend({
   },
 
   setScaleSettings: function (scale) {
-    var featurePositions, labelPositions;
+    var chr = this.browser.chr;
 
-    if (!this.scaleSettings[scale]) {
-      featurePositions = featurePositions || new RTree();
+    if (!this.scaleSettings[chr]) {
+      this.scaleSettings[chr] = {};
+    }
 
-      this.scaleSettings[scale] = {
+    if (!this.scaleSettings[chr][scale]) {
+      var featurePositions = new RTree();
+
+      this.scaleSettings[chr][scale] = {
         imgContainers    : $(),
         featurePositions : featurePositions,
-        labelPositions   : this.labels === 'separate' ? labelPositions || new RTree() : featurePositions
+        labelPositions   : this.labels === 'separate' ? new RTree() : featurePositions
       };
     }
 
-    return this.scaleSettings[scale];
+    return this.scaleSettings[chr][scale];
   },
 
   scaleFeatures: function (features, scale) {
     var add = Math.max(scale, this.widthCorrection);
-    var feature;
+    var feature, j;
 
     for (var i = 0; i < features.length; i++) {
       feature = features[i];
@@ -82,6 +89,16 @@ Genoverse.Track.View = Base.extend({
           width  : Math.max((feature.end - feature.start) * scale + add, this.minScaledWidth),
           height : feature.height || this.featureHeight
         };
+      }
+
+      if (feature.subFeatures) {
+        for (j = 0; j < feature.subFeatures.length; j++) {
+          if (typeof feature.subFeatures[j].height === 'undefined') {
+            feature.subFeatures[j].height = feature.position[scale].height;
+          }
+        }
+
+        this.scaleFeatures(feature.subFeatures, scale);
       }
     }
 
@@ -104,14 +121,34 @@ Genoverse.Track.View = Base.extend({
   },
 
   positionFeature: function (feature, params) {
-    var scale = params.scale;
+    var scale         = params.scale;
+    var scaleSettings = this.scaleSettings[feature.chr][scale];
+
+    if (!scaleSettings) {
+      return;
+    }
+
+    var subFeatures = feature.subFeatures || [];
+    var i;
 
     feature.position[scale].X = feature.position[scale].start - params.scaledStart; // FIXME: always have to reposition for X, in case a feature appears in 2 images. Pass scaledStart around instead?
+
+    for (i = 0; i < subFeatures.length; i++) {
+      subFeatures[i].position[scale].x = subFeatures[i].position[scale].start - params.scaledStart;
+
+      if (this.subFeatureJoinStyle) {
+        subFeatures[i].position[scale].join   = subFeatures[i].position[scale].join || {};
+        subFeatures[i].position[scale].join.x = subFeatures[i].position[scale].start + subFeatures[i].position[scale].width - params.scaledStart;
+      }
+    }
 
     if (this.alwaysReposition || !feature.position[scale].positioned) {
       feature.position[scale].H = feature.position[scale].height + this.featureMargin.bottom;
       feature.position[scale].W = feature.position[scale].width  + (feature.marginRight || this.featureMargin.right);
-      feature.position[scale].Y = (typeof feature.y === 'number' ? feature.y * feature.position[scale].H : 0) + (feature.marginTop || this.featureMargin.top);
+      feature.position[scale].Y = (
+        typeof feature.position[scale].y === 'number' ? feature.position[scale].y :
+        typeof feature.y                 === 'number' ? feature.y * feature.position[scale].H : 0
+      ) + (feature.marginTop || this.featureMargin.top);
 
       if (feature.label) {
         if (typeof feature.label === 'string') {
@@ -146,29 +183,39 @@ Genoverse.Track.View = Base.extend({
       feature.position[scale].bounds = bounds;
 
       if (this.bump === true) {
-        this.bumpFeature(bounds, feature, scale, this.scaleSettings[scale].featurePositions);
+        this.bumpFeature(bounds, feature, scale, scaleSettings.featurePositions);
       }
 
-      this.scaleSettings[scale].featurePositions.insert(bounds, feature);
+      scaleSettings.featurePositions.insert(bounds, feature);
 
-      feature.position[scale].bottom = feature.position[scale].Y + bounds.h + params.margin;
-
-      if (feature.position[scale].label) {
-        var f = $.extend(true, {}, feature); // FIXME: hack to avoid changing feature.position[scale].Y in bumpFeature
-
-        this.bumpFeature(feature.position[scale].label, f, scale, this.scaleSettings[scale].labelPositions);
-
-        f.position[scale].label        = feature.position[scale].label;
-        f.position[scale].label.bottom = f.position[scale].label.y + f.position[scale].label.h + params.margin;
-
-        feature = f;
-
-        this.scaleSettings[scale].labelPositions.insert(feature.position[scale].label, feature);
-
-        params.labelHeight = Math.max(params.labelHeight, feature.position[scale].label.bottom);
-      }
-
+      feature.position[scale].bottom     = feature.position[scale].Y + bounds.h + params.margin;
       feature.position[scale].positioned = true;
+    }
+
+    var join = this.subFeatureJoinStyle && subFeatures.length ? {
+      height : (Math.max.apply(Math, subFeatures.map(function (c) { return c.fake ? 0 : c.position[scale].height; })) / 2) * (feature.strand > 0 ? -1 : 1),
+      y      : feature.position[scale].Y + feature.position[scale].height / 2
+    } : false;
+
+    for (i = 0; i < subFeatures.length; i++) {
+      subFeatures[i].position[scale].y = feature.position[scale].Y + (feature.position[scale].height - subFeatures[i].position[scale].height) / 2;
+
+      if (join && subFeatures[i + 1]) {
+        $.extend(subFeatures[i].position[scale].join, { width: subFeatures[i + 1].position[scale].x - subFeatures[i].position[scale].join.x }, join);
+      }
+    }
+
+    if (this.labels === 'separate' && feature.position[scale].label) {
+      if (this.alwaysReposition || !feature.position[scale].label.positioned) {
+        this.bumpFeature(feature.position[scale].label, feature, scale, scaleSettings.labelPositions);
+
+        feature.position[scale].label.bottom     = feature.position[scale].label.y + feature.position[scale].label.h + params.margin;
+        feature.position[scale].label.positioned = true;
+
+        scaleSettings.labelPositions.insert(feature.position[scale].label, feature);
+      }
+
+      params.labelHeight = Math.max(params.labelHeight, feature.position[scale].label.bottom);
     }
 
     params.featureHeight = Math.max(params.featureHeight, feature.position[scale].bottom);
@@ -177,13 +224,14 @@ Genoverse.Track.View = Base.extend({
 
   // FIXME: should label bumping bounds be distinct from feature bumping bounds when label is smaller than feature?
   bumpFeature: function (bounds, feature, scale, tree) {
-    var depth  = 0;
-    var labels = tree === this.scaleSettings[scale].labelPositions && tree !== this.scaleSettings[scale].featurePositions;
+    var depth         = 0;
+    var scaleSettings = this.scaleSettings[feature.chr][scale];
+    var labels        = tree === scaleSettings.labelPositions && tree !== scaleSettings.featurePositions;
     var bump, clash;
 
     do {
       if (this.depth && ++depth >= this.depth) {
-        if ($.grep(this.scaleSettings[scale].featurePositions.search(bounds), function (f) { return f.position[scale].visible !== false; }).length) {
+        if (!labels && $.grep(scaleSettings.featurePositions.search(bounds), function (f) { return f.position[scale].visible !== false; }).length) {
           feature.position[scale].visible = false;
         }
 
@@ -199,7 +247,9 @@ Genoverse.Track.View = Base.extend({
       }
     } while (bump);
 
-    feature.position[scale].Y = bounds.y;
+    if (!labels) {
+      feature.position[scale].Y = bounds.y;
+    }
   },
 
   draw: function (features, featureContext, labelContext, scale) {
@@ -220,7 +270,7 @@ Genoverse.Track.View = Base.extend({
 
         this.drawFeature(f, featureContext, labelContext, scale);
 
-        if (f.legend && !feature.legend) {
+        if (f.legend !== feature.legend) {
           feature.legend      = f.legend;
           feature.legendColor = f.color;
         }
@@ -229,34 +279,54 @@ Genoverse.Track.View = Base.extend({
   },
 
   drawFeature: function (feature, featureContext, labelContext, scale) {
-    if (feature.x < 0 || feature.x + feature.width > this.width) {
-      this.truncateForDrawing(feature);
+    if (feature.color !== false && !feature.color) {
+      this.setFeatureColor(feature);
     }
 
-    if (feature.color !== false) {
-      if (!feature.color) {
-        this.setFeatureColor(feature);
+    if (feature.subFeatures) {
+      this.drawSubFeatures(feature, featureContext, labelContext, scale);
+    } else {
+      if (feature.x < 0 || feature.x + feature.width > this.width) {
+        this.truncateForDrawing(feature);
       }
 
-      featureContext.fillStyle = feature.color;
-      featureContext.fillRect(feature.x, feature.y, feature.width, feature.height);
-    }
+      if (feature.color !== false) {
+        featureContext.fillStyle = feature.color;
+        featureContext.fillRect(feature.x, feature.y, feature.width, feature.height);
+      }
 
-    if (feature.clear === true) {
-      featureContext.clearRect(feature.x, feature.y, feature.width, feature.height);
+      if (feature.clear === true) {
+        featureContext.clearRect(feature.x, feature.y, feature.width, feature.height);
+      }
+
+      if (feature.borderColor) {
+        featureContext.strokeStyle = feature.borderColor;
+        featureContext.strokeRect(feature.x, Math.floor(feature.y) + 0.5, feature.width, feature.height);
+      }
     }
 
     if (this.labels && feature.label) {
       this.drawLabel(feature, labelContext, scale);
     }
 
-    if (feature.borderColor) {
-      featureContext.strokeStyle = feature.borderColor;
-      featureContext.strokeRect(feature.x, feature.y + 0.5, feature.width, feature.height);
-    }
-
     if (feature.decorations) {
       this.decorateFeature(feature, featureContext, scale);
+    }
+  },
+
+  drawSubFeatures: function (feature, featureContext, labelContext, scale) {
+    var clonedFeature = $.extend(true, {}, feature, { subFeatures: false, label: false });
+    var subFeatures   = $.extend(true, [], feature.subFeatures);
+    var joinColor     = feature.joinColor || feature.color;
+
+    for (var i = 0; i < subFeatures.length; i++) {
+      if (!subFeatures[i].fake) {
+        this.drawFeature($.extend({}, clonedFeature, subFeatures[i].position[scale], subFeatures[i]), featureContext, labelContext, scale);
+      }
+
+      if (subFeatures[i].position[scale].join && subFeatures[i].position[scale].join.width > 0) {
+        this.drawSubFeatureJoin($.extend({ color: joinColor }, subFeatures[i].position[scale].join), featureContext);
+      }
     }
   },
 
@@ -343,11 +413,11 @@ Genoverse.Track.View = Base.extend({
     feature.labelColor = this.fontColor || feature.color || this.color;
   },
 
-  // Method to lighten a colour by an amount, adapted from http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
-  shadeColor: function (colour, percent) {
-    var f = parseInt(colour.slice(1), 16);
+  // Method to lighten a color by an amount, adapted from http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
+  shadeColor: function (color, percent) {
+    var f = parseInt(color.slice(1), 16);
     var R = f >> 16;
-    var G = f >> 8 & 0x00FF;
+    var G = (f >> 8) & 0x00FF;
     var B = f & 0x0000FF;
 
     return '#' + (
@@ -370,6 +440,96 @@ Genoverse.Track.View = Base.extend({
     feature.untruncated = { x: feature.x, width: feature.width };
     feature.x           = start;
     feature.width       = Math.max(width, 0);
+  },
+
+  drawSubFeatureJoin: function (join, context) {
+    var coords = this.truncateSubFeatureJoinForDrawing(join);
+
+    if (!coords) {
+      return;
+    }
+
+    var lineWidth = context.lineWidth;
+
+    context.strokeStyle = join.color;
+    context.lineWidth   = this.subFeatureJoinLineWidth;
+
+    context.beginPath();
+    context.moveTo(coords.x1, coords.y1);
+
+    switch (this.subFeatureJoinStyle) {
+      case 'line':
+        context.lineTo(coords.x3, coords.y1);
+        break;
+      case 'peak':
+        context.lineTo(coords.x2, coords.y2);
+        context.lineTo(coords.x3, coords.y3);
+        break;
+      case 'curve':
+        context.quadraticCurveTo(coords.x2, coords.y2, coords.x3, coords.y3);
+        break;
+      default: break;
+    }
+
+    context.stroke();
+
+    context.lineWidth = lineWidth;
+  },
+
+  truncateSubFeatureJoinForDrawing: function (coords) {
+    var y1 = coords.y; // y coord of the ends of the line (half way down the exon box)
+    var y3 = y1;
+
+    if (this.subFeatureJoinStyle === 'line') {
+      this.truncateForDrawing(coords);
+      y1 += 0.5; // Sharpen line
+    }
+
+    var x1 = coords.x;                // x coord of the right edge of the first exon
+    var x3 = coords.x + coords.width; // x coord of the left edge of the second exon
+
+    // Skip if completely outside the image's region
+    if (x3 < 0 || x1 > this.width) {
+      return false;
+    }
+
+    var x2, y2, xMid, yScale;
+
+    // Truncate the coordinates of the line being drawn, so it is inside the image's region
+    if (this.subFeatureJoinStyle === 'peak') {
+      xMid   = (x1 + x3) / 2;
+      x2     = xMid;                     // x coord of the peak of the peak/curve
+      y2     = coords.y + coords.height; // y coord of the peak of the peak/curve (level with the top (forward strand) or bottom (reverse strand) of the exon box)
+      yScale = (y2 - y1) / (xMid - x1);  // Scale factor for recalculating coords if points lie outside the image region
+
+      if (xMid < 0) {
+        y2 = coords.y + (yScale * x3);
+        x2 = 0;
+      } else if (xMid > this.width) {
+        y2 = coords.y + (yScale * (this.width - coords.x));
+        x2 = this.width;
+      }
+
+      if (x1 < 0) {
+        y1 = xMid < 0 ? y2 : coords.y - (yScale * coords.x);
+        x1 = 0;
+      }
+
+      if (x3 > this.width) {
+        y3 = xMid > this.width ? y2 : y2 - (yScale * (this.width - x2));
+        x3 = this.width;
+      }
+    } else if (this.subFeatureJoinStyle === 'curve') {
+      // TODO: try truncating when style is curve
+      x2 = coords.x + coords.width / 2;
+      y2 = coords.y + coords.height;
+    }
+
+    return {
+      x1: x1, y1: y1,
+      x2: x2, y2: y2,
+      x3: x3, y3: y3
+    };
   },
 
   formatLabel: function (label) {

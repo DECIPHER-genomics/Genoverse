@@ -1,6 +1,6 @@
 Genoverse.Plugins.trackControls = function () {
   var defaultControls = [
-    $('<a title="More info">').html('?').on('click', function () {
+    $('<a title="More info" class="fa fa-info-circle">').on('click', function () {
       var track = $(this).data('track');
       var menu  = track.prop('menus').filter('.gv-track-info');
 
@@ -13,8 +13,14 @@ Genoverse.Plugins.trackControls = function () {
 
       menu.show().position({ of: track.prop('container'), at: 'center top', my: 'center top', collision: 'none' });
     }),
-    
-    $('<a class="gv-height-toggle">').html('&nbsp;').on({
+
+    $([
+      '<a class="gv-height-toggle">',
+        '<i class="fa fa-sort"></i>',
+        '<i class="fa fa-sort-desc"></i>',
+        '<i class="fa fa-sort-asc"></i>',
+      '</a>'
+    ].join('')).on({
       click: function () {
         var track = $(this).data('track');
         var height;
@@ -42,25 +48,20 @@ Genoverse.Plugins.trackControls = function () {
           resizer[autoHeight ? 'hide' : 'show']();
         }
       }
-    }),
-
-    $('<a title="Remove track">').html('<i class="fa fa-trash"></i>').on('click', function () {
-      $(this).data('track').remove();
     })
   ];
 
-  var toggle = $('<a>').html('&laquo;').on('click', function () {
-    var parent = $(this).parent();
+  var remove = $('<a title="Remove track" class="fa fa-trash">').on('click', function () {
+    $(this).data('track').remove();
+  });
 
-    if (parent.hasClass('gv-maximized')) {
-      parent.removeClass('gv-maximized').end()
-        .siblings().css({ display: 'none' }).end()
-        .html('&laquo;');
-    } else {
-      parent.addClass('gv-maximized').end()
-        .siblings().css({ display: 'inline-block' }).end()
-        .html('&raquo;');
-    }
+  var toggle = $([
+    '<a class="gv-track-controls-toggle">',
+      '<span><i class="fa fa-angle-double-left"></i><i class="fa fa-cog"></i></span>',
+      '<span><i class="fa fa-angle-double-right"></i></span>',
+    '</a>'
+  ].join('')).on('click', function () {
+    $(this).parent().toggleClass('gv-maximized');
   });
 
   this.on({
@@ -75,9 +76,11 @@ Genoverse.Plugins.trackControls = function () {
       var savedConfig   = this.browser.savedConfig ? this.browser.savedConfig[this.prop('id')] || {} : {};
       var prop, el, j;
 
-      controls = (controls || []).concat(defaultControls);
+      controls = (controls || []).concat(defaultControls, this.prop('removable') === false ? [] : remove);
 
       this.trackControls = $('<div class="gv-track-controls">').prependTo(this.container);
+
+      var controlsContainer = $('<div class="gv-track-controls-container">').appendTo(this.trackControls);
 
       for (var i = 0; i < controls.length; i++) {
         if ($.isPlainObject(controls[i]) && controls[i].type) {
@@ -94,7 +97,7 @@ Genoverse.Plugins.trackControls = function () {
           el = controls[i].clone(true);
         }
 
-        el.hide().data('track', this.track).appendTo(this.trackControls);
+        el.data('track', this.track).appendTo(controlsContainer);
 
         // TODO: other control types
         if (el.is('select')) {
@@ -106,14 +109,13 @@ Genoverse.Plugins.trackControls = function () {
         }
       }
 
-      this.prop('heightToggler', this.trackControls.children('.gv-height-toggle').trigger('toggleState'));
+      this.prop('heightToggler', controlsContainer.children('.gv-height-toggle').trigger('toggleState'));
 
       var toggler = toggle.clone(true).data('track', this.track).appendTo(this.trackControls);
 
       toggler.trigger('click');
       this.minLabelHeight = Math.max(this.minLabelHeight, this.trackControls.outerHeight(true) + this.prop('margin'));
       toggler.trigger('click');
-
     },
     afterResize: function () {
       if (this.trackControls) {
@@ -132,7 +134,7 @@ Genoverse.Plugins.trackControls = function () {
       var heightToggler = this.prop('heightToggler');
 
       if (heightToggler) {
-        heightToggler.trigger('toggleState')[this.prop('resizable') === true ? 'removeClass' : 'addClass']('gv-hidden');
+        heightToggler.trigger('toggleState')[this.prop('resizable') === true ? 'removeClass' : 'addClass']('gv-hide');
       }
     }
   }, 'tracks');

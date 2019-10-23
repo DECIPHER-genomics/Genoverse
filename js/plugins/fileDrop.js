@@ -15,20 +15,22 @@ Genoverse.Plugins.fileDrop = function () {
           totalDropOverlay.remove();
         };
 
-        totalDropOverlay.on('dragenter', function (e) { e.preventDefault(); e.stopPropagation(); });
-        totalDropOverlay.on('dragover',  function (e) { e.preventDefault(); e.stopPropagation(); });
+        totalDropOverlay.on('dragenter', function (ev) { ev.preventDefault(); ev.stopPropagation(); });
+        totalDropOverlay.on('dragover',  function (ev) { ev.preventDefault(); ev.stopPropagation(); });
         totalDropOverlay.on('dragleave', dragleave);
-        totalDropOverlay.on('drop', function (e) {
+        totalDropOverlay.on('drop', function (ev) {
           dragleave();
-          e.preventDefault();
-          e.stopPropagation();
+          ev.preventDefault();
+          ev.stopPropagation();
 
           // Sort in order to ensure that .bam files are before their .bam.bai files
-          var files = $.map(e.originalEvent.dataTransfer.files, function (f) { return f; }).sort(function (a, b) { return a.name < b.name ? -1 : 1 });
+          var files = $.map(ev.originalEvent.dataTransfer.files, function (f) { return f; }).sort(function (a, b) { return a.name < b.name ? -1 : 1; });
 
           for (var i = 0; i < files.length; i++) {
             var file  = files[i];
-            var ext   = (file.name.match(/\.(\w+)$/))[1];
+            var parts = file.name.split('.').reverse();
+            var gz    = parts[0] === 'gz';
+            var ext   = parts[gz ? 1 : 0];
             var track = Genoverse.Track.File[ext.toUpperCase()];
             var indexFile;
 
@@ -36,14 +38,8 @@ Genoverse.Plugins.fileDrop = function () {
               return;
             }
 
-            if (track.prototype.indexExt) {
-              i++;
-
-              if ((files[i] || {}).name !== file.name + track.prototype.indexExt) {
-                continue;
-              }
-
-              indexFile = files[i];
+            if (track.prototype.indexExt && (files[i + 1] || {}).name === file.name + track.prototype.indexExt) {
+              indexFile = files[++i];
             }
 
             track = track.extend({
@@ -51,7 +47,8 @@ Genoverse.Plugins.fileDrop = function () {
               info      : 'Local file `' + file.name + '`, size: ' + file.size + ' bytes',
               isLocal   : true,
               dataFile  : file,
-              indexFile : indexFile
+              indexFile : indexFile,
+              gz        : gz
             });
 
             browser.addTrack(track, browser.tracks.length - 1);

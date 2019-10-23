@@ -133,10 +133,9 @@ Genoverse.Plugins.controlPanel = function () {
         (function (control) {
           var buttonSet = $('<div class="gv-button-set">').attr('title', control.name).appendTo(browser.superContainer.find('.gv-panel-right'));
           var buttons   = control.buttons || [ control ];
-          var el;
 
-          $.each(buttons, function (i, button) {
-            var el = $('<button>' + button.icon + '</button>').addClass(button['class']).attr('title', button.name).appendTo(buttonSet);
+          $.each(buttons, function (j, button) {
+            var el = $('<button>' + button.icon + '</button>').addClass(button.class).attr('title', button.name).appendTo(buttonSet);
 
             if (button.action) {
               el.on('click', function () {
@@ -152,7 +151,7 @@ Genoverse.Plugins.controlPanel = function () {
           if (control.init) {
             control.init.call(buttonSet, browser);
           }
-        })(browser.controls[i]);
+        }(browser.controls[i]));
       }
 
       this.superContainer.width(this.width);
@@ -233,7 +232,7 @@ Genoverse.Plugins.controlPanel = function () {
               reload     : function () { $(this).empty().data('listTracks')(); },
               listTracks : function () {
                 for (var i = 0; i < browser.tracks.length; i++) {
-                  if (browser.tracks[i].name && browser.tracks[i].removable !== false) {
+                  if (browser.tracks[i].name && browser.tracks[i].removable !== false && !browser.tracks[i].parentTrack) {
                     (function (track) {
                       $('<div>')
                         .append($('<i class="gv-remove-track gv-menu-button fa fa-times-circle">').on('click', function () { track.remove(); }))
@@ -241,7 +240,7 @@ Genoverse.Plugins.controlPanel = function () {
                         .appendTo(currentTracks)
                         .data('track', track)
                         .addClass(track.unsortable ? 'gv-unsortable' : '');
-                    })(browser.tracks[i]);
+                    }(browser.tracks[i]));
                   }
                 }
               }
@@ -256,21 +255,21 @@ Genoverse.Plugins.controlPanel = function () {
             currentTracks.data('listTracks')();
 
             if (browser.tracksLibrary && browser.tracksLibrary.length) {
-              var tracksLibrary = $.map(browser.tracksLibrary, function (track) { return track.prototype.name ? [[ track.prototype.name.toLowerCase(), track ]] : undefined }).sort(function (a, b) { return a[0] > b[0] ? 1 : -1 });
+              var tracksLibrary = $.map(browser.tracksLibrary, function (track) {
+                return track.prototype.name && track.prototype.removable !== false ? [[ track.prototype.name.toLowerCase(), track ]] : undefined;
+              }).sort(function (a, b) { return a[0] > b[0] ? 1 : -1; });
 
               for (var i = 0; i < tracksLibrary.length; i++) {
                 (function (track) {
                   $('<div class="gv-tracks-library-item">').append(
                     $('<i class="gv-add-track gv-menu-button fa fa-plus-circle"> ').on('click', function () {
-                      var sortableTracks = $.grep(browser.tracks, function (t) { return t.unsortable !== true; });
-
                       browser.trackIds = browser.trackIds || {};
                       browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
 
                       browser.addTrack(track.extend({ id: track.prototype.id + (browser.tracksById[track.prototype.id] ? browser.trackIds[track.prototype.id]++ : '') }));
                     })
                   ).append('<span>' + track.prototype.name + '</span>').appendTo(availableTracks).data('track', track.prototype);
-                })(tracksLibrary[i][1]);
+                }(tracksLibrary[i][1]));
               }
             }
 

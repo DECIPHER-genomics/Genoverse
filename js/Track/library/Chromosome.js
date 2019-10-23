@@ -25,16 +25,20 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
     gpos33 : '#000000'
   },
 
-  getData: function (start, end) {
-    this.receiveData($.extend(true, [], this.browser.genome[this.browser.chr].bands), start, end);
+  getData: function (chr, start, end) {
+    this.receiveData($.extend(true, [], this.browser.genome[chr].bands), chr, start, end);
     return $.Deferred().resolveWith(this);
   },
 
   insertFeature: function (feature) {
     feature.label      = feature.type === 'acen' || feature.type === 'stalk' ? false : feature.id;
-    feature.menuTitle  = feature.id ? this.browser.chr + feature.id : this.browser.chr + ':' + feature.start + '-' + feature.end;
+    feature.menuTitle  = feature.id ? feature.chr + feature.id : feature.chr + ':' + feature.start + '-' + feature.end;
     feature.color      = this.prop('colors')[feature.type]      || '#FFFFFF';
     feature.labelColor = this.prop('labelColors')[feature.type] || '#FFFFFF';
+
+    if (feature.id) {
+      feature.id = feature.chr + feature.id;
+    }
 
     this.base(feature);
   },
@@ -80,9 +84,11 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
 
       featureContext.beginPath();
 
-      if (feature.start === 1 || feature.end === this.browser.chromosomeSize) {
+      var chrSize = this.browser.getChromosomeSize(feature.chr);
+
+      if (feature.start === 1 || feature.end === chrSize) {
         if (feature.start === 1) {
-          var end = feature.x + feature.width - (feature.end === this.browser.chromosomeSize ? 5 : 0);
+          var end = feature.x + feature.width - (feature.end === chrSize ? 5 : 0);
 
           featureContext.clearRect(0, 0, 5, feature.height + 0.5);
 
@@ -96,7 +102,7 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
           featureContext.fill();
         }
 
-        if (feature.end === this.browser.chromosomeSize) {
+        if (feature.end === chrSize) {
           featureContext.clearRect(feature.x + feature.width - 5, 0, 5, feature.height + 0.5);
 
           if (feature.start !== 1) {
@@ -123,7 +129,7 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
   },
 
   drawLabel: function (feature) {
-    if ((feature.start === 1 || feature.end === this.browser.chromosomeSize) && feature.labelWidth >= Math.floor(feature.width - 5)) {
+    if ((feature.start === 1 || feature.end === this.browser.getChromosomeSize(feature.chr)) && feature.labelWidth >= Math.floor(feature.width - 5)) {
       return;
     }
 
@@ -133,7 +139,7 @@ Genoverse.Track.Chromosome = Genoverse.Track.extend({
   populateMenu: function (feature) {
     return {
       title    : feature.menuTitle,
-      Position : this.browser.chr + ':' + feature.start + '-' + feature.end
+      Position : feature.chr + ':' + feature.start + '-' + feature.end
     };
   }
 });

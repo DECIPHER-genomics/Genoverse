@@ -15,9 +15,23 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
     } else {
       strand = this.prop('strand', 1);
 
-      this._makeImage   = this.makeImage;
-      this.makeImage    = this.makeForwardImage;
-      this.reverseTrack = this.browser.addTrack(this.track.constructor.extend({ strand: -1, url: false, forwardTrack: this }), this.browser.tracks.length).controller;
+      this._makeImage = this.makeImage;
+      this.makeImage  = this.makeForwardImage;
+
+      var track = this.track;
+
+      setTimeout(function () {
+        track.reverseTrack = track.browser.addTrack(track.constructor.extend({
+          id           : track.id ? track.id + 'Reverse' : undefined,
+          strand       : -1,
+          url          : false,
+          order        : typeof track.orderReverse === 'number' ? track.orderReverse : track.order,
+          forwardTrack : track
+        }));
+
+        $.each(track.controller._deferredReverseTrackImages, function (i, args) { track.controller._makeReverseTrackImage.apply(track.controller, args); });
+        delete track.controller._deferredReverseTrackImages;
+      }, 1);
     }
 
     if (!featureStrand) {
@@ -26,15 +40,23 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
   },
 
   makeForwardImage: function (params) {
-    var reverseTrack = this.prop('reverseTrack');
-    var rtn          = this._makeImage(params);
+    this._makeReverseTrackImage(params, this._makeImage(params));
+  },
 
-    if (rtn && typeof rtn.done === 'function') {
-      rtn.done(function () {
-        reverseTrack._makeImage(params, rtn);
+  _makeReverseTrackImage: function (params, deferred) {
+    var reverseTrack = this.prop('reverseTrack');
+
+    if (!reverseTrack) {
+      this._deferredReverseTrackImages = (this._deferredReverseTrackImages || []).concat([[ params, deferred ]]);
+      return;
+    }
+
+    if (deferred && typeof deferred.done === 'function') {
+      deferred.done(function () {
+        reverseTrack.controller._makeImage(params, deferred);
       });
     } else {
-      reverseTrack._makeImage(params, rtn);
+      reverseTrack.controller._makeImage(params, deferred);
     }
   },
 
@@ -45,7 +67,7 @@ Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
 
     this.removing = true;
 
-    this.browser.removeTrack((this.prop('forwardTrack') || this.prop('reverseTrack')).track);
+    this.browser.removeTrack(this.prop('forwardTrack') || this.prop('reverseTrack'));
     this.base();
   }
 });
