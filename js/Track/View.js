@@ -236,12 +236,20 @@ Genoverse.Track.View = Base.extend({
     var depth         = 0;
     var scaleSettings = this.scaleSettings[feature.chr][scale];
     var labels        = tree === scaleSettings.labelPositions && tree !== scaleSettings.featurePositions;
-    var bump, clash;
+    var bump, clash, searchResults, i;
 
     do {
       if (this.depth && ++depth >= this.depth) {
-        if (!labels && $.grep(scaleSettings.featurePositions.search(bounds), function (f) { return f.position[scale].visible !== false; }).length) {
-          feature.position[scale].visible = false;
+        if (!labels) {
+          searchResults = scaleSettings.featurePositions.search(bounds);
+          i             = searchResults.length;
+
+          while (i--) {
+            if (searchResults[i].position[scale].visible !== false) {
+              feature.position[scale].visible = false;
+              break;
+            }
+          }
         }
 
         break;
