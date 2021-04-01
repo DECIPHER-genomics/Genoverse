@@ -1,5 +1,6 @@
 var Genoverse = Base.extend({
   // Defaults
+  baseURL            : undefined, // If multiple instances of Genoverse exist on a page at once, specifying different baseURL values allows some/all to ignore external URL changes
   urlParamTemplate   : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
   width              : 1000,
   longestLabel       : 30,
@@ -55,14 +56,15 @@ var Genoverse = Base.extend({
 
   loadGenome: function () {
     if (typeof this.genome === 'string') {
-      var genomeName = this.genome;
+      var genomeName = this.genome.toLowerCase();
 
       return $.ajax({
         url      : Genoverse.origin + 'js/genomes/' + genomeName + '.js',
         dataType : 'script',
         context  : this,
         success  : function () {
-          this.genome = Genoverse.Genomes[genomeName];
+          this.genomeName = this.genome;
+          this.genome     = Genoverse.Genomes[genomeName];
 
           if (!this.genome) {
             this.die('Unable to load genome ' + genomeName);
@@ -89,7 +91,20 @@ var Genoverse = Base.extend({
       plugins = [ plugins ];
     }
 
-    function loadPlugin(plugin) {
+    plugins = plugins.map(function (plugin) {
+      return Array.isArray(plugin) ? plugin : [ plugin, {}];
+    });
+
+    var pluginsByName = plugins.reduce(
+      function (acc, plugin) {
+        acc[plugin[0]] = plugin;
+        return acc;
+      },
+      {}
+    );
+
+    function loadPlugin(arg) {
+      var plugin   = arg[0];
       var css      = Genoverse.origin + 'css/'        + plugin + '.css';
       var js       = Genoverse.origin + 'js/plugins/' + plugin + '.js';
       var deferred = $.Deferred();
@@ -97,7 +112,7 @@ var Genoverse = Base.extend({
       function getCSS() {
         function done() {
           browser.loadedPlugins[plugin] = browser.loadedPlugins[plugin] || 'script';
-          deferred.resolve(plugin);
+          deferred.resolve(arg);
         }
 
         if (Genoverse.Plugins[plugin].noCSS || $('link[href="' + css + '"]').length) {
@@ -116,7 +131,7 @@ var Genoverse = Base.extend({
       return deferred;
     }
 
-    function initializePlugin(plugin) {
+    function initializePlugin(plugin, conf) {
       if (typeof Genoverse.Plugins[plugin] !== 'function' || browser.loadedPlugins[plugin] === true) {
         return [];
       }
@@ -126,7 +141,7 @@ var Genoverse = Base.extend({
 
       function init() {
         if (browser.loadedPlugins[plugin] !== true) {
-          Genoverse.Plugins[plugin].call(browser);
+          Genoverse.Plugins[plugin].call(browser, conf);
           browser.container.addClass('gv-' + plugin.replace(/([A-Z])/g, '-$1').toLowerCase() + '-plugin');
           browser.loadedPlugins[plugin] = true;
         }
@@ -135,7 +150,13 @@ var Genoverse = Base.extend({
       }
 
       if (requires) {
-        $.when(browser.loadPlugins(requires)).done(init);
+        $.when(
+          browser.loadPlugins(
+            [].concat(requires).map(function (pluginName) {
+              return pluginsByName[pluginName] || pluginName;
+            })
+          )
+        ).done(init);
       } else {
         init();
       }
@@ -151,8 +172,8 @@ var Genoverse = Base.extend({
       for (i = 0; i < arguments.length; i++) {
         plugin = arguments[i];
 
-        if (browser.loadedPlugins[plugin] !== true) {
-          pluginsLoaded.push(initializePlugin(plugin));
+        if (browser.loadedPlugins[plugin[0]] !== true) {
+          pluginsLoaded.push(initializePlugin(plugin[0], plugin[1]));
         }
       }
 
@@ -182,7 +203,8 @@ var Genoverse = Base.extend({
     this.useHash          = typeof this.useHash === 'boolean' ? this.useHash : typeof window.history.pushState !== 'function';
     this.textWidth        = document.createElement('canvas').getContext('2d').measureText('W').width;
     this.labelWidth       = this.labelContainer.outerWidth(true) || 0;
-    this.width           -= this.labelWidth;
+    this.width            = Math.min(this.width - this.labelWidth, this.wrapper.width() || Infinity); // Recalculate the width to ignore the affect of borders
+
     this.paramRegex       = this.urlParamTemplate ? new RegExp('([?&;])' + this.urlParamTemplate
       .replace(/(\b(\w+=)?__CHR__(.)?)/,   '$2([\\w\\.]+)$3')
       .replace(/(\b(\w+=)?__START__(.)?)/, '$2(\\d+)$3')
@@ -215,9 +237,13 @@ var Genoverse = Base.extend({
   },
 
   loadConfig: function () {
+    var config;
+
     this.defaultTracks = $.extend(true, [], this.tracks);
 
-    var config = window[this.storageType].getItem(this.saveKey);
+    try {
+      config = window[this.storageType].getItem(this.saveKey);
+    } catch (e) {}
 
     if (config) {
       config = JSON.parse(config);
@@ -262,14 +288,15 @@ var Genoverse = Base.extend({
         setConfig(track, config[i]);
         track._fromStorage = true;
       } else if (tracksByNamespace[config[i].namespace]) {
-        track = tracksByNamespace[config[i].namespace];
+        track   = tracksByNamespace[config[i].namespace];
+        trackId = track.prototype.id;
 
-        this.trackIds = this.trackIds || {};
-        this.trackIds[track.prototype.id] = this.trackIds[track.prototype.id] || 1;
+        this.trackIds          = this.trackIds          || {};
+        this.trackIds[trackId] = this.trackIds[trackId] || 1;
 
-        config[i].id = config[i].id || track.prototype.id;
-
-        track = track.extend({ id: !tracksById[config[i].id] ? config[i].id : track.prototype.id + (tracksById[track.prototype.id] ? this.trackIds[track.prototype.id]++ : '') });
+        if (tracksById[trackId]) {
+          track = tracksById[trackId];
+        }
 
         setConfig(track, config[i]);
         tracks.push(track);
@@ -336,7 +363,9 @@ var Genoverse = Base.extend({
       unremovableHighlights = $.map(this.tracksById.highlights.prop('featuresById'), function (h) { return h; });
     }
 
-    window[this.storageType].removeItem(this.saveKey);
+    try {
+      window[this.storageType].removeItem(this.saveKey);
+    } catch (e) {}
 
     this._constructing = true;
     this.savedConfig   = {};
@@ -441,12 +470,16 @@ var Genoverse = Base.extend({
 
       browser.hideMessages();
 
+      if (browser.wheelAction === 'zoom') {
+        return browser.mousewheelZoom(e, delta);
+      }
+
+      // Support horizontal wheel/2-finger scroll on trackpads
       if (deltaY === 0 && deltaX !== 0) {
         browser.startDragScroll(e);
         browser.move(-deltaX * 10);
         browser.stopDragScroll(false);
-      } else if (browser.wheelAction === 'zoom') {
-        return browser.mousewheelZoom(e, delta);
+        return false;
       }
     };
 
@@ -524,7 +557,7 @@ var Genoverse = Base.extend({
     this.width -= this.labelWidth;
 
     if (this.controlPanel) {
-      this.width -= this.controlPanel.width();
+      this.width -= this.controlPanel.outerWidth(true);
     }
 
     if (this.superContainer) {
@@ -534,8 +567,13 @@ var Genoverse = Base.extend({
       this.container.width(width);
     }
 
-    this.onTracks('setWidth', this.width);
-    this.reset('resizing');
+    setTimeout(
+      (function () {
+        this.onTracks('setWidth', Math.min(this.width, this.container.width())); // If this.container has borders, this.container.width() could be less than this.width
+        this.reset('resizing');
+      }).bind(this),
+      1
+    );
   },
 
   mousewheelZoom: function (e, delta) {
@@ -906,7 +944,7 @@ var Genoverse = Base.extend({
   addTracks: function (tracks, after) {
     var defaults = {
       browser : this,
-      width   : this.width
+      width   : Math.min(this.width, this.container.width()) // If this.container has borders, this.container.width() could be less than this.width
     };
 
     var push = !!tracks;
@@ -947,7 +985,9 @@ var Genoverse = Base.extend({
   },
 
   removeTrack: function (track) {
-    this.removeTracks((track.prop('childTracks') || []).concat(track));
+    if (track) {
+      this.removeTracks((track.prop('childTracks') || []).concat(track));
+    }
   },
 
   removeTracks: function (tracks) {
@@ -1058,6 +1098,10 @@ var Genoverse = Base.extend({
   },
 
   popState: function () {
+    if (this.baseURL && !window.location.href.match(this.baseURL)) {
+      return;
+    }
+
     var coords = this.getCoords();
     var start  = parseInt(coords.start, 10);
     var end    = parseInt(coords.end,   10);
@@ -1068,14 +1112,13 @@ var Genoverse = Base.extend({
     ) {
       // FIXME: a back action which changes scale or a zoom out will reset tracks, since scrollStart will not be the same as it was before
       this.moveTo(coords.chr, start, end);
+      this.closeMenus();
+      this.hideMessages();
     }
-
-    this.closeMenus();
-    this.hideMessages();
   },
 
   getCoords: function () {
-    var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') || window.location.search : window.location.search) + '&').match(this.paramRegex);
+    var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') || decodeURIComponent(window.location.search) : decodeURIComponent(window.location.search)) + '&').match(this.paramRegex);
     var coords = {};
     var i      = 0;
 
@@ -1102,7 +1145,21 @@ var Genoverse = Base.extend({
       .replace('__START__', this.start)
       .replace('__END__',   this.end);
 
-    return this.useHash ? location : window.location.search ? (window.location.search + '&').replace(this.paramRegex, '$1' + location + '$5').slice(0, -1) : '?' + location;
+    var currentLocation = (this.useHash ? window.location.hash.replace(/^#/, '?') : decodeURIComponent(window.location.search)) + '&';
+
+    var newLocation = (
+      currentLocation.match(this.paramRegex)
+        ? currentLocation.replace(this.paramRegex, '$1' + location + '$5').slice(0, -1)
+        : currentLocation + location
+    );
+
+    if (this.useHash) {
+      newLocation = newLocation.replace(/^[&?]/, '');
+    } else if (newLocation.indexOf('?') !== 0) {
+      newLocation = '?' + newLocation.replace(/^&/, '');
+    }
+
+    return newLocation;
   },
 
   getChromosomeSize: function (chr) {
@@ -1125,15 +1182,20 @@ var Genoverse = Base.extend({
   },
 
   menuTemplate: $(
-    '<div class="gv-menu">'                                            +
-      '<div class="gv-close gv-menu-button fa fa-times-circle"></div>' +
-      '<div class="gv-menu-loading">Loading...</div>'                  +
-      '<div class="gv-menu-content">'                                  +
-        '<div class="gv-title"></div>'                                 +
-        '<a class="gv-focus" href="#">Focus here</a>'                  +
-        '<a class="gv-highlight" href="#">Highlight this feature</a>'  +
-        '<table></table>'                                              +
-      '</div>'                                                         +
+    '<div class="gv-menu">'                                                        +
+      '<div class="gv-close gv-menu-button fas fa-times-circle"></div>'            +
+      '<div class="gv-menu-loading">Loading...</div>'                              +
+      '<div class="gv-menu-error">An error has occurred</div>'                     +
+      '<div class="gv-menu-content">'                                              +
+        '<div class="gv-title"></div>'                                             +
+        '<table class="gv-focus-highlight">'                                       +
+          '<tr>'                                                                   +
+            '<td><a class="gv-focus" href="#">Focus here</a></td>'                 +
+            '<td><a class="gv-highlight" href="#">Highlight this feature</a></td>' +
+          '</tr>'                                                                  +
+        '</table>'                                                                 +
+        '<table></table>'                                                          +
+      '</div>'                                                                     +
     '</div>'
   ).on('click', function (e) {
     if ($(e.target).hasClass('gv-close')) {
@@ -1169,9 +1231,9 @@ var Genoverse = Base.extend({
     var browser   = this;
     var menu      = this.menuTemplate.clone(true).data({ browser: this });
     var contentEl = $('.gv-menu-content', menu).addClass('gv-menu-content-first');
-    var table     = $('table', contentEl);
+    var table     = $('table:not(.gv-focus-highlight)', contentEl);
 
-    $('.gv-focus, .gv-highlight, .gv-menu-loading', menu).remove();
+    $('.gv-focus-highlight, .gv-menu-loading', menu).remove();
     $('.gv-title', menu).html(features.length + ' features');
 
     $.each(features.sort(function (a, b) { return a.start - b.start; }), function (i, feature) {
@@ -1221,15 +1283,22 @@ var Genoverse = Base.extend({
       return false;
     }
 
-    if (!feature.menuEl) {
-      menu       = browser.menuTemplate.clone(true).data({ browser: browser, feature: feature });
-      content    = $('.gv-menu-content', menu).remove();
-      loading    = $('.gv-menu-loading', menu);
-      getMenu    = track ? track.controller.populateMenu(feature) : feature;
+    if (!feature.menuEl || feature.menuEl.data('hasErrored') === true) {
+      menu    = browser.menuTemplate.clone(true).data({ browser: browser, feature: feature });
+      content = $('.gv-menu-content', menu).remove();
+      loading = $('.gv-menu-loading', menu);
+
+      try {
+        getMenu = track ? track.controller.populateMenu(feature) : feature;
+      } catch (error) {
+        getMenu = $.Deferred().reject(error);
+        menu.data('hasErrored', true);
+      }
+
       isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
 
-      if (isDeferred) {
-        loading.show();
+      if (!isDeferred) {
+        loading.hide();
       }
 
       $.when(getMenu).done(function (properties) {
@@ -1255,7 +1324,7 @@ var Genoverse = Base.extend({
             $('.gv-focus',     el).data(linkData).on('click', focus);
             $('.gv-highlight', el).data(linkData).on('click', highlight);
           } else {
-            $('.gv-focus, .gv-highlight', el).remove();
+            $('.gv-focus-highlight', el).remove();
           }
 
           for (key in properties[i]) {
@@ -1283,12 +1352,17 @@ var Genoverse = Base.extend({
             }
           }
 
-          $('table', el)[table ? 'html' : 'remove'](table);
+          $('table:not(.gv-focus-highlight)', el)[table ? 'html' : 'remove'](table);
         }
 
         if (isDeferred) {
           loading.hide();
         }
+      }).fail(function (error) {
+        loading.hide();
+        menu.data('hasErrored', true);
+        $('.gv-menu-error', menu).css('display', 'block');
+        console.error(error);
       });
 
       if (track) {
@@ -1575,7 +1649,7 @@ $(function () {
   if ($('link[href^="' + Genoverse.origin + 'css/genoverse.css"]').length) {
     Genoverse.ready.resolve();
   } else {
-    $('<link href="' + Genoverse.origin + 'css/genoverse.css" rel="stylesheet">').appendTo('body').on('load', Genoverse.ready.resolve);
+    $('<link href="' + Genoverse.origin + 'css/genoverse.css" rel="stylesheet">').prependTo('body').on('load', Genoverse.ready.resolve);
   }
 });
 

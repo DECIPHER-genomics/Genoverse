@@ -52,6 +52,8 @@ Genoverse.Track = Base.extend({
     this.configSettings    = this.configSettings || {};
     this.defaultConfig     = this.defaultConfig  || {};
     this.controls          = this.controls       || [];
+    this.defaultName       = this.name;
+    this.configName        = [];
     this.defaultHeight     = this.height;
     this.defaultAutoHeight = this.autoHeight;
     this.autoHeight        = typeof this.autoHeight !== 'undefined' ? this.autoHeight : this.browser.trackAutoHeight;
@@ -109,9 +111,7 @@ Genoverse.Track = Base.extend({
       if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(i) && isNaN(i)) {
         if (this._interface[i] === 'controller') {
           controllerSettings[typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
-        }
-        // If we allow trackSettings to overwrite the MVC properties, we will potentially lose of information about instantiated objects that the track needs to perform future switching correctly.
-        else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|models|views|config|disabled)$/.test(i)) {
+        } else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|models|views|config|disabled)$/.test(i)) { // If we allow trackSettings to overwrite the MVC properties, we will potentially lose of information about instantiated objects that the track needs to perform future switching correctly.
           if (typeof this._defaults[i] === 'undefined') {
             this._defaults[i] = this[i];
           }
@@ -258,7 +258,7 @@ Genoverse.Track = Base.extend({
     }
 
     // Force at least one lengthMap entry to exist, containing the base model and view. lengthMap entries above -1 without a model or view will inherit from -1.
-    lengthMap.push([ -1, { view: this.view || Genoverse.Track.View, model: this.model || Genoverse.Track.Model } ]);
+    lengthMap.push([ -1, { view: this.view || Genoverse.Track.View, model: this.model || Genoverse.Track.Model }]);
 
     lengthMap = lengthMap.sort(function (a, b) { return b[0] - a[0]; });
 
@@ -348,7 +348,7 @@ Genoverse.Track = Base.extend({
     var length = this.browser.length || (this.browser.end - this.browser.start + 1);
 
     for (var i = 0; i < this.lengthMap.length; i++) {
-      if (length > this.lengthMap[i][0] || (length === 1 && this.lengthMap[i][0] === 1)) {
+      if (length > this.lengthMap[i][0] || (length === 1 && this.lengthMap[i][0] === 1) || (length < 0 && this.lengthMap[i][0] < 0)) {
         return this.lengthMap[i];
       }
     }
@@ -372,7 +372,6 @@ Genoverse.Track = Base.extend({
 
       obj = obj || this;
     }
-
 
     if (typeof value !== 'undefined') {
       if (value === null) {
@@ -456,7 +455,9 @@ Genoverse.Track = Base.extend({
   _setCurrentConfig: function () {
     var settings       = [];
     var featureFilters = [];
-    var conf;
+    var configName     = [];
+    var controls       = (Array.isArray(this.controls) ? this.controls : []).reduce(function (acc, control) { return acc.add(control); }, $());
+    var conf, i;
 
     this._currentConfig = { prop: {}, func: {} };
 
@@ -469,16 +470,38 @@ Genoverse.Track = Base.extend({
         if (conf.featureFilter) {
           featureFilters.push(conf.featureFilter);
         }
+
+        configName.push(
+          conf.hasOwnProperty('name')
+            ? conf.name
+            : conf.featureFilter === false
+              ? false
+              : controls.filter('[data-control="' + i + '"]').find('[value="' + this.config[i] + '"]').html()
+        );
       }
     }
 
     if (settings.length) {
-      settings = $.extend.apply($, [ true, {} ].concat(settings, { featureFilters: featureFilters }));
+      configName = configName.filter(Boolean);
+
+      settings = $.extend.apply($, [ true, {}].concat(
+        settings,
+        {
+          featureFilters : featureFilters,
+          name           : this.defaultName + (configName.length ? ' - ' + configName.join(', ') : ''),
+          configName     : [ this.defaultName ].concat(configName)
+        }
+      ));
+
       delete settings.featureFilter;
     }
 
     for (i in settings) {
       this._currentConfig[typeof settings[i] === 'function' && !/^(before|after)/.test(i) ? 'func' : 'prop'][i] = settings[i];
+    }
+
+    if (settings.name) {
+      this.updateName(settings.name, settings.configName);
     }
   },
 
@@ -525,7 +548,7 @@ Genoverse.Track = Base.extend({
     var legendType  = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
     var config      = {
       id   : legendType + 'Legend',
-      name : constructor.prototype.name || (this.name + ' Legend'),
+      name : constructor.prototype.name || (this.defaultName + ' Legend'),
       type : legendType
     };
 
@@ -549,8 +572,13 @@ Genoverse.Track = Base.extend({
     }
   },
 
-  updateName: function (name) {
-    this.controller.setName(name); // For ease of use in external code
+  updateName: function (name, configName) { // For ease of use in external code
+    if (this.controller && typeof this.controller !== 'function') {
+      this.controller.setName(name, configName);
+    } else {
+      this.name       = name;
+      this.configName = configName || [];
+    }
   },
 
   enable: function () {

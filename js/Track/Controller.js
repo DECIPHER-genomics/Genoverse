@@ -55,15 +55,23 @@ Genoverse.Track.Controller = Base.extend({
     this.scrollRange[this.scrollStart] = this.scrollRange[this.scrollStart] || { start: Math.max(browser.start - browser.length, 1), end: Math.min(browser.end + browser.length, browser.chromosomeSize) };
   },
 
-  setName: function (name) {
+  setName: function (name, configName) {
     this.track.name = name;
     this.labelName  = this.labelName || $('<span class="gv-name">').appendTo(this.label);
 
-    this.labelName.attr('title', name).html(name);
+    this.labelName.attr('title', name).html(
+      configName && configName.length
+        ? configName.map(function (part) { return '<span class="gv-name-part">' + part + '</span>'; })
+        : name
+    );
 
-    this.minLabelHeight = Math.max(this.labelName.outerHeight(true), this.labelName.outerHeight());
+    this.minLabelHeight = this.label.parents('body').length ? Math.max(this.labelName.outerHeight(true), this.labelName.outerHeight()) : 0;
 
     this.setLabelHeight(true);
+
+    if (name && !this.track._constructing && this.track.height < this.minLabelHeight) {
+      this.resize(this.minLabelHeight);
+    }
   },
 
   addDomElements: function () {
@@ -73,7 +81,7 @@ Genoverse.Track.Controller = Base.extend({
     this.container        = $('<div class="gv-track-container">').appendTo(this.browser.wrapper);
     this.scrollContainer  = $('<div class="gv-scroll-container">').appendTo(this.container);
     this.imgContainer     = $('<div class="gv-image-container">').width(this.width).addClass(this.prop('invert') ? 'gv-invert' : '');
-    this.messageContainer = $('<div class="gv-message-container"><div class="gv-messages"></div><i class="gv-control gv-collapse fa fa-angle-double-left"></i><i class="gv-control gv-expand fa fa-angle-double-right"></i></div>').appendTo(this.container);
+    this.messageContainer = $('<div class="gv-message-container"><div class="gv-messages"></div><i class="gv-control gv-collapse fas fa-angle-double-left"></i><i class="gv-control gv-expand fas fa-angle-double-right"></i></div>').appendTo(this.container);
     this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.prop('height')).data('track', this.track);
     this.context          = $('<canvas>')[0].getContext('2d');
 
@@ -99,7 +107,7 @@ Genoverse.Track.Controller = Base.extend({
       this.label = this.prop('parentTrack').prop('label');
     }
 
-    this.setName(name);
+    this.setName(name, this.track.configName);
 
     this.container.height(this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight));
   },
@@ -154,7 +162,16 @@ Genoverse.Track.Controller = Base.extend({
     var features = this[target && target.hasClass('gv-labels') ? 'labelPositions' : 'featurePositions'].search(bounds);
 
     if (tolerance) {
-      return features.sort(function (a, b) { return Math.abs(a.position[scale].start - x) - Math.abs(b.position[scale].start - x); });
+      return features.filter(function (f) {
+        var featureBounds = f.position[scale].bounds;
+        var center        = featureBounds.x + (featureBounds.w / 2);
+        var minX          = Math.min(featureBounds.x,                   center - (tolerance / 2));
+        var maxX          = Math.max(featureBounds.x + featureBounds.w, center + (tolerance / 2));
+
+        return x >= minX && x <= maxX;
+      }).sort(function (a, b) {
+        return Math.abs(a.position[scale].start - x) - Math.abs(b.position[scale].start - x);
+      });
     }
 
     return this.model.sortFeatures(features);

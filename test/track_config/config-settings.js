@@ -92,7 +92,14 @@ describe('Config settings', function () {
 
   describe('Track, model, view and controller can all have properties and functions set by config', function () {
     var testNow = false;
-    var track   = new Genoverse({
+
+    function test(obj, a, b) {
+      if (testNow) {
+        expect(a).to.eql(b, 'Incorrect attribute value in ' + obj);
+      }
+    }
+
+    var track = new Genoverse({
       chr            : 1,
       start          : 1,
       end            : 100,
@@ -110,6 +117,7 @@ describe('Config settings', function () {
             }
           },
           data           : [],
+          name           : 'test',
           configSettings : {
             test: {
               1: {
@@ -119,7 +127,7 @@ describe('Config settings', function () {
                 dataType        : 1,                      // model property that isn't touched by setDefaults
                 featureMargin   : { top: 1 },             // view property that gets modified by setDefaults
                 minScaledWidth  : 1,                      // view property that isn't touched by setDefaults
-                setMVC          : function () { var rtn = this.base.apply(this, arguments); test('track', this.name, 1); return rtn; },
+                setMVC          : function () { var rtn = this.base.apply(this, arguments); test('track', this.name, 'test - 1'); return rtn; },
                 render          : function () { test('controller', this.clickTolerance,  1);                                                                               return this.base.apply(this, arguments); },
                 findFeatures    : function () { test('model',      this.dataBufferStart, 100);                                      test('model', this.dataType,       1); return this.base.apply(this, arguments); },
                 draw            : function () { test('view',       this.featureMargin,   { top: 1, right: 0, bottom: 0, left: 0 }); test('view',  this.minScaledWidth, 1); return this.base.apply(this, arguments); },
@@ -132,7 +140,7 @@ describe('Config settings', function () {
                 dataType        : 2,
                 featureMargin   : { right: 1, left: 2 },
                 minScaledWidth  : 2,
-                setMVC          : function () { var rtn = this.base.apply(this, arguments); test('track', this.name, 2); return rtn; },
+                setMVC          : function () { var rtn = this.base.apply(this, arguments); test('track', this.name, 'test - 2'); return rtn; },
                 render          : function () { test('controller', this.clickTolerance, 2);                                                                               return this.base.apply(this, arguments); },
                 findFeatures    : function () { test('model',      this.dataBuffer,     { start: 200, end: 100 });                 test('model', this.dataType,       2); return this.base.apply(this, arguments); },
                 draw            : function () { test('view',       this.featureMargin,  { top: 0, right: 1, bottom: 0, left: 2 }); test('view',  this.minScaledWidth, 2); return this.base.apply(this, arguments); },
@@ -144,12 +152,6 @@ describe('Config settings', function () {
         })
       ]
     }).tracks[0];
-
-    function test(obj, a, b) {
-      if (testNow) {
-        expect(a).to.eql(b, 'Incorrect attribute value in ' + obj);
-      }
-    }
 
     it('config 1', function () {
       testNow = true;

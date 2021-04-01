@@ -39,12 +39,12 @@ Genoverse.Track.Controller.Graph.Line = {
     var m, values, i;
 
     function getValues(coords) {
-      var values = coords.map(function (c) { return c[1]; }).sort(function (a, b) { return a - b; });
+      var vals = coords.map(function (c) { return c[1]; }).sort(function (a, b) { return a - b; });
 
       return {
-        avg: values.reduce(function (n, v) { return n + v; }, 0) / values.length,
-        min: values[0],
-        max: values[values.length - 1]
+        avg: vals.reduce(function (n, v) { return n + v; }, 0) / vals.length,
+        min: vals[0],
+        max: vals[vals.length - 1]
       };
     }
 
@@ -68,13 +68,11 @@ Genoverse.Track.Controller.Graph.Line = {
           menu.push(m);
         }
       }
+    } else if (features.length === 1) {
+      menu.Value = features[0].clickedCoords[0][1];
     } else {
-      if (features.length === 1) {
-        menu.Value = features[0].clickedCoords[0][1];
-      } else {
-        for (i = 0; i < features.length; i++) {
-          menu[features[i].dataset] = features[i].clickedCoords[0][1];
-        }
+      for (i = 0; i < features.length; i++) {
+        menu[features[i].dataset] = features[i].clickedCoords[0][1];
       }
     }
 
@@ -93,7 +91,7 @@ Genoverse.Track.Model.Graph.Line = Genoverse.Track.Model.Graph.extend({
 
     data.sort(function (a, b) { return (a.start - b.start) || (a.x - b.x); });
 
-    for (i = 0; i < data.length; i++) {
+    for (var i = 0; i < data.length; i++) {
       if (typeof data[i].y !== 'undefined' && !data[i].coords) {
         x = getX(data[i]);
 
@@ -180,7 +178,7 @@ Genoverse.Track.View.Graph.Line = Genoverse.Track.View.Graph.extend({
     var marginBottom = this.prop('margin');
     var baseline     = Math.min(Math.max(marginTop, marginTop - this.prop('range')[0] * this.track.getYScale()), height - marginTop);
     var binSize      = scale < 1 ? Math.floor(1 / scale) : 0;
-    var set, conf, feature, coords, binnedFeatures, lastBinSize, j, k, binStart, bin, l;
+    var set, conf, feature, coords, binnedFeatures, lastBinSize, j, k, binStart, bin, l, prevFeature, prevCoords;
 
     var defaults = {
       color       : this.color,
@@ -224,6 +222,7 @@ Genoverse.Track.View.Graph.Line = Genoverse.Track.View.Graph.extend({
             }
 
             coords = binnedFeatures;
+            feature.binnedCoords = coords;
           }
 
           featureContext.fillStyle = featureContext.strokeStyle = conf.color;
@@ -252,6 +251,29 @@ Genoverse.Track.View.Graph.Line = Genoverse.Track.View.Graph.extend({
             featureContext.lineTo(coords[coords.length - 1][0], baseline);
             featureContext.closePath();
             featureContext.fill();
+          }
+
+          prevFeature = j ? datasets.features[set][j - i] : undefined;
+
+          if (prevFeature && prevFeature.end === feature.start - 1) {
+            featureContext.beginPath();
+
+            prevCoords = (binSize ? prevFeature.binnedCoords : prevFeature.coordPositions).slice(-1);
+
+            featureContext.moveTo.apply(featureContext, prevCoords[0]);
+            featureContext.lineTo.apply(featureContext, coords[0]);
+            featureContext.stroke();
+
+            if (conf.fill) {
+              featureContext.lineTo(coords[0][0], baseline);
+              featureContext.lineTo(prevCoords[0][0], baseline);
+
+              featureContext.closePath();
+              featureContext.fill();
+            }
+          }
+
+          if (conf.fill) {
             featureContext.globalAlpha = 1;
           }
         }

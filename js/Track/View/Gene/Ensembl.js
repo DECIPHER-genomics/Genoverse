@@ -18,9 +18,10 @@ Genoverse.Track.View.Gene.Ensembl = Genoverse.Track.View.Gene.extend({
     feature.color = '#000000';
 
     if (feature.logic_name.indexOf('ensembl_havana') === 0) {
-      feature.color  = '#CD9B1D';
-      feature.legend = 'Merged Ensembl/Havana';
-    } else if (processedTranscript[feature.biotype]) {
+      feature.color      = '#CD9B1D';
+      feature.labelColor = '#B78000';
+      feature.legend     = 'Merged Ensembl/Havana';
+    } else if (processedTranscript[feature.biotype.toLowerCase()]) {
       feature.color  = '#0000FF';
       feature.legend = 'Processed transcript';
     } else if (feature.biotype === 'protein_coding') {
@@ -29,7 +30,7 @@ Genoverse.Track.View.Gene.Ensembl = Genoverse.Track.View.Gene.extend({
     } else if (feature.biotype.indexOf('pseudogene') > -1) {
       feature.color  = '#666666';
       feature.legend = 'Pseudogene';
-    } else if (/rna/i.test(feature.biotype)) {
+    } else if (/rna/i.test(feature.biotype) || feature.biotype === 'ribozyme') {
       feature.color  = '#8B668B';
       feature.legend = 'RNA gene';
     } else if (/^tr_.+_gene$/i.test(feature.biotype)) {
@@ -40,6 +41,6 @@ Genoverse.Track.View.Gene.Ensembl = Genoverse.Track.View.Gene.extend({
       feature.legend = 'IG gene';
     }
 
-    feature.labelColor = feature.color;
+    feature.labelColor = feature.labelColor || feature.color;
   }
 });

@@ -36,12 +36,13 @@
         container : '#genoverse', // Where to inject Genoverse (css/jQuery selector/DOM element)
         // If no genome supplied, it must have at least chromosomeSize, e.g.:
         // chromosomeSize : 249250621, // chromosome 1, human
-        genome    : 'grch38', // see js/genomes/
+        genome    : 'GRCh38', // see js/genomes/
         chr       : 13,
         start     : 32296945,
         end       : 32370557,
-        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
+        plugins   : [ 'controlPanel', [ 'karyotype', { showAssembly: true }], 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
         tracks    : [
+          Genoverse.Track.Scaleline.extend({ strand: false }),
           Genoverse.Track.Scalebar,
           Genoverse.Track.extend({
             name       : 'Sequence',
@@ -54,7 +55,7 @@
           Genoverse.Track.Gene,
           Genoverse.Track.extend({
             name            : 'Regulatory Features',
-            url             : 'http://rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=regulatory;content-type=application/json',
+            url             : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=regulatory;content-type=application/json',
             resizable       : 'auto',
             model           : Genoverse.Track.Model.extend({ dataRequestLimit : 5000000 }),
             setFeatureColor : function (f) { f.color = '#AAA'; }

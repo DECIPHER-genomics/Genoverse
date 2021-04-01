@@ -5,6 +5,7 @@ Genoverse.Track.View = Base.extend({
   fontColor        : undefined, // label color defaults to this, or feature color, or track.color (below), in that order of precedence
   color            : '#000000',
   minScaledWidth   : 0.5,
+  precisionFactor  : 0, // Rounding factor to be applied to feature start/width when drawing, e.g. 2 = starts and widths will be rounded to the nearest 0.5
   widthCorrection  : 1, // Pixels to add to the end of a feature when scale > 1 - ensures that 1bp features are always at least 1px wide
   labels           : true,
   repeatLabels     : false,
@@ -72,8 +73,16 @@ Genoverse.Track.View = Base.extend({
     return this.scaleSettings[chr][scale];
   },
 
+  roundPixelValue: function (value) {
+    if (this.precisionFactor) {
+      return Math.round(value * this.precisionFactor) / this.precisionFactor;
+    }
+
+    return value;
+  },
+
   scaleFeatures: function (features, scale) {
-    var add = Math.max(scale, this.widthCorrection);
+    var add = this.roundPixelValue(Math.max(scale, this.widthCorrection));
     var feature, j;
 
     for (var i = 0; i < features.length; i++) {
@@ -85,8 +94,8 @@ Genoverse.Track.View = Base.extend({
 
       if (!feature.position[scale]) {
         feature.position[scale] = {
-          start  : feature.start * scale,
-          width  : Math.max((feature.end - feature.start) * scale + add, this.minScaledWidth),
+          start  : this.roundPixelValue(feature.start * scale),
+          width  : Math.max(this.roundPixelValue((feature.end - feature.start) * scale + add), this.minScaledWidth),
           height : feature.height || this.featureHeight
         };
       }
@@ -227,12 +236,20 @@ Genoverse.Track.View = Base.extend({
     var depth         = 0;
     var scaleSettings = this.scaleSettings[feature.chr][scale];
     var labels        = tree === scaleSettings.labelPositions && tree !== scaleSettings.featurePositions;
-    var bump, clash;
+    var bump, clash, searchResults, i;
 
     do {
       if (this.depth && ++depth >= this.depth) {
-        if (!labels && $.grep(scaleSettings.featurePositions.search(bounds), function (f) { return f.position[scale].visible !== false; }).length) {
-          feature.position[scale].visible = false;
+        if (!labels) {
+          searchResults = scaleSettings.featurePositions.search(bounds);
+          i             = searchResults.length;
+
+          while (i--) {
+            if (searchResults[i].position[scale].visible !== false) {
+              feature.position[scale].visible = false;
+              break;
+            }
+          }
         }
 
         break;

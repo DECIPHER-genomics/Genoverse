@@ -24,7 +24,7 @@ Genoverse.Plugins.fileDrop = function () {
           ev.stopPropagation();
 
           // Sort in order to ensure that .bam files are before their .bam.bai files
-          var files = $.map(ev.originalEvent.dataTransfer.files, function (f) { return f; }).sort(function (a, b) { return a.name < b.name ? -1 : 1; });
+          var files = $.map(ev.originalEvent.dataTransfer.files, function (f) { return f; }).sort(function (a, b) { return a.name.localeCompare(b.name); });
 
           for (var i = 0; i < files.length; i++) {
             var file  = files[i];

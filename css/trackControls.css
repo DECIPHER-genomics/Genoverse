@@ -42,7 +42,8 @@
   text-decoration: underline;
 }
 
-.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.fa:hover {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.far:hover,
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.fas:hover {
   text-decoration: none;
 }
 
@@ -58,7 +59,8 @@
   padding: 0 5px 0 10px;
 }
 
-.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-track-controls-toggle .fa {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-track-controls-toggle .far,
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-track-controls-toggle .fas {
   margin-right: 5px;
 }
 
@@ -71,20 +73,20 @@
   position: relative;
 }
 
-.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle .fa-sort-asc,
-.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle .fa-sort-desc,
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle .fa-sort-up,
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle .fa-sort-down,
 .gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height .fa-sort {
   display: none;
 }
 
-.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height .fa-sort-asc,
-.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height .fa-sort-desc {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height .fa-sort-up,
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height .fa-sort-down {
   display: inline-block;
   position: absolute;
   left: 6px;
   top: -4px;
 }
-.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height .fa-sort-desc {
+.gv-track-controls-plugin .gv-track-container div.gv-track-controls a.gv-height-toggle.gv-auto-height .fa-sort-down {
   top: -15px;
 }
 

@@ -13,7 +13,7 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
 
   populateMenu: function (feature) {
     return {
-      title  : '<a target="_blank" href="http://www.1000genomes.org/node/101">VCF feature details</a>',
+      title  : '<a target="_blank" href="https://www.internationalgenome.org/wiki/Analysis/vcf4.0">VCF feature details</a>',
       CHROM  : feature.originalFeature[0],
       POS    : feature.originalFeature[1],
       ID     : feature.originalFeature[2],

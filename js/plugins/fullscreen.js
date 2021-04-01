@@ -1,5 +1,5 @@
 Genoverse.Plugins.fullscreen = function () {
-  var browser     = this;
+  var genoverse   = this;
   var supported   = true;
   var eventName   = 'fullscreenchange';  // All the browsers have different names
   var elemName    = 'fullscreenElement'; // ... even the capitalisation varies!
@@ -27,7 +27,7 @@ Genoverse.Plugins.fullscreen = function () {
     supported = false;
   }
 
-  browser.fullscreenVars = {
+  genoverse.fullscreenVars = {
     eventName   : eventName,
     elemName    : elemName,
     cancelName  : cancelName,
@@ -37,28 +37,28 @@ Genoverse.Plugins.fullscreen = function () {
       browser.preFullscreenWidth = browser.superContainer.width();
       browser.superContainer.addClass('gv-fullscreen');
       browser.setWidth(window.innerWidth);
-      browser.controlPanel.find('.gv-fullscreen-button .fa').removeClass('fa-expand').addClass('fa-compress');
+      browser.controlPanel.find('.gv-fullscreen-button .fas').removeClass('fa-expand-arrows-alt').addClass('fa-compress-arrows-alt');
     },
 
     exitEvent: function (browser) {
       if (browser.superContainer.hasClass('gv-fullscreen')) {
         browser.superContainer.removeClass('gv-fullscreen');
         browser.setWidth(browser.preFullscreenWidth);
-        browser.controlPanel.find('.gv-fullscreen-button .fa').removeClass('fa-compress').addClass('fa-expand');
+        browser.controlPanel.find('.gv-fullscreen-button .fas').removeClass('fa-compress-arrows-alt').addClass('fa-expand-arrows-alt');
       }
     },
 
     eventListener: function () {
-      if (!browser.superContainer.is(document[browser.fullscreenVars.elemName])) {
-        browser.fullscreenVars.exitEvent(browser);
-        document.removeEventListener(browser.fullscreenVars.eventName, browser.fullscreenVars.eventListener);
+      if (!genoverse.superContainer.is(document[genoverse.fullscreenVars.elemName])) {
+        genoverse.fullscreenVars.exitEvent(genoverse);
+        document.removeEventListener(genoverse.fullscreenVars.eventName, genoverse.fullscreenVars.eventListener);
       }
     }
   };
 
   if (supported) {
-    browser.controls.push({
-      icon    : '<i class="fa fa-expand"></i>',
+    genoverse.controls.push({
+      icon    : '<i class="fas fa-expand-arrows-alt"></i>',
       'class' : 'gv-fullscreen-button',
       name    : 'Toggle fullscreen view',
       action  : function (browser) {

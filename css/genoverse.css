@@ -219,6 +219,16 @@
   word-spacing: 1000px;
 }
 
+.gv-label-container li .gv-name .gv-name-part {
+  display: block;
+}
+
+.gv-label-container li .gv-name .gv-name-part:not(:first-child) {
+  text-shadow: none;
+  font-weight: normal;
+  color: #DDDDDD;
+}
+
 .gv-track-container .gv-track-border,
 .gv-track-container-static .gv-track-border {
   position: absolute;
@@ -295,6 +305,11 @@
   text-align: center;
 }
 
+.gv-menu .gv-menu-error {
+  display: none;
+  padding: 10px;
+}
+
 .gv-menu .gv-menu-content {
   font-size: 11px;
 }
@@ -334,7 +349,6 @@
 
 .gv-menu .gv-menu-content .gv-focus,
 .gv-menu .gv-menu-content .gv-highlight {
-  margin: 5px 10px;
   white-space: nowrap;
 }
 
@@ -350,7 +364,7 @@
 .gv-menu .gv-close {
   position: absolute;
   right: 0;
-  font-size: 18px;
+  font-size: 16px;
   padding: 3px 5px;
 }
 
