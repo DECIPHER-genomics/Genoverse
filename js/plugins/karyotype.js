@@ -1,7 +1,18 @@
-Genoverse.Plugins.karyotype = function () {
+Genoverse.Plugins.karyotype = function (pluginConf) {
   function createKaryotype() {
-    var chromosome = $('<div class="gv-chromosome">');
-    var container  = $('<div class="gv-karyotype-container">').html(chromosome).insertBefore(this.wrapper);
+    var chromosome   = $('<div class="gv-chromosome">');
+    var container    = $('<div class="gv-karyotype-container">').html(chromosome).insertBefore(this.wrapper);
+    var assemblyName = this.assembly || this.genomeName;
+    var name         = (pluginConf.showAssembly && assemblyName ? assemblyName + ': ' : '') + 'Chr ' + this.chr;
+
+    if (pluginConf.showAssembly && assemblyName) {
+      container.addClass('gv-show-assembly');
+    }
+
+    var measureWidth = $('<div class="gv-chromosome"><ul class="gv-label-container"><li><span class="gv-name">' + name + '</span></li></ul></div>').appendTo(container);
+    var labelWidth   = pluginConf.karyotypeLabel === false ? 0 : measureWidth.find('.gv-name').outerWidth(true) + 10;
+
+    measureWidth.remove();
 
     this.karyotype = new Genoverse({
       parent    : this,
@@ -14,7 +25,7 @@ Genoverse.Plugins.karyotype = function () {
       isStatic  : true,
       tracks    : [
         Genoverse.Track.Chromosome.extend({
-          name          : 'Chr ' + this.chr,
+          name          : name,
           height        : 20,
           featureHeight : 20,
           border        : false,
@@ -106,13 +117,18 @@ Genoverse.Plugins.karyotype = function () {
           }
         }
 
-        if (parent.karyotypeLabel === false) {
+        if (pluginConf.karyotypeLabel === false) {
           this.labelContainer.remove();
           this.labelContainer = $();
           container.addClass('gv-no-label');
+        } else {
+          this.labelContainer.width(labelWidth);
         }
 
-        this.viewPoint = $('<div class="gv-karyotype-viewpoint-wrapper"><div class="gv-karyotype-viewpoint"></div></div>').appendTo(container).children().on({
+        this.viewPoint = $('<div class="gv-karyotype-viewpoint-wrapper"><div class="gv-karyotype-viewpoint"></div></div>').appendTo(container).css({
+          left  : labelWidth,
+          width : this.width - labelWidth
+        }).children().on({
           mousemove : function (e) { karyotype.track.controller.click(e); },
           mouseout  : function (e) {
             var el = $(e.relatedTarget);

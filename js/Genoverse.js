@@ -55,14 +55,15 @@ var Genoverse = Base.extend({
 
   loadGenome: function () {
     if (typeof this.genome === 'string') {
-      var genomeName = this.genome;
+      var genomeName = this.genome.toLowerCase();
 
       return $.ajax({
         url      : Genoverse.origin + 'js/genomes/' + genomeName + '.js',
         dataType : 'script',
         context  : this,
         success  : function () {
-          this.genome = Genoverse.Genomes[genomeName];
+          this.genomeName = this.genome;
+          this.genome     = Genoverse.Genomes[genomeName];
 
           if (!this.genome) {
             this.die('Unable to load genome ' + genomeName);
@@ -89,7 +90,20 @@ var Genoverse = Base.extend({
       plugins = [ plugins ];
     }
 
-    function loadPlugin(plugin) {
+    plugins = plugins.map(function (plugin) {
+      return Array.isArray(plugin) ? plugin : [ plugin, {}];
+    });
+
+    var pluginsByName = plugins.reduce(
+      function (acc, plugin) {
+        acc[plugin[0]] = plugin;
+        return acc;
+      },
+      {}
+    );
+
+    function loadPlugin(arg) {
+      var plugin   = arg[0];
       var css      = Genoverse.origin + 'css/'        + plugin + '.css';
       var js       = Genoverse.origin + 'js/plugins/' + plugin + '.js';
       var deferred = $.Deferred();
@@ -97,7 +111,7 @@ var Genoverse = Base.extend({
       function getCSS() {
         function done() {
           browser.loadedPlugins[plugin] = browser.loadedPlugins[plugin] || 'script';
-          deferred.resolve(plugin);
+          deferred.resolve(arg);
         }
 
         if (Genoverse.Plugins[plugin].noCSS || $('link[href="' + css + '"]').length) {
@@ -116,7 +130,7 @@ var Genoverse = Base.extend({
       return deferred;
     }
 
-    function initializePlugin(plugin) {
+    function initializePlugin(plugin, conf) {
       if (typeof Genoverse.Plugins[plugin] !== 'function' || browser.loadedPlugins[plugin] === true) {
         return [];
       }
@@ -126,7 +140,7 @@ var Genoverse = Base.extend({
 
       function init() {
         if (browser.loadedPlugins[plugin] !== true) {
-          Genoverse.Plugins[plugin].call(browser);
+          Genoverse.Plugins[plugin].call(browser, conf);
           browser.container.addClass('gv-' + plugin.replace(/([A-Z])/g, '-$1').toLowerCase() + '-plugin');
           browser.loadedPlugins[plugin] = true;
         }
@@ -135,7 +149,13 @@ var Genoverse = Base.extend({
       }
 
       if (requires) {
-        $.when(browser.loadPlugins(requires)).done(init);
+        $.when(
+          browser.loadPlugins(
+            [].concat(requires).map(function (pluginName) {
+              return pluginsByName[pluginName] || pluginName;
+            })
+          )
+        ).done(init);
       } else {
         init();
       }
@@ -151,8 +171,8 @@ var Genoverse = Base.extend({
       for (i = 0; i < arguments.length; i++) {
         plugin = arguments[i];
 
-        if (browser.loadedPlugins[plugin] !== true) {
-          pluginsLoaded.push(initializePlugin(plugin));
+        if (browser.loadedPlugins[plugin[0]] !== true) {
+          pluginsLoaded.push(initializePlugin(plugin[0], plugin[1]));
         }
       }
 
@@ -182,7 +202,8 @@ var Genoverse = Base.extend({
     this.useHash          = typeof this.useHash === 'boolean' ? this.useHash : typeof window.history.pushState !== 'function';
     this.textWidth        = document.createElement('canvas').getContext('2d').measureText('W').width;
     this.labelWidth       = this.labelContainer.outerWidth(true) || 0;
-    this.width           -= this.labelWidth;
+    this.width            = Math.min(this.width - this.labelWidth, this.wrapper.width() || Infinity); // Recalculate the width to ignore the affect of borders
+
     this.paramRegex       = this.urlParamTemplate ? new RegExp('([?&;])' + this.urlParamTemplate
       .replace(/(\b(\w+=)?__CHR__(.)?)/,   '$2([\\w\\.]+)$3')
       .replace(/(\b(\w+=)?__START__(.)?)/, '$2(\\d+)$3')
@@ -524,7 +545,7 @@ var Genoverse = Base.extend({
     this.width -= this.labelWidth;
 
     if (this.controlPanel) {
-      this.width -= this.controlPanel.width();
+      this.width -= this.controlPanel.outerWidth(true);
     }
 
     if (this.superContainer) {
@@ -534,8 +555,13 @@ var Genoverse = Base.extend({
       this.container.width(width);
     }
 
-    this.onTracks('setWidth', this.width);
-    this.reset('resizing');
+    setTimeout(
+      (function () {
+        this.onTracks('setWidth', Math.min(this.width, this.container.width())); // If this.container has borders, this.container.width() could be less than this.width
+        this.reset('resizing');
+      }).bind(this),
+      1
+    );
   },
 
   mousewheelZoom: function (e, delta) {
@@ -906,7 +932,7 @@ var Genoverse = Base.extend({
   addTracks: function (tracks, after) {
     var defaults = {
       browser : this,
-      width   : this.width
+      width   : Math.min(this.width, this.container.width()) // If this.container has borders, this.container.width() could be less than this.width
     };
 
     var push = !!tracks;

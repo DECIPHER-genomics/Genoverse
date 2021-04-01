@@ -36,11 +36,11 @@
         container : '#genoverse', // Where to inject Genoverse (css/jQuery selector/DOM element)
         // If no genome supplied, it must have at least chromosomeSize, e.g.:
         // chromosomeSize : 249250621, // chromosome 1, human
-        genome    : 'grch38', // see js/genomes/
+        genome    : 'GRCh38', // see js/genomes/
         chr       : 13,
         start     : 32296945,
         end       : 32370557,
-        plugins   : [ 'controlPanel', 'karyotype', 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
+        plugins   : [ 'controlPanel', [ 'karyotype', { showAssembly: true }], 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
         tracks    : [
           Genoverse.Track.Scalebar,
           Genoverse.Track.extend({

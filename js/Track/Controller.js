@@ -65,7 +65,7 @@ Genoverse.Track.Controller = Base.extend({
         : name
     );
 
-    this.minLabelHeight = Math.max(this.labelName.outerHeight(true), this.labelName.outerHeight());
+    this.minLabelHeight = this.label.parents('body').length ? Math.max(this.labelName.outerHeight(true), this.labelName.outerHeight()) : 0;
 
     this.setLabelHeight(true);
 
