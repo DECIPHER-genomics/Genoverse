@@ -20,7 +20,7 @@
   "bugs": {
     "url": "https://github.com/wtsi-web/Genoverse/issues"
   },
-  "homepage": "http://wtsi-web.github.io/Genoverse/",
+  "homepage": "https://wtsi-web.github.io/Genoverse/",
   "devDependencies": {
     "canvas": "^2.6.1",
     "chai": "^4.2.0",

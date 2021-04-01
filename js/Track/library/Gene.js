@@ -5,7 +5,7 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
   legend : true,
 
   populateMenu: function (feature) {
-    var url  = 'http://www.ensembl.org/Homo_sapiens/' + (feature.feature_type === 'transcript' ? 'Transcript' : 'Gene') + '/Summary?' + (feature.feature_type === 'transcript' ? 't' : 'g') + '=' + feature.id;
+    var url  = 'https://www.ensembl.org/Homo_sapiens/' + (feature.feature_type === 'transcript' ? 'Transcript' : 'Gene') + '/Summary?' + (feature.feature_type === 'transcript' ? 't' : 'g') + '=' + feature.id;
     var menu = {
       title    : '<a target="_blank" href="' + url + '">' + (feature.external_name ? feature.external_name + ' (' + feature.id + ')' : feature.id) + '</a>',
       Location : feature.chr + ':' + feature.start + '-' + feature.end,
@@ -14,7 +14,7 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
     };
 
     if (feature.feature_type === 'transcript') {
-      menu.Gene = '<a target="_blank" href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?g=' + feature.Parent + '">' + feature.Parent + '</a>';
+      menu.Gene = '<a target="_blank" href="https://www.ensembl.org/Homo_sapiens/Gene/Summary?g=' + feature.Parent + '">' + feature.Parent + '</a>';
     }
 
     return menu;

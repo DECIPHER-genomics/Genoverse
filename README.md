@@ -8,4 +8,4 @@ Genoverse works with a variety of formats, such as XML, JSON, BED, VCF, GFF, GFF
 
 If you have any questions, please contact info@genoverse.org
 
-Example: http://genoverse.org
+Example: https://genoverse.org
