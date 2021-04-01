@@ -42,6 +42,7 @@
         end       : 32370557,
         plugins   : [ 'controlPanel', [ 'karyotype', { showAssembly: true }], 'trackControls', 'resizer', 'focusRegion', 'fullscreen', 'tooltips', 'fileDrop' ],
         tracks    : [
+          Genoverse.Track.Scaleline.extend({ strand: false }),
           Genoverse.Track.Scalebar,
           Genoverse.Track.extend({
             name       : 'Sequence',
