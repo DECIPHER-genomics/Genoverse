@@ -8,6 +8,7 @@ Genoverse.Track.Model = Base.extend({
   urlParamsGenerator : function () { return {}; }, // function to return URL params (only used if urlParams property is falsy)
   data               : undefined, // if defined, will be used instead of fetching data from a source
   dataRequestLimit   : undefined, // if defined, multiple requests will be made by getData if the region size exceeds its value
+  showServerErrors   : false,     // if true, error messages return from the server by getData requests will be shown on the track
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -113,9 +114,20 @@ Genoverse.Track.Model = Base.extend({
         dataType  : model.dataType,
         context   : model,
         xhrFields : model.xhrFields,
-        success   : function (data) { this.receiveData(data, chr, bin[0], bin[1]); },
-        error     : function (xhr, statusText) { this.track.controller.showError(statusText + ' while getting the data, see console for more details', arguments); },
-        complete  : function (xhr) { this.dataLoading = $.grep(this.dataLoading, function (t) { return xhr !== t; }); }
+        success   : function (data) {
+          this.receiveData(data, chr, bin[0], bin[1]);
+        },
+        error: function (xhr, statusText) {
+          this.track.controller.showError(
+            this.showServerErrors && (xhr.responseJSON || {}).message
+              ? xhr.responseJSON.message
+              : statusText + ' while getting the data, see console for more details',
+            arguments
+          );
+        },
+        complete: function (xhr) {
+          this.dataLoading = $.grep(this.dataLoading, function (t) { return xhr !== t; });
+        }
       });
 
       request.coords = [ chr, bin[0], bin[1] ]; // store actual chr, start and end on the request, in case they are needed
