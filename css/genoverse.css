@@ -219,6 +219,16 @@
   word-spacing: 1000px;
 }
 
+.gv-label-container li .gv-name .gv-name-part {
+  display: block;
+}
+
+.gv-label-container li .gv-name .gv-name-part:not(:first-child) {
+  text-shadow: none;
+  font-weight: normal;
+  color: #DDDDDD;
+}
+
 .gv-track-container .gv-track-border,
 .gv-track-container-static .gv-track-border {
   position: absolute;

@@ -55,15 +55,23 @@ Genoverse.Track.Controller = Base.extend({
     this.scrollRange[this.scrollStart] = this.scrollRange[this.scrollStart] || { start: Math.max(browser.start - browser.length, 1), end: Math.min(browser.end + browser.length, browser.chromosomeSize) };
   },
 
-  setName: function (name) {
+  setName: function (name, configName) {
     this.track.name = name;
     this.labelName  = this.labelName || $('<span class="gv-name">').appendTo(this.label);
 
-    this.labelName.attr('title', name).html(name);
+    this.labelName.attr('title', name).html(
+      configName && configName.length
+        ? configName.map(function (part) { return '<span class="gv-name-part">' + part + '</span>'; })
+        : name
+    );
 
     this.minLabelHeight = Math.max(this.labelName.outerHeight(true), this.labelName.outerHeight());
 
     this.setLabelHeight(true);
+
+    if (name && !this.track._constructing && this.track.height < this.minLabelHeight) {
+      this.resize(this.minLabelHeight);
+    }
   },
 
   addDomElements: function () {
@@ -99,7 +107,7 @@ Genoverse.Track.Controller = Base.extend({
       this.label = this.prop('parentTrack').prop('label');
     }
 
-    this.setName(name);
+    this.setName(name, this.track.configName);
 
     this.container.height(this.prop('disabled') ? 0 : Math.max(this.prop('height'), this.minLabelHeight));
   },
