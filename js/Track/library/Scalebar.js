@@ -64,18 +64,14 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
     if (majorUnit === -1) {
       majorUnit = this.browser.length === 1 ? 1 : parseInt('1' + $.map(new Array(fromDigit.length), function () { return '0'; }).join(''), 10);
       divisor   = 1;
-    } else {
-      // Improve things by trying simple multiples of 1<n zeroes>.
-      // (eg if 100 will fit will 200, 400, 500).
-      if (divisions * 5 <= max) {
-        majorUnit /= 5;
-        divisor    = 2;
-      } else if (divisions * 4 <= max) {
-        majorUnit /= 4;
-        divisor    = 1;
-      } else if (divisions * 2 <= max) {
-        majorUnit /= 2;
-      }
+    } else if (divisions * 5 <= max) { // Improve things by trying simple multiples of 1<n zeroes>. (eg if 100 will fit will 200, 400, 500).
+      majorUnit /= 5;
+      divisor    = 2;
+    } else if (divisions * 4 <= max) {
+      majorUnit /= 4;
+      divisor    = 1;
+    } else if (divisions * 2 <= max) {
+      majorUnit /= 2;
     }
 
     majorUnit = Math.max(majorUnit, 1);
@@ -219,7 +215,7 @@ Genoverse.Track.Scalebar = Genoverse.Track.extend({
   drawBackground: function (f, context) {
     for (var i in this.guideLines) {
       if (this.guideLines[i] >= 0 && this.guideLines[i] <= this.width) {
-        context.fillStyle = this.track.colors[this.guideLines.major[i] ? 'majorGuideLine' : 'minorGuideLine' ];
+        context.fillStyle = this.track.colors[this.guideLines.major[i] ? 'majorGuideLine' : 'minorGuideLine'];
         context.fillRect(this.guideLines[i], 0, 1, context.canvas.height);
       }
     }

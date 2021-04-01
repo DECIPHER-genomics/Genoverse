@@ -149,8 +149,9 @@ Genoverse.Track.View.Graph = Genoverse.Track.View.extend({
     var datasets = this.prop('datasets').concat({ name: '_default' });
     var setNames = {};
     var sets     = {};
+    var i, set;
 
-    for (var i = 0; i < datasets.length; i++) {
+    for (i = 0; i < datasets.length; i++) {
       setNames[datasets[i].name] = true;
     }
 

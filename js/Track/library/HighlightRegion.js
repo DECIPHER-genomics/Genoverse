@@ -170,7 +170,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       }
     },
 
-    getClickedFeatures: function (x, y, target) {
+    getClickedFeatures: function (x, y) {
       var seen     = {};
       var scale    = this.scale;
       var features = $.grep(
@@ -180,12 +180,14 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
           $.grep(this.labelPositions.search({ x: x, y: y, w: 1, h: 1 }), function (f) {
             return f.position[scale].label.visible !== false;
           })
-        ), function (f) {
-        // with duplicates removed
-        var rtn = !seen[f.id];
-        seen[f.id] = true;
-        return rtn;
-      });
+        ),
+        function (f) {
+          // with duplicates removed
+          var rtn = !seen[f.id];
+          seen[f.id] = true;
+          return rtn;
+        }
+      );
 
       return features.length ? [ this.model.sortFeatures(features) ] : false;
     }
@@ -259,7 +261,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       }
     },
 
-    decorateFeature: function (feature, context, scale) {
+    decorateFeature: function (feature, context) {
       var x1   = feature.x + 0.5;
       var x2   = x1 + feature.width;
       var draw = false;

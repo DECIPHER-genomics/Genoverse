@@ -39,12 +39,12 @@ Genoverse.Track.Controller.Graph.Line = {
     var m, values, i;
 
     function getValues(coords) {
-      var values = coords.map(function (c) { return c[1]; }).sort(function (a, b) { return a - b; });
+      var vals = coords.map(function (c) { return c[1]; }).sort(function (a, b) { return a - b; });
 
       return {
-        avg: values.reduce(function (n, v) { return n + v; }, 0) / values.length,
-        min: values[0],
-        max: values[values.length - 1]
+        avg: vals.reduce(function (n, v) { return n + v; }, 0) / vals.length,
+        min: vals[0],
+        max: vals[vals.length - 1]
       };
     }
 
@@ -68,13 +68,11 @@ Genoverse.Track.Controller.Graph.Line = {
           menu.push(m);
         }
       }
+    } else if (features.length === 1) {
+      menu.Value = features[0].clickedCoords[0][1];
     } else {
-      if (features.length === 1) {
-        menu.Value = features[0].clickedCoords[0][1];
-      } else {
-        for (i = 0; i < features.length; i++) {
-          menu[features[i].dataset] = features[i].clickedCoords[0][1];
-        }
+      for (i = 0; i < features.length; i++) {
+        menu[features[i].dataset] = features[i].clickedCoords[0][1];
       }
     }
 

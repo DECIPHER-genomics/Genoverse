@@ -38,12 +38,12 @@ Genoverse.Track.Controller.Graph.Bar = {
     var values, i;
 
     function getValues(_features) {
-      var values = _features.map(function (f) { return f.height; }).sort(function (a, b) { return a - b; });
+      var vals = _features.map(function (f) { return f.height; }).sort(function (a, b) { return a - b; });
 
       return {
-        avg: values.reduce(function (n, v) { return n + v; }, 0) / values.length,
-        min: values[0],
-        max: values[values.length - 1]
+        avg: vals.reduce(function (n, v) { return n + v; }, 0) / vals.length,
+        min: vals[0],
+        max: vals[vals.length - 1]
       };
     }
 
@@ -81,13 +81,11 @@ Genoverse.Track.Controller.Graph.Bar = {
           }, datasets[i].name ? { title: datasets[i].name } : {}));
         }
       }
+    } else if (features.length === 1) {
+      menu.Value = features[0].height;
     } else {
-      if (features.length === 1) {
-        menu.Value = features[0].height;
-      } else {
-        for (i = 0; i < features.length; i++) {
-          menu[features[i].dataset] = features[i].height;
-        }
+      for (i = 0; i < features.length; i++) {
+        menu[features[i].dataset] = features[i].height;
       }
     }
 
@@ -157,7 +155,6 @@ Genoverse.Track.View.Graph.Bar = Genoverse.Track.View.Graph.extend({
             bin.push(setFeatures[j++]);
           }
 
-
           f = $.extend(true, {}, bin[0], {
             height : bin.reduce(function (a, b) { return a + b.height; }, 0) / bin.length,
             end    : bin[bin.length - 1].end
@@ -202,22 +199,23 @@ Genoverse.Track.Graph.Bar = Genoverse.Track.Graph.extend({
 
       return hash;
     }, {}), {
-    fill  : true,
-    model : Genoverse.Track.Model.Graph.Line.extend({
-      parseData: function (data, chr, start, end) {
-        var coords = [];
-        var j;
+      fill  : true,
+      model : Genoverse.Track.Model.Graph.Line.extend({
+        parseData: function (data, chr, start, end) {
+          var coords = [];
+          var j;
 
-        for (var i = 0; i < data.length; i++) {
-          for (j = data[i].start; j < data[i].end; j++) {
-            coords.push([ j, data[i].height ]);
+          for (var i = 0; i < data.length; i++) {
+            for (j = data[i].start; j < data[i].end; j++) {
+              coords.push([ j, data[i].height ]);
+            }
           }
-        }
 
-        return this.base([{ chr: chr, start: start, end: end, coords: coords }], chr, start, end);
-      }
-    })
-  }),
+          return this.base([{ chr: chr, start: start, end: end, coords: coords }], chr, start, end);
+        }
+      })
+    }
+  ),
   50000: $.extend( // Switch to sparser line graph at 50000bp region
     Object.keys(Genoverse.Track.Graph.Line.prototype).reduce(function (hash, key) {
       if (Genoverse.Track.Graph.Line.prototype.hasOwnProperty(key) && !Base.prototype[key]) {
@@ -226,11 +224,12 @@ Genoverse.Track.Graph.Bar = Genoverse.Track.Graph.extend({
 
       return hash;
     }, {}), {
-    fill  : true,
-    model : Genoverse.Track.Model.Graph.Line.extend({
-      parseData: function (data, chr, start, end) {
-        return this.base([{ chr: chr, start: start, end: end, coords: data.map(function (d) { return [ d.start, d.height ]; }) }], chr, start, end);
-      }
-    })
-  })
+      fill  : true,
+      model : Genoverse.Track.Model.Graph.Line.extend({
+        parseData: function (data, chr, start, end) {
+          return this.base([{ chr: chr, start: start, end: end, coords: data.map(function (d) { return [ d.start, d.height ]; }) }], chr, start, end);
+        }
+      })
+    }
+  )
 });
