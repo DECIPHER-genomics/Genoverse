@@ -287,14 +287,15 @@ var Genoverse = Base.extend({
         setConfig(track, config[i]);
         track._fromStorage = true;
       } else if (tracksByNamespace[config[i].namespace]) {
-        track = tracksByNamespace[config[i].namespace];
+        track   = tracksByNamespace[config[i].namespace];
+        trackId = track.prototype.id;
 
-        this.trackIds = this.trackIds || {};
-        this.trackIds[track.prototype.id] = this.trackIds[track.prototype.id] || 1;
+        this.trackIds          = this.trackIds          || {};
+        this.trackIds[trackId] = this.trackIds[trackId] || 1;
 
-        config[i].id = config[i].id || track.prototype.id;
-
-        track = track.extend({ id: !tracksById[config[i].id] ? config[i].id : track.prototype.id + (tracksById[track.prototype.id] ? this.trackIds[track.prototype.id]++ : '') });
+        if (tracksById[trackId]) {
+          track = tracksById[trackId];
+        }
 
         setConfig(track, config[i]);
         tracks.push(track);
