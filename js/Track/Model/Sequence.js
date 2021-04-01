@@ -17,8 +17,8 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
   },
 
   getData: function (chr, start, end) {
-    start = start - start % this.chunkSize + 1;
-    end   = end + this.chunkSize - end % this.chunkSize;
+    start = start - (start % this.chunkSize) + 1;
+    end   = end + this.chunkSize - (end % this.chunkSize);
     return this.base(chr, start, end);
   },
 
@@ -35,10 +35,10 @@ Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
       }
 
       var feature = {
-        id       : chr + ':' + start + i,
+        id       : chr + ':' + start + ':' + i,
         chr      : chr,
         start    : start + i,
-        end      : start + i + this.chunkSize,
+        end      : start + i + this.chunkSize - 1,
         sequence : data.substr(i, this.chunkSize),
         sort     : start + i
       };
