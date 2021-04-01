@@ -1,5 +1,6 @@
 var Genoverse = Base.extend({
   // Defaults
+  baseURL            : undefined, // If multiple instances of Genoverse exist on a page at once, specifying different baseURL values allows some/all to ignore external URL changes
   urlParamTemplate   : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
   width              : 1000,
   longestLabel       : 30,
@@ -1097,6 +1098,10 @@ var Genoverse = Base.extend({
   },
 
   popState: function () {
+    if (this.baseURL && !window.location.href.match(this.baseURL)) {
+      return;
+    }
+
     var coords = this.getCoords();
     var start  = parseInt(coords.start, 10);
     var end    = parseInt(coords.end,   10);
@@ -1107,14 +1112,13 @@ var Genoverse = Base.extend({
     ) {
       // FIXME: a back action which changes scale or a zoom out will reset tracks, since scrollStart will not be the same as it was before
       this.moveTo(coords.chr, start, end);
+      this.closeMenus();
+      this.hideMessages();
     }
-
-    this.closeMenus();
-    this.hideMessages();
   },
 
   getCoords: function () {
-    var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') || window.location.search : window.location.search) + '&').match(this.paramRegex);
+    var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') || decodeURIComponent(window.location.search) : decodeURIComponent(window.location.search)) + '&').match(this.paramRegex);
     var coords = {};
     var i      = 0;
 
@@ -1141,7 +1145,21 @@ var Genoverse = Base.extend({
       .replace('__START__', this.start)
       .replace('__END__',   this.end);
 
-    return this.useHash ? location : window.location.search ? (window.location.search + '&').replace(this.paramRegex, '$1' + location + '$5').slice(0, -1) : '?' + location;
+    var currentLocation = (this.useHash ? window.location.hash.replace(/^#/, '?') : decodeURIComponent(window.location.search)) + '&';
+
+    var newLocation = (
+      currentLocation.match(this.paramRegex)
+        ? currentLocation.replace(this.paramRegex, '$1' + location + '$5').slice(0, -1)
+        : currentLocation + location
+    );
+
+    if (this.useHash) {
+      newLocation = newLocation.replace(/^[&?]/, '');
+    } else if (newLocation.indexOf('?') !== 0) {
+      newLocation = '?' + newLocation.replace(/^&/, '');
+    }
+
+    return newLocation;
   },
 
   getChromosomeSize: function (chr) {
