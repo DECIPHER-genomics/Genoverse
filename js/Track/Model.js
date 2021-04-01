@@ -1,12 +1,13 @@
 Genoverse.Track.Model = Base.extend({
   dataType         : 'json',
-  allData          : false,
-  dataBuffer       : undefined, // e.g. { start: 0, end: 0 } - basepairs to extend data region for, when getting data from the origin
-  xhrFields        : undefined,
-  url              : undefined,
-  urlParams        : undefined, // hash of URL params
-  data             : undefined, // if defined, will be used instead of fetching data from a source
-  dataRequestLimit : undefined, // if defined, multiple requests will be made by getData if the region size exceeds its value
+  allData            : false,
+  dataBuffer         : undefined, // e.g. { start: 0, end: 0 } - basepairs to extend data region for, when getting data from the origin
+  xhrFields          : undefined,
+  url                : undefined,
+  urlParams          : undefined, // hash of URL params
+  urlParamsGenerator : function () { return {}; }, // function to return URL params (only used if urlParams property is falsy)
+  data               : undefined, // if defined, will be used instead of fetching data from a source
+  dataRequestLimit   : undefined, // if defined, multiple requests will be made by getData if the region size exceeds its value
 
   constructor: function (properties) {
     $.extend(this, properties);
@@ -34,8 +35,8 @@ Genoverse.Track.Model = Base.extend({
   },
 
   setDefaults: function (reset) {
-    this.dataBuffer = this.dataBuffer || { start: 0, end: 0 }; // basepairs to extend data region for, when getting data from the origin
-    this.urlParams  = this.urlParams  || {};                   // hash of URL params
+    this.dataBuffer = this.dataBuffer || { start: 0, end: 0 };      // basepairs to extend data region for, when getting data from the origin
+    this.urlParams  = this.urlParams  || this.urlParamsGenerator(); // hash of URL params
     this.xhrFields  = this.xhrFields  || {};
 
     this.dataBufferStart = this.dataBuffer.start; // Remember original dataBuffer.start, since dataBuffer.start is updated based on browser scale, in setLabelBuffer
