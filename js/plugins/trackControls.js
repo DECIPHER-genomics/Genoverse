@@ -5,8 +5,10 @@ Genoverse.Plugins.trackControls = function () {
       var menu  = track.prop('menus').filter('.gv-track-info');
 
       if (!menu.length) {
+        var info = track.prop('info');
+
         menu = { title : track.name };
-        menu[track.prop('info') || ''] = '';
+        menu[typeof info === 'function' ? info.call(track) : info || ''] = '';
 
         menu = track.prop('menus', track.prop('menus').add(track.browser.makeMenu(menu).addClass('gv-track-info')));
       }
