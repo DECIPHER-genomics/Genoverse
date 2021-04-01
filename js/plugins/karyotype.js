@@ -174,7 +174,7 @@ Genoverse.Plugins.karyotype = function (pluginConf) {
       }
     });
 
-    if (!this.loadedPlugins.controlPanel) {
+    if (this.loadedPlugins.controlPanel !== true) {
       $('<li class="gv-unsortable">').height(function (i, h) {
         return h + container.height();
       }).prependTo(this.labelContainer);
