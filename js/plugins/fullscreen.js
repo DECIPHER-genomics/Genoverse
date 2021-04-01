@@ -1,5 +1,5 @@
 Genoverse.Plugins.fullscreen = function () {
-  var browser     = this;
+  var genoverse   = this;
   var supported   = true;
   var eventName   = 'fullscreenchange';  // All the browsers have different names
   var elemName    = 'fullscreenElement'; // ... even the capitalisation varies!
@@ -27,7 +27,7 @@ Genoverse.Plugins.fullscreen = function () {
     supported = false;
   }
 
-  browser.fullscreenVars = {
+  genoverse.fullscreenVars = {
     eventName   : eventName,
     elemName    : elemName,
     cancelName  : cancelName,
@@ -49,15 +49,15 @@ Genoverse.Plugins.fullscreen = function () {
     },
 
     eventListener: function () {
-      if (!browser.superContainer.is(document[browser.fullscreenVars.elemName])) {
-        browser.fullscreenVars.exitEvent(browser);
-        document.removeEventListener(browser.fullscreenVars.eventName, browser.fullscreenVars.eventListener);
+      if (!genoverse.superContainer.is(document[genoverse.fullscreenVars.elemName])) {
+        genoverse.fullscreenVars.exitEvent(genoverse);
+        document.removeEventListener(genoverse.fullscreenVars.eventName, genoverse.fullscreenVars.eventListener);
       }
     }
   };
 
   if (supported) {
-    browser.controls.push({
+    genoverse.controls.push({
       icon    : '<i class="fas fa-expand-arrows-alt"></i>',
       'class' : 'gv-fullscreen-button',
       name    : 'Toggle fullscreen view',
