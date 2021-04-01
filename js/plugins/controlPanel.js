@@ -271,7 +271,9 @@ Genoverse.Plugins.controlPanel = function () {
             if (browser.tracksLibrary && browser.tracksLibrary.length) {
               var tracksLibrary = $.map(browser.tracksLibrary, function (track) {
                 return track.prototype.name && track.prototype.removable !== false ? [[ track.prototype.name.toLowerCase(), track ]] : undefined;
-              }).sort(function (a, b) { return a[0] > b[0] ? 1 : -1; });
+              }).sort(function (a, b) {
+                return a[0].localeCompare(b[0]);
+              });
 
               for (var i = 0; i < tracksLibrary.length; i++) {
                 (function (track) {
