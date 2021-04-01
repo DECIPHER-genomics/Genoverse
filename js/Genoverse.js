@@ -236,9 +236,13 @@ var Genoverse = Base.extend({
   },
 
   loadConfig: function () {
+    var config;
+
     this.defaultTracks = $.extend(true, [], this.tracks);
 
-    var config = window[this.storageType].getItem(this.saveKey);
+    try {
+      config = window[this.storageType].getItem(this.saveKey);
+    } catch (e) {}
 
     if (config) {
       config = JSON.parse(config);
@@ -357,7 +361,9 @@ var Genoverse = Base.extend({
       unremovableHighlights = $.map(this.tracksById.highlights.prop('featuresById'), function (h) { return h; });
     }
 
-    window[this.storageType].removeItem(this.saveKey);
+    try {
+      window[this.storageType].removeItem(this.saveKey);
+    } catch (e) {}
 
     this._constructing = true;
     this.savedConfig   = {};
