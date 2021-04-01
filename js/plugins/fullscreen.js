@@ -37,14 +37,14 @@ Genoverse.Plugins.fullscreen = function () {
       browser.preFullscreenWidth = browser.superContainer.width();
       browser.superContainer.addClass('gv-fullscreen');
       browser.setWidth(window.innerWidth);
-      browser.controlPanel.find('.gv-fullscreen-button .fa').removeClass('fa-expand').addClass('fa-compress');
+      browser.controlPanel.find('.gv-fullscreen-button .fas').removeClass('fa-expand-arrows-alt').addClass('fa-compress-arrows-alt');
     },
 
     exitEvent: function (browser) {
       if (browser.superContainer.hasClass('gv-fullscreen')) {
         browser.superContainer.removeClass('gv-fullscreen');
         browser.setWidth(browser.preFullscreenWidth);
-        browser.controlPanel.find('.gv-fullscreen-button .fa').removeClass('fa-compress').addClass('fa-expand');
+        browser.controlPanel.find('.gv-fullscreen-button .fas').removeClass('fa-compress-arrows-alt').addClass('fa-expand-arrows-alt');
       }
     },
 
@@ -58,7 +58,7 @@ Genoverse.Plugins.fullscreen = function () {
 
   if (supported) {
     browser.controls.push({
-      icon    : '<i class="fa fa-expand"></i>',
+      icon    : '<i class="fas fa-expand-arrows-alt"></i>',
       'class' : 'gv-fullscreen-button',
       name    : 'Toggle fullscreen view',
       action  : function (browser) {
