@@ -1151,15 +1151,20 @@ var Genoverse = Base.extend({
   },
 
   menuTemplate: $(
-    '<div class="gv-menu">'                                             +
-      '<div class="gv-close gv-menu-button fas fa-times-circle"></div>' +
-      '<div class="gv-menu-loading">Loading...</div>'                   +
-      '<div class="gv-menu-content">'                                   +
-        '<div class="gv-title"></div>'                                  +
-        '<a class="gv-focus" href="#">Focus here</a>'                   +
-        '<a class="gv-highlight" href="#">Highlight this feature</a>'   +
-        '<table></table>'                                               +
-      '</div>'                                                          +
+    '<div class="gv-menu">'                                                        +
+      '<div class="gv-close gv-menu-button fas fa-times-circle"></div>'            +
+      '<div class="gv-menu-loading">Loading...</div>'                              +
+      '<div class="gv-menu-error">An error has occurred</div>'                     +
+      '<div class="gv-menu-content">'                                              +
+        '<div class="gv-title"></div>'                                             +
+        '<table class="gv-focus-highlight">'                                       +
+          '<tr>'                                                                   +
+            '<td><a class="gv-focus" href="#">Focus here</a></td>'                 +
+            '<td><a class="gv-highlight" href="#">Highlight this feature</a></td>' +
+          '</tr>'                                                                  +
+        '</table>'                                                                 +
+        '<table></table>'                                                          +
+      '</div>'                                                                     +
     '</div>'
   ).on('click', function (e) {
     if ($(e.target).hasClass('gv-close')) {
@@ -1195,9 +1200,9 @@ var Genoverse = Base.extend({
     var browser   = this;
     var menu      = this.menuTemplate.clone(true).data({ browser: this });
     var contentEl = $('.gv-menu-content', menu).addClass('gv-menu-content-first');
-    var table     = $('table', contentEl);
+    var table     = $('table:not(.gv-focus-highlight)', contentEl);
 
-    $('.gv-focus, .gv-highlight, .gv-menu-loading', menu).remove();
+    $('.gv-focus-highlight, .gv-menu-loading', menu).remove();
     $('.gv-title', menu).html(features.length + ' features');
 
     $.each(features.sort(function (a, b) { return a.start - b.start; }), function (i, feature) {
@@ -1247,15 +1252,22 @@ var Genoverse = Base.extend({
       return false;
     }
 
-    if (!feature.menuEl) {
-      menu       = browser.menuTemplate.clone(true).data({ browser: browser, feature: feature });
-      content    = $('.gv-menu-content', menu).remove();
-      loading    = $('.gv-menu-loading', menu);
-      getMenu    = track ? track.controller.populateMenu(feature) : feature;
+    if (!feature.menuEl || feature.menuEl.data('hasErrored') === true) {
+      menu    = browser.menuTemplate.clone(true).data({ browser: browser, feature: feature });
+      content = $('.gv-menu-content', menu).remove();
+      loading = $('.gv-menu-loading', menu);
+
+      try {
+        getMenu = track ? track.controller.populateMenu(feature) : feature;
+      } catch (error) {
+        getMenu = $.Deferred().reject(error);
+        menu.data('hasErrored', true);
+      }
+
       isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
 
-      if (isDeferred) {
-        loading.show();
+      if (!isDeferred) {
+        loading.hide();
       }
 
       $.when(getMenu).done(function (properties) {
@@ -1281,7 +1293,7 @@ var Genoverse = Base.extend({
             $('.gv-focus',     el).data(linkData).on('click', focus);
             $('.gv-highlight', el).data(linkData).on('click', highlight);
           } else {
-            $('.gv-focus, .gv-highlight', el).remove();
+            $('.gv-focus-highlight', el).remove();
           }
 
           for (key in properties[i]) {
@@ -1309,12 +1321,17 @@ var Genoverse = Base.extend({
             }
           }
 
-          $('table', el)[table ? 'html' : 'remove'](table);
+          $('table:not(.gv-focus-highlight)', el)[table ? 'html' : 'remove'](table);
         }
 
         if (isDeferred) {
           loading.hide();
         }
+      }).fail(function (error) {
+        loading.hide();
+        menu.data('hasErrored', true);
+        $('.gv-menu-error', menu).css('display', 'block');
+        console.error(error);
       });
 
       if (track) {
