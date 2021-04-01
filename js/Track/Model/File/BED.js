@@ -21,7 +21,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
       if (fields[0] == chr || fields[0].toLowerCase() === 'chr' + chr || fields[0].match('[^1-9]' + chr + '$')) {
         feature = {
           chr             : chr,
-          start           : parseInt(fields[1], 10),
+          start           : parseInt(fields[1], 10) + 1,
           end             : parseInt(fields[2], 10),
           name            : fields[3],
           color           : '#000000',
@@ -32,9 +32,9 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
         if (len > 5) { feature.strand = fields[5];                 }
 
         if (len > 7) {
-          feature.thickStart = fields[6];
-          feature.thickEnd   = fields[7];
-          feature.drawThick  = feature.thickStart !== feature.thickEnd;
+          feature.thickStart = parseInt(fields[6], 10) + 1;
+          feature.thickEnd   = parseInt(fields[7], 10);
+          feature.drawThick  = fields[6] !== fields[7];
         }
 
         if (fields[8]) {
@@ -56,11 +56,11 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
               height : thinHeight // if subfeature lies entirely left / right to [ thickStart, thickEnd ]
             };
 
-            subfeature.end = subfeature.start + parseInt(blockSizes[j], 10);
+            subfeature.end = subfeature.start + parseInt(blockSizes[j], 10) - 1;
 
             if (feature.drawThick && subfeature.start <= feature.thickEnd && subfeature.end >= feature.thickStart) {
               // some kind of an overlap for sure
-              if (subfeature.start > feature.thickStart && subfeature.end < feature.thickEnd) {
+              if (subfeature.start >= feature.thickStart && subfeature.end <= feature.thickEnd) {
                 // subfeature within thickBlock, draw thick
                 subfeature.height = thickHeight;
                 subfeatures.push(subfeature);
