@@ -469,12 +469,16 @@ var Genoverse = Base.extend({
 
       browser.hideMessages();
 
+      if (browser.wheelAction === 'zoom') {
+        return browser.mousewheelZoom(e, delta);
+      }
+
+      // Support horizontal wheel/2-finger scroll on trackpads
       if (deltaY === 0 && deltaX !== 0) {
         browser.startDragScroll(e);
         browser.move(-deltaX * 10);
         browser.stopDragScroll(false);
-      } else if (browser.wheelAction === 'zoom') {
-        return browser.mousewheelZoom(e, delta);
+        return false;
       }
     };
 
