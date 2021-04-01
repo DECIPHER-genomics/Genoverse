@@ -984,7 +984,9 @@ var Genoverse = Base.extend({
   },
 
   removeTrack: function (track) {
-    this.removeTracks((track.prop('childTracks') || []).concat(track));
+    if (track) {
+      this.removeTracks((track.prop('childTracks') || []).concat(track));
+    }
   },
 
   removeTracks: function (tracks) {
