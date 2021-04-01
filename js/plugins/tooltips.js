@@ -4,7 +4,7 @@
 // released under the MIT license
 
 Genoverse.Plugins.tooltips = function () {
-  var browser = this;
+  var genoverse = this;
 
   function toggleTooltips(browser, tooltips, action) {
     var offset = browser.superContainer.offset();
@@ -13,7 +13,16 @@ Genoverse.Plugins.tooltips = function () {
     action   = action   || $(this).toggleClass('gv-active').hasClass('gv-active') ? 'show' : 'hide';
 
     tooltips.each(function () {
-      $(this).tipsy(action).data('tipsy').$tip.appendTo(browser.superContainer).css({ marginTop: -offset.top, marginLeft: -offset.left });
+      var el = $(this);
+
+      if (el.is(':visible')) {
+        el.tipsy(action).data('tipsy').$tip.data({ parent: el }).appendTo(browser.superContainer).css({
+          marginTop  : -offset.top,
+          marginLeft : -offset.left
+        });
+      } else if (el.data('tipsy').$tip) {
+        el.tipsy('hide');
+      }
     });
   }
 
@@ -21,10 +30,10 @@ Genoverse.Plugins.tooltips = function () {
     var tooltips = $();
 
     $.each([
-      [ browser.labelContainer.find('.gv-handle'), { gravity: 'w', fade: true, trigger: 'manual', fallback: 'Reorder tracks by dragging this handle' }],
-      [ browser.container.find('.gv-resizer'),     { gravity: 'n', fade: true, trigger: 'manual', fallback: 'Resize track by dragging this handle'   }]
+      [ genoverse.labelContainer.find('.gv-handle'), { gravity: 'w', fade: true, trigger: 'manual', fallback: 'Reorder tracks by dragging this handle' }],
+      [ genoverse.container.find('.gv-resizer'),     { gravity: 'n', fade: true, trigger: 'manual', fallback: 'Resize track by dragging this handle'   }]
     ], function () {
-      var el = this[0].first();
+      var el = this[0].filter(':visible').first();
 
       if (!el.hasClass('gv-tooltip')) {
         this[0].filter('.gv-tooltip').removeClass('gv-tooltip').tipsy('hide').removeData('tipsy');
@@ -34,8 +43,14 @@ Genoverse.Plugins.tooltips = function () {
       tooltips = tooltips.add(el);
     });
 
-    if (browser.controlPanel.find('.gv-tooltips').hasClass('gv-active')) {
-      toggleTooltips(browser, tooltips, 'show');
+    // Remove any tooltips orphaned by the removal of a track
+    genoverse.superContainer.find('.tipsy').not(function () {
+      var parent = $(this).data('parent');
+      return parent && genoverse.superContainer.find(parent).length;
+    }).remove();
+
+    if (genoverse.controlPanel.find('.gv-tooltips').hasClass('gv-active')) {
+      toggleTooltips(genoverse, tooltips, 'show');
     }
 
     return tooltips;

@@ -1,5 +1,5 @@
 .tipsy { font-size: 10px; position: absolute; padding: 5px; z-index: 1000; }
-.tipsy-inner { background-color: #000; color: #FFF; max-width: 200px; padding: 5px 8px 4px 8px; text-align: center; font-family: Tahoma; font-size: 11px; }
+.tipsy-inner { background-color: #000; color: #FFF; max-width: 250px; padding: 5px 8px 4px 8px; text-align: center; font-family: Tahoma; font-size: 11px; }
 
 /* Rounded corners */
 .tipsy-inner { border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
@@ -22,3 +22,5 @@
 .tipsy-w  .tipsy-arrow { left: 0; top: 50%; margin-top: -5px; border-right-style: solid; border-left: none; border-top-color: transparent; border-bottom-color: transparent; }
 
 .gv-wrapper-tooltip { position: absolute; left: 50%; top: 60px; }
+
+.genoverse .tooltip { z-index: 1000; }
