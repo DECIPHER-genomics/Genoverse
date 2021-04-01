@@ -35,11 +35,7 @@ Genoverse.Track.Model.Legend = Genoverse.Track.Model.Static.extend({
 
   sortFeatures: function (features) {
     // sort legend alphabetically
-    return features.sort(function (a, b) {
-      var x = a[0].toLowerCase();
-      var y = b[0].toLowerCase();
-      return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-    });
+    return features.sort(function (a, b) { return a[0].localeCompare(b[0]); });
   }
 });
 
