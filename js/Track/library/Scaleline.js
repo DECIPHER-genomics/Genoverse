@@ -5,6 +5,7 @@ Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
   labels     : 'overlay',
   unsortable : true,
   fixedOrder : true,
+  arrowWidth : 7,
 
   resize: $.noop,
 
@@ -23,48 +24,68 @@ Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
 
     if (params.scale === this.drawnScale) {
       return false;
-    } else if (scaleline) {
+    }
+
+    if (scaleline) {
       return scaleline;
     }
 
-    var strand = this.prop('strand');
-    var height = this.prop('height');
-    var text   = this.formatLabel(this.browser.length);
-    var text2  = strand === 1 ? 'Forward strand' : 'Reverse strand';
-    var width1 = this.context.measureText(text).width;
-    var width2 = this.context.measureText(text2).width;
-    var x1, x2;
+    var strand     = this.prop('strand');
+    var height     = this.prop('height');
+    var text       = this.formatLabel(this.browser.length);
+    var width      = this.context.measureText(text).width;
+    var textMargin = 10; // 5px each side
+    var y          = height / 2;
+    var x1         = 0;
+    var x2         = (this.width - width - textMargin) / 2;
 
-    if (strand === 1) {
-      x1 = 0;
-      x2 = this.width - width2 - 40;
+    if (strand) {
+      var strandText  = strand === 1 ? 'Forward strand' : 'Reverse strand';
+      var strandWidth = this.context.measureText(strandText).width;
+      var x3          = (
+        strand === 1
+          ? this.width - this.prop('arrowWidth') - strandWidth - (1.5 * textMargin)
+          : this.prop('arrowWidth') + (0.5 * textMargin)
+      );
+
+      scaleline = [
+        { x: x1, y: y, width: this.width,               height: 1, decorations: true },
+        { x: x2, y: 0, width: width       + textMargin, height: height, clear: true, color: false, labelColor: this.color, labelWidth: width,       label: text       },
+        { x: x3, y: 0, width: strandWidth + textMargin, height: height, clear: true, color: false, labelColor: this.color, labelWidth: strandWidth, label: strandText }
+      ];
     } else {
-      x1 = 25;
-      x2 = 30;
+      scaleline = [
+        { x: x1, y: y, width: this.width,         height: 1, decorations: true },
+        { x: x2, y: 0, width: width + textMargin, height: height, clear: true, color: false, labelColor: this.color, labelWidth: width, label: text }
+      ];
     }
-
-    scaleline = [
-      { x: x1,                             y: height / 2, width: this.width - 25, height: 1, decorations: true },
-      { x: (this.width - width1 - 10) / 2, y: 0,          width: width1 + 10,     height: height, clear: true, color: false, labelColor: this.color, labelWidth: width1, label: text  },
-      { x: x2,                             y: 0,          width: width2 + 10,     height: height, clear: true, color: false, labelColor: this.color, labelWidth: width2, label: text2 }
-    ];
 
     return this.base(this.prop('scaleline', scaleline), params);
   },
 
   decorateFeature: function (feature, context) {
-    var strand = this.prop('strand');
-    var height = this.prop('height');
-    var x      = strand === 1 ? this.width - 25 : 25;
+    var strand     = this.prop('strand');
+    var height     = this.prop('height');
+    var arrowWidth = this.prop('arrowWidth');
+    var width      = this.width;
 
     context.strokeStyle = this.color;
 
-    context.beginPath();
-    context.moveTo(x,                 height * 0.25);
-    context.lineTo(x + (strand * 20), height * 0.5);
-    context.lineTo(x,                 height * 0.75);
-    context.closePath();
-    context.stroke();
-    context.fill();
+    [ -1, 1 ].filter(
+      function (dir) { return strand ? dir === strand : true; }
+    ).forEach(
+      function (dir) {
+        var x1 = dir === 1 ? width - arrowWidth : arrowWidth;
+        var x2 = x1 + (dir * arrowWidth);
+
+        context.beginPath();
+        context.moveTo(x1, height * 0.25);
+        context.lineTo(x2, height * 0.5);
+        context.lineTo(x1, height * 0.75);
+        context.closePath();
+        context.stroke();
+        context.fill();
+      }
+    );
   }
 });
