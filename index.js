@@ -1,20 +1,17 @@
 'use strict';
 
-global.jQuery = global.$ = require(__dirname + '/js/lib/jquery.js');
-require(__dirname + '/js/lib/jquery-ui.js');
+global.jQuery = global.$ = require('jquery');
+require('jquery-ui-bundle');
 require(__dirname + '/js/lib/jquery.mousewheel.js');
 require(__dirname + '/js/lib/jquery.mousehold.js');
 require(__dirname + '/js/lib/jquery.tipsy.js');
 
-global.Base         = require(__dirname + '/js/lib/Base.js');
-global.RTree        = require(__dirname + '/js/lib/rtree.js');
-global.dallianceLib = require(__dirname + '/js/lib/dalliance-lib.min.js');
-global.jDataView    = require(__dirname + '/js/lib/jDataView.js');
-global.jParser      = require(__dirname + '/js/lib/jParser.js');
-global.BWReader     = require(__dirname + '/js/lib/BWReader.js');
-global.VCFReader    = require(__dirname + '/js/lib/VCFReader.js');
+global.genomeHash = {
+  grch37: require(__dirname + '/js/genomes/grch37.json'),
+  grch38: require(__dirname + '/js/genomes/grch38.json')
+};
 
-global.Genoverse = require(__dirname + '/js/Genoverse.js');
+require(__dirname + '/js/Genoverse.js');
 
 require(__dirname + '/js/Track.js');
 
@@ -81,3 +78,15 @@ require(__dirname + '/js/plugins/karyotype.js');
 require(__dirname + '/js/plugins/resizer.js');
 require(__dirname + '/js/plugins/tooltips.js');
 require(__dirname + '/js/plugins/trackControls.js');
+
+// CSS:
+require(__dirname + '/css/genoverse.css');
+require(__dirname + '/css/controlPanel.css');
+require(__dirname + '/css/trackControls.css');
+require(__dirname + '/css/tooltips.css');
+require(__dirname + '/css/resizer.css');
+require(__dirname + '/css/karyotype.css');
+require(__dirname + '/css/fileDrop.css');
+require(__dirname + '/css/fullscreen.css');
+
+module.exports = global.Genoverse

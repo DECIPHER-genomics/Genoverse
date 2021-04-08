@@ -2,7 +2,7 @@
   "name": "genoverse",
   "version": "3.0.0",
   "description": "Genoverse is a portable, customizable, back-end independent JavaScript and HTML5 based genome browser which allows the user to explore data in a dynamic and interactive manner.",
-  "main": "js/Genoverse.js",
+  "main": "js/genoverse.min.js",
   "directories": {
     "lib": "js",
     "test": "test"
@@ -24,12 +24,21 @@
   "devDependencies": {
     "canvas": "^2.7.0",
     "chai": "^4.3.4",
+    "css-loader": "^5.2.0",
+    "terser-webpack-plugin": "^5.1.1",
+    "exports-loader": "^1.1.1",
+    "file-loader": "^6.2.0",
     "jsdom": "^16.5.2",
     "mocha": "^8.3.2",
     "request": "^2.88.2",
     "sinon": "^10.0.0",
-    "terser-webpack-plugin": "^5.1.1",
+    "style-loader": "^2.0.0",
+    "url-loader": "^4.1.1",
     "webpack": "^5.28.0",
     "webpack-cli": "^4.6.0"
+  },
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "jquery-ui-bundle": "^1.12.1-migrate"
   }
 }

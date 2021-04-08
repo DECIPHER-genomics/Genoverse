@@ -1,3 +1,4 @@
+var runningInModule = Boolean(typeof module === 'object' && typeof module.exports === 'object');
 var Genoverse = Base.extend({
   // Defaults
   baseURL            : undefined, // If multiple instances of Genoverse exist on a page at once, specifying different baseURL values allows some/all to ignore external URL changes
@@ -56,7 +57,12 @@ var Genoverse = Base.extend({
 
   loadGenome: function () {
     if (typeof this.genome === 'string') {
-      var genomeName = this.genome.toLowerCase();
+      if(runningInModule) {
+        this.genome = genomeHash[this.genome];
+        return;
+      }
+
+      var genomeName = this.genome;
 
       return $.ajax({
         url      : Genoverse.origin + 'js/genomes/' + genomeName + '.js',
@@ -113,6 +119,10 @@ var Genoverse = Base.extend({
         function done() {
           browser.loadedPlugins[plugin] = browser.loadedPlugins[plugin] || 'script';
           deferred.resolve(arg);
+        }
+
+        if(runningInModule) {
+          return done();
         }
 
         if (Genoverse.Plugins[plugin].noCSS || $('link[href="' + css + '"]').length) {
@@ -1646,6 +1656,10 @@ var Genoverse = Base.extend({
 });
 
 $(function () {
+  if(runningInModule) {
+    return Genoverse.ready.resolve();
+  }
+
   if ($('link[href^="' + Genoverse.origin + 'css/genoverse.css"]').length) {
     Genoverse.ready.resolve();
   } else {
@@ -1653,8 +1667,8 @@ $(function () {
   }
 });
 
-window.Genoverse = Genoverse;
-
-if (typeof module === 'object' && typeof module.exports === 'object') {
+if (runningInModule) {
   module.exports = Genoverse;
+} else {
+  window.Genoverse = Genoverse;
 }
