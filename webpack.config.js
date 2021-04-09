@@ -5,7 +5,7 @@ module.exports = {
   mode    : 'development',
   entry   : __dirname + '/index.js',
   target  : [ 'web', 'es5' ],
-  output  : { filename: 'genoverse.min.js', path: __dirname + '/js' },
+  output  : { filename: 'genoverse.min.js', path: __dirname + '/build' },
   devtool : 'source-map',
   module: {
     rules: [
