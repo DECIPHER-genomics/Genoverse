@@ -4,11 +4,13 @@ var webpack      = require('webpack');
 module.exports = {
   mode    : 'development',
   entry   : __dirname + '/index.js',
-  target  : [ 'web', 'es5' ],
-  output  : { filename: 'genoverse.min.js', path: __dirname + '/build',
-  library: 'genoverse',
-  libraryTarget: 'commonjs2'
-},
+  target  : [ 'node' ],
+  output  : { 
+    filename: 'genoverse.min.js', 
+    path: __dirname + '/build',
+    library: 'Genoverse',
+    libraryTarget: 'commonjs2'
+  },
   devtool : 'source-map',
   module: {
     rules: [
