@@ -8,7 +8,7 @@ module.exports = {
   entry   : {
     genoverse: __dirname + '/index.js'
   },
-  target  : [ 'web', 'es5' ],
+  target  : [ 'node' ],
   output  : {
     filename: '[name].min.js',
     path: __dirname + '/build',
