@@ -1,4 +1,6 @@
-Genoverse.Track.Model = Base.extend({
+const Genoverse = require('../Genoverse')
+
+module.exports = Base.extend({
   dataType         : 'json',
   allData            : false,
   dataBuffer         : undefined, // e.g. { start: 0, end: 0 } - basepairs to extend data region for, when getting data from the origin

@@ -1,5 +1,6 @@
-Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
-  url : 'https://genoverse.org/data/Homo_sapiens.GRCh37.72.dna.chromosome.1.fa', // Example url
+var SequenceModel = require('../Sequence')
+module.exports = SequenceModel.extend({
+  url  : 'http://genoverse.org/data/Homo_sapiens.GRCh37.72.dna.chromosome.1.fa', // Example url
 
   // Following settings could be left undefined and will be detected automatically via .getStartByte()
   startByte  : undefined, // Byte in the file where the sequence actually starts

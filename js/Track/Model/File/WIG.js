@@ -1,4 +1,6 @@
-Genoverse.Track.Model.File.WIG = Genoverse.Track.Model.Graph.Bar.extend({
+const Bar = require('../../library/Graph/Bar')
+
+module.exports = Bar.Model.extend({
   dataType: 'text',
 
   getData: function () {

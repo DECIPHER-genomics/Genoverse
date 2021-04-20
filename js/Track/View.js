@@ -1,4 +1,6 @@
-Genoverse.Track.View = Base.extend({
+const Genoverse = require("../Genoverse")
+
+module.exports = Base.extend({
   fontHeight       : 10,
   fontFamily       : 'sans-serif',
   fontWeight       : 'normal',

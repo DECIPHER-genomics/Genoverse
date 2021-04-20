@@ -1,4 +1,6 @@
-Genoverse.Track.Chromosome = Genoverse.Track.extend({
+var { Track } = require('../../Track')
+
+module.exports = Track.extend({
   id            : 'chromosome',
   margin        : 1,
   featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },

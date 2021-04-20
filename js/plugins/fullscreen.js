@@ -1,10 +1,11 @@
-Genoverse.Plugins.fullscreen = function () {
-  var genoverse   = this;
+module.exports = function () {
+  var genoverse     = this;
   var supported   = true;
   var eventName   = 'fullscreenchange';  // All the browsers have different names
   var elemName    = 'fullscreenElement'; // ... even the capitalisation varies!
   var requestName = 'requestFullscreen';
   var cancelName  = 'exitFullscreen';
+  this.requires   = 'controlPanel';
 
   if (document.onmsfullscreenchange || document.onmsfullscreenchange === null) {
     // We need the IE11 version of this to work; IE9-10 have the actions but not the events.
@@ -73,5 +74,3 @@ Genoverse.Plugins.fullscreen = function () {
     });
   }
 };
-
-Genoverse.Plugins.fullscreen.requires = 'controlPanel';

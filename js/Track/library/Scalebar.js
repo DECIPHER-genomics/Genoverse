@@ -1,4 +1,6 @@
-Genoverse.Track.Scalebar = Genoverse.Track.extend({
+const { Track } = require('../../Track')
+
+module.exports = Track.extend({
   unsortable     : true,
   fixedOrder     : true,
   order          : 0,

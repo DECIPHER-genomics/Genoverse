@@ -1,9 +1,12 @@
-Genoverse.Track.Controller.Graph.Line = {
+var BaseController = require('../../Controller');
+var Graph = require('../Graph');
+
+var LineController = {
   click: function () {
     if (this.prop('showPopups')) {
       this.prop('menus').hide(); // Hide first, because closeMenus causes fadeOut to happen, which doens't look great in this scenario
       this.browser.closeMenus(this);
-      return Genoverse.Track.Controller.prototype.click.apply(this, arguments);
+      return BaseController.prototype.click.apply(this, arguments);
     }
   },
 
@@ -80,7 +83,7 @@ Genoverse.Track.Controller.Graph.Line = {
   }
 };
 
-Genoverse.Track.Model.Graph.Line = Genoverse.Track.Model.Graph.extend({
+var LineModel = Graph.Model.extend({
   parseData: function (data, chr, start, end) {
     var features = [];
     var feature, x;
@@ -144,7 +147,7 @@ Genoverse.Track.Model.Graph.Line = Genoverse.Track.Model.Graph.extend({
   }
 });
 
-Genoverse.Track.View.Graph.Line = Genoverse.Track.View.Graph.extend({
+var LineView = Graph.View.extend({
   featureHeight: 1,
 
   positionFeatures: function (features, params) {
@@ -286,11 +289,18 @@ Genoverse.Track.View.Graph.Line = Genoverse.Track.View.Graph.extend({
   }
 });
 
-Genoverse.Track.Graph.Line = Genoverse.Track.Graph.extend({
+var LineTrack = Graph.Track.extend({
   type       : 'Line',
   showPopups : true, // If true, clicking on the track will show popups. If false, popups will not appear.
   fill       : false,
   lineWidth  : 1,
-  model      : Genoverse.Track.Model.Graph.Line,
-  view       : Genoverse.Track.View.Graph.Line
+  model      : LineModel,
+  view       : LineView
 });
+
+module.exports = {
+  View: LineView,
+  Model: LineModel,
+  Controller: LineController,
+  Track: LineTrack
+}

@@ -1,4 +1,6 @@
-Genoverse.Track.View.Gene = Genoverse.Track.View.extend({
+var View = require('../View')
+
+module.exports = View.extend({
   featureHeight : 5,
   labels        : true,
   repeatLabels  : true,

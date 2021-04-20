@@ -1,4 +1,6 @@
-Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
+var View = require('../View')
+
+module.exports = View.extend({
   featureHeight       : 10,
   utrHeight           : 7,
   labels              : true,

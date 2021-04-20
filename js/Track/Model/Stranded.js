@@ -1,4 +1,6 @@
-Genoverse.Track.Model.Stranded = Genoverse.Track.Model.extend({
+var Model = require('../Model')
+
+module.exports = Model.extend({
   init: function (reset) {
     this.base(reset);
 

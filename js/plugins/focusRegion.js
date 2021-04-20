@@ -1,4 +1,6 @@
-Genoverse.Plugins.focusRegion = function () {
+module.exports = function () {
+  this.requires = 'controlPanel';
+  this.noCSS = true;
   this.controls.push({
     icon    : '<i class="fas fa-map-marker-alt"></i>',
     'class' : 'gv-button-large',
@@ -7,6 +9,3 @@ Genoverse.Plugins.focusRegion = function () {
     init    : function (browser) { browser.focusRegion = browser.focusRegion || { chr: browser.chr, start: browser.start, end: browser.end }; }
   });
 };
-
-Genoverse.Plugins.focusRegion.requires = 'controlPanel';
-Genoverse.Plugins.focusRegion.noCSS    = true;

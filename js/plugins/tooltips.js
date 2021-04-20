@@ -3,8 +3,9 @@
 // (c) 2008-2010 jason frame [jason@onehackoranother.com]
 // released under the MIT license
 
-Genoverse.Plugins.tooltips = function () {
+module.exports = function () {
   var genoverse = this;
+  this.requires    = 'controlPanel';
 
   function toggleTooltips(browser, tooltips, action) {
     var offset = browser.superContainer.offset();
@@ -90,5 +91,3 @@ Genoverse.Plugins.tooltips = function () {
     updateTooltips();
   });
 };
-
-Genoverse.Plugins.tooltips.requires = 'controlPanel';

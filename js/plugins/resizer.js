@@ -1,4 +1,4 @@
-Genoverse.Plugins.resizer = function () {
+module.exports = function () {
   this.on('afterSetMVC', 'tracks', function () {
     if (this.prop('resizable') !== true) {
       return;
