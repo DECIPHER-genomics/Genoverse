@@ -1,4 +1,6 @@
-Genoverse.Track.View.Gene.Ensembl = Genoverse.Track.View.Gene.extend({
+var Gene = require('../Gene')
+
+module.exports = Gene.extend({
   setFeatureColor: function (feature) {
     var processedTranscript = {
       'sense_intronic'           : 1,

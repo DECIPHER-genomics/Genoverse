@@ -1,4 +1,5 @@
-Genoverse.Plugins.controlPanel = function () {
+module.exports = function () {
+  this.requires = 'karyotype',
   this.controls = [
     // Scroll left/right
     {
@@ -12,7 +13,7 @@ Genoverse.Plugins.controlPanel = function () {
         icon    : '<i class="fas fa-chevron-right"></i>',
         'class' : 'gv-scroll-right'
       }],
-      init: function (browser) {
+      init: function (browser) {        
         var el = $(this);
 
         el.find('.gv-scroll-left, .gv-scroll-right').on({
@@ -341,5 +342,3 @@ Genoverse.Plugins.controlPanel = function () {
     }
   }, 'tracks');
 };
-
-Genoverse.Plugins.controlPanel.requires = 'karyotype';

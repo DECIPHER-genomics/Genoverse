@@ -5,7 +5,10 @@ module.exports = {
   mode    : 'development',
   entry   : __dirname + '/index.js',
   target  : [ 'web', 'es5' ],
-  output  : { filename: 'genoverse.min.js', path: __dirname + '/build' },
+  output  : { filename: 'genoverse.min.js', path: __dirname + '/build',
+  library: 'genoverse',
+  libraryTarget: 'commonjs2'
+},
   devtool : 'source-map',
   module: {
     rules: [
@@ -15,67 +18,53 @@ module.exports = {
         use: ["style-loader", "css-loader"],
       },
       {
-        test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/i,
+        test: /\.(png|jpe?g|gif|svg)$/i,
         loader: "url-loader",
         options: {
           limit: 8192,
         },
       },
-
-      // genoverse main module
       {
-        test: require.resolve('./js/Genoverse.js'),
-        use:
-          'exports-loader?type=commonjs&exports[]=single|Genoverse',
-      },
-
-      // libs
-      // {
-      //   test: require.resolve('./js/lib/Base.js'),
-      //   use:
-      //     'exports-loader?type=commonjs&exports[]=single|Base',
-      // },
-      {
-        test: require.resolve('./js/lib/RTree.js'),
-        use:
-          'exports-loader?type=commonjs&exports[]=single|RTree',
-      },
-      {
-        test: require.resolve('./js/lib/dalliance-lib.min.js'),
-        use:
-          'exports-loader?type=commonjs&exports[]=single|dallianceLib',
-      },
-      // {
-      //   test: require.resolve('./js/lib/jDataView.js'),
-      //   use:
-      //     'exports-loader?type=commonjs&exports[]=single|jDataView',
-      // },
-      // {
-      //   test: require.resolve('./js/lib/jParser.js'),
-      //   use:
-      //     'exports-loader?type=commonjs&exports[]=single|jParser',
-      // },
-      // {
-      //   test: require.resolve('./js/lib/BWReader.js'),
-      //   use:
-      //     'exports-loader?type=commonjs&exports[]=single|BWReader',
-      // },
-      // {
-      //   test: require.resolve('./js/lib/VCFReader.js'),
-      //   use:
-      //     'exports-loader?type=commonjs&exports[]=single|VCFReader',
-      // },
+        test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: 'fonts/'
+            }
+          }
+        ]
+      }
     ],
 
   },
+  resolve: {
+    alias: {
+      Plugins : __dirname + '/js/plugins',
+      Base : __dirname + '/js/lib/Base.js',
+      dallianceLib : __dirname + '/js/lib/dalliance-lib.min.js',
+      BWReader : __dirname + '/js/lib/BWReader.js',
+      VCFReader : __dirname + '/js/lib/VCFReader.js',
+      RTree : __dirname + '/js/lib/rtree.js',
+      jDataView : __dirname + '/js/lib/jDataView.js',
+      jParser: __dirname + '/js/lib/jParser.js',
+      Track: __dirname + '/js/Track.js',
+    }
+  },
   plugins : [
-    // new webpack.ProvidePlugin({
-    //   $      : __dirname + '/js/lib/jquery.js',
-    //   jQuery : __dirname + '/js/lib/jquery.js'
-    // }),
-    // new webpack.DefinePlugin({
-    //   define: undefined // Stop jquery-ui.js trying to do define(["jquery"]), which doesn't work if jquery isn't in node_modules
-    // }),
+    new webpack.ProvidePlugin({
+      $ : 'jquery',
+      jQuery : 'jquery',
+      Base: 'Base',
+      TrackClass: 'Track',
+      dallianceLib: 'dallianceLib',
+      BWReader: 'BWReader',
+      VCFReader: 'VCFReader',
+      RTree: 'RTree',
+      jDataView: 'jDataView',
+      jParser: 'jParser'
+    }),
   ],
   optimization: {
     minimizer: [

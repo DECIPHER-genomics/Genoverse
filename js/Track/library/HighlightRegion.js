@@ -1,4 +1,10 @@
-Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
+const {Track} = require('../../Track')
+const StrandedController = require('../../Track/Controller/Stranded')
+const StrandedModel = require('../../Track/Model/Stranded')
+const BaseView = require('../../Track/View')
+const BaseModel= require('../../Track/Model')
+
+module.exports = Track.extend({
   id               : 'highlights',
   unsortable       : true,
   fixedOrder       : true,
@@ -64,7 +70,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     this.reset();
   },
 
-  controller: Genoverse.Track.Controller.Stranded.extend({
+  controller: StrandedController.extend({
     setDefaults: function () {
       if (this.prop('strand') === -1) {
         this.prop('labels', false);
@@ -193,7 +199,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     }
   }),
 
-  model: Genoverse.Track.Model.Stranded.extend({
+  model: StrandedModel.extend({
     url: false,
 
     insertFeature: function (feature) {
@@ -215,11 +221,11 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     },
 
     findFeatures: function () {
-      return Genoverse.Track.Model.prototype.findFeatures.apply(this, arguments);
+      return BaseModel.prototype.findFeatures.apply(this, arguments);
     }
   }),
 
-  view: Genoverse.Track.View.extend({
+  view: BaseView.extend({
     positionFeatures: function (features, params) {
       var rtn = this.base.apply(this, arguments);
 

@@ -1,4 +1,6 @@
-Genoverse.Track.dbSNP = Genoverse.Track.extend({
+const { Track } = require('../../Track')
+
+module.exports = Track.extend({
   id               : 'dbSNP',
   name             : 'dbSNP',
   info             : 'All sequence variants from the database of Single Nucleotide Polymorphisms (dbSNP)',
@@ -6,7 +8,7 @@ Genoverse.Track.dbSNP = Genoverse.Track.extend({
   dataRequestLimit : 5000000, // As per e! REST API restrictions
   threshold        : 1e5,
   labels           : false,
-  legend           : true,
+  // legend           : true,
   autoHeight       : true,
   colorMap         : {
     transcript_ablation                : '#ff0000',

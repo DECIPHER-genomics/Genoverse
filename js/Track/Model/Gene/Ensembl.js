@@ -1,5 +1,6 @@
+var GeneModel = require('../Gene')
 // Ensembl REST API Gene model
-Genoverse.Track.Model.Gene.Ensembl = Genoverse.Track.Model.Gene.extend({
+module.exports = GeneModel.extend({
   url              : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=gene;content-type=application/json',
   dataRequestLimit : 5000000, // As per e! REST API restrictions
 

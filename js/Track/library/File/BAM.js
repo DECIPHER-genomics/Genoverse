@@ -1,10 +1,14 @@
-Genoverse.Track.File.BAM = Genoverse.Track.File.extend({
+var FileTrack = require('../File');
+var BAMModel = require('../../Model/File/BAM');
+var SequenceView = require('../../View/Sequence');
+
+module.exports = FileTrack.extend({
   name      : 'BAM',
   indexExt  : '.bai',
   threshold : 100000,
   largeFile : true,
-  model     : Genoverse.Track.Model.File.BAM,
-  view      : Genoverse.Track.View.Sequence.extend({
+  model     : BAMModel,
+  view      : SequenceView.extend({
     bump       : true,
     autoHeight : true
   }),

@@ -1,6 +1,9 @@
-Genoverse.Track.File.BIGBED = Genoverse.Track.File.BED.extend({
+var BEDTrack = require('./BED')
+var BEDModel = require('../../Model/File/BED')
+
+module.exports = BEDTrack.extend({
   name  : 'bigbed',
-  model : Genoverse.Track.Model.File.BED.extend({
+  model : BEDModel.extend({
     getData: function (chr, start, end) {
       var model    = this;
       var deferred = $.Deferred();
@@ -43,5 +46,3 @@ Genoverse.Track.File.BIGBED = Genoverse.Track.File.BED.extend({
     }
   })
 });
-
-Genoverse.Track.File.BB = Genoverse.Track.File.BIGBED;

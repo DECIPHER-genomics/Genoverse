@@ -1,4 +1,4 @@
-Genoverse.Plugins.fileDrop = function () {
+module.exports = function () {
   this.on('afterInit', function () {
     var browser = this;
     var wrapper = this.wrapper;

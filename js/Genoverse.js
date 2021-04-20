@@ -1,3 +1,5 @@
+const genomeHash = require('./Genomes');
+
 var runningInModule = Boolean(typeof module === 'object' && typeof module.exports === 'object');
 var Genoverse = Base.extend({
   // Defaults
@@ -135,7 +137,7 @@ var Genoverse = Base.extend({
       if (browser.loadedPlugins[plugin] || $('script[src="' + js + '"]').length) {
         getCSS();
       } else {
-        $.getScript(js, getCSS);
+        $.getScript(js, getCSS);  
       }
 
       return deferred;

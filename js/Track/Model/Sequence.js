@@ -1,7 +1,8 @@
+var Model = require('../Model')
 // Abstract Sequence model
 // assumes that the data source responds with raw sequence text
 // see Fasta model for more specific example
-Genoverse.Track.Model.Sequence = Genoverse.Track.Model.extend({
+module.exports = Model.extend({
   threshold : 100000,
   chunkSize : 1000,
   buffer    : 0,

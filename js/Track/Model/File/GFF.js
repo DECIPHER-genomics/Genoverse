@@ -1,4 +1,6 @@
-Genoverse.Track.Model.File.GFF = Genoverse.Track.Model.File.extend({
+var FileModel = require('../File')
+
+module.exports = FileModel.extend({
   parseData: function (text, chr) {
     var lines = text.split('\n');
 
@@ -36,5 +38,3 @@ Genoverse.Track.Model.File.GFF = Genoverse.Track.Model.File.extend({
     }
   }
 });
-
-Genoverse.Track.Model.File.GTF = Genoverse.Track.Model.File.GFF;

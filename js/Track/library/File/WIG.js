@@ -1,5 +1,8 @@
-Genoverse.Track.File.WIG = Genoverse.Track.Graph.Bar.extend({
-  model  : Genoverse.Track.Model.File.WIG,
+var Bar = require('../Graph/Bar');
+var WIGModel = require('../../Model/File/WIG');
+
+module.exports = Bar.Track.extend({
+  model  : WIGModel,
   name   : 'wig',
   height : 100
 });

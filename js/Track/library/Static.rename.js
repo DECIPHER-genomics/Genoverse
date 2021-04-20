@@ -1,4 +1,8 @@
-Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
+var Controller = require('../Controller')
+var Model = require('../Model')
+var View = require('../View')
+
+var StaticController = Controller.extend({
   addDomElements: function () {
     this.base();
 
@@ -52,12 +56,12 @@ Genoverse.Track.Controller.Static = Genoverse.Track.Controller.extend({
   }
 });
 
-Genoverse.Track.Model.Static = Genoverse.Track.Model.extend({
+var StaticModel = Model.extend({
   url            : false,
   checkDataRange : function () { return true; }
 });
 
-Genoverse.Track.View.Static = Genoverse.Track.View.extend({
+var StaticView = View.extend({
   featureMargin : { top: 0, right: 1, bottom: 0, left: 1 },
 
   positionFeature : $.noop,
@@ -70,10 +74,17 @@ Genoverse.Track.View.Static = Genoverse.Track.View.extend({
   }
 });
 
-Genoverse.Track.Static = Genoverse.Track.extend({
+var StaticTrack = TrackClass.extend({
   controls   : 'off',
   resizable  : false,
-  controller : Genoverse.Track.Controller.Static,
-  model      : Genoverse.Track.Model.Static,
-  view       : Genoverse.Track.View.Static
+  controller : StaticController,
+  model      : StaticModel,
+  view       : StaticView
 });
+
+module.exports = {
+  View: StaticView,
+  Model: StaticModel,
+  Controller: StaticController,
+  Track: StaticTrack,
+}
