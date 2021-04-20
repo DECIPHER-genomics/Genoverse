@@ -212,6 +212,7 @@ var BarTrack = Graph.Track.extend({
           for (j = data[i].start; j < data[i].end; j++) {
             coords.push([ j, data[i].height ]);
           }
+        }
 
           return this.base([{ chr: chr, start: start, end: end, coords: coords }], chr, start, end);
         }
@@ -226,13 +227,14 @@ var BarTrack = Graph.Track.extend({
 
       return hash;
     }, {}), {
-    fill  : true,
-    model : Line.Model.extend({
-      parseData: function (data, chr, start, end) {
-        return this.base([{ chr: chr, start: start, end: end, coords: data.map(function (d) { return [ d.start, d.height ]; }) }], chr, start, end);
-      }
-    })
-  })
+      fill  : true,
+      model : Line.Model.extend({
+        parseData: function (data, chr, start, end) {
+          return this.base([{ chr: chr, start: start, end: end, coords: data.map(function (d) { return [ d.start, d.height ]; }) }], chr, start, end);
+        }
+      })
+    }
+  )
 });
 
 module.exports = {
