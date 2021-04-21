@@ -1669,8 +1669,4 @@ $(function () {
   }
 });
 
-window.Genoverse = Genoverse;
-
-if (runningInModule) {
-  module.exports = Genoverse;
-}
+module.exports = Genoverse;

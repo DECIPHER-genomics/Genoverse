@@ -6,7 +6,7 @@ require(__dirname + '/js/lib/jquery.mousehold.js');
 require(__dirname + '/js/lib/jquery.tipsy.js');
 
 let Genoverse = require(__dirname + '/js/Genoverse.js');
-const {Track, Static, Legend }  = require(__dirname + '/js/Track.js');
+const { Track, Static, Legend }  = require(__dirname + '/js/Track.js');
 Genoverse.Track = Track;
 
 Genoverse.Track.Controller = require(__dirname + '/js/Track/Controller.js');
@@ -107,4 +107,4 @@ require(__dirname + '/css/genoverse.css');
 // Plugins:
 require('./plugins.index.js')
 
-module.exports = global.Genoverse;
+module.exports = Genoverse;
