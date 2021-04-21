@@ -120,11 +120,12 @@ var Genoverse = Base.extend({
       }
 
       function getCSS() {
-        if(runningInModule || true) {
-          return done();
-        }
+        var doNotGetCss =
+          runningInModule ||
+          Genoverse.Plugins[plugin].noCSS ||
+          $('link[href="' + css + '"]').length;
 
-        if (Genoverse.Plugins[plugin].noCSS || $('link[href="' + css + '"]').length) {
+        if (doNotGetCss) {
           return done();
         }
 
@@ -133,7 +134,7 @@ var Genoverse = Base.extend({
 
       if (browser.loadedPlugins[plugin] || $('script[src="' + js + '"]').length) {
         getCSS();
-      } else {
+      } else if (!runningInModule) {
         $.getScript(js, getCSS);
       }
 
