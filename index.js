@@ -78,15 +78,6 @@ require(__dirname + '/js/Track/library/Legend.js');
 require(__dirname + '/js/Track/library/Scaleline.js');
 require(__dirname + '/js/Track/library/Scalebar.js');
 
-require(__dirname + '/js/plugins/controlPanel.js');
-require(__dirname + '/js/plugins/fileDrop.js');
-require(__dirname + '/js/plugins/focusRegion.js');
-require(__dirname + '/js/plugins/fullscreen.js');
-require(__dirname + '/js/plugins/karyotype.js');
-require(__dirname + '/js/plugins/resizer.js');
-require(__dirname + '/js/plugins/tooltips.js');
-require(__dirname + '/js/plugins/trackControls.js');
-
 // CSS:
 require(__dirname + '/css/genoverse.css');
 
