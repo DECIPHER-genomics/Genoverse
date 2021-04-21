@@ -12,6 +12,10 @@ module.exports = {
   output  : {
     filename: '[name].min.js',
     path: __dirname + '/build',
+    library: {
+      name: 'Genoverse',
+      type: 'commonjs2'
+    }
   },
   devtool : 'source-map',
   module: {
