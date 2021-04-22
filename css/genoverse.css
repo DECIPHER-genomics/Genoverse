@@ -1,4 +1,4 @@
-@import url(font-awesome.css);
+@import '~@fortawesome/fontawesome-free/css/all.css';
 
 .genoverse {
   font-family: Verdana;
