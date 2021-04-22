@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node_modules/.bin/mocha $(find test/require/*.js -print0 | xargs -r0 -I {} echo -n '--require {} ') --no-timeouts --recursive",
+    "test": "mocha",
     "build": "webpack",
     "build:watch": "webpack --watch",
     "dev": "serve"
@@ -30,6 +30,7 @@
     "css-minimizer-webpack-plugin": "^2.0.0",
     "exports-loader": "^1.1.1",
     "file-loader": "^6.2.0",
+    "ignore-styles": "^5.0.1",
     "jsdom": "^16.5.2",
     "mini-css-extract-plugin": "^1.5.0",
     "mocha": "^8.3.2",
