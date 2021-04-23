@@ -1,10 +1,9 @@
-const Controller = require('../Controller')
-const Model = require('../Model')
-const View = require('../View')
+const BaseController = require('../Controller')
+const BaseModel = require('../Model')
+const BaseView = require('../View')
 const { Track } = require('../../Track');
-// These are abstract classes, implemented by Graph.Bar and Graph.Line. They will not work properly on their own.
 
-const GraphController = Controller.extend({
+const GraphController = BaseController.extend({
   setYRange: function (min, max) {
     if (this.browser.dragging) {
       return;
@@ -133,20 +132,15 @@ const GraphController = Controller.extend({
         .before(controller.prop('yAxisCanvas').removeClass('gv-loading'));
     });
   },
-
-  typeWrapper        : function (func, args) { return (Genoverse.Track.Controller.Graph[this.prop('type')][func] || Controller.prototype[func]).apply(this, args); },
-  click              : function () { return this.typeWrapper('click',              arguments); },
-  getClickedFeatures : function () { return this.typeWrapper('getClickedFeatures', arguments); },
-  populateMenu       : function () { return this.typeWrapper('populateMenu',       arguments); }
 });
 
-const GraphModel = Model.extend({
+const GraphModel = BaseModel.extend({
   dataBuffer     : { start: 1, end: 1 },
   setLabelBuffer : $.noop,
   sortFeatures   : function (features) { return features.sort(function (a, b) { return a.start - b.start; }); }
 });
 
-const GraphView = View.extend({
+const GraphView = BaseView.extend({
   featureMargin: {},
 
   featureDataSets: function (features) {
@@ -237,7 +231,7 @@ const GraphTrack = Track.extend({
   },
 
   setMVC: function () {
-    var hadController = this.controller instanceof Controller;
+    var hadController = this.controller instanceof BaseController;
     var rtn           = this.base.apply(this, arguments);
 
     if (!hadController) {

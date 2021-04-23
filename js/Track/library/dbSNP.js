@@ -8,7 +8,7 @@ module.exports = Track.extend({
   dataRequestLimit : 5000000, // As per e! REST API restrictions
   threshold        : 1e5,
   labels           : false,
-  // legend           : true,
+  legend           : true,
   autoHeight       : true,
   colorMap         : {
     transcript_ablation                : '#ff0000',

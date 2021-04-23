@@ -13,7 +13,7 @@ module.exports = function () {
         icon    : '<i class="fas fa-chevron-right"></i>',
         'class' : 'gv-scroll-right'
       }],
-      init: function (browser) {        
+      init: function (browser) {
         var el = $(this);
 
         el.find('.gv-scroll-left, .gv-scroll-right').on({

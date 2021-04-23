@@ -1,4 +1,5 @@
 const Bar = require('../../library/Graph/Bar')
+const FileModel = require('../File')
 
 module.exports = Bar.Model.extend({
   dataType: 'text',
@@ -8,7 +9,7 @@ module.exports = Bar.Model.extend({
       this.isLocal  = true;
       this.dataFile = this.track.dataFile;
 
-      return Genoverse.Track.Model.File.prototype.getData.apply(this, arguments);
+      return FileModel.prototype.getData.apply(this, arguments);
     }
 
     return this.base.apply(this, arguments);

@@ -8,7 +8,7 @@ module.exports = {
   entry   : {
     genoverse: __dirname + '/index.js'
   },
-  target  : [ 'node' ],
+  target  : [ 'web', 'es5' ],
   output  : {
     filename: '[name].min.js',
     path: __dirname + '/build',
@@ -67,7 +67,7 @@ module.exports = {
     }),
   ],
   optimization: {
-    minimize: true,
+    minimize: false,
     minimizer: [
       new TerserPlugin({
         extractComments : false,

@@ -1,7 +1,7 @@
 var BaseController = require('../../Controller');
 var Graph = require('../Graph');
 
-var LineController = {
+var LineController = Graph.Controller.extend({
   click: function () {
     if (this.prop('showPopups')) {
       this.prop('menus').hide(); // Hide first, because closeMenus causes fadeOut to happen, which doens't look great in this scenario
@@ -81,7 +81,7 @@ var LineController = {
 
     return menu;
   }
-};
+});
 
 var LineModel = Graph.Model.extend({
   parseData: function (data, chr, start, end) {
