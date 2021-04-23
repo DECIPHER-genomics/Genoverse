@@ -31,5 +31,5 @@ jobs:
 
             echo -e "Your build failed as the latest changes were not included in the built JS files";
             echo -e "To fix this, run npm build and commit the compiled changes";
-            git diff;
+            git diff --stat;
             exit 1;
