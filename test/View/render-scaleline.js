@@ -43,12 +43,14 @@ describe('Correctly render scale line:', function () {
           context.clearRect((width - w - 10) / 2, 0, w + 10, 14);
 
           if (!noStrand) {
-            context.clearRect(forward ? 905 : 12, 0, 83, 14);
+            var x = forward ? 909 : 12;
+            var strandClearWidth = forward ? 79 : 80;
+            context.clearRect(x, 0, strandClearWidth, 14);
           }
         },
         [ 'fillText', text, 500, 7.5 ],
       ].concat(
-        noStrand ? [] : [[ 'fillText', strand + ' strand', forward ? 946.5 : 53.5, 7.5 ]],
+        noStrand ? [] : [[ 'fillText', strand + ' strand', forward ? 948.5 : 52, 7.5 ]],
       ),
       { end: size, chromosomeSize: size, width: width }
     );

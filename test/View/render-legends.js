@@ -24,9 +24,9 @@ describe('Correctly render legends:', function () {
         features : [ [ 0, 0, 250, 10, 'red' ], [ 250, 0, 250, 10, 'blue' ], [ 500, 0, 250, 10, 'green' ] ],
         legend   : [
           setText,
-          [ 5,   5,  20, 12, 'red'   ], [ 'fillText', 'test1', 43,  11.5 ],
-          [ 505, 5,  20, 12, 'blue'  ], [ 'fillText', 'test2', 543, 11.5 ],
-          [ 5,   20, 20, 12, 'green' ], [ 'fillText', 'test3', 43,  26.5 ]
+          [ 5,   5,  20, 12, 'red'   ], [ 'fillText', 'test1', 42,  11.5 ],
+          [ 505, 5,  20, 12, 'blue'  ], [ 'fillText', 'test2', 542, 11.5 ],
+          [ 5,   20, 20, 12, 'green' ], [ 'fillText', 'test3', 42,  26.5 ]
         ]
       },
       { width: 1000 }

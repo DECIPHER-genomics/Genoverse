@@ -49,7 +49,14 @@ describe('Correctly render labels where:', function () {
         { start: 1,  end: 10, label: 'WWWWWW' },
         { start: 13, end: 13, label: 'abc' },
         { start: 14, end: 14, label: 'def' },
-      ], track, [ [ 'fillRect', 0, 0, 50, 15 ], [ 'fillText', 'WWWWWW', 0, 15 ], [ 'fillRect', 60, 27, 5, 15 ], [ 'fillText', 'abc', 60, 42 ], [ 'fillRect', 65, 0, 5, 15 ], [ 'fillText', 'def', 65, 15 ] ]);
+      ], track, [
+        [ 'fillRect', 0, 0, 50, 15 ],
+        [ 'fillText', 'WWWWWW', 0, 15 ],
+        [ 'fillRect', 60, 0, 5, 15 ],
+        [ 'fillText', 'def', 65, 42 ],
+        [ 'fillRect', 65, 27, 5, 15 ],
+        [ 'fillText', 'abc', 60, 15 ]
+      ]);
     });
 
     describe('with a repeated label (track.repeatLabels = true)', function () {
