@@ -1,5 +1,5 @@
 module.exports = function () {
-  var genoverse     = this;
+  var genoverse   = this;
   var supported   = true;
   var eventName   = 'fullscreenchange';  // All the browsers have different names
   var elemName    = 'fullscreenElement'; // ... even the capitalisation varies!
