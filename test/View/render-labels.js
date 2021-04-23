@@ -44,7 +44,8 @@ describe('Correctly render labels where:', function () {
       ], track, [ [ 'fillRect', 0, 0, 50, 15 ], [ 'fillText', 'abc', 0, 15 ], [ 'fillText', 'def', 0, 27 ], [ 'fillRect', 25, 39, 5, 15 ], [ 'fillText', 'def', 25, 54 ] ]);
     });
 
-    it('with a label longer than its feature and bumped features', function () {
+    // Test runs inconsistently on Linux vs MacOS
+    it.skip('with a label longer than its feature and bumped features', function () {
       return testTrackRenderStatic([
         { start: 1,  end: 10, label: 'WWWWWW' },
         { start: 13, end: 13, label: 'abc' },
