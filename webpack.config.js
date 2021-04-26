@@ -37,7 +37,6 @@ module.exports = {
   },
   resolve: {
     alias: {
-      Plugins : __dirname + '/js/plugins',
       Base : __dirname + '/js/lib/Base.js',
       dallianceLib : __dirname + '/js/lib/dalliance-lib.min.js',
       BWReader : __dirname + '/js/lib/BWReader.js',

@@ -92,19 +92,19 @@ Genoverse.Track.Controller.Legend = Legend.Controller;
 Genoverse.Track.Scaleline = require('./js/Track/library/Scaleline.js');
 Genoverse.Track.Scalebar = require('./js/Track/library/Scalebar.js');
 
-Genoverse.Plugins.controlPanel = require('Plugins/controlPanel.js');
-Genoverse.Plugins.focusRegion = require('Plugins/focusRegion.js');
-Genoverse.Plugins.fullscreen = require('Plugins/fullscreen.js');
-Genoverse.Plugins.tooltips = require('Plugins/tooltips.js');
-Genoverse.Plugins.fileDrop = require('Plugins/fileDrop.js');
-Genoverse.Plugins.karyotype = require('Plugins/karyotype.js');
-Genoverse.Plugins.resizer = require('Plugins/resizer.js');
-Genoverse.Plugins.trackControls = require('Plugins/trackControls.js');
+Genoverse.Plugins = {
+  controlPanel: require('./js/plugins/controlPanel.js'),
+  focusRegion: require('./js/plugins/focusRegion.js'),
+  fullscreen: require('./js/plugins/fullscreen.js'),
+  tooltips: require('./js/plugins/tooltips.js'),
+  fileDrop: require('./js/plugins/fileDrop.js'),
+  karyotype: require('./js/plugins/karyotype.js'),
+  resizer: require('./js/plugins/resizer.js'),
+  trackControls: require('./js/plugins/trackControls.js'),
+};
 
 // CSS:
 require('./css/genoverse.css');
-
-// Plugins:
-require('./plugins.index.js')
+require('./css/plugins.css');
 
 module.exports = Genoverse;
