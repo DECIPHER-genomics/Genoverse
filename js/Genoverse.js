@@ -339,7 +339,7 @@ const Genoverse = Base.extend({
     var conf, j;
 
     for (var i = 0; i < this.tracks.length; i++) {
-      if (this.tracks[i].id && !(this.tracks[i].className && this.tracks[i].className === "Legend") && !(this.tracks[i].className && this.tracks[i].className === "Legend")) {
+      if (this.tracks[i].id && !(this.tracks[i].className && this.tracks[i].className === "Legend") && !(this.tracks[i].className && this.tracks[i].className === "HighlightRegion")) {
         // when saving height, initialHeight is the height of the track once margins have been added, while defaultHeight is the DEFINED height of the track.
         // Subtracting the difference between them gives you back the correct height to input back into the track when loading configuration
         conf = {
