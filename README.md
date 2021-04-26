@@ -1,4 +1,4 @@
-# Genoverse [![Build Status](https://travis-ci.org/wtsi-web/Genoverse.svg?branch=gh-pages)](https://travis-ci.org/wtsi-web/Genoverse)
+# Genoverse [![Build Status](https://github.com/wtsi-web/Genoverse/actions/workflows/test.yml/badge.svg)](https://github.com/wtsi-web/Genoverse/actions)
 
 Genoverse is a portable, customizable, back-end independent JavaScript and HTML5 based genome browser which allows the user to explore data in a dynamic and interactive manner.
 
