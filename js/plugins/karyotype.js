@@ -1,4 +1,4 @@
-const GenoverseClass = require('../Genoverse');
+const Genoverse = require('../Genoverse');
 const ChromosomeTrack = require('../Track/library/Chromosome');
 
 module.exports = function (pluginConf) {
@@ -17,7 +17,7 @@ module.exports = function (pluginConf) {
 
     measureWidth.remove();
 
-    this.karyotype = new GenoverseClass({
+    this.karyotype = new Genoverse({
       parent    : this,
       container : chromosome,
       width     : chromosome.width(),

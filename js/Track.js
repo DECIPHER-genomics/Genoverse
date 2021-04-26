@@ -1,4 +1,4 @@
-const GenoverseClass = require("./Genoverse")
+const Genoverse = require("./Genoverse")
 const BaseController = require("./Track/Controller")
 const BaseModel = require("./Track/Model")
 const BaseView = require("./Track/View")
@@ -34,7 +34,7 @@ const Track = Base.extend({
     this.setDefaults();
     this.setEvents();
 
-    GenoverseClass.wrapFunctions(this);
+    Genoverse.wrapFunctions(this);
 
     this.setLengthMap();
     this.setMVC();
@@ -93,7 +93,7 @@ const Track = Base.extend({
     this._interface = {};
 
     for (var i = 0; i < 3; i++) {
-      for (prop in GenoverseClass.Track[mvc[i]].prototype) {
+      for (prop in Genoverse.Track[mvc[i]].prototype) {
         if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(prop)) {
           this._interface[prop] = mvc[i + 3];
         }
@@ -555,7 +555,7 @@ const Track = Base.extend({
     constructor = constructor || (this.legend.prototype instanceof LegendTrack ? this.legend : LegendTrack);
 
     var track       = this;
-    var legendType  = constructor.prototype.shared === true ? GenoverseClass.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
+    var legendType  = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
     var config      = {
       id   : legendType + 'Legend',
       name : constructor.prototype.name || (this.defaultName + ' Legend'),
