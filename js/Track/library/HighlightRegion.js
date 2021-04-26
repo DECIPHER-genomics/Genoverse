@@ -5,6 +5,7 @@ const BaseView = require('../../Track/View')
 const BaseModel= require('../../Track/Model')
 
 module.exports = Track.extend({
+  className        : 'HighlightRegion',
   id               : 'highlights',
   unsortable       : true,
   fixedOrder       : true,

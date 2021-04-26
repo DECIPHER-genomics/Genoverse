@@ -1,8 +1,9 @@
 const genomeHash = require('./Genomes');
 
 var runningInModule = Boolean(typeof module === 'object' && typeof module.exports === 'object');
-var Genoverse = Base.extend({
+var GenoverseClass = Base.extend({
   // Defaults
+  baseClassName      : 'Genoverse',
   baseURL            : undefined, // If multiple instances of Genoverse exist on a page at once, specifying different baseURL values allows some/all to ignore external URL changes
   urlParamTemplate   : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
   width              : 1000,
@@ -48,11 +49,11 @@ var Genoverse = Base.extend({
 
     $.extend(this, config);
 
-    this.eventNamespace = '.genoverse.' + (++Genoverse.id);
+    this.eventNamespace = '.genoverse.' + (++GenoverseClass.id);
     this.events         = { browser: {}, tracks: {} };
 
-    $.when(Genoverse.ready, this.loadGenome(), this.loadPlugins()).always(function () {
-      Genoverse.wrapFunctions(browser);
+    $.when(GenoverseClass.ready, this.loadGenome(), this.loadPlugins()).always(function () {
+      GenoverseClass.wrapFunctions(browser);
       browser.init();
     });
   },
@@ -66,12 +67,12 @@ var Genoverse = Base.extend({
       }
 
       return $.ajax({
-        url      : Genoverse.origin + 'js/genomes/' + genomeName + '.js',
+        url      : GenoverseClass.origin + 'js/genomes/' + genomeName + '.js',
         dataType : 'script',
         context  : this,
         success  : function () {
           this.genomeName = this.genome;
-          this.genome     = Genoverse.Genomes[genomeName];
+          this.genome     = GenoverseClass.Genomes[genomeName];
 
           if (!this.genome) {
             this.die('Unable to load genome ' + genomeName);
@@ -90,7 +91,7 @@ var Genoverse = Base.extend({
 
     this.loadedPlugins = this.loadedPlugins || {};
 
-    for (i in Genoverse.Plugins) {
+    for (i in GenoverseClass.Plugins) {
       this.loadedPlugins[i] = this.loadedPlugins[i] || 'script';
     }
 
@@ -112,8 +113,8 @@ var Genoverse = Base.extend({
 
     function loadPlugin(arg) {
       var plugin   = arg[0];
-      var css      = Genoverse.origin + 'css/'        + plugin + '.css';
-      var js       = Genoverse.origin + 'js/plugins/' + plugin + '.js';
+      var css      = GenoverseClass.origin + 'css/'        + plugin + '.css';
+      var js       = GenoverseClass.origin + 'js/plugins/' + plugin + '.js';
       var deferred = $.Deferred();
 
       function done() {
@@ -124,7 +125,7 @@ var Genoverse = Base.extend({
       function getCSS() {
         var doNotGetCss =
           runningInModule ||
-          Genoverse.Plugins[plugin].noCSS ||
+          GenoverseClass.Plugins[plugin].noCSS ||
           $('link[href="' + css + '"]').length;
 
         if (doNotGetCss) {
@@ -144,16 +145,16 @@ var Genoverse = Base.extend({
     }
 
     function initializePlugin(plugin, conf) {
-      if (typeof Genoverse.Plugins[plugin] !== 'function' || browser.loadedPlugins[plugin] === true) {
+      if (typeof GenoverseClass.Plugins[plugin] !== 'function' || browser.loadedPlugins[plugin] === true) {
         return [];
       }
 
-      var requires = Genoverse.Plugins[plugin].requires;
+      var requires = GenoverseClass.Plugins[plugin].requires;
       var deferred = $.Deferred();
 
       function init() {
         if (browser.loadedPlugins[plugin] !== true) {
-          Genoverse.Plugins[plugin].call(browser, conf);
+          GenoverseClass.Plugins[plugin].call(browser, conf);
           browser.container.addClass('gv-' + plugin.replace(/([A-Z])/g, '-$1').toLowerCase() + '-plugin');
           browser.loadedPlugins[plugin] = true;
         }
@@ -263,7 +264,7 @@ var Genoverse = Base.extend({
       return this.addTracks();
     }
 
-    var tracksByNamespace = Genoverse.getAllTrackTypes();
+    var tracksByNamespace = GenoverseClass.getAllTrackTypes();
     var tracks            = [];
     var tracksById        = {};
     var savedConfig       = {};
@@ -338,7 +339,7 @@ var Genoverse = Base.extend({
     var conf, j;
 
     for (var i = 0; i < this.tracks.length; i++) {
-      if (this.tracks[i].id && !(this.tracks[i] instanceof Genoverse.Track.Legend) && !(this.tracks[i] instanceof Genoverse.Track.HighlightRegion)) {
+      if (this.tracks[i].id && !(this.tracks[i].className && this.tracks[i].className === "Legend") && !(this.tracks[i].className && this.tracks[i].className === "Legend")) {
         // when saving height, initialHeight is the height of the track once margins have been added, while defaultHeight is the DEFINED height of the track.
         // Subtracting the difference between them gives you back the correct height to input back into the track when loading configuration
         conf = {
@@ -974,7 +975,7 @@ var Genoverse = Base.extend({
 
     for (var i = 0; i < tracks.length; i++) {
       tracks[i] = new tracks[i]($.extend(defaults, {
-        namespace : Genoverse.getTrackNamespace(tracks[i]),
+        namespace : GenoverseClass.getTrackNamespace(tracks[i]),
         order     : typeof order === 'number' ? order : i,
         config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined
       }));
@@ -1430,7 +1431,7 @@ var Genoverse = Base.extend({
 
   addHighlights: function (highlights) {
     if (!this.tracksById.highlights) {
-      this.addTrack(Genoverse.Track.HighlightRegion);
+      this.addTrack(GenoverseClass.Track.HighlightRegion);
     }
 
     this.tracksById.highlights.addHighlights(highlights);
@@ -1478,7 +1479,7 @@ var Genoverse = Base.extend({
       makeEventMap(events, fn);
     }
 
-    var type = obj instanceof Genoverse.Track || obj === 'tracks' ? 'tracks' : 'browser';
+    var type = (obj.baseClassName && obj.baseClassName === 'Track') || obj === 'tracks' ? 'tracks' : 'browser';
 
     for (i in eventMap) {
       event = i + (once ? '.once' : '');
@@ -1521,7 +1522,7 @@ var Genoverse = Base.extend({
   wrapFunctions: function (obj) {
     for (var key in obj) {
       if (typeof obj[key] === 'function' && typeof obj[key].ancestor !== 'function' && !key.match(/^(base|extend|constructor|on|once|prop|loadPlugins|loadGenome)$/)) {
-        Genoverse.functionWrap(key, obj);
+        GenoverseClass.functionWrap(key, obj);
       }
     }
   },
@@ -1537,8 +1538,8 @@ var Genoverse = Base.extend({
     }
 
     var func      = key.substring(0, 1).toUpperCase() + key.substring(1);
-    var isBrowser = obj instanceof Genoverse;
-    var mainObj   = isBrowser || obj instanceof Genoverse.Track ? obj : obj.track;
+    var isBrowser = obj.baseClassName && obj.baseClassName === 'Genoverse';
+    var mainObj   = isBrowser || obj.baseClassName && obj.baseClassName === 'Track' ? obj : obj.track;
     var events    = isBrowser ? obj.events.browser : obj.browser.events.tracks;
     var debug;
 
@@ -1546,7 +1547,7 @@ var Genoverse = Base.extend({
       debug = [ isBrowser ? 'Genoverse' : mainObj.id || mainObj.name || 'Track' ];
 
       if (!isBrowser && obj !== mainObj) {
-        debug.push(obj instanceof Genoverse.Track.Controller ? 'Controller' : obj instanceof Genoverse.Track.Model ? 'Model' : 'View');
+        debug.push(obj.baseClassName && obj.baseClassName === 'Controller' ? 'Controller' : obj.baseClassName && obj.baseClassName === 'Model' ? 'Model' : 'View');
       }
 
       debug = debug.concat(key).join('.');
@@ -1603,7 +1604,7 @@ var Genoverse = Base.extend({
   },
 
   getAllTrackTypes: function (namespace, n) {
-    namespace = namespace || Genoverse.Track;
+    namespace = namespace || GenoverseClass.Track;
 
     if (n) {
       namespace = namespace[n];
@@ -1617,7 +1618,7 @@ var Genoverse = Base.extend({
 
     $.each(namespace, function (type, func) {
       if (typeof func === 'function' && !Base[type] && !/^(Controller|Model|View)$/.test(type)) {
-        $.each(Genoverse.getAllTrackTypes(namespace, type), function (subtype, fn) {
+        $.each(GenoverseClass.getAllTrackTypes(namespace, type), function (subtype, fn) {
           if (typeof fn === 'function') {
             trackTypes[type + '.' + subtype] = fn;
           }
@@ -1631,7 +1632,7 @@ var Genoverse = Base.extend({
   },
 
   getTrackNamespace: function (track) {
-    var trackTypes = Genoverse.getAllTrackTypes();
+    var trackTypes = GenoverseClass.getAllTrackTypes();
     var namespaces = $.map(trackTypes, function (constructor, name) { return track === constructor || track.prototype instanceof constructor ? name : null; }); // Find all namespaces which this track could be
     var j          = namespaces.length;
     var i;
@@ -1659,14 +1660,14 @@ var Genoverse = Base.extend({
 
 $(function () {
   if(runningInModule) {
-    return Genoverse.ready.resolve();
+    return GenoverseClass.ready.resolve();
   }
 
-  if ($('link[href^="' + Genoverse.origin + 'css/genoverse.css"]').length) {
-    Genoverse.ready.resolve();
+  if ($('link[href^="' + GenoverseClass.origin + 'css/genoverse.css"]').length) {
+    GenoverseClass.ready.resolve();
   } else {
-    $('<link href="' + Genoverse.origin + 'css/genoverse.css" rel="stylesheet">').prependTo('body').on('load', Genoverse.ready.resolve);
+    $('<link href="' + GenoverseClass.origin + 'css/genoverse.css" rel="stylesheet">').prependTo('body').on('load', GenoverseClass.ready.resolve);
   }
 });
 
-module.exports = Genoverse;
+module.exports = GenoverseClass;

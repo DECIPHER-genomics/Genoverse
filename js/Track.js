@@ -1,4 +1,4 @@
-const Genoverse = require("./Genoverse")
+const GenoverseClass = require("./Genoverse")
 const BaseController = require("./Track/Controller")
 const BaseModel = require("./Track/Model")
 const BaseView = require("./Track/View")
@@ -6,6 +6,7 @@ const StrandedController = require("./Track/Controller/Stranded")
 const StrandedModel = require("./Track/Model/Stranded")
 
 const Track = Base.extend({
+  baseClassName: 'Track',
   height     : 12,        // The height of the gv-track-container div
   margin     : 2,         // The spacing between this track and the next
   resizable  : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
@@ -33,7 +34,7 @@ const Track = Base.extend({
     this.setDefaults();
     this.setEvents();
 
-    Genoverse.wrapFunctions(this);
+    GenoverseClass.wrapFunctions(this);
 
     this.setLengthMap();
     this.setMVC();
@@ -92,7 +93,7 @@ const Track = Base.extend({
     this._interface = {};
 
     for (var i = 0; i < 3; i++) {
-      for (prop in Genoverse.Track[mvc[i]].prototype) {
+      for (prop in GenoverseClass.Track[mvc[i]].prototype) {
         if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(prop)) {
           this._interface[prop] = mvc[i + 3];
         }
@@ -554,7 +555,7 @@ const Track = Base.extend({
     constructor = constructor || (this.legend.prototype instanceof LegendTrack ? this.legend : LegendTrack);
 
     var track       = this;
-    var legendType  = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
+    var legendType  = constructor.prototype.shared === true ? GenoverseClass.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
     var config      = {
       id   : legendType + 'Legend',
       name : constructor.prototype.name || (this.defaultName + ' Legend'),
@@ -815,6 +816,7 @@ const LegendTrack = StaticTrack.extend({
   unsortable  : true,
   lockToTrack : true, // Always put the legend just below the last track that the legend is for
   removable   : false,
+  className: 'Legend',
 
   controller : LegendController,
   model      : LegendModel,

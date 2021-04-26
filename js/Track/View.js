@@ -1,6 +1,7 @@
-const Genoverse = require("../Genoverse")
+const GenoverseClass = require("../Genoverse")
 
 module.exports = Base.extend({
+  baseClassName    :'View',
   fontHeight       : 10,
   fontFamily       : 'sans-serif',
   fontWeight       : 'normal',
@@ -22,7 +23,7 @@ module.exports = Base.extend({
 
   constructor: function (properties) {
     $.extend(this, properties);
-    Genoverse.wrapFunctions(this);
+    GenoverseClass.wrapFunctions(this);
     this.init();
   },
 
