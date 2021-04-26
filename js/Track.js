@@ -1,4 +1,12 @@
-Genoverse.Track = Base.extend({
+const Genoverse = require("./Genoverse")
+const BaseController = require("./Track/Controller")
+const BaseModel = require("./Track/Model")
+const BaseView = require("./Track/View")
+const StrandedController = require("./Track/Controller/Stranded")
+const StrandedModel = require("./Track/Model/Stranded")
+
+const Track = Base.extend({
+  baseClassName: 'Track',
   height     : 12,        // The height of the gv-track-container div
   margin     : 2,         // The spacing between this track and the next
   resizable  : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
@@ -14,8 +22,8 @@ Genoverse.Track = Base.extend({
 
   constructor: function (config) {
     if (this.stranded || config.stranded) {
-      this.controller = this.controller || Genoverse.Track.Controller.Stranded;
-      this.model      = this.model      || Genoverse.Track.Model.Stranded;
+      this.controller = this.controller || StrandedController;
+      this.model      = this.model      || StrandedModel;
     }
 
     this.models = {};
@@ -105,13 +113,15 @@ Genoverse.Track = Base.extend({
     var trackSettings      = {};
     var i;
 
-    settings.controller = settings.controller || this.controller || Genoverse.Track.Controller;
+    settings.controller = settings.controller || this.controller || BaseController;
 
     for (i in settings) {
       if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(i) && isNaN(i)) {
         if (this._interface[i] === 'controller') {
           controllerSettings[typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
-        } else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|models|views|config|disabled)$/.test(i)) { // If we allow trackSettings to overwrite the MVC properties, we will potentially lose of information about instantiated objects that the track needs to perform future switching correctly.
+        }
+        // If we allow trackSettings to overwrite the MVC properties, we will potentially lose of information about instantiated objects that the track needs to perform future switching correctly.
+        else if (!Track.prototype.hasOwnProperty(i) && !/^(controller|models|views|config|disabled)$/.test(i)) {
           if (typeof this._defaults[i] === 'undefined') {
             this._defaults[i] = this[i];
           }
@@ -253,12 +263,12 @@ Genoverse.Track = Base.extend({
         key   = parseInt(key, 10);
         value = this[key];
 
-        lengthMap.push([ key, value === false ? { threshold: key, resizable: 'auto', featureHeight: 0, model: Genoverse.Track.Model, view: Genoverse.Track.View } : $.extend(true, {}, value) ]);
+        lengthMap.push([ key, value === false ? { threshold: key, resizable: 'auto', featureHeight: 0, model: BaseModel, view: BaseView } : $.extend(true, {}, value) ]);
       }
     }
 
     // Force at least one lengthMap entry to exist, containing the base model and view. lengthMap entries above -1 without a model or view will inherit from -1.
-    lengthMap.push([ -1, { view: this.view || Genoverse.Track.View, model: this.model || Genoverse.Track.Model }]);
+    lengthMap.push([ -1, { view: this.view || BaseView, model: this.model || BaseModel } ]);
 
     lengthMap = lengthMap.sort(function (a, b) { return b[0] - a[0]; });
 
@@ -284,11 +294,11 @@ Genoverse.Track = Base.extend({
       // Ensure that every lengthMap entry has a model and view property, copying them from entries with smaller lengths if needed.
       for (j = i + 1; j < lengthMap.length; j++) {
         if (!lengthMap[i][1].model && lengthMap[j][1].model) {
-          lengthMap[i][1].model = deepCopy.model ? Genoverse.Track.Model.extend($.extend(true, {}, lengthMap[j][1].model.prototype)) : lengthMap[j][1].model;
+          lengthMap[i][1].model = deepCopy.model ? BaseModel.extend($.extend(true, {}, lengthMap[j][1].model.prototype)) : lengthMap[j][1].model;
         }
 
         if (!lengthMap[i][1].view && lengthMap[j][1].view) {
-          lengthMap[i][1].view = deepCopy.view ? Genoverse.Track.View.extend($.extend(true, {}, lengthMap[j][1].view.prototype)) : lengthMap[j][1].view;
+          lengthMap[i][1].view = deepCopy.view ? BaseView.extend($.extend(true, {}, lengthMap[j][1].view.prototype)) : lengthMap[j][1].view;
         }
 
         if (lengthMap[i][1].model && lengthMap[i][1].view) {
@@ -516,7 +526,7 @@ Genoverse.Track = Base.extend({
 
     var track    = this;
     var browser  = this.browser;
-    var children = (Array.isArray(this.children) ? this.children : [ this.children ]).filter(function (child) { return child.prototype instanceof Genoverse.Track; });
+    var children = (Array.isArray(this.children) ? this.children : [ this.children ]).filter(function (child) { return child.prototype instanceof Track; });
     var config   = {
       parentTrack : this,
       controls    : 'off',
@@ -525,7 +535,7 @@ Genoverse.Track = Base.extend({
 
     setTimeout(function () {
       track.childTracks = children.map(function (child) {
-        if (child.prototype instanceof Genoverse.Track.Legend || child === Genoverse.Track.Legend) {
+        if (child.prototype instanceof LegendTrack || child === LegendTrack) {
           track.addLegend(child.extend(config), true);
           return track.legendTrack;
         }
@@ -542,7 +552,7 @@ Genoverse.Track = Base.extend({
       return;
     }
 
-    constructor = constructor || (this.legend.prototype instanceof Genoverse.Track.Legend ? this.legend : Genoverse.Track.Legend);
+    constructor = constructor || (this.legend.prototype instanceof LegendTrack ? this.legend : LegendTrack);
 
     var track       = this;
     var legendType  = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
@@ -630,3 +640,326 @@ Genoverse.Track = Base.extend({
     }
   }
 });
+
+
+const StaticController = BaseController.extend({
+  addDomElements: function () {
+    this.base();
+
+    this.image = $('<img>').appendTo(this.imgContainer);
+
+    this.container.toggleClass('gv-track-container gv-track-container-static').prepend(this.imgContainer);
+    this.scrollContainer.add(this.messageContainer).remove();
+  },
+
+  reset: function () {
+    delete this.stringified;
+    this.base.apply(this, arguments);
+  },
+
+  setWidth: function (width) {
+    this.base(width);
+    this.image.width = this.width;
+  },
+
+  makeFirstImage: function () {
+    this.base.apply(this, arguments);
+    this.container.css('left', 0);
+    this.imgContainer.show();
+  },
+
+  makeImage: function (params) {
+    if (this.prop('disabled')) {
+      return $.Deferred().resolve();
+    }
+
+    var features = this.view.positionFeatures(this.model.findFeatures(params.chr, params.start, params.end), params);
+
+    if (features) {
+      var string = JSON.stringify(features);
+
+      if (this.stringified !== string) {
+        var height = this.prop('height');
+
+        params.width         = this.width;
+        params.featureHeight = height;
+
+        this.render(features, this.image.data(params));
+        this.imgContainer.children(':last').show();
+        this.resize(height, undefined, false);
+
+        this.stringified = string;
+      }
+    }
+
+    return $.Deferred().resolve();
+  }
+});
+
+const StaticModel = BaseModel.extend({
+  url            : false,
+  checkDataRange : function () { return true; }
+});
+
+const StaticView = BaseView.extend({
+  featureMargin : { top: 0, right: 1, bottom: 0, left: 1 },
+
+  positionFeature : $.noop,
+  scaleFeatures   : function (features) { return features; },
+
+  draw: function (features, featureContext, labelContext, scale) {
+    for (var i = 0; i < features.length; i++) {
+      this.drawFeature(features[i], featureContext, labelContext, scale);
+    }
+  }
+});
+
+const StaticTrack = Track.extend({
+  controls   : 'off',
+  resizable  : false,
+  controller : StaticController,
+  model      : StaticModel,
+  view       : StaticView
+});
+
+const LegendController = StaticController.extend({
+  init: function () {
+    this.base();
+
+    this.container.addClass('gv-track-container-legend');
+
+    this.browser.legends[this.track.id] = this.track;
+
+    this.track.setTracks();
+  },
+
+  destroy: function () {
+    delete this.browser.legends[this.prop('id')];
+    this.base();
+  }
+});
+
+const LegendModel = StaticModel.extend({
+  findFeatures: function () {
+    var bounds   = { x: this.browser.scaledStart, y: 0, w: this.width };
+    var features = {};
+
+    $.each($.map(this.track.tracks, function (track) {
+      var featurePositions = track.prop('featurePositions');
+      bounds.h = track.prop('height');
+      return featurePositions ? featurePositions.search(bounds).concat(track.prop('labelPositions').search(bounds)) : [];
+    }), function () {
+      if (this.legend) {
+        features[this.legend] = this.legendColor || this.color;
+      }
+    });
+
+    return this.sortFeatures($.map(features, function (color, text) { return [[ text, color ]]; }));
+  },
+
+  sortFeatures: function (features) {
+    // sort legend alphabetically
+    return features.sort(function (a, b) {
+      var x = a[0].toLowerCase();
+      var y = b[0].toLowerCase();
+      return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+  }
+});
+
+const LegendView = StaticView.extend({
+  textColor     : '#000000',
+  labels        : 'overlay',
+  featureHeight : 12,
+
+  positionFeatures: function (f, params) {
+    if (params.positioned) {
+      return f;
+    }
+
+    var cols     = 2;
+    var pad      = 5;
+    var w        = 20;
+    var x        = 0;
+    var y        = 0;
+    var xScale   = this.width / cols;
+    var yScale   = this.fontHeight + pad;
+    var features = [];
+    var xOffest  = params.xOffset || 0;
+    var xPos, yPos, labelWidth;
+
+    for (var i = 0; i < f.length; i++) {
+      xPos       = (x * xScale) + pad;
+      yPos       = (y * yScale) + pad;
+      labelWidth = this.context.measureText(f[i][0]).width;
+
+      features.push(
+        { x: xPos + xOffest,           y: yPos, width: w,              height: this.featureHeight, color: f[i][1] },
+        { x: xPos + xOffest + pad + w, y: yPos, width: labelWidth + 1, height: this.featureHeight, color: false, labelColor: this.textColor, labelWidth: labelWidth, label: f[i][0] }
+      );
+
+      if (++x === cols) {
+        x = 0;
+        y++;
+      }
+    }
+
+    params.height     = this.prop('height', f.length ? ((y + (x ? 1 : 0)) * yScale) + pad : 0);
+    params.width      = this.width;
+    params.positioned = true;
+
+    return this.base(features, params);
+  }
+});
+
+const LegendTrack = StaticTrack.extend({
+  unsortable  : true,
+  lockToTrack : true, // Always put the legend just below the last track that the legend is for
+  removable   : false,
+  className: 'Legend',
+
+  controller : LegendController,
+  model      : LegendModel,
+  view       : LegendView,
+
+  setDefaults: function () {
+    this.order = typeof this.order !== 'undefined' ? this.order : 9e99;
+    this.id    = this.id   || 'legend';
+    this.type  = this.type || 'legend';
+    this.base();
+  },
+
+  setEvents: function () {
+    this.browser.on({
+      'afterAddTracks afterRemoveTracks': function (tracks) {
+        for (var i in this.legends) {
+          this.legends[i].setTracks();
+        }
+
+        this.sortTracks();
+      },
+      afterRemoveTracks: function (tracks) {
+        for (var i in tracks) {
+          if (tracks[i].legendTrack && tracks[i].legendTrack.tracks.length === 0) {
+            tracks[i].legendTrack.remove();
+          }
+        }
+
+        for (var i in this.legends) {
+          this.legends[i].controller.makeImage({});
+        }
+      },
+      afterUpdateTrackOrder: function (e, ui) {
+        var track       = ui.item.data('track');
+        var legendTrack = this.legends[track.id] || track.legendTrack;
+
+        // If a legend track, or a track with a sortable legend has been reordered, its lockToTrack status is ignored from now on.
+        // This allows a legend to initially be locked to a track, but then to be reordered once the browser has been initialized
+        if (legendTrack && legendTrack.lockToTrack && legendTrack.unsortable === false) {
+          legendTrack.lockToTrack = false;
+        }
+
+        for (var i in this.legends) {
+          this.legends[i].updateOrder();
+        }
+
+        this.sortTracks();
+      }
+    });
+
+    this.browser.on({
+      afterPositionFeatures: function (features, params) {
+        var legend = this.prop('legendTrack');
+
+        if (legend) {
+          setTimeout(function () { legend.controller.makeImage(params); }, 1);
+        }
+      },
+      afterResize: function (height, userResize) {
+        var legend = this.prop('legendTrack');
+
+        if (legend && userResize === true) {
+          legend.controller.makeImage({});
+        }
+      },
+      afterCheckHeight: function () {
+        var legend = this.prop('legendTrack');
+
+        if (legend) {
+          legend.controller.makeImage({});
+        }
+      },
+      afterSetMVC: function () {
+        var legend = this.prop('legendTrack');
+
+        if (legend && legend.tracks.length) {
+          legend.disable();
+
+          if (this.legend !== false) {
+            legend.enable();
+          }
+        }
+      }
+    }, this);
+  },
+
+  setTracks: function () {
+    var legend = this;
+    var type   = this.type;
+
+    this.tracks = $.map(this.browser.tracks.filter(function (t) {
+      if (t.legendType === type) {
+        t.legendTrack = t.legendTrack || legend;
+        return true;
+      }
+    }), function (track) {
+      return [ track ].concat(track.prop('childTracks'), track.prop('parentTrack')).filter(function (t) { return t && t !== legend && !t.prop('disabled'); })
+    });
+
+    this.updateOrder();
+
+    if (typeof this.controller === 'object') {
+      this[this.tracks.length ? 'enable' : 'disable']();
+    } else {
+      this.disabled = !this.tracks.length;
+    }
+  },
+
+  updateOrder: function () {
+    if (this.lockToTrack) {
+      var tracks = this.tracks.filter(function (t) { return !t.prop('parentTrack'); });
+
+      if (tracks.length) {
+        this.order = tracks[tracks.length - 1].order + 0.1;
+      }
+    }
+  },
+
+  enable: function () {
+    this.base();
+    this.controller.makeImage({});
+  },
+
+  disable: function () {
+    delete this.controller.stringified;
+    this.base();
+  }
+});
+
+
+
+module.exports = {
+  Track,
+  Legend: {
+    View: LegendView,
+    Model: LegendModel,
+    Controller: LegendController,
+    Track: LegendTrack
+  },
+  Static: {
+    View: StaticView,
+    Model: StaticModel,
+    Controller: StaticController,
+    Track: StaticTrack,
+  }
+}

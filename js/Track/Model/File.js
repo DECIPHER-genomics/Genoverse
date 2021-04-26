@@ -1,4 +1,6 @@
-Genoverse.Track.Model.File = Genoverse.Track.Model.extend({
+var Model = require('../Model')
+
+module.exports = Model.extend({
   dataType: 'text',
 
   init: function () {

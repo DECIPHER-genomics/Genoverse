@@ -1,4 +1,6 @@
-Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
+var FileModel = require('../File')
+
+module.exports = FileModel.extend({
   getData: function (chr, start, end) {
     var model    = this;
     var deferred = $.Deferred();

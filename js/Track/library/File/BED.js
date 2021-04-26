@@ -1,6 +1,9 @@
-Genoverse.Track.File.BED = Genoverse.Track.File.extend({
+var FileTrack = require('../File');
+var BEDModel = require('../../Model/File/BED');
+
+module.exports = FileTrack.extend({
   name                : 'BED',
-  model               : Genoverse.Track.Model.File.BED,
+  model               : BEDModel,
   bump                : true,
   featureHeight       : 10,
   thickHeight         : 10,

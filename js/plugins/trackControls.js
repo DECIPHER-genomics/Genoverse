@@ -1,4 +1,4 @@
-Genoverse.Plugins.trackControls = function () {
+module.exports = function () {
   var defaultControls = [
     $('<a title="More info" class="fas fa-question-circle">').on('click', function () {
       var track = $(this).data('track');

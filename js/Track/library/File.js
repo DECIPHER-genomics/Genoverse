@@ -1,4 +1,6 @@
-Genoverse.Track.File = Genoverse.Track.extend({
+const { Track } = require('../../Track')
+
+module.exports = Track.extend({
   setInterface: function () {
     this.base();
 

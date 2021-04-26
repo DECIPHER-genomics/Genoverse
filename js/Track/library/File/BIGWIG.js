@@ -1,4 +1,6 @@
-Genoverse.Track.File.BIGWIG = Genoverse.Track.Graph.Bar.extend({
+var Bar = require('../Graph/Bar');
+
+module.exports = Bar.Track.extend({
   name   : 'bigwig',
   height : 100,
 
@@ -48,5 +50,3 @@ Genoverse.Track.File.BIGWIG = Genoverse.Track.Graph.Bar.extend({
     return deferred;
   }
 });
-
-Genoverse.Track.File.BW = Genoverse.Track.File.BIGWIG;

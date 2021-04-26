@@ -1,7 +1,12 @@
-Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
+var FileTrack = require('../File');
+var VCFModel = require('../../Model/File/VCF');
+var SequenceView = require('../../View/Sequence');
+var BaseView = require('../../View');
+
+module.exports = FileTrack.extend({
   name       : 'VCF',
   indexExt   : '.tbi',
-  model      : Genoverse.Track.Model.File.VCF,
+  model      : VCFModel,
   autoHeight : false,
   maxQual    : undefined, // Set this to the maximum value of the QUAL field in the file in order to color features by QUAL. Only required for large (tabix indexed) files - small ones can calculate this value automatically
 
@@ -26,7 +31,7 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
   },
 
   1: {
-    view: Genoverse.Track.View.Sequence.extend({
+    view: SequenceView.extend({
       bump          : true,
       labels        : false,
       featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },
@@ -49,7 +54,7 @@ Genoverse.Track.File.VCF = Genoverse.Track.File.extend({
   },
 
   1000: {
-    view: Genoverse.Track.View.extend({
+    view: BaseView.extend({
       bump   : false,
       labels : false,
 

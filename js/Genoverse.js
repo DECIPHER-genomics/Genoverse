@@ -1,6 +1,9 @@
-var runningInModule = Boolean(typeof module === 'object' && typeof module.exports === 'object');
-var Genoverse = Base.extend({
+const genomeHash = require('./Genomes');
+
+const runningInModule = Boolean(typeof module === 'object' && typeof module.exports === 'object');
+const Genoverse = Base.extend({
   // Defaults
+  baseClassName      : 'Genoverse',
   baseURL            : undefined, // If multiple instances of Genoverse exist on a page at once, specifying different baseURL values allows some/all to ignore external URL changes
   urlParamTemplate   : 'r=__CHR__:__START__-__END__', // Overwrite this for your URL style
   width              : 1000,
@@ -336,7 +339,7 @@ var Genoverse = Base.extend({
     var conf, j;
 
     for (var i = 0; i < this.tracks.length; i++) {
-      if (this.tracks[i].id && !(this.tracks[i] instanceof Genoverse.Track.Legend) && !(this.tracks[i] instanceof Genoverse.Track.HighlightRegion)) {
+      if (this.tracks[i].id && !(this.tracks[i].className && this.tracks[i].className === "Legend") && !(this.tracks[i].className && this.tracks[i].className === "HighlightRegion")) {
         // when saving height, initialHeight is the height of the track once margins have been added, while defaultHeight is the DEFINED height of the track.
         // Subtracting the difference between them gives you back the correct height to input back into the track when loading configuration
         conf = {
@@ -1476,7 +1479,7 @@ var Genoverse = Base.extend({
       makeEventMap(events, fn);
     }
 
-    var type = obj instanceof Genoverse.Track || obj === 'tracks' ? 'tracks' : 'browser';
+    var type = (obj.baseClassName && obj.baseClassName === 'Track') || obj === 'tracks' ? 'tracks' : 'browser';
 
     for (i in eventMap) {
       event = i + (once ? '.once' : '');
@@ -1535,8 +1538,8 @@ var Genoverse = Base.extend({
     }
 
     var func      = key.substring(0, 1).toUpperCase() + key.substring(1);
-    var isBrowser = obj instanceof Genoverse;
-    var mainObj   = isBrowser || obj instanceof Genoverse.Track ? obj : obj.track;
+    var isBrowser = obj.baseClassName && obj.baseClassName === 'Genoverse';
+    var mainObj   = isBrowser || obj.baseClassName && obj.baseClassName === 'Track' ? obj : obj.track;
     var events    = isBrowser ? obj.events.browser : obj.browser.events.tracks;
     var debug;
 
@@ -1544,7 +1547,7 @@ var Genoverse = Base.extend({
       debug = [ isBrowser ? 'Genoverse' : mainObj.id || mainObj.name || 'Track' ];
 
       if (!isBrowser && obj !== mainObj) {
-        debug.push(obj instanceof Genoverse.Track.Controller ? 'Controller' : obj instanceof Genoverse.Track.Model ? 'Model' : 'View');
+        debug.push(obj.baseClassName && obj.baseClassName === 'Controller' ? 'Controller' : obj.baseClassName && obj.baseClassName === 'Model' ? 'Model' : 'View');
       }
 
       debug = debug.concat(key).join('.');
@@ -1667,8 +1670,4 @@ $(function () {
   }
 });
 
-window.Genoverse = Genoverse;
-
-if (runningInModule) {
-  module.exports = Genoverse;
-}
+module.exports = Genoverse;

@@ -1,4 +1,7 @@
-Genoverse.Track.Controller = Base.extend({
+const Genoverse = require("../Genoverse")
+
+module.exports = Base.extend({
+  baseClassName  :'Controller',
   scrollBuffer   : 1.2,      // Number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
   threshold      : Infinity, // Length above which the track is not drawn
   clickTolerance : 0,        // pixels of tolerance added to a click position when finding features for popup menus, when scale < 1

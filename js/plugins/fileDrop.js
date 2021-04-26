@@ -1,4 +1,26 @@
-Genoverse.Plugins.fileDrop = function () {
+const BAM = require('../Track/library/File/BAM.js');
+const BED = require('../Track/library/File/BED.js');
+const BIGBED = require('../Track/library/File/BIGBED.js');
+const BIGWIG = require('../Track/library/File/BIGWIG.js');
+const GFF = require('../Track/library/File/GFF.js');
+const VCF = require('../Track/library/File/VCF.js');
+const WIG = require('../Track/library/File/WIG.js');
+
+
+const FileTracks = {
+  BAM,
+  BED,
+  BIGBED,
+  BB: BIGBED,
+  BIGWIG, 
+  BW: BIGWIG, 
+  GFF, 
+  GTF: GFF, 
+  VCF, 
+  WIG
+}
+
+module.exports = function () {
   this.on('afterInit', function () {
     var browser = this;
     var wrapper = this.wrapper;
@@ -31,7 +53,7 @@ Genoverse.Plugins.fileDrop = function () {
             var parts = file.name.split('.').reverse();
             var gz    = parts[0] === 'gz';
             var ext   = parts[gz ? 1 : 0];
-            var track = Genoverse.Track.File[ext.toUpperCase()];
+            var track = FileTracks[ext.toUpperCase()];
             var indexFile;
 
             if (typeof track === 'undefined') {

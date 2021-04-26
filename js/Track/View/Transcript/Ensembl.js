@@ -1,6 +1,9 @@
-Genoverse.Track.View.Transcript.Ensembl = Genoverse.Track.View.Transcript.extend({
+var Transcript = require('../Transcript')
+var GeneEnsemblView = require('../Gene/Ensembl')
+
+module.exports = Transcript.extend({
   setFeatureColor: function (feature) {
-    Genoverse.Track.View.Gene.Ensembl.prototype.setFeatureColor(feature);
+    GeneEnsemblView.prototype.setFeatureColor(feature);
 
     for (var i = 0; i < (feature.subFeatures || []).length; i++) {
       if (feature.subFeatures[i].utr) {

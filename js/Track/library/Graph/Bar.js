@@ -1,4 +1,7 @@
-Genoverse.Track.Controller.Graph.Bar = {
+var Graph = require('../Graph');
+var Line = require('./Line');
+
+var BarController = {
   getClickedFeatures: function (x, y) {
     var yZero     = this.prop('marginTop') - (this.prop('range')[0] * this.track.getYScale());
     var scale     = this.scale;
@@ -93,7 +96,7 @@ Genoverse.Track.Controller.Graph.Bar = {
   }
 };
 
-Genoverse.Track.Model.Graph.Bar = Genoverse.Track.Model.Graph.extend({
+var BarModel = Graph.Model.extend({
   insertFeature: function (feature) {
     var datasets = this.prop('datasets');
 
@@ -108,7 +111,7 @@ Genoverse.Track.Model.Graph.Bar = Genoverse.Track.Model.Graph.extend({
   }
 });
 
-Genoverse.Track.View.Graph.Bar = Genoverse.Track.View.Graph.extend({
+var BarView = Graph.View.extend({
   scaleFeatures: function (features, scale) {
     var yScale = this.track.getYScale();
     var zeroY  = this.prop('marginTop') - this.prop('range')[0] * yScale;
@@ -185,31 +188,31 @@ Genoverse.Track.View.Graph.Bar = Genoverse.Track.View.Graph.extend({
   }
 });
 
-Genoverse.Track.Graph.Bar = Genoverse.Track.Graph.extend({
+var BarTrack = Graph.Track.extend({
   type      : 'Bar',
-  model     : Genoverse.Track.Model.Graph.Bar,
-  view      : Genoverse.Track.View.Graph.Bar,
+  model     : BarModel,
+  view      : BarView,
   threshold : 500000,
 
   10000: $.extend( // Switch to line graph at 10000bp region
-    Object.keys(Genoverse.Track.Graph.Line.prototype).reduce(function (hash, key) {
-      if (Genoverse.Track.Graph.Line.prototype.hasOwnProperty(key) && !Base.prototype[key]) {
-        hash[key] = Genoverse.Track.Graph.Line.prototype[key];
+    Object.keys(Line.Track.prototype).reduce(function (hash, key) {
+      if (Line.Track.prototype.hasOwnProperty(key) && !Base.prototype[key]) {
+        hash[key] = Line.Track.prototype[key];
       }
 
       return hash;
     }, {}), {
-      fill  : true,
-      model : Genoverse.Track.Model.Graph.Line.extend({
-        parseData: function (data, chr, start, end) {
-          var coords = [];
-          var j;
+    fill  : true,
+    model : Line.Model.extend({
+      parseData: function (data, chr, start, end) {
+        var coords = [];
+        var j;
 
-          for (var i = 0; i < data.length; i++) {
-            for (j = data[i].start; j < data[i].end; j++) {
-              coords.push([ j, data[i].height ]);
-            }
+        for (var i = 0; i < data.length; i++) {
+          for (j = data[i].start; j < data[i].end; j++) {
+            coords.push([ j, data[i].height ]);
           }
+        }
 
           return this.base([{ chr: chr, start: start, end: end, coords: coords }], chr, start, end);
         }
@@ -217,15 +220,15 @@ Genoverse.Track.Graph.Bar = Genoverse.Track.Graph.extend({
     }
   ),
   50000: $.extend( // Switch to sparser line graph at 50000bp region
-    Object.keys(Genoverse.Track.Graph.Line.prototype).reduce(function (hash, key) {
-      if (Genoverse.Track.Graph.Line.prototype.hasOwnProperty(key) && !Base.prototype[key]) {
-        hash[key] = Genoverse.Track.Graph.Line.prototype[key];
+    Object.keys(Line.Track.prototype).reduce(function (hash, key) {
+      if (Line.Track.prototype.hasOwnProperty(key) && !Base.prototype[key]) {
+        hash[key] = Line.Track.prototype[key];
       }
 
       return hash;
     }, {}), {
       fill  : true,
-      model : Genoverse.Track.Model.Graph.Line.extend({
+      model : Line.Model.extend({
         parseData: function (data, chr, start, end) {
           return this.base([{ chr: chr, start: start, end: end, coords: data.map(function (d) { return [ d.start, d.height ]; }) }], chr, start, end);
         }
@@ -233,3 +236,10 @@ Genoverse.Track.Graph.Bar = Genoverse.Track.Graph.extend({
     }
   )
 });
+
+module.exports = {
+  View: BarView,
+  Model: BarModel,
+  Controller: BarController,
+  Track: BarTrack
+}

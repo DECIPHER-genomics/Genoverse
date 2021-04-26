@@ -1,4 +1,6 @@
-Genoverse.Track.Controller.Sequence = Genoverse.Track.Controller.extend({
+var Controller = require('../Controller')
+
+module.exports = Controller.extend({
   getClickedFeatures: function (x, y) {
     var feature = this.base(x, y)[0];
 

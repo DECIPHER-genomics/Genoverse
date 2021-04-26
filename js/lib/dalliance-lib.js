@@ -3581,14 +3581,14 @@
 
   /*-------------------------------------------------------------------------------------------------------------------------------*/
 
-  window.dallianceLib = {
-    URLFetchable  : URLFetchable,
-    BlobFetchable : BlobFetchable,
-    makeBam       : makeBam,
-    inflateBuffer : inflateBuffer
-  };
-
   if (typeof module === 'object' && typeof module.exports === 'object') {
     module.exports = window.dallianceLib;
+  } else {
+    window.dallianceLib = {
+      URLFetchable  : URLFetchable,
+      BlobFetchable : BlobFetchable,
+      makeBam       : makeBam,
+      inflateBuffer : inflateBuffer
+    };
   }
 })();

@@ -10,6 +10,7 @@
   "scripts": {
     "test": "node_modules/.bin/mocha $(find test/require/*.js -print0 | xargs -r0 -I {} echo -n '--require {} ') --no-timeouts --recursive",
     "build": "webpack",
+    "build:watch": "webpack --watch",
     "dev": "serve"
   },
   "repository": {

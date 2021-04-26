@@ -1,4 +1,7 @@
-Genoverse.Track.Model.File.WIG = Genoverse.Track.Model.Graph.Bar.extend({
+const Bar = require('../../library/Graph/Bar')
+const FileModel = require('../File')
+
+module.exports = Bar.Model.extend({
   dataType: 'text',
 
   getData: function () {
@@ -6,7 +9,7 @@ Genoverse.Track.Model.File.WIG = Genoverse.Track.Model.Graph.Bar.extend({
       this.isLocal  = true;
       this.dataFile = this.track.dataFile;
 
-      return Genoverse.Track.Model.File.prototype.getData.apply(this, arguments);
+      return FileModel.prototype.getData.apply(this, arguments);
     }
 
     return this.base.apply(this, arguments);

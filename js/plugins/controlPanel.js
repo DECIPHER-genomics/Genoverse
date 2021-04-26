@@ -1,4 +1,5 @@
-Genoverse.Plugins.controlPanel = function () {
+module.exports = function () {
+  this.requires = 'karyotype',
   this.controls = [
     // Scroll left/right
     {
@@ -281,7 +282,6 @@ Genoverse.Plugins.controlPanel = function () {
                     $('<i class="gv-add-track gv-menu-button fas fa-plus-circle"> ').on('click', function () {
                       browser.trackIds = browser.trackIds || {};
                       browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
-
                       browser.addTrack(track.extend({ id: track.prototype.id + (browser.tracksById[track.prototype.id] ? browser.trackIds[track.prototype.id]++ : '') }));
                     })
                   ).append('<span>' + track.prototype.name + '</span>').appendTo(availableTracks).data('track', track.prototype);
@@ -341,5 +341,3 @@ Genoverse.Plugins.controlPanel = function () {
     }
   }, 'tracks');
 };
-
-Genoverse.Plugins.controlPanel.requires = 'karyotype';

@@ -1,4 +1,6 @@
-Genoverse.Track.dbSNP = Genoverse.Track.extend({
+const { Track } = require('../../Track')
+
+module.exports = Track.extend({
   id               : 'dbSNP',
   name             : 'dbSNP',
   info             : 'All sequence variants from the database of Single Nucleotide Polymorphisms (dbSNP)',
