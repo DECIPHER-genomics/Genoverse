@@ -3,6 +3,13 @@
 // TODO: bytes, kb, mb, gb, tb
 
 describe('Correctly render scale line:', function () {
+  before(function() {
+    // Test runs inconsistently on Linux vs MacOS
+    if(global.isMacOS) {
+      return this.skip();
+    }
+  });
+
   afterEach(afterTest);
 
   var width = 1000;
@@ -55,8 +62,7 @@ describe('Correctly render scale line:', function () {
   }
 
   [ 'Forward', 'Reverse', 'No' ].forEach(function (strand) {
-    // Test runs inconsistently on Linux vs MacOS
-    describe.skip(strand + ' strand', function () {
+    describe(strand + ' strand', function () {
       it('in bytes', function () {
         return doTest(10, function (n) { return n + ' bp'; }, strand);
       });

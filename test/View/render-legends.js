@@ -15,8 +15,13 @@ describe('Correctly render legends:', function () {
     context.textAlign    = 'center';
     context.textBaseline = 'middle';
   }
-  // Test runs inconsistently on Linux vs MacOS
-  it.skip('multiple feature types', function () {
+
+  it('multiple feature types', function () {
+    // Test runs inconsistently on Linux vs MacOS
+    if(global.isMacOS) {
+      return this.skip();
+    }
+
     return testTrackRenderStatic(
       [{ start: 1, end: 5, color: 'red', legend: 'test1' }, { start: 6, end: 10, color: 'blue', legend: 'test2' }, { start: 11, end: 15, color: 'green', legend: 'test3' }],
       track,
