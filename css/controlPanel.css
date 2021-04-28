@@ -1,27 +1,27 @@
-.gv-control-panel-plugin table.gv {
+.gvm-control-panel-plugin table.gv {
   position: relative;
   margin-bottom: 30px;
   border-collapse: separate;
 }
 
-.gv-control-panel-plugin table.gv td {
+.gvm-control-panel-plugin table.gv td {
   padding: 0;
   color: white;
   vertical-align: top;
 }
 
-.gv-control-panel-plugin .gv-panel {
+.gvm-control-panel-plugin .gv-panel {
   height: 100%;
   background-color: #5F8CB0;
   border: 1px solid #1C5380;
   box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);
 }
 
-.gv-control-panel-plugin .gv-panel div {
+.gvm-control-panel-plugin .gv-panel div {
   white-space: nowrap;
 }
 
-.gv-control-panel-plugin .gv-panel button {
+.gvm-control-panel-plugin .gv-panel button {
   background: none;
   border: none;
   border-bottom: 1px solid #1C5380;
@@ -35,104 +35,104 @@
   margin: 0;
 }
 
-.gv-control-panel-plugin .gv-panel button:only-child {
+.gvm-control-panel-plugin .gv-panel button:only-child {
   width: 100%;
 }
 
-.gv-control-panel-plugin .gv-panel div.gv-button-set > button:not(:first-child) {
+.gvm-control-panel-plugin .gv-panel div.gv-button-set > button:not(:first-child) {
   border-left: 1px solid #1C5380;
 }
 
-.gv-control-panel-plugin .gv-panel button.gv-button-large {
+.gvm-control-panel-plugin .gv-panel button.gv-button-large {
   font-size: 25px;
 }
 
-.gv-control-panel-plugin .gv-panel div.gv-button-set:not(:first-child) > button {
+.gvm-control-panel-plugin .gv-panel div.gv-button-set:not(:first-child) > button {
   box-shadow: 0 1px 1px rgba(255, 255, 255, 0.12) inset;
 }
 
-.gv-control-panel-plugin .gv-panel div.gv-button-set:last-child {
+.gvm-control-panel-plugin .gv-panel div.gv-button-set:last-child {
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-.gv-control-panel-plugin .gv-panel button:hover {
+.gvm-control-panel-plugin .gv-panel button:hover {
   background-color: rgba(255, 255, 255, 0.1);
   color: #FFFFFF;
   cursor: pointer;
 }
 
-.gv-control-panel-plugin .gv-panel button:active,
-.gv-control-panel-plugin .gv-panel button.gv-active {
+.gvm-control-panel-plugin .gv-panel button:active,
+.gvm-control-panel-plugin .gv-panel button.gv-active {
   border-top: none;
   background-color: rgba(6, 54, 95, 0.35);
   box-shadow: 0 0 1px rgba(6, 54, 95, 0.8) inset !important;
 }
 
-.gv-control-panel-plugin .gv-panel-right {
+.gvm-control-panel-plugin .gv-panel-right {
   background-image: -webkit-linear-gradient(left, #5F8CB0, #4A7496);
   background-image: -moz-linear-gradient(left center, #5F8CB0, #4A7496);
   border-radius: 0 5px 5px 0;
   border-left: 0;
 }
 
-.gv-control-panel-plugin .gv-panel-right button.gv-wheel-zoom {
+.gvm-control-panel-plugin .gv-panel-right button.gv-wheel-zoom {
   font-weight: bold;
 }
 
-.gv-control-panel-plugin .gv-panel-right button.gv-drag-select i {
+.gvm-control-panel-plugin .gv-panel-right button.gv-drag-select i {
   border: 1px dashed #FFF;
   padding: 0 5px;
   box-shadow: 0px 0px 1px #FFF inset, 0px 1px 3px rgba(0, 0, 0, 0.1), 2px 2px rgba(0, 0, 0, 0.2);
 }
 
-.gv-control-panel-plugin .gv-panel-left {
+.gvm-control-panel-plugin .gv-panel-left {
   background-image: -webkit-linear-gradient(right, #5F8CB0, #4A7496);
   background-image: -moz-linear-gradient(right center, #5F8CB0, #4A7496);
   border-radius: 5px 0 0 5px;
   border-right: 0;
 }
 
-.gv-control-panel-plugin .gv-panel-left .gv-label-container {
+.gvm-control-panel-plugin .gv-panel-left .gv-label-container {
   border: 0;
   box-shadow: none;
   background: none;
 }
 
-.gv-control-panel-plugin td.gv-canvas-container {
+.gvm-control-panel-plugin td.gv-canvas-container {
   border: 1px solid #000;
 }
 
-.gv-control-panel-plugin .gv-karyotype-container {
+.gvm-control-panel-plugin .gv-karyotype-container {
   border-width: 0 0 1px!important;
 }
 
-.gv-control-panel-plugin .gv-canvas-container .gv-wrapper {
+.gvm-control-panel-plugin .gv-canvas-container .gv-wrapper {
   border: 0;
 }
 
-.gv-control-panel-plugin .gv-tracks-menu {
+.gvm-control-panel-plugin .gv-tracks-menu {
   top: 70px;
 }
 
-.gv-control-panel-plugin .gv-tracks-menu .gv-close {
+.gvm-control-panel-plugin .gv-tracks-menu .gv-close {
   font-size: 20px;
 }
 
-.gv-control-panel-plugin .gv-tracks-menu .gv-menu-content {
+.gvm-control-panel-plugin .gv-tracks-menu .gv-menu-content {
   font-size: 13px;
 }
 
-.gv-control-panel-plugin .gv-tracks-menu table {
+.gvm-control-panel-plugin .gv-tracks-menu table {
   margin: 0 0 10px;
 }
 
-.gv-control-panel-plugin .gv-tracks-menu td {
+.gvm-control-panel-plugin .gv-tracks-menu td {
   padding: 5px 10px!important;
   vertical-align: top;
   width: 50%;
 }
 
-.gv-control-panel-plugin .gv-tracks-menu tr:first-child td {
+.gvm-control-panel-plugin .gv-tracks-menu tr:first-child td {
   font-weight: bold;
   white-space: nowrap;
   padding: 5px 30px 5px 10px;
@@ -141,30 +141,30 @@
   line-height: normal;
 }
 
-.gv-control-panel-plugin .gv-tracks-menu tr:first-child td:last-child {
+.gvm-control-panel-plugin .gv-tracks-menu tr:first-child td:last-child {
   border-radius: 0 12px 0 0;
 }
 
-.gv-control-panel-plugin .gv-tracks-menu tr td:first-child {
+.gvm-control-panel-plugin .gv-tracks-menu tr td:first-child {
   padding-right: 50px!important;
 }
 
-.gv-control-panel-plugin .gv-tracks-menu .gv-current-tracks.ui-sortable {
+.gvm-control-panel-plugin .gv-tracks-menu .gv-current-tracks.ui-sortable {
   cursor: move;
 }
 
-.gv-control-panel-plugin .gv-tracks-menu .gv-remove-track,
-.gv-control-panel-plugin .gv-tracks-menu .gv-add-track {
+.gvm-control-panel-plugin .gv-tracks-menu .gv-remove-track,
+.gvm-control-panel-plugin .gv-tracks-menu .gv-add-track {
   font-size: 14px;
   margin: 2px 5px 0 0;
 }
 
-.gv-control-panel-plugin .gv-tracks-menu input {
+.gvm-control-panel-plugin .gv-tracks-menu input {
   margin-bottom: 10px;
   width: 200px;
 }
 
-.gv-control-panel-plugin .gv-powered-by {
+.gvm-control-panel-plugin .gv-powered-by {
   position: absolute;
   right: 0;
   bottom: -16px;
@@ -172,6 +172,6 @@
   color: black;
 }
 
-.gv-control-panel-plugin .gv-powered-by a {
+.gvm-control-panel-plugin .gv-powered-by a {
   font-weight: bold;
 }

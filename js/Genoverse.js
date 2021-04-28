@@ -155,7 +155,7 @@ const Genoverse = Base.extend({
       function init() {
         if (browser.loadedPlugins[plugin] !== true) {
           Genoverse.Plugins[plugin].call(browser, conf);
-          browser.container.addClass('gv-' + plugin.replace(/([A-Z])/g, '-$1').toLowerCase() + '-plugin');
+          browser.container.addClass('gvm-' + plugin.replace(/([A-Z])/g, '-$1').toLowerCase() + '-plugin');
           browser.loadedPlugins[plugin] = true;
         }
 
