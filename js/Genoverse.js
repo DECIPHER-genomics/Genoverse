@@ -155,6 +155,8 @@ const Genoverse = Base.extend({
       function init() {
         if (browser.loadedPlugins[plugin] !== true) {
           Genoverse.Plugins[plugin].call(browser, conf);
+          // We use a different class here so this doesn't conflict with the old version of Genoverse running elsewhere
+          // TODO: Remove this once we're only using one version, or find a different way to scope the styles eventually
           browser.container.addClass('gvm-' + plugin.replace(/([A-Z])/g, '-$1').toLowerCase() + '-plugin');
           browser.loadedPlugins[plugin] = true;
         }
