@@ -265,7 +265,7 @@ const Genoverse = Base.extend({
     } else {
       return this.addTracks();
     }
-
+    
     var tracksByNamespace = Genoverse.getAllTrackTypes();
     var tracks            = [];
     var tracksById        = {};
@@ -1197,7 +1197,7 @@ const Genoverse = Base.extend({
   },
 
   menuTemplate: $(
-    '<div class="gv-menu">'                                                        +
+    '<div class="gvm-menu">'                                                        +
       '<div class="gv-close gv-menu-button fas fa-times-circle"></div>'            +
       '<div class="gv-menu-loading">Loading...</div>'                              +
       '<div class="gv-menu-error">An error has occurred</div>'                     +
@@ -1617,7 +1617,7 @@ const Genoverse = Base.extend({
     }
 
     var trackTypes = {};
-
+    
     $.each(namespace, function (type, func) {
       if (typeof func === 'function' && !Base[type] && !/^(Controller|Model|View)$/.test(type)) {
         $.each(Genoverse.getAllTrackTypes(namespace, type), function (subtype, fn) {
