@@ -14,7 +14,7 @@ module.exports = {
     path: __dirname + '/build',
     library: {
       name: 'Genoverse',
-      type: 'commonjs2'
+      type: 'umd'
     }
   },
   devtool : 'source-map',

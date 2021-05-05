@@ -162,7 +162,7 @@ module.exports = function () {
             panel.find('button.gv-drag-scroll').trigger('click');
           }
 
-          $('.gv-menu .gv-close').trigger('click');
+          $('.gvm-menu .gv-close').trigger('click');
         }
       });
     },
@@ -181,7 +181,7 @@ module.exports = function () {
         }
 
         if ($(this).hasClass('gv-active')) {
-          $('.gv-menu.gv-tracks-menu .gv-close').trigger('click');
+          $('.gvm-menu.gv-tracks-menu .gv-close').trigger('click');
           $(this).removeClass('gv-active');
         } else {
           var menu = $(this).data('menu');
