@@ -3,6 +3,13 @@
 // TODO: bytes, kb, mb, gb, tb
 
 describe('Correctly render scale line:', function () {
+  before(function() {
+    // Test runs inconsistently on Linux vs MacOS
+    if(global.isMacOS) {
+      return this.skip();
+    }
+  });
+
   afterEach(afterTest);
 
   var width = 1000;

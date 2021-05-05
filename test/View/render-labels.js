@@ -45,6 +45,11 @@ describe('Correctly render labels where:', function () {
     });
 
     it('with a label longer than its feature and bumped features', function () {
+      // Test runs inconsistently on Linux vs MacOS
+      if(global.isMacOS) {
+        return this.skip();
+      }
+
       return testTrackRenderStatic([
         { start: 1,  end: 10, label: 'WWWWWW' },
         { start: 13, end: 13, label: 'abc' },

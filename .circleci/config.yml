@@ -1,0 +1,35 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: circleci/node:fermium
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: Install dependencies
+          command: npm ci
+      - save_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: Build
+          command: npm run build
+      - run:
+          name: Test
+          command: npm t
+      - run:
+          name: Check committed build is up to date
+          command: |
+            LINES=$(git diff --count --raw | wc -l)
+
+            if [ $LINES -eq 0 ]; then
+              exit 0;
+            fi
+
+            echo -e "Your build failed as the latest changes were not included in the built JS files";
+            echo -e "To fix this, run npm build and commit the compiled changes";
+            git diff --stat;
+            exit 1;
