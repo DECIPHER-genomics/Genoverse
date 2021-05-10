@@ -1572,7 +1572,16 @@ const Genoverse = Base.extend({
 
       function trigger(when) {
         var once  = events[when + func + '.once'] || [];
-        var funcs = (events[when + func] || []).concat(once, typeof mainObj[when + func] === 'function' ? mainObj[when + func] : []);
+
+        const funcs = (events[when + func] || []).concat(once);
+        if (typeof mainObj[when + func] === 'function') {
+          funcs.push(mainObj[when + func])
+        }
+        // This was added to fix the "Features are drawn correctly" test (test/track_config/config-settings.js).
+        // I found that the `beforeDrawFeature` is stored a little deeper.
+        if (typeof mainObj.track === 'object' && typeof mainObj.track[when + func] === 'function') {
+          funcs.push(mainObj.track[when + func]);
+        }
 
         if (once.length) {
           delete events[when + func + '.once'];
