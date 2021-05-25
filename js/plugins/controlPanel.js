@@ -218,22 +218,14 @@ module.exports = function () {
                   }
                 }
 
-                // $(this)[match ? 'show' : 'hide']();
-                if (match) {
-                  $(this).removeClass("gv-search-filteredout");
-                } else {
-                  $(this).addClass("gv-search-filteredout");
-                }
+                $(this).toggleClass("gv-hidden", !match);
               });
             });
 
                // Once all the track show/hides have been run, we also need to show/hide the groups
                $('.gv-track-group-items', menu).each(function() {
-                if ($(this).find('.gv-tracks-library-item:not(.gv-search-filteredout)').length > 0) {
-                  $(this).parent().show();
-                } else {
-                  $(this).parent().hide();
-                }
+                const allChildTracksFiltered = $(this).find('.gv-tracks-library-item:not(.gv-hidden)').length > 0;
+                $(this).parent().toggle(allChildTracksFiltered);
             });
 
             $('.gv-close', menu).on('click', function () {
@@ -289,8 +281,9 @@ module.exports = function () {
 
             if (browser.tracksLibrary && browser.tracksLibrary.length) {
               var tracksLibrary = $.map(browser.tracksLibrary, function (track) {
-                var name = typeof(track) === 'object' ? track.name : track.prototype.name;
-                var removable = typeof(track) === 'object' ? true : track.prototype.removable;
+                const trackIsObject = typeof(track) === 'object'
+                var name = trackIsObject ? track.name : track.prototype.name;
+                var removable = trackIsObject ? true : track.prototype.removable;
                 return name && removable !== false ? [[ name.toLowerCase(), track ]] : undefined;
               }).sort(function (a, b) {
                 return a[0].localeCompare(b[0]);
@@ -332,7 +325,7 @@ module.exports = function () {
                   }
                 };
   
-                tracksLibrary.map(function(i){ return i[1]; }).forEach(function(track){
+                tracksLibrary.forEach(([_, track]) => {
                   addTrack(track, availableTracks);
                 });
             }
