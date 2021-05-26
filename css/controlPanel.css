@@ -175,3 +175,27 @@
 .gvm-control-panel-plugin .gv-powered-by a {
   font-weight: bold;
 }
+
+/* Track grouping */
+.gv-track-group.closed .gv-track-group-items {
+  display: none;
+}
+.gv-track-group-items {
+  margin-left: 1rem;
+}
+
+.gv-track-group>span {
+  font-weight: bold;
+  cursor: pointer;
+}
+.gv-track-group>span::before {
+  content: "▼ ";
+}
+
+.gv-track-group.closed>span::before {
+  content: "▶ ";
+}
+
+.gv-hidden {
+  display: none;
+}

@@ -134,7 +134,11 @@ module.exports = function () {
           var buttons   = control.buttons || [ control ];
 
           $.each(buttons, function (j, button) {
-            var el = $('<button>' + button.icon + '</button>').addClass(button.class).attr('title', button.name).appendTo(buttonSet);
+            var el = $('<button />')
+              .addClass(button.class)
+              .attr('title', button.name)
+              .append(button.icon)
+              .appendTo(buttonSet);
 
             if (button.action) {
               el.on('click', function () {
@@ -197,7 +201,7 @@ module.exports = function () {
             $('input[placeholder=Search]', menu).on('keyup', function () {
               var str = this.value.toLowerCase();
 
-              $('.gv-tracks-library-item', menu).each(function () {
+              $('.gv-tracks-library-item:not(.gv-track-group,.gv-track-group-items)', menu).each(function () {
                 var track = $(this).data('track');
                 var match = false;
 
@@ -214,8 +218,14 @@ module.exports = function () {
                   }
                 }
 
-                $(this)[match ? 'show' : 'hide']();
+                $(this).toggleClass("gv-hidden", !match);
               });
+            });
+
+               // Once all the track show/hides have been run, we also need to show/hide the groups
+               $('.gv-track-group-items', menu).each(function() {
+                const allChildTracksFiltered = $(this).find('.gv-tracks-library-item:not(.gv-hidden)').length > 0;
+                $(this).parent().toggle(allChildTracksFiltered);
             });
 
             $('.gv-close', menu).on('click', function () {
@@ -271,22 +281,53 @@ module.exports = function () {
 
             if (browser.tracksLibrary && browser.tracksLibrary.length) {
               var tracksLibrary = $.map(browser.tracksLibrary, function (track) {
-                return track.prototype.name && track.prototype.removable !== false ? [[ track.prototype.name.toLowerCase(), track ]] : undefined;
+                const trackIsObject = typeof(track) === 'object'
+                var name = trackIsObject ? track.name : track.prototype.name;
+                var removable = trackIsObject ? true : track.prototype.removable;
+                return name && removable !== false ? [[ name.toLowerCase(), track ]] : undefined;
               }).sort(function (a, b) {
                 return a[0].localeCompare(b[0]);
               });
 
-              for (var i = 0; i < tracksLibrary.length; i++) {
-                (function (track) {
+              var addTrack = function(track, $ele) {
+                if (typeof track === 'object') {
+                  // Don't both nesting if there's only one subtrack (and noCollapse !== true)
+                  if (track.tracks.length === 1 && !track.noCollapse) {
+                    addTrack(track.tracks[0], $ele);
+                    return;
+                  }
+                  var $trackHeader = $('<div class="gv-tracks-library-item gv-track-group closed">').appendTo($ele);
+
+                  $('<span />')
+                    .text(track.name)
+                    .on("click", function(){
+                      $(this).parent().toggleClass('closed');
+                    })
+                    .appendTo($trackHeader);
+
+                  var $trackGroup = $('<div class="gv-tracks-library-item gv-track-group-items">').appendTo($trackHeader);
+
+                  // Now add all the subtracks to the group
+                  track.tracks.forEach(function(subtrack){
+                    addTrack(subtrack, $trackGroup);
+                  });
+                } else {
                   $('<div class="gv-tracks-library-item">').append(
                     $('<i class="gv-add-track gv-menu-button fas fa-plus-circle"> ').on('click', function () {
                       browser.trackIds = browser.trackIds || {};
                       browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
                       browser.addTrack(track.extend({ id: track.prototype.id + (browser.tracksById[track.prototype.id] ? browser.trackIds[track.prototype.id]++ : '') }));
                     })
-                  ).append('<span>' + track.prototype.name + '</span>').appendTo(availableTracks).data('track', track.prototype);
-                }(tracksLibrary[i][1]));
-              }
+                    )
+                    .data('track', track.prototype)
+                    .append($('<span />').text(track.prototype.name))
+                    .appendTo($ele);
+                  }
+                };
+  
+                tracksLibrary.forEach(([_, track]) => {
+                  addTrack(track, availableTracks);
+                });
             }
 
             menu.css({ left: '50%', marginLeft: menu.width() / -2 });
