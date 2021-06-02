@@ -267,10 +267,11 @@ const Genoverse = Base.extend({
     }
     
     var tracksByNamespace = Genoverse.getAllTrackTypes();
-    var tracks            = [];
-    var tracksById        = {};
-    var savedConfig       = {};
-    var i, prop, track, trackId;
+    var tracks                = [];
+    var tracksById            = {};
+    var tracksFromLibraryById = {};
+    var savedConfig           = {};
+    var i, prop, track, trackFromLibrary, trackId;
 
     function setConfig($track, conf) {
       for (prop in conf) {
@@ -296,13 +297,39 @@ const Genoverse = Base.extend({
       }
     }
 
+    for (i = 0; i < this.tracksLibrary.length; i++) {
+      track = this.tracksLibrary[i]
+
+      if (typeof track === "function" && track.prototype.id) {
+        tracksFromLibraryById[track.prototype.id] = track;
+      }
+
+      if (typeof track === "object") {
+        const tracksCount = track.tracks.length
+        if(tracksCount > 0){
+          for (j = 0; j < tracksCount; j++) {
+            if (this.tracksLibrary[i].tracks[j].prototype.id) {
+              tracksFromLibraryById[track.tracks[j].prototype.id] = track.tracks[j];
+            }
+          }
+        }
+      }
+    }
+
     for (i = 0; i < config.length; i++) {
       track = tracksById[config[i].id];
+      trackFromLibrary = tracksFromLibraryById[config[i].id];
 
       if (track) {
         setConfig(track, config[i]);
         track._fromStorage = true;
-      } else if (tracksByNamespace[config[i].namespace]) {
+      } 
+      else if(trackFromLibrary) {
+        trackFromLibrary._fromStorage = true;
+        setConfig(trackFromLibrary, config[i]);
+        tracks.push(trackFromLibrary);
+      }
+      else if (tracksByNamespace[config[i].namespace]) {
         track   = tracksByNamespace[config[i].namespace];
         trackId = track.prototype.id;
 
