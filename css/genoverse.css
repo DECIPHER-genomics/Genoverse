@@ -316,6 +316,7 @@
 
 .gvm-menu .gv-menu-content a {
   color: white;
+  text-decoration: underline;
 }
 
 .gvm-menu .gv-menu-content table {
