@@ -1,5 +1,3 @@
-const {version} = require('../../package.json')
-
 module.exports = function () {
   this.requires = 'karyotype',
   this.controls = [
@@ -349,7 +347,7 @@ module.exports = function () {
     },
 
     afterAddDomElements: function () {
-      this.wrapper.after(`<div class="gv-powered-by">Powered by <a target="_blank" href="https://genoverse.org">Genoverse</a> v${version}</div>`);
+      this.wrapper.after(`<div class="gv-powered-by">Powered by <a target="_blank" href="https://genoverse.org">Genoverse</a> v${VERSION}</div>`);
       this.superContainer.find('.gv-panel-left').append(this.labelContainer);
     },
 

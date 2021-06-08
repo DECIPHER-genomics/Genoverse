@@ -62,7 +62,8 @@ module.exports = {
       jParser: 'jParser'
     }),
     new webpack.DefinePlugin({
-      define: undefined // Stop jquery-ui.js trying to do define(["jquery"]), which doesn't work if jquery isn't in node_modules
+      define: undefined, // Stop jquery-ui.js trying to do define(["jquery"]), which doesn't work if jquery isn't in node_modules
+      VERSION: JSON.stringify(process.env.npm_package_version),
     }),
   ],
   optimization: {
