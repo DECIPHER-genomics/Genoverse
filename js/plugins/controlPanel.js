@@ -324,7 +324,7 @@ module.exports = function () {
                     .appendTo($ele);
                   }
                 };
-  
+
                 tracksLibrary.forEach(([_, track]) => {
                   addTrack(track, availableTracks);
                 });
@@ -347,7 +347,7 @@ module.exports = function () {
     },
 
     afterAddDomElements: function () {
-      this.wrapper.after('<div class="gv-powered-by">Powered by <a target="_blank" href="https://genoverse.org">Genoverse</a></div>');
+      this.wrapper.after(`<div class="gv-powered-by">Powered by <a target="_blank" href="https://genoverse.org">Genoverse</a> v${VERSION}</div>`);
       this.superContainer.find('.gv-panel-left').append(this.labelContainer);
     },
 
