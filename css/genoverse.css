@@ -353,7 +353,7 @@
   white-space: nowrap;
 }
 
-.gv-menu.gv-wrap-values .gv-menu-content table td:last-child {
+.gvm-menu.gv-wrap-values .gv-menu-content table td:last-child {
   word-break: break-word;
 }
 
