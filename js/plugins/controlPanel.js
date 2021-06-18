@@ -316,7 +316,12 @@ module.exports = function () {
                     $('<i class="gv-add-track gv-menu-button fas fa-plus-circle"> ').on('click', function () {
                       browser.trackIds = browser.trackIds || {};
                       browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
-                      browser.addTrack(track.extend({ id: track.prototype.id + (browser.tracksById[track.prototype.id] ? browser.trackIds[track.prototype.id]++ : '') }));
+                      var id = track.prototype.id + (browser.tracksById[track.prototype.id] ? browser.trackIds[track.prototype.id]++ : '');
+                      var defaultId = track.prototype.defaultId ? track.prototype.defaultId : track.prototype.id;
+                      browser.addTrack(track.extend({ 
+                        id,
+                        defaultId
+                      }));
                     })
                     )
                     .data('track', track.prototype)
