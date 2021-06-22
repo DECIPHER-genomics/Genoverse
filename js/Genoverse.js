@@ -318,7 +318,7 @@ const Genoverse = Base.extend({
 
     for (i = 0; i < config.length; i++) {
       track = tracksById[config[i].id];
-      trackFromLibrary = tracksFromLibraryById[config[i].id];
+      trackFromLibrary = tracksFromLibraryById[config[i].defaultId].extend();
 
       if (track) {
         setConfig(track, config[i]);
@@ -326,6 +326,10 @@ const Genoverse = Base.extend({
       }
       else if(trackFromLibrary) {
         trackFromLibrary._fromStorage = true;
+        trackId = config[i].defaultId;
+
+        this.trackIds          = this.trackIds          || {};
+        this.trackIds[trackId] = this.trackIds[trackId] || 1;
         setConfig(trackFromLibrary, config[i]);
         tracks.push(trackFromLibrary);
       }
@@ -373,6 +377,7 @@ const Genoverse = Base.extend({
         // Subtracting the difference between them gives you back the correct height to input back into the track when loading configuration
         conf = {
           id         : this.tracks[i].id,
+          defaultId  : this.tracks[i].defaultId,
           namespace  : this.tracks[i].namespace,
           order      : this.tracks[i].order,
           autoHeight : this.tracks[i].autoHeight,
