@@ -318,13 +318,14 @@ const Genoverse = Base.extend({
 
     for (i = 0; i < config.length; i++) {
       track = tracksById[config[i].id];
-      trackFromLibrary = tracksFromLibraryById[config[i].defaultId].extend();
+      trackFromLibrary = tracksFromLibraryById[config[i].defaultId];
 
       if (track) {
         setConfig(track, config[i]);
         track._fromStorage = true;
       }
       else if(trackFromLibrary) {
+        trackFromLibrary = trackFromLibrary.extend();
         trackFromLibrary._fromStorage = true;
         trackId = config[i].defaultId;
 
