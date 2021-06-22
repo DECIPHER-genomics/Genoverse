@@ -155,6 +155,7 @@
 
 .gvm-control-panel-plugin .gv-tracks-menu .gv-remove-track,
 .gvm-control-panel-plugin .gv-tracks-menu .gv-add-track {
+  display: inline;
   font-size: 14px;
   margin: 2px 5px 0 0;
 }
