@@ -1275,6 +1275,11 @@ const Genoverse = Base.extend({
       return this.makeFeatureMenu(features[0], event, track);
     }
 
+    if (track.forceMenu) {
+      const feature = features.sort((a, b) => a.start - b.start)[0];
+      return this.makeFeatureMenu(feature, event, track);
+    }
+
     var browser   = this;
     var menu      = this.menuTemplate.clone(true).data({ browser: this });
     var contentEl = $('.gv-menu-content', menu).addClass('gv-menu-content-first');

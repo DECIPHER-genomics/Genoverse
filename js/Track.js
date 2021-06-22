@@ -19,6 +19,7 @@ const Track = Base.extend({
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
   hideEmpty  : undefined, // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
+  forceMenu  : undefined, // If true will show first feature menu instead multiple features
 
   constructor: function (config) {
     if (this.stranded || config.stranded) {
