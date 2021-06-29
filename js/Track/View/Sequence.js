@@ -2,8 +2,8 @@ var View = require('../View')
 
 module.exports = View.extend({
   featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },
-  colors        : { 'default': '#CCCCCC', A: '#73E973', T: '#DE4C61', G: '#FFFF77', C: '#688EC0' },
-  labelColors   : { 'default': '#000000', T: '#FFFFFF', C: '#FFFFFF' },
+  colors        : { 'default': '#CCCCCC', A: '#00986A', T: '#D92929', G: '#FFDD73', C: '#0772A1' },
+  labelColors   : { 'default': '#000000', A: '#FFFFFF', T: '#FFFFFF', C: '#FFFFFF' },
   labels        : 'overlay',
 
   setDefaults: function () {

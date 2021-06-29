@@ -402,6 +402,11 @@ const Track = Base.extend({
       height = Math.max(height, this.prop('minLabelHeight'));
     }
 
+    if (this.prop("minHeight")) {
+      var minHeight = parseInt(this.prop("minHeight"))
+      height = Math.max(minHeight, height);
+    }
+
     this.height = height;
 
     return height;
