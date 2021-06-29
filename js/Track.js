@@ -20,6 +20,7 @@ const Track = Base.extend({
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
   hideEmpty  : undefined, // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
   forceMenu  : undefined, // If true will show first feature menu instead multiple features
+  minHeight  : undefined, // If this parameter is set ex.: 45. It will always show track even though track has no data
 
   constructor: function (config) {
     if (this.stranded || config.stranded) {
@@ -400,6 +401,11 @@ const Track = Base.extend({
       height = 0;
     } else {
       height = Math.max(height, this.prop('minLabelHeight'));
+    }
+
+    if (this.prop("minHeight")) {
+      var minHeight = parseInt(this.prop("minHeight"))
+      height = Math.max(minHeight, height);
     }
 
     this.height = height;
