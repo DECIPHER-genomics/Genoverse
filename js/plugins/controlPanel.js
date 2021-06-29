@@ -308,9 +308,11 @@ module.exports = function () {
                   var $trackGroup = $('<div class="gv-tracks-library-item gv-track-group-items">').appendTo($trackHeader);
 
                   // Now add all the subtracks to the group
-                  track.tracks.forEach(function(subtrack){
-                    addTrack(subtrack, $trackGroup);
-                  });
+                  track.tracks
+                    .sort((a, b) => a.prototype.name.localeCompare(b.prototype.name)) // Sorts grouped tracks alphabetically like main tracks
+                    .forEach(function(subtrack){
+                      addTrack(subtrack, $trackGroup);
+                    });
                 } else {
                   $('<div class="gv-tracks-library-item">').append(
                     $('<i class="gv-add-track gv-menu-button fas fa-plus-circle"> ').on('click', function () {
