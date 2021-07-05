@@ -563,10 +563,21 @@ const Track = Base.extend({
 
     var track       = this;
     var legendType  = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
+    const legendConfigName = (() => {
+      if(this.configName.length === 0) {
+        return null;
+      }
+
+      const [firstName, ...rest] = this.configName;
+
+      return [`Legend: ${firstName}`, ...rest];
+
+    })();
     var config      = {
       id   : legendType + 'Legend',
       name : constructor.prototype.name || (this.defaultName + ' Legend'),
-      type : legendType
+      type : legendType,
+      configName: legendConfigName
     };
 
     this.legendType = legendType;
