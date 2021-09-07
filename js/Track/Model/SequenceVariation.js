@@ -1,5 +1,5 @@
-var Model = require('../Model')
-var SequenceEnsembl = require('./Sequence/Ensembl')
+var Model = require('../Model');
+var SequenceEnsembl = require('./Sequence/Ensembl');
 
 module.exports = Model.extend({
   seqModel: SequenceEnsembl,
@@ -26,7 +26,10 @@ module.exports = Model.extend({
     return deferred;
   },
 
-  insertFeature: function (feature) {
+  insertFeature: function (feature, skipExtend) {
+    if (skipExtend) {
+      return this.base(feature);
+    }
     return this.base($.extend(feature, {
       end      : feature.start + feature.alt_allele.length - 1,
       length   : feature.alt_allele.length,
