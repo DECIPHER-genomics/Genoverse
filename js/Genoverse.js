@@ -1348,10 +1348,15 @@ const Genoverse = Base.extend({
         menu.data('hasErrored', true);
       }
 
-      isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
+      isDeferred = 
+          typeof getMenu === 'object' &&
+          typeof getMenu.promise === 'function' ||
+          getMenu instanceof Promise;
 
       if (!isDeferred) {
         loading.hide();
+      } else {
+        loading.show();
       }
 
       $.when(getMenu).done(function (properties) {
