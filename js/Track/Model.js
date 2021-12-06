@@ -81,6 +81,15 @@ module.exports = Base.extend({
   },
 
   getData: function (chr, start, end, done) {
+    /* DEBUG FOR SAP-25391 */
+    var initData = {
+      chr,
+      start,
+      end, 
+      done,
+    }
+    /* END OF DEBUG */
+    
     start = Math.max(1, start);
     end   = Math.min(this.browser.getChromosomeSize(chr), end);
 
@@ -111,9 +120,29 @@ module.exports = Base.extend({
     }
 
     $.when.apply($, $.map(bins, function (bin) {
+      
+      /* DEBUG FOR SAP-25391 */
+      var debug = {}
+      
+      if ([chr, bin[0], bin[1]].includes(NaN)) {
+        debug = {
+          start: start,
+          end: end,
+          length: length,
+          initData: initData,
+          dataRequestLimit: this.dataRequestLimit,
+          allData: this.allData,
+          userAgent: navigator.userAgent,
+        };
+      }
+      /* END OF DEBUG */
+      
       var request = $.ajax({
         url       : model.parseURL(chr, bin[0], bin[1]),
-        data      : model.urlParams,
+        data      : {
+          debug,
+          ...model.urlParams
+        },
         dataType  : model.dataType,
         context   : model,
         xhrFields : model.xhrFields,
