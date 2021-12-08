@@ -583,8 +583,10 @@ const Genoverse = Base.extend({
         continue;
       }
 
-      mvc = this.tracks[i]._interface[func];
-
+      if (this.tracks[i]._interface) {
+        mvc = this.tracks[i]._interface[func];
+      }
+      
       if (mvc) {
         this.tracks[i][mvc][func].apply(this.tracks[i][mvc], args);
       } else if (this.tracks[i][func]) {
