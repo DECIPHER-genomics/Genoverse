@@ -18,7 +18,7 @@ Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
 
       len = fields.length;
 
-      if (fields[0] == chr || fields[0].toLowerCase() === 'chr' + chr || fields[0].match('[^1-9]' + chr + '$')) {
+      if (fields[0] === String(chr) || fields[0].toLowerCase() === 'chr' + chr || fields[0].match('[^1-9]' + chr + '$')) {
         feature = {
           chr             : chr,
           start           : parseInt(fields[1], 10) + 1,

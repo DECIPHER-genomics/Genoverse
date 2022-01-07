@@ -63,7 +63,7 @@ Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
         continue;
       }
 
-      if (fields[0] == chr || fields[0] === 'chr' + chr) {
+      if (fields[0] === String(chr) || fields[0] === 'chr' + chr) {
         var id      = fields.slice(0, 3).join('|');
         var start   = parseInt(fields[1], 10);
         var alleles = fields[4].split(',');
