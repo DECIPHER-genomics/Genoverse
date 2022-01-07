@@ -1143,7 +1143,7 @@ var Genoverse = Base.extend({
       }
     });
 
-    return coords.chr && coords.start && coords.end ? coords : this.initialLocation;
+    return coords.chr && coords.start && coords.end && (this.genome ? this.genome[coords.chr] : true) ? coords : this.initialLocation;
   },
 
   getQueryString: function () {
