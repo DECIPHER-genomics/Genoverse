@@ -26,12 +26,12 @@
   display: inline-block;
   border-right: 1px solid white;
   padding-right: 5px;
+  text-align: center;
 }
 
 .gv-track-controls-plugin .gv-track-container div.gv-track-controls .gv-track-controls-container > * {
   display: inline-block;
   min-width: 20px;
-  text-align: center;
 }
 
 .gv-track-controls-plugin .gv-track-container div.gv-track-controls a {
