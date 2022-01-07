@@ -1243,15 +1243,18 @@ var Genoverse = Base.extend({
     $('.gv-focus-highlight, .gv-menu-loading', menu).remove();
     $('.gv-title', menu).html(features.length + ' features');
 
-    $.each(features.sort(function (a, b) { return a.start - b.start; }), function (i, feature) {
-      var location = feature.chr + ':' + feature.start + (feature.end === feature.start ? '' : '-' + feature.end);
-      var title    = feature.menuLabel || feature.name || (Array.isArray(feature.label) ? feature.label.join(' ') : feature.label) || (feature.id + '');
+    $.each(
+      track ? track.model.sortFeatures(features) : features.sort(function (a, b) { return a.start - b.start; }),
+      function (i, feature) {
+        var location = feature.chr + ':' + feature.start + (feature.end === feature.start ? '' : '-' + feature.end);
+        var title    = feature.menuLabel || feature.name || (Array.isArray(feature.label) ? feature.label.join(' ') : feature.label) || (feature.id + '');
 
-      $('<a href="#">').html(title.match(location) ? title : (location + ' ' + title)).on('click', function (e) {
-        browser.makeFeatureMenu(feature, e, track);
-        return false;
-      }).appendTo($('<td>').appendTo($('<tr>').appendTo(table)));
-    });
+        $('<a href="#">').html(title.match(location) ? title : (location + ' ' + title)).on('click', function (e) {
+          browser.makeFeatureMenu(feature, e, track);
+          return false;
+        }).appendTo($('<td>').appendTo($('<tr>').appendTo(table)));
+      }
+    );
 
     $('<div class="gv-menu-scroll-wrapper">').append(table).appendTo(contentEl);
 
