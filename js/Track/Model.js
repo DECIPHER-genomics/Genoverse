@@ -176,7 +176,7 @@ Genoverse.Track.Model = Base.extend({
   *
   * and call this.insertFeature(feature)
   */
-  parseData: function (data, chr, start, end) {
+  parseData: function (data, chr, start) { // end is also passed in, but not used in this case
     var feature;
 
     // Example of parseData function when data is an array of hashes like { start: ..., end: ... }
@@ -253,7 +253,7 @@ Genoverse.Track.Model = Base.extend({
 
         // Add "fake" sub-features at the start and end of the feature - this will allow joins to be drawn when there are no sub-features in the current region.
         feature.subFeatures.unshift({ start: feature.start, end: feature.start, fake: true });
-        feature.subFeatures.push   ({ start: feature.end,   end: feature.end,   fake: true });
+        feature.subFeatures.push({    start: feature.end,   end: feature.end,   fake: true });
       }
 
       features.insert({ x: feature.start, y: 0, w: feature.end - feature.start + 1, h: 1 }, feature);

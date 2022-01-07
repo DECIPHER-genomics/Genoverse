@@ -1417,7 +1417,7 @@ var Genoverse = Base.extend({
     var width = this.selector.outerWidth(true);
     var start = Math.round(left / this.scale) + this.start;
     var end   = Math.round((left + width) / this.scale) + this.start - 1;
-        end   = end <= start ? start : end;
+    end   = end <= start ? start : end;
 
     return { start: start, end: end, left: left, width: width };
   },

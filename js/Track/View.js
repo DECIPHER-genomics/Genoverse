@@ -156,7 +156,7 @@ Genoverse.Track.View = Base.extend({
       feature.position[scale].W = feature.position[scale].width  + (feature.marginRight || this.featureMargin.right);
       feature.position[scale].Y = (
         typeof feature.position[scale].y === 'number' ? feature.position[scale].y :
-        typeof feature.y                 === 'number' ? feature.y * feature.position[scale].H : 0
+          typeof feature.y               === 'number' ? feature.y * feature.position[scale].H : 0
       ) + (feature.marginTop || this.featureMargin.top);
 
       if (feature.label) {
@@ -430,7 +430,7 @@ Genoverse.Track.View = Base.extend({
     feature.labelColor = this.fontColor || feature.color || this.color;
   },
 
-  // Method to lighten a color by an amount, adapted from http://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
+  // Method to lighten a color by an amount, adapted from https://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
   shadeColor: function (color, percent) {
     var f = parseInt(color.slice(1), 16);
     var R = f >> 16;

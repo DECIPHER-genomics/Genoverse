@@ -544,8 +544,11 @@ Genoverse.Track.Controller = Base.extend({
   },
 
   render: function (features, img) {
-    var params         = img.data();
-        features       = this.view.positionFeatures(this.view.scaleFeatures(features, params.scale), params); // positionFeatures alters params.featureHeight, so this must happen before the canvases are created
+    var params = img.data();
+
+    // positionFeatures alters params.featureHeight, so this must happen before the canvases are created
+    features = this.view.positionFeatures(this.view.scaleFeatures(features, params.scale), params);
+
     var featureCanvas  = $('<canvas>').attr({ width: params.width, height: params.featureHeight || 1 });
     var labelCanvas    = this.prop('labels') === 'separate' && params.labelHeight ? featureCanvas.clone().attr('height', params.labelHeight) : featureCanvas;
     var featureContext = featureCanvas[0].getContext('2d');
