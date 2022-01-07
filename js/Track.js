@@ -473,7 +473,7 @@ Genoverse.Track = Base.extend({
 
         configName.push(
           conf.hasOwnProperty('name')
-            ? conf.name
+            ? typeof conf.name === 'function' ? conf.name.call(this) : conf.name
             : conf.featureFilter === false
               ? false
               : controls.filter('[data-control="' + i + '"]').find('[value="' + this.config[i] + '"]').html()
