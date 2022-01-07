@@ -29,6 +29,7 @@
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.75);
   width: 30px;
   height: 50px;
+  font-family: inherit;
   font-size: 18px;
   line-height: 20px;
   padding: 2px;
@@ -153,6 +154,11 @@
   cursor: move;
 }
 
+.gv-control-panel-plugin .gv-tracks-menu .gv-current-tracks-instructions {
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
 .gv-control-panel-plugin .gv-tracks-menu .gv-remove-track,
 .gv-control-panel-plugin .gv-tracks-menu .gv-add-track {
   font-size: 14px;
@@ -162,6 +168,23 @@
 .gv-control-panel-plugin .gv-tracks-menu input {
   margin-bottom: 10px;
   width: 200px;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu .gv-tracks-menu-reset {
+  font-style: italic;
+  margin-top: 10px;
+}
+
+.gv-control-panel-plugin .gv-tracks-library-category {
+  margin-bottom: 10px;
+}
+
+.gv-control-panel-plugin .gv-tracks-library-category:last-child {
+  margin-bottom: 0px;
+}
+
+.gv-control-panel-plugin .gv-tracks-library-category .gv-tracks-library-category-header {
+  font-weight: bold;
 }
 
 .gv-control-panel-plugin .gv-powered-by {
