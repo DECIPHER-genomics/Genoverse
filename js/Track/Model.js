@@ -1,5 +1,5 @@
 Genoverse.Track.Model = Base.extend({
-  dataType         : 'json',
+  dataType           : 'json',
   allData            : false,
   dataBuffer         : undefined, // e.g. { start: 0, end: 0 } - basepairs to extend data region for, when getting data from the origin
   xhrFields          : undefined,

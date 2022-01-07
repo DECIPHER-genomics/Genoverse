@@ -831,7 +831,7 @@ var Genoverse = Base.extend({
   },
 
   moveTo: function (chr, start, end, update, keepLength) {
-    if (typeof chr !== 'undefined' && chr != this.chr) {
+    if (typeof chr !== 'undefined' && String(chr) !== String(this.chr)) {
       if (this.canChangeChr) {
         if (this.genome && this.genome[chr]) {
           this.chr            = chr;
@@ -1114,7 +1114,7 @@ var Genoverse = Base.extend({
     var end    = parseInt(coords.end,   10);
 
     if (
-      (coords.chr && coords.chr != this.chr) ||
+      (coords.chr && String(coords.chr) !== String(this.chr)) ||
       (coords.start && !(start === this.start && end === this.end))
     ) {
       // FIXME: a back action which changes scale or a zoom out will reset tracks, since scrollStart will not be the same as it was before
@@ -1372,7 +1372,7 @@ var Genoverse = Base.extend({
         loading.hide();
         menu.data('hasErrored', true);
         $('.gv-menu-error', menu).css('display', 'block');
-        console.error(error);
+        console.error(error); // eslint-disable-line no-console
       });
 
       if (track) {
@@ -1560,9 +1560,9 @@ var Genoverse = Base.extend({
       // Debugging functionality
       // Enabled by "debug": true || 'time' || { functionName: true, ...} option
       if (mainObj.debug === true) { // if "debug": true, simply log function call
-        console.log(debug);
+        console.log(debug); // eslint-disable-line no-console
       } else if (mainObj.debug === 'time' || (typeof mainObj.debug === 'object' && mainObj.debug[key])) { // if debug: 'time' || { functionName: true, ...}, log function time
-        console.time('time: ' + debug);
+        console.time('time: ' + debug); // eslint-disable-line no-console
       }
 
       function trigger(when) {
@@ -1593,7 +1593,7 @@ var Genoverse = Base.extend({
       trigger.call(this, 'after');
 
       if (mainObj.debug === 'time' || (typeof mainObj.debug === 'object' && mainObj.debug[key])) {
-        console.timeEnd('time: ' + debug);
+        console.timeEnd('time: ' + debug); // eslint-disable-line no-console
       }
 
       return rtn;

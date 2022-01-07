@@ -22,7 +22,7 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
 
   // Different settings for different zoom level
   2000000: { // This one applies when > 2M base-pairs per screen
-    labels : false
+    labels: false
   },
   100000: { // more than 100K but less then 2M
     labels : true,

@@ -48,7 +48,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       // RTree.remove only works if the second argument (the object to be removed) === the object found in the tree.
       // Here, while highlight is effectively the same object as the one in the tree, it has been cloned, so the === check fails.
       // To fix this, search for the feature to remove in the location of highlight.
-      h = $.grep(features.search(bounds), function (item) { return item.id === highlights[i].id; });
+      h = $.grep(features.search(bounds), function (item) { return item.id === highlights[i].id; }); // eslint-disable-line no-loop-func
 
       if (h.length) {
         features.remove(bounds, h[0]);
@@ -117,8 +117,8 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
       for (var i = 0; i < features.length; i++) {
         location = features[i].start + '-' + features[i].end;
         m        = {
-          title: features[i].label ? features[i].label[0] : location,
-          start: false
+          title : features[i].label ? features[i].label[0] : location,
+          start : false
         };
 
         m[m.title === location ? 'title' : 'Location'] = features[i].chr + ':' + location;

@@ -57,10 +57,10 @@ Genoverse.Plugins.tooltips = function () {
   }
 
   this.controls.push({
-    icon    : '<i class="fas fa-question-circle"></i>',
-    'class' : 'gv-tooltips',
-    name    : 'Tooltips',
-    action  : toggleTooltips
+    icon   : '<i class="fas fa-question-circle"></i>',
+    class  : 'gv-tooltips',
+    name   : 'Tooltips',
+    action : toggleTooltips
   });
 
   this.on('afterInit', function () {

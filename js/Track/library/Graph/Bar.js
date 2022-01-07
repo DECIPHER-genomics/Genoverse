@@ -8,10 +8,10 @@ Genoverse.Track.Controller.Graph.Bar = {
     // While this works to a certain degree (fillRect allows negative height, drawing upwards from y), it makes them hard to search for in the RTree - to find such a feature you need to search with y = -h and h = y - h + 1
     // It is therefore easier to search featuresByChr (i.e. the genomic positions) for a feature overlapping the x of the click, and then filter those results for y position manually.
     var features = this.prop('featuresByChr')[this.browser.chr].search({
-      x: (x - (tolerance / 2)) / scale,
-      y: 0,
-      w: (1 + tolerance) / scale,
-      h: 1
+      x : (x - (tolerance / 2)) / scale,
+      y : 0,
+      w : (1 + tolerance) / scale,
+      h : 1
     });
 
     if (features.length) {
@@ -41,9 +41,9 @@ Genoverse.Track.Controller.Graph.Bar = {
       var vals = _features.map(function (f) { return f.height; }).sort(function (a, b) { return a - b; });
 
       return {
-        avg: vals.reduce(function (n, v) { return n + v; }, 0) / vals.length,
-        min: vals[0],
-        max: vals[vals.length - 1]
+        avg : vals.reduce(function (n, v) { return n + v; }, 0) / vals.length,
+        min : vals[0],
+        max : vals[vals.length - 1]
       };
     }
 
@@ -160,7 +160,7 @@ Genoverse.Track.View.Graph.Bar = Genoverse.Track.View.Graph.extend({
             end    : bin[bin.length - 1].end
           });
 
-          [ 'H', 'W', 'height', 'width' ].forEach(function (attr) {
+          [ 'H', 'W', 'height', 'width' ].forEach(function (attr) { // eslint-disable-line no-loop-func
             f.position[scale][attr] = bin.reduce(function (a, b) { return a + b.position[scale][attr]; }, 0) / bin.length;
           });
 

@@ -51,7 +51,7 @@ Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.exte
         featuresById[exon.Parent].subFeatures.push($.extend({}, exon, {
           start  : Math.max(exon.start, featuresById[exon.Parent].cdsStart),
           end    : Math.min(exon.end,   featuresById[exon.Parent].cdsEnd),
-          strand : featuresById[exon.Parent].strand,
+          strand : featuresById[exon.Parent].strand
         }));
 
         if (exon.end > featuresById[exon.Parent].cdsEnd) {

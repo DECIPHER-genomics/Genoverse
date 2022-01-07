@@ -17,11 +17,11 @@ Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
 
     dallianceLib.makeBam(this.bamFile, this.baiFile, null, function (bam, makeBamError) {
       if (makeBamError) {
-        console.log(makeBamError);
+        console.error(makeBamError); // eslint-disable-line no-console
       } else {
         bam.fetch(chr, start, end, function (features, fetchBamError) {
           if (fetchBamError) {
-            console.log(fetchBamError);
+            console.error(fetchBamError); // eslint-disable-line no-console
           } else {
             model.receiveData(features, chr, start, end);
             deferred.resolveWith(model);

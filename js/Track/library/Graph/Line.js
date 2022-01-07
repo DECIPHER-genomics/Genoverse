@@ -42,9 +42,9 @@ Genoverse.Track.Controller.Graph.Line = {
       var vals = coords.map(function (c) { return c[1]; }).sort(function (a, b) { return a - b; });
 
       return {
-        avg: vals.reduce(function (n, v) { return n + v; }, 0) / vals.length,
-        min: vals[0],
-        max: vals[vals.length - 1]
+        avg : vals.reduce(function (n, v) { return n + v; }, 0) / vals.length,
+        min : vals[0],
+        max : vals[vals.length - 1]
       };
     }
 

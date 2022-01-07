@@ -58,10 +58,10 @@ Genoverse.Plugins.fullscreen = function () {
 
   if (supported) {
     genoverse.controls.push({
-      icon    : '<i class="fas fa-expand-arrows-alt"></i>',
-      'class' : 'gv-fullscreen-button',
-      name    : 'Toggle fullscreen view',
-      action  : function (browser) {
+      icon   : '<i class="fas fa-expand-arrows-alt"></i>',
+      class  : 'gv-fullscreen-button',
+      name   : 'Toggle fullscreen view',
+      action : function (browser) {
         if (browser.superContainer.hasClass('gv-fullscreen')) {
           document[browser.fullscreenVars.cancelName]();
         } else {

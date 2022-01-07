@@ -98,7 +98,7 @@ Genoverse.Track.Controller.Graph = Genoverse.Track.Controller.extend({
           var maxDP = Math.max.apply(null, range.map(function (r) { return (r.toString().split('.')[1] || '').length; }));
           var round = Math.pow(10, maxDP);
           var minY  = parseFloat((Math.floor(y.min * round) / round).toFixed(maxDP), 10);
-          var maxY  = parseFloat((Math.ceil (y.max * round) / round).toFixed(maxDP), 10);
+          var maxY  = parseFloat((Math.ceil(y.max * round) / round).toFixed(maxDP), 10);
 
           if (this.prop('showZeroY')) {
             minY = Math.min(minY, 0);
@@ -240,7 +240,7 @@ Genoverse.Track.Graph = Genoverse.Track.extend({
       var scrollContainer = this.prop('scrollContainer');
 
       this.yAxisPlaceholder = $('<div class="gv-image-container gv-loading">');
-      this.yAxisCanvas      = $('<canvas class="gv-image-container gv-barchart-axis">' ).attr('width', this.width);
+      this.yAxisCanvas      = $('<canvas class="gv-image-container gv-barchart-axis">').attr('width', this.width);
       this.guidelinesCanvas = $('<canvas class="gv-image-container gv-barchart-guide">').attr('width', this.width);
 
       if (this.disabled) {
@@ -303,7 +303,7 @@ Genoverse.Track.Graph = Genoverse.Track.extend({
     var axesSettings = this.prop('axesSettings');
     var yAxisLabels  = this.prop('yAxisLabels');
     var yScale       = this.getYScale();
-    var axisContext  = this.prop('yAxisCanvas'     ).attr('height', height)[0].getContext('2d');
+    var axisContext  = this.prop('yAxisCanvas').attr('height', height)[0].getContext('2d');
     var linesContext = this.prop('guidelinesCanvas').attr('height', height)[0].getContext('2d');
     var y, n, i, interval, maxDP;
 

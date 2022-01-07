@@ -9,7 +9,8 @@
   },
   "scripts": {
     "test": "node_modules/.bin/mocha $(find test/require/*.js -print0 | xargs -r0 -I {} echo -n '--require {} ') --no-timeouts --recursive",
-    "build": "node utils/makeExpanded.js; webpack"
+    "build": "yarn lint && node utils/makeExpanded.js && webpack",
+    "lint": "yarn eslint './js/**/*.js'"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,10 @@
   "devDependencies": {
     "canvas": "^2.8.0",
     "chai": "^4.3.4",
+    "eslint": "^8.6.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-es": "^4.1.0",
+    "eslint-plugin-import": "^2.25.4",
     "jsdom": "^19.0.0",
     "mocha": "^9.1.3",
     "sinon": "^12.0.1",

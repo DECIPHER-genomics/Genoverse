@@ -269,7 +269,7 @@ Genoverse.Plugins.controlPanel = function (pluginConf) {
               axis   : 'y',
               handle : 'span',
               update : $.proxy(browser.updateTrackOrder, browser),
-              start: function () {
+              start  : function () {
                 currentTracks.find('.gv-tracks-menu-track-name').each(function () { $(this).tipsy('hide').tipsy('disable'); });
               },
               stop: function () {

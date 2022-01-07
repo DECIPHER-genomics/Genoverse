@@ -174,19 +174,19 @@ Genoverse.Track.View = Base.extend({
           feature.position[scale].W  = Math.max(feature.labelWidth, feature.position[scale].W);
         } else if (this.labels === 'separate' && !feature.position[scale].label) {
           feature.position[scale].label = {
-            x: feature.position[scale].start,
-            y: feature.position[scale].Y,
-            w: feature.labelWidth,
-            h: feature.labelHeight
+            x : feature.position[scale].start,
+            y : feature.position[scale].Y,
+            w : feature.labelWidth,
+            h : feature.labelHeight
           };
         }
       }
 
       var bounds = {
-        x: feature.position[scale].start,
-        y: feature.position[scale].Y,
-        w: feature.position[scale].W,
-        h: feature.position[scale].H + (feature.marginTop || this.featureMargin.top)
+        x : feature.position[scale].start,
+        y : feature.position[scale].Y,
+        w : feature.position[scale].W,
+        h : feature.position[scale].H + (feature.marginTop || this.featureMargin.top)
       };
 
       feature.position[scale].bounds = bounds;
@@ -543,9 +543,12 @@ Genoverse.Track.View = Base.extend({
     }
 
     return {
-      x1: x1, y1: y1,
-      x2: x2, y2: y2,
-      x3: x3, y3: y3
+      x1 : x1,
+      y1 : y1,
+      x2 : x2,
+      y2 : y2,
+      x3 : x3,
+      y3 : y3
     };
   },
 
