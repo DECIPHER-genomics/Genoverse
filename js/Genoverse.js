@@ -204,12 +204,19 @@ var Genoverse = Base.extend({
     this.textWidth        = document.createElement('canvas').getContext('2d').measureText('W').width;
     this.labelWidth       = this.labelContainer.outerWidth(true) || 0;
     this.width            = Math.min(this.width - this.labelWidth, this.wrapper.width() || Infinity); // Recalculate the width to ignore the affect of borders
-
-    this.paramRegex       = this.urlParamTemplate ? new RegExp('([?&;])' + this.urlParamTemplate
-      .replace(/(\b(\w+=)?__CHR__(.)?)/,   '$2([\\w\\.]+)$3')
-      .replace(/(\b(\w+=)?__START__(.)?)/, '$2(\\d+)$3')
-      .replace(/(\b(\w+=)?__END__(.)?)/,   '$2(\\d+)$3') + '([;&])'
-    ) : '';
+    this.paramRegex       = (
+      this.urlParamTemplate
+        ? new RegExp(
+          '([?&;])'
+          + this.urlParamTemplate
+            .replace(/[.*+?^${}()|[\]\\]/g,      '\\$&')
+            .replace(/(\b(\w+=)?__CHR__(.)?)/,   '$2([\\w\\.]+)$3')
+            .replace(/(\b(\w+=)?__START__(.)?)/, '$2(\\d+)$3')
+            .replace(/(\b(\w+=)?__END__(.)?)/,   '$2(\\d+)$3')
+          + '([;&])'
+        )
+        : ''
+    );
 
     var coords = this.getCoords();
 
@@ -1118,7 +1125,7 @@ var Genoverse = Base.extend({
   },
 
   getCoords: function () {
-    var match  = ((this.useHash ? window.location.hash.replace(/^#/, '?') || decodeURIComponent(window.location.search) : decodeURIComponent(window.location.search)) + '&').match(this.paramRegex);
+    var match  = (decodeURIComponent(this.useHash ? window.location.hash.replace(/^#/, '?') || window.location.search : window.location.search) + '&').match(this.paramRegex);
     var coords = {};
     var i      = 0;
 
@@ -1145,7 +1152,7 @@ var Genoverse = Base.extend({
       .replace('__START__', this.start)
       .replace('__END__',   this.end);
 
-    var currentLocation = (this.useHash ? window.location.hash.replace(/^#/, '?') : decodeURIComponent(window.location.search)) + '&';
+    var currentLocation = decodeURIComponent(this.useHash ? window.location.hash.replace(/^#/, '?') : window.location.search) + '&';
 
     var newLocation = (
       currentLocation.match(this.paramRegex)
