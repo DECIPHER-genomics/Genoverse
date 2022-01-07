@@ -16,13 +16,13 @@ Genoverse.Plugins.trackControls = function () {
       menu.show().position({ of: track.prop('container'), at: 'center top', my: 'center top', collision: 'none' });
     }),
 
-    $([
-      '<a class="gv-height-toggle">',
-        '<i class="fas fa-sort"></i>',
-        '<i class="fas fa-sort-down"></i>',
-        '<i class="fas fa-sort-up"></i>',
+    $(
+      '<a class="gv-height-toggle">'       +
+        '<i class="fas fa-sort"></i>'      +
+        '<i class="fas fa-sort-down"></i>' +
+        '<i class="fas fa-sort-up"></i>'   +
       '</a>'
-    ].join('')).on({
+    ).on({
       click: function () {
         var track = $(this).data('track');
         var height;
@@ -57,12 +57,12 @@ Genoverse.Plugins.trackControls = function () {
     $(this).data('track').remove();
   });
 
-  var toggle = $([
-    '<a class="gv-track-controls-toggle">',
-      '<span><i class="fas fa-angle-double-left"></i><i class="fas fa-cog"></i></span>',
-      '<span><i class="fas fa-angle-double-right"></i></span>',
+  var toggle = $(
+    '<a class="gv-track-controls-toggle">'                                              +
+      '<span><i class="fas fa-angle-double-left"></i><i class="fas fa-cog"></i></span>' +
+      '<span><i class="fas fa-angle-double-right"></i></span>'                          +
     '</a>'
-  ].join('')).on('click', function () {
+  ).on('click', function () {
     $(this).parent().toggleClass('gv-maximized');
   });
 
