@@ -25,7 +25,9 @@ Genoverse.Track.Model.Legend = Genoverse.Track.Model.Static.extend({
       bounds.h = track.prop('height');
       return featurePositions ? featurePositions.search(bounds).concat(track.prop('labelPositions').search(bounds)) : [];
     }), function () {
-      if (this.legend) {
+      if (Array.isArray(this.legend)) {
+        this.legend.forEach(function (legend) { features[legend.label] = legend.color; });
+      } else if (this.legend) {
         features[this.legend] = this.legendColor || this.color;
       }
     });
