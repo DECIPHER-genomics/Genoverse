@@ -6,6 +6,6 @@ Data is visualized in the browser, meaning Genoverse can be installed on any web
 
 Genoverse works with a variety of formats, such as XML, JSON, BED, VCF, GFF, GFF3 or delimited text files, and can be customized to parse and display any data source as required.
 
-If you have any questions, please contact info@genoverse.org
+If you have any questions, please raise an issue at https://github.com/wtsi-web/Genoverse
 
-Example: https://genoverse.org
+Example: https://wtsi-web.github.io/Genoverse/
