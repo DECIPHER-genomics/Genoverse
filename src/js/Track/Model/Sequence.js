@@ -10,7 +10,7 @@ export default Model.extend({
   dataType  : 'text',
 
   setChrProps: function () {
-    var chr = this.browser.chr;
+    const chr = this.browser.chr;
 
     this.base();
 
@@ -21,6 +21,7 @@ export default Model.extend({
   getData: function (chr, start, end) {
     start = start - (start % this.chunkSize) + 1;
     end   = end + this.chunkSize - (end % this.chunkSize);
+
     return this.base(chr, start, end);
   },
 
@@ -31,22 +32,22 @@ export default Model.extend({
       data = data.toLowerCase();
     }
 
-    for (var i = 0; i < data.length; i += this.chunkSize) {
+    for (let i = 0; i < data.length; i += this.chunkSize) {
       if (this.chunksByChr[chr][start + i]) {
         continue;
       }
 
-      var feature = {
-        id       : chr + ':' + start + ':' + i,
+      const feature = {
+        id       : `${chr}:${start}:${i}`,
         chr      : chr,
         start    : start + i,
         end      : start + i + this.chunkSize - 1,
         sequence : data.substr(i, this.chunkSize),
-        sort     : start + i
+        sort     : start + i,
       };
 
       this.chunksByChr[chr][feature.start] = feature;
       this.insertFeature(feature);
     }
-  }
+  },
 });

@@ -1,13 +1,14 @@
 import 'css/fullscreen.css';
 import controlPanel from 'js/plugins/controlPanel';
 
-var plugin = function () {
-  var genoverse   = this;
-  var supported   = true;
-  var eventName   = 'fullscreenchange';  // All the browsers have different names
-  var elemName    = 'fullscreenElement'; // ... even the capitalisation varies!
-  var requestName = 'requestFullscreen';
-  var cancelName  = 'exitFullscreen';
+const plugin = function () {
+  const genoverse = this;
+
+  let supported   = true;
+  let eventName   = 'fullscreenchange';  // All the browsers have different names
+  let elemName    = 'fullscreenElement'; // ... even the capitalisation varies!
+  let requestName = 'requestFullscreen';
+  let cancelName  = 'exitFullscreen';
 
   if (document.onmsfullscreenchange || document.onmsfullscreenchange === null) {
     // We need the IE11 version of this to work; IE9-10 have the actions but not the events.
@@ -36,14 +37,14 @@ var plugin = function () {
     cancelName  : cancelName,
     requestName : requestName,
 
-    enterEvent: function (browser) {
+    enterEvent: (browser) => {
       browser.preFullscreenWidth = browser.superContainer.width();
       browser.superContainer.addClass('gv-fullscreen');
       browser.setWidth(window.innerWidth);
       browser.controlPanel.find('.gv-fullscreen-button .fas').removeClass('fa-expand-arrows-alt').addClass('fa-compress-arrows-alt');
     },
 
-    exitEvent: function (browser) {
+    exitEvent: (browser) => {
       if (browser.superContainer.hasClass('gv-fullscreen')) {
         browser.superContainer.removeClass('gv-fullscreen');
         browser.setWidth(browser.preFullscreenWidth);
@@ -51,12 +52,12 @@ var plugin = function () {
       }
     },
 
-    eventListener: function () {
+    eventListener: () => {
       if (!genoverse.superContainer.is(document[genoverse.fullscreenVars.elemName])) {
         genoverse.fullscreenVars.exitEvent(genoverse);
         document.removeEventListener(genoverse.fullscreenVars.eventName, genoverse.fullscreenVars.eventListener);
       }
-    }
+    },
   };
 
   if (supported) {
@@ -64,7 +65,7 @@ var plugin = function () {
       icon   : '<i class="fas fa-expand-arrows-alt"></i>',
       class  : 'gv-fullscreen-button',
       name   : 'Toggle fullscreen view',
-      action : function (browser) {
+      action : (browser) => {
         if (browser.superContainer.hasClass('gv-fullscreen')) {
           document[browser.fullscreenVars.cancelName]();
         } else {
@@ -72,7 +73,7 @@ var plugin = function () {
           browser.superContainer[0][browser.fullscreenVars.requestName]();
           browser.fullscreenVars.enterEvent(browser);
         }
-      }
+      },
     });
   }
 };

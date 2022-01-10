@@ -8,32 +8,39 @@ export default Controller.extend({
       return;
     }
 
-    var strand        = this.prop('strand');
-    var featureStrand = this.prop('featureStrand');
+    let strand = this.prop('strand');
+
+    const featureStrand = this.prop('featureStrand');
 
     if (strand === -1) {
-      this._makeImage = this.track.makeReverseImage ? $.proxy(this.track.makeReverseImage, this) : this.makeImage;
-      this.makeImage  = $.noop;
+      this._makeImage = this.track.makeReverseImage ? this.track.makeReverseImage.bind(this) : this.makeImage;
+      this.makeImage  = () => {};
     } else {
       strand = this.prop('strand', 1);
 
       this._makeImage = this.makeImage;
       this.makeImage  = this.makeForwardImage;
 
-      var track = this.track;
+      const track = this.track;
 
-      setTimeout(function () {
-        track.reverseTrack = track.browser.addTrack(track.constructor.extend({
-          id           : track.id ? track.id + 'Reverse' : undefined,
-          strand       : -1,
-          url          : false,
-          order        : typeof track.orderReverse === 'number' ? track.orderReverse : track.order,
-          forwardTrack : track
-        }));
+      setTimeout(
+        () => {
+          track.reverseTrack = track.browser.addTrack(
+            track.constructor.extend({
+              id           : track.id ? `${track.id}Reverse` : undefined,
+              strand       : -1,
+              url          : false,
+              order        : typeof track.orderReverse === 'number' ? track.orderReverse : track.order,
+              forwardTrack : track,
+            })
+          );
 
-        $.each(track.controller._deferredReverseTrackImages, function (i, args) { track.controller._makeReverseTrackImage.apply(track.controller, args); });
-        delete track.controller._deferredReverseTrackImages;
-      }, 1);
+          track.controller._deferredReverseTrackImages.forEach(args => track.controller._makeReverseTrackImage(...args));
+
+          delete track.controller._deferredReverseTrackImages;
+        },
+        1
+      );
     }
 
     if (!featureStrand) {
@@ -46,15 +53,16 @@ export default Controller.extend({
   },
 
   _makeReverseTrackImage: function (params, deferred) {
-    var reverseTrack = this.prop('reverseTrack');
+    const reverseTrack = this.prop('reverseTrack');
 
     if (!reverseTrack) {
       this._deferredReverseTrackImages = (this._deferredReverseTrackImages || []).concat([[ params, deferred ]]);
+
       return;
     }
 
     if (deferred && typeof deferred.done === 'function') {
-      deferred.done(function () {
+      deferred.done(() => {
         reverseTrack.controller._makeImage(params, deferred);
       });
     } else {
@@ -71,5 +79,5 @@ export default Controller.extend({
 
     this.browser.removeTrack(this.prop('forwardTrack') || this.prop('reverseTrack'));
     this.base();
-  }
+  },
 });

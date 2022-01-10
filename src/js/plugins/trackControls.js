@@ -1,33 +1,40 @@
 import 'css/trackControls.css';
 
-var plugin = function () {
-  var defaultControls = [
+const plugin = function () {
+  const defaultControls = [
     $('<a title="More info" class="fas fa-question-circle">').on('click', function () {
-      var track = $(this).data('track');
-      var menu  = track.prop('menus').filter('.gv-track-info');
+      const track = $(this).data('track');
+
+      let menu = track.prop('menus').filter('.gv-track-info');
 
       if (!menu.length) {
-        var info = track.prop('info');
+        const info = track.prop('info');
 
-        menu = { title: track.name };
-        menu[typeof info === 'function' ? info.call(track) : info || ''] = '';
-
-        menu = track.prop('menus', track.prop('menus').add(track.browser.makeMenu(menu).addClass('gv-track-info')));
+        menu = track.prop(
+          'menus',
+          track.prop('menus').add(
+            track.browser.makeMenu({
+              title                                                        : track.name,
+              [typeof info === 'function' ? info.call(track) : info || ''] : '',
+            }).addClass('gv-track-info')
+          )
+        );
       }
 
       menu.show().position({ of: track.prop('container'), at: 'center top', my: 'center top', collision: 'none' });
     }),
 
-    $(
-      '<a class="gv-height-toggle">'       +
-        '<i class="fas fa-sort"></i>'      +
-        '<i class="fas fa-sort-down"></i>' +
-        '<i class="fas fa-sort-up"></i>'   +
-      '</a>'
-    ).on({
+    $(`
+      <a class="gv-height-toggle">
+        <i class="fas fa-sort"></i>
+        <i class="fas fa-sort-down"></i>
+        <i class="fas fa-sort-up"></i>
+      </a>
+    `).on({
       click: function () {
-        var track = $(this).data('track');
-        var height;
+        const track = $(this).data('track');
+
+        let height;
 
         if (track.prop('autoHeight', !track.prop('autoHeight'))) {
           track.prop('heightBeforeToggle', track.prop('height'));
@@ -41,84 +48,88 @@ var plugin = function () {
         track.controller.resize(height, true);
       },
       toggleState: function () { // custom event to set title and change the icon
-        var track      = $(this).data('track');
-        var autoHeight = track.prop('autoHeight');
-        var resizer    = track.prop('resizer');
+        const track      = $(this).data('track');
+        const autoHeight = track.prop('autoHeight');
+        const resizer    = track.prop('resizer');
 
         this.title = autoHeight ? 'Set track to fixed height' : 'Set track to auto-adjust height';
+
         $(this)[autoHeight ? 'addClass' : 'removeClass']('gv-auto-height');
 
         if (resizer) {
           resizer[autoHeight ? 'hide' : 'show']();
         }
-      }
-    })
+      },
+    }),
   ];
 
-  var remove = $('<a title="Remove track" class="far fa-trash-alt">').on('click', function () {
+  const remove = $('<a title="Remove track" class="far fa-trash-alt">').on('click', function () {
     $(this).data('track').remove();
   });
 
-  var toggle = $(
-    '<a class="gv-track-controls-toggle">'                                              +
-      '<span><i class="fas fa-angle-double-left"></i><i class="fas fa-cog"></i></span>' +
-      '<span><i class="fas fa-angle-double-right"></i></span>'                          +
-    '</a>'
-  ).on('click', function () {
+  const toggle = $(`
+    <a class="gv-track-controls-toggle">
+      <span><i class="fas fa-angle-double-left"></i><i class="fas fa-cog"></i></span>
+      <span><i class="fas fa-angle-double-right"></i></span>
+    </a>
+  `).on('click', function () {
     $(this).parent().toggleClass('gv-maximized');
   });
 
   this.on({
     afterAddDomElements: function () {
-      var controls = this.prop('controls');
+      let controls = this.prop('controls');
 
       if (controls === 'off') {
         return;
       }
 
-      var defaultConfig = this.prop('defaultConfig');
-      var savedConfig   = this.browser.savedConfig ? this.browser.savedConfig[this.prop('id')] || {} : {};
-      var prop, el, j;
+      const defaultConfig = this.prop('defaultConfig');
+      const savedConfig   = this.browser.savedConfig?.[this.prop('id')] || {};
 
       controls = (controls || []).concat(defaultControls, this.prop('removable') === false ? [] : remove);
 
       this.trackControls = $('<div class="gv-track-controls">').prependTo(this.container);
 
-      var controlsContainer = $('<div class="gv-track-controls-container">').appendTo(this.trackControls);
+      const controlsContainer = $('<div class="gv-track-controls-container">').appendTo(this.trackControls);
 
-      for (var i = 0; i < controls.length; i++) {
-        if ($.isPlainObject(controls[i]) && controls[i].type) {
-          el = $('<' + controls[i].type + '>').data('control', controls[i].name);
+      controls.forEach(
+        (control) => {
+          let el;
 
-          if (controls[i].options) {
-            for (j = 0; j < controls[i].options.length; j++) {
-              el.append('<option value="' + controls[i].options[j].value + '">' + controls[i].options[j].text + '</option>');
-            }
+          if ($.isPlainObject(control) && control.type) {
+            el = $(`<${control.type}>`).data('control', control.name);
+
+            (control.options || []).forEach(
+              option => el.append(`<option value="${option.value}">${option.text}</option>`)
+            );
+          } else if (typeof control === 'string') {
+            el = $(control);
+          } else if (typeof control === 'object' && control.constructor && control instanceof $) {
+            el = control.clone(true);
           }
-        } else if (typeof controls[i] === 'string') {
-          el = $(controls[i]);
-        } else if (typeof controls[i] === 'object' && controls[i].constructor && controls[i] instanceof $) {
-          el = controls[i].clone(true);
+
+          el.data('track', this.track).appendTo(controlsContainer);
+
+          // TODO: other control types
+          if (el.is('select')) {
+            const prop = el.data('control');
+
+            el.find(`option[value=${savedConfig[prop] || defaultConfig[prop] || 'all'}]`).attr('selected', true).end().change(function () {
+              $(this).data('track').setConfig($(this).data('control'), this.value);
+            });
+          }
         }
-
-        el.data('track', this.track).appendTo(controlsContainer);
-
-        // TODO: other control types
-        if (el.is('select')) {
-          prop = el.data('control');
-
-          el.find('option[value=' + (savedConfig[prop] || defaultConfig[prop] || 'all') + ']').attr('selected', true).end().change(function () {
-            $(this).data('track').setConfig($(this).data('control'), this.value);
-          });
-        }
-      }
+      );
 
       this.prop('heightToggler', controlsContainer.children('.gv-height-toggle').trigger('toggleState'));
 
-      var toggler = toggle.clone(true).data('track', this.track).appendTo(this.trackControls);
+      const toggler = toggle.clone(true).data('track', this.track).appendTo(this.trackControls);
 
       toggler.trigger('click');
+
       this.minLabelHeight = Math.max(this.minLabelHeight, this.trackControls.outerHeight(true) + this.prop('margin'));
+
       toggler.trigger('click');
     },
     afterResize: function () {
@@ -127,7 +138,7 @@ var plugin = function () {
       }
     },
     afterResetHeight: function () {
-      var heightToggler = this.prop('heightToggler');
+      const heightToggler = this.prop('heightToggler');
 
       if (this.prop('resizable') === true && heightToggler) {
         heightToggler[this.prop('autoHeight') ? 'addClass' : 'removeClass']('gv-auto-height');
@@ -135,12 +146,12 @@ var plugin = function () {
       }
     },
     afterSetMVC: function () {
-      var heightToggler = this.prop('heightToggler');
+      const heightToggler = this.prop('heightToggler');
 
       if (heightToggler) {
         heightToggler.trigger('toggleState')[this.prop('resizable') === true ? 'removeClass' : 'addClass']('gv-hide');
       }
-    }
+    },
   }, 'tracks');
 };
 

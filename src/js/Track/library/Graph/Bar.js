@@ -2,25 +2,25 @@ import Base                                                  from 'basejs';
 import Track,     { Model as TrackModel, View as TrackView } from 'js/Track/library/Graph';
 import LineGraph, { Model as LineGraphModel }                from 'js/Track/library/Graph/Line';
 
-var Controller = {
+const Controller = {
   getClickedFeatures: function (x, y) {
-    var yZero     = this.prop('marginTop') - (this.prop('range')[0] * this.track.getYScale());
-    var scale     = this.scale;
-    var tolerance = scale > 1 ? 0 : 1;
+    const yZero     = this.prop('marginTop') - (this.prop('range')[0] * this.track.getYScale());
+    const scale     = this.scale;
+    const tolerance = scale > 1 ? 0 : 1;
 
     // Bars with negative values are stored in featurePositions with h < 0.
     // While this works to a certain degree (fillRect allows negative height, drawing upwards from y), it makes them hard to search for in the RTree - to find such a feature you need to search with y = -h and h = y - h + 1
     // It is therefore easier to search featuresByChr (i.e. the genomic positions) for a feature overlapping the x of the click, and then filter those results for y position manually.
-    var features = this.prop('featuresByChr')[this.browser.chr].search({
+    let features = this.prop('featuresByChr')[this.browser.chr].search({
       x : (x - (tolerance / 2)) / scale,
       y : 0,
       w : (1 + tolerance) / scale,
-      h : 1
+      h : 1,
     });
 
     if (features.length) {
       if (
-        (y <  yZero && features.filter(function (f) { return f.position[scale].bounds.y + f.position[scale].bounds.h <= y && f.position[scale].bounds.y >= y; }).length === 0) ||
+        (y <  yZero && features.filter(f => f.position[scale].bounds.y + f.position[scale].bounds.h <= y && f.position[scale].bounds.y >= y).length === 0) ||
         (y >= yZero && this.featurePositions.search({ x: x, y: y, w: 1, h: 1 }).length === 0)
       ) {
         features = [];
@@ -35,25 +35,25 @@ var Controller = {
       return [];
     }
 
-    var start = features[0].start;
-    var end   = features[features.length - 1].end;
-    var avg   = features[0].start !== features[features.length - 1].start;
-    var menu  = { title: features[0].chr + ':' + (start === end ? start : start + '-' + end) };
-    var values, i;
+    const start = features[0].start;
+    const end   = features[features.length - 1].end;
+    const avg   = features[0].start !== features[features.length - 1].start;
+
+    let menu = { title: `${features[0].chr}:${start === end ? start : `${start}-${end}`}` };
 
     function getValues(_features) {
-      var vals = _features.map(function (f) { return f.height; }).sort(function (a, b) { return a - b; });
+      const vals = _features.map(f => f.height).sort((a, b) => a - b);
 
       return {
-        avg : vals.reduce(function (n, v) { return n + v; }, 0) / vals.length,
+        avg : vals.reduce((n, v) => n + v, 0) / vals.length,
         min : vals[0],
-        max : vals[vals.length - 1]
+        max : vals[vals.length - 1],
       };
     }
 
     if (avg) {
       if (features.length === 1) {
-        values = getValues(features);
+        const values = getValues(features);
 
         menu['Average value'] = values.avg;
         menu['Min value']     = values.min;
@@ -61,132 +61,148 @@ var Controller = {
       } else {
         menu = [ menu ];
 
-        var datasets = this.prop('datasets');
-        var featuresByDataset;
+        let datasets = this.prop('datasets');
+        let featuresByDataset;
 
         if (datasets.length) {
-          featuresByDataset = datasets.reduce(function (hash, d) { hash[d.name] = []; return hash; }, {});
+          featuresByDataset = datasets.reduce(
+            (acc, d) => Object.assign(acc, { [d.name]: [] }),
+            {}
+          );
 
-          for (i = 0; i < features.length; i++) {
-            featuresByDataset[features[i].dataset].push(features[i]);
-          }
+          features.forEach(
+            (feature) => {
+              featuresByDataset[feature.dataset].push(feature);
+            }
+          );
         } else {
           datasets          = [{ name: '' }];
           featuresByDataset = { '': features };
         }
 
-        for (i = 0; i < datasets.length; i++) {
-          values = getValues(featuresByDataset[datasets[i].name]);
+        datasets.forEach(
+          (dataset) => {
+            const values = getValues(featuresByDataset[dataset.name]);
 
-          menu.push($.extend({
-            Average : values.avg,
-            Min     : values.min,
-            Max     : values.max
-          }, datasets[i].name ? { title: datasets[i].name } : {}));
-        }
+            menu.push({
+              Average : values.avg,
+              Min     : values.min,
+              Max     : values.max,
+              ...(dataset.name ? { title: dataset.name } : {}),
+            });
+          }
+        );
       }
     } else if (features.length === 1) {
       menu.Value = features[0].height;
     } else {
-      for (i = 0; i < features.length; i++) {
-        menu[features[i].dataset] = features[i].height;
-      }
+      features.forEach(
+        (feature) => {
+          menu[feature.dataset] = feature.height;
+        }
+      );
     }
 
     return menu;
-  }
+  },
 };
 
-var Model = TrackModel.extend({
-  insertFeature: function (feature) {
-    var datasets = this.prop('datasets');
+const Model = TrackModel.extend({
+  insertFeature: function (feature, ...args) {
+    const datasets = this.prop('datasets');
 
     if (datasets.length) {
       feature.legend = feature.dataset;
-      feature.color  = (datasets.filter(function (s) { return s.name === feature.dataset; })[0] || { color: this.color }).color;
+      feature.color  = (datasets.filter(s => s.name === feature.dataset)[0] || { color: this.color }).color;
     }
 
     feature.id = feature.id || [ feature.chr, feature.start, feature.end, feature.dataset || '' ].join(':');
 
-    return this.base.apply(this, arguments);
-  }
+    return this.base(feature, ...args);
+  },
 });
 
-var View = TrackView.extend({
+const View = TrackView.extend({
   scaleFeatures: function (features, scale) {
-    var yScale = this.track.getYScale();
-    var zeroY  = this.prop('marginTop') - this.prop('range')[0] * yScale;
+    const yScale = this.track.getYScale();
+    const zeroY  = this.prop('marginTop') - this.prop('range')[0] * yScale;
 
     features = this.base(features, scale);
 
-    for (var i = 0; i < features.length; i++) {
-      features[i].position[scale].height = features[i].height * yScale;
-      features[i].position[scale].y      = zeroY;
-    }
+    features.forEach(
+      (feature) => {
+        feature.position[scale].height = feature.height * yScale;
+        feature.position[scale].y      = zeroY;
+      }
+    );
 
     return features;
   },
 
   draw: function (features, featureContext, labelContext, scale) {
-    var datasets     = this.featureDataSets(features);
-    var marginBottom = this.prop('margin');
-    var binSize      = scale < 1 ? Math.ceil(1 / scale) : 0;
-    var conf, set, setFeatures, j, binnedFeatures, binStart, bin, f;
-
-    var defaults = {
+    const datasets     = this.featureDataSets(features);
+    const marginBottom = this.prop('margin');
+    const binSize      = scale < 1 ? Math.ceil(1 / scale) : 0;
+    const defaults     = {
       color       : this.color,
-      globalAlpha : this.prop('globalAlpha')
+      globalAlpha : this.prop('globalAlpha'),
     };
 
-    for (var i = 0; i < datasets.list.length; i++) {
-      conf        = $.extend({}, defaults, datasets.list[i]);
-      set         = datasets.list[i].name;
-      setFeatures = $.extend(true, [], datasets.features[set] || []);
+    datasets.list.forEach(
+      (config) => {
+        const conf = { ...defaults, ...config };
+        const set  = config.name;
 
-      if (!setFeatures.length) {
-        continue;
-      }
+        let setFeatures = $.extend(true, [], datasets.features[set] || []);
 
-      if (binSize) {
-        binnedFeatures = [];
-        j              = 0;
-
-        while (j < setFeatures.length) {
-          binStart = setFeatures[j].start;
-          bin      = [];
-
-          while (setFeatures[j] && setFeatures[j].start - binStart < binSize) {
-            bin.push(setFeatures[j++]);
-          }
-
-          f = $.extend(true, {}, bin[0], {
-            height : bin.reduce(function (a, b) { return a + b.height; }, 0) / bin.length,
-            end    : bin[bin.length - 1].end
-          });
-
-          [ 'H', 'W', 'height', 'width' ].forEach(function (attr) { // eslint-disable-line no-loop-func
-            f.position[scale][attr] = bin.reduce(function (a, b) { return a + b.position[scale][attr]; }, 0) / bin.length;
-          });
-
-          binnedFeatures.push(f);
+        if (!setFeatures.length) {
+          return;
         }
 
-        setFeatures = binnedFeatures;
+        if (binSize) {
+          const binnedFeatures = [];
+
+          let i = 0;
+
+          while (i < setFeatures.length) {
+            const binStart = setFeatures[i].start;
+            const bin      = [];
+
+            while (setFeatures[i] && setFeatures[i].start - binStart < binSize) {
+              bin.push(setFeatures[i++]);
+            }
+
+            const feature = $.extend(true, {}, bin[0], {
+              height : bin.reduce((a, b) => a + b.height, 0) / bin.length,
+              end    : bin[bin.length - 1].end,
+            });
+
+            [ 'H', 'W', 'height', 'width' ].forEach((attr) => { // eslint-disable-line no-loop-func
+              feature.position[scale][attr] = bin.reduce((a, b) => a + b.position[scale][attr], 0) / bin.length;
+            });
+
+            binnedFeatures.push(feature);
+          }
+
+          setFeatures = binnedFeatures;
+        }
+
+        setFeatures.forEach(
+          (setFeature) => {
+            setFeature.color = conf.color;
+          }
+        );
+
+        featureContext.globalAlpha = conf.globalAlpha;
+
+        this.base(setFeatures, featureContext, labelContext, scale);
       }
-
-      for (j = 0; j < setFeatures.length; j++) {
-        setFeatures[j].color = conf.color;
-      }
-
-      featureContext.globalAlpha = conf.globalAlpha;
-
-      this.base(setFeatures, featureContext, labelContext, scale);
-    }
+    );
 
     // Don't allow features to be drawn in the margins
     featureContext.clearRect(0, 0,                                  this.width, this.prop('marginTop') - 1);
     featureContext.clearRect(0, this.prop('height') - marginBottom, this.width, marginBottom);
-  }
+  },
 });
 
 export default Track.extend({
@@ -195,47 +211,52 @@ export default Track.extend({
   view      : View,
   threshold : 500000,
 
-  10000: $.extend( // Switch to line graph at 10000bp region
-    Object.keys(LineGraph.prototype).reduce(function (hash, key) {
-      if (LineGraph.prototype.hasOwnProperty(key) && !Base.prototype[key]) {
-        hash[key] = LineGraph.prototype[key];
-      }
+  10000: { // Switch to line graph at 10000bp region
+    ...Object.keys(LineGraph.prototype).reduce(
+      (acc, key) => {
+        if (LineGraph.prototype.hasOwnProperty(key) && !Base.prototype[key]) {
+          acc[key] = LineGraph.prototype[key];
+        }
 
-      return hash;
-    }, {}), {
-      fill  : true,
-      model : LineGraphModel.extend({
-        parseData: function (data, chr, start, end) {
-          var coords = [];
-          var j;
+        return acc;
+      },
+      {}
+    ),
+    fill  : true,
+    model : LineGraphModel.extend({
+      parseData: function (data, chr, start, end) {
+        const coords = [];
 
-          for (var i = 0; i < data.length; i++) {
-            for (j = data[i].start; j < data[i].end; j++) {
-              coords.push([ j, data[i].height ]);
+        data.forEach(
+          (item) => {
+            for (let pos = item.start; pos < item.end; pos++) {
+              coords.push([ pos, item.height ]);
             }
           }
+        );
 
-          return this.base([{ chr: chr, start: start, end: end, coords: coords }], chr, start, end);
+        return this.base([{ chr: chr, start: start, end: end, coords: coords }], chr, start, end);
+      },
+    }),
+  },
+  50000: { // Switch to sparser line graph at 50000bp region
+    ...Object.keys(LineGraph.prototype).reduce(
+      (acc, key) => {
+        if (LineGraph.prototype.hasOwnProperty(key) && !Base.prototype[key]) {
+          acc[key] = LineGraph.prototype[key];
         }
-      })
-    }
-  ),
-  50000: $.extend( // Switch to sparser line graph at 50000bp region
-    Object.keys(LineGraph.prototype).reduce(function (hash, key) {
-      if (LineGraph.prototype.hasOwnProperty(key) && !Base.prototype[key]) {
-        hash[key] = LineGraph.prototype[key];
-      }
 
-      return hash;
-    }, {}), {
-      fill  : true,
-      model : LineGraphModel.extend({
-        parseData: function (data, chr, start, end) {
-          return this.base([{ chr: chr, start: start, end: end, coords: data.map(function (d) { return [ d.start, d.height ]; }) }], chr, start, end);
-        }
-      })
-    }
-  )
+        return acc;
+      },
+      {}
+    ),
+    fill  : true,
+    model : LineGraphModel.extend({
+      parseData: function (data, chr, start, end) {
+        return this.base([{ chr: chr, start: start, end: end, coords: data.map(d => [ d.start, d.height ]) }], chr, start, end);
+      },
+    }),
+  },
 });
 
 export { Controller, Model, View };

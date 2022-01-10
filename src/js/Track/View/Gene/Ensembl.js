@@ -2,7 +2,7 @@ import View from 'js/Track/View/Gene';
 
 export default View.extend({
   setFeatureColor: function (feature) {
-    var processedTranscript = {
+    const processedTranscript = {
       'sense_intronic'           : 1,
       'sense_overlapping'        : 1,
       'processed_transcript'     : 1,
@@ -14,7 +14,7 @@ export default View.extend({
       'non_coding'               : 1,
       'ambiguous_orf'            : 1,
       'disrupted_domain'         : 1,
-      '3prime_overlapping_ncrna' : 1
+      '3prime_overlapping_ncrna' : 1,
     };
 
     feature.color = '#000000';
@@ -44,5 +44,5 @@ export default View.extend({
     }
 
     feature.labelColor = feature.labelColor || feature.color;
-  }
+  },
 });

@@ -23,7 +23,7 @@ export default Base.extend({
   subFeatureJoinLineWidth : 0.5,
 
   constructor: function (properties) {
-    $.extend(this, properties);
+    Object.assign(this, properties);
     wrapFunctions(this, 'View');
     this.init();
   },
@@ -37,17 +37,17 @@ export default Base.extend({
   setDefaults: function () {
     this.featureMargin = this.featureMargin || { top: 3, right: 1, bottom: 1, left: 0 };
 
-    var margin = [ 'top', 'right', 'bottom', 'left' ];
-
-    for (var i = 0; i < margin.length; i++) {
-      if (typeof this.featureMargin[margin[i]] !== 'number') {
-        this.featureMargin[margin[i]] = 0;
+    [ 'top', 'right', 'bottom', 'left' ].forEach(
+      (margin) => {
+        if (typeof this.featureMargin[margin] !== 'number') {
+          this.featureMargin[margin] = 0;
+        }
       }
-    }
+    );
 
     this.context       = $('<canvas>')[0].getContext('2d');
     this.featureHeight = typeof this.featureHeight !== 'undefined' ? this.featureHeight : this.prop('defaultHeight');
-    this.font          = this.fontWeight + ' ' + this.fontHeight + 'px ' + this.fontFamily;
+    this.font          = `${this.fontWeight} ${this.fontHeight}px ${this.fontFamily}`;
     this.labelUnits    = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
 
     this.context.font = this.font;
@@ -58,19 +58,19 @@ export default Base.extend({
   },
 
   setScaleSettings: function (scale) {
-    var chr = this.browser.chr;
+    const chr = this.browser.chr;
 
     if (!this.scaleSettings[chr]) {
       this.scaleSettings[chr] = {};
     }
 
     if (!this.scaleSettings[chr][scale]) {
-      var featurePositions = new RTree();
+      const featurePositions = new RTree();
 
       this.scaleSettings[chr][scale] = {
         imgContainers    : $(),
         featurePositions : featurePositions,
-        labelPositions   : this.labels === 'separate' ? new RTree() : featurePositions
+        labelPositions   : this.labels === 'separate' ? new RTree() : featurePositions,
       };
     }
 
@@ -86,34 +86,35 @@ export default Base.extend({
   },
 
   scaleFeatures: function (features, scale) {
-    var add = this.roundPixelValue(Math.max(scale, this.widthCorrection));
-    var feature, j;
+    const add = this.roundPixelValue(Math.max(scale, this.widthCorrection));
 
-    for (var i = 0; i < features.length; i++) {
-      feature = features[i];
-
-      if (!feature.position) {
-        feature.position = {};
-      }
-
-      if (!feature.position[scale]) {
-        feature.position[scale] = {
-          start  : this.roundPixelValue(feature.start * scale),
-          width  : Math.max(this.roundPixelValue((feature.end - feature.start) * scale + add), this.minScaledWidth),
-          height : feature.height || this.featureHeight
-        };
-      }
-
-      if (feature.subFeatures) {
-        for (j = 0; j < feature.subFeatures.length; j++) {
-          if (typeof feature.subFeatures[j].height === 'undefined') {
-            feature.subFeatures[j].height = feature.position[scale].height;
-          }
+    features.forEach(
+      (feature) => {
+        if (!feature.position) {
+          feature.position = {};
         }
 
-        this.scaleFeatures(feature.subFeatures, scale);
+        if (!feature.position[scale]) {
+          feature.position[scale] = {
+            start  : this.roundPixelValue(feature.start * scale),
+            width  : Math.max(this.roundPixelValue((feature.end - feature.start) * scale + add), this.minScaledWidth),
+            height : feature.height || this.featureHeight,
+          };
+        }
+
+        if (feature.subFeatures) {
+          feature.subFeatures.forEach(
+            (subFeature) => {
+              if (typeof subFeature.height === 'undefined') {
+                subFeature.height = feature.position[scale].height;
+              }
+            }
+          );
+
+          this.scaleFeatures(feature.subFeatures, scale);
+        }
       }
-    }
+    );
 
     return features;
   },
@@ -121,9 +122,9 @@ export default Base.extend({
   positionFeatures: function (features, params) {
     params.margin = this.prop('margin');
 
-    for (var i = 0; i < features.length; i++) {
-      this.positionFeature(features[i], params);
-    }
+    features.forEach(
+      feature => this.positionFeature(feature, params)
+    );
 
     params.width         = Math.ceil(params.width);
     params.height        = Math.ceil(params.height);
@@ -134,33 +135,34 @@ export default Base.extend({
   },
 
   positionFeature: function (feature, params) {
-    var scale         = params.scale;
-    var scaleSettings = this.scaleSettings[feature.chr][scale];
+    const scale         = params.scale;
+    const scaleSettings = this.scaleSettings[feature.chr][scale];
 
     if (!scaleSettings) {
       return;
     }
 
-    var subFeatures = feature.subFeatures || [];
-    var i;
+    const subFeatures = feature.subFeatures || [];
 
     feature.position[scale].X = feature.position[scale].start - params.scaledStart; // FIXME: always have to reposition for X, in case a feature appears in 2 images. Pass scaledStart around instead?
 
-    for (i = 0; i < subFeatures.length; i++) {
-      subFeatures[i].position[scale].x = subFeatures[i].position[scale].start - params.scaledStart;
+    subFeatures.forEach(
+      (subFeature) => {
+        subFeature.position[scale].x = subFeature.position[scale].start - params.scaledStart;
 
-      if (this.subFeatureJoinStyle) {
-        subFeatures[i].position[scale].join   = subFeatures[i].position[scale].join || {};
-        subFeatures[i].position[scale].join.x = subFeatures[i].position[scale].start + subFeatures[i].position[scale].width - params.scaledStart;
+        if (this.subFeatureJoinStyle) {
+          subFeature.position[scale].join   = subFeature.position[scale].join || {};
+          subFeature.position[scale].join.x = subFeature.position[scale].start + subFeature.position[scale].width - params.scaledStart;
+        }
       }
-    }
+    );
 
     if (this.alwaysReposition || !feature.position[scale].positioned) {
       feature.position[scale].H = feature.position[scale].height + this.featureMargin.bottom;
       feature.position[scale].W = feature.position[scale].width  + (feature.marginRight || this.featureMargin.right);
       feature.position[scale].Y = (
         typeof feature.position[scale].y === 'number' ? feature.position[scale].y :
-          typeof feature.y               === 'number' ? feature.y * feature.position[scale].H : 0
+          typeof feature.y === 'number' ? feature.y * feature.position[scale].H : 0
       ) + (feature.marginTop || this.featureMargin.top);
 
       if (feature.label) {
@@ -168,10 +170,10 @@ export default Base.extend({
           feature.label = feature.label.split('\n');
         }
 
-        var context = this.context;
+        const context = this.context;
 
         feature.labelHeight = feature.labelHeight || (this.fontHeight + 2) * feature.label.length;
-        feature.labelWidth  = feature.labelWidth  || Math.max.apply(Math, $.map(feature.label, function (l) { return Math.ceil(context.measureText(l).width); })) + 1;
+        feature.labelWidth  = feature.labelWidth  || Math.max(...feature.label.map(l => Math.ceil(context.measureText(l).width))) + 1;
 
         if (this.labels === true) {
           feature.position[scale].H += feature.labelHeight;
@@ -181,16 +183,16 @@ export default Base.extend({
             x : feature.position[scale].start,
             y : feature.position[scale].Y,
             w : feature.labelWidth,
-            h : feature.labelHeight
+            h : feature.labelHeight,
           };
         }
       }
 
-      var bounds = {
+      const bounds = {
         x : feature.position[scale].start,
         y : feature.position[scale].Y,
         w : feature.position[scale].W,
-        h : feature.position[scale].H + (feature.marginTop || this.featureMargin.top)
+        h : feature.position[scale].H + (feature.marginTop || this.featureMargin.top),
       };
 
       feature.position[scale].bounds = bounds;
@@ -205,18 +207,24 @@ export default Base.extend({
       feature.position[scale].positioned = true;
     }
 
-    var join = this.subFeatureJoinStyle && subFeatures.length ? {
-      height : (Math.max.apply(Math, subFeatures.map(function (c) { return c.fake ? 0 : c.position[scale].height; })) / 2) * (feature.strand > 0 ? -1 : 1),
-      y      : feature.position[scale].Y + feature.position[scale].height / 2
-    } : false;
+    const join = (
+      this.subFeatureJoinStyle && subFeatures.length
+        ? {
+          height : (Math.max(...subFeatures.map(c => (c.fake ? 0 : c.position[scale].height))) / 2) * (feature.strand > 0 ? -1 : 1),
+          y      : feature.position[scale].Y + feature.position[scale].height / 2,
+        }
+        : false
+    );
 
-    for (i = 0; i < subFeatures.length; i++) {
-      subFeatures[i].position[scale].y = feature.position[scale].Y + (feature.position[scale].height - subFeatures[i].position[scale].height) / 2;
+    subFeatures.forEach(
+      (subFeature, i) => {
+        subFeature.position[scale].y = feature.position[scale].Y + (feature.position[scale].height - subFeature.position[scale].height) / 2;
 
-      if (join && subFeatures[i + 1]) {
-        $.extend(subFeatures[i].position[scale].join, { width: subFeatures[i + 1].position[scale].x - subFeatures[i].position[scale].join.x }, join);
+        if (join && subFeatures[i + 1]) {
+          Object.assign(subFeature.position[scale].join, { width: subFeatures[i + 1].position[scale].x - subFeature.position[scale].join.x, ...join });
+        }
       }
-    }
+    );
 
     if (this.labels === 'separate' && feature.position[scale].label) {
       if (this.alwaysReposition || !feature.position[scale].label.positioned) {
@@ -237,20 +245,23 @@ export default Base.extend({
 
   // FIXME: should label bumping bounds be distinct from feature bumping bounds when label is smaller than feature?
   bumpFeature: function (bounds, feature, scale, tree) {
-    var depth         = 0;
-    var scaleSettings = this.scaleSettings[feature.chr][scale];
-    var labels        = tree === scaleSettings.labelPositions && tree !== scaleSettings.featurePositions;
-    var bump, clash, searchResults, i;
+    const scaleSettings = this.scaleSettings[feature.chr][scale];
+    const labels        = tree === scaleSettings.labelPositions && tree !== scaleSettings.featurePositions;
 
-    do {
+    let bump  = true;
+    let depth = 0;
+
+    while (bump) {
       if (this.depth && ++depth >= this.depth) {
         if (!labels) {
-          searchResults = scaleSettings.featurePositions.search(bounds);
-          i             = searchResults.length;
+          const searchResults = scaleSettings.featurePositions.search(bounds);
+
+          let i = searchResults.length;
 
           while (i--) {
             if (searchResults[i].position[scale].visible !== false) {
               feature.position[scale].visible = false;
+
               break;
             }
           }
@@ -259,14 +270,14 @@ export default Base.extend({
         break;
       }
 
-      bump  = false;
-      clash = tree.search(bounds)[0];
+      const clash = tree.search(bounds)[0];
 
       if (clash && clash.id !== feature.id) {
         bounds.y = clash.position[scale][labels ? 'label' : 'bounds'].y + clash.position[scale][labels ? 'label' : 'bounds'].h;
-        bump     = true;
+      } else {
+        bump = false;
       }
-    } while (bump);
+    }
 
     if (!labels) {
       feature.position[scale].Y = bounds.y;
@@ -274,29 +285,28 @@ export default Base.extend({
   },
 
   draw: function (features, featureContext, labelContext, scale) {
-    var feature, f;
+    features.forEach(
+      (feature) => {
+        if (feature.position[scale].visible !== false) {
+          // TODO: extend with feature.position[scale], rationalize keys
+          const f = {
+            ...feature,
+            x             : feature.position[scale].X,
+            y             : feature.position[scale].Y,
+            width         : feature.position[scale].width,
+            height        : feature.position[scale].height,
+            labelPosition : feature.position[scale].label,
+          };
 
-    for (var i = 0; i < features.length; i++) {
-      feature = features[i];
+          this.drawFeature(f, featureContext, labelContext, scale);
 
-      if (feature.position[scale].visible !== false) {
-        // TODO: extend with feature.position[scale], rationalize keys
-        f = $.extend({}, feature, {
-          x             : feature.position[scale].X,
-          y             : feature.position[scale].Y,
-          width         : feature.position[scale].width,
-          height        : feature.position[scale].height,
-          labelPosition : feature.position[scale].label
-        });
-
-        this.drawFeature(f, featureContext, labelContext, scale);
-
-        if (f.legend !== feature.legend) {
-          feature.legend      = f.legend;
-          feature.legendColor = f.color;
+          if (f.legend !== feature.legend) {
+            feature.legend      = f.legend;
+            feature.legendColor = f.color;
+          }
         }
       }
-    }
+    );
   },
 
   drawFeature: function (feature, featureContext, labelContext, scale) {
@@ -336,24 +346,26 @@ export default Base.extend({
   },
 
   drawSubFeatures: function (feature, featureContext, labelContext, scale) {
-    var clonedFeature = $.extend(true, {}, feature, { subFeatures: false, label: false });
-    var subFeatures   = $.extend(true, [], feature.subFeatures);
-    var joinColor     = feature.joinColor || feature.color;
+    const clonedFeature = $.extend(true, {}, feature, { subFeatures: false, label: false });
+    const subFeatures   = $.extend(true, [], feature.subFeatures);
+    const joinColor     = feature.joinColor || feature.color;
 
-    for (var i = 0; i < subFeatures.length; i++) {
-      if (!subFeatures[i].fake) {
-        this.drawFeature($.extend({}, clonedFeature, subFeatures[i].position[scale], subFeatures[i]), featureContext, labelContext, scale);
-      }
+    subFeatures.forEach(
+      (subFeature) => {
+        if (!subFeature.fake) {
+          this.drawFeature({ ...clonedFeature, ...subFeature.position[scale], ...subFeature }, featureContext, labelContext, scale);
+        }
 
-      if (subFeatures[i].position[scale].join && subFeatures[i].position[scale].join.width > 0) {
-        this.drawSubFeatureJoin($.extend({ color: joinColor }, subFeatures[i].position[scale].join), featureContext);
+        if (subFeature.position[scale].join && subFeature.position[scale].join.width > 0) {
+          this.drawSubFeatureJoin({ color: joinColor, ...subFeature.position[scale].join }, featureContext);
+        }
       }
-    }
+    );
   },
 
   drawLabel: function (feature, context, scale) {
-    var original = feature.untruncated;
-    var width    = (original || feature).width;
+    const original = feature.untruncated;
+    const width    = (original || feature).width;
 
     if (this.labels === 'overlay' && feature.labelWidth >= Math.floor(width)) {
       return;
@@ -367,14 +379,17 @@ export default Base.extend({
       feature.label = [ feature.label ];
     }
 
-    var x       = (original || feature).x;
-    var n       = this.repeatLabels ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) || 1 : 1;
-    var spacing = width / n;
-    var label, start, j, y, currentY, h;
+    const x = (original || feature).x;
+
+    let n       = this.repeatLabels ? Math.ceil((width - Math.max(scale, 1) - (this.labels === 'overlay' ? feature.labelWidth : 0)) / this.width) || 1 : 1;
+    let spacing = width / n;
+    let label;
+    let y;
+    let h;
 
     if (this.repeatLabels && (scale > 1 || this.labels !== 'overlay')) { // Ensure there's always a label in each image
       spacing = this.browser.length * scale;
-      n = Math.ceil(width / spacing);
+      n       = Math.ceil(width / spacing);
     }
 
     if (!feature.labelColor) {
@@ -393,35 +408,39 @@ export default Base.extend({
       h     = this.fontHeight + 2;
     }
 
-    var i      = context.textAlign === 'center' ? 0.5 : 0;
-    var offset = feature.labelWidth * i;
+    let i = context.textAlign === 'center' ? 0.5 : 0;
+
+    const offset = feature.labelWidth * i;
 
     if (n > 1) {
       i += Math.max(Math.floor(-(feature.labelWidth + x) / spacing), 0);
     }
 
     for (; i < n; i++) {
-      start = x + (i * spacing);
+      const start = x + (i * spacing);
 
       if (start + feature.labelWidth >= 0) {
         if ((start - offset > this.width) || (i >= 1 && start + feature.labelWidth > feature.position[scale].X + feature.position[scale].width)) {
           break;
         }
 
-        for (j = 0; j < label.length; j++) {
-          currentY = y + (j * h);
+        label.forEach(
+          (line, j) => {
+            const currentY = y + (j * h);
 
-          if (context.labelPositions && context.labelPositions.search({ x: start, y: currentY, w: feature.labelWidth, h: h }).length) {
-            feature.position[scale].label.visible = false;
-            continue;
+            if (context.labelPositions && context.labelPositions.search({ x: start, y: currentY, w: feature.labelWidth, h: h }).length) {
+              feature.position[scale].label.visible = false;
+
+              return;
+            }
+
+            context.fillText(line, start, currentY);
+
+            if (context.labelPositions) {
+              context.labelPositions.insert({ x: start, y: currentY, w: feature.labelWidth, h: h }, line);
+            }
           }
-
-          context.fillText(label[j], start, currentY);
-
-          if (context.labelPositions) {
-            context.labelPositions.insert({ x: start, y: currentY, w: feature.labelWidth, h: h }, label[j]);
-          }
-        }
+        );
       }
     }
   },
@@ -436,23 +455,24 @@ export default Base.extend({
 
   // Method to lighten a color by an amount, adapted from https://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
   shadeColor: function (color, percent) {
-    var f = parseInt(color.slice(1), 16);
-    var R = f >> 16;
-    var G = (f >> 8) & 0x00FF;
-    var B = f & 0x0000FF;
+    const f = parseInt(color.slice(1), 16);
+    const R = f >> 16;
+    const G = (f >> 8) & 0x00FF;
+    const B = f & 0x0000FF;
 
-    return '#' + (
+    return `#${(
       0x1000000 +
       (Math.round((255 - R) * percent) + R) * 0x10000 +
       (Math.round((255 - G) * percent) + G) * 0x100 +
       (Math.round((255 - B) * percent) + B)
-    ).toString(16).slice(1);
+    ).toString(16).slice(1)}`;
   },
 
   // truncate features - make the features start at 1px outside the canvas to ensure no lines are drawn at the borders incorrectly
   truncateForDrawing: function (feature) {
-    var start = Math.min(Math.max(feature.x, -1), this.width + 1);
-    var width = feature.x - start + feature.width;
+    const start = Math.min(Math.max(feature.x, -1), this.width + 1);
+
+    let width = feature.x - start + feature.width;
 
     if (width + start > this.width) {
       width = this.width - start + 1;
@@ -464,13 +484,13 @@ export default Base.extend({
   },
 
   drawSubFeatureJoin: function (join, context) {
-    var coords = this.truncateSubFeatureJoinForDrawing(join);
+    const coords = this.truncateSubFeatureJoinForDrawing(join);
 
     if (!coords) {
       return;
     }
 
-    var lineWidth = context.lineWidth;
+    const lineWidth = context.lineWidth;
 
     context.strokeStyle = join.color;
     context.lineWidth   = this.subFeatureJoinLineWidth;
@@ -481,13 +501,16 @@ export default Base.extend({
     switch (this.subFeatureJoinStyle) {
       case 'line':
         context.lineTo(coords.x3, coords.y1);
+
         break;
       case 'peak':
         context.lineTo(coords.x2, coords.y2);
         context.lineTo(coords.x3, coords.y3);
+
         break;
       case 'curve':
         context.quadraticCurveTo(coords.x2, coords.y2, coords.x3, coords.y3);
+
         break;
       default: break;
     }
@@ -498,30 +521,33 @@ export default Base.extend({
   },
 
   truncateSubFeatureJoinForDrawing: function (coords) {
-    var y1 = coords.y; // y coord of the ends of the line (half way down the exon box)
-    var y3 = y1;
+    let y1 = coords.y; // y coord of the ends of the line (half way down the exon box)
+    let y3 = y1;
 
     if (this.subFeatureJoinStyle === 'line') {
       this.truncateForDrawing(coords);
       y1 += 0.5; // Sharpen line
     }
 
-    var x1 = coords.x;                // x coord of the right edge of the first exon
-    var x3 = coords.x + coords.width; // x coord of the left edge of the second exon
+    let x1 = coords.x;                // x coord of the right edge of the first exon
+    let x3 = coords.x + coords.width; // x coord of the left edge of the second exon
 
     // Skip if completely outside the image's region
     if (x3 < 0 || x1 > this.width) {
       return false;
     }
 
-    var x2, y2, xMid, yScale;
+    let x2;
+    let y2;
 
     // Truncate the coordinates of the line being drawn, so it is inside the image's region
     if (this.subFeatureJoinStyle === 'peak') {
-      xMid   = (x1 + x3) / 2;
-      x2     = xMid;                     // x coord of the peak of the peak/curve
-      y2     = coords.y + coords.height; // y coord of the peak of the peak/curve (level with the top (forward strand) or bottom (reverse strand) of the exon box)
-      yScale = (y2 - y1) / (xMid - x1);  // Scale factor for recalculating coords if points lie outside the image region
+      const xMid = (x1 + x3) / 2;
+
+      x2 = xMid;                     // x coord of the peak of the peak/curve
+      y2 = coords.y + coords.height; // y coord of the peak of the peak/curve (level with the top (forward strand) or bottom (reverse strand) of the exon box)
+
+      const yScale = (y2 - y1) / (xMid - x1);  // Scale factor for recalculating coords if points lie outside the image region
 
       if (xMid < 0) {
         y2 = coords.y + (yScale * x3);
@@ -547,24 +573,24 @@ export default Base.extend({
     }
 
     return {
-      x1 : x1,
-      y1 : y1,
-      x2 : x2,
-      y2 : y2,
-      x3 : x3,
-      y3 : y3
+      x1,
+      y1,
+      x2,
+      y2,
+      x3,
+      y3,
     };
   },
 
   formatLabel: function (label) {
-    var power = Math.floor((label.toString().length - 1) / 3);
-    var unit  = this.labelUnits[power];
+    const power = Math.floor((label.toString().length - 1) / 3);
+    const unit  = this.labelUnits[power];
 
-    label /= Math.pow(10, power * 3);
+    label /= 10 ** (power * 3);
 
-    return Math.floor(label) + (unit === 'bp' ? '' : '.' + (label.toString().split('.')[1] || '').concat('00').substring(0, 2)) + ' ' + unit;
+    return `${Math.floor(label)}${(unit === 'bp' ? '' : `.${(label.toString().split('.')[1] || '').concat('00').substring(0, 2)}`)} ${unit}`;
   },
 
-  drawBackground  : $.noop,
-  decorateFeature : $.noop // decoration for the features
+  drawBackground  : () => {},
+  decorateFeature : () => {}, // decoration for the features
 });

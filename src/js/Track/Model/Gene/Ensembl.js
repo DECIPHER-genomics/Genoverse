@@ -9,16 +9,16 @@ export default Model.extend({
   // We assume that parents always preceed children in data array, gene -> transcript -> exon
   // See rest.ensembl.org/documentation/info/feature_region for more details
   parseData: function (data, chr) {
-    for (var i = 0; i < data.length; i++) {
-      var feature = data[i];
+    data.forEach(
+      (feature) => {
+        if (feature.feature_type === 'gene' && !this.featuresById[feature.id]) {
+          feature.chr         = feature.chr || chr;
+          feature.label       = parseInt(feature.strand, 10) === 1 ? `${feature.external_name || feature.id} >` : `< ${feature.external_name || feature.id}`;
+          feature.transcripts = [];
 
-      if (feature.feature_type === 'gene' && !this.featuresById[feature.id]) {
-        feature.chr         = feature.chr || chr;
-        feature.label       = parseInt(feature.strand, 10) === 1 ? (feature.external_name || feature.id) + ' >' : '< ' + (feature.external_name || feature.id);
-        feature.transcripts = [];
-
-        this.insertFeature(feature);
+          this.insertFeature(feature);
+        }
       }
-    }
-  }
+    );
+  },
 });

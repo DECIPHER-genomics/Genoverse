@@ -1,15 +1,14 @@
-import { URLFetchable, BlobFetchable } from 'js/lib/dalliance-lib';
-import VCFReader                       from 'js/lib/VCFReader';
 import Model                           from 'js/Track/Model/File';
+import VCFReader                       from 'js/lib/VCFReader';
+import { URLFetchable, BlobFetchable } from 'js/lib/dalliance-lib';
 
 export default Model.extend({
-  getData: function (chr, start, end) {
-    var deferred = $.Deferred();
-    var model    = this;
-
+  getData: function (chr, start, end, done) {
     if (!this.prop('gz')) {
-      return this.base.apply(this, arguments);
+      return this.base(chr, start, end, done);
     }
+
+    const deferred = $.Deferred();
 
     if (!this.vcfFile) {
       if (this.url) {
@@ -19,16 +18,16 @@ export default Model.extend({
         this.vcfFile = new BlobFetchable(this.dataFile);
         this.tbiFile = new BlobFetchable(this.indexFile);
       } else {
-        return deferred.rejectWith(model, [ 'GZipped VCF files must be accompanied by a .tbi index file' ]);
+        return deferred.rejectWith(this, [ 'GZipped VCF files must be accompanied by a .tbi index file' ]);
       }
     }
 
-    this.makeVCF(this.vcfFile, this.tbiFile).then(function (vcf) {
-      model.cachedVCF = vcf;
+    this.makeVCF(this.vcfFile, this.tbiFile).then((vcf) => {
+      this.cachedVCF = vcf;
 
-      vcf.getRecords(chr, start, end, function (records) {
-        model.receiveData(records, chr, start, end);
-        deferred.resolveWith(model);
+      vcf.getRecords(chr, start, end, (records) => {
+        this.receiveData(records, chr, start, end);
+        deferred.resolveWith(this);
       });
     });
 
@@ -36,14 +35,14 @@ export default Model.extend({
   },
 
   makeVCF: function (vcfFile, tbiFile) {
-    var deferred = $.Deferred();
+    const deferred = $.Deferred();
 
     if (this.cachedVCF) {
       deferred.resolve(this.cachedVCF);
     } else {
-      var vcf = new VCFReader(vcfFile, tbiFile);
+      const vcf = new VCFReader(vcfFile, tbiFile);
 
-      vcf.readTabix(function (tabix) {
+      vcf.readTabix((tabix) => {
         vcf.tabix = tabix;
         deferred.resolve(vcf);
       });
@@ -53,53 +52,58 @@ export default Model.extend({
   },
 
   parseData: function (text, chr) {
-    var lines   = text.split('\n');
-    var maxQual = this.allData ? this.prop('maxQual') || 0 : false;
+    const lines = text.split('\n');
 
-    for (var i = 0; i < lines.length; i++) {
-      if (!lines[i].length || lines[i].indexOf('#') === 0) {
-        continue;
-      }
+    let maxQual = this.allData ? this.prop('maxQual') || 0 : false;
 
-      var fields = lines[i].split('\t');
-
-      if (fields.length < 5) {
-        continue;
-      }
-
-      if (fields[0] === String(chr) || fields[0] === 'chr' + chr) {
-        var id      = fields.slice(0, 3).join('|');
-        var start   = parseInt(fields[1], 10);
-        var alleles = fields[4].split(',');
-
-        alleles.unshift(fields[3]);
-
-        for (var j = 0; j < alleles.length; j++) {
-          var end = start + alleles[j].length - 1;
-
-          this.insertFeature({
-            id              : id + '|' + alleles[j],
-            sort            : j,
-            chr             : chr,
-            start           : start,
-            end             : end,
-            width           : end - start,
-            allele          : j === 0 ? 'REF' : 'ALT',
-            sequence        : alleles[j],
-            label           : alleles[j],
-            labelColor      : '#FFFFFF',
-            originalFeature : fields
-          });
+    lines.forEach(
+      (line) => {
+        if (!line.length || line.indexOf('#') === 0) {
+          return;
         }
 
-        if (maxQual !== false) {
-          maxQual = Math.max(maxQual, fields[5]);
+        const fields = line.split('\t');
+
+        if (fields.length < 5) {
+          return;
+        }
+
+        if (fields[0] === String(chr) || fields[0] === `chr${chr}`) {
+          const id      = fields.slice(0, 3).join('|');
+          const start   = parseInt(fields[1], 10);
+          const alleles = fields[4].split(',');
+
+          alleles.unshift(fields[3]);
+
+          alleles.forEach(
+            (allele, i) => {
+              const end = start + allele.length - 1;
+
+              this.insertFeature({
+                id              : `${id}|${allele}`,
+                sort            : i,
+                chr             : chr,
+                start           : start,
+                end             : end,
+                width           : end - start,
+                allele          : i === 0 ? 'REF' : 'ALT',
+                sequence        : allele,
+                label           : allele,
+                labelColor      : '#FFFFFF',
+                originalFeature : fields,
+              });
+            }
+          );
+
+          if (maxQual !== false) {
+            maxQual = Math.max(maxQual, fields[5]);
+          }
         }
       }
-    }
+    );
 
     if (maxQual) {
       this.prop('maxQual', maxQual);
     }
-  }
+  },
 });

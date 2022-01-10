@@ -14,33 +14,41 @@ const Controller = StaticController.extend({
   destroy: function () {
     delete this.browser.legends[this.prop('id')];
     this.base();
-  }
+  },
 });
 
 const Model = StaticModel.extend({
   findFeatures: function () {
-    var bounds   = { x: this.browser.scaledStart, y: 0, w: this.width };
-    var features = {};
+    const bounds   = { x: this.browser.scaledStart, y: 0, w: this.width };
+    const features = this.track.tracks.flatMap(
+      (track) => {
+        const featurePositions = track.prop('featurePositions');
+        const $bounds          = { ...bounds, h: track.prop('height') };
 
-    $.each($.map(this.track.tracks, function (track) {
-      var featurePositions = track.prop('featurePositions');
-      bounds.h = track.prop('height');
-      return featurePositions ? featurePositions.search(bounds).concat(track.prop('labelPositions').search(bounds)) : [];
-    }), function () {
-      if (Array.isArray(this.legend)) {
-        this.legend.forEach(function (legend) { features[legend.label] = legend.color; });
-      } else if (this.legend) {
-        features[this.legend] = this.legendColor || this.color;
+        return featurePositions ? featurePositions.search($bounds).concat(track.prop('labelPositions').search($bounds)) : [];
       }
-    });
+    ).reduce(
+      (acc, feature) => {
+        if (Array.isArray(feature.legend)) {
+          feature.legend.forEach((legend) => { acc[legend.label] = legend.color; });
+        } else if (feature.legend) {
+          acc[feature.legend] = feature.legendColor || feature.color;
+        }
 
-    return this.sortFeatures($.map(features, function (color, text) { return [[ text, color ]]; }));
+        return acc;
+      },
+      {}
+    );
+
+    return this.sortFeatures(
+      Object.entries(features).map(([ text, color ]) => [ text, color ])
+    );
   },
 
   sortFeatures: function (features) {
     // sort legend alphabetically
-    return features.sort(function (a, b) { return a[0].localeCompare(b[0]); });
-  }
+    return features.sort((a, b) => a[0].localeCompare(b[0]));
+  },
 });
 
 const View = StaticView.extend({
@@ -48,44 +56,47 @@ const View = StaticView.extend({
   labels        : 'overlay',
   featureHeight : 12,
 
-  positionFeatures: function (f, params) {
+  positionFeatures: function (features, params) {
     if (params.positioned) {
-      return f;
+      return features;
     }
 
-    var cols     = 2;
-    var pad      = 5;
-    var w        = 20;
-    var x        = 0;
-    var y        = 0;
-    var xScale   = this.width / cols;
-    var yScale   = this.fontHeight + pad;
-    var features = [];
-    var xOffest  = params.xOffset || 0;
-    var xPos, yPos, labelWidth;
+    const cols = 2;
+    const pad  = 5;
+    const w    = 20;
 
-    for (var i = 0; i < f.length; i++) {
-      xPos       = (x * xScale) + pad;
-      yPos       = (y * yScale) + pad;
-      labelWidth = this.context.measureText(f[i][0]).width;
+    let x = 0;
+    let y = 0;
 
-      features.push(
-        { x: xPos + xOffest,           y: yPos, width: w,              height: this.featureHeight, color: f[i][1] },
-        { x: xPos + xOffest + pad + w, y: yPos, width: labelWidth + 1, height: this.featureHeight, color: false, labelColor: this.textColor, labelWidth: labelWidth, label: f[i][0] }
-      );
+    const xScale    = this.width / cols;
+    const yScale    = this.fontHeight + pad;
+    const xOffest   = params.xOffset || 0;
+    const $features = [];
 
-      if (++x === cols) {
-        x = 0;
-        y++;
+    features.forEach(
+      ([ text, color ]) => {
+        const xPos       = (x * xScale) + pad;
+        const yPos       = (y * yScale) + pad;
+        const labelWidth = this.context.measureText(text).width;
+
+        $features.push(
+          { x: xPos + xOffest,           y: yPos, width: w,              height: this.featureHeight, color: color },
+          { x: xPos + xOffest + pad + w, y: yPos, width: labelWidth + 1, height: this.featureHeight, color: false, labelColor: this.textColor, labelWidth: labelWidth, label: text }
+        );
+
+        if (++x === cols) {
+          x = 0;
+          y++;
+        }
       }
-    }
+    );
 
-    params.height     = this.prop('height', f.length ? ((y + (x ? 1 : 0)) * yScale) + pad : 0);
+    params.height     = this.prop('height', features.length ? ((y + (x ? 1 : 0)) * yScale) + pad : 0);
     params.width      = this.width;
     params.positioned = true;
 
-    return this.base(features, params);
-  }
+    return this.base($features, params);
+  },
 });
 
 export default Static.extend({
@@ -107,28 +118,28 @@ export default Static.extend({
   setEvents: function () {
     this.browser.on({
       'afterAddTracks afterRemoveTracks': function () {
-        for (var i in this.legends) {
-          this.legends[i].setTracks();
-        }
+        Object.values(this.legends).forEach(
+          legend => legend.setTracks()
+        );
 
         this.sortTracks();
       },
       afterRemoveTracks: function (tracks) {
-        var i;
-
-        for (i in tracks) {
-          if (tracks[i].legendTrack && tracks[i].legendTrack.tracks.length === 0) {
-            tracks[i].legendTrack.remove();
+        tracks.forEach(
+          (track) => {
+            if (track.legendTrack && track.legendTrack.tracks.length === 0) {
+              track.legendTrack.remove();
+            }
           }
-        }
+        );
 
-        for (i in this.legends) {
-          this.legends[i].controller.makeImage({});
-        }
+        Object.values(this.legends).forEach(
+          legend => legend.controller.makeImage({})
+        );
       },
       afterUpdateTrackOrder: function (e, ui) {
-        var track       = ui.item.data('track');
-        var legendTrack = this.legends[track.id] || track.legendTrack;
+        const track       = ui.item.data('track');
+        const legendTrack = this.legends[track.id] || track.legendTrack;
 
         // If a legend track, or a track with a sortable legend has been reordered, its lockToTrack status is ignored from now on.
         // This allows a legend to initially be locked to a track, but then to be reordered once the browser has been initialized
@@ -136,64 +147,74 @@ export default Static.extend({
           legendTrack.lockToTrack = false;
         }
 
-        for (var i in this.legends) {
-          this.legends[i].updateOrder();
-        }
+        Object.values(this.legends).forEach(
+          legend => legend.updateOrder()
+        );
 
         this.sortTracks();
-      }
+      },
     });
 
-    this.browser.on({
-      afterPositionFeatures: function (features, params) {
-        var legend = this.prop('legendTrack');
+    this.browser.on(
+      {
+        afterPositionFeatures: function (features, params) {
+          const legend = this.prop('legendTrack');
 
-        if (legend) {
-          setTimeout(function () { legend.controller.makeImage(params); }, 1);
-        }
-      },
-      afterResize: function (height, userResize) {
-        var legend = this.prop('legendTrack');
-
-        if (legend && userResize === true) {
-          legend.controller.makeImage({});
-        }
-      },
-      afterCheckHeight: function () {
-        var legend = this.prop('legendTrack');
-
-        if (legend) {
-          legend.controller.makeImage({});
-        }
-      },
-      afterSetMVC: function () {
-        var legend = this.prop('legendTrack');
-
-        if (legend && legend.tracks.length) {
-          legend.disable();
-
-          if (this.legend !== false) {
-            legend.enable();
+          if (legend) {
+            setTimeout(() => { legend.controller.makeImage(params); }, 1);
           }
-        }
-      }
-    }, this);
+        },
+        afterResize: function (height, userResize) {
+          const legend = this.prop('legendTrack');
+
+          if (legend && userResize === true) {
+            legend.controller.makeImage({});
+          }
+        },
+        afterCheckHeight: function () {
+          const legend = this.prop('legendTrack');
+
+          if (legend) {
+            legend.controller.makeImage({});
+          }
+        },
+        afterSetMVC: function () {
+          const legend = this.prop('legendTrack');
+
+          if (legend && legend.tracks.length) {
+            legend.disable();
+
+            if (this.legend !== false) {
+              legend.enable();
+            }
+          }
+        },
+      },
+      this
+    );
   },
 
   setTracks: function () {
-    var legend = this;
-    var type   = this.type;
+    const type = this.type;
 
-    this.tracks = $.map(this.browser.tracks.filter(function (t) {
-      if (t.legendType === type) {
-        t.legendTrack = t.legendTrack || legend;
-        return true;
+    this.tracks = this.browser.tracks.filter(
+      (track) => {
+        if (track.legendType === type) {
+          track.legendTrack = track.legendTrack || this;
+
+          return true;
+        }
+
+        return false;
       }
-
-      return false;
-    }), function (track) {
-      return [ track ].concat(track.prop('childTracks'), track.prop('parentTrack')).filter(function (t) { return t && t !== legend && !t.prop('disabled'); });
-    });
+    ).flatMap(
+      track => [ track ].concat(
+        track.prop('childTracks'),
+        track.prop('parentTrack')
+      ).filter(
+        t => t && t !== this && !t.prop('disabled')
+      )
+    );
 
     this.updateOrder();
 
@@ -206,7 +227,7 @@ export default Static.extend({
 
   updateOrder: function () {
     if (this.lockToTrack) {
-      var tracks = this.tracks.filter(function (t) { return !t.prop('parentTrack'); });
+      const tracks = this.tracks.filter(t => !t.prop('parentTrack'));
 
       if (tracks.length) {
         this.order = tracks[tracks.length - 1].order + 0.1;
@@ -222,7 +243,7 @@ export default Static.extend({
   disable: function () {
     delete this.controller.stringified;
     this.base();
-  }
+  },
 });
 
 export { Controller, Model, View };

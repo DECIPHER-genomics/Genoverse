@@ -7,7 +7,7 @@ export default View.extend({
   showLegend    : false,
 
   positionFeature: function (feature, params) {
-    var position = feature.position[params.scale];
+    const position = feature.position[params.scale];
 
     if (feature.alt_allele) {
       if (!position.positioned) {
@@ -20,18 +20,18 @@ export default View.extend({
     this.base(feature, params);
   },
 
-  bumpFeature: function (bounds, feature) {
+  bumpFeature: function (bounds, feature, ...args) {
     if (feature.alt_allele) {
-      this.base.apply(this, arguments);
+      this.base(bounds, feature, ...args);
     }
   },
 
   draw: function (features, featureContext, labelContext, scale) {
-    var drawing = { seq: [], snv: [] };
+    const drawing = { seq: [], snv: [] };
 
-    for (var i = 0; i < features.length; i++) {
-      drawing[features[i].alt_allele ? 'snv' : 'seq'].push(features[i]);
-    }
+    features.forEach(
+      (feature) => { drawing[feature.alt_allele ? 'snv' : 'seq'].push(feature); }
+    );
 
     this.base(drawing.seq, featureContext, labelContext, scale);
     this.highlightSNVs(drawing.snv, featureContext, scale);
@@ -40,78 +40,78 @@ export default View.extend({
   },
 
   highlightSNVs: function (features, context, scale) {
-    var position, positionX, positionY;
+    features.forEach(
+      (feature) => {
+        const position  = feature.position[scale];
+        const positionX = [ position.X, position.reference.x, position.X + position.width ];
 
-    for (var i = 0; i < features.length; i++) {
-      position  = features[i].position[scale];
-      positionX = [ position.X, position.reference.x, position.X + position.width ];
+        if (positionX[2] < 0 || positionX[0] > this.width) {
+          return;
+        }
 
-      if (positionX[2] < 0 || positionX[0] > this.width) {
-        continue;
+        if (positionX[0] < 0 || positionX[2] > this.width) {
+          this.truncateForDrawing(positionX);
+        }
+
+        const positionY = [ 0, position.Y - this.featureMargin.bottom / 2, position.Y, position.Y + this.featureHeight ];
+
+        if (!feature.highlightColor) {
+          this.setHighlightColor(feature);
+        }
+
+        context.strokeStyle = context.fillStyle = feature.highlightColor;
+        context.lineWidth   = 2;
+
+        context.beginPath();
+        context.moveTo(positionX[0], positionY[0]);
+        context.lineTo(positionX[1], positionY[0]);
+        context.lineTo(positionX[1], positionY[1]);
+        context.lineTo(positionX[2], positionY[2]);
+        context.lineTo(positionX[2], positionY[3]);
+        context.lineTo(positionX[0], positionY[3]);
+        context.closePath();
+        context.stroke();
+
+        context.lineWidth   = 1;
+        context.globalAlpha = 0.5;
+
+        context.fill();
+
+        context.globalAlpha = 1;
       }
-
-      if (positionX[0] < 0 || positionX[2] > this.width) {
-        this.truncateForDrawing(positionX);
-      }
-
-      positionY = [ 0, position.Y - this.featureMargin.bottom / 2, position.Y, position.Y + this.featureHeight ];
-
-      if (!features[i].highlightColor) {
-        this.setHighlightColor(features[i]);
-      }
-
-      context.strokeStyle = context.fillStyle = features[i].highlightColor;
-      context.lineWidth   = 2;
-
-      context.beginPath();
-      context.moveTo(positionX[0], positionY[0]);
-      context.lineTo(positionX[1], positionY[0]);
-      context.lineTo(positionX[1], positionY[1]);
-      context.lineTo(positionX[2], positionY[2]);
-      context.lineTo(positionX[2], positionY[3]);
-      context.lineTo(positionX[0], positionY[3]);
-      context.closePath();
-      context.stroke();
-
-      context.lineWidth   = 1;
-      context.globalAlpha = 0.5;
-
-      context.fill();
-
-      context.globalAlpha = 1;
-    }
+    );
   },
 
   outlineSNVs: function (features, context, scale) {
-    var position, positionX, positionY;
+    features.forEach(
+      (feature) => {
+        const position  = feature.position[scale];
+        const positionX = [ position.X, position.X + position.width ];
+        const positionY = [ position.Y, position.Y + this.featureHeight ];
 
-    for (var i = 0; i < features.length; i++) {
-      position  = features[i].position[scale];
-      positionX = [ position.X, position.X + position.width ];
-      positionY = [ position.Y, position.Y + this.featureHeight ];
+        context.strokeStyle = feature.highlightColor;
 
-      context.strokeStyle = features[i].highlightColor;
+        context.lineWidth = 2;
 
-      context.lineWidth = 2;
+        context.beginPath();
+        context.moveTo(positionX[1], positionY[0]);
+        context.lineTo(positionX[1], positionY[1]);
+        context.lineTo(positionX[0], positionY[1]);
+        context.lineTo(positionX[0], positionY[0]);
+        context.stroke();
 
-      context.beginPath();
-      context.moveTo(positionX[1], positionY[0]);
-      context.lineTo(positionX[1], positionY[1]);
-      context.lineTo(positionX[0], positionY[1]);
-      context.lineTo(positionX[0], positionY[0]);
-      context.stroke();
-
-      context.lineWidth = 1;
-    }
+        context.lineWidth = 1;
+      }
+    );
   },
 
   truncateForDrawing: function (positionX) {
-    for (var i in positionX) {
+    for (let i = 0; i < positionX.length; i++) {
       positionX[i] = Math.min(Math.max(positionX[i], -1), this.width + 1);
     }
   },
 
   setHighlightColor: function (feature) {
     feature.highlightColor = feature.alt_allele === '-' || feature.alt_allele.length < feature.ref_allele.length ? '#D31D00' : '#1DD300';
-  }
+  },
 });

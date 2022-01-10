@@ -1,7 +1,7 @@
-import Track        from 'js/Track/library/File';
 import Model        from 'js/Track/Model/File/VCF';
 import View         from 'js/Track/View';
 import SequenceView from 'js/Track/View/Sequence';
+import Track        from 'js/Track/library/File';
 
 export default Track.extend({
   name       : 'VCF',
@@ -26,7 +26,7 @@ export default Track.extend({
       ALT    : feature.originalFeature[4],
       QUAL   : feature.originalFeature[5],
       FILTER : feature.originalFeature[6],
-      INFO   : feature.originalFeature[7].split(';').join('<br />')
+      INFO   : feature.originalFeature[7].split(';').join('<br />'),
     };
   },
 
@@ -37,20 +37,22 @@ export default Track.extend({
       featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },
 
       draw: function (features, featureContext, labelContext, scale) {
-        this.base.apply(this, arguments);
+        this.base(features, featureContext, labelContext, scale);
         this.highlightRef(features, featureContext, scale);
       },
 
       highlightRef: function (features, context, scale) {
         context.strokeStyle = 'black';
 
-        for (var i = 0; i < features.length; i++) {
-          if (features[i].allele === 'REF') {
-            context.strokeRect(features[i].position[scale].X, features[i].position[scale].Y, features[i].position[scale].width, features[i].position[scale].height);
+        features.forEach(
+          (feature) => {
+            if (feature.allele === 'REF') {
+              context.strokeRect(feature.position[scale].X, feature.position[scale].Y, feature.position[scale].width, feature.position[scale].height);
+            }
           }
-        }
-      }
-    })
+        );
+      },
+    }),
   },
 
   1000: {
@@ -58,19 +60,19 @@ export default Track.extend({
       bump   : false,
       labels : false,
 
-      drawFeature: function (feature) {
-        var maxQual = this.prop('maxQual');
+      drawFeature: function (feature, ...args) {
+        const maxQual = this.prop('maxQual');
 
         if (maxQual && !feature.color) {
-          var heat  = Math.min(255, Math.floor((255 * (feature.originalFeature[5] || 0)) / maxQual)) - 127;
-          var red   = heat > 0 ? 255 : 127 + heat;
-          var green = heat < 0 ? 255 : 127 - heat;
+          const heat  = Math.min(255, Math.floor((255 * (feature.originalFeature[5] || 0)) / maxQual)) - 127;
+          const red   = heat > 0 ? 255 : 127 + heat;
+          const green = heat < 0 ? 255 : 127 - heat;
 
-          feature.color = 'rgb(' + red + ',' + green + ',0)';
+          feature.color = `rgb(${red},${green},0)`;
         }
 
-        this.base.apply(this, arguments);
-      }
-    })
-  }
+        this.base(feature, ...args);
+      },
+    }),
+  },
 });

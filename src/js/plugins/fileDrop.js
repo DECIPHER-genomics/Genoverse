@@ -1,42 +1,43 @@
 import 'css/fileDrop.css';
 
-var plugin = function () {
+const plugin = function () {
   this.on('afterInit', function () {
-    var browser = this;
-    var wrapper = this.wrapper;
+    const browser = this;
+    const wrapper = this.wrapper;
 
-    $(window).on('dragenter', function (e) {
-      var dataTransfer = e.originalEvent.dataTransfer;
+    $(window).on('dragenter', (e) => {
+      const dataTransfer = e.originalEvent.dataTransfer;
 
-      if (dataTransfer && dataTransfer.types && (dataTransfer.types[0] === 'Files' || dataTransfer.types[1] === 'Files' || dataTransfer.types[2] === 'Files') && !$('.gv-file-drop-total-overlay').length) {
-        var fileDropDiv      = $('<div class="gv-file-drop">').appendTo(wrapper);
-        var totalDropOverlay = $('<div class="gv-file-drop-total-overlay">').prependTo('body');
+      if (dataTransfer?.types && (dataTransfer.types[0] === 'Files' || dataTransfer.types[1] === 'Files' || dataTransfer.types[2] === 'Files') && !$('.gv-file-drop-total-overlay').length) {
+        const fileDropDiv      = $('<div class="gv-file-drop">').appendTo(wrapper);
+        const totalDropOverlay = $('<div class="gv-file-drop-total-overlay">').prependTo('body');
 
-        var dragleave = function () {
+        const dragleave = () => {
           fileDropDiv.remove();
           totalDropOverlay.remove();
         };
 
-        totalDropOverlay.on('dragenter', function (ev) { ev.preventDefault(); ev.stopPropagation(); });
-        totalDropOverlay.on('dragover',  function (ev) { ev.preventDefault(); ev.stopPropagation(); });
+        totalDropOverlay.on('dragenter', (ev) => { ev.preventDefault(); ev.stopPropagation(); });
+        totalDropOverlay.on('dragover',  (ev) => { ev.preventDefault(); ev.stopPropagation(); });
         totalDropOverlay.on('dragleave', dragleave);
-        totalDropOverlay.on('drop', function (ev) {
+        totalDropOverlay.on('drop', (ev) => {
           dragleave();
           ev.preventDefault();
           ev.stopPropagation();
 
           // Sort in order to ensure that .bam files are before their .bam.bai files
-          var files          = $.map(ev.originalEvent.dataTransfer.files, function (f) { return f; }).sort(function (a, b) { return a.name.localeCompare(b.name); });
-          var trackImporters = [];
+          const files          = Object.values(ev.originalEvent.dataTransfer.files).sort((a, b) => a.name.localeCompare(b.name));
+          const trackImporters = [];
 
-          for (var i = 0; i < files.length; i++) {
-            var file  = files[i];
-            var parts = file.name.split('.').reverse();
-            var gz    = parts[0] === 'gz';
-            var ext   = parts[gz ? 1 : 0];
-            var indexFile;
+          for (let i = 0; i < files.length; i++) {
+            const file  = files[i];
+            const parts = file.name.split('.').reverse();
+            const gz    = parts[0] === 'gz';
+            const ext   = parts[gz ? 1 : 0];
 
-            if (files[i + 1] && new RegExp('^' + file.name + '\\.\\w+$').test(files[i + 1].name)) {
+            let indexFile;
+
+            if (files[i + 1] && new RegExp(`^${file.name}\\.\\w+$`).test(files[i + 1].name)) {
               indexFile = files[++i];
             }
 
@@ -44,26 +45,26 @@ var plugin = function () {
               file      : file,
               indexFile : indexFile,
               gz        : gz,
-              trackType : ext.toUpperCase()
+              trackType : ext.toUpperCase(),
             });
           }
 
           trackImporters.forEach(
-            function (importer) {
-              import('js/Track/library/File/' + importer.trackType).then(
-                function (imported) {
-                  var track = imported.default.extend({
+            (importer) => {
+              import(`js/Track/library/File/${importer.trackType}`).then(
+                (imported) => {
+                  const track = imported.default.extend({
                     name      : importer.file.name,
-                    info      : 'Local file `' + importer.file.name + '`, size: ' + importer.file.size + ' bytes',
+                    info      : `Local file "${importer.file.name}", size: ${importer.file.size} bytes`,
                     isLocal   : true,
                     dataFile  : importer.file,
                     indexFile : importer.indexFile,
-                    gz        : importer.gz
+                    gz        : importer.gz,
                   });
 
                   browser.addTrack(track, browser.tracks.length - 1);
                 },
-                function () {}
+                () => {}
               );
             }
           );

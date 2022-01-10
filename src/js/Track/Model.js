@@ -15,7 +15,7 @@ export default Base.extend({
   showServerErrors   : false,     // if true, error messages return from the server by getData requests will be shown on the track
 
   constructor: function (properties) {
-    $.extend(this, properties);
+    Object.assign(this, properties);
     wrapFunctions(this, 'Model');
     this.init();
   },
@@ -24,9 +24,7 @@ export default Base.extend({
     this.setDefaults(reset);
 
     if (reset) {
-      for (var i in this.featuresById) {
-        delete this.featuresById[i].position;
-      }
+      Object.values(this.featuresById).forEach((feature) => { delete feature.position; });
     }
 
     if (!reset || this.data) {
@@ -56,7 +54,7 @@ export default Base.extend({
   },
 
   setChrProps: function () {
-    var chr = this.browser.chr;
+    const chr = this.browser.chr;
 
     this.dataRangesByChr = this.dataRangesByChr || {};
     this.featuresByChr   = this.featuresByChr   || {};
@@ -85,23 +83,24 @@ export default Base.extend({
     start = Math.max(1, start);
     end   = Math.min(this.browser.getChromosomeSize(chr), end);
 
-    var deferred = $.Deferred();
+    const deferred = $.Deferred();
 
     if (typeof this.data !== 'undefined') {
-      this.receiveData(typeof this.data.sort === 'function' ? this.data.sort(function (a, b) { return a.start - b.start; }) : this.data, chr, start, end);
+      this.receiveData(typeof this.data.sort === 'function' ? this.data.sort((a, b) => a.start - b.start) : this.data, chr, start, end);
+
       return deferred.resolveWith(this);
     }
 
-    var model  = this;
-    var bins   = [];
-    var length = end - start + 1;
+    const model  = this;
+    const bins   = [];
+    const length = end - start + 1;
 
     if (!this.url) {
       return deferred.resolveWith(this);
     }
 
     if (this.dataRequestLimit && length > this.dataRequestLimit) {
-      var i = Math.ceil(length / this.dataRequestLimit);
+      let i = Math.ceil(length / this.dataRequestLimit);
 
       while (i--) {
         bins.push([ start, i ? start += this.dataRequestLimit - 1 : end ]);
@@ -111,39 +110,45 @@ export default Base.extend({
       bins.push([ start, end ]);
     }
 
-    $.when.apply($, $.map(bins, function (bin) {
-      var request = $.ajax({
-        url       : model.parseURL(chr, bin[0], bin[1]),
-        data      : model.urlParams,
-        dataType  : model.dataType,
-        context   : model,
-        xhrFields : model.xhrFields,
-        success   : function (data) {
-          this.receiveData(data, chr, bin[0], bin[1]);
-        },
-        error: function (xhr, statusText) {
-          this.track.controller.showError(
-            this.showServerErrors && (xhr.responseJSON || {}).message
-              ? xhr.responseJSON.message
-              : statusText + ' while getting the data, see console for more details',
-            arguments
-          );
-        },
-        complete: function (xhr) {
-          this.dataLoading = $.grep(this.dataLoading, function (t) { return xhr !== t; });
+    $.when(
+      ...bins.map(
+        (bin) => {
+          const request = $.ajax({
+            url       : model.parseURL(chr, bin[0], bin[1]),
+            data      : model.urlParams,
+            dataType  : model.dataType,
+            context   : model,
+            xhrFields : model.xhrFields,
+            success   : function (data) {
+              this.receiveData(data, chr, bin[0], bin[1]);
+            },
+            error: function (xhr, statusText, ...args) {
+              this.track.controller.showError(
+                this.showServerErrors && (xhr.responseJSON || {}).message
+                  ? xhr.responseJSON.message
+                  : `${statusText} while getting the data, see console for more details`,
+                [ xhr, statusText, ...args ]
+              );
+            },
+            complete: function (xhr) {
+              this.dataLoading = this.dataLoading.filter(loading => xhr !== loading);
+            },
+          });
+
+          request.coords = [ chr, bin[0], bin[1] ]; // store actual chr, start and end on the request, in case they are needed
+
+          if (typeof done === 'function') {
+            request.done(done);
+          }
+
+          model.dataLoading.push(request);
+
+          return request;
         }
-      });
-
-      request.coords = [ chr, bin[0], bin[1] ]; // store actual chr, start and end on the request, in case they are needed
-
-      if (typeof done === 'function') {
-        request.done(done);
-      }
-
-      model.dataLoading.push(request);
-
-      return request;
-    })).done(function () { deferred.resolveWith(model); });
+      )
+    ).done(
+      () => { deferred.resolveWith(model); }
+    );
 
     return deferred;
   },
@@ -181,17 +186,15 @@ export default Base.extend({
   * and call this.insertFeature(feature)
   */
   parseData: function (data, chr, start) { // end is also passed in, but not used in this case
-    var feature;
-
     // Example of parseData function when data is an array of hashes like { start: ..., end: ... }
-    for (var i = 0; i < data.length; i++) {
-      feature = data[i];
+    data.forEach(
+      (feature, i) => {
+        feature.chr  = feature.chr || chr;
+        feature.sort = start + i;
 
-      feature.chr  = feature.chr || chr;
-      feature.sort = start + i;
-
-      this.insertFeature(feature);
-    }
+        this.insertFeature(feature);
+      }
+    );
   },
 
   updateData: function (data) {
@@ -212,20 +215,22 @@ export default Base.extend({
     start = Math.max(1, start);
     end   = Math.min(this.browser.getChromosomeSize(chr), end);
 
-    var ranges = this.dataRanges(chr).search({ x: start, w: end - start + 1, y: 0, h: 1 }).sort(function (a, b) { return a[0] - b[0]; });
+    const ranges = this.dataRanges(chr).search({ x: start, w: end - start + 1, y: 0, h: 1 }).sort((a, b) => a[0] - b[0]);
 
     if (!ranges.length) {
       return false;
     }
 
-    var s = ranges.length === 1 ? ranges[0][0] : 9e99;
-    var e = ranges.length === 1 ? ranges[0][1] : -9e99;
+    let s = ranges.length === 1 ? ranges[0][0] : 9e99;
+    let e = ranges.length === 1 ? ranges[0][1] : -9e99;
 
-    for (var i = 0; i < ranges.length - 1; i++) {
-      // s0 <= s1 && ((e0 >= e1) || (e0 + 1 >= s1))
-      if (ranges[i][0] <= ranges[i + 1][0] && ((ranges[i][1] >= ranges[i + 1][1]) || (ranges[i][1] + 1 >= ranges[i + 1][0]))) {
-        s = Math.min(s, ranges[i][0]);
-        e = Math.max(e, ranges[i][1], ranges[i + 1][1]);
+    for (let i = 0; i < ranges.length - 1; i++) {
+      const [ s0, s1 ] = ranges[i];
+      const [ e0, e1 ] = ranges[i + 1];
+
+      if (s0 <= s1 && ((e0 >= e1) || (e0 + 1 >= s1))) {
+        s = Math.min(s, s0);
+        e = Math.max(e, e0, e1);
       } else {
         return false;
       }
@@ -241,67 +246,72 @@ export default Base.extend({
 
     // Make sure we have a unique ID, this method is not efficient, so better supply your own id
     if (!feature.id) {
-      feature.id = feature.ID || this.hashCode(JSON.stringify($.extend({}, feature, { sort: '' }))); // sort is dependant on the browser's region, so will change on zoom
+      feature.id = feature.ID || this.hashCode(JSON.stringify({ ...feature, sort: '' })); // sort is dependant on the browser's region, so will change on zoom
     }
 
-    var features = this.features(feature.chr);
+    const features = this.features(feature.chr);
 
     if (features && !this.featuresById[feature.id]) {
       if (feature.subFeatures) {
-        feature.subFeatures.sort(function (a, b) { return a.start - b.start; });
-
-        for (var i = 0; i < feature.subFeatures.length; i++) {
-          feature.subFeatures[i].start = Math.min(Math.max(feature.subFeatures[i].start, feature.start), feature.end);
-          feature.subFeatures[i].end   = Math.max(Math.min(feature.subFeatures[i].end,   feature.end),   feature.start);
-        }
+        feature.subFeatures.sort(
+          (a, b) => a.start - b.start
+        ).forEach(
+          (subFeature) => {
+            subFeature.start = Math.min(Math.max(subFeature.start, feature.start), feature.end);
+            subFeature.end   = Math.max(Math.min(subFeature.end,   feature.end),   feature.start);
+          }
+        );
 
         // Add "fake" sub-features at the start and end of the feature - this will allow joins to be drawn when there are no sub-features in the current region.
         feature.subFeatures.unshift({ start: feature.start, end: feature.start, fake: true });
-        feature.subFeatures.push({    start: feature.end,   end: feature.end,   fake: true });
+        feature.subFeatures.push({ start: feature.end, end: feature.end, fake: true });
       }
 
       features.insert({ x: feature.start, y: 0, w: feature.end - feature.start + 1, h: 1 }, feature);
+
       this.featuresById[feature.id] = feature;
     }
   },
 
   findFeatures: function (chr, start, end) {
-    var features = this.features(chr).search({ x: start - this.dataBuffer.start, y: 0, w: end - start + this.dataBuffer.start + this.dataBuffer.end + 1, h: 1 });
-    var filters  = this.prop('featureFilters') || [];
+    let features = this.features(chr).search({
+      x : start - this.dataBuffer.start,
+      y : 0,
+      w : end - start + this.dataBuffer.start + this.dataBuffer.end + 1,
+      h : 1,
+    });
 
-    for (var i = 0; i < filters.length; i++) {
-      features = $.grep(features, $.proxy(filters[i], this));
-    }
+    (this.prop('featureFilters') || []).forEach(
+      (filter) => {
+        features = features.filter(feature => filter.call(this, feature));
+      }
+    );
 
     return this.sortFeatures(features);
   },
 
   sortFeatures: function (features) {
-    return features.sort(function (a, b) { return a.sort - b.sort; });
+    return features.sort((a, b) => a.sort - b.sort);
   },
 
   abort: function () {
-    for (var i = 0; i < this.dataLoading.length; i++) {
-      this.dataLoading[i].abort();
-    }
+    this.dataLoading.forEach(loading => loading.abort());
 
     this.dataLoading = [];
   },
 
   hashCode: function (string) {
-    var hash = 0;
-    var c;
+    let hash = 0;
 
-    if (!string.length) {
-      return hash;
+    if (string.length) {
+      for (let i = 0; i < string.length; i++) {
+        const c = string.charCodeAt(i);
+
+        hash  = ((hash << 5) - hash) + c;
+        hash &= hash; // Convert to 32bit integer
+      }
     }
 
-    for (var i = 0; i < string.length; i++) {
-      c     = string.charCodeAt(i);
-      hash  = ((hash << 5) - hash) + c;
-      hash &= hash; // Convert to 32bit integer
-    }
-
-    return '' + hash;
-  }
+    return String(hash);
+  },
 });

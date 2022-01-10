@@ -9,11 +9,11 @@ export default Track.extend({
   fixedOrder : true,
   arrowWidth : 7,
 
-  resize: $.noop,
+  resize: () => {},
 
-  makeFirstImage: function () {
+  makeFirstImage: function (...args) {
     this.prop('scaleline', false);
-    this.base.apply(this, arguments);
+    this.base(...args);
   },
 
   render: function (f, img) {
@@ -22,7 +22,7 @@ export default Track.extend({
   },
 
   positionFeatures: function (features, params) {
-    var scaleline = this.prop('scaleline');
+    let scaleline = this.prop('scaleline');
 
     if (params.scale === this.drawnScale) {
       return false;
@@ -32,19 +32,19 @@ export default Track.extend({
       return scaleline;
     }
 
-    var strand     = this.prop('strand');
-    var height     = this.prop('height');
-    var text       = this.formatLabel(this.browser.length);
-    var width      = this.context.measureText(text).width;
-    var textMargin = 10; // 5px each side
-    var y          = height / 2;
-    var x1         = 0;
-    var x2         = (this.width - width - textMargin) / 2;
+    const strand     = this.prop('strand');
+    const height     = this.prop('height');
+    const text       = this.formatLabel(this.browser.length);
+    const width      = this.context.measureText(text).width;
+    const textMargin = 10; // 5px each side
+    const y          = height / 2;
+    const x1         = 0;
+    const x2         = (this.width - width - textMargin) / 2;
 
     if (strand) {
-      var strandText  = strand === 1 ? 'Forward strand' : 'Reverse strand';
-      var strandWidth = this.context.measureText(strandText).width;
-      var x3          = (
+      const strandText  = strand === 1 ? 'Forward strand' : 'Reverse strand';
+      const strandWidth = this.context.measureText(strandText).width;
+      const x3          = (
         strand === 1
           ? this.width - this.prop('arrowWidth') - strandWidth - (1.5 * textMargin)
           : this.prop('arrowWidth') + (0.5 * textMargin)
@@ -53,12 +53,12 @@ export default Track.extend({
       scaleline = [
         { x: x1, y: y, width: this.width,               height: 1, decorations: true },
         { x: x2, y: 0, width: width       + textMargin, height: height, clear: true, color: false, labelColor: this.color, labelWidth: width,       label: text       },
-        { x: x3, y: 0, width: strandWidth + textMargin, height: height, clear: true, color: false, labelColor: this.color, labelWidth: strandWidth, label: strandText }
+        { x: x3, y: 0, width: strandWidth + textMargin, height: height, clear: true, color: false, labelColor: this.color, labelWidth: strandWidth, label: strandText },
       ];
     } else {
       scaleline = [
         { x: x1, y: y, width: this.width,         height: 1, decorations: true },
-        { x: x2, y: 0, width: width + textMargin, height: height, clear: true, color: false, labelColor: this.color, labelWidth: width, label: text }
+        { x: x2, y: 0, width: width + textMargin, height: height, clear: true, color: false, labelColor: this.color, labelWidth: width, label: text },
       ];
     }
 
@@ -66,19 +66,19 @@ export default Track.extend({
   },
 
   decorateFeature: function (feature, context) {
-    var strand     = this.prop('strand');
-    var height     = this.prop('height');
-    var arrowWidth = this.prop('arrowWidth');
-    var width      = this.width;
+    const strand     = this.prop('strand');
+    const height     = this.prop('height');
+    const arrowWidth = this.prop('arrowWidth');
+    const width      = this.width;
 
     context.strokeStyle = this.color;
 
     [ -1, 1 ].filter(
-      function (dir) { return strand ? dir === strand : true; }
+      dir => (strand ? dir === strand : true)
     ).forEach(
-      function (dir) {
-        var x1 = dir === 1 ? width - arrowWidth : arrowWidth;
-        var x2 = x1 + (dir * arrowWidth);
+      (dir) => {
+        const x1 = dir === 1 ? width - arrowWidth : arrowWidth;
+        const x2 = x1 + (dir * arrowWidth);
 
         context.beginPath();
         context.moveTo(x1, height * 0.25);
@@ -89,5 +89,5 @@ export default Track.extend({
         context.fill();
       }
     );
-  }
+  },
 });

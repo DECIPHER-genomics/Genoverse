@@ -9,22 +9,24 @@ export default View.extend({
   subFeatureJoinStyle : 'curve',
 
   scaleFeatures: function (features, scale) {
-    var subFeatures, j;
+    features.forEach(
+      (feature) => {
+        const subFeatures = feature.subFeatures || [];
 
-    for (var i = 0; i < features.length; i++) {
-      subFeatures = features[i].subFeatures || [];
+        if (subFeatures.length) {
+          subFeatures.forEach(
+            (subFeature) => {
+              if (subFeature.utr) {
+                subFeature.height = this.utrHeight;
+              }
+            }
+          );
 
-      if (subFeatures.length) {
-        for (j = 0; j < subFeatures.length; j++) {
-          if (subFeatures[j].utr) {
-            subFeatures[j].height = this.utrHeight;
-          }
+          feature.height = Math.max(...subFeatures.map(c => (c.fake ? 0 : c.height || 0)).concat(this.featureHeight));
         }
-
-        features[i].height = Math.max.apply(Math, subFeatures.map(function (c) { return c.fake ? 0 : c.height || 0; }).concat(this.featureHeight));
       }
-    }
+    );
 
     return this.base(features, scale);
-  }
+  },
 });

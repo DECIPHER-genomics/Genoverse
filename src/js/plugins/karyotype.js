@@ -1,19 +1,19 @@
 import 'css/karyotype.css';
 import Chromosome from 'js/Track/library/Chromosome';
 
-var plugin = function (pluginConf) {
+const plugin = function (pluginConf) {
   function createKaryotype() {
-    var chromosome   = $('<div class="gv-chromosome">');
-    var container    = $('<div class="gv-karyotype-container">').html(chromosome).insertBefore(this.wrapper);
-    var assemblyName = this.assembly || this.genomeName;
-    var name         = (pluginConf.showAssembly && assemblyName ? assemblyName + ': ' : '') + 'Chr ' + this.chr;
+    const chromosome   = $('<div class="gv-chromosome">');
+    const container    = $('<div class="gv-karyotype-container">').html(chromosome).insertBefore(this.wrapper);
+    const assemblyName = this.assembly || this.genomeName;
+    const name         = `${pluginConf.showAssembly && assemblyName ? `${assemblyName}: ` : ''}Chr ${this.chr}`;
 
     if (pluginConf.showAssembly && assemblyName) {
       container.addClass('gv-show-assembly');
     }
 
-    var measureWidth = $('<div class="gv-chromosome"><ul class="gv-label-container"><li><span class="gv-name">' + name + '</span></li></ul></div>').appendTo(container);
-    var labelWidth   = pluginConf.karyotypeLabel === false ? 0 : measureWidth.find('.gv-name').outerWidth(true) + 10;
+    const measureWidth = $(`<div class="gv-chromosome"><ul class="gv-label-container"><li><span class="gv-name">${name}</span></li></ul></div>`).appendTo(container);
+    const labelWidth   = pluginConf.karyotypeLabel === false ? 0 : measureWidth.find('.gv-name').outerWidth(true) + 10;
 
     measureWidth.remove();
 
@@ -36,9 +36,9 @@ var plugin = function (pluginConf) {
           unsortable    : true,
 
           click: function (e) {
-            var offset = this.container.parent().offset().left;
-            var x      = e.pageX - offset;
-            var f      = this.featurePositions.search({ x: x, y: 1, w: 1, h: 1 })[0];
+            const offset = this.container.parent().offset().left;
+            const x      = e.pageX - offset;
+            const f      = this.featurePositions.search({ x: x, y: 1, w: 1, h: 1 })[0];
 
             if (f) {
               if (e.type === 'mouseup') {
@@ -49,7 +49,8 @@ var plugin = function (pluginConf) {
                 this.container.tipsy('hide');
 
                 if (f.label) {
-                  var left = offset + f.position[this.scale].start + f.position[this.scale].width / 2;
+                  const left = offset + f.position[this.scale].start + f.position[this.scale].width / 2;
+
                   this.container.attr('title', f.label[0]).tipsy({ trigger: 'manual', container: 'body' }).tipsy('show').data('tipsy').$tip.css('left', function () { return left - $(this).width() / 2; });
                 }
 
@@ -59,35 +60,35 @@ var plugin = function (pluginConf) {
           },
 
           addUserEventHandlers: function () {
-            var track = this;
+            const track = this;
 
             this.base();
 
             this.container.on({
-              mousemove : function (e) { track.click(e); },
-              mouseout  : function (e) {
+              mousemove : (e) => { track.click(e); },
+              mouseout  : (e) => {
                 if (track.browser.viewPoint.is(e.relatedTarget) || track.browser.viewPoint.find(e.relatedTarget).length) {
                   return true;
                 }
 
                 track.container.tipsy('hide');
                 track.hoverFeature = false;
-              }
+              },
             }, '.gv-image-container');
 
             // Don't allow zooming in and out on the karyotype image
-            this.container.on('mousewheel', '.gv-image-container, .gv-selector', function (e) {
+            this.container.on('mousewheel', '.gv-image-container, .gv-selector', (e) => {
               e.stopPropagation();
             });
           },
 
           afterSetName: function () {
-            this.label.css('lineHeight', this.label.height() + 'px');
-          }
-        })
+            this.label.css('lineHeight', `${this.label.height()}px`);
+          },
+        }),
       ],
 
-      addUserEventHandlers: $.noop,
+      addUserEventHandlers: () => {},
 
       afterInit: function () {
         this.updatePosition();
@@ -99,8 +100,8 @@ var plugin = function (pluginConf) {
       },
 
       afterAddDomElements: function () {
-        var karyotype = this;
-        var parent    = this.parent;
+        const karyotype = this;
+        const parent    = this.parent;
 
         function hideTooltip() {
           karyotype.hideTooltip = true;
@@ -110,10 +111,10 @@ var plugin = function (pluginConf) {
         function updateLocation(e, ui) {
           karyotype.hideTooltip = false;
 
-          var scale = karyotype.chromosomeSize / karyotype.width;
-          var axis  = e.type === 'resizestop' ? $(this).data('ui-resizable').axis : undefined;
-          var start = axis === 'e' ? parent.start : Math.max(Math.floor(ui.position.left * scale), 1);
-          var end   = axis === 'w' ? parent.end   : e.type === 'dragstop' ? start + parent.length - 1 : Math.floor(ui.helper.outerWidth(true) * scale) + start;
+          const scale = karyotype.chromosomeSize / karyotype.width;
+          const axis  = e.type === 'resizestop' ? $(this).data('ui-resizable').axis : undefined;
+          const start = axis === 'e' ? parent.start : Math.max(Math.floor(ui.position.left * scale), 1);
+          const end   = axis === 'w' ? parent.end   : e.type === 'dragstop' ? start + parent.length - 1 : Math.floor(ui.helper.outerWidth(true) * scale) + start;
 
           if (start !== parent.start || end !== parent.end) {
             parent.moveTo(karyotype.chr, start, end, true, e.type === 'dragstop');
@@ -130,11 +131,11 @@ var plugin = function (pluginConf) {
 
         this.viewPoint = $('<div class="gv-karyotype-viewpoint-wrapper"><div class="gv-karyotype-viewpoint"></div></div>').appendTo(container).css({
           left  : labelWidth,
-          width : this.width - labelWidth
+          width : this.width - labelWidth,
         }).children().on({
-          mousemove : function (e) { karyotype.track.controller.click(e); },
-          mouseout  : function (e) {
-            var el = $(e.relatedTarget);
+          mousemove : (e) => { karyotype.track.controller.click(e); },
+          mouseout  : (e) => {
+            const el = $(e.relatedTarget);
 
             if (karyotype.viewPoint.is(el) || karyotype.viewPoint.find(el).length || (el.prop('nodeName') === 'IMG' && el.parent().is(karyotype.track.prop('imgContainers')[0]))) {
               return true;
@@ -142,7 +143,7 @@ var plugin = function (pluginConf) {
 
             karyotype.track.prop('container').tipsy('hide');
             karyotype.track.prop('hoverFeature', false);
-          }
+          },
         });
 
         if (!parent.isStatic) {
@@ -150,7 +151,7 @@ var plugin = function (pluginConf) {
             axis        : 'x',
             containment : this.wrapper,
             start       : hideTooltip,
-            stop        : updateLocation
+            stop        : updateLocation,
           }).resizable({
             handles     : 'e, w',
             containment : 'parent',
@@ -164,28 +165,26 @@ var plugin = function (pluginConf) {
               } else {
                 ui.element.width(ui.size.width + ui.position.left);
               }
-            }
+            },
           });
         }
       },
 
       updatePosition: function () {
-        var left  =  this.parent.start * this.scale;
-        var width = (this.parent.end   * this.scale) - left;
+        const left  =  this.parent.start * this.scale;
+        const width = (this.parent.end   * this.scale) - left;
 
         this.viewPoint.css({ left: left, width: width });
-      }
+      },
     });
 
     if (this.loadedPlugins.controlPanel !== true) {
-      $('<li class="gv-unsortable">').height(function (i, h) {
-        return h + container.height();
-      }).prependTo(this.labelContainer);
+      $('<li class="gv-unsortable">').height((i, h) => h + container.height()).prependTo(this.labelContainer);
     }
   }
 
   function recreateKaryotype() {
-    var container = this.karyotype.container.parent();
+    const container = this.karyotype.container.parent();
 
     this.karyotype.destroy();
     container.remove();
@@ -208,7 +207,7 @@ var plugin = function (pluginConf) {
       if (this.karyotype && this.karyotype.chr !== chr) {
         recreateKaryotype.call(this);
       }
-    }
+    },
   });
 };
 

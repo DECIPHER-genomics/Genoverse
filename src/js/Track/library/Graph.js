@@ -2,7 +2,7 @@
 
 import Track, { Controller as TrackController, Model as TrackModel, View as TrackView } from 'js/Track';
 
-var Controller = TrackController.extend({
+const Controller = TrackController.extend({
   setYRange: function (min, max) {
     if (this.browser.dragging) {
       return;
@@ -18,32 +18,35 @@ var Controller = TrackController.extend({
   },
 
   yMinMaxFromFeatures: function (features) {
-    var min =  Infinity;
-    var max = -Infinity;
-    var i, j;
+    let min =  Infinity;
+    let max = -Infinity;
 
     if (this.prop('type') === 'Line') {
-      for (i = 0; i < features.length; i++) {
-        for (j = 0; j < features[i].coords.length; j++) {
-          if (!isNaN(features[i].coords[j][1])) {
-            min = Math.min(min, features[i].coords[j][1]);
-            max = Math.max(max, features[i].coords[j][1]);
+      features.forEach(
+        ({ coords }) => coords.forEach(
+          ([ , y ]) => {
+            if (!isNaN(y)) {
+              min = Math.min(min, y);
+              max = Math.max(max, y);
+            }
+          }
+        )
+      );
+    } else {
+      features.forEach(
+        ({ height }) => {
+          if (!isNaN(height)) {
+            min = Math.min(min, height);
+            max = Math.max(max, height);
           }
         }
-      }
-    } else {
-      for (i = 0; i < features.length; i++) {
-        if (!isNaN(features[i].height)) {
-          min = Math.min(min, features[i].height);
-          max = Math.max(max, features[i].height);
-        }
-      }
+      );
     }
 
     min = min ===  Infinity ? 0 : min;
     max = max === -Infinity ? 0 : max;
 
-    return { min: min, max: max };
+    return { min, max };
   },
 
   afterSetName: function () {
@@ -52,8 +55,8 @@ var Controller = TrackController.extend({
 
   visibleFeatureHeight: function () {
     if (this.prop('rescaleable') === 'auto') {
-      var yScale = this.track.getYScale();
-      var y      = this.yMinMaxFromFeatures(this.model.findFeatures(this.browser.chr, this.browser.start, this.browser.end));
+      const yScale = this.track.getYScale();
+      const y      = this.yMinMaxFromFeatures(this.model.findFeatures(this.browser.chr, this.browser.start, this.browser.end));
 
       return Math.ceil(Math.max(yScale * (y.max - y.min), this.prop('hideEmpty') ? 0 : this.minLabelHeight));
     }
@@ -61,17 +64,17 @@ var Controller = TrackController.extend({
     return this.prop('height');
   },
 
-  resize: function () {
-    var prevHeight = this.prop('height');
-    var rtn        = this.base.apply(this, arguments);
-    var height     = this.prop('height');
+  resize: function (...args) {
+    const prevHeight = this.prop('height');
+    const rtn        = this.base(...args);
+    const height     = this.prop('height');
 
     if (prevHeight !== height) {
       if (this.prop('rescaleable') === true) {
-        var prevRange     = this.prop('range');
-        var maxDP         = Math.max.apply(null, prevRange.map(function (r) { return (r.toString().split('.')[1] || '').length; }));
-        var prevRangeSize = prevRange[1] - prevRange[0];
-        var rangeChange   = Math.ceil((prevRangeSize * (height / prevHeight) - prevRangeSize) / 2);
+        const prevRange     = this.prop('range');
+        const maxDP         = Math.max.apply(null, prevRange.map(r => (r.toString().split('.')[1] || '').length));
+        const prevRangeSize = prevRange[1] - prevRange[0];
+        const rangeChange   = Math.ceil((prevRangeSize * (height / prevHeight) - prevRangeSize) / 2);
 
         this.setYRange(
           parseFloat((prevRange[0] - rangeChange).toFixed(maxDP), 10),
@@ -88,19 +91,20 @@ var Controller = TrackController.extend({
     return rtn;
   },
 
-  autoResize: function () {
+  autoResize: function (...args) {
     if (this.prop('rescaleable') === 'auto') {
-      var visibleFeatures = this.model.findFeatures(this.browser.chr, this.browser.start, this.browser.end);
+      const visibleFeatures = this.model.findFeatures(this.browser.chr, this.browser.start, this.browser.end);
 
       if (visibleFeatures.length) {
-        var range = this.prop('range');
-        var y     = this.yMinMaxFromFeatures(visibleFeatures);
+        const range = this.prop('range');
+        const y     = this.yMinMaxFromFeatures(visibleFeatures);
 
         if (y.min || y.max) {
-          var maxDP = Math.max.apply(null, range.map(function (r) { return (r.toString().split('.')[1] || '').length; }));
-          var round = Math.pow(10, maxDP);
-          var minY  = parseFloat((Math.floor(y.min * round) / round).toFixed(maxDP), 10);
-          var maxY  = parseFloat((Math.ceil(y.max * round) / round).toFixed(maxDP), 10);
+          const maxDP = Math.max.apply(null, range.map(r => (r.toString().split('.')[1] || '').length));
+          const round = 10 ** maxDP;
+
+          let minY = parseFloat((Math.floor(y.min * round) / round).toFixed(maxDP), 10);
+          let maxY = parseFloat((Math.ceil(y.max * round) / round).toFixed(maxDP), 10);
 
           if (this.prop('showZeroY')) {
             minY = Math.min(minY, 0);
@@ -112,19 +116,19 @@ var Controller = TrackController.extend({
           }
 
           if (minY !== range[0] || maxY !== range[1]) {
-            return this.setYRange(minY, maxY);
+            this.setYRange(minY, maxY);
           }
         }
       }
     } else {
-      return this.base.apply(this, arguments);
+      this.base(...args);
     }
   },
 
-  makeFirstImage: function () {
-    var controller = this;
+  makeFirstImage: function (...args) {
+    const controller = this;
 
-    return this.base.apply(this, arguments).done(function () {
+    return this.base(...args).done(() => {
       controller.prop('yAxisPlaceholder').hide();
       controller.prop('offsetContainer')
         .prepend(controller.prop('guidelinesCanvas'))
@@ -132,43 +136,46 @@ var Controller = TrackController.extend({
     });
   },
 
-  typeWrapper: function (func, args) {
-    var controllerType = Controller[this.prop('type')] || Controller.prototype;    // Controller[this.prop('type')] will only exist if Controller.Bar or Controller.Line have been imported
-    return (controllerType[func] || Controller.prototype[func]).apply(this, args); // if Controller[this.prop('type')] exists but Controller[this.prop('type')][func] does not, fall back to Controller.prototype[func]
+  typeWrapper: function (func, ...args) {
+    const controllerType = Controller[this.prop('type')] || Controller.prototype;    // Controller[this.prop('type')] will only exist if Controller.Bar or Controller.Line have been imported
+
+    return (controllerType[func] || Controller.prototype[func]).call(this, ...args); // if Controller[this.prop('type')] exists but Controller[this.prop('type')][func] does not, fall back to Controller.prototype[func]
   },
-  click              : function () { return this.typeWrapper('click',              arguments); },
-  getClickedFeatures : function () { return this.typeWrapper('getClickedFeatures', arguments); },
-  populateMenu       : function () { return this.typeWrapper('populateMenu',       arguments); }
+  click              : function (...args) { return this.typeWrapper('click',              ...args); },
+  getClickedFeatures : function (...args) { return this.typeWrapper('getClickedFeatures', ...args); },
+  populateMenu       : function (...args) { return this.typeWrapper('populateMenu',       ...args); },
 });
 
-var Model = TrackModel.extend({
+const Model = TrackModel.extend({
   dataBuffer     : { start: 1, end: 1 },
-  setLabelBuffer : $.noop,
-  sortFeatures   : function (features) { return features.sort(function (a, b) { return a.start - b.start; }); }
+  setLabelBuffer : () => {},
+  sortFeatures   : function (features) { return features.sort((a, b) => a.start - b.start); },
 });
 
-var View = TrackView.extend({
+const View = TrackView.extend({
   featureMargin: {},
 
   featureDataSets: function (features) {
-    var datasets = this.prop('datasets').concat({ name: '_default' });
-    var setNames = {};
-    var sets     = {};
-    var i, set;
+    const datasets = this.prop('datasets').concat({ name: '_default' });
+    const setNames = datasets.reduce(
+      (acc, { name }) => Object.assign(acc, { [name]: true }),
+      {}
+    );
 
-    for (i = 0; i < datasets.length; i++) {
-      setNames[datasets[i].name] = true;
-    }
+    const sets = features.reduce(
+      (acc, feature) => {
+        const set = setNames[feature.dataset] ? feature.dataset : '_default';
 
-    for (i = 0; i < features.length; i++) {
-      set = setNames[features[i].dataset] ? features[i].dataset : '_default';
+        acc[set] = acc[set] || [];
+        acc[set].push(feature);
 
-      sets[set] = sets[set] || [];
-      sets[set].push(features[i]);
-    }
+        return acc;
+      },
+      {}
+    );
 
     return { list: datasets, features: sets };
-  }
+  },
 });
 
 export default Track.extend({
@@ -201,7 +208,7 @@ export default Track.extend({
   resizable    : true,
   rescaleableY : 'auto',
 
-  setDefaults: function () {
+  setDefaults: function (...args) {
     this.range       = this.yRange || [ 0, this.height ];
     this.rescaleable = this.rescaleableY;
 
@@ -223,7 +230,7 @@ export default Track.extend({
       this.rescaleable = 'auto';
     }
 
-    this.base.apply(this, arguments);
+    this.base(...args);
 
     if (this.legend && !this.datasets.length) {
       this.legend = false;
@@ -237,12 +244,12 @@ export default Track.extend({
     return this.base(height, true); // always force show
   },
 
-  setMVC: function () {
-    var hadController = this.controller instanceof TrackController;
-    var rtn           = this.base.apply(this, arguments);
+  setMVC: function (...args) {
+    const hadController = this.controller instanceof TrackController;
+    const rtn           = this.base(...args);
 
     if (!hadController) {
-      var scrollContainer = this.prop('scrollContainer');
+      const scrollContainer = this.prop('scrollContainer');
 
       this.yAxisPlaceholder = $('<div class="gv-image-container gv-loading">');
       this.yAxisCanvas      = $('<canvas class="gv-image-container gv-barchart-axis">').attr('width', this.width);
@@ -270,14 +277,15 @@ export default Track.extend({
     (this.prop('resizer')       || $()).off('click');
   },
 
-  reset: function () {
+  reset: function (...args) {
     this.drawAxes();
-    return this.base.apply(this, arguments);
+
+    return this.base(...args);
   },
 
-  enable: function () {
-    var wasDisabled = this.disabled;
-    var rtn         = this.base.apply(this, arguments);
+  enable: function (...args) {
+    const wasDisabled = this.disabled;
+    const rtn         = this.base(...args);
 
     if (wasDisabled) {
       this.drawAxes();
@@ -287,8 +295,8 @@ export default Track.extend({
   },
 
   getYScale: function () {
-    var range  = this.prop('range');
-    var yScale = (this.prop('height') - this.prop('margin') - this.prop('marginTop')) / (range[1] - range[0]);
+    const range  = this.prop('range');
+    const yScale = (this.prop('height') - this.prop('margin') - this.prop('marginTop')) / (range[1] - range[0]);
 
     return yScale;
   },
@@ -298,37 +306,39 @@ export default Track.extend({
       return;
     }
 
-    var width        = this.width;
-    var height       = this.prop('height');
-    var invert       = this.prop('invert');
-    var margin       = this.prop('margin');
-    var marginTop    = this.prop('marginTop');
-    var fontHeight   = this.prop('fontHeight');
-    var range        = this.prop('range');
-    var axesSettings = this.prop('axesSettings');
-    var yAxisLabels  = this.prop('yAxisLabels');
-    var yScale       = this.getYScale();
-    var axisContext  = this.prop('yAxisCanvas').attr('height', height)[0].getContext('2d');
-    var linesContext = this.prop('guidelinesCanvas').attr('height', height)[0].getContext('2d');
-    var y, n, i, interval, maxDP;
+    const width        = this.width;
+    const height       = this.prop('height');
+    const invert       = this.prop('invert');
+    const margin       = this.prop('margin');
+    const marginTop    = this.prop('marginTop');
+    const fontHeight   = this.prop('fontHeight');
+    const range        = this.prop('range');
+    const axesSettings = this.prop('axesSettings');
+    const yScale       = this.getYScale();
+    const axisContext  = this.prop('yAxisCanvas').attr('height', height)[0].getContext('2d');
+    const linesContext = this.prop('guidelinesCanvas').attr('height', height)[0].getContext('2d');
+
+    let yAxisLabels = this.prop('yAxisLabels');
+    let maxDP;
 
     if (!yAxisLabels) {
-      n           = Math.floor((height - margin - marginTop) / (fontHeight * 2)); // number of labels that can be shown
-      interval    = (range[1] - range[0]) / n;                                    // label incrementor
+      const n        = Math.floor((height - margin - marginTop) / (fontHeight * 2)); // number of labels that can be shown
+      const interval = (range[1] - range[0]) / n;                                    // label incrementor
+
       yAxisLabels = [];
 
       if (interval !== Math.round(interval)) { // floats
         // Strenuously ensure that interval does not contain a floating point error.
         // Assumes that values in range do not contain floating point errors.
-        maxDP = Math.max.apply(null, range.map(function (r) { return (r.toString().split('.')[1] || '').length; })) + 1;
+        maxDP = Math.max.apply(null, range.map(r => (r.toString().split('.')[1] || '').length)) + 1;
       }
 
-      for (i = 0; i <= n; i++) {
+      for (let i = 0; i <= n; i++) {
         yAxisLabels.push((range[0] + interval * i)[maxDP ? 'toFixed' : 'toString'](maxDP));
       }
     }
 
-    var axisWidth = Math.max.apply(null, yAxisLabels.map(function (label) { return axisContext.measureText(label).width; })) + 10;
+    const axisWidth = Math.max.apply(null, yAxisLabels.map(label => axisContext.measureText(label).width)) + 10;
 
     this.prop('offsetContainer').css('marginLeft',  axisWidth).width(width - axisWidth);
     this.prop('scrollContainer').css('marginLeft', -axisWidth);
@@ -338,25 +348,29 @@ export default Track.extend({
     axisContext.fillStyle = axesSettings.axisColor;
     axisContext.fillRect(axisWidth - 1, invert ? margin : marginTop, 1, height - margin - marginTop); // Vertical line
 
-    linesContext.fillStyle  = axesSettings.scaleLineColor;
+    linesContext.fillStyle   = axesSettings.scaleLineColor;
     axisContext.fillStyle    = axesSettings.axisLabelColor;
     axisContext.textBaseline = 'middle';
     axisContext.textAlign    = 'right';
 
-    for (i = 0; i < yAxisLabels.length; i++) {
-      y = marginTop + (parseFloat(yAxisLabels[i], 10) - range[0]) * yScale;
-      y = invert ? height - y : y;
+    yAxisLabels.forEach(
+      (label) => {
+        let y = marginTop + (parseFloat(label, 10) - range[0]) * yScale;
 
-      linesContext.fillRect(0, y, width, 1);                  // Horizontal line, indicating the y-position of a numerical value
-      axisContext.fillRect(axisWidth - 4, y, 4, 1);           // Horizontal line, indicating the y-position of a numerical value
-      axisContext.fillText(yAxisLabels[i], axisWidth - 6, y); // The numerical value for the horizontal line
-    }
+        y = invert ? height - y : y;
+
+        linesContext.fillRect(0, y, width, 1);         // Horizontal line, indicating the y-position of a numerical value
+        axisContext.fillRect(axisWidth - 4, y, 4, 1);  // Horizontal line, indicating the y-position of a numerical value
+        axisContext.fillText(label, axisWidth - 6, y); // The numerical value for the horizontal line
+      }
+    );
 
     // Draw a horizontal line at y = 0
-    y = (-range[0] * yScale) + marginTop;
+    const y = (-range[0] * yScale) + marginTop;
+
     linesContext.fillStyle = axesSettings.axisColor;
     linesContext.fillRect(0, invert ? height - y : y, width, 1);
-  }
+  },
 });
 
 export { Controller, Model, View };

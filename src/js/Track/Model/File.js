@@ -3,7 +3,7 @@ import Model from 'js/Track/Model';
 export default Model.extend({
   dataType: 'text',
 
-  init: function () {
+  init: function (...args) {
     if (this.isLocal) {
       this.url = false;
     }
@@ -12,20 +12,18 @@ export default Model.extend({
       this.allData = true;
     }
 
-    this.base.apply(this, arguments);
+    this.base(...args);
   },
 
-  getData: function (chr) {
-    var model = this;
-
+  getData: function (chr, ...args) {
     if (this.isLocal && this.dataFile) {
-      var reader   = new FileReader();
-      var deferred = $.Deferred();
+      const reader   = new FileReader();
+      const deferred = $.Deferred();
 
-      reader.onload = function (e) {
-        deferred.done(function () {
+      reader.onload = (e) => {
+        deferred.done(() => {
           this.receiveData(e.target.result, chr, 1, this.browser.getChromosomeSize(chr));
-        }).resolveWith(model);
+        }).resolve();
       };
 
       reader.readAsText(this.dataFile);
@@ -33,6 +31,6 @@ export default Model.extend({
       return deferred;
     }
 
-    return this.base.apply(this, arguments);
-  }
+    return this.base(chr, ...args);
+  },
 });

@@ -34,7 +34,6 @@
     "babel-plugin-transform-amd-to-commonjs": "^1.4.0",
     "canvas": "^2.8.0",
     "clean-webpack-plugin": "^4.0.0",
-    "core-js": "^3.20.2",
     "css-loader": "^6.6.0",
     "eslint": "^8.6.0",
     "eslint-config-airbnb-base": "^15.0.0",
@@ -53,6 +52,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.4",
     "basejs": "^1.1.1",
+    "core-js": "^3.21.0",
     "jParser": "^1.0.2",
     "jquery": "^3.6.0",
     "jquery-ui": "^1.13.0",

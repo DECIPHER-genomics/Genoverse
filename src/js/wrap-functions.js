@@ -1,79 +1,81 @@
 /**
  * functionWrap - wraps event handlers and adds debugging functionality
  */
-var functionWrap = function (key, obj, objType) {
-  obj.functions = obj.functions || {};
-
+const functionWrap = (key, obj, objType) => {
   if (obj.functions[key] || /^(before|after)/.test(key)) {
     return;
   }
 
-  var func      = key.substring(0, 1).toUpperCase() + key.substring(1);
-  var isBrowser = objType === 'Genoverse';
-  var mainObj   = isBrowser || objType === 'Track' ? obj : obj.track;
-  var events    = isBrowser ? obj.events.browser : obj.browser.events.tracks;
-  var debug;
+  const isBrowser              = objType === 'Genoverse';
+  const mainObj                = isBrowser || objType === 'Track' ? obj : obj.track;
+  const events                 = isBrowser ? obj.events.browser : obj.browser.events.tracks;
+  const currentConfigFunctions = (obj._currentConfig || obj.track?._currentConfig)?.func || {};
+  const funcName               = key.substring(0, 1).toUpperCase() + key.substring(1);
+  const { debug }              = mainObj;
+  const debugTime              = debug === 'time' || (typeof debug === 'object' && debug[key]);
+  const debugLabel             = (
+    debug
+      ? [
+        isBrowser ? 'Genoverse' : mainObj.id || mainObj.name || 'Track',
+        obj !== mainObj ? obj instanceof Genoverse.Track.Controller ? 'Controller' : obj instanceof Genoverse.Track.Model ? 'Model' : 'View' : false,
+        key,
+      ].filter(Boolean).join('.')
+      : false
+  );
 
-  if (mainObj.debug) {
-    debug = [
-      isBrowser ? 'Genoverse' : mainObj.id || mainObj.name || 'Track',
-      obj !== mainObj ? objType : false,
-      key
-    ].filter(Boolean).join('.');
-  }
+  obj.functions[key] = obj[key].bind(obj);
 
-  obj.functions[key] = obj[key];
+  const trigger = (when, args) => {
+    const eventKey = `${when}${funcName}`;
+    const funcs    = [
+      events[eventKey],
+      events[`${eventKey}.once`],
+      mainObj[eventKey],
+    ].flat().filter(
+      fn => typeof fn === 'function'
+    );
 
-  obj[key] = function () {
-    var args          = [].slice.call(arguments);
-    var currentConfig = (this._currentConfig || (this.track ? this.track._currentConfig : {}) || {}).func;
-    var rtn;
+    delete events[`${eventKey}.once`];
+
+    funcs.forEach(func => func.call(obj, ...args));
+  };
+
+  obj[key] = (...args) => {
+    let rtn;
 
     // Debugging functionality
     // Enabled by "debug": true || 'time' || { functionName: true, ...} option
-    if (mainObj.debug === true) { // if "debug": true, simply log function call
-      console.log(debug); // eslint-disable-line no-console
-    } else if (mainObj.debug === 'time' || (typeof mainObj.debug === 'object' && mainObj.debug[key])) { // if debug: 'time' || { functionName: true, ...}, log function time
-      console.time('time: ' + debug); // eslint-disable-line no-console
+    if (debug === true) { // if "debug": true, simply log function call
+      console.log(debugLabel); // eslint-disable-line no-console
+    } else if (debugTime) { // if debug: 'time' || { functionName: true, ...}, log function time
+      console.time(`time: ${debugLabel}`); // eslint-disable-line no-console
     }
 
-    function trigger(when) {
-      var once  = events[when + func + '.once'] || [];
-      var funcs = (events[when + func] || []).concat(once, typeof mainObj[when + func] === 'function' ? mainObj[when + func] : []);
+    trigger('before', args);
 
-      if (once.length) {
-        delete events[when + func + '.once'];
-      }
+    if (currentConfigFunctions[key]) {
+      // override to add a value for base
+      obj.base = obj.functions[key] || (() => {});
 
-      for (var i = 0; i < funcs.length; i++) {
-        funcs[i].apply(this, args);
-      }
-    }
-
-    trigger.call(this, 'before');
-
-    if (currentConfig && currentConfig[key]) {
-      // override to add a value for this.base
-      rtn = function () {
-        this.base = this.functions[key] || function () {};
-        return currentConfig[key].apply(this, arguments);
-      }.apply(this, args);
+      rtn = currentConfigFunctions[key](...args);
     } else {
-      rtn = this.functions[key].apply(this, args);
+      rtn = obj.functions[key](...args);
     }
 
-    trigger.call(this, 'after');
+    trigger('after', args);
 
-    if (mainObj.debug === 'time' || (typeof mainObj.debug === 'object' && mainObj.debug[key])) {
-      console.timeEnd('time: ' + debug); // eslint-disable-line no-console
+    if (debugTime) {
+      console.timeEnd(`time: ${debugLabel}`); // eslint-disable-line no-console
     }
 
     return rtn;
   };
 };
 
-var wrapFunctions = function (obj, objType) {
-  for (var key in obj) {
+const wrapFunctions = function (obj, objType) {
+  obj.functions = obj.functions || {};
+
+  for (const key in obj) { // eslint-disable-line no-restricted-syntax
     if (typeof obj[key] === 'function' && typeof obj[key].ancestor !== 'function' && !key.match(/^(base|extend|constructor|on|once|prop|loadPlugins|loadGenome)$/)) {
       functionWrap(key, obj, objType);
     }

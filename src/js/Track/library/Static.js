@@ -10,9 +10,9 @@ const Controller = TrackController.extend({
     this.scrollContainer.add(this.messageContainer).remove();
   },
 
-  reset: function () {
+  reset: function (...args) {
     delete this.stringified;
-    this.base.apply(this, arguments);
+    this.base(...args);
   },
 
   setWidth: function (width) {
@@ -20,8 +20,8 @@ const Controller = TrackController.extend({
     this.image.width = this.width;
   },
 
-  makeFirstImage: function () {
-    this.base.apply(this, arguments);
+  makeFirstImage: function (...args) {
+    this.base(...args);
     this.container.css('left', 0);
     this.imgContainer.show();
   },
@@ -31,13 +31,13 @@ const Controller = TrackController.extend({
       return $.Deferred().resolve();
     }
 
-    var features = this.view.positionFeatures(this.model.findFeatures(params.chr, params.start, params.end), params);
+    const features = this.view.positionFeatures(this.model.findFeatures(params.chr, params.start, params.end), params);
 
     if (features) {
-      var string = JSON.stringify(features);
+      const string = JSON.stringify(features);
 
       if (this.stringified !== string) {
-        var height = this.prop('height');
+        const height = this.prop('height');
 
         params.width         = this.width;
         params.featureHeight = height;
@@ -51,24 +51,24 @@ const Controller = TrackController.extend({
     }
 
     return $.Deferred().resolve();
-  }
+  },
 });
 
 const Model = TrackModel.extend({
   url            : false,
-  checkDataRange : function () { return true; }
+  checkDataRange : () => true,
 });
 
 const View = TrackView.extend({
   featureMargin   : { top: 0, right: 1, bottom: 0, left: 1 },
-  positionFeature : $.noop,
-  scaleFeatures   : function (features) { return features; },
+  positionFeature : () => {},
+  scaleFeatures   : features => features,
 
   draw: function (features, featureContext, labelContext, scale) {
-    for (var i = 0; i < features.length; i++) {
-      this.drawFeature(features[i], featureContext, labelContext, scale);
-    }
-  }
+    features.forEach(
+      feature => this.drawFeature(feature, featureContext, labelContext, scale)
+    );
+  },
 });
 
 export default Track.extend({
@@ -76,7 +76,7 @@ export default Track.extend({
   resizable  : false,
   controller : Controller,
   model      : Model,
-  view       : View
+  view       : View,
 });
 
 export { Controller, Model, View };

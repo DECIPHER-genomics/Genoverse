@@ -45,7 +45,7 @@ export default Track.extend({
     feature_elongation                 : '#7f7f7f',
     regulatory_region_variant          : '#a52a2a',
     feature_truncation                 : '#7f7f7f',
-    intergenic_variant                 : '#636363'
+    intergenic_variant                 : '#636363',
   },
 
   insertFeature: function (feature) {
@@ -73,61 +73,56 @@ export default Track.extend({
   },
 
   populateMenu: function (feature) {
-    var deferred = $.Deferred();
-    var menu     = [{
-      title       : '<a href="https://www.ensembl.org/Homo_sapiens/Variation/Summary?v=' + feature.id + '" target="_blank">' + feature.id + '</a>',
-      Location    : feature.chr + ':' + feature.start + '-' + feature.end,
+    const deferred = $.Deferred();
+    const menu     = [{
+      title       : `<a href="https://www.ensembl.org/Homo_sapiens/Variation/Summary?v=${feature.id}" target="_blank">${feature.id}</a>`,
+      Location    : `${feature.chr}:${feature.start}-${feature.end}`,
       Consequence : feature.consequence_type,
-      Alleles     : feature.alleles.join(', ')
+      Alleles     : feature.alleles.join(', '),
     }];
 
     $.ajax({
-      url      : '//rest.ensembl.org/variation/human/' + feature.id + '?population_genotypes=1;content-type=application/json',
+      url      : `//rest.ensembl.org/variation/human/${feature.id}?population_genotypes=1;content-type=application/json`,
       dataType : 'json',
       success  : function (data) {
-        var populationGenotypes = $.grep(data.population_genotypes, function (pop) { return /1000GENOMES.+ALL/.test(pop.population); }); // Only considering 1000 Genomes: ALL population
-        var frequencies         = {};
-        var pop, i, j;
+        const populationGenotypes = data.population_genotypes.filter(pop => /1000GENOMES.+ALL/.test(pop.population)); // Only considering 1000 Genomes: ALL population
+        const frequencies         = {};
 
         if (populationGenotypes.length) {
-          for (i = 0; i < populationGenotypes.length; i++) {
-            pop           = populationGenotypes[i];
-            pop.frequency = parseFloat(pop.frequency, 10);
-            pop.count     = parseInt(pop.count, 10);
+          populationGenotypes.forEach(
+            (pop) => {
+              pop.frequency = parseFloat(pop.frequency, 10);
+              pop.count     = parseInt(pop.count, 10);
 
-            frequencies[pop.population] = frequencies[pop.population] || [];
-            frequencies[pop.population].push(pop);
-          }
-
-          for (i in frequencies) {
-            frequencies[i].sort(function (a, b) { return a.count < b.count; });
-
-            pop = {
-              title    : i + ' population genotypes',
-              Genotype : [ 'Frequency', 'Count' ],
-              start    : false,
-              end      : false
-            };
-
-            for (j in frequencies[i]) {
-              pop[frequencies[i][j].genotype] = [ (frequencies[i][j].frequency * 100).toFixed(2) + '%', frequencies[i][j].count ];
+              frequencies[pop.population] = frequencies[pop.population] || [];
+              frequencies[pop.population].push(pop);
             }
+          );
 
-            menu.push(pop);
-          }
-
-          pop = {
-            start : false,
-            end   : false
-          };
-
-          pop['<a href="https://www.ensembl.org/Homo_sapiens/Variation/Population?v=' + feature.id + '" target="_blank">See all population genotypes</a>'] = '';
-
-          menu.push(pop);
+          menu.push(
+            ...Object.entries(frequencies).map(
+              ([ key, values ]) => values.sort(
+                (a, b) => a.count < b.count
+              ).reduce(
+                (acc, row) => Object.assign(acc, { [row.genotype]: [ `${(row.frequency * 100).toFixed(2)}%`, row.count ] }),
+                {
+                  title    : `${key} population genotypes`,
+                  Genotype : [ 'Frequency', 'Count' ],
+                  start    : false,
+                  end      : false,
+                }
+              )
+            ),
+            {
+              start                                                                                                                                    : false,
+              end                                                                                                                                      : false,
+              [`<a href="https://www.ensembl.org/Homo_sapiens/Variation/Population?v=${feature.id}" target="_blank">See all population genotypes</a>`] : '',
+            }
+          );
         }
 
         deferred.resolve(menu);
-      }
+      },
     });
 
     return deferred;
@@ -135,9 +130,9 @@ export default Track.extend({
 
   // Different settings for different zoom level
   5000: { // more than 5k
-    bump: false
+    bump: false,
   },
   1: { // > 1 base-pair, but less then 5k
-    bump: true
-  }
+    bump: true,
+  },
 });

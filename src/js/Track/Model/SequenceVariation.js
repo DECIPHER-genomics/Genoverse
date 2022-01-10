@@ -5,17 +5,19 @@ export default Model.extend({
   seqModel: SequenceModel,
 
   getSeqModel: function () {
-    var models = this.prop('models');
+    const models = this.prop('models');
+
     models.seq = models.seq || this.track.newMVC(this.seqModel);
+
     return models.seq;
   },
 
   getData: function (chr, start, end) {
-    var model    = this;
-    var deferred = $.Deferred();
-    var seqData  = this.getSeqModel().checkDataRange(chr, start, end);
+    const model    = this;
+    const deferred = $.Deferred();
+    const seqData  = this.getSeqModel().checkDataRange(chr, start, end);
 
-    this.base(chr, start, end).done(function () {
+    this.base(chr, start, end).done(() => {
       if (seqData) {
         deferred.resolve();
       } else {
@@ -27,11 +29,12 @@ export default Model.extend({
   },
 
   insertFeature: function (feature) {
-    return this.base($.extend(feature, {
+    return this.base({
+      ...feature,
       end      : feature.start + feature.alt_allele.length - 1,
       length   : feature.alt_allele.length,
-      sequence : feature.alt_allele
-    }));
+      sequence : feature.alt_allele,
+    });
   },
 
   checkDataRange: function (chr, start, end) {
@@ -40,5 +43,5 @@ export default Model.extend({
 
   findFeatures: function (chr, start, end) {
     return this.getSeqModel().findFeatures(chr, start, end).concat(this.base(chr, start, end));
-  }
+  },
 });

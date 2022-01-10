@@ -6,22 +6,22 @@
 import 'css/tooltips.css';
 import controlPanel from 'js/plugins/controlPanel';
 
-var plugin = function () {
-  var genoverse = this;
+const plugin = function () {
+  const genoverse = this;
 
   function toggleTooltips(browser, tooltips, action) {
-    var offset = browser.superContainer.offset();
+    const offset = browser.superContainer.offset();
 
     tooltips = tooltips || browser.superContainer.find('.gv-tooltip');
     action   = action   || $(this).toggleClass('gv-active').hasClass('gv-active') ? 'show' : 'hide';
 
     tooltips.each(function () {
-      var el = $(this);
+      const el = $(this);
 
       if (el.is(':visible')) {
         el.tipsy(action).data('tipsy').$tip.data({ parent: el }).appendTo(browser.superContainer).css({
           marginTop  : -offset.top,
-          marginLeft : -offset.left
+          marginLeft : -offset.left,
         });
       } else if (el.data('tipsy').$tip) {
         el.tipsy('hide');
@@ -30,25 +30,28 @@ var plugin = function () {
   }
 
   function updateTooltips() {
-    var tooltips = $();
+    let tooltips = $();
 
-    $.each([
+    [
       [ genoverse.labelContainer.find('.gv-handle'), { gravity: 'w', fade: true, trigger: 'manual', fallback: 'Reorder tracks by dragging this handle' }],
-      [ genoverse.container.find('.gv-resizer'),     { gravity: 'n', fade: true, trigger: 'manual', fallback: 'Resize track by dragging this handle'   }]
-    ], function () {
-      var el = this[0].filter(':visible').first();
+      [ genoverse.container.find('.gv-resizer'),     { gravity: 'n', fade: true, trigger: 'manual', fallback: 'Resize track by dragging this handle'   }],
+    ].forEach(
+      ([ selector, options ]) => {
+        const el = selector.filter(':visible').first();
 
-      if (!el.hasClass('gv-tooltip')) {
-        this[0].filter('.gv-tooltip').removeClass('gv-tooltip').tipsy('hide').removeData('tipsy');
-        el.tipsy(this[1]).addClass('gv-tooltip');
+        if (!el.hasClass('gv-tooltip')) {
+          selector.filter('.gv-tooltip').removeClass('gv-tooltip').tipsy('hide').removeData('tipsy');
+          el.tipsy(options).addClass('gv-tooltip');
+        }
+
+        tooltips = tooltips.add(el);
       }
-
-      tooltips = tooltips.add(el);
-    });
+    );
 
     // Remove any tooltips orphaned by the removal of a track
     genoverse.superContainer.find('.tipsy').not(function () {
-      var parent = $(this).data('parent');
+      const parent = $(this).data('parent');
+
       return parent && genoverse.superContainer.find(parent).length;
     }).remove();
 
@@ -63,7 +66,7 @@ var plugin = function () {
     icon   : '<i class="fas fa-question-circle"></i>',
     class  : 'gv-tooltips',
     name   : 'Tooltips',
-    action : toggleTooltips
+    action : toggleTooltips,
   });
 
   this.on('afterInit', function () {
@@ -75,7 +78,7 @@ var plugin = function () {
       gravity  : 's',
       fade     : true,
       trigger  : 'manual',
-      fallback : 'Scroll left and right by dragging with your mouse, click on any feature in any track for more info'
+      fallback : 'Scroll left and right by dragging with your mouse, click on any feature in any track for more info',
     }).addClass('gv-tooltip');
 
     updateTooltips();
@@ -85,13 +88,8 @@ var plugin = function () {
     this.controlPanel.find('.gv-tooltips.gv-active').trigger('click');
   });
 
-  this.on('afterSortTracks', function () {
-    updateTooltips();
-  });
-
-  this.on('afterResize', 'tracks', function () {
-    updateTooltips();
-  });
+  this.on('afterSortTracks',       () => { updateTooltips(); });
+  this.on('afterResize', 'tracks', () => { updateTooltips(); });
 };
 
 export default { tooltips: plugin, requires: controlPanel };

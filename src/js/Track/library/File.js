@@ -8,5 +8,5 @@ export default Track.extend({
     this._interface.dataFile  = 'model';
     this._interface.indexFile = 'model';
     this._interface.largeFile = 'model';
-  }
+  },
 });

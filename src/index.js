@@ -17,7 +17,7 @@ global.Genoverse = require('js/Genoverse').default;
 
 const getTrackImports = importFiles => importFiles.keys().reduce(
   (acc, key, ...args) => {
-    acc[key.replace('./', '').replace('.js', '')] = importFiles(key, ...args)
+    acc[key.replace('./', '').replace('.js', '')] = importFiles(key, ...args);
 
     return acc;
   },
@@ -39,13 +39,13 @@ const setTrackNamespace = (namespace, exportKey, fileExport) => {
   if (!parent[name]) {
     parent[name] = fileExport;
   }
-}
+};
 
 const trackImports = getTrackImports(require.context('js/Track', true, /\.js$/));
 
 Object.keys(trackImports).sort().forEach(
-  (namespace) => Object.keys(trackImports[namespace]).sort().forEach(
-    (exportKey) => setTrackNamespace(namespace, exportKey, trackImports[namespace][exportKey])
+  namespace => Object.keys(trackImports[namespace]).sort().forEach(
+    exportKey => setTrackNamespace(namespace, exportKey, trackImports[namespace][exportKey])
   )
 );
 

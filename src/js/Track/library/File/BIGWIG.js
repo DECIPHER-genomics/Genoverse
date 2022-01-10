@@ -1,54 +1,54 @@
-import { URLFetchable, BlobFetchable } from 'js/lib/dalliance-lib';
-import BWReader                        from 'js/lib/BWReader';
 import Track                           from 'js/Track/library/Graph/Bar';
+import BWReader                        from 'js/lib/BWReader';
+import { URLFetchable, BlobFetchable } from 'js/lib/dalliance-lib';
 
 export default Track.extend({
   name   : 'bigwig',
   height : 100,
 
-  setDefaults: function () {
+  setDefaults: function (...args) {
     this.bwReader = null; // Not part of model since it needs to be shared between bar and line graphs
-    this.base.apply(this, arguments);
+    this.base(...args);
   },
 
   getData: function (chr, start, end) {
-    var model    = this;
-    var deferred = $.Deferred();
+    const deferred = $.Deferred();
 
     if (!this.bigwigFile) {
       this.bigwigFile = this.bigwigFile || (this.url ? new URLFetchable(this.url) : new BlobFetchable(this.track.dataFile));
     }
 
-    var d = $.Deferred().done(function () {
-      model.prop('bwReader').getValues(chr, start, end, function (features, error) {
+    const d = $.Deferred().done(() => {
+      this.prop('bwReader').getValues(chr, start, end, (features, error) => {
         if (!error) {
-          features.sort(function (a, b) { return a.start - b.start; });
+          features.sort((a, b) => a.start - b.start);
 
           if (features.length) {
-            model.receiveData(features, chr, features[0].start, features[features.length - 1].end);
+            this.receiveData(features, chr, features[0].start, features[features.length - 1].end);
           } else {
-            model.receiveData(features, chr, start, end);
+            this.receiveData(features, chr, start, end);
           }
         }
 
-        deferred.resolveWith(model);
+        deferred.resolveWith(this);
       });
     });
 
     if (this.prop('bwReader')) {
       d.resolve();
     } else {
-      new BWReader(this.bigwigFile, function (bwReader) {
+      new BWReader(this.bigwigFile, ((bwReader) => { // eslint-disable-line no-new
         if (bwReader) {
-          model.prop('bwReader', bwReader);
+          this.prop('bwReader', bwReader);
           d.resolve();
         } else {
-          model.receiveData([], chr, start, end);
-          return deferred.resolveWith(model);
+          this.receiveData([], chr, start, end);
+
+          return deferred.resolveWith(this);
         }
-      });
+      }));
     }
 
     return deferred;
-  }
+  },
 });

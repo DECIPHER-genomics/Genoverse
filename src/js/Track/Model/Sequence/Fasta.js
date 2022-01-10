@@ -10,25 +10,30 @@ export default Model.extend({
   // TODO: Check if URL provided
 
   getData: function (chr, start, end) {
-    var deferred = $.Deferred();
+    const deferred = $.Deferred();
 
     $.when(this.getStartByte()).done(function () {
       start = start - (start % this.chunkSize) + 1;
       end   = end + this.chunkSize - (end % this.chunkSize);
 
-      var startByte = start - 1 + Math.floor((start - 1) / this.lineLength) + this.startByte;
-      var endByte   = end   - 1 + Math.floor((end   - 1) / this.lineLength) + this.startByte;
+      const startByte = start - 1 + Math.floor((start - 1) / this.lineLength) + this.startByte;
+      const endByte   = end   - 1 + Math.floor((end   - 1) / this.lineLength) + this.startByte;
 
       $.ajax({
         url       : this.parseURL(),
         dataType  : this.dataType,
-        context   : this,
-        headers   : { Range: 'bytes=' + startByte + '-' + endByte },
+        headers   : { Range: `bytes=${startByte}-${endByte}` },
         xhrFields : this.xhrFields,
-        success   : function (data) { this.receiveData(data, chr, start, end); },
-        error     : this.track.controller.showError
-      }).done(function () { deferred.resolveWith(this); }).fail(function () { deferred.rejectWith(this); });
-    }).fail(function () { deferred.rejectWith(this); });
+        success   : (data) =>  { this.receiveData(data, chr, start, end); },
+        error     : this.track.controller.showError,
+      }).done(() => {
+        deferred.resolveWith(this);
+      }).fail(() => {
+        deferred.rejectWith(this);
+      });
+    }).fail(() => {
+      deferred.rejectWith(this);
+    });
 
     return deferred;
   },
@@ -42,10 +47,9 @@ export default Model.extend({
       this.startByteRequest = $.ajax({
         url       : this.parseURL(),
         dataType  : 'text',
-        context   : this,
         headers   : { 'Range': 'bytes=0-300' },
         xhrFields : this.xhrFields,
-        success   : function (data) {
+        success   : (data) => {
           if (data.indexOf('>') === 0) {
             this.startByte = data.indexOf('\n') + 1;
           } else {
@@ -53,10 +57,10 @@ export default Model.extend({
           }
 
           this.lineLength = data.indexOf('\n', this.startByte) - this.startByte;
-        }
+        },
       });
 
       return this.startByteRequest;
     }
-  }
+  },
 });

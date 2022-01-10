@@ -1,12 +1,12 @@
 import Base               from 'basejs';
 import Controller         from 'js/Track/Controller';
-import Model              from 'js/Track/Model';
-import View               from 'js/Track/View';
 import StrandedController from 'js/Track/Controller/Stranded';
+import Model              from 'js/Track/Model';
 import StrandedModel      from 'js/Track/Model/Stranded';
+import View               from 'js/Track/View';
 import wrapFunctions      from 'js/wrap-functions';
 
-var Track = Base.extend({
+const Track = Base.extend({
   height     : 12,        // The height of the gv-track-container div
   margin     : 2,         // The spacing between this track and the next
   resizable  : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
@@ -53,7 +53,7 @@ var Track = Base.extend({
     }
   },
 
-  setEvents: $.noop,
+  setEvents: () => {},
 
   setDefaults: function () {
     this.config            = this.config         || {};
@@ -77,28 +77,31 @@ var Track = Base.extend({
   },
 
   setDefaultConfig: function () {
-    for (var i in this.defaultConfig) {
-      if (typeof this.config[i] === 'undefined') {
-        this.config[i] = this.defaultConfig[i];
+    Object.entries(this.defaultConfig).forEach(
+      ([ key, value ]) => {
+        if (typeof this.config[key] === 'undefined') {
+          this.config[key] = value;
+        }
       }
-    }
+    );
 
     this._setCurrentConfig();
   },
 
   setInterface: function () {
-    var mvc = [ 'Controller', 'Model', 'View', 'controller', 'model', 'view' ];
-    var prop;
-
     this._interface = {};
 
-    for (var i = 0; i < 3; i++) {
-      for (prop in Track[mvc[i]].prototype) {
-        if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(prop)) {
-          this._interface[prop] = mvc[i + 3];
-        }
+    [ 'Controller', 'Model', 'View' ].forEach(
+      (namespace) => {
+        Object.keys(Track[namespace].prototype).forEach(
+          (prop) => {
+            if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(prop)) {
+              this._interface[prop] = namespace.toLowerCase();
+            }
+          }
+        );
       }
-    }
+    );
   },
 
   setMVC: function () {
@@ -108,57 +111,61 @@ var Track = Base.extend({
 
     this._defaults = this._defaults || {};
 
-    var settings           = $.extend(true, {}, this.constructor.prototype, this.getSettingsForLength()[1]); // model, view, options
-    var controllerSettings = { prop: {}, func: {} };
-    var trackSettings      = {};
-    var i;
+    const settings           = $.extend(true, {}, this.constructor.prototype, this.getSettingsForLength()[1]); // model, view, options
+    const controllerSettings = { prop: {}, func: {} };
+    const trackSettings      = {};
 
     settings.controller = settings.controller || this.controller || Controller;
 
-    for (i in settings) {
-      if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(i) && isNaN(i)) {
-        if (this._interface[i] === 'controller') {
-          controllerSettings[typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
-        } else if (!Track.prototype.hasOwnProperty(i) && !/^(controller|models|views|config|disabled)$/.test(i)) { // If we allow trackSettings to overwrite the MVC properties, we will potentially lose of information about instantiated objects that the track needs to perform future switching correctly.
-          if (typeof this._defaults[i] === 'undefined') {
-            this._defaults[i] = this[i];
-          }
+    Object.entries(settings).forEach(
+      ([ key, value ]) => {
+        if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(key) && isNaN(key)) {
+          if (this._interface[key] === 'controller') {
+            controllerSettings[typeof value === 'function' ? 'func' : 'prop'][key] = value;
+          } else if (!Track.prototype.hasOwnProperty(key) && !/^(controller|models|views|config|disabled)$/.test(key)) { // If we allow trackSettings to overwrite the MVC properties, we will potentially lose of information about instantiated objects that the track needs to perform future switching correctly.
+            if (typeof this._defaults[key] === 'undefined') {
+              this._defaults[key] = this[key];
+            }
 
-          trackSettings[i] = settings[i];
+            trackSettings[key] = value;
+          }
         }
       }
-    }
+    );
 
-    for (i in this._defaults) {
-      if (typeof trackSettings[i] === 'undefined') {
-        trackSettings[i] = this._defaults[i];
+    Object.entries(this._defaults).forEach(
+      ([ key, value ]) => {
+        if (typeof trackSettings[key] === 'undefined') {
+          trackSettings[key] = value;
+        }
       }
-    }
+    );
 
     // If there are configSettings for the track, ensure that any properties in _currentConfig are set for the model/view/controller/track as appropriate.
     // Functions in _currentConfig are accessed via functionWrap in wrap-functions.js, so nothing needs to be done with them here.
     if (!$.isEmptyObject(this._currentConfig)) {
-      var changed = {};
-      var type;
+      const changed = {};
 
-      for (i in this._currentConfig.prop) {
-        type = this._interface[i];
+      Object.entries(this._currentConfig.prop).forEach(
+        ([ key, value ]) => {
+          const type = this._interface[key];
 
-        if (/model|view/.test(type)) {
-          if (trackSettings[type][i] !== this._currentConfig.prop[i]) {
-            trackSettings[type][i] = this._currentConfig.prop[i];
-            changed[type] = true;
+          if (/model|view/.test(type)) {
+            if (trackSettings[type][key] !== value) {
+              trackSettings[type][key] = value;
+              changed[type]            = true;
+            }
+          } else if (type === 'controller') {
+            controllerSettings.prop[key] = value;
+          } else {
+            trackSettings[key] = value;
           }
-        } else if (type === 'controller') {
-          controllerSettings.prop[i] = this._currentConfig.prop[i];
-        } else {
-          trackSettings[i] = this._currentConfig.prop[i];
         }
-      }
+      );
 
-      for (type in changed) {
-        trackSettings[type].setDefaults(true);
-      }
+      Object.keys(changed).forEach(
+        (type) => { trackSettings[type].setDefaults(true); }
+      );
     }
 
     /*
@@ -167,7 +174,7 @@ var Track = Base.extend({
      *
      * Consider the following:
      *
-     * var Obj = function () {};
+     * const Obj = function () {};
      *
      * Obj.prototype = {
      *   scalar : 1,
@@ -175,13 +182,13 @@ var Track = Base.extend({
      *   hash   : { a: 1, b : 2 }
      * };
      *
-     * var x = new Obj();
+     * const x = new Obj();
      *
      * x.scalar   = 10;
      * x.array[0] = 10;
      * x.hash.a   = 10;
      *
-     * var y = new Obj();
+     * const y = new Obj();
      *
      * y is now { scalar: 1, array: [ 10, 2, 3 ], hash: { a: 10, b : 2 } }, since memory locations of objects in prototypes are shared.
      *
@@ -192,39 +199,44 @@ var Track = Base.extend({
     this.model.setChrProps(); // make sure the data stores for the current chromsome are being used
 
     if (!this.controller || typeof this.controller === 'function') {
-      this.controller = this.newMVC(settings.controller, controllerSettings.func, $.extend(controllerSettings.prop, { model: this.model, view: this.view }));
+      this.controller = this.newMVC(settings.controller, controllerSettings.func, {
+        ...controllerSettings.prop,
+        model : this.model,
+        view  : this.view,
+      });
     } else {
       controllerSettings.prop.threshold = controllerSettings.prop.threshold || this.controller.constructor.prototype.threshold;
-      $.extend(this.controller, controllerSettings.prop, { model: this.model, view: this.view });
+
+      Object.assign(this.controller, controllerSettings.prop, {
+        model : this.model,
+        view  : this.view,
+      });
     }
   },
 
   newMVC: function (object, functions, properties) {
     return new (object.extend(
-      $.extend(true, {}, object.prototype, functions, {
-        prop: $.proxy(this.prop, this)
+      $.extend(true, {}, {
+        ...object.prototype,
+        ...functions,
+        prop: this.prop.bind(this),
       })
-    ))(
-      $.extend(properties, {
-        browser : this.browser,
-        width   : this.width,
-        track   : this
-      })
-    );
+    ))({
+      ...properties,
+      browser : this.browser,
+      width   : this.width,
+      track   : this,
+    });
   },
 
   setLengthMap: function () {
-    var mv        = [ 'model', 'view' ];
-    var lengthMap = [];
-    var models    = {};
-    var views     = {};
-    var settings, value, deepCopy, prevLengthMap, mvSettings, type, prevType, i, j;
+    const models = {};
+    const views  = {};
 
     function compare(a, b) {
-      var checked = { browser: true, width: true, track: true }; // Properties set in newMVC should be ignored, as they will be missing if comparing an object with a prototype
-      var key;
+      const checked = { browser: true, width: true, track: true }; // Properties set in newMVC should be ignored, as they will be missing if comparing an object with a prototype
 
-      for (key in a) {
+      for (const key in a) { // eslint-disable-line no-restricted-syntax
         if (checked[key]) {
           continue;
         }
@@ -246,106 +258,111 @@ var Track = Base.extend({
         }
       }
 
-      for (key in b) {
-        if (!checked[key]) {
-          return false;
-        }
-      }
-
-      return true;
+      return Object.keys(b).every(key => checked[key]);
     }
+
+    const lengthMap = [
+      // Force at least one lengthMap entry to exist, containing the base model and view. lengthMap entries above -1 without a model or view will inherit from -1.
+      [ -1, { view: this.view || View, model: this.model || Model }],
+    ];
 
     // Find all scale-map like keys
-    for (var key in this) {
+    for (const key in this) { // eslint-disable-line no-restricted-syntax
       if (!isNaN(key)) {
-        key   = parseInt(key, 10);
-        value = this[key];
+        const value = this[key];
 
-        lengthMap.push([ key, value === false ? { threshold: key, resizable: 'auto', featureHeight: 0, model: Model, view: View } : $.extend(true, {}, value) ]);
+        lengthMap.push([
+          Number(key),
+          value === false
+            ? {
+              threshold     : Number(key),
+              resizable     : 'auto',
+              featureHeight : 0,
+              model         : Model,
+              view          : View,
+            }
+            : $.extend(true, {}, value),
+        ]);
       }
     }
 
-    // Force at least one lengthMap entry to exist, containing the base model and view. lengthMap entries above -1 without a model or view will inherit from -1.
-    lengthMap.push([ -1, { view: this.view || View, model: this.model || Model }]);
+    lengthMap.sort((a, b) => b[0] - a[0]).forEach(
+      ([ threshold, trackConfig ], i) => {
+        if (trackConfig.model && trackConfig.view) {
+          return;
+        }
 
-    lengthMap = lengthMap.sort(function (a, b) { return b[0] - a[0]; });
+        const makeDeepCopy = (
+          threshold === -1
+            ? {}
+            : {
+              model : Object.keys(trackConfig).some(key => this._interface[key] === 'model'),
+              view  : Object.keys(trackConfig).some(key => this._interface[key] === 'view'),
+            }
+        );
 
-    for (i = 0; i < lengthMap.length; i++) {
-      if (lengthMap[i][1].model && lengthMap[i][1].view) {
-        continue;
-      }
-
-      deepCopy = {};
-
-      if (lengthMap[i][0] !== -1) {
-        for (j in lengthMap[i][1]) {
-          if (this._interface[j]) {
-            deepCopy[this._interface[j]] = true;
+        // Ensure that every lengthMap entry has a model and view property, copying them from entries with smaller lengths if needed.
+        for (let j = i + 1; j < lengthMap.length; j++) {
+          if (!trackConfig.model && lengthMap[j][1].model) {
+            trackConfig.model = makeDeepCopy.model ? Model.extend($.extend(true, {}, lengthMap[j][1].model.prototype)) : lengthMap[j][1].model;
           }
 
-          if (deepCopy.model && deepCopy.view) {
+          if (!trackConfig.view && lengthMap[j][1].view) {
+            trackConfig.view = makeDeepCopy.view ? View.extend($.extend(true, {}, lengthMap[j][1].view.prototype)) : lengthMap[j][1].view;
+          }
+
+          if (trackConfig.model && trackConfig.view) {
             break;
           }
         }
       }
-
-      // Ensure that every lengthMap entry has a model and view property, copying them from entries with smaller lengths if needed.
-      for (j = i + 1; j < lengthMap.length; j++) {
-        if (!lengthMap[i][1].model && lengthMap[j][1].model) {
-          lengthMap[i][1].model = deepCopy.model ? Model.extend($.extend(true, {}, lengthMap[j][1].model.prototype)) : lengthMap[j][1].model;
-        }
-
-        if (!lengthMap[i][1].view && lengthMap[j][1].view) {
-          lengthMap[i][1].view = deepCopy.view ? View.extend($.extend(true, {}, lengthMap[j][1].view.prototype)) : lengthMap[j][1].view;
-        }
-
-        if (lengthMap[i][1].model && lengthMap[i][1].view) {
-          break;
-        }
-      }
-    }
+    );
 
     // Now every lengthMap entry has a model and a view class, create instances of those classes.
-    for (i = 0; i < lengthMap.length; i++) {
-      prevLengthMap = lengthMap[i - 1] ? lengthMap[i - 1][1] : {};
-      settings      = $.extend(true, {}, this.constructor.prototype, lengthMap[i][1]);
-      mvSettings    = { model: { prop: {}, func: {} }, view: { prop: {}, func: {} } };
+    lengthMap.forEach(
+      ([ threshold, trackConfig ], i) => {
+        const prevLengthMap = lengthMap[i - 1] ? lengthMap[i - 1][1] : {};
+        const settings      = $.extend(true, {}, this.constructor.prototype, trackConfig);
+        const mvSettings    = { model: { prop: {}, func: {} }, view: { prop: {}, func: {} } };
 
-      // Work out which settings belong to models or views
-      for (j in settings) {
-        if (j !== 'constructor' && mvSettings[this._interface[j]]) {
-          mvSettings[this._interface[j]][typeof settings[j] === 'function' ? 'func' : 'prop'][j] = settings[j];
-        }
-      }
-
-      // Create models and views, if settings.model or settings.view is a class rather than an instance
-      for (j = 0; j < mv.length; j++) {
-        type = mv[j];
-
-        if (typeof settings[type] === 'function') {
-          prevType = this[mv[j] + 's'];
-
-          // If the previous lengthMap contains an instance of the class in settings, it can be reused.
-          // This allows sharing of models and views between lengthMap entries if they are the same, stopping the need to fetch identical data or draw identical images more than once
-          if (prevLengthMap[type] instanceof settings[type]) {
-            settings[type] = prevLengthMap[type];
-          } else {
-            // Make an instance of the model/view, based on the settings[type] class but with a prototype that contains the functions in mvSettings[type].func
-            settings[type] = this.newMVC(settings[type], mvSettings[type].func, mvSettings[type].prop);
-
-            // If the track already has this.models/this.views and the prototype of the new model/view is the same as the value of this.models/this.views for the same length key, reuse that value.
-            // This can happen if the track has configSettings and the user changes config but that only affects one of the model and view.
-            // Again, reusing the old value stops the need to fetch identical data or draw identical images more than once.
-            if (prevType[lengthMap[i][0]] && compare(prevType[lengthMap[i][0]].constructor.prototype, $.extend({}, settings[type].constructor.prototype, mvSettings[type].prop))) {
-              settings[type] = prevType[lengthMap[i][0]];
+        // Work out which settings belong to models or views
+        Object.entries(settings).forEach(
+          ([ key, value ]) => {
+            if (key !== 'constructor' && mvSettings[this._interface[key]]) {
+              mvSettings[this._interface[key]][typeof value === 'function' ? 'func' : 'prop'][key] = value;
             }
           }
-        }
-      }
+        );
 
-      models[lengthMap[i][0]] = lengthMap[i][1].model = settings.model;
-      views[lengthMap[i][0]]  = lengthMap[i][1].view  = settings.view;
-    }
+        // Create models and views, if settings.model or settings.view is a class rather than an instance
+        [ 'model', 'view' ].forEach(
+          (type) => {
+            if (typeof settings[type] === 'function') {
+              const prevType = this[`${type}s`];
+
+              // If the previous lengthMap contains an instance of the class in settings, it can be reused.
+              // This allows sharing of models and views between lengthMap entries if they are the same, stopping the need to fetch identical data or draw identical images more than once
+              if (prevLengthMap[type] instanceof settings[type]) {
+                settings[type] = prevLengthMap[type];
+              } else {
+                // Make an instance of the model/view, based on the settings[type] class but with a prototype that contains the functions in mvSettings[type].func
+                settings[type] = this.newMVC(settings[type], mvSettings[type].func, mvSettings[type].prop);
+
+                // If the track already has this.models/this.views and the prototype of the new model/view is the same as the value of this.models/this.views for the same length key, reuse that value.
+                // This can happen if the track has configSettings and the user changes config but that only affects one of the model and view.
+                // Again, reusing the old value stops the need to fetch identical data or draw identical images more than once.
+                if (prevType[threshold] && compare(prevType[threshold].constructor.prototype, { ...settings[type].constructor.prototype, ...mvSettings[type].prop })) {
+                  settings[type] = prevType[threshold];
+                }
+              }
+            }
+          }
+        );
+
+        models[threshold] = trackConfig.model = settings.model;
+        views[threshold]  = trackConfig.view  = settings.view;
+      }
+    );
 
     this.lengthMap = lengthMap;
     this.models    = models;
@@ -353,33 +370,19 @@ var Track = Base.extend({
   },
 
   getSettingsForLength: function () {
-    var length = this.browser.length || (this.browser.end - this.browser.start + 1);
+    const length = this.browser.length || (this.browser.end - this.browser.start + 1);
 
-    for (var i = 0; i < this.lengthMap.length; i++) {
-      if (length > this.lengthMap[i][0] || (length === 1 && this.lengthMap[i][0] === 1) || (length < 0 && this.lengthMap[i][0] < 0)) {
-        return this.lengthMap[i];
-      }
-    }
-
-    return [];
+    return this.lengthMap.find(
+      ([ threshold ]) => length > threshold || (length === 1 && threshold === 1) || (length < 0 && threshold < 0)
+    ) || [];
   },
 
   prop: function (key, value) {
-    var mvc = [ 'controller', 'model', 'view' ];
-    var obj;
-
-    if (this._interface[key]) {
-      obj = this[this._interface[key]];
-    } else {
-      for (var i = 0; i < 3; i++) {
-        if (this[mvc[i]] && typeof this[mvc[i]][key] !== 'undefined') {
-          obj = this[mvc[i]];
-          break;
-        }
-      }
-
-      obj = obj || this;
-    }
+    const obj = (
+      this._interface[key]
+        ? this[this._interface[key]]
+        : this[[ 'controller', 'model', 'view' ].find(type => this[type] && typeof this[type][key] !== 'undefined')] || this
+    );
 
     if (typeof value !== 'undefined') {
       if (value === null) {
@@ -406,53 +409,51 @@ var Track = Base.extend({
 
   resetHeight: function () {
     if (this.resizable === true) {
-      var resizer = this.prop('resizer');
+      const resizer = this.prop('resizer');
 
-      this.autoHeight = !!([ this.defaultAutoHeight, this.browser.trackAutoHeight ].sort(function (a, b) {
-        return (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1);
-      })[0]);
+      this.autoHeight = !!([ this.defaultAutoHeight, this.browser.trackAutoHeight ].sort((a, b) => (typeof a !== 'undefined' && a !== null ? 0 : 1) - (typeof b !== 'undefined' && b !== null ?  0 : 1))[0]);
 
       this.controller.resize(this.autoHeight ? this.prop('fullVisibleHeight') : this.defaultHeight + this.margin + (resizer ? resizer.height() : 0));
       this.initialHeight = this.height;
     }
   },
 
-  setConfig: function (config) {
-    if (typeof config === 'string' && arguments.length === 2) {
-      var _config = {};
-      _config[config] = arguments[1];
-      config = _config;
+  setConfig: function (config, arg) {
+    if (typeof config === 'string' && arg) {
+      const _config = {};
+
+      _config[config] = arg;
+      config          = _config;
     }
 
-    var configChanged = false;
-    var conf;
+    let configChanged = false;
 
-    for (var type in config) {
-      conf = config[type];
+    Object.entries(config).forEach(
+      ([ type, conf ]) => {
+        if (typeof this.configSettings[type] === 'undefined' || typeof this.configSettings[type][conf] === 'undefined' || this.config[type] === conf) {
+          return;
+        }
 
-      if (typeof this.configSettings[type] === 'undefined' || typeof this.configSettings[type][conf] === 'undefined' || this.config[type] === conf) {
-        continue;
+        this.config[type] = conf;
+
+        configChanged = true;
       }
-
-      this.config[type] = conf;
-
-      configChanged = true;
-    }
+    );
 
     if (configChanged) {
-      var features = this.prop('featuresById');
+      const features = this.prop('featuresById');
 
-      for (var i in features) {
-        delete features[i].menuEl;
-      }
+      Object.values(features).forEach(
+        (feature) => { delete feature.menuEl; }
+      );
 
       this._setCurrentConfig();
 
       if (!this.disabled) {
-        this.reset.apply(this, configChanged ? [ 'config', config ] : []);
+        this.reset(...(configChanged ? [ 'config', config ] : []));
       }
 
-      (this.prop('childTracks') || []).forEach(function (track) {
+      (this.prop('childTracks') || []).forEach((track) => {
         track.setConfig(config);
       });
 
@@ -461,52 +462,55 @@ var Track = Base.extend({
   },
 
   _setCurrentConfig: function () {
-    var settings       = [];
-    var featureFilters = [];
-    var configName     = [];
-    var controls       = (Array.isArray(this.controls) ? this.controls : []).reduce(function (acc, control) { return acc.add(control); }, $());
-    var conf, i;
+    const controls       = (Array.isArray(this.controls) ? this.controls : []).reduce((acc, control) => acc.add(control), $());
+    const featureFilters = [];
+
+    let settings   = [];
+    let configName = [];
 
     this._currentConfig = { prop: {}, func: {} };
 
-    for (i in this.configSettings) {
-      conf = this.getConfig(i);
+    Object.keys(this.configSettings).forEach(
+      (key) => {
+        const conf = this.getConfig(key);
 
-      if (conf) {
-        settings.push(conf);
+        if (conf) {
+          settings.push(conf);
 
-        if (conf.featureFilter) {
-          featureFilters.push(conf.featureFilter);
+          if (conf.featureFilter) {
+            featureFilters.push(conf.featureFilter);
+          }
+
+          configName.push(
+            conf.hasOwnProperty('name')
+              ? typeof conf.name === 'function'
+                ? conf.name.call(this)
+                : conf.name
+              : conf.featureFilter === false
+                ? false
+                : controls.filter(`[data-control="${key}"]`).find(`[value="${this.config[key]}"]`).html()
+          );
         }
-
-        configName.push(
-          conf.hasOwnProperty('name')
-            ? typeof conf.name === 'function' ? conf.name.call(this) : conf.name
-            : conf.featureFilter === false
-              ? false
-              : controls.filter('[data-control="' + i + '"]').find('[value="' + this.config[i] + '"]').html()
-        );
       }
-    }
+    );
 
     if (settings.length) {
       configName = configName.filter(Boolean);
 
-      settings = $.extend.apply($, [ true, {}].concat(
-        settings,
-        {
-          featureFilters : featureFilters,
-          name           : this.defaultName + (configName.length ? ' - ' + configName.join(', ') : ''),
-          configName     : [ this.defaultName ].concat(configName)
-        }
-      ));
+      settings = $.extend(true, {}, ...settings, {
+        featureFilters : featureFilters,
+        name           : `${this.defaultName}${configName.length ? ` - ${configName.join(', ')}` : ''}`,
+        configName     : [ this.defaultName ].concat(configName),
+      });
 
       delete settings.featureFilter;
     }
 
-    for (i in settings) {
-      this._currentConfig[typeof settings[i] === 'function' && !/^(before|after)/.test(i) ? 'func' : 'prop'][i] = settings[i];
-    }
+    Object.entries(settings).forEach(
+      ([ key, value ]) => {
+        this._currentConfig[typeof value === 'function' && !/^(before|after)/.test(key) ? 'func' : 'prop'][key] = value;
+      }
+    );
 
     if (settings.name) {
       this.updateName(settings.name, settings.configName);
@@ -522,27 +526,33 @@ var Track = Base.extend({
       return;
     }
 
-    var track    = this;
-    var browser  = this.browser;
-    var children = (Array.isArray(this.children) ? this.children : [ this.children ]).filter(function (child) { return child.prototype instanceof Track; });
-    var config   = {
+    const track    = this;
+    const browser  = this.browser;
+    const children = [].concat(this.children).filter(child => child.prototype instanceof Track);
+    const config   = {
       parentTrack : this,
       controls    : 'off',
-      threshold   : this.prop('threshold')
+      threshold   : this.prop('threshold'),
     };
 
-    setTimeout(function () {
-      track.childTracks = children.map(function (child) {
-        if (child.prototype instanceof Track.Legend || child === Track.Legend) { // Note: Track.Legend will only exist if it has been imported
-          track.addLegend(child.extend(config), true);
-          return track.legendTrack;
-        }
+    setTimeout(
+      () => {
+        track.childTracks = children.map(
+          (child) => {
+            if (child.prototype instanceof Track.Legend || child === Track.Legend) {
+              track.addLegend(child.extend(config), true);
 
-        return browser.addTrack(child.extend(config));
-      });
+              return track.legendTrack;
+            }
 
-      track.controller.setLabelHeight();
-    }, 1);
+            return browser.addTrack(child.extend(config));
+          }
+        );
+
+        track.controller.setLabelHeight();
+      },
+      1
+    );
   },
 
   addLegend: function (constructor, now) {
@@ -552,18 +562,19 @@ var Track = Base.extend({
 
     constructor = constructor || (this.legend.prototype instanceof Track.Legend ? this.legend : Track.Legend); // Note: Track.Legend will only exist if it has been imported
 
-    var track       = this;
-    var legendType  = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
-    var config      = {
-      id   : legendType + 'Legend',
-      name : constructor.prototype.name || (this.defaultName + ' Legend'),
-      type : legendType
+    const track      = this;
+    const legendType = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
+    const config     = {
+      id   : `${legendType}Legend`,
+      name : constructor.prototype.name || `${this.defaultName} Legend`,
+      type : legendType,
     };
 
     this.legendType = legendType;
 
     function makeLegendTrack() {
       track.legendTrack = track.browser.legends[config.id] || track.browser.addTrack(constructor.extend(config));
+
       return track.legendTrack;
     }
 
@@ -575,9 +586,9 @@ var Track = Base.extend({
   },
 
   changeChr: function () {
-    for (var i in this.models) {
-      this.models[i].setChrProps();
-    }
+    Object.values(this.models).forEach(
+      model => model.setChrProps()
+    );
   },
 
   updateName: function (name, configName) { // For ease of use in external code
@@ -604,22 +615,13 @@ var Track = Base.extend({
     }
   },
 
-  reset: function () {
-    var i;
-
+  reset: function (...args) {
     this.setLengthMap();
 
-    for (i in this.models) {
-      if (this.models[i].url !== false) {
-        this.models[i].init(true);
-      }
-    }
+    Object.values(this.models).filter(model => model.url !== false).forEach(model => model.init(true));
+    Object.values(this.views).forEach(view => view.init(true));
 
-    for (i in this.views) {
-      this.views[i].init();
-    }
-
-    this.controller.reset.apply(this.controller, arguments);
+    this.controller.reset(...args);
   },
 
   remove: function () {
@@ -631,14 +633,14 @@ var Track = Base.extend({
       this.controller.destroy();
     }
 
-    var objs = [ this.view, this.model, this.controller, this ].filter(Boolean);
+    const objs = [ this.view, this.model, this.controller, this ];
 
-    for (var i = 0; i < objs.length; i++) {
-      for (var key in objs[i]) {
+    for (let i = 0; i < objs.length; i++) { // eslint-disable-line no-restricted-syntax, guard-for-in
+      for (const key in objs[i]) { // eslint-disable-line no-restricted-syntax, guard-for-in
         delete objs[i][key];
       }
     }
-  }
+  },
 });
 
 Track.Controller = Controller;

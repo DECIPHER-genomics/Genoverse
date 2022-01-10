@@ -21,45 +21,47 @@ export default Track.extend({
   featureMargin    : { top: 13, right: 0, bottom: 0, left: 0 },
   margin           : 0,
 
-  constructor: function () {
+  constructor: function (...args) {
     this.colorIndex = 0;
-    return this.base.apply(this, arguments);
+
+    return this.base(...args);
   },
 
   addHighlights: function (highlights) {
-    for (var i = 0; i < highlights.length; i++) {
-      this.model.insertFeature($.extend({ label: (highlights[i].start + '-' + highlights[i].end) }, highlights[i]));
-    }
+    highlights.forEach(
+      highlight => this.model.insertFeature({ label: `${highlight.start}-${highlight.end}`, ...highlight })
+    );
 
     this.reset();
   },
 
   removeHighlights: function (highlights) {
-    var featuresByChr = this.prop('featuresByChr');
-    var featuresById  = this.prop('featuresById');
-    var features, bounds, h;
+    const featuresByChr = this.prop('featuresByChr');
+    const featuresById  = this.prop('featuresById');
 
-    highlights = highlights || $.map(featuresById, function (f) { return f; });
+    highlights = highlights || Object.values(featuresById);
 
-    for (var i = 0; i < highlights.length; i++) {
-      if (highlights[i].removable === false) {
-        continue;
+    highlights.forEach(
+      (highlight) => {
+        if (highlight.removable === false) {
+          return;
+        }
+
+        const features = featuresByChr[highlight.chr];
+        const bounds   = { x: highlight.start, y: 0, w: highlight.end - highlight.start + 1, h: 1 };
+
+        // RTree.remove only works if the second argument (the object to be removed) === the object found in the tree.
+        // Here, while highlight is effectively the same object as the one in the tree, it has been cloned, so the === check fails.
+        // To fix this, search for the feature to remove in the location of highlight.
+        const h = features.search(bounds).filter(item => item.id === highlight.id);
+
+        if (h.length) {
+          features.remove(bounds, h[0]);
+        }
+
+        delete featuresById[highlight.id];
       }
-
-      features = featuresByChr[highlights[i].chr];
-      bounds   = { x: highlights[i].start, y: 0, w: highlights[i].end - highlights[i].start + 1, h: 1 };
-
-      // RTree.remove only works if the second argument (the object to be removed) === the object found in the tree.
-      // Here, while highlight is effectively the same object as the one in the tree, it has been cloned, so the === check fails.
-      // To fix this, search for the feature to remove in the location of highlight.
-      h = $.grep(features.search(bounds), function (item) { return item.id === highlights[i].id; }); // eslint-disable-line no-loop-func
-
-      if (h.length) {
-        features.remove(bounds, h[0]);
-      }
-
-      delete featuresById[highlights[i].id];
-    }
+    );
 
     if (this.prop('strand') === 1) {
       this.prop('reverseTrack').removeHighlights(highlights);
@@ -95,8 +97,10 @@ export default Track.extend({
         params.background = 'gv-full-height';
       }
 
-      var rtn = this.base(params);
+      const rtn = this.base(params);
+
       params.container.addClass(params.background);
+
       return rtn;
     },
 
@@ -111,59 +115,63 @@ export default Track.extend({
     },
 
     populateMenu: function (features) {
-      var menu = [];
-      var location, m;
+      const menu = [];
 
       if (features.length > 1) {
         menu.push({ title: 'Highlights' });
       }
 
-      for (var i = 0; i < features.length; i++) {
-        location = features[i].start + '-' + features[i].end;
-        m        = {
-          title : features[i].label ? features[i].label[0] : location,
-          start : false
-        };
+      features.forEach(
+        (feature) => {
+          const location = `${feature.start}-${feature.end}`;
+          const m        = {
+            title : feature.label ? feature.label[0] : location,
+            start : false,
+          };
 
-        m[m.title === location ? 'title' : 'Location'] = features[i].chr + ':' + location;
-        m['<a class="gv-focus-highlight" href="#" data-chr="' + features[i].chr + '" data-start="' + features[i].start + '" data-end="' + features[i].end + '">Focus here</a>'] = '';
+          m[m.title === location ? 'title' : 'Location']                                                                                               = `${feature.chr}:${location}`;
+          m[`<a class="gv-focus-highlight" href="#" data-chr="${feature.chr}" data-start="${feature.start}" data-end="${feature.end}">Focus here</a>`] = '';
 
-        if (features[i].removable !== false) {
-          m['<a class="gv-remove-highlight"  href="#" data-id="' + features[i].id + '">Remove this highlight</a>'] = '';
-          m['<a class="gv-remove-highlights" href="#">Remove all highlights</a>'] = '';
+          if (feature.removable !== false) {
+            m[`<a class="gv-remove-highlight"  href="#" data-id="${feature.id}">Remove this highlight</a>`] = '';
+            m['<a class="gv-remove-highlights" href="#">Remove all highlights</a>']                         = '';
+          }
+
+          menu.push(m);
         }
-
-        menu.push(m);
-      }
+      );
 
       return menu;
     },
 
-    click: function () {
+    click: function (...args) {
       if (this.prop('strand') !== 1) {
         return;
       }
 
-      var menuEl = this.base.apply(this, arguments);
+      const menuEl = this.base(...args);
 
       if (menuEl && !menuEl.data('highlightEvents')) {
-        var track = this.track;
+        const track = this.track;
 
         menuEl.find('.gv-remove-highlight').on('click', function () {
-          var id = $(this).data('id');
-          track.removeHighlights($.grep(menuEl.data('feature'), function (f) { return f.id === id; }));
+          const id = $(this).data('id');
+
+          track.removeHighlights(menuEl.data('feature').filter(f => f.id === id));
+
           return false;
         });
 
-        menuEl.find('.gv-remove-highlights').on('click', function () {
+        menuEl.find('.gv-remove-highlights').on('click', () => {
           track.removeHighlights();
+
           return false;
         });
 
         menuEl.find('.gv-focus-highlight').on('click', function () {
-          var data    = $(this).data();
-          var length  = data.end - data.start + 1;
-          var context = Math.max(Math.round(length / 4), 25);
+          const data    = $(this).data();
+          const length  = data.end - data.start + 1;
+          const context = Math.max(Math.round(length / 4), 25);
 
           track.browser.moveTo(data.chr, data.start - context, data.end + context, true);
 
@@ -175,38 +183,39 @@ export default Track.extend({
     },
 
     getClickedFeatures: function (x, y) {
-      var seen     = {};
-      var scale    = this.scale;
-      var features = $.grep(
-        // feature positions
-        this.featurePositions.search({ x: x, y: y, w: 1, h: 1 }).concat(
-          // plus label positions where the labels are visible
-          $.grep(this.labelPositions.search({ x: x, y: y, w: 1, h: 1 }), function (f) {
-            return f.position[scale].label.visible !== false;
-          })
-        ),
-        function (f) {
+      const seen     = {};
+      const scale    = this.scale;
+      const features =
+      this.featurePositions.search({ x: x, y: y, w: 1, h: 1 }).concat( // feature positions
+        this.labelPositions.search({ x: x, y: y, w: 1, h: 1 }).filter(// plus label positions where the labels are visible
+          f => f.position[scale].label.visible !== false
+        )
+      ).filter(
+        (f) => {
           // with duplicates removed
-          var rtn = !seen[f.id];
+          const rtn = !seen[f.id];
+
           seen[f.id] = true;
+
           return rtn;
         }
       );
 
       return features.length ? [ this.model.sortFeatures(features) ] : false;
-    }
+    },
   }),
 
   model: StrandedModel.extend({
     url: false,
 
     insertFeature: function (feature) {
-      feature.id   = feature.chr + ':' + feature.start + '-' + feature.end;
+      feature.id   = `${feature.chr}:${feature.start}-${feature.end}`;
       feature.sort = feature.start;
 
       if (!feature.color) {
-        var colors = this.prop('colors');
-        var i      = this.prop('colorIndex');
+        const colors = this.prop('colors');
+
+        let i = this.prop('colorIndex');
 
         feature.color = colors[i++];
 
@@ -218,14 +227,14 @@ export default Track.extend({
       }
     },
 
-    findFeatures: function () {
-      return Model.prototype.findFeatures.apply(this, arguments);
-    }
+    findFeatures: function (...args) {
+      return Model.prototype.findFeatures.call(this, ...args);
+    },
   }),
 
   view: View.extend({
     positionFeatures: function (features, params) {
-      var rtn = this.base.apply(this, arguments);
+      const rtn = this.base(features, params);
 
       // featureMargin.top gets used to define params.featureHeight, which is used to determine canvas height.
       // Since featureMargin.top = 13 on forward strand, the canvas has a 13px space at the bottom, meaning there is a gap before the background starts.
@@ -249,26 +258,34 @@ export default Track.extend({
         return;
       }
 
-      for (var i = 0; i < features.length; i++) {
-        context.fillStyle = features[i].color;
+      features.forEach(
+        (feature) => {
+          context.fillStyle = feature.color;
 
-        this.drawFeature($.extend(true, {}, features[i], {
-          x           : features[i].position[params.scale].X,
-          y           : 0,
-          width       : features[i].position[params.scale].width,
-          height      : context.canvas.height,
-          color       : this.shadeColor(context.fillStyle, 0.8),
-          border      : features[i].color,
-          label       : false,
-          decorations : true
-        }), context, false, params.scale);
-      }
+          this.drawFeature(
+            $.extend(true, {}, feature, {
+              x           : feature.position[params.scale].X,
+              y           : 0,
+              width       : feature.position[params.scale].width,
+              height      : context.canvas.height,
+              color       : this.shadeColor(context.fillStyle, 0.8),
+              border      : feature.color,
+              label       : false,
+              decorations : true,
+            }),
+            context,
+            false,
+            params.scale
+          );
+        }
+      );
     },
 
     decorateFeature: function (feature, context) {
-      var x1   = feature.x + 0.5;
-      var x2   = x1 + feature.width;
-      var draw = false;
+      const x1 = feature.x + 0.5;
+      const x2 = x1 + feature.width;
+
+      let draw = false;
 
       context.strokeStyle = feature.border;
       context.lineWidth   = 2;
@@ -291,6 +308,6 @@ export default Track.extend({
       }
 
       context.lineWidth = 1;
-    }
-  })
+    },
+  }),
 });

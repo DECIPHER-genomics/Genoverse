@@ -5,7 +5,7 @@ export default Model.extend({
     this.base(reset);
 
     if (!reset) {
-      var otherTrack = this.prop('forwardTrack');
+      const otherTrack = this.prop('forwardTrack');
 
       if (otherTrack) {
         this.featuresByChr = otherTrack.prop('featuresByChr');
@@ -15,16 +15,17 @@ export default Model.extend({
     }
   },
 
-  parseURL: function () {
+  parseURL: function (...args) {
     if (!this.urlParams.strand) {
       this.urlParams.strand = this.prop('featureStrand');
     }
 
-    return this.base.apply(this, arguments);
+    return this.base(...args);
   },
 
-  findFeatures: function () {
-    var strand = this.track.featureStrand;
-    return $.grep(this.base.apply(this, arguments), function (feature) { return feature.strand === strand; });
-  }
+  findFeatures: function (...args) {
+    const strand = this.track.featureStrand;
+
+    return this.base(...args).filter(feature => feature.strand === strand);
+  },
 });

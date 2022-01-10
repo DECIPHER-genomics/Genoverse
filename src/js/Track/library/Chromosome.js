@@ -18,23 +18,24 @@ export default Track.extend({
     gpos66  : '#7F7F7F',
     gpos75  : '#666666',
     gvar    : '#E0E0E0',
-    stalk   : '#708090'
+    stalk   : '#708090',
   },
   labelColors: {
     gneg   : '#000000',
     gvar   : '#000000',
     gpos25 : '#000000',
-    gpos33 : '#000000'
+    gpos33 : '#000000',
   },
 
   getData: function (chr, start, end) {
     this.receiveData($.extend(true, [], this.browser.genome[chr].bands), chr, start, end);
+
     return $.Deferred().resolveWith(this);
   },
 
   insertFeature: function (feature) {
     feature.label      = feature.type === 'acen' || feature.type === 'stalk' ? false : feature.id;
-    feature.menuTitle  = feature.id ? feature.chr + feature.id : feature.chr + ':' + feature.start + '-' + feature.end;
+    feature.menuTitle  = feature.id ? feature.chr + feature.id : `${feature.chr}:${feature.start}-${feature.end}`;
     feature.color      = this.prop('colors')[feature.type]      || '#FFFFFF';
     feature.labelColor = this.prop('labelColors')[feature.type] || '#FFFFFF';
 
@@ -66,7 +67,7 @@ export default Track.extend({
       featureContext.fill();
       featureContext.stroke();
     } else if (feature.type === 'stalk') {
-      for (var i = 0; i < 2; i++) {
+      for (let i = 0; i < 2; i++) {
         featureContext.beginPath();
 
         featureContext.moveTo(feature.x, 0.5);
@@ -86,11 +87,11 @@ export default Track.extend({
 
       featureContext.beginPath();
 
-      var chrSize = this.browser.getChromosomeSize(feature.chr);
+      const chrSize = this.browser.getChromosomeSize(feature.chr);
 
       if (feature.start === 1 || feature.end === chrSize) {
         if (feature.start === 1) {
-          var end = feature.x + feature.width - (feature.end === chrSize ? 5 : 0);
+          const end = feature.x + feature.width - (feature.end === chrSize ? 5 : 0);
 
           featureContext.clearRect(0, 0, 5, feature.height + 0.5);
 
@@ -130,18 +131,18 @@ export default Track.extend({
     }
   },
 
-  drawLabel: function (feature) {
+  drawLabel: function (feature, ...args) {
     if ((feature.start === 1 || feature.end === this.browser.getChromosomeSize(feature.chr)) && feature.labelWidth >= Math.floor(feature.width - 5)) {
       return;
     }
 
-    this.base.apply(this, arguments);
+    this.base(feature, ...args);
   },
 
   populateMenu: function (feature) {
     return {
       title    : feature.menuTitle,
-      Position : feature.chr + ':' + feature.start + '-' + feature.end
+      Position : `${feature.chr}:${feature.start}-${feature.end}`,
     };
-  }
+  },
 });

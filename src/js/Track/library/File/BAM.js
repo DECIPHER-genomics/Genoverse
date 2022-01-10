@@ -1,6 +1,6 @@
-import Track from 'js/Track/library/File';
 import Model from 'js/Track/Model/File/BAM';
 import View  from 'js/Track/View/Sequence';
+import Track from 'js/Track/library/File';
 
 export default Track.extend({
   name      : 'BAM',
@@ -10,11 +10,11 @@ export default Track.extend({
   model     : Model,
   view      : View.extend({
     bump       : true,
-    autoHeight : true
+    autoHeight : true,
   }),
 
-  click: function () {
-    var menu = this.base.apply(this, arguments);
+  click: function (...args) {
+    const menu = this.base(...args);
 
     if (menu) {
       menu.addClass('gv-wrap-values');
@@ -24,11 +24,11 @@ export default Track.extend({
   },
 
   populateMenu: function (feature) {
-    var f = $.extend({ title: feature.readName }, feature);
+    const f = { title: feature.readName, ...feature };
 
     delete f.sequence;
     delete f.id;
 
     return this.base(f);
-  }
+  },
 });

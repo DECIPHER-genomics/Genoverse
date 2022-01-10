@@ -2,105 +2,108 @@ import Model from 'js/Track/Model/File';
 
 export default Model.extend({
   parseData: function (data, chr) {
-    var lines       = typeof data === 'string' ? data.split('\n') : data;
-    var thinHeight  = this.prop('thinHeight');
-    var thickHeight = this.prop('thickHeight');
-    var fields, len, feature, subfeatures, subfeature, blockSizes, blockStarts, j, thinFeature, thinFeature1, thinFeature2, thickFeature;
+    const lines       = typeof data === 'string' ? data.split('\n') : data;
+    const thinHeight  = this.prop('thinHeight');
+    const thickHeight = this.prop('thickHeight');
 
     function filterNumber(n) {
       return !isNaN(n);
     }
 
-    for (var i = 0; i < lines.length; i++) {
-      fields = lines[i].split('\t').filter(function (f) { return f; });
+    lines.forEach(
+      (line) => {
+        const fields = line.split('\t').filter(f => f);
 
-      if (fields.length < 3 || fields[0] === 'track' || fields[0] === 'browser') {
-        continue;
-      }
-
-      len = fields.length;
-
-      if (fields[0] === String(chr) || fields[0].toLowerCase() === 'chr' + chr || fields[0].match('[^1-9]' + chr + '$')) {
-        feature = {
-          chr             : chr,
-          start           : parseInt(fields[1], 10) + 1,
-          end             : parseInt(fields[2], 10),
-          name            : fields[3],
-          color           : '#000000',
-          originalFeature : fields
-        };
-
-        if (len > 3) { feature.score  = parseFloat(fields[4], 10); }
-        if (len > 5) { feature.strand = fields[5];                 }
-
-        if (len > 7) {
-          feature.thickStart = parseInt(fields[6], 10) + 1;
-          feature.thickEnd   = parseInt(fields[7], 10);
-          feature.drawThick  = fields[6] !== fields[7];
+        if (fields.length < 3 || fields[0] === 'track' || fields[0] === 'browser') {
+          return;
         }
 
-        if (fields[8]) {
-          feature.color = 'rgb(' + fields[8] + ')';
-        } else {
-          feature.color = this.scoreColor(isNaN(feature.score) ? 1000 : feature.score);
-        }
+        const len = fields.length;
 
-        if (len === 12) { // subfeatures present
-          feature.blockCount = parseInt(fields[9], 10);
+        if (fields[0] === String(chr) || fields[0].toLowerCase() === `chr${chr}` || fields[0].match(`[^1-9]${chr}$`)) {
+          const feature = {
+            chr             : chr,
+            start           : parseInt(fields[1], 10) + 1,
+            end             : parseInt(fields[2], 10),
+            name            : fields[3],
+            color           : '#000000',
+            originalFeature : fields,
+          };
 
-          subfeatures = [];
-          blockSizes  = fields[10].split(',').filter(filterNumber);
-          blockStarts = fields[11].split(',').filter(filterNumber);
+          if (len > 3) { feature.score = parseFloat(fields[4], 10); }
+          if (len > 5) { feature.strand = fields[5];                }
 
-          for (j = 0; j < blockSizes.length; j++) {
-            subfeature = {
-              start  : feature.start + parseInt(blockStarts[j], 10),
-              height : thinHeight // if subfeature lies entirely left / right to [ thickStart, thickEnd ]
-            };
+          if (len > 7) {
+            feature.thickStart = parseInt(fields[6], 10) + 1;
+            feature.thickEnd   = parseInt(fields[7], 10);
+            feature.drawThick  = fields[6] !== fields[7];
+          }
 
-            subfeature.end = subfeature.start + parseInt(blockSizes[j], 10) - 1;
+          if (fields[8]) {
+            feature.color = `rgb(${fields[8]})`;
+          } else {
+            feature.color = this.scoreColor(isNaN(feature.score) ? 1000 : feature.score);
+          }
 
-            if (feature.drawThick && subfeature.start <= feature.thickEnd && subfeature.end >= feature.thickStart) {
-              // some kind of an overlap for sure
-              if (subfeature.start >= feature.thickStart && subfeature.end <= feature.thickEnd) {
-                // subfeature within thickBlock, draw thick
-                subfeature.height = thickHeight;
-                subfeatures.push(subfeature);
-              } else if (subfeature.start < feature.thickStart && subfeature.end <= feature.thickEnd) {
-                // left overlap, split subfeature into 2 - thin | thick
-                thinFeature  = $.extend({}, subfeature, { end: feature.thickStart });
-                thickFeature = $.extend({}, subfeature, { start: feature.thickStart, height: thickHeight });
+          if (len === 12) { // subfeatures present
+            feature.blockCount = parseInt(fields[9], 10);
 
-                subfeatures = subfeatures.concat([ thinFeature, thickFeature ]);
-              } else if (subfeature.start >= feature.thickStart && subfeature.end > feature.thickEnd) {
-                // right overlap, split subfeature into 2 - thick | thin
-                thinFeature  = $.extend({}, subfeature, { start: feature.thickEnd });
-                thickFeature = $.extend({}, subfeature, { end: feature.thickEnd, height: thickHeight });
+            const subfeatures = [];
+            const blockSizes  = fields[10].split(',').filter(filterNumber);
+            const blockStarts = fields[11].split(',').filter(filterNumber);
 
-                subfeatures = subfeatures.concat([ thickFeature, thinFeature ]);
-              } else {
-                // thickBlock lies within subfeature, split into 3 - thin | thick | thin
-                // the least possible case but lets be prepared for the outliers
-                thinFeature1 = $.extend({}, subfeature, { end: feature.thickStart });
-                thinFeature2 = $.extend({}, subfeature, { start: feature.thickEnd });
-                thickFeature = { start: feature.thickStart, end: feature.thickEnd, height: thickHeight };
+            blockSizes.forEach(
+              (blockSize, i) => {
+                const subfeature = {
+                  start  : feature.start + parseInt(blockStarts[i], 10),
+                  height : thinHeight, // if subfeature lies entirely left / right to [ thickStart, thickEnd ]
+                };
 
-                subfeatures = subfeatures.concat([ thinFeature1, thickFeature, thinFeature2 ]);
+                subfeature.end = subfeature.start + parseInt(blockSize, 10) - 1;
+
+                if (feature.drawThick && subfeature.start <= feature.thickEnd && subfeature.end >= feature.thickStart) {
+                  // some kind of an overlap for sure
+                  if (subfeature.start >= feature.thickStart && subfeature.end <= feature.thickEnd) {
+                    // subfeature within thickBlock, draw thick
+                    subfeature.height = thickHeight;
+                    subfeatures.push(subfeature);
+                  } else if (subfeature.start < feature.thickStart && subfeature.end <= feature.thickEnd) {
+                    // left overlap, split subfeature into 2 - thin | thick
+                    const thinFeature  = { ...subfeature, end: feature.thickStart };
+                    const thickFeature = { ...subfeature, start: feature.thickStart, height: thickHeight };
+
+                    subfeatures.push(...[ thinFeature, thickFeature ]);
+                  } else if (subfeature.start >= feature.thickStart && subfeature.end > feature.thickEnd) {
+                    // right overlap, split subfeature into 2 - thick | thin
+                    const thinFeature  = { ...subfeature, start: feature.thickEnd };
+                    const thickFeature = { ...subfeature, end: feature.thickEnd, height: thickHeight };
+
+                    subfeatures.push(...[ thickFeature, thinFeature ]);
+                  } else {
+                    // thickBlock lies within subfeature, split into 3 - thin | thick | thin
+                    // the least possible case but lets be prepared for the outliers
+                    const thinFeature1 = { ...subfeature, end: feature.thickStart };
+                    const thinFeature2 = { ...subfeature, start: feature.thickEnd };
+                    const thickFeature = { start: feature.thickStart, end: feature.thickEnd, height: thickHeight };
+
+                    subfeatures.push(...[ thinFeature1, thickFeature, thinFeature2 ]);
+                  }
+                } else {
+                  // no thick block
+                  subfeatures.push(subfeature);
+                }
               }
-            } else {
-              // no thick block
-              subfeatures.push(subfeature);
+            );
+
+            if (subfeatures.length) {
+              feature.subFeatures = subfeatures;
             }
           }
 
-          if (subfeatures.length) {
-            feature.subFeatures = subfeatures;
-          }
+          this.insertFeature(feature);
         }
-
-        this.insertFeature(feature);
       }
-    }
+    );
   },
 
   // As per https://genome.ucsc.edu/FAQ/FAQformat.html#format1 specification
@@ -113,6 +116,7 @@ export default Model.extend({
     if (score <= 722) { return 'rgb(67,67,67)';    }
     if (score <= 833) { return 'rgb(42,42,42)';    }
     if (score <= 944) { return 'rgb(21,21,21)';    }
+
     return '#000000';
-  }
+  },
 });
