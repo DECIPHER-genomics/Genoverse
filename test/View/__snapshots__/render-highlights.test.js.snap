@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Correctly render highlights: backgrounds neither highlight edge inside region 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAPCAYAAAAS0WrNAAAABmJLR0QA/wD/AP+gvaeTAAAAR0lEQVRYhe3YsQ3AMAwEMTn77yzXniBXkBMIOHyjs7s7ZHx/H8BLkBhBYgSJESRGkBhBYgSJESRGkBhBYgSJOTvjuRhiITEXR4gGF0iFtu4AAAAASUVORK5CYII="`;
+
+exports[`Correctly render highlights: backgrounds neither highlight edge inside region 2`] = `undefined`;
+
+exports[`Correctly render highlights: backgrounds neither highlight edge inside region 3`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAACCAYAAACuT3kTAAAABmJLR0QA/wD/AP+gvaeTAAAAGUlEQVQokWP8z8Dwn2EUDBrANNAOGAWoAABCgQICBqfWZAAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render highlights: backgrounds neither highlight edge inside region 4`] = `undefined`;
+
+exports[`Correctly render highlights: backgrounds only left highlight edge inside region 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAPCAYAAAAS0WrNAAAABmJLR0QA/wD/AP+gvaeTAAAAR0lEQVRYhe3YsQ3AMAwEMTn77yzXniBXkBMIOHyjs7s7ZHx/H8BLkBhBYgSJESRGkBhBYgSJESRGkBhBYgSJOTvjuRhiITEXR4gGF0iFtu4AAAAASUVORK5CYII="`;
+
+exports[`Correctly render highlights: backgrounds only left highlight edge inside region 2`] = `undefined`;
+
+exports[`Correctly render highlights: backgrounds only left highlight edge inside region 3`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAACCAYAAACuT3kTAAAABmJLR0QA/wD/AP+gvaeTAAAAGUlEQVQokWP8z8Dwn2EUDBrANNAOGAWoAABCgQICBqfWZAAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render highlights: backgrounds only left highlight edge inside region 4`] = `undefined`;
+
+exports[`Correctly render highlights: backgrounds only right highlight edge inside region 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAAPCAYAAAB3CuVDAAAABmJLR0QA/wD/AP+gvaeTAAAAgklEQVR4nO3ZsQ2AQBDEQB59/y0fKR2cg5kKNrX2zMw8AAAAwKp3ewAAAAAg0AEAACBBoAMAAECAQAcAAIAAgQ4AAAABAh0AAAACBDoAAAAECHQAAAAIEOgAAAAQINABAAAgQKADAABAgEAHAACAgLs9gJ9zthcAAACwxIMOAAAAAR9gxAQe/EfcMwAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render highlights: backgrounds only right highlight edge inside region 2`] = `undefined`;
+
+exports[`Correctly render highlights: backgrounds only right highlight edge inside region 3`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAACCAYAAADLlPadAAAABmJLR0QA/wD/AP+gvaeTAAAAKklEQVRYhe3OMQEAMAwDoKz+PXcy0gMU8MIZm2z7AAAAQMe0AwAAAEDyAYzUAgJOEYnyAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render highlights: backgrounds only right highlight edge inside region 4`] = `undefined`;
+
+exports[`Correctly render highlights: backgrounds overlapping highlights, completely inside region 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAAPCAYAAAB3CuVDAAAABmJLR0QA/wD/AP+gvaeTAAAAkklEQVR4nO3ZMQrAMAwEQTvk/1++tGkCghS+YqY2QqhbvJNkAQAAAEddpxcAAAAABDoAAABUEOgAAABQQKADAABAAYEOAAAABQQ6AAAAFBDoAAAAUECgAwAAQAGBDgAAAAUEOgAAABQQ6AAAAFBAoAMAAECB+/QCvOw9e7YyHpk1m8mHzG8NAADwhx90AAAAKPAAWkIIHPeu33wAAAAASUVORK5CYII="`;
+
+exports[`Correctly render highlights: backgrounds overlapping highlights, completely inside region 2`] = `undefined`;
+
+exports[`Correctly render highlights: backgrounds overlapping highlights, completely inside region 3`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAACCAYAAADLlPadAAAABmJLR0QA/wD/AP+gvaeTAAAAOUlEQVRYhe3QsQ0AIBACQN79d34bBzAWanFXE0Ko8I1OeidXe7HVWcd7SCoOBAAA7hivBwAAAADJBLSIBAQkhtHYAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render highlights: backgrounds overlapping highlights, completely inside region 4`] = `undefined`;
+
+exports[`Correctly render highlights: where two highlights overlap both labels are displayed 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAAPCAYAAAB3CuVDAAAABmJLR0QA/wD/AP+gvaeTAAAAkUlEQVR4nO3ZsQ2AUAxDQX/E/iuHlhKJIi7uJnAV6SlnZiYAAADAqmt7AAAAACDQAQAAoIJABwAAgAICHQAAAAoIdAAAACgg0AEAAKCAQAcAAIACAh0AAAAKCHQAAAAoINABAACggEAHAACAAgIdAAAACtzbA3g5Z3sBwCcnkySZuFs1ZrYXAAA/+aADAABAgQcWlAgc5aJUWQAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render highlights: where two highlights overlap both labels are displayed 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAAZCAYAAACihQTFAAAABmJLR0QA/wD/AP+gvaeTAAACsklEQVR4nO3csatWdRjA8e+NQI0cBGmTSJtcnFxLolU0cJdoKvwH2nJXpDloMZCmipYiIVocQkRJHQQbIhxqrKXFp+Ee4+16tbhdvRKfD7yc93nf33N4zvLAj+ecUwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADw70ztmXpnu3KnPpn6deqH7akQ4IHZU7OlfvVw7hyouVzzc83dmjPbUyMAAGzR1P6tbqY3y506NnXUBh3YfrO/Zou9ZWPuHKh5bfn+0rJRP/zfawQAgC2aujD129Q3U2eX305NfT91beri1K6pfVOXp25NXZ96a7PcJf9VG3Rg+82Fmt9qvqlZes6cqvm+5lrNxZpdNfuW6fitmus1b22e+7dzX6558+leDwAArNg4BZ96Zerbqd1LfHbqzNTpqfMr6/Y+avpugw48GQ9NwV+p+bZm9xKfXb9VfU7XnF9Zt/fx0/c5XPNjzYtPrnYAgGfT8ztdAI/1evVy9eWsxy9U31WXqg+m7lefrdWVqV07VSRAK/2qpjb0q5r71We1dmV9sr6Z2besf6/Wfn8aRQMAPEts0J9tz1Vfr9W7G/+YOlodr85NfV59/LSLA1jxXPV1rT3Ur2r+6lc1j+hXs6f1XvZhrX31JAsFAIB/NLV76peV+ODUvamDS7xv6tDUgQcT86njU5c25q6cwy3uwBMwu2tWes4crLm3fqzl2fNDywvglon5HK+5tEnu8zVf1Lz/9OoHAIB/MPXR1J2pc0t8YurG1O3leGzq5NQPUzenrk4deUTup1M/Tf0xdXfq7Z28NuD/Zj6quVNzbolP1Nyoub0cj9WcXH/efG7WXK058nDuvLF+C/zcXfmc2LnrAgAAAAAAAAAAAHbOn9WUJ4s8cU3MAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render highlights: where two highlights overlap both labels are displayed 3`] = `undefined`;
+
+exports[`Correctly render highlights: where two highlights overlap both labels are displayed 4`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAACCAYAAADLlPadAAAABmJLR0QA/wD/AP+gvaeTAAAAOklEQVRYhe3UwQkAMQwDQfn679n55P75OYGZChYEqnCNTnq6AeBE7bvq1HAJv4oxAOB133QAAAAAkCy+oQQE6svjKAAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render highlights: where two highlights overlap both labels are displayed 5`] = `undefined`;
+
+exports[`Correctly render highlights: where two highlights overlap second label is hidden 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAAPCAYAAAB3CuVDAAAABmJLR0QA/wD/AP+gvaeTAAAAkklEQVR4nO3ZMQrAMAwEQTvk/1++tGkCghS+YqY2QqhbvJNkAQAAAEddpxcAAAAABDoAAABUEOgAAABQQKADAABAAYEOAAAABQQ6AAAAFBDoAAAAUECgAwAAQAGBDgAAAAUEOgAAABQQ6AAAAFBAoAMAAECB+/QCvOw9e7YyHpk1m8mHzG8NAADwhx90AAAAKPAAWkIIHPeu33wAAAAASUVORK5CYII="`;
+
+exports[`Correctly render highlights: where two highlights overlap second label is hidden 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAAZCAYAAACihQTFAAAABmJLR0QA/wD/AP+gvaeTAAABnElEQVR4nO3avctPcRjH8TcpD2VQVsnDbjLzDwhll0zKH+HeyR+gLJRMlEmULAZJ5GFQFoOB0WRxGfzU3R1yI7eH12s5Xeecz7frjFfXKQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4PlObp07+quzU5am3U09+TYcAAADwH5ja/qPD9JeyUwen9hvQAQAAYBWmzk+9m7o1tbS4d2zq/tTDqUtTG6e2Td2eejb1aOrol7KL/F4DOgAAAKzCyi341K6pO1ObFvXS1Omp41Pnlr239WvbdwM6AADA32HDWjfANx2odlY35lO9pbpbXanOTH2orq2re1Mb16pJAAAAfp4B/c+2vrq5rk6tfDC1vzpUnZ26Xl383c0BAADAP2lq09SbZfXuqddTuxf1tqk9Uzs+b8ynDk1dWZlddoZf3AEAAGC1pi5MvZg6u6gPTz2eer64Hpw6MvVk6unUg6l9X8lenXo19X7q5dSJtfw2AAAAAAAAAAAAAIBv+wjBOIxsJGVfVgAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render highlights: where two highlights overlap second label is hidden 3`] = `undefined`;
+
+exports[`Correctly render highlights: where two highlights overlap second label is hidden 4`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAACCAYAAADLlPadAAAABmJLR0QA/wD/AP+gvaeTAAAAOUlEQVRYhe3QsQ0AIBACQN79d34bBzAWanFXE0Ko8I1OeidXe7HVWcd7SCoOBAAA7hivBwAAAADJBLSIBAQkhtHYAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render highlights: where two highlights overlap second label is hidden 5`] = `undefined`;
+
+exports[`Correctly render highlights: with a defined color 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAAPCAYAAAB3CuVDAAAABmJLR0QA/wD/AP+gvaeTAAAAh0lEQVR4nO3ZwQmAUBBDQVfsv+V4ld/ABpypINdHJkkuAAAAYNW9PQAAAAAQ6AAAAFBBoAMAAEABgQ4AAAAFBDoAAAAUEOgAAABQQKADAABAAYEOAAAABQQ6AAAAFBDoAAAAUECgAwAAQAGBDgAAAAWe7QF8zGwv4JRsLwAAAH7Cgw4AAAAFXmrNBhwSTvt8AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render highlights: with a defined color 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAAZCAYAAACihQTFAAAABmJLR0QA/wD/AP+gvaeTAAABb0lEQVR4nO3ZsYvPcRzH8edJ3VGGK6vk/AEmM//AhbIbTMof4faTP0BZDDdSJlGyGCTRYfAHGKx2b4Ofuq5LcnXn9Hgsn17f7+dV7/XTuwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgz0ydmLp50F0AAABgh6nTU9sH3QUAAAB2mLo39W3q2dTG4tv1qddTb6ceTi1PrU49n/o49W7q2l5dAAAA4C/s3oJPnZt6MbWyyBtTt6duTN3dce+UDToAAMDRdvywB+C3LlVnqyfzM5+sXlZb1Z2p79WjpXo1tXxYQwIAALB/Huj/tmPV06W6tfvH1MVqvdqcelw9OOjhAAAA4L80tTL1dUdem/oytbbIq1Pnp8782phPrU9t7e4CAAAA+zB1f+rz1OYiX5l6P/VpcV6eujq1PfVh6s3Uhb26AAAAAAAAAAAAAABHyw/k53EsqnWGjQAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render highlights: with a defined color 3`] = `undefined`;
+
+exports[`Correctly render highlights: with a defined color 4`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAACCAYAAADLlPadAAAABmJLR0QA/wD/AP+gvaeTAAAAMElEQVRYhe3OwQ0AIAgEsMP9d8a3E0BiO0ErrNFJTx94VVLTBwAA4A9nOgAAAAAkF8UTAgQ4zTGFAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render highlights: with a defined color 5`] = `undefined`;
+
+exports[`Correctly render highlights: with a mixture of defined colors and no colors 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAAPCAYAAAB3CuVDAAAABmJLR0QA/wD/AP+gvaeTAAAA9ElEQVR4nO3ZsYkCQRiGYVfMBWuwBFOxASu43OQwuYs2E7ONNJFLzK3gGjgutQRrEKxgjKYD/90feZ4C3hmYYPnYppRSRgAAAMCgxkNfAAAAADDQAQAAIAUDHQAAABIw0AEAACABAx0AAAASMNABAAAgAQMdAAAAEjDQAQAAIAEDHQAAABIw0AEAACABAx0AAAASMNABAAAggcnQF3iFtm17OafrutD+Y78P7VfT3S60v/z9Du1X/+tD8AlNcL8qofXNzz20X50/Z7EHXHp6j4/Y9xj9XWP71WoRmj993UL71fY4D+2/y/cDAHgP/qADAABAAk/qBBscvfALGAAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render highlights: with a mixture of defined colors and no colors 2`] = `"data:image/png;base64,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"`;
+
+exports[`Correctly render highlights: with a mixture of defined colors and no colors 3`] = `undefined`;
+
+exports[`Correctly render highlights: with a mixture of defined colors and no colors 4`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA+gAAAACCAYAAADLlPadAAAABmJLR0QA/wD/AP+gvaeTAAAAlElEQVRYhe3VsQ3CMBBG4TsmiJQZGIGOggWYIC0dQiKV22tdBSlKR8sEWSBFuozADEhsYKa4Q7LeN4Dtp7+wSgVSSiXinpyzep7/NQvpaMxcO45zH9KxngfXjlIkpENVXDsu0yek43ltffd4Be3R+e5Rli2m43Rw7Rjv75CO22Pv2lHL/wEAAOqw+/cDAAAAAACAyA8UfyIEOLzw4QAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render highlights: with a mixture of defined colors and no colors 5`] = `undefined`;

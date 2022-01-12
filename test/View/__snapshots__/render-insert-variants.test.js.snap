@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Correctly render insert variants: when scale < 1 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAMCAYAAACURRhjAAAABmJLR0QA/wD/AP+gvaeTAAAAcklEQVRYhe3TsQmAQBBE0c9hZmyitdiOkW1Yk7m1WIHpBZooYragsovOg80uGPgc2NRAZ3wrNyTvAXKlIMEoSDAKEoyCBKMgwShIMIXxXQ+Ubw4RuxbIwAI0zlt+rwJmYN1vwv6r5GEJGDljHDd4jvq6DcGyDEZlhwxAAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render insert variants: when scale < 1 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAABCAYAAAAo2wu9AAAABmJLR0QA/wD/AP+gvaeTAAAADklEQVQYlWNgGAWDCgAAAZEAAejZ5ZUAAAAASUVORK5CYII="`;
+
+exports[`Correctly render insert variants: when scale > 1 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAMCAYAAACURRhjAAAABmJLR0QA/wD/AP+gvaeTAAAAZ0lEQVRYhe3XsQnAIBRF0UtaR7HJiNnEqbJMGlOYIA4g74vvwAfLB7cS1nMBVT1ilkM9wEYOEoyDBOMgwThIMA4SjIMEs2KQUz3Augw8tI9hFm/ZXgJuWoz6vZN00eYKPcZ/RbpogheofA0HZ+9G9AAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render insert variants: when scale > 1 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAABCAYAAAAo2wu9AAAABmJLR0QA/wD/AP+gvaeTAAAADklEQVQYlWNgGAWDCgAAAZEAAejZ5ZUAAAAASUVORK5CYII="`;

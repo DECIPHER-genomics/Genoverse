@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Correctly render stranded track: features are split between forward and reverse strand tracks 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAMCAYAAACURRhjAAAABmJLR0QA/wD/AP+gvaeTAAAAPUlEQVRYhe3RwQ0AIAzDwIb9dy5vBqgwyLdAIjlV3TUumd/4w7p9QCeDwBgExiAwBoExCIxBYAwCYxBJD9l9aAIU72bxCwAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render stranded track: features are split between forward and reverse strand tracks 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAMCAYAAACURRhjAAAABmJLR0QA/wD/AP+gvaeTAAAAPklEQVRYhe3RMQ0AMAzEwE/5c04xdIjkVD4CHlz5RCc93aikphtnOqA3DoFxCIxDYBwC4xAYh8A4BMYhkha570oCFEAU9PwAAAAASUVORK5CYII="`;

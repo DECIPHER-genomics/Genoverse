@@ -9,86 +9,29 @@ describe('Correctly render line graph where:', () => {
     [ 40, 30, 20, 50, 90, 10, 10, 80, 60, 70 ],
   ];
 
-  const addFillCoords = coords => [[ coords[0][0], 0 ]].concat(coords, [[ coords[coords.length - 1][0], 0 ]]);
-
-  const addMargin = (coords, margin) => coords.map(c => [ c[0], c[1] + margin ]);
-
   const getTrackConf = test => ({ ...track, ...test.conf });
 
-  const draw = (test) => {
-    const coords = test.coords.filter(c => c);
-    const conf   = getTrackConf(test);
-
-    if (!coords.length) {
-      return [ conf ];
-    }
-
-    const { margin, fill } = conf;
-
-    let marginTop    = margin.top    || margin;
-    let marginBottom = margin.bottom || margin;
-
-    if (conf.invert) {
-      [ marginTop, marginBottom ] = [ marginBottom, marginTop ];
-    }
-
-    const instructions = [
-      (context) => {
-        context.lineWidth   = conf.lineWidth   || 1;
-        context.globalAlpha = conf.globalAlpha || 1;
-      },
-      [ 'beginPath' ],
-      [ 'moveTo', ...coords[0] ],
-    ].concat(
-      coords.slice(1, fill ? -1 : undefined).map(c => [ 'lineTo', ...c ]),
-      [[ 'stroke', conf.color ]]
-    ).concat(
-      fill ? [[ 'lineTo', ...coords[coords.length - 1] ], [ 'closePath' ], [ 'fill', conf.color ]] : []
-    ).concat([
-      [ 'clearRect', 0, 0,                       1e6, marginTop - 1 ],
-      [ 'clearRect', 0, conf.height + marginTop, 1e6, marginBottom  ],
-    ]);
-
-    return [ conf, instructions ];
-  };
-
-  const drawMultiple = (coords, conf) => coords.reduce((arr, c) => arr.concat(draw({ coords: c, conf: conf })[1]), []);
-
   [{
-    why     : 'scale > 1',
-    conf    : { width: 100, start: 1, end: 10 },
-    coords  : [[ 5, 10 ], [ 15, 60 ], [ 25, 20 ], [ 35, 100 ], [ 45, 40 ], [ 55, 50 ], [ 65,  0 ], [ 75, 90 ], [ 85, 70 ], [ 95, 30 ]],
-    coords2 : [[ 5, 40 ], [ 15, 30 ], [ 25, 20 ], [ 35,  50 ], [ 45, 90 ], [ 55, 10 ], [ 65, 10 ], [ 75, 80 ], [ 85, 60 ], [ 95, 70 ]],
+    why  : 'scale > 1',
+    conf : { width: 100, start: 1, end: 10 },
   }, {
-    why     : 'scale = 1',
-    conf    : { width: 100, start: 1, end: 100 },
-    coords  : [[ 0, 10 ], [ 1, 60 ], [ 2, 20 ], [ 3, 100 ], [ 4, 40 ], [ 5, 50 ], [ 6,  0 ], [ 7, 90 ], [ 8, 70 ], [ 9, 30 ]],
-    coords2 : [[ 0, 40 ], [ 1, 30 ], [ 2, 20 ], [ 3,  50 ], [ 4, 90 ], [ 5, 10 ], [ 6, 10 ], [ 7, 80 ], [ 8, 60 ], [ 9, 70 ]],
+    why  : 'scale = 1',
+    conf : { width: 100, start: 1, end: 100 },
   }, {
-    why     : 'scale < 1, all bins of equal size',
-    conf    : { width: 100, start: 1, end: 200 },
-    coords  : [[ 0, 35 ], [ 1, 60 ], [ 2, 45 ], [ 3, 45 ], [ 4, 50 ]],
-    coords2 : [[ 0, 35 ], [ 1, 35 ], [ 2, 50 ], [ 3, 45 ], [ 4, 65 ]],
+    why  : 'scale < 1, all bins of equal size',
+    conf : { width: 100, start: 1, end: 200 },
   }, {
-    why     : 'scale < 1, final bin size = 1',
-    conf    : { width: 100, start: 1, end: 300 },
-    coords  : [[ 0, 30 ], [ 1, 190 / 3 ], [ 2, 160 / 3 ], [ 3, 30 ]],
-    coords2 : [[ 0, 30 ], [ 1,    50 ], [ 2,    50 ], [ 3, 70 ]],
+    why  : 'scale < 1, final bin size = 1',
+    conf : { width: 100, start: 1, end: 300 },
   }, {
-    why     : 'scale < 1, final bin is small',
-    conf    : { width: 100, start: 1, end: 400 },
-    coords  : [[ 0, 47.5 ], [ 1,   45 ], [ 2, 50 ]],
-    coords2 : [[ 0,   35 ], [ 1, 47.5 ], [ 2, 65 ]],
+    why  : 'scale < 1, final bin is small',
+    conf : { width: 100, start: 1, end: 400 },
   }, {
-    why     : 'scale < 1, final bin is made of 2 bins',
-    conf    : { width: 100, start: 1, end: 250 },
-    coords  : [[ 0, 35 ], [ 1, 60 ], [ 2, 45 ], [ 3, 47.5 ]],
-    coords2 : [[ 0, 35 ], [ 1, 35 ], [ 2, 50 ], [ 3, 55 ]],
+    why  : 'scale < 1, final bin is made of 2 bins',
+    conf : { width: 100, start: 1, end: 250 },
   }, {
-    why     : 'scale < 1, middle bin is made of 2 bins',
-    conf    : { width: 100, start: 1, end: 297 },
-    coords  : [[ 0, 35 ], [ 1, 60 ], [ 2,   45 ], [ 3, 50 ]],
-    coords2 : [[ 0, 35 ], [ 1, 35 ], [ 2, 47.5 ], [ 3, 65 ]],
+    why  : 'scale < 1, middle bin is made of 2 bins',
+    conf : { width: 100, start: 1, end: 297 },
   }].forEach((testSet) => {
     describe(testSet.why, () => {
       const features = [{ start: 1, end: 10, coords: data[0] }];
@@ -102,25 +45,14 @@ describe('Correctly render line graph where:', () => {
       ];
 
       describe('the graph has no fill', () => {
-        tests.forEach((test) => {
-          const m = test.conf.margin[test.conf.invert ? 'bottom' : 'top'] || test.conf.margin;
-
-          test.coords = m ? addMargin(testSet.coords, m) : testSet.coords;
-
-          it(test.why, () => testTrackRenderStatic(features, ...draw(test), testSet.conf));
-        });
+        tests.forEach(test => it(test.why, () => testTrackRenderStatic(features, getTrackConf(test), testSet.conf)));
       });
 
       describe('the graph has fill', () => {
         tests.map(t => ({ why: t.why, conf: { fill: true, ...t.conf } })).concat(
           { why: 'globalAlpha', conf: { fill: true, margin: 0, globalAlpha: 0.5 } }
         ).forEach((test) => {
-          const coords = addFillCoords(testSet.coords);
-          const m      = test.conf.margin[test.conf.invert ? 'bottom' : 'top'] || test.conf.margin;
-
-          test.coords = m ? addMargin(coords, m) : coords;
-
-          it(test.why, () => testTrackRenderStatic(features, ...draw(test), testSet.conf));
+          it(test.why, () => testTrackRenderStatic(features, getTrackConf(test), testSet.conf));
         });
       });
 
@@ -131,19 +63,10 @@ describe('Correctly render line graph where:', () => {
           { why: 'one with lineWidth set',   conf: { margin: 0, datasets: [{ name: 1, color: 'red', lineWidth: 2 }, { name: 2, color: 'blue', fill: true                   }] } },
           { why: 'one with globalAlpha set', conf: { margin: 0, datasets: [{ name: 1, color: 'red', fill: true   }, { name: 2, color: 'blue', fill: true, globalAlpha: 0.5 }] } },
         ].forEach((test) => {
-          const conf = [
-            { ...test.conf, ...test.conf.datasets[0] },
-            { ...test.conf, ...test.conf.datasets[1] },
-          ];
-
-          it(test.why, () => {
-            test.draw = [ testSet.coords, testSet.coords2 ].map((c, i) => draw({ coords: conf[i].fill ? addFillCoords(c) : c, conf: conf[i] })).reduce((arr, c) => arr.concat(c[1]), []);
-
-            return testTrackRenderStatic([
-              { start: 1, end: 10, coords: data[0], dataset: 1 },
-              { start: 1, end: 10, coords: data[1], dataset: 2 },
-            ], getTrackConf(test), test.draw, testSet.conf);
-          });
+          it(test.why, () => testTrackRenderStatic([
+            { start: 1, end: 10, coords: data[0], dataset: 1 },
+            { start: 1, end: 10, coords: data[1], dataset: 2 },
+          ], getTrackConf(test), testSet.conf));
         });
       });
     });
@@ -158,27 +81,18 @@ describe('Correctly render line graph where:', () => {
     ].forEach((test) => {
       describe(test.why, () => {
         const coords = data[0].slice(0, 5);
-        const fill   = test.conf.fill;
 
         it('each data block is inside the image', () => testTrackRenderStatic([
           { start: 110, end: 114, coords: coords.map((d, i) => [ i + 110, d ]) },
           { start: 130, end: 134, coords: coords.map((d, i) => [ i + 130, d ]) },
           { start: 150, end: 154, coords: coords.map((d, i) => [ i + 150, d ]) },
-        ], getTrackConf(test), drawMultiple([
-          [ fill ? [ 9,  0 ] : null, [ 9,  10 ], [ 10, 60 ], [ 11, 20 ], [ 12, 100 ], [ 13, 40 ], fill ? [ 13, 0 ] : null ],
-          [ fill ? [ 29, 0 ] : null, [ 29, 10 ], [ 30, 60 ], [ 31, 20 ], [ 32, 100 ], [ 33, 40 ], fill ? [ 33, 0 ] : null ],
-          [ fill ? [ 49, 0 ] : null, [ 49, 10 ], [ 50, 60 ], [ 51, 20 ], [ 52, 100 ], [ 53, 40 ], fill ? [ 53, 0 ] : null ],
-        ], test.conf), genoverseConf));
+        ], getTrackConf(test), genoverseConf));
 
         it('data blocks extend beyond the image', () => testTrackRenderStatic([
           { start: 98, end: 102, coords: coords.map((d, i) => [ i +  98, d ]) },
           { start: 150, end: 154, coords: coords.map((d, i) => [ i + 150, d ]) },
           { start: 198, end: 202, coords: coords.map((d, i) => [ i + 198, d ]) },
-        ], getTrackConf(test), drawMultiple([
-          [ fill ? [ -1, 0 ] : null, [ -1, 20 ], [ 0,  100 ], [ 1,  40 ],                            fill ? [  1,  0 ] : null ],
-          [ fill ? [ 49, 0 ] : null, [ 49, 10 ], [ 50,  60 ], [ 51, 20 ], [ 52,  100 ], [ 53,  40 ], fill ? [ 53,  0 ] : null ],
-          [ fill ? [ 97, 0 ] : null, [ 97, 10 ], [ 98,  60 ], [ 99, 20 ], [ 100, 100 ], [ 101, 40 ], fill ? [ 101, 0 ] : null ],
-        ], test.conf), genoverseConf));
+        ], getTrackConf(test), genoverseConf));
       });
     });
   });
@@ -195,7 +109,7 @@ describe('Correctly render line graph where:', () => {
         [
           { why: 'the graph has no fill', conf: { margin: 0, fill: false }, coords: testSet.coords },
           { why: 'the graph has fill',    conf: { margin: 0, fill: true  }, coords: [[ testSet.coords[0][0], 0 ]].concat(testSet.coords).concat([[ testSet.coords[testSet.coords.length - 1][0], 0 ]]) },
-        ].forEach(test => it(test.why, () => testTrackRenderStatic(features, ...draw(test), { width: testSet.width, start: 1, end: 100 })));
+        ].forEach(test => it(test.why, () => testTrackRenderStatic(features, getTrackConf(test), { width: testSet.width, start: 1, end: 100 })));
       });
     });
   });
@@ -203,24 +117,15 @@ describe('Correctly render line graph where:', () => {
   describe('features are defined with', () => {
     const genoverseConf = { width: 100, start: 1, end: 100 };
     const trackConf     = { margin: 0, fill: true };
-    const toDraw        = [
-      [
-        [[ 9,  0 ], [ 9,  10 ], [ 10, 11 ], [ 11, 12 ], [ 11, 0 ]],
-        [[ 19, 0 ], [ 19, 20 ], [ 20, 21 ], [ 21, 22 ], [ 21, 0 ]],
-      ],
-      [
-        [[ 12, 0 ], [ 12, 10 ], [ 12, 0 ]],
-        [[ 22, 0 ], [ 22, 20 ], [ 22, 0 ]],
-        [[ 32, 0 ], [ 32, 30 ], [ 32, 0 ]],
-      ],
-    ];
 
     [
-      { why: 'x, y',            conf: trackConf, features: [ 10, 11, 12, 20, 21, 22 ].map(n => ({ y: n, x: n                 })), draw: toDraw[0] },
-      { why: 'start == end, y', conf: trackConf, features: [ 10, 11, 12, 20, 21, 22 ].map(n => ({ y: n, start: n, end: n     })), draw: toDraw[0] },
-      { why: 'start != end, y', conf: trackConf, features: [ 10, 20, 30             ].map(n => ({ y: n, start: n, end: n + 5 })), draw: toDraw[1] },
-      { why: 'no y',            conf: trackConf, features: [ 10, 11, 12, 20, 21, 22 ].map(n => ({ start: n, end: n           })), draw: [] },
-    ].forEach(test => it(test.why, () => testTrackRenderStatic(test.features, getTrackConf(test), test.draw.length ? drawMultiple(test.draw, trackConf) : test.draw, genoverseConf)));
+      { why: 'x, y',            conf: trackConf, features: [ 10, 11, 12, 20, 21, 22 ].map(n => ({ y: n, x: n                 })) },
+      { why: 'start == end, y', conf: trackConf, features: [ 10, 11, 12, 20, 21, 22 ].map(n => ({ y: n, start: n, end: n     })) },
+      { why: 'start != end, y', conf: trackConf, features: [ 10, 20, 30             ].map(n => ({ y: n, start: n, end: n + 5 })) },
+      { why: 'no y',            conf: trackConf, features: [ 10, 11, 12, 20, 21, 22 ].map(n => ({ start: n, end: n           })) },
+    ].forEach(
+      test => it(test.why, () => testTrackRenderStatic(test.features, getTrackConf(test), genoverseConf))
+    );
   });
 
   describe('features have the wrong coords', () => {
@@ -232,7 +137,9 @@ describe('Correctly render line graph where:', () => {
       { why: 'too few coords',              conf: trackConf, features: makeFeatures([ 10, 20 ]),             coords: [[ 9, 10 ], [ 10, 20 ]]             },
       { why: 'too many coords',             conf: trackConf, features: makeFeatures([ 10, 20, 30, 20, 10 ]), coords: [[ 9, 10 ], [ 10, 20 ], [ 11, 30 ]] },
       { why: 'coords outside of start/end', conf: trackConf, features: [{ start: 10, end: 12, coords: [[ 1, 1 ], [ 2, 5 ], [ 3, 7 ], [ 20, 10 ], [ 21, 3 ]] }], coords: [] },
-    ].forEach(test => it(test.why, () => testTrackRenderStatic(test.features, ...draw(test), genoverseConf)));
+    ].forEach(
+      test => it(test.why, () => testTrackRenderStatic(test.features, getTrackConf(test), genoverseConf))
+    );
   });
 
   describe('yRange is set', () => {
@@ -253,7 +160,9 @@ describe('Correctly render line graph where:', () => {
           { why: 'yRange = [ 0, 1 ]',     conf: { yRange: [   0, 1   ], height: 10, ...testSet.conf }, coords: [[ 0, 10 + m ], [ 1, -80 + m ], [ 2, 50 + m ], [ 3, -50 + m ], [ 4,  0 + m ], [ 5, 70 + m ], [ 6, -20 + m ]] },
           { why: 'yRange = [ -1, 0 ]',    conf: { yRange: [  -1, 0   ], height: 10, ...testSet.conf }, coords: [[ 0, 20 + m ], [ 1, -70 + m ], [ 2, 60 + m ], [ 3, -40 + m ], [ 4, 10 + m ], [ 5, 80 + m ], [ 6, -10 + m ]] },
           { why: 'yRange = [ 0.5, 7.5 ]', conf: { yRange: [ 0.5, 7.5 ], height: 70, ...testSet.conf }, coords: [[ 0,  5 + m ], [ 1, -85 + m ], [ 2, 45 + m ], [ 3, -55 + m ], [ 4, -5 + m ], [ 5, 65 + m ], [ 6, -25 + m ]] },
-        ].forEach(test => it(test.why, () => testTrackRenderStatic(features, ...draw(test), genoverseConf)));
+        ].forEach(
+          test => it(test.why, () => testTrackRenderStatic(features, getTrackConf(test), genoverseConf))
+        );
       });
     });
   });

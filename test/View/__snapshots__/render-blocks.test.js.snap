@@ -1,0 +1,105 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Correctly render blocks where: feature heights and margins are set with default feature height 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAlUlEQVR4nO3RwQnAMBDAsEv33zl991+ICdIEBq+Z2XOHdTrgD8/pAL4MiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2IMiTEkxpAYQ2Je7QEBZK7KaOAAAAAASUVORK5CYII="`;
+
+exports[`Correctly render blocks where: feature heights and margins are set with default track settings 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAVCAYAAACwnEswAAAABmJLR0QA/wD/AP+gvaeTAAAASElEQVRoge3RsQnAMBAEwZP779mKnQv+jGYqWNgE4DdWknc64pA1HXDCMx3AlyFlDCljSBlDyhhSxpAyhpQxpIwhZQwBAOACGwmZARhmW/8aAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: feature heights and margins are set with feature margin top 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAT0lEQVR4nO3RsQkAMRADQfn779mOHT4YTsFMBQubUGUl2dMRj6zpgBe+6QBuhpQxpIwhZQwpY0gZQ8oYUsYQAAAAAAAAAAAAAAAAAAAA/jg0sQEUcEB5GAAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render blocks where: feature heights and margins are set with half feature height 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAQElEQVR4nO3RwQkAIAwEwYv996xv/0KCzFSwsJVk5w/VHfDC6g7gZsgwhgxjCAAAAAAAAAAAAAAAAAAAAAAAdDtB1wEKbKDDLQAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render blocks where: feature heights and margins are set with no feature margin 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3RwQkAIBAEsdP+e9a3f+FWSSoYmFFVq/4wugNumN0BnAwJY0gYQ8IYEsaQMIaEMSSMIQAAAAAAAAAAAAAAAAAAAPCwDeODARSD7pq3AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: feature heights and margins are set with track margin 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAzCAYAAABhaa0bAAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3RwQkAIAwEwcT+e9a3fyGHzFSwsF1Vu/7Q0wEvrOkAboaEMSSMIWEMCWNIGEPCGBLGEAAAAAAAAAAAAAAAAAAAAIBXDpP1ARROhWWDAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: features are bumped (track.bump = true) with feature margin bottom 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAZElEQVR4nO3YsQnAQAwEQb3779mOnTh6+MXMVHCwoEBrZu75h3V6wA7X6QG8CRIjSIwgMYLECBIjSIwgMYLAlzVeJylOVowgMYLECBIjSIwgMYLECBIjCAAAAAAAAAAAAAAAfQ/1RQInASflZAAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render blocks where: features are bumped (track.bump = true) with feature margin left (does nothing) 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAX0lEQVR4nO3RwQmAMBAAwYv996xvn0Igi8xUsLBrZu75h3U6YIfrdABvhsQYEmNIjCExhsQYEmNIjCExhsQYEmNIjCExhsQYEmNIjCExhsQYAgAAAAAAAAAAAAAAfPQAO/QBKIbMYWwAAAAASUVORK5CYII="`;
+
+exports[`Correctly render blocks where: features are bumped (track.bump = true) with feature margin right 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAgklEQVR4nO3ZwQ2AIBAAQTT237K+/RtYyUwDkGzucXCMMe6xh2P1Bb5wrr4Ab4LECBIjSIwgMYLECBIjSIwgMdekc7bYomcwITGCxAgSI0iMIDGCxAgSI0iMIDGzNugZ//ZbvAaYkBhBYgSJESRGkBhBYgSJESRGEAAAAAAAAADgFx5/7gI+lVmKyQAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render blocks where: features are bumped (track.bump = true) with feature margin top 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAZ0lEQVR4nO3YsQnAQAwEQb3779mODcbRw28wU8HBggLNkLJm5j49YpN1esAO1+kBvAkSI0iMIDGCxAgSI0iMIDGCwB+vkxgnK0aQGEFiBIkRJEaQGEFiBIkRBAAAAAAAAAAAAADgwwOXkgInBdJ+RQAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render blocks where: features are bumped (track.bump = true) with feature margin top, bottom and right 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAhElEQVR4nO3YMQ6EQAwEQXP//zPEZBeg3QZVvcBSB5ZmhpRjZs7dRzzk2H3AE367D+BOkBhBYgSJESRGkBhBYgSJEQR4kVVb1id2phX8kBhBYgSJESRGkBhBYgSJESRGEOBFVm1M9rI/+SExgsQIEiNIjCAxgsQIEiNIjCAAAAAAAMDXXQc4AzqMRF9vAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: features are bumped (track.bump = true) with max depth 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAaklEQVR4nO3YsQ2AQAwEQUP/PUNMjv4XNFPBSRtY8gwpx8xcu0e85Ng94A3n7gE8CRIjSIwgMYLECBIjSIwgMYIAH7Lql/WLP9MKbkiMIDGCxAgSI0iMIDGCxAgSIwgAAAAAAAAAAAAANNzpFQInqXA2FAAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render blocks where: features are bumped (track.bump = true) with no feature margin 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAX0lEQVR4nO3RwQmAMBAAwYv996xvn0Igi8xUsLBrZu75h3U6YIfrdABvhsQYEmNIjCExhsQYEmNIjCExhsQYEmNIjCExhsQYEmNIjCExhsQYAgAAAAAAAAAAAAAAfPQAO/QBKIbMYWwAAAAASUVORK5CYII="`;
+
+exports[`Correctly render blocks where: features are colored all red with feature.color 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAR0lEQVR4nO3RwQnAMAzAQDf77+y+O0FUuJtAoGdndsg4twP4MiTGkBhDYgyJMSTGkBhDYgwBAAAAAAAAAAAAAAAAAACAH3sBnT4CEiNsLjIAAAAASUVORK5CYII="`;
+
+exports[`Correctly render blocks where: features are colored all red with track.color 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAR0lEQVR4nO3RwQnAMAzAQDf77+y+O0FUuJtAoGdndsg4twP4MiTGkBhDYgyJMSTGkBhDYgwBAAAAAAAAAAAAAAAAAACAH3sBnT4CEiNsLjIAAAAASUVORK5CYII="`;
+
+exports[`Correctly render blocks where: features are colored feature.color = false 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAKklEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAAAAD4NE5SAAEah7rXAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: features are colored rgbk with feature.color 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAU0lEQVR4nO3RwQnAQBADMW8qv84vNeSx4IDUgDEzN7lZNmd7IclZv5Fk1hee9QU+EaSMIGUEKSNIGUHKCFJGkDKCAAAAAAAAAAAAAAAAAAAAwI+9NOsEE7n1gJsAAAAASUVORK5CYII="`;
+
+exports[`Correctly render blocks where: features are colored rgbk with track.color = red 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAU0lEQVR4nO3RwQnAQBADMW8qv84vNeSx4IDUgDEzN7lZNmd7IclZv5Fk1hee9QU+EaSMIGUEKSNIGUHKCFJGkDKCAAAAAAAAAAAAAAAAAAAAwI+9NOsEE7n1gJsAAAAASUVORK5CYII="`;
+
+exports[`Correctly render blocks where: features have borders with default feature.color 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAWElEQVR4nO3XMQ6AMAwEwYOXk5eHmi4N4YRmJPe2tnKSOTfMFZacyUhyvDhj3zU/cH69AE+ClBGkjCBlBCkjSBlBygjSx6cOAAAAAAAAAAAAAAAAAADAshvs42fGCIq4dAAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render blocks where: features have borders with feature.color = "red" 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAWklEQVR4nO3XMQ7AIAwEwQsfJ7wc6nQ0CY40I7m3tZWTzPnB3GFL6xmZuV6bnnH6xl9ppxfgSZBiBClGkGIEKUaQYgQpRpB6fOoAAAAAAAAAAAAAAAAAAABsW14cf60fK9DxAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: features have borders with feature.color = false 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAWUlEQVR4nO3XMQ6AMAwEwSMvJy8PNR0N5JBmJPe2tnKStT6YMzwykszkON6bzN1H/snYvQB3gpQRpIwgZQQpI0gZQcoI0senDgAAAAAAAAAAAAAAAAAAwGMXzPVn3QaaFOIAAAAASUVORK5CYII="`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome end with a feature on each (two) image 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3RwQkAIBAEsdP+e9a3f+FWSSoYmFFVq/4wugNumN0BnAwJY0gYQ8IYEsaQMIaEMSSMIQAAAAAAAAAAAAAAAAAAAPCwDeODARSD7pq3AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome end with a feature on each (two) image 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3RwQkAIBAEsdP+e9a3f+FWSSoYmFFVq/4wugNumN0BnAwJY0gYQ8IYEsaQMIaEMSSMIQAAAAAAAAAAAAAAAAAAAPCwDeODARSD7pq3AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome end with a single feature on last image only 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3RwQkAIBAEsdP+e9a3f+FWSSoYmFFVq/4wugNumN0BnAwJY0gYQ8IYEsaQMIaEMSSMIQAAAAAAAAAAAAAAAAAAAPCwDeODARSD7pq3AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome end with a single feature on last image only 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAKklEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAAAAD4NE5SAAEah7rXAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome end with a single feature spanning two images 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3R0REAEBBDwaP/nvlWAMLsNpDMvFZVo/ZrBza+0G8fYCVIGEHCCBJGkDCChBEkjCBhBAEAAAAAAAAAAAAAAAAAAICHTePnARRFNSzmAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome end with a single feature spanning two images 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAARklEQVR4nO3RMQ0AIADAMMC/Z9DAQTKS1sCOzcGN/TqwXge4Y0iMITGGxBgSY0iMITGGxBgCAAAAAAAAAAAAAAAAAAAAHztrGgETrPD1/gAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome end with bumped features spanning two images 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3RsRHAIAADMZP9d4aaLjTgQlrAvvsEAAAA6DGSzEs7/PC9PsBOkDKClBGkjCBlBCkjSBlByggCAAAAAAAAAAAAAAAcWg9ZARTr7mSEAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome end with bumped features spanning two images 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAaElEQVR4nO3YQQqAMAwAwdb//1nPHgW1S5l5QWDJIZljjHPsYa4e4A3H6gG4EyRGkBhBYgSJESRGkBhBYgSJ+eu63eUb8DkbEiNIjCAxgsQIEiNIjCAxgsQIAgAAAAAAAAAAAAAAPHQBAq4CJjHE55AAAAAASUVORK5CYII="`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome start with a feature on each (two) image 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3RwQkAIBAEsdP+e9a3f+FWSSoYmFFVq/4wugNumN0BnAwJY0gYQ8IYEsaQMIaEMSSMIQAAAAAAAAAAAAAAAAAAAPCwDeODARSD7pq3AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome start with a feature on each (two) image 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3RwQkAIBAEsdP+e9a3f+FWSSoYmFFVq/4wugNumN0BnAwJY0gYQ8IYEsaQMIaEMSSMIQAAAAAAAAAAAAAAAAAAAPCwDeODARSD7pq3AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome start with a single feature on first image only 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3RwQkAIBAEsdP+e9a3f+FWSSoYmFFVq/4wugNumN0BnAwJY0gYQ8IYEsaQMIaEMSSMIQAAAAAAAAAAAAAAAAAAAPCwDeODARSD7pq3AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome start with a single feature on first image only 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAKklEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAAAAD4NE5SAAEah7rXAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome start with a single feature spanning two images 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAARklEQVR4nO3RMQ0AIADAMMC/Z9DAQTKS1sCOzcGN/TqwXge4Y0iMITGGxBgSY0iMITGGxBgCAAAAAAAAAAAAAAAAAAAAHztrGgETrPD1/gAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome start with a single feature spanning two images 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3R0REAEBBDwaP/nvlWAMLsNpDMvFZVo/ZrBza+0G8fYCVIGEHCCBJGkDCChBEkjCBhBAEAAAAAAAAAAAAAAAAAAICHTePnARRFNSzmAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome start with bumped features spanning two images 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAaElEQVR4nO3YQQqAMAwAwdb//1nPHgW1S5l5QWDJIZljjHPsYa4e4A3H6gG4EyRGkBhBYgSJESRGkBhBYgSJ+eu63eUb8DkbEiNIjCAxgsQIEiNIjCAxgsQIAgAAAAAAAAAAAAAAPHQBAq4CJjHE55AAAAAASUVORK5CYII="`;
+
+exports[`Correctly render blocks where: the browser is dynamic at chromosome start with bumped features spanning two images 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3RsRHAIAADMZP9d4aaLjTgQlrAvvsEAAAA6DGSzEs7/PC9PsBOkDKClBGkjCBlBCkjSBlByggCAAAAAAAAAAAAAAAcWg9ZARTr7mSEAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with a feature on each (three) image 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3RwQkAIBAEsdP+e9a3f+FWSSoYmFFVq/4wugNumN0BnAwJY0gYQ8IYEsaQMIaEMSSMIQAAAAAAAAAAAAAAAAAAAPCwDeODARSD7pq3AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with a feature on each (three) image 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3RwQkAIBAEsdP+e9a3f+FWSSoYmFFVq/4wugNumN0BnAwJY0gYQ8IYEsaQMIaEMSSMIQAAAAAAAAAAAAAAAAAAAPCwDeODARSD7pq3AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with a feature on each (three) image 3`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3RwQkAIBAEsdP+e9a3f+FWSSoYmFFVq/4wugNumN0BnAwJY0gYQ8IYEsaQMIaEMSSMIQAAAAAAAAAAAAAAAAAAAPCwDeODARSD7pq3AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with a single feature spanning three images 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAARklEQVR4nO3RwQ3AIBDAsKP77wxvJmiQ7AkiZc3MHjK+vwO4GRJjSIwhMYbEGBJjSIwhMYYAAAAAAAAAAAAAAAAAAADAww6V/QETJ+0bTgAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with a single feature spanning three images 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAARklEQVR4nO3RMQ0AIADAMMC/Z9DAQTKS1sCOzcGN/TqwXge4Y0iMITGGxBgSY0iMITGGxBgCAAAAAAAAAAAAAAAAAAAAHztrGgETrPD1/gAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with a single feature spanning three images 3`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAS0lEQVR4nO3R0REAEBBDwaP/nvlWAMLsNpDMvFZVo/ZrBza+0G8fYCVIGEHCCBJGkDCChBEkjCBhBAEAAAAAAAAAAAAAAAAAAICHTePnARRFNSzmAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with bumped features and features with feature.y 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAp0lEQVR4nO3awQkDIRQAUU2bacZmUqc5hyWQg2Tn8F4BKgz/8MG5x9iDjMfdD+CTIDGCxAgSI0iMIDGCxAgSI0jMHOsPm/oa8+xx6/LmNdbRO+5iQmIEiREkRpAYQWIEiREkRpAYQWJ+3m7367rRz+fZDRwTkiNIjCAxgsQIEiNIjCAxgsQIEjP39vu9xITECBIjSIwgMYLECBIjSIwgMYIAAAAAfPUGb6MNSPtWGicAAAAASUVORK5CYII="`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with bumped features and features with feature.y 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAmElEQVR4nO3ZMQ4CMQwAQYeX83NTU5xEw7FCMx9IpJULJ2dndsh4/PoCvBMkRpAYQWIEiREkRpAYQWIEiTm3nPL0GvApExIjSIwgMYLECBIjSIwgMYLECBJzZvZPtuhzz6vDl5mQGEFiBIkRJEaQGEFiBIkRJEaQmNR2u+vv3YTECBIjSIwgMYLECBIjSIwgMYIAAAAAXHoBiJ0Ixz9vHvAAAAAASUVORK5CYII="`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with bumped features and features with feature.y 3`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAAvUlEQVR4nO3cMQ4CIRRAQfBO9h7d3kNhbaJW7vpCZi7Awss2hPy5xliDjMu/P4BXgsQIEiNIjCAxgsQIEiNIjCAx84xF1v2xxW3AvF0PPy9/SIwgMYLECBIjSIwgMYLECBIjCAAAAMBHc609Xr/Pec77gKO5y4oRJEaQGEFiBIkRJEaQGEFiBAEAAAAAAAAAAAAAAAAAAAAAAACAn9hiXvoX7+bap/ds5mKMIDGCxAgSI0iMIDGCxAgSI0jME8LQCktHGJQ2AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with bumped features of varying heights 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAA0klEQVR4nO3bUQqDMBAA0d3iLXuZvUzPuf0uKSJFm4nM+1ZYmDaRoNkRHcJ4zB5AnwwCYxAYg8AYBMYgMAaBMQiMQaQ9efTCfo1HLPk8fv+ZKmqYpaKmzHI2lywYg8AYBMYgMAaBMQiMQWAMAmMQac+Sxw1VX45OyqMTXcAgMAaBMQjMFvWHV0lrzYeHGfyHwBgEJl2yWLbZA/yke/wRZd4iuksWjEFgDAJjEJg1N/WbbOBaQHb7FS6JewiMQWAMAmMQGIPAGATGIDAGgTGIpIW8AfFKFlq17LbYAAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with bumped features of varying heights 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAo0lEQVR4nO3aMQ4CMQwAwYSX83NT00RXIG5BMy+wtJILJ3vWmkXG4+4BeCdIjCAxgsQIEiNIjCAxgsQIAid7rfmT08ned0/wCVZWjCAxgsQIEiNIjCAxgsQIEiNIjCAxgsQIEiNIjCBw8p03hKfvqldZWTGCxAgSI0iMIDGCxAgSI0iMIHCS+n4548RiZcUIEiNIjCAxgsQIEiNIjCAxggA/5AU5NQjRoZHWYQAAAABJRU5ErkJggg=="`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with bumped features of varying heights 3`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAvElEQVR4nO3bQQ6CMAAAQWr4knef7t1H1bOJIV6Ehcx8gMKmLSFlzGWZCxm3owfAJ0FiBIkRJEaQGEFiBIkRJEYQ2DL2uMh8vi7xeWY87n9/XpasGEFiBIkRJEaQGEFiBIkRJEaQGEFiBIkRJEaQGEFiBIkRJEaQGEFiBIEtuxxyONC3wxXpe7ZkxQgSI0iMIDGCxKxzXuMv3DHab0+/MkNiBIkRJGY9egB/drp9xQyJESRGkBhBYgQBTuQN+i4KXT4yyHoAAAAASUVORK5CYII="`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with bumped features spanning multiple images 1`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAq0lEQVR4nO3aMQrDMBAAQSnfzGf0mbxTqYMJuDDxBmZqCQ6WK4Q99xh7kPG4ewA+CRIjSIwgMYLECBIjSIwgMYLEzLMH9+v4op/P8/evtMY6zLLGumWWq9mQGEFiBIkRJEaQGEFiBIkRJEaQmDnWD76pr3te9P/IhsQIEiNIjCAxgsQIEiNIjCAxgsTMvf39XmJDYgSJESRGkBhBYgSJESRGkBhBAAAAAL56AxqTDUj49aD1AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with bumped features spanning multiple images 2`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAlklEQVR4nO3ZMQoCUQxAwXxP7s1jbbFgIe5DZk4QeKQIOTuzQ8bj7gF4J0iMIDGCxAgSI0iMIDGCxAgSc2b2Ty71c+6e4BtsSIwgMYLECBIjSIwgMYLECBIjSMxvrtunv/2nbEiMIDGCxAgSI0iMIDGCxAgSI0hM6g+966K3ITGCxAgSI0iMIDGCxAgSI0iMIAAAAACXXm2/CMcOTOg3AAAAAElFTkSuQmCC"`;
+
+exports[`Correctly render blocks where: the browser is dynamic in the middle of the chromosome with bumped features spanning multiple images 3`] = `"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAABmJLR0QA/wD/AP+gvaeTAAAAp0lEQVR4nO3aMQ7CMBAAwRx/oufp9DzKqZFAoiFZRTMfcOzVFbYya9vWRsbt7A/gnSAxgsQIEiNIjCAxgsQIEiNIzByxyHq+LvEaMI/738/LhMQIEiNIjCAxgsQIEiNIjCAxgsQcclM/0acXgvSeTUiMIDGCxAgSI0iMIDGCxAgSI0jMrHWNv99n2jfwX5mQGEFiBIkRJEaQGEFiBIkRJEYQAAAAgK92PcwKSwnC51kAAAAASUVORK5CYII="`;

@@ -1,4 +1,4 @@
-const { Genoverse, afterTest, testCanvas } = require('../utils');
+const { Genoverse, afterTest } = require('../utils');
 
 describe('Config settings', () => {
   afterEach(afterTest);
@@ -291,32 +291,25 @@ describe('Config settings', () => {
       tracks         : [ Genoverse.Track.extend(trackDef) ],
     }).tracks;
 
-    const draw = [
-      [[ 0,  2, 10, 6           ], [ 'fillText', 'A1', 0,  10          ]],
-      [[ 20, 2, 10, 6, 'blue'   ], [ 'fillText', 'A2', 20, 10, 'blue'   ]],
-      [[ 40, 2, 10, 6, 'orange' ], [ 'fillText', 'B1', 40, 10, 'orange' ]],
-      [[ 60, 2, 10, 6, 'purple' ], [ 'fillText', 'B2', 60, 10, 'purple' ]],
-    ];
-
     [
-      { type: 'a',   subtype: 'all', draw: draw[0].concat(draw[1]) },
-      { type: 'b',   subtype: 'all', draw: draw[2].concat(draw[3]) },
-      { type: 'all', subtype: 1,     draw: draw[0].concat(draw[2]) },
-      { type: 'a',   subtype: 1,     draw: draw[0]                 },
-      { type: 'a',   subtype: 2,     draw: draw[1]                 },
-      { type: 'b',   subtype: 1,     draw: draw[2]                 },
-      { type: 'b',   subtype: 2,     draw: draw[3]                 },
+      { type: 'a',   subtype: 'all' },
+      { type: 'b',   subtype: 'all' },
+      { type: 'all', subtype: 1     },
+      { type: 'a',   subtype: 1     },
+      { type: 'a',   subtype: 2     },
+      { type: 'b',   subtype: 1     },
+      { type: 'b',   subtype: 2     },
 
-      { squish: true,                        draw: [[ 60, 1, 10, 2, 'purple' ]] },
-      { squish: true,  colorscheme: 'red',   draw: [[ 60, 1, 10, 2, 'red'    ]] },
-      { squish: false, colorscheme: 'green', draw: [[ 60, 2, 10, 6, 'green'  ], [ 'fillText', 'B2', 60, 10, 'green' ]] },
+      { squish: true                        },
+      { squish: true,  colorscheme: 'red'   },
+      { squish: false, colorscheme: 'green' },
 
-      { type: 'all', subtype: 'all', colorscheme: 'default', draw: draw.reduce((a, b) => a.concat(b))  },
+      { type: 'all', subtype: 'all', colorscheme: 'default' },
     ].forEach(
       (config) => {
-        it(`when ${Object.entries(config).map(([ k, v ]) => (k === 'draw' ? null : `${k} = ${v}`)).join(', ')}`, (done) => {
+        it(`when ${Object.entries(config).map(([ k, v ]) => `${k} = ${v}`).join(', ')}`, (done) => {
           track.afterRender = function (f, image) {
-            testCanvas(this, config.draw, image, image.data('featureHeight'), 'features');
+            expect(image[0].src).toMatchSnapshot();
             done();
           };
 
