@@ -1509,7 +1509,7 @@ var Genoverse = Base.extend({
       delete this[key];
     }
   }
-}, {
+}, $.extend({
   id      : 0,
   ready   : $.Deferred(),
   origin  : (($('script[src]').filter(function () { return /\/(?:Genoverse|genoverse\.min.*)\.js$/.test(this.src); }).attr('src') || '').match(/(.*)js\/\w+/) || [])[1] || '',
@@ -1653,14 +1653,25 @@ var Genoverse = Base.extend({
 
     return namespaces[0];
   }
-});
+}, window.genoverseLoadOptions || {}));
 
 $(function () {
-  if ($('link[href^="' + Genoverse.origin + 'css/genoverse.css"]').length) {
-    Genoverse.ready.resolve();
+  var cssReady         = $.Deferred();
+  var fontAwesomeReady = $.Deferred();
+
+  if (Genoverse.loadCSS === false || $('link[href^="' + Genoverse.origin + 'css/genoverse.css"]').length) {
+    cssReady.resolve();
   } else {
-    $('<link href="' + Genoverse.origin + 'css/genoverse.css" rel="stylesheet">').prependTo('body').on('load', Genoverse.ready.resolve);
+    $('<link href="' + Genoverse.origin + 'css/genoverse.css" rel="stylesheet">').prependTo('body').on('load', cssReady.resolve);
   }
+
+  if (Genoverse.loadFontAwesome === false || $('link[href^="' + Genoverse.origin + 'css/font-awesome.css"]').length) {
+    fontAwesomeReady.resolve();
+  } else {
+    $('<link href="' + Genoverse.origin + 'css/font-awesome.css" rel="stylesheet">').prependTo('body').on('load', fontAwesomeReady.resolve);
+  }
+
+  $.when(cssReady, fontAwesomeReady).done(Genoverse.ready.resolve);
 });
 
 window.Genoverse = Genoverse;
