@@ -1,0 +1,3 @@
+#!/bin/sh
+ln -sfT "$( pwd )/utils/git-hooks/pre-commit"  .git/hooks/pre-commit;
+ln -sfT "$( pwd )/utils/git-hooks/post-commit" .git/hooks/post-commit;
