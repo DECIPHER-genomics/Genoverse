@@ -1,3 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../..; # cd to the Genoverse directory
+
 ln -sfT "$( pwd )/utils/git-hooks/pre-commit"  .git/hooks/pre-commit;
 ln -sfT "$( pwd )/utils/git-hooks/post-commit" .git/hooks/post-commit;
