@@ -1,5 +1,5 @@
 Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
-  featureHeight       : 10,
+  featureHeight       : 12,
   utrHeight           : 7,
   labels              : true,
   repeatLabels        : true,
