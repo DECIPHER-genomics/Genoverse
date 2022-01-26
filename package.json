@@ -10,7 +10,8 @@
   "scripts": {
     "test": "jest",
     "build": "yarn lint && node utils/makeExpanded.js && webpack",
-    "lint": "eslint '**/*.js'"
+    "lint": "eslint '**/*.js'",
+    "server": "node utils/devServer.js"
   },
   "repository": {
     "type": "git",
