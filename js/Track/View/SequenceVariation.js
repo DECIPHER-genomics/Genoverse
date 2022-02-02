@@ -1,4 +1,6 @@
-Genoverse.Track.View.SequenceVariation = Genoverse.Track.View.Sequence.extend({
+import View from 'js/Track/View/Sequence';
+
+export default View.extend({
   featureHeight : 15,
   featureMargin : { top: 0, right: 0, bottom: 4, left: 0 },
   bump          : true,

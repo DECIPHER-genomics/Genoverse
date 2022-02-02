@@ -1,4 +1,6 @@
-Genoverse.Track.View.Transcript = Genoverse.Track.View.extend({
+import View from 'js/Track/View';
+
+export default View.extend({
   featureHeight       : 12,
   utrHeight           : 7,
   labels              : true,

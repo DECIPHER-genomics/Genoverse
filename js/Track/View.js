@@ -1,4 +1,8 @@
-Genoverse.Track.View = Base.extend({
+import Base          from 'basejs';
+import RTree         from 'rtree';
+import wrapFunctions from 'js/wrap-functions';
+
+export default Base.extend({
   fontHeight       : 10,
   fontFamily       : 'sans-serif',
   fontWeight       : 'normal',
@@ -20,7 +24,7 @@ Genoverse.Track.View = Base.extend({
 
   constructor: function (properties) {
     $.extend(this, properties);
-    Genoverse.wrapFunctions(this);
+    wrapFunctions(this, 'View');
     this.init();
   },
 

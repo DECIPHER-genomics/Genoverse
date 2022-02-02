@@ -1,12 +1,17 @@
-Genoverse.Track.File.BIGBED = Genoverse.Track.File.BED.extend({
+import { URLFetchable, BlobFetchable } from 'js/lib/dalliance-lib';
+import BWReader                        from 'js/lib/BWReader';
+import Track                           from 'js/Track/library/File/BED';
+import Model                           from 'js/Track/Model/File/BED';
+
+export default Track.extend({
   name  : 'bigbed',
-  model : Genoverse.Track.Model.File.BED.extend({
+  model : Model.extend({
     getData: function (chr, start, end) {
       var model    = this;
       var deferred = $.Deferred();
 
       if (!this.bigbedFile) {
-        this.bigbedFile = this.bigbedFile || (this.url ? new dallianceLib.URLFetchable(this.url) : new dallianceLib.BlobFetchable(this.track.dataFile));
+        this.bigbedFile = this.bigbedFile || (this.url ? new URLFetchable(this.url) : new BlobFetchable(this.track.dataFile));
       }
 
       var d = $.Deferred().done(function () {
@@ -43,5 +48,3 @@ Genoverse.Track.File.BIGBED = Genoverse.Track.File.BED.extend({
     }
   })
 });
-
-Genoverse.Track.File.BB = Genoverse.Track.File.BIGBED;

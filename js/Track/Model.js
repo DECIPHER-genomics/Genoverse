@@ -1,4 +1,8 @@
-Genoverse.Track.Model = Base.extend({
+import Base          from 'basejs';
+import RTree         from 'rtree';
+import wrapFunctions from 'js/wrap-functions';
+
+export default Base.extend({
   dataType           : 'json',
   allData            : false,
   dataBuffer         : undefined, // e.g. { start: 0, end: 0 } - basepairs to extend data region for, when getting data from the origin
@@ -12,7 +16,7 @@ Genoverse.Track.Model = Base.extend({
 
   constructor: function (properties) {
     $.extend(this, properties);
-    Genoverse.wrapFunctions(this);
+    wrapFunctions(this, 'Model');
     this.init();
   },
 

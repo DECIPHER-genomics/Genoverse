@@ -1,4 +1,6 @@
-Genoverse.Track.Model.File.BED = Genoverse.Track.Model.File.extend({
+import Model from 'js/Track/Model/File';
+
+export default Model.extend({
   parseData: function (data, chr) {
     var lines       = typeof data === 'string' ? data.split('\n') : data;
     var thinHeight  = this.prop('thinHeight');

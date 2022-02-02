@@ -1,5 +1,8 @@
-Genoverse.Track.Model.SequenceVariation = Genoverse.Track.Model.extend({
-  seqModel: Genoverse.Track.Model.Sequence.Ensembl,
+import Model         from 'js/Track/Model';
+import SequenceModel from 'js/Track/Model/Sequence/Ensembl';
+
+export default Model.extend({
+  seqModel: SequenceModel,
 
   getSeqModel: function () {
     var models = this.prop('models');

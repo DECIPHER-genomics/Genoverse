@@ -1,3 +1,9 @@
+import Base                 from 'basejs';
+import Track                from 'js/Track';
+import LegendTrack          from 'js/Track/library/Legend';
+import HighlightRegionTrack from 'js/Track/library/HighlightRegion';
+import wrapFunctions        from 'js/wrap-functions';
+
 var Genoverse = Base.extend({
   // Defaults
   baseURL            : undefined, // If multiple instances of Genoverse exist on a page at once, specifying different baseURL values allows some/all to ignore external URL changes
@@ -49,138 +55,90 @@ var Genoverse = Base.extend({
     this.events         = { browser: {}, tracks: {} };
 
     $.when(Genoverse.ready, this.loadGenome(), this.loadPlugins()).always(function () {
-      Genoverse.wrapFunctions(browser);
+      wrapFunctions(browser, 'Genoverse');
       browser.init();
     });
   },
 
   loadGenome: function () {
+    var browser = this;
+
     if (typeof this.genome === 'string') {
       var genomeName = this.genome.toLowerCase();
 
-      return $.ajax({
-        url      : Genoverse.origin + 'js/genomes/' + genomeName + '.js',
-        dataType : 'script',
-        context  : this,
-        success  : function () {
-          this.genomeName = this.genome;
-          this.genome     = Genoverse.Genomes[genomeName];
+      return import('js/genomes/' + genomeName).then(function (imported) {
+        browser.genomeName = browser.genome;
+        browser.genome     = imported.default;
 
-          if (!this.genome) {
-            this.die('Unable to load genome ' + genomeName);
-          }
+        if (!browser.genome) {
+          browser.die('Unable to load genome ' + genomeName);
         }
       });
     }
   },
 
   loadPlugins: function (plugins) {
-    var browser         = this;
-    var loadPluginsTask = $.Deferred();
-    var i;
-
-    plugins = plugins || this.plugins;
+    var browser = this;
 
     this.loadedPlugins = this.loadedPlugins || {};
 
-    for (i in Genoverse.Plugins) {
-      this.loadedPlugins[i] = this.loadedPlugins[i] || 'script';
-    }
-
-    if (typeof plugins === 'string') {
-      plugins = [ plugins ];
-    }
-
-    plugins = plugins.map(function (plugin) {
-      return Array.isArray(plugin) ? plugin : [ plugin, {}];
-    });
-
-    var pluginsByName = plugins.reduce(
+    var pluginsByName = (plugins || this.plugins).map(function (plugin) {
+      return (
+        Array.isArray(plugin)
+          ? { name: plugin[0], conf: plugin[1] }
+          : { name: plugin,    conf: undefined }
+      );
+    }).reduce(
       function (acc, plugin) {
-        acc[plugin[0]] = plugin;
+        acc[plugin.name] = plugin;
         return acc;
       },
       {}
     );
 
-    function loadPlugin(arg) {
-      var plugin   = arg[0];
-      var css      = Genoverse.origin + 'css/'        + plugin + '.css';
-      var js       = Genoverse.origin + 'js/plugins/' + plugin + '.js';
-      var deferred = $.Deferred();
-
-      function getCSS() {
-        function done() {
-          browser.loadedPlugins[plugin] = browser.loadedPlugins[plugin] || 'script';
-          deferred.resolve(arg);
-        }
-
-        if (Genoverse.Plugins[plugin].noCSS || $('link[href="' + css + '"]').length) {
-          return done();
-        }
-
-        $('<link href="' + css + '" rel="stylesheet">').on('load', done).appendTo('body');
-      }
-
-      if (browser.loadedPlugins[plugin] || $('script[src="' + js + '"]').length) {
-        getCSS();
-      } else {
-        $.getScript(js, getCSS);
-      }
-
-      return deferred;
-    }
-
-    function initializePlugin(plugin, conf) {
-      if (typeof Genoverse.Plugins[plugin] !== 'function' || browser.loadedPlugins[plugin] === true) {
-        return [];
-      }
-
-      var requires = Genoverse.Plugins[plugin].requires;
-      var deferred = $.Deferred();
-
-      function init() {
-        if (browser.loadedPlugins[plugin] !== true) {
-          Genoverse.Plugins[plugin].call(browser, conf);
-          browser.container.addClass('gv-' + plugin.replace(/([A-Z])/g, '-$1').toLowerCase() + '-plugin');
-          browser.loadedPlugins[plugin] = true;
-        }
-
-        deferred.resolve();
-      }
+    var initializePlugin = function (plugin) {
+      var requires = plugin.exports.requires;
+      var pluginFn = plugin.exports[plugin.name] || plugin.exports.plugin;
 
       if (requires) {
-        $.when(
-          browser.loadPlugins(
-            [].concat(requires).map(function (pluginName) {
-              return pluginsByName[pluginName] || pluginName;
-            })
-          )
-        ).done(init);
-      } else {
-        init();
+        Object.keys(requires).forEach(
+          function (pluginName) {
+            if (pluginName !== 'requires') {
+              initializePlugin({
+                name    : pluginName,
+                conf    : (pluginsByName[pluginName] || {}).conf,
+                exports : {
+                  plugin   : requires[pluginName],
+                  requires : requires.requires
+                }
+              });
+            }
+          }
+        );
       }
 
-      return deferred;
-    }
+      if (typeof pluginFn !== 'function' || browser.loadedPlugins[plugin.name] === true) {
+        return;
+      }
 
-    // Load plugins css file
-    $.when.apply($, $.map(plugins, loadPlugin)).done(function () {
-      var pluginsLoaded = [];
-      var plugin;
+      pluginFn.call(browser, plugin.conf || {});
+      browser.container.addClass('gv-' + plugin.name.replace(/([A-Z])/g, '-$1').toLowerCase() + '-plugin');
+      browser.loadedPlugins[plugin.name] = true;
+    };
 
-      for (i = 0; i < arguments.length; i++) {
-        plugin = arguments[i];
-
-        if (browser.loadedPlugins[plugin[0]] !== true) {
-          pluginsLoaded.push(initializePlugin(plugin[0], plugin[1]));
+    var pluginImports = Object.keys(pluginsByName).map(function (pluginName) {
+      return import('js/plugins/' + pluginName).then(
+        function (imported) {
+          initializePlugin({
+            name    : pluginName,
+            conf    : pluginsByName[pluginName].conf,
+            exports : imported.default
+          });
         }
-      }
-
-      $.when.apply($, pluginsLoaded).always(loadPluginsTask.resolve);
+      );
     });
 
-    return loadPluginsTask;
+    return $.when.apply($, pluginImports);
   },
 
   init: function () {
@@ -333,7 +291,7 @@ var Genoverse = Base.extend({
     var conf, j;
 
     for (var i = 0; i < this.tracks.length; i++) {
-      if (this.tracks[i].id && !(this.tracks[i] instanceof Genoverse.Track.Legend) && !(this.tracks[i] instanceof Genoverse.Track.HighlightRegion)) {
+      if (this.tracks[i].id && !(this.tracks[i] instanceof LegendTrack) && !(this.tracks[i] instanceof HighlightRegionTrack)) {
         // when saving height, initialHeight is the height of the track once margins have been added, while defaultHeight is the DEFINED height of the track.
         // Subtracting the difference between them gives you back the correct height to input back into the track when loading configuration
         conf = {
@@ -1428,7 +1386,7 @@ var Genoverse = Base.extend({
 
   addHighlights: function (highlights) {
     if (!this.tracksById.highlights) {
-      this.addTrack(Genoverse.Track.HighlightRegion);
+      this.addTrack(HighlightRegionTrack);
     }
 
     this.tracksById.highlights.addHighlights(highlights);
@@ -1476,7 +1434,7 @@ var Genoverse = Base.extend({
       makeEventMap(events, fn);
     }
 
-    var type = obj instanceof Genoverse.Track || obj === 'tracks' ? 'tracks' : 'browser';
+    var type = obj instanceof Track || obj === 'tracks' ? 'tracks' : 'browser';
 
     for (i in eventMap) {
       event = i + (once ? '.once' : '');
@@ -1510,98 +1468,12 @@ var Genoverse = Base.extend({
     }
   }
 }, $.extend({
-  id      : 0,
-  ready   : $.Deferred(),
-  origin  : (($('script[src]').filter(function () { return /\/(?:Genoverse|genoverse\.min.*)\.js$/.test(this.src); }).attr('src') || '').match(/(.*)js\/\w+/) || [])[1] || '',
-  Genomes : {},
-  Plugins : {},
-
-  wrapFunctions: function (obj) {
-    for (var key in obj) {
-      if (typeof obj[key] === 'function' && typeof obj[key].ancestor !== 'function' && !key.match(/^(base|extend|constructor|on|once|prop|loadPlugins|loadGenome)$/)) {
-        Genoverse.functionWrap(key, obj);
-      }
-    }
-  },
-
-  /**
-   * functionWrap - wraps event handlers and adds debugging functionality
-   */
-  functionWrap: function (key, obj) {
-    obj.functions = obj.functions || {};
-
-    if (obj.functions[key] || /^(before|after)/.test(key)) {
-      return;
-    }
-
-    var func      = key.substring(0, 1).toUpperCase() + key.substring(1);
-    var isBrowser = obj instanceof Genoverse;
-    var mainObj   = isBrowser || obj instanceof Genoverse.Track ? obj : obj.track;
-    var events    = isBrowser ? obj.events.browser : obj.browser.events.tracks;
-    var debug;
-
-    if (mainObj.debug) {
-      debug = [ isBrowser ? 'Genoverse' : mainObj.id || mainObj.name || 'Track' ];
-
-      if (!isBrowser && obj !== mainObj) {
-        debug.push(obj instanceof Genoverse.Track.Controller ? 'Controller' : obj instanceof Genoverse.Track.Model ? 'Model' : 'View');
-      }
-
-      debug = debug.concat(key).join('.');
-    }
-
-    obj.functions[key] = obj[key];
-
-    obj[key] = function () {
-      var args          = [].slice.call(arguments);
-      var currentConfig = (this._currentConfig || (this.track ? this.track._currentConfig : {}) || {}).func;
-      var rtn;
-
-      // Debugging functionality
-      // Enabled by "debug": true || 'time' || { functionName: true, ...} option
-      if (mainObj.debug === true) { // if "debug": true, simply log function call
-        console.log(debug); // eslint-disable-line no-console
-      } else if (mainObj.debug === 'time' || (typeof mainObj.debug === 'object' && mainObj.debug[key])) { // if debug: 'time' || { functionName: true, ...}, log function time
-        console.time('time: ' + debug); // eslint-disable-line no-console
-      }
-
-      function trigger(when) {
-        var once  = events[when + func + '.once'] || [];
-        var funcs = (events[when + func] || []).concat(once, typeof mainObj[when + func] === 'function' ? mainObj[when + func] : []);
-
-        if (once.length) {
-          delete events[when + func + '.once'];
-        }
-
-        for (var i = 0; i < funcs.length; i++) {
-          funcs[i].apply(this, args);
-        }
-      }
-
-      trigger.call(this, 'before');
-
-      if (currentConfig && currentConfig[key]) {
-        // override to add a value for this.base
-        rtn = function () {
-          this.base = this.functions[key] || function () {};
-          return currentConfig[key].apply(this, arguments);
-        }.apply(this, args);
-      } else {
-        rtn = this.functions[key].apply(this, args);
-      }
-
-      trigger.call(this, 'after');
-
-      if (mainObj.debug === 'time' || (typeof mainObj.debug === 'object' && mainObj.debug[key])) {
-        console.timeEnd('time: ' + debug); // eslint-disable-line no-console
-      }
-
-      return rtn;
-    };
-  },
+  id    : 0,
+  ready : $.Deferred(),
+  Track : Track,
 
   getAllTrackTypes: function (namespace, n) {
-    namespace = namespace || Genoverse.Track;
+    namespace = namespace || Track;
 
     if (n) {
       namespace = namespace[n];
@@ -1659,23 +1531,23 @@ $(function () {
   var cssReady         = $.Deferred();
   var fontAwesomeReady = $.Deferred();
 
-  if (Genoverse.loadCSS === false || $('link[href^="' + Genoverse.origin + 'css/genoverse.css"]').length) {
+  if (Genoverse.loadCSS === false) {
     cssReady.resolve();
   } else {
-    $('<link href="' + Genoverse.origin + 'css/genoverse.css" rel="stylesheet">').prependTo('body').on('load', cssReady.resolve);
+    import('css/genoverse.css').then(cssReady.resolve);
   }
 
-  if (Genoverse.loadFontAwesome === false || $('link[href^="' + Genoverse.origin + 'css/font-awesome.css"]').length) {
+  if (Genoverse.loadFontAwesome === false) {
     fontAwesomeReady.resolve();
   } else {
-    $('<link href="' + Genoverse.origin + 'css/font-awesome.css" rel="stylesheet">').prependTo('body').on('load', fontAwesomeReady.resolve);
+    Promise.all([
+      import('@fortawesome/fontawesome-free/js/fontawesome.min'),
+      import('@fortawesome/fontawesome-free/js/regular.min'),
+      import('@fortawesome/fontawesome-free/js/solid.min')
+    ]).then(fontAwesomeReady.resolve);
   }
 
   $.when(cssReady, fontAwesomeReady).done(Genoverse.ready.resolve);
 });
 
-window.Genoverse = Genoverse;
-
-if (typeof module === 'object' && typeof module.exports === 'object') {
-  module.exports = Genoverse;
-}
+export default Genoverse;

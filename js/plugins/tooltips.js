@@ -3,7 +3,10 @@
 // (c) 2008-2010 jason frame [jason@onehackoranother.com]
 // released under the MIT license
 
-Genoverse.Plugins.tooltips = function () {
+import 'css/tooltips.css';
+import controlPanel from 'js/plugins/controlPanel';
+
+var plugin = function () {
   var genoverse = this;
 
   function toggleTooltips(browser, tooltips, action) {
@@ -91,4 +94,4 @@ Genoverse.Plugins.tooltips = function () {
   });
 };
 
-Genoverse.Plugins.tooltips.requires = 'controlPanel';
+export default { tooltips: plugin, requires: controlPanel };

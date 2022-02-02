@@ -1,5 +1,7 @@
+import Model from 'js/Track/Model/Transcript';
+
 // Ensembl REST API Transcript model
-Genoverse.Track.Model.Transcript.Ensembl = Genoverse.Track.Model.Transcript.extend({
+export default Model.extend({
   url              : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=transcript;feature=exon;feature=cds;content-type=application/json',
   dataRequestLimit : 5000000, // As per e! REST API restrictions
 

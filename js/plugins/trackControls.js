@@ -1,4 +1,6 @@
-Genoverse.Plugins.trackControls = function () {
+import 'css/trackControls.css';
+
+var plugin = function () {
   var defaultControls = [
     $('<a title="More info" class="fas fa-question-circle">').on('click', function () {
       var track = $(this).data('track');
@@ -141,3 +143,5 @@ Genoverse.Plugins.trackControls = function () {
     }
   }, 'tracks');
 };
+
+export default { trackControls: plugin };

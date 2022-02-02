@@ -1,4 +1,6 @@
-Genoverse.Track.dbSNP = Genoverse.Track.extend({
+import Track from 'js/Track';
+
+export default Track.extend({
   id               : 'dbSNP',
   name             : 'dbSNP',
   info             : 'All sequence variants from the database of Single Nucleotide Polymorphisms (dbSNP)',
@@ -138,5 +140,4 @@ Genoverse.Track.dbSNP = Genoverse.Track.extend({
   1: { // > 1 base-pair, but less then 5k
     bump: true
   }
-
 });

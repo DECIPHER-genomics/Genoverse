@@ -1,5 +1,7 @@
+import Model from 'js/Track/Model/Gene';
+
 // Ensembl REST API Gene model
-Genoverse.Track.Model.Gene.Ensembl = Genoverse.Track.Model.Gene.extend({
+export default Model.extend({
   url              : '//rest.ensembl.org/overlap/region/human/__CHR__:__START__-__END__?feature=gene;content-type=application/json',
   dataRequestLimit : 5000000, // As per e! REST API restrictions
 

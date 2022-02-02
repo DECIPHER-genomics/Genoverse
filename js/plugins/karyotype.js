@@ -1,4 +1,7 @@
-Genoverse.Plugins.karyotype = function (pluginConf) {
+import 'css/karyotype.css';
+import Chromosome from 'js/Track/library/Chromosome';
+
+var plugin = function (pluginConf) {
   function createKaryotype() {
     var chromosome   = $('<div class="gv-chromosome">');
     var container    = $('<div class="gv-karyotype-container">').html(chromosome).insertBefore(this.wrapper);
@@ -24,7 +27,7 @@ Genoverse.Plugins.karyotype = function (pluginConf) {
       end       : this.chromosomeSize,
       isStatic  : true,
       tracks    : [
-        Genoverse.Track.Chromosome.extend({
+        Chromosome.extend({
           name          : name,
           height        : 20,
           featureHeight : 20,
@@ -208,3 +211,5 @@ Genoverse.Plugins.karyotype = function (pluginConf) {
     }
   });
 };
+
+export default { karyotype: plugin };

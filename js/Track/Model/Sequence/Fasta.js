@@ -1,4 +1,6 @@
-Genoverse.Track.Model.Sequence.Fasta = Genoverse.Track.Model.Sequence.extend({
+import Model from 'js/Track/Model/Sequence';
+
+export default Model.extend({
   url: 'https://wtsi-web.github.io/Genoverse/data/Homo_sapiens.GRCh37.72.dna.chromosome.1.fa', // Example url
 
   // Following settings could be left undefined and will be detected automatically via .getStartByte()

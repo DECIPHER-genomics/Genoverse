@@ -1,4 +1,8 @@
-Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
+import Track, { Model, View } from 'js/Track';
+import StrandedController     from 'js/Track/Controller/Stranded';
+import StrandedModel          from 'js/Track/Model/Stranded';
+
+export default Track.extend({
   id               : 'highlights',
   unsortable       : true,
   fixedOrder       : true,
@@ -64,7 +68,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     this.reset();
   },
 
-  controller: Genoverse.Track.Controller.Stranded.extend({
+  controller: StrandedController.extend({
     setDefaults: function () {
       if (this.prop('strand') === -1) {
         this.prop('labels', false);
@@ -193,7 +197,7 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     }
   }),
 
-  model: Genoverse.Track.Model.Stranded.extend({
+  model: StrandedModel.extend({
     url: false,
 
     insertFeature: function (feature) {
@@ -215,11 +219,11 @@ Genoverse.Track.HighlightRegion = Genoverse.Track.extend({
     },
 
     findFeatures: function () {
-      return Genoverse.Track.Model.prototype.findFeatures.apply(this, arguments);
+      return Model.prototype.findFeatures.apply(this, arguments);
     }
   }),
 
-  view: Genoverse.Track.View.extend({
+  view: View.extend({
     positionFeatures: function (features, params) {
       var rtn = this.base.apply(this, arguments);
 

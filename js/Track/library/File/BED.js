@@ -1,6 +1,9 @@
-Genoverse.Track.File.BED = Genoverse.Track.File.extend({
+import Track from 'js/Track/library/File';
+import Model from 'js/Track/Model/File/BED';
+
+export default Track.extend({
   name                : 'BED',
-  model               : Genoverse.Track.Model.File.BED,
+  model               : Model,
   bump                : true,
   featureHeight       : 10,
   thickHeight         : 10,

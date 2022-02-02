@@ -1,4 +1,6 @@
-Genoverse.Plugins.resizer = function () {
+import 'css/resizer.css';
+
+var plugin = function () {
   this.on('afterSetMVC', 'tracks', function () {
     if (this.prop('resizable') !== true) {
       return;
@@ -43,3 +45,5 @@ Genoverse.Plugins.resizer = function () {
     }
   });
 };
+
+export default { resizer: plugin };

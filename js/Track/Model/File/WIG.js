@@ -1,4 +1,7 @@
-Genoverse.Track.Model.File.WIG = Genoverse.Track.Model.Graph.Bar.extend({
+import Model                      from 'js/Track/Model/File';
+import { Model as BarGraphModel } from 'js/Track/library/Graph/Bar';
+
+export default BarGraphModel.extend({
   dataType: 'text',
 
   getData: function () {
@@ -6,7 +9,7 @@ Genoverse.Track.Model.File.WIG = Genoverse.Track.Model.Graph.Bar.extend({
       this.isLocal  = true;
       this.dataFile = this.track.dataFile;
 
-      return Genoverse.Track.Model.File.prototype.getData.apply(this, arguments);
+      return Model.prototype.getData.apply(this, arguments);
     }
 
     return this.base.apply(this, arguments);

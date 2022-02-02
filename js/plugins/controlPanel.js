@@ -1,4 +1,7 @@
-Genoverse.Plugins.controlPanel = function (pluginConf) {
+import 'css/controlPanel.css';
+import karyotype from 'js/plugins/karyotype';
+
+var plugin = function (pluginConf) {
   this.controls = [
     // Scroll left/right
     {
@@ -392,4 +395,4 @@ Genoverse.Plugins.controlPanel = function (pluginConf) {
   }, 'tracks');
 };
 
-Genoverse.Plugins.controlPanel.requires = 'karyotype';
+export default { controlPanel: plugin, requires: karyotype };

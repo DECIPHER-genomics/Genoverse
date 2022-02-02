@@ -1,4 +1,12 @@
-Genoverse.Track = Base.extend({
+import Base               from 'basejs';
+import Controller         from 'js/Track/Controller';
+import Model              from 'js/Track/Model';
+import View               from 'js/Track/View';
+import StrandedController from 'js/Track/Controller/Stranded';
+import StrandedModel      from 'js/Track/Model/Stranded';
+import wrapFunctions      from 'js/wrap-functions';
+
+var Track = Base.extend({
   height     : 12,        // The height of the gv-track-container div
   margin     : 2,         // The spacing between this track and the next
   resizable  : true,      // Is the track resizable - can be true, false or 'auto'. Auto means the track will automatically resize to show all features, but the user cannot resize it themselves.
@@ -6,16 +14,16 @@ Genoverse.Track = Base.extend({
   unsortable : false,     // Is the track unsortable by the user
   fixedOrder : false,     // Is the track unsortable by the user or automatically - use for tracks which always need to go at the top/bottom
   invert     : false,     // If true, features are drawn from the bottom of the track, rather than from the top. This is actually achieved by performing a CSS transform on the gv-image-container div
-  legend     : false,     // Does the track have a legend - can be true, false, or a Genoverse.Track.Legend extension/child class.
-  children   : undefined, // Does the track have any child tracks - can be one or an array of Genoverse.Track extension/child classes.
+  legend     : false,     // Does the track have a legend - can be true, false, or a Legend extension/child class.
+  children   : undefined, // Does the track have any child tracks - can be one or an array of Track extension/child classes.
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
   hideEmpty  : undefined, // If the track automatically resizes, should it be hidden when there are no features, or should an empty track still be shown
 
   constructor: function (config) {
     if (this.stranded || config.stranded) {
-      this.controller = this.controller || Genoverse.Track.Controller.Stranded;
-      this.model      = this.model      || Genoverse.Track.Model.Stranded;
+      this.controller = this.controller || StrandedController;
+      this.model      = this.model      || StrandedModel;
     }
 
     this.models = {};
@@ -26,7 +34,7 @@ Genoverse.Track = Base.extend({
     this.setDefaults();
     this.setEvents();
 
-    Genoverse.wrapFunctions(this);
+    wrapFunctions(this, 'Track');
 
     this.setLengthMap();
     this.setMVC();
@@ -85,7 +93,7 @@ Genoverse.Track = Base.extend({
     this._interface = {};
 
     for (var i = 0; i < 3; i++) {
-      for (prop in Genoverse.Track[mvc[i]].prototype) {
+      for (prop in Track[mvc[i]].prototype) {
         if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(prop)) {
           this._interface[prop] = mvc[i + 3];
         }
@@ -105,13 +113,13 @@ Genoverse.Track = Base.extend({
     var trackSettings      = {};
     var i;
 
-    settings.controller = settings.controller || this.controller || Genoverse.Track.Controller;
+    settings.controller = settings.controller || this.controller || Controller;
 
     for (i in settings) {
       if (!/^(constructor|init|reset|setDefaults|base|extend|lengthMap)$/.test(i) && isNaN(i)) {
         if (this._interface[i] === 'controller') {
           controllerSettings[typeof settings[i] === 'function' ? 'func' : 'prop'][i] = settings[i];
-        } else if (!Genoverse.Track.prototype.hasOwnProperty(i) && !/^(controller|models|views|config|disabled)$/.test(i)) { // If we allow trackSettings to overwrite the MVC properties, we will potentially lose of information about instantiated objects that the track needs to perform future switching correctly.
+        } else if (!Track.prototype.hasOwnProperty(i) && !/^(controller|models|views|config|disabled)$/.test(i)) { // If we allow trackSettings to overwrite the MVC properties, we will potentially lose of information about instantiated objects that the track needs to perform future switching correctly.
           if (typeof this._defaults[i] === 'undefined') {
             this._defaults[i] = this[i];
           }
@@ -128,7 +136,7 @@ Genoverse.Track = Base.extend({
     }
 
     // If there are configSettings for the track, ensure that any properties in _currentConfig are set for the model/view/controller/track as appropriate.
-    // Functions in _currentConfig are accessed via Genoverse.functionWrap, so nothing needs to be done with them here.
+    // Functions in _currentConfig are accessed via functionWrap in wrap-functions.js, so nothing needs to be done with them here.
     if (!$.isEmptyObject(this._currentConfig)) {
       var changed = {};
       var type;
@@ -253,12 +261,12 @@ Genoverse.Track = Base.extend({
         key   = parseInt(key, 10);
         value = this[key];
 
-        lengthMap.push([ key, value === false ? { threshold: key, resizable: 'auto', featureHeight: 0, model: Genoverse.Track.Model, view: Genoverse.Track.View } : $.extend(true, {}, value) ]);
+        lengthMap.push([ key, value === false ? { threshold: key, resizable: 'auto', featureHeight: 0, model: Model, view: View } : $.extend(true, {}, value) ]);
       }
     }
 
     // Force at least one lengthMap entry to exist, containing the base model and view. lengthMap entries above -1 without a model or view will inherit from -1.
-    lengthMap.push([ -1, { view: this.view || Genoverse.Track.View, model: this.model || Genoverse.Track.Model }]);
+    lengthMap.push([ -1, { view: this.view || View, model: this.model || Model }]);
 
     lengthMap = lengthMap.sort(function (a, b) { return b[0] - a[0]; });
 
@@ -284,11 +292,11 @@ Genoverse.Track = Base.extend({
       // Ensure that every lengthMap entry has a model and view property, copying them from entries with smaller lengths if needed.
       for (j = i + 1; j < lengthMap.length; j++) {
         if (!lengthMap[i][1].model && lengthMap[j][1].model) {
-          lengthMap[i][1].model = deepCopy.model ? Genoverse.Track.Model.extend($.extend(true, {}, lengthMap[j][1].model.prototype)) : lengthMap[j][1].model;
+          lengthMap[i][1].model = deepCopy.model ? Model.extend($.extend(true, {}, lengthMap[j][1].model.prototype)) : lengthMap[j][1].model;
         }
 
         if (!lengthMap[i][1].view && lengthMap[j][1].view) {
-          lengthMap[i][1].view = deepCopy.view ? Genoverse.Track.View.extend($.extend(true, {}, lengthMap[j][1].view.prototype)) : lengthMap[j][1].view;
+          lengthMap[i][1].view = deepCopy.view ? View.extend($.extend(true, {}, lengthMap[j][1].view.prototype)) : lengthMap[j][1].view;
         }
 
         if (lengthMap[i][1].model && lengthMap[i][1].view) {
@@ -516,7 +524,7 @@ Genoverse.Track = Base.extend({
 
     var track    = this;
     var browser  = this.browser;
-    var children = (Array.isArray(this.children) ? this.children : [ this.children ]).filter(function (child) { return child.prototype instanceof Genoverse.Track; });
+    var children = (Array.isArray(this.children) ? this.children : [ this.children ]).filter(function (child) { return child.prototype instanceof Track; });
     var config   = {
       parentTrack : this,
       controls    : 'off',
@@ -525,7 +533,7 @@ Genoverse.Track = Base.extend({
 
     setTimeout(function () {
       track.childTracks = children.map(function (child) {
-        if (child.prototype instanceof Genoverse.Track.Legend || child === Genoverse.Track.Legend) {
+        if (child.prototype instanceof Track.Legend || child === Track.Legend) { // Note: Track.Legend will only exist if it has been imported
           track.addLegend(child.extend(config), true);
           return track.legendTrack;
         }
@@ -542,7 +550,7 @@ Genoverse.Track = Base.extend({
       return;
     }
 
-    constructor = constructor || (this.legend.prototype instanceof Genoverse.Track.Legend ? this.legend : Genoverse.Track.Legend);
+    constructor = constructor || (this.legend.prototype instanceof Track.Legend ? this.legend : Track.Legend); // Note: Track.Legend will only exist if it has been imported
 
     var track       = this;
     var legendType  = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;
@@ -619,14 +627,24 @@ Genoverse.Track = Base.extend({
   },
 
   destructor: function () {
-    this.controller.destroy();
+    if (this.controller) {
+      this.controller.destroy();
+    }
 
-    var objs = [ this.view, this.model, this.controller, this ];
+    var objs = [ this.view, this.model, this.controller, this ].filter(Boolean);
 
-    for (var obj in objs) {
-      for (var key in obj) {
-        delete obj[key];
+    for (var i = 0; i < objs.length; i++) {
+      for (var key in objs[i]) {
+        delete objs[i][key];
       }
     }
   }
 });
+
+Track.Controller = Controller;
+Track.Model      = Model;
+Track.View       = View;
+
+export default Track;
+
+export { Controller, Model, View };

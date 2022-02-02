@@ -1,4 +1,4 @@
-Genoverse.Genomes.grch37 = {
+export default {
   '1': {
     'size'  : 249250621,
     'bands' : [

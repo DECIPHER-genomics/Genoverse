@@ -1,4 +1,6 @@
-Genoverse.Track.File = Genoverse.Track.extend({
+import Track from 'js/Track';
+
+export default Track.extend({
   setInterface: function () {
     this.base();
 

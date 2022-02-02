@@ -2,6 +2,4 @@
 
 git stash -k -q
 yarn build || exit 1
-git add js/genoverse.min.js
-git add js/genoverse.min.js.map
-git add expanded.html
+git add dist

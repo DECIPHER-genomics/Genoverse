@@ -15,37 +15,45 @@ module.exports = {
     'airbnb-base',
   ],
   globals: {
-    Base         : true,
-    Genoverse    : true,
-    RTree        : true,
-    dallianceLib : true,
-    VCFReader    : true,
-    BWReader     : true
+    Genoverse: true,
   },
   ignorePatterns: [
     '.eslintrc.js',
     'node_modules',
+    'dist',
     'index.js',
     '**/*.min.js',
     'js/lib/**/*.js'
   ],
+  settings: {
+    'import/resolver': {
+      webpack: {
+        config: {
+          resolve: {
+            alias: {
+              js  : `${__dirname}/js`,
+              css : `${__dirname}/css`,
+            },
+          },
+        },
+      },
+    },
+  },
   overrides: [
     {
       files : [ 'js/**/*.js' ],
-      plugins : [ 'es' ],
       extends : [
         'airbnb-base',
-        'plugin:es/no-new-in-es2018',
-        'plugin:es/no-new-in-es2017',
-        'plugin:es/no-new-in-es2016',
-        'plugin:es/no-new-in-es2015'
       ],
-      parserOptions: {
-        parser      : 'espree',
-        ecmaVersion : 5,
-        sourceType  : 'script'
+      parser        : '@babel/eslint-parser',
+      parserOptions : {
+        requireConfigFile : false,
+        ecmaVersion       : 8,
+        sourceType        : 'module',
       },
       rules: {
+        'import/no-mutable-exports': 'off',
+
         'linebreak-style'       : [ 'error', 'unix' ],
         'comma-dangle'          : [ 'error', 'never' ],
         'quotes'                : [ 'warn', 'single', { avoidEscape: true }], // be more permissive than airbnb - allow 'double quotes containing 'singles''

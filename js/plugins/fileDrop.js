@@ -1,4 +1,6 @@
-Genoverse.Plugins.fileDrop = function () {
+import 'css/fileDrop.css';
+
+var plugin = function () {
   this.on('afterInit', function () {
     var browser = this;
     var wrapper = this.wrapper;
@@ -24,39 +26,51 @@ Genoverse.Plugins.fileDrop = function () {
           ev.stopPropagation();
 
           // Sort in order to ensure that .bam files are before their .bam.bai files
-          var files = $.map(ev.originalEvent.dataTransfer.files, function (f) { return f; }).sort(function (a, b) { return a.name.localeCompare(b.name); });
+          var files          = $.map(ev.originalEvent.dataTransfer.files, function (f) { return f; }).sort(function (a, b) { return a.name.localeCompare(b.name); });
+          var trackImporters = [];
 
           for (var i = 0; i < files.length; i++) {
             var file  = files[i];
             var parts = file.name.split('.').reverse();
             var gz    = parts[0] === 'gz';
             var ext   = parts[gz ? 1 : 0];
-            var track = Genoverse.Track.File[ext.toUpperCase()];
             var indexFile;
 
-            if (typeof track === 'undefined') {
-              return;
-            }
-
-            if (track.prototype.indexExt && (files[i + 1] || {}).name === file.name + track.prototype.indexExt) {
+            if (files[i + 1] && new RegExp('^' + file.name + '\\.\\w+$').test(files[i + 1].name)) {
               indexFile = files[++i];
             }
 
-            track = track.extend({
-              name      : file.name,
-              info      : 'Local file `' + file.name + '`, size: ' + file.size + ' bytes',
-              isLocal   : true,
-              dataFile  : file,
+            trackImporters.push({
+              file      : file,
               indexFile : indexFile,
-              gz        : gz
+              gz        : gz,
+              trackType : ext.toUpperCase()
             });
-
-            browser.addTrack(track, browser.tracks.length - 1);
           }
 
-          return false;
+          trackImporters.forEach(
+            function (importer) {
+              import('js/Track/library/File/' + importer.trackType).then(
+                function (imported) {
+                  var track = imported.default.extend({
+                    name      : importer.file.name,
+                    info      : 'Local file `' + importer.file.name + '`, size: ' + importer.file.size + ' bytes',
+                    isLocal   : true,
+                    dataFile  : importer.file,
+                    indexFile : importer.indexFile,
+                    gz        : importer.gz
+                  });
+
+                  browser.addTrack(track, browser.tracks.length - 1);
+                },
+                function () {}
+              );
+            }
+          );
         });
       }
     });
   });
 };
+
+export default { fileDrop: plugin };

@@ -1,21 +1,24 @@
-Genoverse.Track.Model.File.BAM = Genoverse.Track.Model.File.extend({
+import { URLFetchable, BlobFetchable, makeBam } from 'js/lib/dalliance-lib';
+import Model                                    from 'js/Track/Model/File';
+
+export default Model.extend({
   getData: function (chr, start, end) {
     var model    = this;
     var deferred = $.Deferred();
 
     if (!this.bamFile) {
       if (this.url) {
-        this.bamFile = new dallianceLib.URLFetchable(this.url);
-        this.baiFile = new dallianceLib.URLFetchable(this.url + this.prop('indexExt'));
+        this.bamFile = new URLFetchable(this.url);
+        this.baiFile = new URLFetchable(this.url + this.prop('indexExt'));
       } else if (this.dataFile && this.indexFile) {
-        this.bamFile = new dallianceLib.BlobFetchable(this.dataFile);
-        this.baiFile = new dallianceLib.BlobFetchable(this.indexFile);
+        this.bamFile = new BlobFetchable(this.dataFile);
+        this.baiFile = new BlobFetchable(this.indexFile);
       } else {
         return deferred.rejectWith(model, [ 'BAM files must be accompanied by a .bai index file' ]);
       }
     }
 
-    dallianceLib.makeBam(this.bamFile, this.baiFile, null, function (bam, makeBamError) {
+    makeBam(this.bamFile, this.baiFile, null, function (bam, makeBamError) {
       if (makeBamError) {
         console.error(makeBamError); // eslint-disable-line no-console
       } else {

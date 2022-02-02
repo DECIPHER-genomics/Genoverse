@@ -1,4 +1,6 @@
-Genoverse.Track.Scaleline = Genoverse.Track.Static.extend({
+import Track from 'js/Track/library/Static';
+
+export default Track.extend({
   strand     : 1,
   color      : '#000000',
   height     : 12,

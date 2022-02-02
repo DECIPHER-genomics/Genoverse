@@ -1,6 +1,8 @@
 // These are abstract classes, implemented by Graph.Bar and Graph.Line. They will not work properly on their own.
 
-Genoverse.Track.Controller.Graph = Genoverse.Track.Controller.extend({
+import Track, { Controller as TrackController, Model as TrackModel, View as TrackView } from 'js/Track';
+
+var Controller = TrackController.extend({
   setYRange: function (min, max) {
     if (this.browser.dragging) {
       return;
@@ -130,19 +132,22 @@ Genoverse.Track.Controller.Graph = Genoverse.Track.Controller.extend({
     });
   },
 
-  typeWrapper        : function (func, args) { return (Genoverse.Track.Controller.Graph[this.prop('type')][func] || Genoverse.Track.Controller.prototype[func]).apply(this, args); },
+  typeWrapper: function (func, args) {
+    var controllerType = Controller[this.prop('type')] || Controller.prototype;    // Controller[this.prop('type')] will only exist if Controller.Bar or Controller.Line have been imported
+    return (controllerType[func] || Controller.prototype[func]).apply(this, args); // if Controller[this.prop('type')] exists but Controller[this.prop('type')][func] does not, fall back to Controller.prototype[func]
+  },
   click              : function () { return this.typeWrapper('click',              arguments); },
   getClickedFeatures : function () { return this.typeWrapper('getClickedFeatures', arguments); },
   populateMenu       : function () { return this.typeWrapper('populateMenu',       arguments); }
 });
 
-Genoverse.Track.Model.Graph = Genoverse.Track.Model.extend({
+var Model = TrackModel.extend({
   dataBuffer     : { start: 1, end: 1 },
   setLabelBuffer : $.noop,
   sortFeatures   : function (features) { return features.sort(function (a, b) { return a.start - b.start; }); }
 });
 
-Genoverse.Track.View.Graph = Genoverse.Track.View.extend({
+var View = TrackView.extend({
   featureMargin: {},
 
   featureDataSets: function (features) {
@@ -166,8 +171,8 @@ Genoverse.Track.View.Graph = Genoverse.Track.View.extend({
   }
 });
 
-Genoverse.Track.Graph = Genoverse.Track.extend({
-  controller   : Genoverse.Track.Controller.Graph,
+export default Track.extend({
+  controller   : Controller,
   margin       : 10,        // Same as fontHeight - needed to allow axis labels for range[0] and range[1] to be drawn without being cut off by the edge of the image
   invert       : true,
   yAxisLabels  : undefined, // An array of numerical labels for the y-axis. Should not be configured manually if the track is resizable.
@@ -233,7 +238,7 @@ Genoverse.Track.Graph = Genoverse.Track.extend({
   },
 
   setMVC: function () {
-    var hadController = this.controller instanceof Genoverse.Track.Controller;
+    var hadController = this.controller instanceof TrackController;
     var rtn           = this.base.apply(this, arguments);
 
     if (!hadController) {
@@ -353,3 +358,5 @@ Genoverse.Track.Graph = Genoverse.Track.extend({
     linesContext.fillRect(0, invert ? height - y : y, width, 1);
   }
 });
+
+export { Controller, Model, View };

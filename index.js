@@ -1,83 +1,52 @@
-'use strict';
+require('core-js/es/promise');
+require('core-js/stable/url');
 
-global.jQuery = global.$ = require(__dirname + '/js/lib/jquery.js');
-require(__dirname + '/js/lib/jquery-ui.js');
-require(__dirname + '/js/lib/jquery.mousewheel.js');
-require(__dirname + '/js/lib/jquery.mousehold.js');
-require(__dirname + '/js/lib/jquery.tipsy.js');
+global.jQuery = global.$ = require('jquery');
 
-global.Base         = require(__dirname + '/js/lib/Base.js');
-global.RTree        = require(__dirname + '/js/lib/rtree.js');
-global.dallianceLib = require(__dirname + '/js/lib/dalliance-lib.min.js');
-global.jDataView    = require(__dirname + '/js/lib/jDataView.js');
-global.jParser      = require(__dirname + '/js/lib/jParser.js');
-global.BWReader     = require(__dirname + '/js/lib/BWReader.js');
-global.VCFReader    = require(__dirname + '/js/lib/VCFReader.js');
+// Bits of jquery-ui which we care about
+require('jquery-ui/ui/position');
+require('jquery-ui/ui/widgets/draggable');
+require('jquery-ui/ui/widgets/resizable');
+require('jquery-ui/ui/widgets/sortable');
 
-global.Genoverse = require(__dirname + '/js/Genoverse.js');
+require('js/lib/jquery.mousewheel');
+require('js/lib/jquery.mousehold');
+require('js/lib/jquery.tipsy');
 
-require(__dirname + '/js/Track.js');
+global.Genoverse = require('js/Genoverse').default;
 
-require(__dirname + '/js/Track/Controller.js');
-require(__dirname + '/js/Track/Model.js');
-require(__dirname + '/js/Track/View.js');
+const getTrackImports = importFiles => importFiles.keys().reduce(
+  (acc, key, ...args) => {
+    acc[key.replace('./', '').replace('.js', '')] = importFiles(key, ...args)
 
-require(__dirname + '/js/Track/library/Static.js');
+    return acc;
+  },
+  {}
+);
 
-require(__dirname + '/js/Track/Controller/Stranded.js');
-require(__dirname + '/js/Track/Model/Stranded.js');
+const setTrackNamespace = (namespace, exportKey, fileExport) => {
+  if (!fileExport) {
+    return;
+  }
 
-require(__dirname + '/js/Track/library/Graph.js');
-require(__dirname + '/js/Track/library/Graph/Line.js');
-require(__dirname + '/js/Track/library/Graph/Bar.js'); // Graph.Bar depends on Graph.Line
+  const path     = namespace.replace('library/', '').split('/');
+  const [ name ] = path.slice(-1);
+  const parent   = path.slice(0, -1).reduce(
+    (acc, part) => (acc ? acc[part] : acc),
+    exportKey === 'default' ? Genoverse.Track : Genoverse.Track[exportKey]
+  );
 
-require(__dirname + '/js/Track/Controller/Sequence.js');
-require(__dirname + '/js/Track/Model/Sequence.js');
-require(__dirname + '/js/Track/Model/Sequence/Fasta.js');
-require(__dirname + '/js/Track/Model/Sequence/Ensembl.js');
-require(__dirname + '/js/Track/View/Sequence.js');
-require(__dirname + '/js/Track/View/Sequence/Variation.js');
+  if (!parent[name]) {
+    parent[name] = fileExport;
+  }
+}
 
-require(__dirname + '/js/Track/Model/SequenceVariation.js');
+const trackImports = getTrackImports(require.context('js/Track', true, /\.js$/));
 
-require(__dirname + '/js/Track/Model/Gene.js');
-require(__dirname + '/js/Track/Model/Gene/Ensembl.js');
-require(__dirname + '/js/Track/View/Gene.js');
-require(__dirname + '/js/Track/View/Gene/Ensembl.js');
+Object.keys(trackImports).sort().forEach(
+  (namespace) => Object.keys(trackImports[namespace]).sort().forEach(
+    (exportKey) => setTrackNamespace(namespace, exportKey, trackImports[namespace][exportKey])
+  )
+);
 
-require(__dirname + '/js/Track/Model/Transcript.js');
-require(__dirname + '/js/Track/Model/Transcript/Ensembl.js');
-require(__dirname + '/js/Track/View/Transcript.js');
-require(__dirname + '/js/Track/View/Transcript/Ensembl.js');
-
-require(__dirname + '/js/Track/Model/File.js');
-require(__dirname + '/js/Track/Model/File/BAM.js');
-require(__dirname + '/js/Track/Model/File/BED.js');
-require(__dirname + '/js/Track/Model/File/GFF.js');
-require(__dirname + '/js/Track/Model/File/VCF.js');
-require(__dirname + '/js/Track/Model/File/WIG.js');
-
-require(__dirname + '/js/Track/library/Chromosome.js');
-require(__dirname + '/js/Track/library/dbSNP.js');
-require(__dirname + '/js/Track/library/File.js');
-require(__dirname + '/js/Track/library/File/BAM.js');
-require(__dirname + '/js/Track/library/File/BED.js');
-require(__dirname + '/js/Track/library/File/BIGBED.js');
-require(__dirname + '/js/Track/library/File/BIGWIG.js');
-require(__dirname + '/js/Track/library/File/GFF.js');
-require(__dirname + '/js/Track/library/File/VCF.js');
-require(__dirname + '/js/Track/library/File/WIG.js');
-require(__dirname + '/js/Track/library/Gene.js');
-require(__dirname + '/js/Track/library/HighlightRegion.js');
-require(__dirname + '/js/Track/library/Legend.js');
-require(__dirname + '/js/Track/library/Scaleline.js');
-require(__dirname + '/js/Track/library/Scalebar.js');
-
-require(__dirname + '/js/plugins/controlPanel.js');
-require(__dirname + '/js/plugins/fileDrop.js');
-require(__dirname + '/js/plugins/focusRegion.js');
-require(__dirname + '/js/plugins/fullscreen.js');
-require(__dirname + '/js/plugins/karyotype.js');
-require(__dirname + '/js/plugins/resizer.js');
-require(__dirname + '/js/plugins/tooltips.js');
-require(__dirname + '/js/plugins/trackControls.js');
+require.context('js/plugins', true, /\.js$/);

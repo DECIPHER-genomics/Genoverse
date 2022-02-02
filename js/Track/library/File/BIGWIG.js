@@ -1,4 +1,8 @@
-Genoverse.Track.File.BIGWIG = Genoverse.Track.Graph.Bar.extend({
+import { URLFetchable, BlobFetchable } from 'js/lib/dalliance-lib';
+import BWReader                        from 'js/lib/BWReader';
+import Track                           from 'js/Track/library/Graph/Bar';
+
+export default Track.extend({
   name   : 'bigwig',
   height : 100,
 
@@ -12,7 +16,7 @@ Genoverse.Track.File.BIGWIG = Genoverse.Track.Graph.Bar.extend({
     var deferred = $.Deferred();
 
     if (!this.bigwigFile) {
-      this.bigwigFile = this.bigwigFile || (this.url ? new dallianceLib.URLFetchable(this.url) : new dallianceLib.BlobFetchable(this.track.dataFile));
+      this.bigwigFile = this.bigwigFile || (this.url ? new URLFetchable(this.url) : new BlobFetchable(this.track.dataFile));
     }
 
     var d = $.Deferred().done(function () {
@@ -48,5 +52,3 @@ Genoverse.Track.File.BIGWIG = Genoverse.Track.Graph.Bar.extend({
     return deferred;
   }
 });
-
-Genoverse.Track.File.BW = Genoverse.Track.File.BIGWIG;

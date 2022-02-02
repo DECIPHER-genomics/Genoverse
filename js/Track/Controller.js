@@ -1,4 +1,7 @@
-Genoverse.Track.Controller = Base.extend({
+import Base          from 'basejs';
+import wrapFunctions from 'js/wrap-functions';
+
+export default Base.extend({
   scrollBuffer   : 1.2,      // Number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images
   threshold      : Infinity, // Length above which the track is not drawn
   clickTolerance : 0,        // pixels of tolerance added to a click position when finding features for popup menus, when scale < 1
@@ -6,7 +9,7 @@ Genoverse.Track.Controller = Base.extend({
 
   constructor: function (properties) {
     $.extend(this, properties);
-    Genoverse.wrapFunctions(this);
+    wrapFunctions(this, 'Controller');
     this.init();
   },
 

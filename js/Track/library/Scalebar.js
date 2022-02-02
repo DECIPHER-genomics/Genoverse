@@ -1,4 +1,7 @@
-Genoverse.Track.Scalebar = Genoverse.Track.extend({
+import RTree from 'rtree';
+import Track from 'js/Track';
+
+export default Track.extend({
   unsortable     : true,
   fixedOrder     : true,
   order          : 0,

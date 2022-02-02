@@ -1,4 +1,7 @@
-Genoverse.Plugins.fullscreen = function () {
+import 'css/fullscreen.css';
+import controlPanel from 'js/plugins/controlPanel';
+
+var plugin = function () {
   var genoverse   = this;
   var supported   = true;
   var eventName   = 'fullscreenchange';  // All the browsers have different names
@@ -74,4 +77,4 @@ Genoverse.Plugins.fullscreen = function () {
   }
 };
 
-Genoverse.Plugins.fullscreen.requires = 'controlPanel';
+export default { fullscreen: plugin, requires: controlPanel };

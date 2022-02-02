@@ -1,4 +1,6 @@
-Genoverse.Track.Controller.Legend = Genoverse.Track.Controller.Static.extend({
+import Static, { Controller as StaticController, Model as StaticModel, View as StaticView } from 'js/Track/library/Static';
+
+const Controller = StaticController.extend({
   init: function () {
     this.base();
 
@@ -15,7 +17,7 @@ Genoverse.Track.Controller.Legend = Genoverse.Track.Controller.Static.extend({
   }
 });
 
-Genoverse.Track.Model.Legend = Genoverse.Track.Model.Static.extend({
+const Model = StaticModel.extend({
   findFeatures: function () {
     var bounds   = { x: this.browser.scaledStart, y: 0, w: this.width };
     var features = {};
@@ -41,7 +43,7 @@ Genoverse.Track.Model.Legend = Genoverse.Track.Model.Static.extend({
   }
 });
 
-Genoverse.Track.View.Legend = Genoverse.Track.View.Static.extend({
+const View = StaticView.extend({
   textColor     : '#000000',
   labels        : 'overlay',
   featureHeight : 12,
@@ -86,14 +88,14 @@ Genoverse.Track.View.Legend = Genoverse.Track.View.Static.extend({
   }
 });
 
-Genoverse.Track.Legend = Genoverse.Track.Static.extend({
+export default Static.extend({
   unsortable  : true,
   lockToTrack : true, // Always put the legend just below the last track that the legend is for
   removable   : false,
 
-  controller : Genoverse.Track.Controller.Legend,
-  model      : Genoverse.Track.Model.Legend,
-  view       : Genoverse.Track.View.Legend,
+  controller : Controller,
+  model      : Model,
+  view       : View,
 
   setDefaults: function () {
     this.order = typeof this.order !== 'undefined' ? this.order : 9e99;
@@ -222,3 +224,5 @@ Genoverse.Track.Legend = Genoverse.Track.Static.extend({
     this.base();
   }
 });
+
+export { Controller, Model, View };

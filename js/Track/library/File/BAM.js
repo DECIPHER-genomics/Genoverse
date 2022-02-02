@@ -1,10 +1,14 @@
-Genoverse.Track.File.BAM = Genoverse.Track.File.extend({
+import Track from 'js/Track/library/File';
+import Model from 'js/Track/Model/File/BAM';
+import View  from 'js/Track/View/Sequence';
+
+export default Track.extend({
   name      : 'BAM',
   indexExt  : '.bai',
   threshold : 100000,
   largeFile : true,
-  model     : Genoverse.Track.Model.File.BAM,
-  view      : Genoverse.Track.View.Sequence.extend({
+  model     : Model,
+  view      : View.extend({
     bump       : true,
     autoHeight : true
   }),

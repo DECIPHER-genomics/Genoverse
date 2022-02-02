@@ -1,4 +1,6 @@
-Genoverse.Track.Controller.Stranded = Genoverse.Track.Controller.extend({
+import Controller from 'js/Track/Controller';
+
+export default Controller.extend({
   constructor: function (properties) {
     this.base(properties);
 

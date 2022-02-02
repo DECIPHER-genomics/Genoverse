@@ -1,4 +1,10 @@
-Genoverse.Track.Gene = Genoverse.Track.extend({
+import Track           from 'js/Track';
+import GeneModel       from 'js/Track/Model/Gene/Ensembl';
+import TranscriptModel from 'js/Track/Model/Transcript/Ensembl';
+import GeneView        from 'js/Track/View/Gene/Ensembl';
+import TranscriptView  from 'js/Track/View/Transcript/Ensembl';
+
+export default Track.extend({
   id     : 'genes',
   name   : 'Genes',
   height : 200,
@@ -26,12 +32,12 @@ Genoverse.Track.Gene = Genoverse.Track.extend({
   },
   100000: { // more than 100K but less then 2M
     labels : true,
-    model  : Genoverse.Track.Model.Gene.Ensembl,
-    view   : Genoverse.Track.View.Gene.Ensembl
+    model  : GeneModel,
+    view   : GeneView
   },
   1: { // > 1 base-pair, but less then 100K
     labels : true,
-    model  : Genoverse.Track.Model.Transcript.Ensembl,
-    view   : Genoverse.Track.View.Transcript.Ensembl
+    model  : TranscriptModel,
+    view   : TranscriptView
   }
 });

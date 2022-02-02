@@ -1,4 +1,8 @@
-Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
+import { URLFetchable, BlobFetchable } from 'js/lib/dalliance-lib';
+import VCFReader                       from 'js/lib/VCFReader';
+import Model                           from 'js/Track/Model/File';
+
+export default Model.extend({
   getData: function (chr, start, end) {
     var deferred = $.Deferred();
     var model    = this;
@@ -9,11 +13,11 @@ Genoverse.Track.Model.File.VCF = Genoverse.Track.Model.File.extend({
 
     if (!this.vcfFile) {
       if (this.url) {
-        this.vcfFile = new dallianceLib.URLFetchable(this.url);
-        this.tbiFile = new dallianceLib.URLFetchable(this.url + this.prop('indexExt'));
+        this.vcfFile = new URLFetchable(this.url);
+        this.tbiFile = new URLFetchable(this.url + this.prop('indexExt'));
       } else if (this.dataFile && this.indexFile) {
-        this.vcfFile = new dallianceLib.BlobFetchable(this.dataFile);
-        this.tbiFile = new dallianceLib.BlobFetchable(this.indexFile);
+        this.vcfFile = new BlobFetchable(this.dataFile);
+        this.tbiFile = new BlobFetchable(this.indexFile);
       } else {
         return deferred.rejectWith(model, [ 'GZipped VCF files must be accompanied by a .tbi index file' ]);
       }
