@@ -1,4 +1,4 @@
-require('../index'); // Genoverse library
+require('../src/index'); // Genoverse library
 
 Genoverse.ready.resolve();
 

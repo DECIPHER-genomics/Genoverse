@@ -180,7 +180,7 @@
 .gv-label-container li .gv-handle {
   float: left;
   position: relative;
-  background-image: url(../i/sort_handle.png);
+  background-image: url(../assets/sort_handle.png);
   cursor: move;
   display: inline-block;
   height: calc(100% - 20px);

@@ -18,7 +18,7 @@ const cssRule = {
 const config = {
   mode   : 'production',
   name   : 'genoverse',
-  entry  : `${__dirname}/index.js`,
+  entry  : `${__dirname}/src/index.js`,
   target : 'web',
   output : {
     filename   : 'genoverse.min.js',
@@ -54,8 +54,8 @@ const config = {
   },
   resolve: {
     alias: {
-      'js'  : `${__dirname}/js`,
-      'css' : `${__dirname}/css`,
+      'js'  : `${__dirname}/src/js`,
+      'css' : `${__dirname}/src/css`,
     },
   },
   module: {

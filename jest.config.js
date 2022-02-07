@@ -3,7 +3,7 @@ module.exports = {
   testMatch        : [ '**/test/**/*.test.js' ],
   setupFiles       : [ '<rootDir>/jest.setup.js' ],
   moduleNameMapper : {
-    '^js/(.*)$'  : '<rootDir>/js/$1',
+    '^js/(.*)$'  : '<rootDir>/src/js/$1',
     '^css/(.*)$' : 'identity-obj-proxy',
   },
   transform: {

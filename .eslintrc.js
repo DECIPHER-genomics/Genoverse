@@ -23,7 +23,7 @@ module.exports = {
     'dist',
     'index.js',
     '**/*.min.js',
-    'js/lib/**/*.js'
+    'src/js/lib/**/*.js'
   ],
   settings: {
     'import/resolver': {
@@ -31,8 +31,8 @@ module.exports = {
         config: {
           resolve: {
             alias: {
-              js  : `${__dirname}/js`,
-              css : `${__dirname}/css`,
+              js  : `${__dirname}/src/js`,
+              css : `${__dirname}/src/css`,
             },
           },
         },
@@ -41,10 +41,7 @@ module.exports = {
   },
   overrides: [
     {
-      files : [ 'js/**/*.js' ],
-      extends : [
-        'airbnb-base',
-      ],
+      files         : [ 'src/js/**/*.js' ],
       parser        : '@babel/eslint-parser',
       parserOptions : {
         requireConfigFile : false,
@@ -111,7 +108,7 @@ module.exports = {
     },
     {
       files : [ '**/*.js' ],
-      excludedFiles: 'js/**/*.js',
+      excludedFiles: 'src/js/**/*.js',
       env   : {
         es6: true,
       },

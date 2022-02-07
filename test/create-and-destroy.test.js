@@ -1,4 +1,4 @@
-const css                      = require('fs').readFileSync('css/genoverse.css', 'utf8');
+const css                      = require('fs').readFileSync('src/css/genoverse.css', 'utf8');
 const { Genoverse, afterTest } = require('./utils');
 
 const html = `<style>${css}</style><div id="genoverse-test-1"></div><div id="genoverse-test-2"></div><div id="genoverse-test-3"></div>`;
