@@ -50,7 +50,7 @@ const Genoverse = Base.extend({
     this.eventNamespace = `.genoverse.${++Genoverse.id}`;
     this.events         = { browser: {}, tracks: {} };
 
-    $.when(Genoverse.ready, this.loadGenome(), this.loadPlugins()).always(() => {
+    $.when(this.loadGenome(), this.loadPlugins()).always(() => {
       wrapFunctions(this, 'Genoverse');
       this.init();
     });
@@ -1539,7 +1539,6 @@ const Genoverse = Base.extend({
   },
 }, {
   id    : 0,
-  ready : $.Deferred(),
   Track : Track,
 
   getAllTrackTypes: function (namespace, n) {
@@ -1603,30 +1602,6 @@ const Genoverse = Base.extend({
 
     return namespaces[0];
   },
-  ...window.genoverseLoadOptions,
-});
-
-$(() => {
-  const cssReady         = $.Deferred();
-  const fontAwesomeReady = $.Deferred();
-
-  if (Genoverse.loadCSS === false) {
-    cssReady.resolve();
-  } else {
-    import('css/genoverse.css').then(cssReady.resolve);
-  }
-
-  if (Genoverse.loadFontAwesome === false) {
-    fontAwesomeReady.resolve();
-  } else {
-    Promise.all([
-      import('@fortawesome/fontawesome-free/js/fontawesome.min'),
-      import('@fortawesome/fontawesome-free/js/regular.min'),
-      import('@fortawesome/fontawesome-free/js/solid.min'),
-    ]).then(fontAwesomeReady.resolve);
-  }
-
-  $.when(cssReady, fontAwesomeReady).done(Genoverse.ready.resolve);
 });
 
 export default Genoverse;
