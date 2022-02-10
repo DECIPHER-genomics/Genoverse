@@ -1,14 +1,14 @@
-import { inflateBuffer } from 'js/lib/dalliance-lib';
-import jParser           from 'jParser';
+import JParser       from 'jParser';
+import inflateBuffer from 'js/lib/dalliance/jszlib-inflate';
 
-jParser.prototype.structure.uint64 = function () { return parseInt(this.view.getUint64(), 10); };
+JParser.prototype.structure.uint64 = function () { return parseInt(this.view.getUint64(), 10); };
 
-var tabi_fmt = {
+const tabiFmt = {
   string0: function (size) {
-    return this.parse(['string', size]).replace(/\0+$/, '');
+    return this.parse([ 'string', size ]).replace(/\0+$/, '');
   },
   header: {
-    magic   : ['string', 4],
+    magic   : [ 'string', 4 ],
     n_ref   : 'int32',
     format  : 'int32',
     col_seq : 'int32',
@@ -17,30 +17,30 @@ var tabi_fmt = {
     meta    : 'int32',
     skip    : 'int32',
     l_nm    : 'int32',
-    names   : ['string0', function () { return this.current.l_nm; }]
+    names   : [ 'string0', function () { return this.current.l_nm; } ],
   },
   chunk: {
-    cnk_beg: 'uint64',
-    cnk_end: 'uint64'
+    cnk_beg : 'uint64',
+    cnk_end : 'uint64',
   },
   bin: {
     bin      : 'uint32',
     n_chunk  : 'int32',
-    chunkseq : ['array', 'chunk', function () { return this.current.n_chunk; }]
+    chunkseq : [ 'array', 'chunk', function () { return this.current.n_chunk; } ],
   },
   index: {
     n_bin     : 'int32',
-    binseq    : ['array', 'bin', function () { return this.current.n_bin; }],
+    binseq    : [ 'array', 'bin', function () { return this.current.n_bin; } ],
     n_intv    : 'int32',
-    intervseq : ['array', 'uint64', function () { return this.current.n_intv; }]
+    intervseq : [ 'array', 'uint64', function () { return this.current.n_intv; } ],
   },
   tabix: {
     head     : 'header',
-    indexseq : ['array', 'index', function () { return this.current.head.n_ref; }]
-  }
+    indexseq : [ 'array', 'index', function () { return this.current.head.n_ref; } ],
+  },
 };
 
-var bgzf_hd_fmt = {
+const bgzfHdFmt = {
   header: {
     id1   : 'uint8',
     id2   : 'uint8',
@@ -49,32 +49,33 @@ var bgzf_hd_fmt = {
     mtime : 'uint32',
     xfl   : 'uint8',
     os    : 'uint8',
-    xlen  : 'uint16'
+    xlen  : 'uint16',
   },
   subheader: {
     si1   : 'uint8',
     si2   : 'uint8',
     slen  : 'uint16',
-    bsize : 'uint16'
+    bsize : 'uint16',
   },
-  bgzfHd: { head: 'header', subhead: 'subheader' }
+  bgzfHd: { head: 'header', subhead: 'subheader' },
 };
 
-var hdSize  = 18;
-var _2p16   = 1 << 16;
+const hdSize = 18;
+const _2p16  = 1 << 16;
 
-var VCFReader = function (vcf, tbi) {
+const VCFReader = function (vcf, tbi) {
   this.vcf_data = vcf;
   this.tbi_data = tbi;
 };
 
 VCFReader.prototype.readTabix = function (cb) {
-  var bins2hash = function (binseq) {
-    var hash = {};
-    var i    = 0;
-    var b;
+  const bins2hash = (binseq) => {
+    const hash = {};
 
-    for (var x in binseq) {
+    let i = 0;
+    let b;
+
+    for (const x in binseq) { // eslint-disable-line no-restricted-syntax, guard-for-in
       b       = binseq[x].bin;
       hash[b] = i;
       i++;
@@ -83,43 +84,46 @@ VCFReader.prototype.readTabix = function (cb) {
     return hash;
   };
 
-  var parse_tabix = function (tabix_buffer) {
-    var tabix = new jParser(tabix_buffer, tabi_fmt).parse('tabix');
+  const parseTabix = (tabixBuffer) => {
+    const tabix = new JParser(tabixBuffer, tabiFmt).parse('tabix');
 
     tabix.head.names = tabix.head.names.split('\0');
-    tabix.bhash = {};
+    tabix.bhash      = {};
 
-    for (var i = 0; i < tabix.head.n_ref; i++){
+    for (let i = 0; i < tabix.head.n_ref; i++) {
       tabix.bhash[i] = bins2hash(tabix.indexseq[i].binseq);
     }
 
     cb(tabix);
   };
 
-  this.inflateRegion(this.tbi_data, 0, 100000000, parse_tabix);
+  this.inflateRegion(this.tbi_data, 0, 100000000, parseTabix);
 };
 
 VCFReader.prototype.getRecords = function (ref, beg, end, callback) {
-  var records = [];
-  var chunks  = this.getChunks(ref, beg, end);
-  var vcfThis = this;
+  const records = [];
+  const chunks  = this.getChunks(ref, beg, end);
 
-  if (chunks == -1) {
+  if (chunks === -1) {
     return callback([]);
   }
 
-  (function loop(x) {
+  const loop = (x) => {
     if (x < chunks.length) {
-      vcfThis.inflateRegion(vcfThis.vcf_data, chunks[x].start, chunks[x].end, function (record, ebsz) {
-        var last = record.byteLength - ebsz + chunks[x].inner_end;
-        record = vcfThis.buffer2String(record).slice(chunks[x].inner_start, last);
+      this.inflateRegion(this.vcf_data, chunks[x].start, chunks[x].end, (record, ebsz) => {
+        const last = record.byteLength - ebsz + chunks[x].inner_end;
+
+        record = this.buffer2String(record).slice(chunks[x].inner_start, last);
 
         if (record.length > 0) {
-          record = record.split('\n').filter(function (rec) {
+          record = record.split('\n').filter((rec) => {
             if (rec.length > 0) {
-              var n = parseInt(rec.split('\t')[1]);
-              return ((beg <= n) && (n <= end));
+              const n = parseInt(rec.split('\t')[1], 10);
+
+              return beg <= n && n <= end;
             }
+
+            return false;
           }).join('\n');
 
           records.push(record);
@@ -130,23 +134,26 @@ VCFReader.prototype.getRecords = function (ref, beg, end, callback) {
     } else {
       callback(records.join('\n'));
     }
-  })(0);
+  };
+
+  loop(0);
 };
 
 VCFReader.prototype.getChunks = function (ref, beg, end) {
-  var tbi     = this.tabix;
-  var vcfThis = this;
+  const tbi = this.tabix;
 
   ref = tbi.head.names.indexOf(ref.toString());
 
-  if (ref == -1) {
+  if (ref === -1) {
     return -1;
   }
 
-  var bids  = this.reg2bins(beg, end + 1).filter(function (x) { return typeof tbi.bhash[ref][x] != 'undefined'; });
-  var bcnks = bids.map(function (x) { return vcfThis.bin2Ranges(tbi, ref, x); });
-  var cnks  = bcnks.reduce(function (V, ranges) {
-    ranges.forEach(function (item) { V.push(item); });
+  const bids  = this.reg2bins(beg, end + 1).filter(x => typeof tbi.bhash[ref][x] !== 'undefined');
+  const bcnks = bids.map(x => this.bin2Ranges(tbi, ref, x));
+
+  let cnks = bcnks.reduce((V, ranges) => {
+    ranges.forEach((item) => { V.push(item); });
+
     return V;
   }, []);
 
@@ -156,18 +163,17 @@ VCFReader.prototype.getChunks = function (ref, beg, end) {
 };
 
 VCFReader.prototype.inflateRegion = function (d, beg, end, cbfn) {
-  var blocks  = [];
-  var vcfThis = this;
+  const blocks = [];
 
-  var cb = function (block, nextBlockOffset) {
+  const cb = (block, nextBlockOffset) => {
     blocks.push(block);
 
-    if (nextBlockOffset == -1) {
-      cbfn(vcfThis.appendBuffers(blocks), blocks[blocks.length - 1].byteLength);
+    if (nextBlockOffset === -1) {
+      cbfn(this.appendBuffers(blocks), blocks[blocks.length - 1].byteLength);
     } else if (nextBlockOffset <= end) {
-      vcfThis.inflateBlock(d, nextBlockOffset, cb);
+      this.inflateBlock(d, nextBlockOffset, cb);
     } else {
-      cbfn(vcfThis.appendBuffers(blocks), blocks[blocks.length - 1].byteLength);
+      cbfn(this.appendBuffers(blocks), blocks[blocks.length - 1].byteLength);
     }
   };
 
@@ -175,16 +181,17 @@ VCFReader.prototype.inflateRegion = function (d, beg, end, cbfn) {
 };
 
 VCFReader.prototype.inflateBlock = function (d, blockOffset, cbfn) {
-  var cb2 = function (hdobj) {
-    d.slice(blockOffset, hdobj.subhead.bsize + 1).fetch(function (block) {
-      var inflated_block  = inflateBuffer(block, hdSize, block.byteLength - hdSize);
-      var nextBlockOffset = blockOffset + hdobj.subhead.bsize + 1;
+  const cb2 = (hdobj) => {
+    d.slice(blockOffset, hdobj.subhead.bsize + 1).fetch((block) => {
+      const inflatedBlock = inflateBuffer(block, hdSize, block.byteLength - hdSize);
 
-      if (hdobj.subhead.bsize == 27) {
+      let nextBlockOffset = blockOffset + hdobj.subhead.bsize + 1;
+
+      if (hdobj.subhead.bsize === 27) {
         nextBlockOffset = -1; // last bgzf block
       }
 
-      cbfn(inflated_block, nextBlockOffset);
+      cbfn(inflatedBlock, nextBlockOffset);
     });
   };
 
@@ -192,36 +199,39 @@ VCFReader.prototype.inflateBlock = function (d, blockOffset, cbfn) {
 };
 
 VCFReader.prototype.getBGZFHD = function (d, offset, cbfn) {
-  d.slice(offset, hdSize + 1).fetch(function (buf) {
-    var parser = new jParser(buf, bgzf_hd_fmt);
-    var hdobj  = parser.parse('bgzfHd');
+  d.slice(offset, hdSize + 1).fetch((buf) => {
+    const parser = new JParser(buf, bgzfHdFmt);
+    const hdobj  = parser.parse('bgzfHd');
+
     cbfn(hdobj);
   });
 };
 
 VCFReader.prototype.appendBuffers = function (bufferVec) {
-  var totalSize = 0;
+  let totalSize = 0;
 
-  for (var i = 0; i < bufferVec.length; i++) {
-    totalSize = totalSize + bufferVec[i].byteLength;
+  for (let i = 0; i < bufferVec.length; i++) {
+    totalSize += bufferVec[i].byteLength;
   }
 
-  var tmp    = new Uint8Array(totalSize);
-  var offset = 0;
+  const tmp = new Uint8Array(totalSize);
 
-  for (i = 0; i < bufferVec.length; i++) {
+  let offset = 0;
+
+  for (let i = 0; i < bufferVec.length; i++) {
     tmp.set(new Uint8Array(bufferVec[i]), offset);
-    offset = offset + bufferVec[i].byteLength;
+    offset += bufferVec[i].byteLength;
   }
 
   return tmp.buffer;
 };
 
 VCFReader.prototype.buffer2String = function (resultBuffer) {
-  var s        = '';
-  var resultBB = new Uint8Array(resultBuffer);
+  let s = '';
 
-  for (var i = 0; i < resultBB.length; ++i) {
+  const resultBB = new Uint8Array(resultBuffer);
+
+  for (let i = 0; i < resultBB.length; ++i) {
     s += String.fromCharCode(resultBB[i]);
   }
 
@@ -229,10 +239,10 @@ VCFReader.prototype.buffer2String = function (resultBuffer) {
 };
 
 VCFReader.prototype.remove_duplicates = function (objectsArray) {
-  var usedObjects = {};
+  const usedObjects = {};
 
-  for (var i = objectsArray.length - 1; i >= 0; i--) {
-    var so = JSON.stringify(objectsArray[i]);
+  for (let i = objectsArray.length - 1; i >= 0; i--) {
+    const so = JSON.stringify(objectsArray[i]);
 
     if (usedObjects[so]) {
       objectsArray.splice(i, 1);
@@ -245,19 +255,20 @@ VCFReader.prototype.remove_duplicates = function (objectsArray) {
 };
 
 VCFReader.prototype.bin2Ranges = function (tbi, ref, binid) {
-  var ranges = [];
-  var bs     = tbi.indexseq[ref].binseq;
-  var cnkseq = bs[tbi.bhash[ref][binid]].chunkseq;
-  var cnk;
+  const ranges = [];
+  const bs     = tbi.indexseq[ref].binseq;
+  const cnkseq = bs[tbi.bhash[ref][binid]].chunkseq;
 
-  for (var i = 0; i < cnkseq.length; i++) {
+  let cnk;
+
+  for (let i = 0; i < cnkseq.length; i++) {
     cnk = cnkseq[i];
 
     ranges.push({
       start       : Math.floor(cnk.cnk_beg / _2p16),
       inner_start : cnk.cnk_beg % _2p16,
       end         : Math.floor(cnk.cnk_end / _2p16),
-      inner_end   : cnk.cnk_end % _2p16
+      inner_end   : cnk.cnk_end % _2p16,
     });
   }
 
@@ -265,8 +276,9 @@ VCFReader.prototype.bin2Ranges = function (tbi, ref, binid) {
 };
 
 VCFReader.prototype.reg2bins = function (beg, end) {
-  var list = [];
-  var i;
+  const list = [];
+
+  let i;
 
   --end;
 

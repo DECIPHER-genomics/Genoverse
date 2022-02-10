@@ -32,7 +32,7 @@ module.exports = {
     'node_modules',
     'dist',
     '**/*.min.js',
-    'src/js/lib/**/*.js',
+    'src/js/lib/dalliance/*.js',
   ],
   settings: {
     'import/resolver': {
