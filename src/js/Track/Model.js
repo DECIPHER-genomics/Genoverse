@@ -1,6 +1,6 @@
 import Base          from 'basejs';
 import RTree         from 'rtree';
-import wrapFunctions from 'js/wrap-functions';
+import wrapFunctions from 'js/lib/wrap-functions';
 
 export default Base.extend({
   dataType           : 'json',

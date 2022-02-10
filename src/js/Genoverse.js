@@ -2,7 +2,7 @@ import Base                 from 'basejs';
 import Track                from 'js/Track';
 import HighlightRegionTrack from 'js/Track/library/HighlightRegion';
 import LegendTrack          from 'js/Track/library/Legend';
-import wrapFunctions        from 'js/wrap-functions';
+import wrapFunctions        from 'js/lib/wrap-functions';
 
 const Genoverse = Base.extend({
   // Defaults

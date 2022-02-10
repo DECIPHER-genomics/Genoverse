@@ -4,7 +4,7 @@ import StrandedController from 'js/Track/Controller/Stranded';
 import Model              from 'js/Track/Model';
 import StrandedModel      from 'js/Track/Model/Stranded';
 import View               from 'js/Track/View';
-import wrapFunctions      from 'js/wrap-functions';
+import wrapFunctions      from 'js/lib/wrap-functions';
 
 const Track = Base.extend({
   height     : 12,        // The height of the gv-track-container div
