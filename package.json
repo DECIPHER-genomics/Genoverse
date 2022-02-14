@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "webpack serve --mode development",
     "test": "jest",
-    "build": "yarn lint && webpack --env all",
+    "build": "yarn lint && webpack",
     "lint": "eslint '**/*.js'",
     "server": "node utils/devServer.js"
   },

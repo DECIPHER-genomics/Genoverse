@@ -38,7 +38,7 @@ module.exports = (env) => {
     output: {
       filename   : 'genoverse.js',
       path       : `${__dirname}/dist`,
-      publicPath : '/dist/',
+      publicPath : './dist/',
     },
     devtool : 'source-map',
     plugins : [

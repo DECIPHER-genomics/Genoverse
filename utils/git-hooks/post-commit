@@ -1,9 +1,0 @@
-#!/bin/bash
-
-git stash apply -q;
-git stash drop -q;
-
-if [[ $( git status | grep 'Unmerged paths' ) ]]
-then
-  git status
-fi

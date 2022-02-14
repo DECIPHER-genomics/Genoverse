@@ -1,5 +1,0 @@
-#!/bin/bash
-
-git stash -k -q
-yarn build || exit 1
-git add dist
