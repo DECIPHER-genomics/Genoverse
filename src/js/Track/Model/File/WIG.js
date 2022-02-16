@@ -1,5 +1,5 @@
-import Model                      from 'js/Track/Model/File';
-import { Model as BarGraphModel } from 'js/Track/library/Graph/Bar';
+import { Model as BarGraphModel } from '../../library/Graph/Bar';
+import Model                      from '../File';
 
 export default BarGraphModel.extend({
   dataType: 'text',

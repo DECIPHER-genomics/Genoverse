@@ -1,4 +1,4 @@
-import Model from 'js/Track/Model/Sequence';
+import Model from '../Sequence';
 
 export default Model.extend({
   url: 'https://wtsi-web.github.io/Genoverse/data/Homo_sapiens.GRCh37.72.dna.chromosome.1.fa', // Example url

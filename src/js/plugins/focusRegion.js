@@ -1,4 +1,4 @@
-import 'js/plugins/controlPanel';
+import './controlPanel';
 
 const plugin = function () {
   this.controls.push({

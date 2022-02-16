@@ -1,4 +1,4 @@
-import View from 'js/Track/View';
+import View from '../View';
 
 export default View.extend({
   featureHeight       : 12,

@@ -1,4 +1,4 @@
-import Genoverse from 'js/Genoverse';
+import Genoverse from '../src/js/Genoverse';
 
 global.Genoverse = Genoverse;
 
@@ -38,7 +38,7 @@ const setTrackNamespace = (namespace, exportKey, fileExport) => {
   }
 };
 
-const trackImports = getImports(require.context('js/Track', true, /\.js$/));
+const trackImports = getImports(require.context('../src/js/Track', true, /\.js$/));
 
 Object.keys(trackImports).sort().forEach(
   namespace => Object.keys(trackImports[namespace]).sort().forEach(

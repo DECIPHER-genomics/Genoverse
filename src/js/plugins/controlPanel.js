@@ -1,5 +1,5 @@
-import 'css/controlPanel.css';
-import karyotype from 'js/plugins/karyotype';
+import '../../css/controlPanel.css';
+import karyotype from './karyotype';
 
 const plugin = function (pluginConf) {
   this.controls = [

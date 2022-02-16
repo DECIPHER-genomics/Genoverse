@@ -1,4 +1,4 @@
-import Model from 'js/Track/Model/File';
+import Model from '../File';
 
 export default Model.extend({
   parseData: function (text, chr) {

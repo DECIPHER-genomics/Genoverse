@@ -1,5 +1,5 @@
-import 'css/karyotype.css';
-import Chromosome from 'js/Track/library/Chromosome';
+import '../../css/karyotype.css';
+import Chromosome from '../Track/library/Chromosome';
 
 const plugin = function (pluginConf) {
   function createKaryotype() {

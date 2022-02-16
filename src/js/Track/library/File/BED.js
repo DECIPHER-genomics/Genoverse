@@ -1,5 +1,5 @@
-import Model from 'js/Track/Model/File/BED';
-import Track from 'js/Track/library/File';
+import Model from '../../Model/File/BED';
+import Track from '../File';
 
 export default Track.extend({
   name                : 'BED',

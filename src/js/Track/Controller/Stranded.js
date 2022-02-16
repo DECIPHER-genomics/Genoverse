@@ -1,4 +1,4 @@
-import Controller from 'js/Track/Controller';
+import Controller from '../Controller';
 
 export default Controller.extend({
   constructor: function (properties) {

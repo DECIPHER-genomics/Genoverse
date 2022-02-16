@@ -1,4 +1,4 @@
-import Model from 'js/Track/Model/Transcript';
+import Model from '../Transcript';
 
 // Ensembl REST API Transcript model
 export default Model.extend({

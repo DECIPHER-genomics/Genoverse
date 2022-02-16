@@ -1,5 +1,5 @@
-import GeneView from 'js/Track/View/Gene/Ensembl';
-import View     from 'js/Track/View/Transcript';
+import GeneView from '../Gene/Ensembl';
+import View     from '../Transcript';
 
 export default View.extend({
   setFeatureColor: function (feature) {

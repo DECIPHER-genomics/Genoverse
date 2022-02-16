@@ -1,6 +1,6 @@
-import Track, { Model, View } from 'js/Track';
-import StrandedController     from 'js/Track/Controller/Stranded';
-import StrandedModel          from 'js/Track/Model/Stranded';
+import Track, { Model, View } from '../../Track';
+import StrandedController     from '../Controller/Stranded';
+import StrandedModel          from '../Model/Stranded';
 
 export default Track.extend({
   id               : 'highlights',

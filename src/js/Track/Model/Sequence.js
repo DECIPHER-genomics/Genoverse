@@ -1,4 +1,4 @@
-import Model from 'js/Track/Model';
+import Model from '../Model';
 
 // Abstract Sequence model
 // assumes that the data source responds with raw sequence text

@@ -1,6 +1,6 @@
-import Model from 'js/Track/Model/File/BAM';
-import View  from 'js/Track/View/Sequence';
-import Track from 'js/Track/library/File';
+import Model from '../../Model/File/BAM';
+import View  from '../../View/Sequence';
+import Track from '../File';
 
 export default Track.extend({
   name      : 'BAM',

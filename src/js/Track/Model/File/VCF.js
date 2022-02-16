@@ -1,6 +1,6 @@
-import Model                           from 'js/Track/Model/File';
-import VCFReader                       from 'js/lib/VCFReader';
-import { URLFetchable, BlobFetchable } from 'js/lib/dalliance/bin';
+import VCFReader                       from '../../../lib/VCFReader';
+import { URLFetchable, BlobFetchable } from '../../../lib/dalliance/bin';
+import Model                           from '../File';
 
 export default Model.extend({
   getData: function (chr, start, end, done) {

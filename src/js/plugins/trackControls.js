@@ -1,4 +1,4 @@
-import 'css/trackControls.css';
+import '../../css/trackControls.css';
 
 const plugin = function () {
   const defaultControls = [

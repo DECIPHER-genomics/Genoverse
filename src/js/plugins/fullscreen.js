@@ -1,5 +1,5 @@
-import 'css/fullscreen.css';
-import controlPanel from 'js/plugins/controlPanel';
+import '../../css/fullscreen.css';
+import controlPanel from './controlPanel';
 
 const plugin = function () {
   const genoverse = this;

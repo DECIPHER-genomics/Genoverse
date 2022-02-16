@@ -1,5 +1,5 @@
 import RTree from 'rtree';
-import Track from 'js/Track';
+import Track from '../../Track';
 
 export default Track.extend({
   unsortable     : true,

@@ -1,4 +1,4 @@
-import Model from 'js/Track/Model';
+import Model from '../Model';
 
 export default Model.extend({
   dataType: 'text',

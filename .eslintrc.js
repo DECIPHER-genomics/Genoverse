@@ -35,20 +35,6 @@ module.exports = {
     'src/js/lib/dalliance/*.js',
     'build/jquery-plugins/*.js',
   ],
-  settings: {
-    'import/resolver': {
-      webpack: {
-        config: {
-          resolve: {
-            alias: {
-              js  : `${__dirname}/src/js`,
-              css : `${__dirname}/src/css`,
-            },
-          },
-        },
-      },
-    },
-  },
   rules: {
     'align-assignments/align-assignments' : [ 'error', { requiresOnly: false }],
     'padding-line-between-statements'     : [

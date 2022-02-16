@@ -1,5 +1,5 @@
 import Base          from 'basejs';
-import wrapFunctions from 'js/lib/wrap-functions';
+import wrapFunctions from '../lib/wrap-functions';
 
 export default Base.extend({
   scrollBuffer   : 1.2,      // Number of widths, if left or right closer to the edges of viewpoint than the buffer, start making more images

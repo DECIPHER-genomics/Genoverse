@@ -1,4 +1,4 @@
-import Static, { Controller as StaticController, Model as StaticModel, View as StaticView } from 'js/Track/library/Static';
+import Static, { Controller as StaticController, Model as StaticModel, View as StaticView } from './Static';
 
 const Controller = StaticController.extend({
   init: function () {

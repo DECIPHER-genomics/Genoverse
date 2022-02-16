@@ -1,5 +1,5 @@
 import RTree         from 'rtree';
-import inflateBuffer from 'js/lib/dalliance/jszlib-inflate';
+import inflateBuffer from './dalliance/jszlib-inflate';
 
 export default function (fileData, callback) {
   const bbi = {

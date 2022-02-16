@@ -1,7 +1,7 @@
-import Model        from 'js/Track/Model/File/VCF';
-import View         from 'js/Track/View';
-import SequenceView from 'js/Track/View/Sequence';
-import Track        from 'js/Track/library/File';
+import Model        from '../../Model/File/VCF';
+import View         from '../../View';
+import SequenceView from '../../View/Sequence';
+import Track        from '../File';
 
 export default Track.extend({
   name       : 'VCF',

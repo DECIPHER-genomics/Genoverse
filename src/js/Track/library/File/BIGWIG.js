@@ -1,6 +1,6 @@
-import Track                           from 'js/Track/library/Graph/Bar';
-import BWReader                        from 'js/lib/BWReader';
-import { URLFetchable, BlobFetchable } from 'js/lib/dalliance/bin';
+import BWReader                        from '../../../lib/BWReader';
+import { URLFetchable, BlobFetchable } from '../../../lib/dalliance/bin';
+import Track                           from '../Graph/Bar';
 
 export default Track.extend({
   name   : 'bigwig',

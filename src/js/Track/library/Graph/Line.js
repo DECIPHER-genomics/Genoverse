@@ -1,5 +1,5 @@
-import TrackController                                   from 'js/Track/Controller';
-import Track, { Model as TrackModel, View as TrackView } from 'js/Track/library/Graph';
+import TrackController                                   from '../../Controller';
+import Track, { Model as TrackModel, View as TrackView } from '../Graph';
 
 const Controller = {
   click: function (...args) {

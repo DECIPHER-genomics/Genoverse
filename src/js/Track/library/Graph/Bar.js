@@ -1,6 +1,6 @@
 import Base                                                  from 'basejs';
-import Track,     { Model as TrackModel, View as TrackView } from 'js/Track/library/Graph';
-import LineGraph, { Model as LineGraphModel }                from 'js/Track/library/Graph/Line';
+import Track,     { Model as TrackModel, View as TrackView } from '../Graph';
+import LineGraph, { Model as LineGraphModel }                from './Line';
 
 const Controller = {
   getClickedFeatures: function (x, y) {

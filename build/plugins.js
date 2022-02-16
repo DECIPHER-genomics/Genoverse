@@ -1,3 +1,3 @@
 const importAll = r => r.keys().forEach(r);
 
-importAll(require.context('js/plugins', false, /\.js$/));
+importAll(require.context('../src/js/plugins', false, /\.js$/));

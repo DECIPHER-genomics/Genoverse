@@ -1,6 +1,6 @@
 import Base          from 'basejs';
 import RTree         from 'rtree';
-import wrapFunctions from 'js/lib/wrap-functions';
+import wrapFunctions from '../lib/wrap-functions';
 
 export default Base.extend({
   fontHeight       : 10,

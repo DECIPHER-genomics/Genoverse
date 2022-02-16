@@ -1,4 +1,4 @@
-import 'css/fileDrop.css';
+import '../../css/fileDrop.css';
 
 const plugin = function () {
   this.on('afterInit', function () {
@@ -51,7 +51,7 @@ const plugin = function () {
 
           trackImporters.forEach(
             (importer) => {
-              import(`js/Track/library/File/${importer.trackType}`).then(
+              import(`../Track/library/File/${importer.trackType}`).then(
                 (imported) => {
                   const track = imported.default.extend({
                     name      : importer.file.name,

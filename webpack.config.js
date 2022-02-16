@@ -68,12 +68,6 @@ module.exports = (env) => {
       maxEntrypointSize : 500000,
       maxAssetSize      : 500000,
     },
-    resolve: {
-      alias: {
-        'js'  : `${__dirname}/src/js`,
-        'css' : `${__dirname}/src/css`,
-      },
-    },
     module: {
       rules: [
         {

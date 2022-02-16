@@ -1,5 +1,5 @@
-import Model         from 'js/Track/Model';
-import SequenceModel from 'js/Track/Model/Sequence/Ensembl';
+import Model         from '../Model';
+import SequenceModel from './Sequence/Ensembl';
 
 export default Model.extend({
   seqModel: SequenceModel,

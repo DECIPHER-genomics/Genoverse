@@ -3,8 +3,8 @@
 // (c) 2008-2010 jason frame [jason@onehackoranother.com]
 // released under the MIT license
 
-import 'css/tooltips.css';
-import controlPanel from 'js/plugins/controlPanel';
+import '../../css/tooltips.css';
+import controlPanel from './controlPanel';
 
 const plugin = function () {
   const genoverse = this;

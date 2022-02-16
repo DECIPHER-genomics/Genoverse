@@ -1,4 +1,4 @@
-import View from 'js/Track/View/Gene';
+import View from '../Gene';
 
 export default View.extend({
   setFeatureColor: function (feature) {

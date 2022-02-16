@@ -1,6 +1,6 @@
-import Model                           from 'js/Track/Model/File';
-import makeBam                         from 'js/lib/dalliance/bam';
-import { URLFetchable, BlobFetchable } from 'js/lib/dalliance/bin';
+import makeBam                         from '../../../lib/dalliance/bam';
+import { URLFetchable, BlobFetchable } from '../../../lib/dalliance/bin';
+import Model                           from '../File';
 
 export default Model.extend({
   getData: function (chr, start, end) {

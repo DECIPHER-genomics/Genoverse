@@ -1,7 +1,7 @@
-import Model                           from 'js/Track/Model/File/BED';
-import Track                           from 'js/Track/library/File/BED';
-import BWReader                        from 'js/lib/BWReader';
-import { URLFetchable, BlobFetchable } from 'js/lib/dalliance/bin';
+import BWReader                        from '../../../lib/BWReader';
+import { URLFetchable, BlobFetchable } from '../../../lib/dalliance/bin';
+import Model                           from '../../Model/File/BED';
+import Track                           from './BED';
 
 export default Track.extend({
   name  : 'bigbed',

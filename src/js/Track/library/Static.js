@@ -1,4 +1,4 @@
-import Track, { Controller as TrackController, Model as TrackModel, View as TrackView } from 'js/Track';
+import Track, { Controller as TrackController, Model as TrackModel, View as TrackView } from '../../Track';
 
 const Controller = TrackController.extend({
   addDomElements: function () {

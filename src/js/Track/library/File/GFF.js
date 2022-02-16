@@ -1,5 +1,5 @@
-import Model from 'js/Track/Model/File/GFF';
-import Track from 'js/Track/library/File';
+import Model from '../../Model/File/GFF';
+import Track from '../File';
 
 export default Track.extend({
   name          : 'GFF',

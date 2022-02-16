@@ -1,4 +1,4 @@
-import Model from 'js/Track/Model/Gene';
+import Model from '../Gene';
 
 // Ensembl REST API Gene model
 export default Model.extend({

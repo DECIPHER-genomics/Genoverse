@@ -1,8 +1,8 @@
-import Track           from 'js/Track';
-import GeneModel       from 'js/Track/Model/Gene/Ensembl';
-import TranscriptModel from 'js/Track/Model/Transcript/Ensembl';
-import GeneView        from 'js/Track/View/Gene/Ensembl';
-import TranscriptView  from 'js/Track/View/Transcript/Ensembl';
+import Track           from '../../Track';
+import GeneModel       from '../Model/Gene/Ensembl';
+import TranscriptModel from '../Model/Transcript/Ensembl';
+import GeneView        from '../View/Gene/Ensembl';
+import TranscriptView  from '../View/Transcript/Ensembl';
 
 export default Track.extend({
   id     : 'genes',

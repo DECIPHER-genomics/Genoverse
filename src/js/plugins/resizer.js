@@ -1,4 +1,4 @@
-import 'css/resizer.css';
+import '../../css/resizer.css';
 
 const plugin = function () {
   this.on('afterSetMVC', 'tracks', function () {

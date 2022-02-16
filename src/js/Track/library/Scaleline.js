@@ -1,4 +1,4 @@
-import Track from 'js/Track/library/Static';
+import Track from './Static';
 
 export default Track.extend({
   strand     : 1,

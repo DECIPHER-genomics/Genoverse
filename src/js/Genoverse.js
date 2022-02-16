@@ -1,8 +1,8 @@
 import Base                 from 'basejs';
-import Track                from 'js/Track';
-import HighlightRegionTrack from 'js/Track/library/HighlightRegion';
-import LegendTrack          from 'js/Track/library/Legend';
-import wrapFunctions        from 'js/lib/wrap-functions';
+import Track                from './Track';
+import HighlightRegionTrack from './Track/library/HighlightRegion';
+import LegendTrack          from './Track/library/Legend';
+import wrapFunctions        from './lib/wrap-functions';
 
 const Genoverse = Base.extend({
   // Defaults
@@ -60,7 +60,7 @@ const Genoverse = Base.extend({
     if (typeof this.genome === 'string') {
       const genomeName = this.genome.toLowerCase();
 
-      return import(`js/genomes/${genomeName}`).then((imported) => {
+      return import(`./genomes/${genomeName}`).then((imported) => {
         this.genomeName = this.genome;
         this.genome     = imported.default;
 
@@ -117,7 +117,7 @@ const Genoverse = Base.extend({
       this.loadedPlugins[plugin.name] = true;
     };
 
-    const pluginImports = Object.keys(pluginsByName).map(pluginName => import(`js/plugins/${pluginName}`).then(
+    const pluginImports = Object.keys(pluginsByName).map(pluginName => import(`./plugins/${pluginName}`).then(
       (imported) => {
         initializePlugin({
           name    : pluginName,

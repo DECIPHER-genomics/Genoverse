@@ -1,4 +1,4 @@
-import Track from 'js/Track';
+import Track from '../../Track';
 
 export default Track.extend({
   setInterface: function () {

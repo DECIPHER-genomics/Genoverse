@@ -1,5 +1,5 @@
 import JParser       from 'jParser';
-import inflateBuffer from 'js/lib/dalliance/jszlib-inflate';
+import inflateBuffer from './dalliance/jszlib-inflate';
 
 JParser.prototype.structure.uint64 = function () { return parseInt(this.view.getUint64(), 10); };
 

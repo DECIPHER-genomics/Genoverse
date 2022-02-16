@@ -1,5 +1,5 @@
-import Model from 'js/Track/Model/File/WIG';
-import Track from 'js/Track/library/Graph/Bar';
+import Model from '../../Model/File/WIG';
+import Track from '../Graph/Bar';
 
 export default Track.extend({
   model  : Model,

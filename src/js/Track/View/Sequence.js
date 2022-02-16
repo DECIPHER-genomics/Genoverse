@@ -1,4 +1,4 @@
-import View from 'js/Track/View';
+import View from '../View';
 
 export default View.extend({
   featureMargin : { top: 0, right: 0, bottom: 0, left: 0 },

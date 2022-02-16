@@ -1,6 +1,6 @@
 // These are abstract classes, implemented by Graph.Bar and Graph.Line. They will not work properly on their own.
 
-import Track, { Controller as TrackController, Model as TrackModel, View as TrackView } from 'js/Track';
+import Track, { Controller as TrackController, Model as TrackModel, View as TrackView } from '../../Track';
 
 const Controller = TrackController.extend({
   setYRange: function (min, max) {

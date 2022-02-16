@@ -1,4 +1,4 @@
-import Model from 'js/Track/Model';
+import Model from '../Model';
 
 // Abstract Gene model
 // see sub-models for more specific examples
