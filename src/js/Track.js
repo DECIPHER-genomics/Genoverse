@@ -539,7 +539,7 @@ const Track = Base.extend({
       () => {
         track.childTracks = children.map(
           (child) => {
-            if (child.prototype instanceof Track.Legend || child === Track.Legend) {
+            if (child.prototype.isLegend || child.isLegend) {
               track.addLegend(child.extend(config), true);
 
               return track.legendTrack;
@@ -555,12 +555,10 @@ const Track = Base.extend({
     );
   },
 
-  addLegend: function (constructor, now) {
-    if (!(constructor || this.legend)) {
+  addLegend: function (constructor = this.legend, now) {
+    if (!constructor?.prototype.isLegend) {
       return;
     }
-
-    constructor = constructor || (this.legend.prototype instanceof Track.Legend ? this.legend : Track.Legend); // Note: Track.Legend will only exist if it has been imported
 
     const track      = this;
     const legendType = constructor.prototype.shared === true ? Genoverse.getTrackNamespace(constructor) : constructor.prototype.shared || this.id;

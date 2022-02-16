@@ -100,6 +100,7 @@ const View = StaticView.extend({
 });
 
 export default Static.extend({
+  isLegend    : true, // For duck-typing
   unsortable  : true,
   lockToTrack : true, // Always put the legend just below the last track that the legend is for
   removable   : false,

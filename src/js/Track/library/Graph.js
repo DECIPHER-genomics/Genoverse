@@ -1,6 +1,7 @@
 // These are abstract classes, implemented by Graph.Bar and Graph.Line. They will not work properly on their own.
 
 import Track, { Controller as TrackController, Model as TrackModel, View as TrackView } from '../../Track';
+import Legend                                                                           from './Legend';
 
 const Controller = TrackController.extend({
   setYRange: function (min, max) {
@@ -188,7 +189,7 @@ export default Track.extend({
   globalAlpha  : 1,
   axesSettings : { axisColor: 'black', axisLabelColor: 'black', scaleLineColor: '#E5E5E5' },
   datasets     : [],
-  legend       : true,
+  legend       : Legend,
   labels       : false,
 
   /*

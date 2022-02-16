@@ -107,7 +107,7 @@ describe('Track ordering', () => {
 
   const legendTrack = (id, legendConf) => ({
     id     : id,
-    legend : legendConf ? Genoverse.Track.Legend.extend(legendConf) : true,
+    legend : legendConf ? Genoverse.Track.Legend.extend(legendConf) : Genoverse.Track.Legend,
   });
 
   describe('Simple tracks', () => {

@@ -3,12 +3,13 @@ import GeneModel       from '../Model/Gene/Ensembl';
 import TranscriptModel from '../Model/Transcript/Ensembl';
 import GeneView        from '../View/Gene/Ensembl';
 import TranscriptView  from '../View/Transcript/Ensembl';
+import Legend           from './Legend';
 
 export default Track.extend({
   id     : 'genes',
   name   : 'Genes',
   height : 200,
-  legend : true,
+  legend : Legend,
 
   populateMenu: function (feature) {
     const url  = `https://www.ensembl.org/Homo_sapiens/${feature.feature_type === 'transcript' ? 'Transcript' : 'Gene'}/Summary?${feature.feature_type === 'transcript' ? 't' : 'g'}=${feature.id}`;
