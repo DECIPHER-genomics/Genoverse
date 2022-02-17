@@ -1,6 +1,5 @@
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const TerserPlugin           = require('terser-webpack-plugin');
-const webpack                = require('webpack');
 const { dependencies }       = require('./package.json');
 
 const coreJsVersion = dependencies['core-js'].replace('^', '');
@@ -30,7 +29,6 @@ module.exports = (env) => {
       includes.polyfills   ? `${__dirname}/build/polyfills`         : false,
       includes.fontawesome ? `${__dirname}/src/css/fontawesome.css` : false,
       includes.css         ? `${__dirname}/src/css/genoverse.css`   : false,
-      `${__dirname}/build/jquery-extensions`,
       `${__dirname}/build/genoverse`,
       includes.plugins ? `${__dirname}/build/plugins` : false,
       includes.genomes ? `${__dirname}/build/genomes` : false,
@@ -43,10 +41,6 @@ module.exports = (env) => {
     devtool : 'source-map',
     plugins : [
       new CleanWebpackPlugin(),
-      new webpack.ProvidePlugin({
-        $      : 'jquery',
-        jQuery : 'jquery',
-      }),
     ],
     optimization: {
       minimizer: [

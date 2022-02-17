@@ -1,3 +1,5 @@
+import './lib/jquery';
+
 import Base                 from 'basejs';
 import Track                from './Track';
 import HighlightRegionTrack from './Track/library/HighlightRegion';
@@ -1545,8 +1547,9 @@ const Genoverse = Base.extend({
     );
   },
 }, {
-  id    : 0,
-  Track : Track,
+  id     : 0,
+  Track  : Track,
+  jQuery : $,
 
   getAllTrackTypes: function (namespace, n) {
     namespace = namespace || Track;
