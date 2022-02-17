@@ -233,7 +233,7 @@ const Track = Base.extend({
     const models = {};
     const views  = {};
 
-    function compare(a, b) {
+    const compare = (a, b) => {
       const checked = { browser: true, width: true, track: true }; // Properties set in newMVC should be ignored, as they will be missing if comparing an object with a prototype
 
       for (const key in a) { // eslint-disable-line no-restricted-syntax
@@ -259,7 +259,7 @@ const Track = Base.extend({
       }
 
       return Object.keys(b).every(key => checked[key]);
-    }
+    };
 
     const lengthMap = [
       // Force at least one lengthMap entry to exist, containing the base model and view. lengthMap entries above -1 without a model or view will inherit from -1.
