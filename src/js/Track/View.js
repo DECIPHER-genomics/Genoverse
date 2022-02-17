@@ -23,7 +23,14 @@ export default Base.extend({
   subFeatureJoinLineWidth : 0.5,
 
   constructor: function (properties) {
-    Object.assign(this, properties);
+    Object.entries(properties).forEach(
+      ([ key, val ]) => {
+        if (typeof val !== 'undefined') {
+          this[key] = val;
+        }
+      }
+    );
+
     wrapFunctions(this, 'View');
     this.init();
   },

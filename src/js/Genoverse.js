@@ -45,8 +45,15 @@ const Genoverse = Base.extend({
 
     container.addClass('genoverse').data('genoverse', this);
 
-    Object.assign(this, { ...config, container });
+    Object.entries(config).forEach(
+      ([ key, val ]) => {
+        if (typeof val !== 'undefined') {
+          this[key] = val;
+        }
+      }
+    );
 
+    this.container      = container;
     this.eventNamespace = `.genoverse.${++Genoverse.id}`;
     this.events         = { browser: {}, tracks: {} };
 

@@ -15,7 +15,14 @@ export default Base.extend({
   showServerErrors   : false,     // if true, error messages return from the server by getData requests will be shown on the track
 
   constructor: function (properties) {
-    Object.assign(this, properties);
+    Object.entries(properties).forEach(
+      ([ key, val ]) => {
+        if (typeof val !== 'undefined') {
+          this[key] = val;
+        }
+      }
+    );
+
     wrapFunctions(this, 'Model');
     this.init();
   },

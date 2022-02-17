@@ -8,7 +8,14 @@ export default Base.extend({
   messages       : undefined,
 
   constructor: function (properties) {
-    Object.assign(this, properties);
+    Object.entries(properties).forEach(
+      ([ key, val ]) => {
+        if (typeof val !== 'undefined') {
+          this[key] = val;
+        }
+      }
+    );
+
     wrapFunctions(this, 'Controller');
     this.init();
   },
