@@ -7,7 +7,7 @@ const trigger = (obj, when, funcName, mainObj, events, args) => {
     delete events[`${eventKey}.once`];
   }
 
-  funcs.forEach(func => func.call(obj, ...args));
+  funcs.forEach(func => func.apply(obj, args));
 };
 
 /**
@@ -18,15 +18,16 @@ const functionWrap = (key, obj, mainObj, events, debugWrapper) => {
     return;
   }
 
-  const funcName               = `${key.substring(0, 1).toUpperCase()}${key.substring(1)}`;
-  const debug                  = debugWrapper.for;
-  const debugLabel             = debug ? `${debugWrapper.label}.${key}` : false;
-  const debugTime              = debug === 'time' || (typeof debug === 'object' && debug[key]);
-  const currentConfigFunctions = (obj._currentConfig || obj.track?._currentConfig)?.func || {};
+  const funcName   = `${key.substring(0, 1).toUpperCase()}${key.substring(1)}`;
+  const debug      = debugWrapper.for;
+  const debugLabel = debug ? `${debugWrapper.label}.${key}` : false;
+  const debugTime  = debug === 'time' || (typeof debug === 'object' && debug[key]);
 
   obj.functions[key] = obj[key].bind(obj);
 
   obj[key] = (...args) => {
+    const currentConfigFunctions = (obj._currentConfig || obj.track?._currentConfig)?.func || {};
+
     let rtn;
 
     // Debugging functionality
@@ -43,7 +44,7 @@ const functionWrap = (key, obj, mainObj, events, debugWrapper) => {
       // override to add a value for base
       obj.base = obj.functions[key] || (() => {});
 
-      rtn = currentConfigFunctions[key](...args);
+      rtn = currentConfigFunctions[key].apply(obj, args);
     } else {
       rtn = obj.functions[key](...args);
     }
