@@ -294,12 +294,6 @@ export default Base.extend({
     return features.sort((a, b) => a.sort - b.sort);
   },
 
-  abort: function () {
-    this.dataLoading.forEach(loading => loading.abort());
-
-    this.dataLoading = [];
-  },
-
   hashCode: function (string) {
     let hash = 0;
 
@@ -313,5 +307,21 @@ export default Base.extend({
     }
 
     return String(hash);
+  },
+
+  abort: function () {
+    this.dataLoading.forEach(loading => loading.abort());
+
+    this.dataLoading = [];
+  },
+
+  destroy: function () {
+    this.abort();
+
+    // Force garbage collection
+    delete this.data;
+    delete this.dataRangesByChr;
+    delete this.featuresByChr;
+    delete this.featuresById;
   },
 });

@@ -629,17 +629,15 @@ const Track = Base.extend({
   },
 
   destructor: function () {
-    if (this.controller) {
-      this.controller.destroy();
-    }
+    [ 'controller', 'model', 'view', 'models', 'views', 'lengthMap' ].forEach(
+      (key) => {
+        if (typeof this?.[key]?.destroy === 'function') {
+          this[key].destroy();
+        }
 
-    const objs = [ this.view, this.model, this.controller, this ];
-
-    for (let i = 0; i < objs.length; i++) { // eslint-disable-line no-restricted-syntax, guard-for-in
-      for (const key in objs[i]) { // eslint-disable-line no-restricted-syntax, guard-for-in
-        delete objs[i][key];
+        delete this[key];
       }
-    }
+    );
   },
 });
 

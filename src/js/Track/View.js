@@ -593,4 +593,8 @@ export default Base.extend({
 
   drawBackground  : () => {},
   decorateFeature : () => {}, // decoration for the features
+
+  destroy: function () {
+    delete this.scaleSettings;
+  },
 });
