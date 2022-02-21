@@ -108,7 +108,11 @@ const plugin = function (pluginConf) {
       const browser = this;
 
       if (!this.tracksLibrary) {
-        this.tracksLibrary = this.tracks.filter(track => track.prototype.name);
+        this.tracksLibrary = this.tracks.map(
+          track => this.normaliseTrackDefinition(track)
+        ).filter(
+          track => track.prototype.name
+        );
       }
 
       const panel = $(`

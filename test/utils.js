@@ -1,7 +1,6 @@
-global.jQuery = global.$ = require('jquery');
+const Genoverse = require('../src/js/Genoverse').default;
 
-require('../build/jquery-extensions');
-require('../build/genoverse');
+Genoverse.configure();
 
 const getTrackConfig = features => ({
   data: features,

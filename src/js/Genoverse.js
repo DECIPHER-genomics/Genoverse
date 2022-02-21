@@ -1,9 +1,11 @@
 import './lib/jquery';
 
 import Base                 from 'basejs';
+import _get                 from 'lodash/get';
 import Track                from './Track';
 import HighlightRegionTrack from './Track/library/HighlightRegion';
 import LegendTrack          from './Track/library/Legend';
+import importTracks         from './lib/import-tracks';
 import wrapFunctions        from './lib/wrap-functions';
 
 const Genoverse = Base.extend({
@@ -38,6 +40,8 @@ const Genoverse = Base.extend({
     if (!this.supported()) {
       return this.die('Your browser does not support this functionality');
     }
+
+    Genoverse.configure();
 
     let container = $(config.container); // Make sure container is a jquery object, jquery recognises itself automatically
 
@@ -245,8 +249,10 @@ const Genoverse = Base.extend({
 
     this.tracks.forEach(
       (track) => {
-        if (track.prototype.id) {
-          tracksById[track.prototype.id] = track;
+        const TrackClass = this.normaliseTrackDefinition(track);
+
+        if (TrackClass.prototype.id) {
+          tracksById[TrackClass.prototype.id] = TrackClass;
         }
       }
     );
@@ -278,11 +284,13 @@ const Genoverse = Base.extend({
 
     this.tracks.forEach(
       (track) => {
-        if (track.prototype.id && !track._fromStorage) {
+        const TrackClass = this.normaliseTrackDefinition(track);
+
+        if (TrackClass.prototype.id && !tracksById[TrackClass.prototype.id]?._fromStorage) {
           return;
         }
 
-        tracks.push(track);
+        tracks.push(TrackClass);
       }
     );
 
@@ -961,6 +969,44 @@ const Genoverse = Base.extend({
     this.setRange(start, end, true);
   },
 
+  normaliseTrackDefinition: function (trackDefinition, baseObjName = 'Track') {
+    const baseObj          = _get(Genoverse, baseObjName);
+    const baseObjNameArray = baseObjName.split('.');
+
+    const getObj = (t) => {
+      const objNameArray = t.split('.');
+      const objName      = objNameArray.filter(n => n !== 'Genoverse' && !baseObjNameArray.includes(n)).join('.');
+
+      return objName === baseObjName ? baseObj : _get(baseObj, objName);
+    };
+
+    const normalise = t => ({
+      ...t,
+      ...(t.controller ? { controller: this.normaliseTrackDefinition(t.controller, 'Track.Controller') } : {}),
+      ...(t.model      ? { model: this.normaliseTrackDefinition(t.model, 'Track.Model') }                : {}),
+      ...(t.view       ? { view: this.normaliseTrackDefinition(t.view, 'Track.View') }                   : {}),
+    });
+
+    // e.g. 'Genoverse.Track.Foo' -> Genoverse.Track.Foo
+    if (typeof trackDefinition === 'string') {
+      return getObj(trackDefinition);
+    }
+
+    // e.g. [ 'Genoverse.Track.Foo', { foo: true } ] -> Genoverse.Track.Foo.extend({ foo: true })
+    if (Array.isArray(trackDefinition) && typeof trackDefinition[0] === 'string') {
+      const obj = getObj(trackDefinition[0]);
+
+      return typeof trackDefinition[1] === 'object' && Object.keys(trackDefinition[1]).length ? obj.extend(normalise(trackDefinition[1])) : obj;
+    }
+
+    // e.g. { foo: true } -> Genoverse.Track.extend({ foo: true })
+    if (typeof trackDefinition === 'object' && Object.keys(trackDefinition).length) {
+      return baseObj.extend(normalise(trackDefinition));
+    }
+
+    return trackDefinition;
+  },
+
   addTrack: function (track, after) {
     return this.addTracks([ track ], after)[0];
   },
@@ -975,8 +1021,6 @@ const Genoverse = Base.extend({
 
     let order;
 
-    tracks = tracks || [ ...this.tracks ];
-
     if (push && !this.tracks.filter(t => typeof t === 'function').length) {
       const [ insertAfter ] = (after ? this.tracks.filter(t => t.order < after) : this.tracks).sort((a, b) => b.order - a.order);
 
@@ -985,12 +1029,16 @@ const Genoverse = Base.extend({
       }
     }
 
+    tracks = tracks || [ ...this.tracks ];
+
     for (let i = 0; i < tracks.length; i++) {
-      tracks[i] = new tracks[i]({
+      const TrackClass = this.normaliseTrackDefinition(tracks[i]);
+
+      tracks[i] = new TrackClass({
         ...defaults,
-        namespace : Genoverse.getTrackNamespace(tracks[i]),
+        namespace : Genoverse.getTrackNamespace(TrackClass),
         order     : typeof order === 'number' ? order : i,
-        config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[tracks[i].prototype.id]) : undefined,
+        config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[TrackClass.prototype.id]) : undefined,
       });
 
       if (tracks[i].id) {
@@ -1551,6 +1599,33 @@ const Genoverse = Base.extend({
   Track  : Track,
   jQuery : $,
 
+  configure: ({
+    tracks  = {},
+    plugins = {},
+    genomes = {},
+    force   = false,
+  } = {}) => {
+    if (force || !Genoverse.configured) {
+      importTracks(Track, require.context('./Track', true, /\.js$/), { exclude: tracks.exclude });
+
+      if (tracks.include) {
+        importTracks(Track, tracks.include);
+      }
+
+      const importAll = r => r.keys().forEach(r);
+
+      if (plugins.include) {
+        importAll(plugins.include);
+      }
+
+      if (genomes.include) {
+        importAll(genomes.include);
+      }
+    }
+
+    Genoverse.configured = true;
+  },
+
   getAllTrackTypes: function (namespace, n) {
     namespace = namespace || Track;
 
@@ -1613,5 +1688,7 @@ const Genoverse = Base.extend({
     return namespaces[0];
   },
 });
+
+global.Genoverse = Genoverse;
 
 export default Genoverse;

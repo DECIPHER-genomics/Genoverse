@@ -29,7 +29,7 @@ module.exports = (env) => {
       includes.polyfills   ? `${__dirname}/build/polyfills`         : false,
       includes.fontawesome ? `${__dirname}/src/css/fontawesome.css` : false,
       includes.css         ? `${__dirname}/src/css/genoverse.css`   : false,
-      `${__dirname}/build/genoverse`,
+      `${__dirname}/src/js/Genoverse`,
       includes.plugins ? `${__dirname}/build/plugins` : false,
       includes.genomes ? `${__dirname}/build/genomes` : false,
     ].filter(Boolean),
