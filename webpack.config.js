@@ -5,14 +5,12 @@ const { dependencies }       = require('./package.json');
 const coreJsVersion = dependencies['core-js'].replace('^', '');
 
 // Customise a build with (for example):
-//   yarn webpack  --env exclude.fontawesome --env exclude.css --env include.plugins
+//   yarn webpack  --env exclude.fontawesome --env include.polyfills
 module.exports = (env) => {
   const includes = {
     polyfills   : !env.modern,
     fontawesome : true,
     css         : true,
-    plugins     : false,
-    genomes     : false,
     ...Object.keys(env.exclude || {}).reduce((acc, exclude) => Object.assign(acc, { [exclude]: false }), {}),
     ...env.include,
   };
@@ -26,12 +24,10 @@ module.exports = (env) => {
     name   : 'genoverse',
     target : env.modern ? 'web' : [ 'web', 'es5' ],
     entry  : [
-      includes.polyfills   ? `${__dirname}/build/polyfills`         : false,
+      includes.polyfills   ? `${__dirname}/src/js/lib/polyfills`    : false,
       includes.fontawesome ? `${__dirname}/src/css/fontawesome.css` : false,
       includes.css         ? `${__dirname}/src/css/genoverse.css`   : false,
       `${__dirname}/src/js/Genoverse`,
-      includes.plugins ? `${__dirname}/build/plugins` : false,
-      includes.genomes ? `${__dirname}/build/genomes` : false,
     ].filter(Boolean),
     output: {
       filename   : 'genoverse.js',
