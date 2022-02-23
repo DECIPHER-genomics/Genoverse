@@ -1,6 +1,6 @@
 const Genoverse = require('../src/js/Genoverse').default;
 
-Genoverse.configure();
+Genoverse.configure({ css: false, fontawesome: false });
 
 const getTrackConfig = features => ({
   data: features,

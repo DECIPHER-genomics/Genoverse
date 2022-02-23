@@ -70,10 +70,10 @@ const Genoverse = Base.extend({
   },
 
   loadCSS: function () {
-    return Promise.all([
-      Genoverse.importCSS         ? import('../css/genoverse.css')   : Promise.resolve(),
-      Genoverse.importFontAwesome ? import('../css/fontawesome.css') : Promise.resolve(),
-    ]);
+    return $.when(
+      Genoverse.importCSS         ? import('../css/genoverse.css')   : $.Deferred().resolve(),
+      Genoverse.importFontAwesome ? import('../css/fontawesome.css') : $.Deferred().resolve()
+    );
   },
 
   loadGenome: function () {

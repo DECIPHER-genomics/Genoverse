@@ -22,6 +22,7 @@ describe('Track ordering', () => {
       tracks         : tracks.map(t => Genoverse.Track.extend({ url: false, ...t })),
       _initDeferred  : $.Deferred(),
       saveConfig     : () => {},
+      loadCSS        : () => {},
       loadGenome     : () => {},
       loadPlugins    : () => {},
     });
