@@ -8,6 +8,7 @@ const coreJsVersion = dependencies['core-js'].replace('^', '');
 // Customise a build with (for example):
 //   yarn webpack  --env no-polyfills
 //   yarn webpack  --env modern
+//   yarn webpack  --env public-path=/public/path/to/genoverse
 module.exports = (env) => {
   const noPolyfills = env.modern || env['no-polyfills'];
 
@@ -22,7 +23,7 @@ module.exports = (env) => {
     output: {
       filename   : 'genoverse.js',
       path       : `${__dirname}/dist`,
-      publicPath : './dist/',
+      publicPath : env['public-path'] || '/dist/',
     },
     devtool : 'source-map',
     plugins : [
@@ -52,17 +53,14 @@ module.exports = (env) => {
     module: {
       rules: [
         {
+          test : /\.png/,
+          type : 'asset/resource',
+        },
+        {
           test : /\.css$/i,
           use  : [
             MiniCssExtractPlugin.loader,
-            {
-              loader  : 'css-loader',
-              options : {
-                url: {
-                  filter: url => !/assets/.test(url),
-                },
-              },
-            },
+            'css-loader',
           ],
         },
         env.modern
