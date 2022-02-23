@@ -1,32 +1,22 @@
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const MiniCssExtractPlugin   = require('mini-css-extract-plugin');
 const TerserPlugin           = require('terser-webpack-plugin');
 const { dependencies }       = require('./package.json');
 
 const coreJsVersion = dependencies['core-js'].replace('^', '');
 
 // Customise a build with (for example):
-//   yarn webpack  --env exclude.fontawesome --env include.polyfills
+//   yarn webpack  --env no-polyfills
+//   yarn webpack  --env modern
 module.exports = (env) => {
-  const includes = {
-    polyfills   : !env.modern,
-    fontawesome : true,
-    css         : true,
-    ...Object.keys(env.exclude || {}).reduce((acc, exclude) => Object.assign(acc, { [exclude]: false }), {}),
-    ...env.include,
-  };
-
-  if (env.all) {
-    Object.keys(includes).forEach((key) => { includes[key] = true; });
-  }
+  const noPolyfills = env.modern || env['no-polyfills'];
 
   return {
     mode   : 'production',
     name   : 'genoverse',
     target : env.modern ? 'web' : [ 'web', 'es5' ],
     entry  : [
-      includes.polyfills   ? `${__dirname}/src/js/lib/polyfills`    : false,
-      includes.fontawesome ? `${__dirname}/src/css/fontawesome.css` : false,
-      includes.css         ? `${__dirname}/src/css/genoverse.css`   : false,
+      noPolyfills ? false : `${__dirname}/src/js/lib/polyfills`,
       `${__dirname}/src/js/Genoverse`,
     ].filter(Boolean),
     output: {
@@ -37,6 +27,7 @@ module.exports = (env) => {
     devtool : 'source-map',
     plugins : [
       new CleanWebpackPlugin(),
+      new MiniCssExtractPlugin(),
     ],
     optimization: {
       minimizer: [
@@ -63,12 +54,7 @@ module.exports = (env) => {
         {
           test : /\.css$/i,
           use  : [
-            {
-              loader  : 'style-loader',
-              options : {
-                insert: 'body',
-              },
-            },
+            MiniCssExtractPlugin.loader,
             {
               loader  : 'css-loader',
               options : {

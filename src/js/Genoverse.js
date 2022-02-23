@@ -63,10 +63,17 @@ const Genoverse = Base.extend({
     this.eventNamespace = `.genoverse.${++Genoverse.id}`;
     this.events         = { browser: {}, tracks: {} };
 
-    $.when(this.loadGenome(), this.loadPlugins()).always(() => {
+    $.when(this.loadCSS(), this.loadGenome(), this.loadPlugins()).always(() => {
       wrapFunctions(this, 'Genoverse');
       this.init();
     });
+  },
+
+  loadCSS: function () {
+    return Promise.all([
+      Genoverse.importCSS         ? import('../css/genoverse.css')   : Promise.resolve(),
+      Genoverse.importFontAwesome ? import('../css/fontawesome.css') : Promise.resolve(),
+    ]);
   },
 
   loadGenome: function () {
@@ -1600,10 +1607,12 @@ const Genoverse = Base.extend({
   jQuery : $,
 
   configure: ({
-    tracks  = {},
-    plugins = {},
-    genomes = {},
-    force   = false,
+    tracks      = {},
+    plugins     = {},
+    genomes     = {},
+    css         = true,
+    fontawesome = true,
+    force       = false,
   } = {}) => {
     if (force || !Genoverse.configured) {
       importTracks(Track, require.context('./Track', true, /\.js$/), { exclude: tracks.exclude });
@@ -1621,6 +1630,9 @@ const Genoverse = Base.extend({
       if (genomes.include) {
         importAll(genomes.include);
       }
+
+      Genoverse.importCSS         = css;
+      Genoverse.importFontAwesome = fontawesome;
     }
 
     Genoverse.configured = true;
