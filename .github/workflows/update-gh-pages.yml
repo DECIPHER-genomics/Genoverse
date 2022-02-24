@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: yarn install
-      - run: yarn build
+      - run: yarn build --env public-path=/Genoverse/dist/
       - name: Commit and push files
         run: |
           echo $GITHUB_ACTOR
