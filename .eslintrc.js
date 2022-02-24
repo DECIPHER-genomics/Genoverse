@@ -33,7 +33,7 @@ module.exports = {
     'dist',
     '**/*.min.js',
     'src/js/lib/dalliance/*.js',
-    'build/jquery-plugins/*.js',
+    'src/js/lib/jquery-plugins/*.js',
   ],
   rules: {
     'align-assignments/align-assignments' : [ 'error', { requiresOnly: false }],
