@@ -25,7 +25,7 @@ export default (Track, requireContext, { exclude = [] } = {}) => {
     (acc, key, ...args) => {
       const k = key.replace('./', '').replace('.js', '');
 
-      if (exclude && exclude.includes(k)) {
+      if (exclude && (exclude.includes(k) || exclude.includes(k.replace('library/', '').replace(/\//g, '.')))) {
         return acc;
       }
 
