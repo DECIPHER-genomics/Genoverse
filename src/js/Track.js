@@ -419,7 +419,7 @@ const Track = Base.extend({
   },
 
   setConfig: function (config, arg) {
-    if (typeof config === 'string' && arg) {
+    if (typeof config === 'string' && typeof arg !== 'undefined') {
       const _config = {};
 
       _config[config] = arg;
