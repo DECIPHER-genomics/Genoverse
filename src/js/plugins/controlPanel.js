@@ -107,13 +107,11 @@ const plugin = function (pluginConf) {
     beforeInit: function () {
       const browser = this;
 
-      if (!this.tracksLibrary) {
-        this.tracksLibrary = this.tracks.map(
-          track => this.normaliseTrackDefinition(track)
-        ).filter(
-          track => track.prototype.name
-        );
-      }
+      this.tracksLibrary = (this.tracksLibrary || this.tracks).map(
+        track => this.normaliseTrackDefinition(track)
+      ).filter(
+        track => track.prototype.name
+      );
 
       const panel = $(`
         <table cellspacing=0 cellpadding=0 class="gv">
