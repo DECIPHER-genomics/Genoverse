@@ -21,9 +21,9 @@ module.exports = (env) => {
       `${__dirname}/src/js/Genoverse`,
     ].filter(Boolean),
     output: {
-      filename   : 'genoverse.js',
-      path       : `${__dirname}/dist`,
-      publicPath : env['public-path'] || '/dist/',
+      filename : 'genoverse.js',
+      path     : `${__dirname}/dist`,
+      ...(env['public-path'] ? { publicPath: env['public-path'] } : {}),
     },
     devtool : 'source-map',
     plugins : [
