@@ -28,8 +28,8 @@ export default Track.extend({
     const browser = this.browser;
 
     function resize() {
-      $('.gv-bg.gv-full-height', browser.container).height(function () {
-        return browser.wrapper.outerHeight(true) - $(this).parents('.gv-track-container').position().top;
+      browser.jQuery('.gv-bg.gv-full-height', browser.container).height(function () {
+        return browser.wrapper.outerHeight(true) - browser.jQuery(this).parents('.gv-track-container').position().top;
       });
     }
 

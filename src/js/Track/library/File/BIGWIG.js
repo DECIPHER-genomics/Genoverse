@@ -12,13 +12,13 @@ export default Track.extend({
   },
 
   getData: function (chr, start, end) {
-    const deferred = $.Deferred();
+    const deferred = this.browser.jQuery.Deferred();
 
     if (!this.bigwigFile) {
       this.bigwigFile = this.bigwigFile || (this.url ? new URLFetchable(this.url) : new BlobFetchable(this.track.dataFile));
     }
 
-    const d = $.Deferred().done(() => {
+    const d = this.browser.jQuery.Deferred().done(() => {
       this.prop('bwReader').getValues(chr, start, end, (features, error) => {
         if (!error) {
           features.sort((a, b) => a.start - b.start);

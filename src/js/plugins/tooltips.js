@@ -8,15 +8,16 @@ import controlPanel from './controlPanel';
 
 const plugin = function () {
   const genoverse = this;
+  const jQuery    = this.jQuery;
 
   function toggleTooltips(browser, tooltips, action) {
     const offset = browser.superContainer.offset();
 
     tooltips = tooltips || browser.superContainer.find('.gv-tooltip');
-    action   = action   || $(this).toggleClass('gv-active').hasClass('gv-active') ? 'show' : 'hide';
+    action   = action   || jQuery(this).toggleClass('gv-active').hasClass('gv-active') ? 'show' : 'hide';
 
     tooltips.each(function () {
-      const el = $(this);
+      const el = jQuery(this);
 
       if (el.is(':visible')) {
         el.tipsy(action).data('tipsy').$tip.data({ parent: el }).appendTo(browser.superContainer).css({
@@ -30,7 +31,7 @@ const plugin = function () {
   }
 
   function updateTooltips() {
-    let tooltips = $();
+    let tooltips = jQuery();
 
     [
       [ genoverse.labelContainer.find('.gv-handle'), { gravity: 'w', fade: true, trigger: 'manual', fallback: 'Reorder tracks by dragging this handle' }],
@@ -50,7 +51,7 @@ const plugin = function () {
 
     // Remove any tooltips orphaned by the removal of a track
     genoverse.superContainer.find('.tipsy').not(function () {
-      const parent = $(this).data('parent');
+      const parent = jQuery(this).data('parent');
 
       return parent && genoverse.superContainer.find(parent).length;
     }).remove();
@@ -74,7 +75,7 @@ const plugin = function () {
     this.superContainer.find('.gv-panel-right .gv-button-set[title]').tipsy({ gravity: 'e', fade: true, trigger: 'manual' }).addClass('gv-tooltip');
 
     // In order to force placement of this tooltip to be inside the superContainer boundaries, and just below the karyotype, create a hidden element, positioned where we want the tooltip to appear
-    $('<i class="gv-wrapper-tooltip">').prependTo(this.wrapper).tipsy({
+    jQuery('<i class="gv-wrapper-tooltip">').prependTo(this.wrapper).tipsy({
       gravity  : 's',
       fade     : true,
       trigger  : 'manual',

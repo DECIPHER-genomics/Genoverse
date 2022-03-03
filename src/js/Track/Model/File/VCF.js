@@ -8,7 +8,7 @@ export default Model.extend({
       return this.base(chr, start, end, done);
     }
 
-    const deferred = $.Deferred();
+    const deferred = this.browser.jQuery.Deferred();
 
     if (!this.vcfFile) {
       if (this.url) {
@@ -35,7 +35,7 @@ export default Model.extend({
   },
 
   makeVCF: function (vcfFile, tbiFile) {
-    const deferred = $.Deferred();
+    const deferred = this.browser.jQuery.Deferred();
 
     if (this.cachedVCF) {
       deferred.resolve(this.cachedVCF);

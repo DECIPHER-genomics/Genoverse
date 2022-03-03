@@ -1,11 +1,10 @@
-import './lib/jquery';
-
 import Base                 from 'basejs';
 import _get                 from 'lodash/get';
 import Track                from './Track';
 import HighlightRegionTrack from './Track/library/HighlightRegion';
 import LegendTrack          from './Track/library/Legend';
 import importTracks         from './lib/import-tracks';
+import $                    from './lib/jquery';
 import wrapFunctions        from './lib/wrap-functions';
 
 const Genoverse = Base.extend({
@@ -161,6 +160,7 @@ const Genoverse = Base.extend({
       this.urlParamTemplate = false;
     }
 
+    this.jQuery           = $;
     this.tracksById       = {};
     this.prev             = {};
     this.legends          = {};

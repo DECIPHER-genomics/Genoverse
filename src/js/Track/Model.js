@@ -87,10 +87,12 @@ export default Base.extend({
   },
 
   getData: function (chr, start, end, done) {
+    const jQuery = this.browser.jQuery;
+
     start = Math.max(1, start);
     end   = Math.min(this.browser.getChromosomeSize(chr), end);
 
-    const deferred = $.Deferred();
+    const deferred = jQuery.Deferred();
 
     if (typeof this.data !== 'undefined') {
       this.receiveData(typeof this.data.sort === 'function' ? this.data.sort((a, b) => a.start - b.start) : this.data, chr, start, end);
@@ -117,10 +119,10 @@ export default Base.extend({
       bins.push([ start, end ]);
     }
 
-    $.when(
+    jQuery.when(
       ...bins.map(
         (bin) => {
-          const request = $.ajax({
+          const request = jQuery.ajax({
             url       : model.parseURL(chr, bin[0], bin[1]),
             data      : model.urlParams,
             dataType  : model.dataType,

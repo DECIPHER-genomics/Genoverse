@@ -2,6 +2,8 @@ import '../../css/controlPanel.css';
 import karyotype from './karyotype';
 
 const plugin = function (pluginConf) {
+  const jQuery = this.jQuery;
+
   this.controls = [
     // Scroll left/right
     {
@@ -16,7 +18,7 @@ const plugin = function (pluginConf) {
         class : 'gv-scroll-right',
       }],
       init: function (browser) {
-        const el = $(this);
+        const el = jQuery(this);
 
         el.find('.gv-scroll-left, .gv-scroll-right').on({
           mousedown : () => { browser.startDragScroll(); },
@@ -53,7 +55,7 @@ const plugin = function (pluginConf) {
         class  : 'gv-drag-scroll',
         action : function (browser) {
           browser.setDragAction('scroll');
-          $(this).addClass('gv-active').siblings().removeClass('gv-active');
+          jQuery(this).addClass('gv-active').siblings().removeClass('gv-active');
         },
       }, {
         name   : 'Mouse drag action to select a region',
@@ -61,11 +63,11 @@ const plugin = function (pluginConf) {
         class  : 'gv-drag-select',
         action : function (browser) {
           browser.setDragAction('select');
-          $(this).addClass('gv-active').siblings().removeClass('gv-active');
+          jQuery(this).addClass('gv-active').siblings().removeClass('gv-active');
         },
       }],
       init: function (browser) {
-        $(this).find(`.gv-drag-${browser.dragAction}`).addClass('gv-active').siblings().removeClass('gv-active');
+        jQuery(this).find(`.gv-drag-${browser.dragAction}`).addClass('gv-active').siblings().removeClass('gv-active');
       },
     },
 
@@ -78,7 +80,7 @@ const plugin = function (pluginConf) {
         class  : 'gv-wheel-off',
         action : function (browser) {
           browser.setWheelAction('off');
-          $(this).addClass('gv-active').siblings().removeClass('gv-active');
+          jQuery(this).addClass('gv-active').siblings().removeClass('gv-active');
         },
       }, {
         name   : 'Mouse wheel to zoom in and out',
@@ -86,11 +88,11 @@ const plugin = function (pluginConf) {
         class  : 'gv-wheel-zoom',
         action : function (browser) {
           browser.setWheelAction('zoom');
-          $(this).addClass('gv-active').siblings().removeClass('gv-active');
+          jQuery(this).addClass('gv-active').siblings().removeClass('gv-active');
         },
       }],
       init: function (browser) {
-        $(this).find(`.gv-wheel-${browser.wheelAction}`).addClass('gv-active').siblings().removeClass('gv-active');
+        jQuery(this).find(`.gv-wheel-${browser.wheelAction}`).addClass('gv-active').siblings().removeClass('gv-active');
       },
     },
   ];
@@ -113,7 +115,7 @@ const plugin = function (pluginConf) {
         track => track.prototype.name
       );
 
-      const panel = $(`
+      const panel = jQuery(`
         <table cellspacing=0 cellpadding=0 class="gv">
           <tr>
             <td class="gv-panel gv-panel-left"></td>
@@ -125,16 +127,16 @@ const plugin = function (pluginConf) {
 
       this.controlPanel   = panel;
       this.superContainer = this.container;
-      this.container      = $('.gv-canvas-container', this.container);
+      this.container      = jQuery('.gv-canvas-container', this.container);
 
       browser.controls.forEach(
         (control) => {
-          const buttonSet = $('<div class="gv-button-set">').attr('title', control.name).appendTo(browser.superContainer.find('.gv-panel-right'));
+          const buttonSet = jQuery('<div class="gv-button-set">').attr('title', control.name).appendTo(browser.superContainer.find('.gv-panel-right'));
           const buttons   = control.buttons || [ control ];
 
           buttons.forEach(
             (button) => {
-              const el = $(`<button>${button.icon}</button>`).addClass(button.class).attr('title', button.name).appendTo(buttonSet);
+              const el = jQuery(`<button>${button.icon}</button>`).addClass(button.class).attr('title', button.name).appendTo(buttonSet);
 
               if (button.action) {
                 el.on('click', () => {
@@ -157,20 +159,20 @@ const plugin = function (pluginConf) {
       this.superContainer.width(this.width);
 
       // ESC key to toggle crosshair select to drag mode and close menus
-      $(document).on('keydown', (e) => {
+      jQuery(document).on('keydown', (e) => {
         if (e.keyCode === 27) {
           if (panel.find('button.gv-drag-select').hasClass('gv-active')) {
             panel.find('button.gv-drag-scroll').trigger('click');
           }
 
-          $('.gv-menu .gv-close').trigger('click');
+          jQuery('.gv-menu .gv-close').trigger('click');
         }
       });
     },
 
     afterInit: function () {
       const browser      = this;
-      const tracksButton = $('<button class="gv-tracks-library-button" title="Tracks menu"><i class="fas fa-bars"></i> Tracks</button>').on('click', function () {
+      const tracksButton = jQuery('<button class="gv-tracks-library-button" title="Tracks menu"><i class="fas fa-bars"></i> Tracks</button>').on('click', function () {
         const button = this;
 
         const getTrackTags = (track, tags) => (
@@ -179,11 +181,11 @@ const plugin = function (pluginConf) {
             : tags
         );
 
-        if ($(this).hasClass('gv-active')) {
-          $('.gv-menu.gv-tracks-menu .gv-close').trigger('click');
-          $(this).removeClass('gv-active');
+        if (jQuery(this).hasClass('gv-active')) {
+          jQuery('.gv-menu.gv-tracks-menu .gv-close').trigger('click');
+          jQuery(this).removeClass('gv-active');
         } else {
-          let menu = $(this).data('menu');
+          let menu = jQuery(this).data('menu');
 
           if (menu) {
             menu.show();
@@ -193,11 +195,11 @@ const plugin = function (pluginConf) {
               '<div class="gv-current-tracks"></div>' : '<input placeholder="Search"><div class="gv-available-tracks"></div>',
             }).addClass('gv-tracks-menu');
 
-            $('input[placeholder=Search]', menu).on('keyup', function () {
+            jQuery('input[placeholder=Search]', menu).on('keyup', function () {
               const str = this.value.toLowerCase();
 
-              $('.gv-tracks-library-item', menu).each(function () {
-                const track = $(this).data('track');
+              jQuery('.gv-tracks-library-item', menu).each(function () {
+                const track = jQuery(this).data('track');
 
                 let match = false;
 
@@ -211,29 +213,29 @@ const plugin = function (pluginConf) {
                   }
                 }
 
-                $(this)[match ? 'removeClass' : 'addClass']('gv-hide');
+                jQuery(this)[match ? 'removeClass' : 'addClass']('gv-hide');
               });
 
-              $('.gv-tracks-library-category', menu).each(function () {
-                const visibleTracks = $(this).children('.gv-tracks-library-item:not(.gv-hide)');
+              jQuery('.gv-tracks-library-category', menu).each(function () {
+                const visibleTracks = jQuery(this).children('.gv-tracks-library-item:not(.gv-hide)');
 
-                $(this)[visibleTracks.length ? 'removeClass' : 'addClass']('gv-hide');
+                jQuery(this)[visibleTracks.length ? 'removeClass' : 'addClass']('gv-hide');
               });
             });
 
-            $('.gv-close', menu).on('click', () => {
-              $(button).removeClass('gv-active');
+            jQuery('.gv-close', menu).on('click', () => {
+              jQuery(button).removeClass('gv-active');
             });
 
-            const availableTracks = $('.gv-available-tracks', menu);
-            const currentTracks   = $('.gv-current-tracks',   menu).before('<div class="gv-current-tracks-instructions">Drag and drop to reorder</div>').data({
-              reload     : function () { $(this).empty().data('listTracks')(); },
+            const availableTracks = jQuery('.gv-available-tracks', menu);
+            const currentTracks   = jQuery('.gv-current-tracks',   menu).before('<div class="gv-current-tracks-instructions">Drag and drop to reorder</div>').data({
+              reload     : function () { jQuery(this).empty().data('listTracks')(); },
               listTracks : function () {
                 browser.tracks.filter(
                   track => track.name && !(track.removable === false && track.unsortable) && !track.parentTrack && !track.lockToTrack
                 ).forEach(
                   (track) => {
-                    const el = $('<div class="gv-tracks-menu-track">')
+                    const el = jQuery('<div class="gv-tracks-menu-track">')
                       .append(`<span class="gv-tracks-menu-track-name" title="${track.name}">${track.defaultName}</span>`)
                       .appendTo(currentTracks)
                       .data('track', track)
@@ -242,17 +244,17 @@ const plugin = function (pluginConf) {
                     if (track.removable === false) {
                       el.prepend('<i class="gv-remove-track gv-menu-button fas fa-circle">');
                     } else {
-                      el.prepend($('<i class="gv-remove-track gv-menu-button fas fa-times-circle">').on('click', () => { track.remove(); }));
+                      el.prepend(jQuery('<i class="gv-remove-track gv-menu-button fas fa-times-circle">').on('click', () => { track.remove(); }));
                     }
 
                     const trackNameEl = el.find('.gv-tracks-menu-track-name').tipsy({ gravity: 'w', trigger: 'manual' }).on('mouseenter', function () {
-                      const tip = $(this).tipsy('show').data('tipsy').$tip;
+                      const tip = jQuery(this).tipsy('show').data('tipsy').$tip;
 
                       if (tip) {
                         tip.css('zIndex', 1002);
                       }
                     }).on('mouseleave', function () {
-                      $(this).tipsy('hide');
+                      jQuery(this).tipsy('hide');
                     });
 
                     if (track.name === track.defaultName) {
@@ -268,17 +270,17 @@ const plugin = function (pluginConf) {
               handle : 'span',
               update : browser.updateTrackOrder.bind(browser),
               start  : function () {
-                currentTracks.find('.gv-tracks-menu-track-name').each(function () { $(this).tipsy('hide').tipsy('disable'); });
+                currentTracks.find('.gv-tracks-menu-track-name').each(function () { jQuery(this).tipsy('hide').tipsy('disable'); });
               },
               stop: function () {
-                currentTracks.find('.gv-tracks-menu-track-name').each(function () { $(this).tipsy('enable'); });
+                currentTracks.find('.gv-tracks-menu-track-name').each(function () { jQuery(this).tipsy('enable'); });
               },
             });
 
             currentTracks.data('listTracks')();
 
             if (browser.saveable) {
-              $('<div class="gv-tracks-menu-reset gv-menu-button"><i class="fas fa-undo"></i> Reset tracks and configuration</div>').insertAfter(currentTracks).on('click', (e) => {
+              jQuery('<div class="gv-tracks-menu-reset gv-menu-button"><i class="fas fa-undo"></i> Reset tracks and configuration</div>').insertAfter(currentTracks).on('click', (e) => {
                 e.preventDefault();
                 browser.resetConfig();
               });
@@ -306,8 +308,8 @@ const plugin = function (pluginConf) {
                 (categoryName, i, allCategoryNames) => {
                   const parentEl = (
                     allCategoryNames.length > 1
-                      ? $('<div class="gv-tracks-library-category">').append(
-                        $('<div class="gv-tracks-library-category-header">').html(categoryName || 'Other')
+                      ? jQuery('<div class="gv-tracks-library-category">').append(
+                        jQuery('<div class="gv-tracks-library-category-header">').html(categoryName || 'Other')
                       ).appendTo(availableTracks)
                       : availableTracks
                   );
@@ -316,8 +318,8 @@ const plugin = function (pluginConf) {
                     (row) => {
                       const track = row[1];
 
-                      $('<div class="gv-tracks-library-item">').append(
-                        $('<i class="gv-add-track gv-menu-button fas fa-plus-circle">').on('click', () => {
+                      jQuery('<div class="gv-tracks-library-item">').append(
+                        jQuery('<i class="gv-add-track gv-menu-button fas fa-plus-circle">').on('click', () => {
                           browser.trackIds                     = browser.trackIds || {};
                           browser.trackIds[track.prototype.id] = browser.trackIds[track.prototype.id] || 1;
 
@@ -332,16 +334,16 @@ const plugin = function (pluginConf) {
 
             menu.css({ left: '50%', marginLeft: menu.width() / -2 });
 
-            $(this).data('menu', menu);
+            jQuery(this).data('menu', menu);
           }
 
-          $(this).addClass('gv-active');
+          jQuery(this).addClass('gv-active');
         }
       });
 
       this.labelContainer.prepend(
-        $('<li class="gv-unsortable">').append(
-          $('<div class="gv-button-set" title="Tracks menu">').append(tracksButton)
+        jQuery('<li class="gv-unsortable">').append(
+          jQuery('<div class="gv-button-set" title="Tracks menu">').append(tracksButton)
         )
       );
     },
@@ -369,12 +371,12 @@ const plugin = function (pluginConf) {
 
         if (menu) {
           menu.find('.gv-tracks-menu-track').filter(function () {
-            return $(this).data('track') === track;
+            return jQuery(this).data('track') === track;
           }).children('.gv-tracks-menu-track-name').attr('title', name).each(function () {
             if (name === track.defaultName) {
-              $(this).tipsy('hide').tipsy('disable');
+              jQuery(this).tipsy('hide').tipsy('disable');
             } else {
-              $(this).tipsy('enable');
+              jQuery(this).tipsy('enable');
             }
           });
         }

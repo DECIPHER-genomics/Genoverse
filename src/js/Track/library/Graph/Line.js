@@ -27,7 +27,7 @@ const Controller = {
     return [
       this.model.sortFeatures(
         Object.keys(features).map(
-          k => $.extend(true, {}, features[k], { clickedCoords: features[k].coords.filter(c => c[0] >= xRange[0] && c[0] <= xRange[1]) })
+          k => this.browser.jQuery.extend(true, {}, features[k], { clickedCoords: features[k].coords.filter(c => c[0] >= xRange[0] && c[0] <= xRange[1]) })
         )
       ),
     ];

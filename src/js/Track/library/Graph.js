@@ -213,7 +213,7 @@ export default Track.extend({
     this.range       = this.yRange || [ 0, this.height ];
     this.rescaleable = this.rescaleableY;
 
-    if ($.isPlainObject(this.margin)) {
+    if (this.browser.jQuery.isPlainObject(this.margin)) {
       if (this.invert) {
         this.marginTop = this.margin.bottom;
         this.margin    = this.margin.top;
@@ -246,21 +246,22 @@ export default Track.extend({
   },
 
   setMVC: function (...args) {
+    const jQuery        = this.browser.jQuery;
     const hadController = this.controller instanceof TrackController;
     const rtn           = this.base(...args);
 
     if (!hadController) {
       const scrollContainer = this.prop('scrollContainer');
 
-      this.yAxisPlaceholder = $('<div class="gv-image-container gv-loading">');
-      this.yAxisCanvas      = $('<canvas class="gv-image-container gv-barchart-axis">').attr('width', this.width);
-      this.guidelinesCanvas = $('<canvas class="gv-image-container gv-barchart-guide">').attr('width', this.width);
+      this.yAxisPlaceholder = jQuery('<div class="gv-image-container gv-loading">');
+      this.yAxisCanvas      = jQuery('<canvas class="gv-image-container gv-barchart-axis">').attr('width', this.width);
+      this.guidelinesCanvas = jQuery('<canvas class="gv-image-container gv-barchart-guide">').attr('width', this.width);
 
       if (this.disabled) {
         this.yAxisCanvas.add(this.guidelinesCanvas).attr('height', 0);
       }
 
-      this.offsetContainer = $('<div class="gv-scroll-container-offset">')
+      this.offsetContainer = this.browser.jQuery('<div class="gv-scroll-container-offset">')
         .width(this.width)
         .insertAfter(scrollContainer)
         .append(scrollContainer)

@@ -1,16 +1,20 @@
 import '../../css/fileDrop.css';
 
 const plugin = function () {
+  const jQuery = this.jQuery;
+
   this.on('afterInit', function () {
     const browser = this;
     const wrapper = this.wrapper;
 
-    $(window).on('dragenter', (e) => {
+    jQuery(window).on('dragenter', (e) => {
       const dataTransfer = e.originalEvent.dataTransfer;
 
-      if (dataTransfer?.types && (dataTransfer.types[0] === 'Files' || dataTransfer.types[1] === 'Files' || dataTransfer.types[2] === 'Files') && !$('.gv-file-drop-total-overlay').length) {
-        const fileDropDiv      = $('<div class="gv-file-drop">').appendTo(wrapper);
-        const totalDropOverlay = $('<div class="gv-file-drop-total-overlay">').prependTo('body');
+      if (dataTransfer?.types && (
+        dataTransfer.types[0] === 'Files' || dataTransfer.types[1] === 'Files' || dataTransfer.types[2] === 'Files'
+      ) && !jQuery('.gv-file-drop-total-overlay').length) {
+        const fileDropDiv      = jQuery('<div class="gv-file-drop">').appendTo(wrapper);
+        const totalDropOverlay = jQuery('<div class="gv-file-drop-total-overlay">').prependTo('body');
 
         const dragleave = () => {
           fileDropDiv.remove();

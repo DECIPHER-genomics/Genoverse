@@ -4,7 +4,7 @@ const Controller = TrackController.extend({
   addDomElements: function () {
     this.base();
 
-    this.image = $('<img>').appendTo(this.imgContainer);
+    this.image = this.browser.jQuery('<img>').appendTo(this.imgContainer);
 
     this.container.toggleClass('gv-track-container gv-track-container-static').prepend(this.imgContainer);
     this.scrollContainer.add(this.messageContainer).remove();
@@ -28,7 +28,7 @@ const Controller = TrackController.extend({
 
   makeImage: function (params) {
     if (this.prop('disabled')) {
-      return $.Deferred().resolve();
+      return this.browser.jQuery.Deferred().resolve();
     }
 
     const features = this.view.positionFeatures(this.model.findFeatures(params.chr, params.start, params.end), params);
@@ -50,7 +50,7 @@ const Controller = TrackController.extend({
       }
     }
 
-    return $.Deferred().resolve();
+    return this.browser.jQuery.Deferred().resolve();
   },
 });
 

@@ -28,9 +28,11 @@ export default Track.extend({
   },
 
   getData: function (chr, start, end) {
-    this.receiveData($.extend(true, [], this.browser.genome[chr].bands), chr, start, end);
+    const jQuery = this.browser.jQuery;
 
-    return $.Deferred().resolve();
+    this.receiveData(jQuery.extend(true, [], this.browser.genome[chr].bands), chr, start, end);
+
+    return jQuery.Deferred().resolveWith(this);
   },
 
   insertFeature: function (feature) {

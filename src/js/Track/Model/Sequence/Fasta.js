@@ -10,16 +10,17 @@ export default Model.extend({
   // TODO: Check if URL provided
 
   getData: function (chr, start, end) {
-    const deferred = $.Deferred();
+    const jQuery   = this.browser.jQuery;
+    const deferred = jQuery.Deferred();
 
-    $.when(this.getStartByte()).done(() => {
+    jQuery.when(this.getStartByte()).done(() => {
       start = start - (start % this.chunkSize) + 1;
       end   = end + this.chunkSize - (end % this.chunkSize);
 
       const startByte = start - 1 + Math.floor((start - 1) / this.lineLength) + this.startByte;
       const endByte   = end   - 1 + Math.floor((end   - 1) / this.lineLength) + this.startByte;
 
-      $.ajax({
+      jQuery.ajax({
         url       : this.parseURL(),
         dataType  : this.dataType,
         headers   : { Range: `bytes=${startByte}-${endByte}` },
@@ -44,7 +45,7 @@ export default Model.extend({
     }
 
     if (this.startByte === undefined || this.lineLength === undefined) {
-      this.startByteRequest = $.ajax({
+      this.startByteRequest = this.browser.jQuery.ajax({
         url       : this.parseURL(),
         dataType  : 'text',
         headers   : { 'Range': 'bytes=0-300' },

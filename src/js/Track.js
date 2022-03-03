@@ -111,7 +111,7 @@ const Track = Base.extend({
 
     this._defaults = this._defaults || {};
 
-    const settings           = $.extend(true, {}, this.constructor.prototype, this.getSettingsForLength()[1]); // model, view, options
+    const settings           = this.browser.jQuery.extend(true, {}, this.constructor.prototype, this.getSettingsForLength()[1]); // model, view, options
     const controllerSettings = { prop: {}, func: {} };
     const trackSettings      = {};
 
@@ -143,7 +143,7 @@ const Track = Base.extend({
 
     // If there are configSettings for the track, ensure that any properties in _currentConfig are set for the model/view/controller/track as appropriate.
     // Functions in _currentConfig are accessed via functionWrap in wrap-functions.js, so nothing needs to be done with them here.
-    if (!$.isEmptyObject(this._currentConfig)) {
+    if (!this.browser.jQuery.isEmptyObject(this._currentConfig)) {
       const changed = {};
 
       Object.entries(this._currentConfig.prop).forEach(
@@ -216,7 +216,7 @@ const Track = Base.extend({
 
   newMVC: function (object, functions, properties) {
     return new (object.extend(
-      $.extend(true, {}, {
+      this.browser.jQuery.extend(true, {}, {
         ...object.prototype,
         ...functions,
         prop: this.prop.bind(this),
@@ -232,6 +232,7 @@ const Track = Base.extend({
   setLengthMap: function () {
     const models = {};
     const views  = {};
+    const jQuery = this.browser.jQuery;
 
     const compare = (a, b) => {
       const checked = { browser: true, width: true, track: true }; // Properties set in newMVC should be ignored, as they will be missing if comparing an object with a prototype
@@ -251,7 +252,7 @@ const Track = Base.extend({
           if (a[key].toString() !== b[key].toString()) {
             return false;
           }
-        } else if (typeof a[key] === 'object' && !(a[key] instanceof $) && !compare(a[key], b[key])) {
+        } else if (typeof a[key] === 'object' && !(a[key] instanceof jQuery) && !compare(a[key], b[key])) {
           return false;
         } else if (a[key] !== b[key]) {
           return false;
@@ -281,7 +282,7 @@ const Track = Base.extend({
               model         : Model,
               view          : View,
             }
-            : $.extend(true, {}, value),
+            : jQuery.extend(true, {}, value),
         ]);
       }
     }
@@ -304,11 +305,11 @@ const Track = Base.extend({
         // Ensure that every lengthMap entry has a model and view property, copying them from entries with smaller lengths if needed.
         for (let j = i + 1; j < lengthMap.length; j++) {
           if (!trackConfig.model && lengthMap[j][1].model) {
-            trackConfig.model = makeDeepCopy.model ? Model.extend($.extend(true, {}, lengthMap[j][1].model.prototype)) : lengthMap[j][1].model;
+            trackConfig.model = makeDeepCopy.model ? Model.extend(jQuery.extend(true, {}, lengthMap[j][1].model.prototype)) : lengthMap[j][1].model;
           }
 
           if (!trackConfig.view && lengthMap[j][1].view) {
-            trackConfig.view = makeDeepCopy.view ? View.extend($.extend(true, {}, lengthMap[j][1].view.prototype)) : lengthMap[j][1].view;
+            trackConfig.view = makeDeepCopy.view ? View.extend(jQuery.extend(true, {}, lengthMap[j][1].view.prototype)) : lengthMap[j][1].view;
           }
 
           if (trackConfig.model && trackConfig.view) {
@@ -322,7 +323,7 @@ const Track = Base.extend({
     lengthMap.forEach(
       ([ threshold, trackConfig ], i) => {
         const prevLengthMap = lengthMap[i - 1] ? lengthMap[i - 1][1] : {};
-        const settings      = $.extend(true, {}, this.constructor.prototype, trackConfig);
+        const settings      = jQuery.extend(true, {}, this.constructor.prototype, trackConfig);
         const mvSettings    = { model: { prop: {}, func: {} }, view: { prop: {}, func: {} } };
 
         // Work out which settings belong to models or views
@@ -462,7 +463,7 @@ const Track = Base.extend({
   },
 
   _setCurrentConfig: function () {
-    const controls       = (Array.isArray(this.controls) ? this.controls : []).reduce((acc, control) => acc.add(control), $());
+    const controls       = (Array.isArray(this.controls) ? this.controls : []).reduce((acc, control) => acc.add(control), this.browser.jQuery());
     const featureFilters = [];
 
     let settings   = [];
@@ -497,7 +498,7 @@ const Track = Base.extend({
     if (settings.length) {
       configName = configName.filter(Boolean);
 
-      settings = $.extend(true, {}, ...settings, {
+      settings = this.browser.jQuery.extend(true, {}, ...settings, {
         featureFilters : featureFilters,
         name           : `${this.defaultName}${configName.length ? ` - ${configName.join(', ')}` : ''}`,
         configName     : [ this.defaultName ].concat(configName),

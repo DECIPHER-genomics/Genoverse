@@ -1,4 +1,5 @@
 const Genoverse = require('../src/js/Genoverse').default;
+const $         = require('../src/js/lib/jquery').default;
 
 Genoverse.configure({ css: false, fontawesome: false });
 
@@ -73,6 +74,7 @@ const afterTest = () => {
 };
 
 module.exports = {
+  $,
   Genoverse,
   testTrackRender,
   testTrackRenderStatic,

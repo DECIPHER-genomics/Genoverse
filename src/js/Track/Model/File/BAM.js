@@ -4,7 +4,7 @@ import Model                           from '../File';
 
 export default Model.extend({
   getData: function (chr, start, end) {
-    const deferred = $.Deferred();
+    const deferred = this.browser.jQuery.Deferred();
 
     if (!this.bamFile) {
       if (this.url) {

@@ -1,4 +1,4 @@
-const { Genoverse, afterTest } = require('./utils');
+const { $, Genoverse, afterTest } = require('./utils');
 
 // TODO: unsortable, particularly with unsortable order=9e99, then adding another track
 

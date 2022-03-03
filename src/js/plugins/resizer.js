@@ -1,6 +1,8 @@
 import '../../css/resizer.css';
 
 const plugin = function () {
+  const jQuery = this.jQuery;
+
   this.on('afterSetMVC', 'tracks', function () {
     if (this.prop('resizable') !== true) {
       return;
@@ -13,13 +15,13 @@ const plugin = function () {
     let resizer = this.prop('resizer');
 
     if (!resizer) {
-      resizer = this.prop('resizer', $('<div class="gv-resizer gv-static"><div class="gv-handle"></div></div>').appendTo(track.prop('container')).draggable({
+      resizer = this.prop('resizer', jQuery('<div class="gv-resizer gv-static"><div class="gv-handle"></div></div>').appendTo(track.prop('container')).draggable({
         axis  : 'y',
-        start : () => { $('body').addClass('gv-dragging'); },
+        start : () => { jQuery('body').addClass('gv-dragging'); },
         stop  : function (e, ui) {
-          $('body').removeClass('gv-dragging');
+          jQuery('body').removeClass('gv-dragging');
           controller.resize(track.prop('height') + ui.position.top - ui.originalPosition.top, true);
-          $(this).css({ top: 'auto', bottom: 0 }); // returns the resizer to the bottom of the container - needed when the track is resized to 0
+          jQuery(this).css({ top: 'auto', bottom: 0 }); // returns the resizer to the bottom of the container - needed when the track is resized to 0
         },
       }).on('click', () => {
         const h = track.prop('fullVisibleHeight');

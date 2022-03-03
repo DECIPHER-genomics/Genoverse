@@ -7,13 +7,14 @@ export default Track.extend({
   name  : 'bigbed',
   model : Model.extend({
     getData: function (chr, start, end) {
-      const deferred = $.Deferred();
+      const jQuery   = this.browser.jQuery;
+      const deferred = jQuery.Deferred();
 
       if (!this.bigbedFile) {
         this.bigbedFile = this.bigbedFile || (this.url ? new URLFetchable(this.url) : new BlobFetchable(this.track.dataFile));
       }
 
-      const d = $.Deferred().done(() => {
+      const d = jQuery.Deferred().done(() => {
         this.bwReader.getValues(chr, start, end, (features, error) => {
           if (!error) {
             features.sort((a, b) => a.start - b.start);

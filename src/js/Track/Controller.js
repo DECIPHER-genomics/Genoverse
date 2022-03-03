@@ -67,7 +67,7 @@ export default Base.extend({
 
   setName: function (name, configName) {
     this.track.name = name;
-    this.labelName  = this.labelName || $('<span class="gv-name">').appendTo(this.label);
+    this.labelName  = this.labelName || this.browser.jQuery('<span class="gv-name">').appendTo(this.label);
 
     this.labelName.attr('title', name).html(
       configName && configName.length
@@ -85,15 +85,16 @@ export default Base.extend({
   },
 
   addDomElements: function () {
-    const name = this.track.name || '';
+    const name   = this.track.name || '';
+    const jQuery = this.browser.jQuery;
 
-    this.menus            = $();
-    this.container        = $('<div class="gv-track-container">').appendTo(this.browser.wrapper);
-    this.scrollContainer  = $('<div class="gv-scroll-container">').appendTo(this.container);
-    this.imgContainer     = $('<div class="gv-image-container">').width(this.width).addClass(this.prop('invert') ? 'gv-invert' : '');
-    this.label            = $('<li>').appendTo(this.browser.labelContainer).height(this.prop('height')).data('track', this.track);
-    this.context          = $('<canvas>')[0].getContext('2d');
-    this.messageContainer = $(`
+    this.menus            = jQuery();
+    this.container        = jQuery('<div class="gv-track-container">').appendTo(this.browser.wrapper);
+    this.scrollContainer  = jQuery('<div class="gv-scroll-container">').appendTo(this.container);
+    this.imgContainer     = jQuery('<div class="gv-image-container">').width(this.width).addClass(this.prop('invert') ? 'gv-invert' : '');
+    this.label            = jQuery('<li>').appendTo(this.browser.labelContainer).height(this.prop('height')).data('track', this.track);
+    this.context          = jQuery('<canvas>')[0].getContext('2d');
+    this.messageContainer = jQuery(`
       <div class="gv-message-container">
         <div class="gv-messages"></div>
         <i class="gv-control gv-collapse fas fa-angle-double-left"></i>
@@ -102,17 +103,17 @@ export default Base.extend({
     `).appendTo(this.container);
 
     if (this.prop('border')) {
-      $('<div class="gv-track-border">').appendTo(this.container);
+      jQuery('<div class="gv-track-border">').appendTo(this.container);
     }
 
     if (this.prop('unsortable')) {
       this.label.addClass('gv-unsortable');
     } else {
-      $('<div class="gv-handle">').appendTo(this.label);
+      jQuery('<div class="gv-handle">').appendTo(this.label);
     }
 
     if (this.prop('children')) {
-      this.superContainer = $('<div class="gv-track-container gv-track-super-container">').insertAfter(this.container);
+      this.superContainer = jQuery('<div class="gv-track-container gv-track-super-container">').insertAfter(this.container);
       this.container.appendTo(this.superContainer);
     } else if (this.prop('parentTrack')) {
       this.superContainer = this.prop('parentTrack').prop('superContainer');
@@ -154,7 +155,7 @@ export default Base.extend({
   },
 
   click: function (e) {
-    const target = $(e.target);
+    const target = this.browser.jQuery(e.target);
     const x      = e.pageX - this.container.parent().offset().left + this.browser.scaledStart;
 
     let y = e.pageY - target.offset().top;
@@ -201,7 +202,7 @@ export default Base.extend({
     let messages = this.messageContainer.children('.gv-messages');
 
     if (!messages.children(`.gv-${code}`).show().length) {
-      const msg = $(`<div class="gv-msg gv-${code}">${this.messages[code]}${additionalText || ''}</div>`).data('code', code).prependTo(messages);
+      const msg = this.browser.jQuery(`<div class="gv-msg gv-${code}">${this.messages[code]}${additionalText || ''}</div>`).data('code', code).prependTo(messages);
 
       if (code === 'resize') {
         const controller = this;
@@ -341,7 +342,7 @@ export default Base.extend({
         this.resize(h, undefined, saveConfig);
       }
 
-      this.expander = (this.expander || $('<div class="gv-expander gv-static">').width(this.width).appendTo(this.container).on('click', () => {
+      this.expander = (this.expander || this.browser.jQuery('<div class="gv-expander gv-static">').width(this.width).appendTo(this.container).on('click', () => {
         controller.resize(controller.fullVisibleHeight);
       }))[this.prop('height') === 0 ? 'hide' : 'show']();
     } else if (this.expander) {
@@ -469,12 +470,13 @@ export default Base.extend({
     params.labelHeight   = params.labelHeight   || 0;
 
     const controller = this;
+    const jQuery     = this.browser.jQuery;
     const tooLarge   = this.browser.length > this.threshold;
     const div        = this.imgContainer.clone().addClass((`${params.cls} gv-loading`).replace('.', '_')).css({ left: params.left, display: params.cls === this.scrollStart ? 'block' : 'none' });
-    const bgImage    = params.background ? $('<img class="gv-bg">').hide().addClass(params.background).data(params).prependTo(div) : false;
-    const image      = $('<img class="gv-data">').hide().data(params).appendTo(div).on('load', function () {
-      $(this).fadeIn('fast').parent().removeClass('gv-loading');
-      $(this).siblings('.gv-bg').show();
+    const bgImage    = params.background ? jQuery('<img class="gv-bg">').hide().addClass(params.background).data(params).prependTo(div) : false;
+    const image      = this.browser.jQuery('<img class="gv-data">').hide().data(params).appendTo(div).on('load', function () {
+      jQuery(this).fadeIn('fast').parent().removeClass('gv-loading');
+      jQuery(this).siblings('.gv-bg').show();
     });
 
     let deferred;
@@ -493,7 +495,7 @@ export default Base.extend({
     }
 
     if (!deferred) {
-      deferred = $.Deferred();
+      deferred = jQuery.Deferred();
       setTimeout(deferred.resolve, 1); // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
     }
 
@@ -515,7 +517,8 @@ export default Base.extend({
   },
 
   makeFirstImage: function (moveTo) {
-    const deferred = $.Deferred();
+    const jQuery   = this.browser.jQuery;
+    const deferred = jQuery.Deferred();
 
     if (this.scrollContainer.children().hide().filter(`.${moveTo || this.scrollStart}`).show().length) {
       this.scrollContainer.css('left', 0);
@@ -552,7 +555,7 @@ export default Base.extend({
     const loading = this.imgContainer.clone().addClass('gv-loading').css({ left: left, width: width }).prependTo(this.scrollContainer.css('left', 0));
 
     function makeImages() {
-      $.when(...images.map(image => controller.makeImage(image))).done(deferred.resolve);
+      jQuery.when(...images.map(image => controller.makeImage(image))).done(deferred.resolve);
 
       loading.remove();
     }
@@ -576,7 +579,7 @@ export default Base.extend({
     // positionFeatures alters params.featureHeight, so this must happen before the canvases are created
     features = this.view.positionFeatures(this.view.scaleFeatures(features, params.scale), params);
 
-    const featureCanvas = $('<canvas>').attr({ width: params.width, height: params.featureHeight || 1 });
+    const featureCanvas = this.browser.jQuery('<canvas>').attr({ width: params.width, height: params.featureHeight || 1 });
     const labelCanvas   = this.prop('labels') === 'separate' && params.labelHeight ? featureCanvas.clone().attr('height', params.labelHeight) : featureCanvas;
 
     const featureContext = featureCanvas[0].getContext('2d');
@@ -610,7 +613,7 @@ export default Base.extend({
   },
 
   renderBackground: function (features, img, height) {
-    const canvas = $('<canvas>').attr({ width: this.width, height: height || 1 })[0];
+    const canvas = this.browser.jQuery('<canvas>').attr({ width: this.width, height: height || 1 })[0];
 
     this.view.drawBackground(features, canvas.getContext('2d'), img.data());
     img.attr('src', canvas.toDataURL());

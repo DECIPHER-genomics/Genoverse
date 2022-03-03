@@ -52,7 +52,7 @@ export default Base.extend({
       }
     );
 
-    this.context       = $('<canvas>')[0].getContext('2d');
+    this.context       = this.browser.jQuery('<canvas>')[0].getContext('2d');
     this.featureHeight = typeof this.featureHeight !== 'undefined' ? this.featureHeight : this.prop('defaultHeight');
     this.font          = `${this.fontWeight} ${this.fontHeight}px ${this.fontFamily}`;
     this.labelUnits    = [ 'bp', 'kb', 'Mb', 'Gb', 'Tb' ];
@@ -75,7 +75,7 @@ export default Base.extend({
       const featurePositions = new RTree();
 
       this.scaleSettings[chr][scale] = {
-        imgContainers    : $(),
+        imgContainers    : this.browser.jQuery(),
         featurePositions : featurePositions,
         labelPositions   : this.labels === 'separate' ? new RTree() : featurePositions,
       };
@@ -353,8 +353,8 @@ export default Base.extend({
   },
 
   drawSubFeatures: function (feature, featureContext, labelContext, scale) {
-    const clonedFeature = $.extend(true, {}, feature, { subFeatures: false, label: false });
-    const subFeatures   = $.extend(true, [], feature.subFeatures);
+    const clonedFeature = this.browser.jQuery.extend(true, {}, feature, { subFeatures: false, label: false });
+    const subFeatures   = this.browser.jQuery.extend(true, [], feature.subFeatures);
     const joinColor     = feature.joinColor || feature.color;
 
     subFeatures.forEach(

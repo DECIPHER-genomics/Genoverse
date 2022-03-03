@@ -18,7 +18,7 @@ export default Model.extend({
   getData: function (chr, ...args) {
     if (this.isLocal && this.dataFile) {
       const reader   = new FileReader();
-      const deferred = $.Deferred();
+      const deferred = this.browser.jQuery.Deferred();
 
       reader.onload = (e) => {
         deferred.done(() => {

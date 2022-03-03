@@ -2,9 +2,11 @@ import '../../css/karyotype.css';
 import Chromosome from '../Track/library/Chromosome';
 
 const plugin = function (pluginConf) {
+  const jQuery = this.jQuery;
+
   function createKaryotype() {
-    const chromosome   = $('<div class="gv-chromosome">');
-    const container    = $('<div class="gv-karyotype-container">').html(chromosome).insertBefore(this.wrapper);
+    const chromosome   = jQuery('<div class="gv-chromosome">');
+    const container    = jQuery('<div class="gv-karyotype-container">').html(chromosome).insertBefore(this.wrapper);
     const assemblyName = this.assembly || this.genomeName;
     const name         = `${pluginConf.showAssembly && assemblyName ? `${assemblyName}: ` : ''}Chr ${this.chr}`;
 
@@ -12,7 +14,7 @@ const plugin = function (pluginConf) {
       container.addClass('gv-show-assembly');
     }
 
-    const measureWidth = $(`<div class="gv-chromosome"><ul class="gv-label-container"><li><span class="gv-name">${name}</span></li></ul></div>`).appendTo(container);
+    const measureWidth = jQuery(`<div class="gv-chromosome"><ul class="gv-label-container"><li><span class="gv-name">${name}</span></li></ul></div>`).appendTo(container);
     const labelWidth   = pluginConf.karyotypeLabel === false ? 0 : measureWidth.find('.gv-name').outerWidth(true) + 10;
 
     measureWidth.remove();
@@ -51,7 +53,7 @@ const plugin = function (pluginConf) {
                 if (f.label) {
                   const left = offset + f.position[this.scale].start + f.position[this.scale].width / 2;
 
-                  this.container.attr('title', f.label[0]).tipsy({ trigger: 'manual', container: 'body' }).tipsy('show').data('tipsy').$tip.css('left', function () { return left - $(this).width() / 2; });
+                  this.container.attr('title', f.label[0]).tipsy({ trigger: 'manual', container: 'body' }).tipsy('show').data('tipsy').$tip.css('left', function () { return left - jQuery(this).width() / 2; });
                 }
 
                 this.hoverFeature = f;
@@ -112,7 +114,7 @@ const plugin = function (pluginConf) {
           karyotype.hideTooltip = false;
 
           const scale = karyotype.chromosomeSize / karyotype.width;
-          const axis  = e.type === 'resizestop' ? $(this).data('ui-resizable').axis : undefined;
+          const axis  = e.type === 'resizestop' ? jQuery(this).data('ui-resizable').axis : undefined;
           const start = axis === 'e' ? parent.start : Math.max(Math.floor(ui.position.left * scale), 1);
           const end   = axis === 'w' ? parent.end   : e.type === 'dragstop' ? start + parent.length - 1 : Math.floor(ui.helper.outerWidth(true) * scale) + start;
 
@@ -123,19 +125,19 @@ const plugin = function (pluginConf) {
 
         if (pluginConf.karyotypeLabel === false) {
           this.labelContainer.remove();
-          this.labelContainer = $();
+          this.labelContainer = jQuery();
           container.addClass('gv-no-label');
         } else {
           this.labelContainer.width(labelWidth);
         }
 
-        this.viewPoint = $('<div class="gv-karyotype-viewpoint-wrapper"><div class="gv-karyotype-viewpoint"></div></div>').appendTo(container).css({
+        this.viewPoint = jQuery('<div class="gv-karyotype-viewpoint-wrapper"><div class="gv-karyotype-viewpoint"></div></div>').appendTo(container).css({
           left  : labelWidth,
           width : this.width - labelWidth,
         }).children().on({
           mousemove : (e) => { karyotype.track.controller.click(e); },
           mouseout  : (e) => {
-            const el = $(e.relatedTarget);
+            const el = jQuery(e.relatedTarget);
 
             if (karyotype.viewPoint.is(el) || karyotype.viewPoint.find(el).length || (el.prop('nodeName') === 'IMG' && el.parent().is(karyotype.track.prop('imgContainers')[0]))) {
               return true;
@@ -179,7 +181,7 @@ const plugin = function (pluginConf) {
     });
 
     if (this.loadedPlugins.controlPanel !== true) {
-      $('<li class="gv-unsortable">').height((i, h) => h + container.height()).prependTo(this.labelContainer);
+      jQuery('<li class="gv-unsortable">').height((i, h) => h + container.height()).prependTo(this.labelContainer);
     }
   }
 

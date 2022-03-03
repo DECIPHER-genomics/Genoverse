@@ -74,7 +74,7 @@ export default Track.extend({
   },
 
   populateMenu: function (feature) {
-    const deferred = $.Deferred();
+    const deferred = this.browser.jQuery.Deferred();
     const menu     = [{
       title       : `<a href="https://www.ensembl.org/Homo_sapiens/Variation/Summary?v=${feature.id}" target="_blank">${feature.id}</a>`,
       Location    : `${feature.chr}:${feature.start}-${feature.end}`,
@@ -82,7 +82,7 @@ export default Track.extend({
       Alleles     : feature.alleles.join(', '),
     }];
 
-    $.ajax({
+    this.browser.jQuery.ajax({
       url      : `//rest.ensembl.org/variation/human/${feature.id}?population_genotypes=1;content-type=application/json`,
       dataType : 'json',
       success  : function (data) {

@@ -145,6 +145,8 @@ export default Track.extend({
     },
 
     click: function (...args) {
+      const jQuery = this.browser.jQuery;
+
       if (this.prop('strand') !== 1) {
         return;
       }
@@ -155,7 +157,7 @@ export default Track.extend({
         const track = this.track;
 
         menuEl.find('.gv-remove-highlight').on('click', function () {
-          const id = $(this).data('id');
+          const id = jQuery(this).data('id');
 
           track.removeHighlights(menuEl.data('feature').filter(f => f.id === id));
 
@@ -169,7 +171,7 @@ export default Track.extend({
         });
 
         menuEl.find('.gv-focus-highlight').on('click', function () {
-          const data    = $(this).data();
+          const data    = jQuery(this).data();
           const length  = data.end - data.start + 1;
           const context = Math.max(Math.round(length / 4), 25);
 
@@ -254,6 +256,8 @@ export default Track.extend({
     },
 
     drawBackground: function (features, context, params) {
+      const jQuery = this.browser.jQuery;
+
       if (this.prop('strand') === -1) {
         return;
       }
@@ -263,7 +267,7 @@ export default Track.extend({
           context.fillStyle = feature.color;
 
           this.drawFeature(
-            $.extend(true, {}, feature, {
+            jQuery.extend(true, {}, feature, {
               x           : feature.position[params.scale].X,
               y           : 0,
               width       : feature.position[params.scale].width,

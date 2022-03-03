@@ -11,7 +11,6 @@ module.exports = {
     browser : true,
     es6     : true,
     node    : true,
-    jquery  : true,
   },
   plugins: [
     'align-assignments',

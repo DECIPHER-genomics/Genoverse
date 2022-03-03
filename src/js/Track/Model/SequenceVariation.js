@@ -14,7 +14,7 @@ export default Model.extend({
 
   getData: function (chr, start, end) {
     const model    = this;
-    const deferred = $.Deferred();
+    const deferred = this.browser.jQuery.Deferred();
     const seqData  = this.getSeqModel().checkDataRange(chr, start, end);
 
     this.base(chr, start, end).done(() => {

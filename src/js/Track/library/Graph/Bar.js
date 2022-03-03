@@ -140,6 +140,7 @@ const View = TrackView.extend({
   },
 
   draw: function (features, featureContext, labelContext, scale) {
+    const jQuery       = this.browser.jQuery;
     const datasets     = this.featureDataSets(features);
     const marginBottom = this.prop('margin');
     const binSize      = scale < 1 ? Math.ceil(1 / scale) : 0;
@@ -153,7 +154,7 @@ const View = TrackView.extend({
         const conf = { ...defaults, ...config };
         const set  = config.name;
 
-        let setFeatures = $.extend(true, [], datasets.features[set] || []);
+        let setFeatures = jQuery.extend(true, [], datasets.features[set] || []);
 
         if (!setFeatures.length) {
           return;
@@ -172,7 +173,7 @@ const View = TrackView.extend({
               bin.push(setFeatures[i++]);
             }
 
-            const feature = $.extend(true, {}, bin[0], {
+            const feature = jQuery.extend(true, {}, bin[0], {
               height : bin.reduce((a, b) => a + b.height, 0) / bin.length,
               end    : bin[bin.length - 1].end,
             });
