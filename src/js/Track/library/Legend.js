@@ -119,6 +119,10 @@ export default Static.extend({
   setEvents: function () {
     this.browser.on({
       'afterAddTracks afterRemoveTracks': function () {
+        if (this.destroying) {
+          return;
+        }
+
         Object.values(this.legends).forEach(
           legend => legend.setTracks()
         );
@@ -126,6 +130,10 @@ export default Static.extend({
         this.sortTracks();
       },
       afterRemoveTracks: function (tracks) {
+        if (this.destroying) {
+          return;
+        }
+
         tracks.forEach(
           (track) => {
             if (track.legendTrack && track.legendTrack.tracks.length === 0) {

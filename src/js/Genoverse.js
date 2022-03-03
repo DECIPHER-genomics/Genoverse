@@ -1587,6 +1587,8 @@ const Genoverse = Base.extend({
   },
 
   destroy: function () {
+    this.destroying = true;
+
     this.onTracks('destructor');
     (this.superContainer || this.container).empty();
 

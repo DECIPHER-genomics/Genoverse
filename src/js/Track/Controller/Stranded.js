@@ -71,11 +71,11 @@ export default Controller.extend({
   },
 
   destroy: function () {
-    if (this.removing) {
+    if (this.destroying) {
       return;
     }
 
-    this.removing = true;
+    this.destroying = true;
 
     this.browser.removeTrack(this.prop('forwardTrack') || this.prop('reverseTrack'));
     this.base();
