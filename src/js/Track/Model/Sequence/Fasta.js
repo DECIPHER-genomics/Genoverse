@@ -12,7 +12,7 @@ export default Model.extend({
   getData: function (chr, start, end) {
     const deferred = $.Deferred();
 
-    $.when(this.getStartByte()).done(function () {
+    $.when(this.getStartByte()).done(() => {
       start = start - (start % this.chunkSize) + 1;
       end   = end + this.chunkSize - (end % this.chunkSize);
 
