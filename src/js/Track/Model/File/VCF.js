@@ -18,7 +18,7 @@ export default Model.extend({
         this.vcfFile = new BlobFetchable(this.dataFile);
         this.tbiFile = new BlobFetchable(this.indexFile);
       } else {
-        return deferred.rejectWith(this, [ 'GZipped VCF files must be accompanied by a .tbi index file' ]);
+        return deferred.reject(new Error('GZipped VCF files must be accompanied by a .tbi index file'));
       }
     }
 
@@ -27,7 +27,7 @@ export default Model.extend({
 
       vcf.getRecords(chr, start, end, (records) => {
         this.receiveData(records, chr, start, end);
-        deferred.resolveWith(this);
+        deferred.resolve();
       });
     });
 

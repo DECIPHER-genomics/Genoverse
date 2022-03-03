@@ -30,7 +30,7 @@ export default Track.extend({
   getData: function (chr, start, end) {
     this.receiveData($.extend(true, [], this.browser.genome[chr].bands), chr, start, end);
 
-    return $.Deferred().resolveWith(this);
+    return $.Deferred().resolve();
   },
 
   insertFeature: function (feature) {

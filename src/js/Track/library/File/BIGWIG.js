@@ -30,7 +30,7 @@ export default Track.extend({
           }
         }
 
-        deferred.resolveWith(this);
+        deferred.resolve();
       });
     });
 
@@ -44,7 +44,7 @@ export default Track.extend({
         } else {
           this.receiveData([], chr, start, end);
 
-          return deferred.resolveWith(this);
+          return deferred.resolve();
         }
       }));
     }

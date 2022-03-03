@@ -14,7 +14,7 @@ export default Model.extend({
         this.bamFile = new BlobFetchable(this.dataFile);
         this.baiFile = new BlobFetchable(this.indexFile);
       } else {
-        return deferred.rejectWith(this, [ 'BAM files must be accompanied by a .bai index file' ]);
+        return deferred.reject(new Error('BAM files must be accompanied by a .bai index file'));
       }
     }
 
@@ -27,7 +27,7 @@ export default Model.extend({
             console.error(fetchBamError); // eslint-disable-line no-console
           } else {
             this.receiveData(features, chr, start, end);
-            deferred.resolveWith(this);
+            deferred.resolve();
           }
         });
       }

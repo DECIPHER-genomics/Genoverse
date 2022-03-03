@@ -27,12 +27,12 @@ export default Model.extend({
         success   : (data) =>  { this.receiveData(data, chr, start, end); },
         error     : this.track.controller.showError,
       }).done(() => {
-        deferred.resolveWith(this);
+        deferred.resolve();
       }).fail(() => {
-        deferred.rejectWith(this);
+        deferred.reject();
       });
     }).fail(() => {
-      deferred.rejectWith(this);
+      deferred.reject();
     });
 
     return deferred;

@@ -95,7 +95,7 @@ export default Base.extend({
     if (typeof this.data !== 'undefined') {
       this.receiveData(typeof this.data.sort === 'function' ? this.data.sort((a, b) => a.start - b.start) : this.data, chr, start, end);
 
-      return deferred.resolveWith(this);
+      return deferred.resolve();
     }
 
     const model  = this;
@@ -103,7 +103,7 @@ export default Base.extend({
     const length = end - start + 1;
 
     if (!this.url) {
-      return deferred.resolveWith(this);
+      return deferred.resolve();
     }
 
     if (this.dataRequestLimit && length > this.dataRequestLimit) {
@@ -153,9 +153,7 @@ export default Base.extend({
           return request;
         }
       )
-    ).done(
-      () => { deferred.resolveWith(model); }
-    );
+    ).done(deferred.resolve);
 
     return deferred;
   },

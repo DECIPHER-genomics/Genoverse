@@ -494,7 +494,7 @@ export default Base.extend({
 
     if (!deferred) {
       deferred = $.Deferred();
-      setTimeout(deferred.resolve.bind(this), 1); // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
+      setTimeout(deferred.resolve, 1); // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
     }
 
     this.deferreds.push(deferred);
