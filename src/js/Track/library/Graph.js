@@ -86,8 +86,8 @@ const Controller = TrackController.extend({
       }
     }
 
-    (this.prop('expander') || $()).hide();
-    (this.prop('resizer')  || $()).removeClass('gv-resizer-expander');
+    this.prop('expander')?.hide();
+    this.prop('resizer')?.removeClass('gv-resizer-expander');
 
     return rtn;
   },
@@ -274,8 +274,8 @@ export default Track.extend({
 
   afterSetMVC: function () {
     // Never show the control to switch between auto-height and manual resizing, since its behaviour is not the same here as for standard tracks, due to interactions between resizable and rescaleableY.
-    (this.prop('heightToggler') || $()).addClass('gv-hidden');
-    (this.prop('resizer')       || $()).off('click');
+    this.prop('heightToggler')?.addClass('gv-hidden');
+    this.prop('resizer')?.off('click');
   },
 
   reset: function (...args) {
