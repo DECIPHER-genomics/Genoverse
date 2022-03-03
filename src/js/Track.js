@@ -14,7 +14,7 @@ const Track = Base.extend({
   unsortable : false,     // Is the track unsortable by the user
   fixedOrder : false,     // Is the track unsortable by the user or automatically - use for tracks which always need to go at the top/bottom
   invert     : false,     // If true, features are drawn from the bottom of the track, rather than from the top. This is actually achieved by performing a CSS transform on the gv-image-container div
-  legend     : false,     // Does the track have a legend - can be true, false, or a Legend extension/child class.
+  legend     : false,     // Does the track have a legend - can be a Legend extension/child class, or false.
   children   : undefined, // Does the track have any child tracks - can be one or an array of Track extension/child classes.
   name       : undefined, // The name of the track, which appears in its label
   autoHeight : undefined, // Does the track automatically resize so that all the features are visible
