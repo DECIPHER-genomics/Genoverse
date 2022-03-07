@@ -1351,11 +1351,11 @@ const Genoverse = Base.extend({
     return menu;
   },
 
-  makeFeatureMenu: function (feature, e, track) {
-    const container = this.superContainer || this.container;
+  insertPropertiesIntoMenu: function (menuProperties, menuEl, contentEl, feature, track) {
+    const jQuery = this.jQuery;
 
     const focus = ({ currentTarget }) => {
-      const data    = $(currentTarget).data();
+      const data    = jQuery(currentTarget).data();
       const length  = data.end - data.start + 1;
       const context = Math.max(Math.round(length / 4), 25);
 
@@ -1365,15 +1365,80 @@ const Genoverse = Base.extend({
     };
 
     const highlight = ({ currentTarget }) => {
-      this.addHighlight($(currentTarget).data());
+      this.addHighlight(jQuery(currentTarget).data());
 
       return false;
     };
 
+    [].concat(menuProperties).forEach(
+      (properties, i) => {
+        const el      = contentEl.clone().addClass(i ? '' : 'gv-menu-content-first').appendTo(menuEl);
+        const chr     = typeof properties.chr !== 'undefined' ? properties.chr : feature.chr;
+        const start   = parseInt(typeof properties.start !== 'undefined' ? properties.start : feature.start, 10);
+        const end     = parseInt(typeof properties.end   !== 'undefined' ? properties.end   : feature.end,   10);
+        const columns = Math.max(...Object.values(properties).map(value => (Array.isArray(value) ? value.length : 1)));
+
+        let table = '';
+
+        jQuery('.gv-title', el)[properties.title ? 'html' : 'remove'](properties.title);
+
+        if (track && start && end && !this.isStatic) {
+          const linkData = {
+            chr   : chr,
+            start : start,
+            end   : Math.max(end, start),
+            label : feature.label || (properties.title || '').replace(/<[^>]+>/g, ''),
+            color : feature.color,
+          };
+
+          jQuery('.gv-focus',     el).data(linkData).on('click', focus);
+          jQuery('.gv-highlight', el).data(linkData).on('click', highlight);
+        } else {
+          jQuery('.gv-focus-highlight', el).remove();
+        }
+
+        Object.entries(properties).forEach(
+          ([ key, value ]) => {
+            if (/^start|end$/.test(key) && value === false) {
+              return;
+            }
+
+            if (key !== 'title') {
+              const colspan = value === '' ? ` colspan="${columns + 1}"` : '';
+
+              table += `<tr><td${colspan}>${key}</td>`;
+
+              if (!colspan) {
+                if (Array.isArray(value)) {
+                  value.forEach(
+                    (prop) => {
+                      table += `<td>${prop}</td>`;
+                    }
+                  );
+                } else if (columns === 1) {
+                  table += `<td>${value}</td>`;
+                } else {
+                  table += `<td colspan="${columns}">${value}</td>`;
+                }
+              }
+
+              table += '</tr>';
+            }
+          }
+        );
+
+        jQuery('table:not(.gv-focus-highlight)', el)[table ? 'html' : 'remove'](table);
+      }
+    );
+  },
+
+  makeFeatureMenu: function (feature, e, track) {
+    const container = this.superContainer || this.container;
+
     if (!feature.menuEl || feature.menuEl.data('hasErrored') === true) {
-      const menu    = this.menuTemplate.clone(true).data({ browser: this, feature: feature });
-      const content = $('.gv-menu-content', menu).remove();
-      const loading = $('.gv-menu-loading', menu);
+      const menuEl    = this.menuTemplate.clone(true).data({ browser: this, feature: feature });
+      const contentEl = $('.gv-menu-content', menuEl).remove();
+      const loading   = $('.gv-menu-loading', menuEl);
 
       let getMenu;
 
@@ -1381,7 +1446,7 @@ const Genoverse = Base.extend({
         getMenu = track ? track.controller.populateMenu(feature) : feature;
       } catch (error) {
         getMenu = $.Deferred().reject(error);
-        menu.data('hasErrored', true);
+        menuEl.data('hasErrored', true);
       }
 
       const isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
@@ -1392,66 +1457,7 @@ const Genoverse = Base.extend({
 
       $.when(getMenu).done(
         (menuProperties) => {
-          [].concat(menuProperties).forEach(
-            (properties, i) => {
-              const el      = content.clone().addClass(i ? '' : 'gv-menu-content-first').appendTo(menu);
-              const chr     = typeof properties.chr !== 'undefined' ? properties.chr : feature.chr;
-              const start   = parseInt(typeof properties.start !== 'undefined' ? properties.start : feature.start, 10);
-              const end     = parseInt(typeof properties.end   !== 'undefined' ? properties.end   : feature.end,   10);
-              const columns = Math.max(...Object.values(properties).map(value => (Array.isArray(value) ? value.length : 1)));
-
-              let table = '';
-
-              $('.gv-title', el)[properties.title ? 'html' : 'remove'](properties.title);
-
-              if (track && start && end && !this.isStatic) {
-                const linkData = {
-                  chr   : chr,
-                  start : start,
-                  end   : Math.max(end, start),
-                  label : feature.label || (properties.title || '').replace(/<[^>]+>/g, ''),
-                  color : feature.color,
-                };
-
-                $('.gv-focus',     el).data(linkData).on('click', focus);
-                $('.gv-highlight', el).data(linkData).on('click', highlight);
-              } else {
-                $('.gv-focus-highlight', el).remove();
-              }
-
-              Object.entries(properties).forEach(
-                ([ key, value ]) => {
-                  if (/^start|end$/.test(key) && value === false) {
-                    return;
-                  }
-
-                  if (key !== 'title') {
-                    const colspan = value === '' ? ` colspan="${columns + 1}"` : '';
-
-                    table += `<tr><td${colspan}>${key}</td>`;
-
-                    if (!colspan) {
-                      if (Array.isArray(value)) {
-                        value.forEach(
-                          (prop) => {
-                            table += `<td>${prop}</td>`;
-                          }
-                        );
-                      } else if (columns === 1) {
-                        table += `<td>${value}</td>`;
-                      } else {
-                        table += `<td colspan="${columns}">${value}</td>`;
-                      }
-                    }
-
-                    table += '</tr>';
-                  }
-                }
-              );
-
-              $('table:not(.gv-focus-highlight)', el)[table ? 'html' : 'remove'](table);
-            }
-          );
+          (track?.controller || this).insertPropertiesIntoMenu(menuProperties, menuEl, contentEl, feature, track);
 
           if (isDeferred) {
             loading.hide();
@@ -1460,17 +1466,17 @@ const Genoverse = Base.extend({
       ).fail(
         (error) => {
           loading.hide();
-          menu.data('hasErrored', true);
-          $('.gv-menu-error', menu).css('display', 'block');
+          menuEl.data('hasErrored', true);
+          $('.gv-menu-error', menuEl).css('display', 'block');
           console.error(error); // eslint-disable-line no-console
         }
       );
 
       if (track) {
-        menu.addClass(track.id).data('track', track);
+        menuEl.addClass(track.id).data('track', track);
       }
 
-      feature.menuEl = menu.appendTo(container);
+      feature.menuEl = menuEl.appendTo(container);
     } else {
       feature.menuEl.appendTo(container); // Move the menu to the end of the container again, so that it will always be on top of other menus
     }

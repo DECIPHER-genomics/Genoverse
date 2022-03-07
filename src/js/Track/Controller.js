@@ -638,6 +638,10 @@ export default Base.extend({
     };
   },
 
+  insertPropertiesIntoMenu: function (menuProperties, menuEl, contentEl, feature) {
+    return this.browser.insertPropertiesIntoMenu(menuProperties, menuEl, contentEl, feature, this.track);
+  },
+
   abort: function () {
     this.deferreds.forEach(
       (deferred) => {
