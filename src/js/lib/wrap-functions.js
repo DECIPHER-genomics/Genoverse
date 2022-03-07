@@ -79,7 +79,7 @@ const wrapFunctions = (obj, objType) => {
   };
 
   for (const key in obj) { // eslint-disable-line no-restricted-syntax
-    if (typeof obj[key] === 'function' && typeof obj[key].ancestor !== 'function' && !key.match(/^(base|extend|constructor|controller|model|view|on|once|prop|loadPlugins|loadGenome)$/)) {
+    if (typeof obj[key] === 'function' && typeof obj[key].ancestor !== 'function' && !key.match(/^(base|extend|constructor|controller|model|view|on|once|prop|loadPlugins|loadGenome|jQuery)$/)) {
       functionWrap(key, obj, mainObj, events, debugWrapper);
     }
   }

@@ -36,16 +36,20 @@ const Genoverse = Base.extend({
   end   : 1000000,
 
   constructor: function (config = {}) {
+    const jQuery = $;
+
+    this.jQuery = jQuery;
+
     if (!this.supported()) {
       return this.die('Your browser does not support this functionality');
     }
 
     Genoverse.configure();
 
-    let container = $(config.container); // Make sure container is a jquery object, jquery recognises itself automatically
+    let container = jQuery(config.container); // Make sure container is a jquery object, jquery recognises itself automatically
 
     if (!container?.length) {
-      container = $('<div>').appendTo('body');
+      container = jQuery('<div>').appendTo('body');
     }
 
     container.addClass('genoverse').data('genoverse', this);
@@ -62,16 +66,22 @@ const Genoverse = Base.extend({
     this.eventNamespace = `.genoverse.${++Genoverse.id}`;
     this.events         = { browser: {}, tracks: {} };
 
-    $.when(this.loadCSS(), this.loadGenome(), this.loadPlugins()).always(() => {
+    jQuery.when(
+      this.loadCSS(),
+      this.loadGenome(),
+      this.loadPlugins()
+    ).always(() => {
       wrapFunctions(this, 'Genoverse');
       this.init();
     });
   },
 
   loadCSS: function () {
-    return $.when(
-      Genoverse.importCSS         ? import('../css/genoverse.css')   : $.Deferred().resolve(),
-      Genoverse.importFontAwesome ? import('../css/fontawesome.css') : $.Deferred().resolve()
+    const jQuery = this.jQuery;
+
+    return jQuery.when(
+      Genoverse.importCSS         ? import('../css/genoverse.css')   : jQuery.Deferred().resolve(),
+      Genoverse.importFontAwesome ? import('../css/fontawesome.css') : jQuery.Deferred().resolve()
     );
   },
 
@@ -146,7 +156,7 @@ const Genoverse = Base.extend({
       }
     ));
 
-    return $.when(...pluginImports);
+    return this.jQuery.when(...pluginImports);
   },
 
   init: function () {
@@ -160,7 +170,6 @@ const Genoverse = Base.extend({
       this.urlParamTemplate = false;
     }
 
-    this.jQuery           = $;
     this.tracksById       = {};
     this.prev             = {};
     this.legends          = {};
@@ -213,7 +222,7 @@ const Genoverse = Base.extend({
   loadConfig: function () {
     let config;
 
-    this.defaultTracks = $.extend(true, [], this.tracks);
+    this.defaultTracks = this.jQuery.extend(true, [], this.tracks);
 
     try {
       config = window[this.storageType].getItem(this.saveKey);
@@ -363,7 +372,7 @@ const Genoverse = Base.extend({
     this.savedConfig   = {};
 
     this.removeTracks([ ...this.tracks ]); // Shallow clone to ensure that removeTracks doesn't hit problems when splicing this.tracks
-    this.addTracks($.extend(true, [], this.defaultTracks));
+    this.addTracks(this.jQuery.extend(true, [], this.defaultTracks));
 
     if (unremovableHighlights.length) {
       this.addHighlights(unremovableHighlights);
@@ -373,8 +382,10 @@ const Genoverse = Base.extend({
   },
 
   addDomElements: function (width) {
-    this.menus          = $();
-    this.labelContainer = $('<ul class="gv-label-container">').appendTo(this.container).sortable({
+    const jQuery = this.jQuery;
+
+    this.menus          = jQuery();
+    this.labelContainer = jQuery('<ul class="gv-label-container">').appendTo(this.container).sortable({
       items  : 'li:not(.gv-unsortable)',
       handle : '.gv-handle',
       axis   : 'y',
@@ -387,15 +398,15 @@ const Genoverse = Base.extend({
       },
     });
 
-    this.wrapper  = $('<div class="gv-wrapper">').appendTo(this.container);
-    this.selector = $('<div class="gv-selector gv-crosshair">').appendTo(this.wrapper);
+    this.wrapper  = this.jQuery('<div class="gv-wrapper">').appendTo(this.container);
+    this.selector = this.jQuery('<div class="gv-selector gv-crosshair">').appendTo(this.wrapper);
 
-    this.selectorControls = this.zoomInHighlight = this.zoomOutHighlight = $();
+    this.selectorControls = this.zoomInHighlight = this.zoomOutHighlight = jQuery();
 
     this.container.addClass('gv-canvas-container').width(width);
 
     if (!this.isStatic) {
-      this.selectorControls = $(`
+      this.selectorControls = jQuery(`
         <div class="gv-selector-controls gv-panel">
           <div class="gv-button-set">
           <div class="gv-position">
@@ -421,7 +432,7 @@ const Genoverse = Base.extend({
         </div>'
       `).appendTo(this.selector);
 
-      this.zoomInHighlight = $(`
+      this.zoomInHighlight = jQuery(`
         <div class="gv-canvas-zoom gv-i">
           <div class="gv-t gv-l gv-h"></div>
           <div class="gv-t gv-r gv-h"></div>
@@ -439,6 +450,7 @@ const Genoverse = Base.extend({
   },
 
   addUserEventHandlers: function () {
+    const jQuery         = this.jQuery;
     const eventNamespace = this.eventNamespace;
     const documentEvents = {};
     const events         = {};
@@ -524,8 +536,8 @@ const Genoverse = Base.extend({
       }
     };
 
-    $(document).on(documentEvents);
-    $(window).on(`${this.useHash ? 'hashchange' : 'popstate'}${this.eventNamespace}`, this.popState.bind(this));
+    jQuery(document).on(documentEvents);
+    jQuery(window).on(`${this.useHash ? 'hashchange' : 'popstate'}${this.eventNamespace}`, this.popState.bind(this));
   },
 
   onTracks: function (func, ...args) {
@@ -578,6 +590,8 @@ const Genoverse = Base.extend({
   },
 
   mousewheelZoom: function (e, delta) {
+    const jQuery = this.jQuery;
+
     clearTimeout(this.zoomDeltaTimeout);
     clearTimeout(this.zoomTimeout);
 
@@ -593,7 +607,7 @@ const Genoverse = Base.extend({
             },
             {
               complete: function () {
-                $(this).css({ width: 40, height: 40, display: 'none' });
+                jQuery(this).css({ width: 40, height: 40, display: 'none' });
               },
             }
           );
@@ -607,7 +621,7 @@ const Genoverse = Base.extend({
             },
             {
               complete: function () {
-                $(this).css({ width: 80, height: 80, display: 'none' });
+                jQuery(this).css({ width: 80, height: 80, display: 'none' });
               },
             }
           );
@@ -1019,6 +1033,8 @@ const Genoverse = Base.extend({
   },
 
   addTracks: function (tracks, after) {
+    const jQuery = this.jQuery;
+
     const defaults = {
       browser : this,
       width   : Math.min(this.width, this.container.width()), // If this.container has borders, this.container.width() could be less than this.width
@@ -1045,7 +1061,7 @@ const Genoverse = Base.extend({
         ...defaults,
         namespace : Genoverse.getTrackNamespace(TrackClass),
         order     : typeof order === 'number' ? order : i,
-        config    : this.savedConfig ? $.extend(true, {}, this.savedConfig[TrackClass.prototype.id]) : undefined,
+        config    : this.savedConfig ? jQuery.extend(true, {}, this.savedConfig[TrackClass.prototype.id]) : undefined,
       });
 
       if (tracks[i].id) {
@@ -1098,13 +1114,15 @@ const Genoverse = Base.extend({
   },
 
   sortTracks: function () {
+    const jQuery = this.jQuery;
+
     if (this.tracks.some(track => typeof track !== 'object')) {
       return;
     }
 
     const sorted     = this.tracks.slice().sort((a, b) => a.order - b.order);
-    const labels     = $();
-    const containers = $();
+    const labels     = jQuery();
+    const containers = jQuery();
 
     sorted.forEach(
       (track, i) => {
@@ -1133,7 +1151,7 @@ const Genoverse = Base.extend({
     // Correct the order
     this.tracks = sorted;
 
-    labels.map(function () { return $(this).data('track'); }).each(function () {
+    labels.map(function () { return jQuery(this).data('track'); }).each(function () {
       if (this.prop('menus').length) {
         const diff = (this.prop('superContainer') || this.prop('container')).position().top - this.prop('top');
 
@@ -1269,37 +1287,47 @@ const Genoverse = Base.extend({
     this.failed = true;
   },
 
-  menuTemplate: $(`
-    <div class="gv-menu">
-      <div class="gv-close gv-menu-button fas fa-times-circle"></div>
-      <div class="gv-menu-loading">Loading...</div>
-      <div class="gv-menu-error">An error has occurred</div>
-      <div class="gv-menu-content">
-        <div class="gv-title"></div>
-        <table class="gv-focus-highlight">
-          <tr>
-            <td><a class="gv-focus" href="#">Focus here</a></td>
-            <td><a class="gv-highlight" href="#">Highlight this feature</a></td>
-          </tr>
-        </table>
-        <table></table>
+  createMenuEl: function () {
+    const jQuery = this.jQuery;
+
+    this.menuTemplate = this.menuTemplate || jQuery(`
+      <div class="gv-menu">
+        <div class="gv-close gv-menu-button fas fa-times-circle"></div>
+        <div class="gv-menu-loading">Loading...</div>
+        <div class="gv-menu-error">An error has occurred</div>
+        <div class="gv-menu-content">
+          <div class="gv-title"></div>
+          <table class="gv-focus-highlight">
+            <tr>
+              <td><a class="gv-focus" href="#">Focus here</a></td>
+              <td><a class="gv-highlight" href="#">Highlight this feature</a></td>
+            </tr>
+          </table>
+          <table></table>
+        </div>
       </div>
-    </div>
-  `).on('click', function (e) {
-    if ($(e.target).hasClass('gv-close')) {
-      $(this).fadeOut('fast', function () {
-        const data = $(this).data();
+    `).on('click', function (e) {
+      const menuEl = jQuery(this);
 
-        if (data.track) {
-          data.track.prop('menus', data.track.prop('menus').not(this));
-        }
+      if (jQuery(e.target).hasClass('gv-close')) {
+        menuEl.fadeOut('fast', function () {
+          const data = menuEl.data();
 
-        data.browser.menus = data.browser.menus.not(this);
-      });
-    }
-  }),
+          if (data.track) {
+            data.track.prop('menus', data.track.prop('menus').not(this));
+          }
+
+          data.browser.menus = data.browser.menus.not(this);
+        });
+      }
+    });
+
+    return this.menuTemplate.clone(true).data({ browser: this });
+  },
 
   makeMenu: function (features, event, track) {
+    const jQuery = this.jQuery;
+
     if (!features) {
       return false;
     }
@@ -1314,41 +1342,45 @@ const Genoverse = Base.extend({
       return this.makeFeatureMenu(features[0], event, track);
     }
 
-    const menu      = this.menuTemplate.clone(true).data({ browser: this });
-    const contentEl = $('.gv-menu-content', menu).addClass('gv-menu-content-first');
-    const table     = $('table:not(.gv-focus-highlight)', contentEl);
+    const menuEl    = this.createMenuEl();
+    const contentEl = jQuery('.gv-menu-content', menuEl).addClass('gv-menu-content-first');
+    const table     = jQuery('table:not(.gv-focus-highlight)', contentEl);
 
-    $('.gv-focus-highlight, .gv-menu-loading', menu).remove();
-    $('.gv-title', menu).html(`${features.length} features`);
+    jQuery('.gv-focus-highlight, .gv-menu-loading', menuEl).remove();
+    jQuery('.gv-title', menuEl).html(`${features.length} features`);
 
     (track ? track.model.sortFeatures(features) : features.sort((a, b) => a.start - b.start)).forEach(
       (feature) => {
         const location = `${feature.chr}:${feature.start}${feature.end === feature.start ? '' : `-${feature.end}`}`;
         const title    = feature.menuLabel || feature.name || (Array.isArray(feature.label) ? feature.label.join(' ') : feature.label) || String(feature.id);
 
-        $('<a href="#">').html(title.match(location) ? title : `${location} ${title}`).on('click', (e) => {
+        jQuery('<a href="#">').html(title.match(location) ? title : `${location} ${title}`).on('click', (e) => {
           this.makeFeatureMenu(feature, e, track);
 
           return false;
-        }).appendTo($('<td>').appendTo($('<tr>').appendTo(table)));
+        }).appendTo(
+          jQuery('<td>').appendTo(
+            jQuery('<tr>').appendTo(table)
+          )
+        );
       }
     );
 
-    $('<div class="gv-menu-scroll-wrapper">').append(table).appendTo(contentEl);
+    jQuery('<div class="gv-menu-scroll-wrapper">').append(table).appendTo(contentEl);
 
-    menu.appendTo(this.superContainer || this.container).show();
+    menuEl.appendTo(this.superContainer || this.container).show();
 
     if (event) {
-      menu.css({ left: 0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' });
+      menuEl.css({ left: 0, top: 0 }).position({ of: event, my: 'left top', collision: 'flipfit' });
     }
 
-    this.menus = this.menus.add(menu);
+    this.menus = this.menus.add(menuEl);
 
     if (track) {
-      track.prop('menus', track.prop('menus').add(menu));
+      track.prop('menus', track.prop('menus').add(menuEl));
     }
 
-    return menu;
+    return menuEl;
   },
 
   insertPropertiesIntoMenu: function (menuProperties, menuEl, contentEl, feature, track) {
@@ -1433,41 +1465,42 @@ const Genoverse = Base.extend({
   },
 
   makeFeatureMenu: function (feature, e, track) {
+    const jQuery    = this.jQuery;
     const container = this.superContainer || this.container;
 
     if (!feature.menuEl || feature.menuEl.data('hasErrored') === true) {
-      const menuEl    = this.menuTemplate.clone(true).data({ browser: this, feature: feature });
-      const contentEl = $('.gv-menu-content', menuEl).remove();
-      const loading   = $('.gv-menu-loading', menuEl);
+      const menuEl    = this.createMenuEl().data({ feature });
+      const contentEl = jQuery('.gv-menu-content', menuEl).remove();
+      const loadingEl = jQuery('.gv-menu-loading', menuEl);
 
       let getMenu;
 
       try {
         getMenu = track ? track.controller.populateMenu(feature) : feature;
       } catch (error) {
-        getMenu = $.Deferred().reject(error);
+        getMenu = jQuery.Deferred().reject(error);
         menuEl.data('hasErrored', true);
       }
 
       const isDeferred = typeof getMenu === 'object' && typeof getMenu.promise === 'function';
 
       if (!isDeferred) {
-        loading.hide();
+        loadingEl.hide();
       }
 
-      $.when(getMenu).done(
+      jQuery.when(getMenu).done(
         (menuProperties) => {
           (track?.controller || this).insertPropertiesIntoMenu(menuProperties, menuEl, contentEl, feature, track);
 
           if (isDeferred) {
-            loading.hide();
+            loadingEl.hide();
           }
         }
       ).fail(
         (error) => {
-          loading.hide();
+          loadingEl.hide();
           menuEl.data('hasErrored', true);
-          $('.gv-menu-error', menuEl).css('display', 'block');
+          jQuery('.gv-menu-error', menuEl).css('display', 'block');
           console.error(error); // eslint-disable-line no-console
         }
       );
@@ -1500,7 +1533,7 @@ const Genoverse = Base.extend({
     obj = obj || this;
 
     obj.menus.filter(':visible').children('.gv-close').trigger('click');
-    obj.menus = $();
+    obj.menus = this.jQuery();
   },
 
   hideMessages: function () {
@@ -1603,7 +1636,7 @@ const Genoverse = Base.extend({
     }
 
     this.container.off(this.eventNamespace);
-    $(window).add(document).off(this.eventNamespace);
+    this.jQuery(window).add(document).off(this.eventNamespace);
 
     Object.keys(this).forEach(
       (key) => { delete this[key]; }
