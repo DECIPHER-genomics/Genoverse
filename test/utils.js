@@ -1,6 +1,7 @@
-require('../index'); // Genoverse library
+const Genoverse = require('../src/js/Genoverse').default;
+const $         = require('../src/js/lib/jquery').default;
 
-Genoverse.ready.resolve();
+Genoverse.configure({ css: false, fontawesome: false });
 
 const getTrackConfig = features => ({
   data: features,
@@ -73,6 +74,7 @@ const afterTest = () => {
 };
 
 module.exports = {
+  $,
   Genoverse,
   testTrackRender,
   testTrackRenderStatic,

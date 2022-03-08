@@ -1,4 +1,4 @@
-const { Genoverse, afterTest } = require('../utils');
+const { $, Genoverse, afterTest } = require('../utils');
 
 describe('Config settings', () => {
   afterEach(afterTest);

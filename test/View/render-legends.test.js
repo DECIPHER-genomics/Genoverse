@@ -8,7 +8,7 @@ describe('Correctly render legends:', () => {
     margin        : 0,
     featureHeight : 10,
     featureMargin : {},
-    legend        : true,
+    legend        : Genoverse.Track.Legend,
   };
 
   it('multiple feature types', () => testTrackRenderStatic(

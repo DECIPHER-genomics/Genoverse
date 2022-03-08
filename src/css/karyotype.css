@@ -1,0 +1,87 @@
+@import url('./tooltips.css');
+
+.gv-karyotype-plugin .gv-karyotype-container {
+  height: 50px;
+  overflow: hidden;
+  box-shadow: inset 0 0 33px -7px rgba(24, 36, 56, 0.97);
+  border: 1px solid #000;
+  background-color: #FFF;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-wrapper {
+  border: 0;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-chromosome {
+  margin: 15px;
+  position: relative;
+  height: calc(100% - 30px);
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-image-container {
+  box-shadow: 0 0 33px -7px #CCC inset;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-karyotype-viewpoint-wrapper {
+  position: relative;
+  height: 70%;
+  top: -85%;
+  margin: 0 15px;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-karyotype-viewpoint {
+  background-color: rgba(222, 84, 35, 0.37);
+  border: 1px dashed #E6380D;
+  box-shadow: 0 0 3px 2px rgba(237, 237, 237, 0.4) inset, 0 0 4px 0 rgba(116, 116, 116, 0.7);
+  height: 100%;
+  position: absolute;
+  z-index: 50;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .ui-resizable-e {
+  cursor: e-resize;
+  height: 100%;
+  right: -5px;
+  top: 0;
+  width: 7px;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .ui-resizable-w {
+  cursor: w-resize;
+  height: 100%;
+  left: -5px;
+  top: 0;
+  width: 7px;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .ui-resizable-handle {
+  display: block;
+  font-size: 0.1px;
+  position: absolute;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-chromosome .gv-label-container {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  cursor: default;
+  width: auto;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-chromosome .gv-label-container .gv-name {
+  color: #000;
+  float: none;
+  left: 0 !important;
+  margin: 0;
+  overflow: auto;
+  position: relative;
+  text-shadow: none;
+  width: 100%;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container.gv-no-label .gv-wrapper {
+  margin-left: 0;
+}

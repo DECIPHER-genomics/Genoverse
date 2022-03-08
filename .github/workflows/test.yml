@@ -3,22 +3,21 @@ name: test
 on:
   push:
     branches:
-      - gh-pages
       - master
+      - develop
 jobs:
   test:
-
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [16.x]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: npm install and test
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: npm test
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn install
+      - run: yarn lint
+      - run: yarn test

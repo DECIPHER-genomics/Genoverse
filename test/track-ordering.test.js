@@ -1,4 +1,4 @@
-const { Genoverse, afterTest } = require('./utils');
+const { $, Genoverse, afterTest } = require('./utils');
 
 // TODO: unsortable, particularly with unsortable order=9e99, then adding another track
 
@@ -22,6 +22,7 @@ describe('Track ordering', () => {
       tracks         : tracks.map(t => Genoverse.Track.extend({ url: false, ...t })),
       _initDeferred  : $.Deferred(),
       saveConfig     : () => {},
+      loadCSS        : () => {},
       loadGenome     : () => {},
       loadPlugins    : () => {},
     });
@@ -107,7 +108,7 @@ describe('Track ordering', () => {
 
   const legendTrack = (id, legendConf) => ({
     id     : id,
-    legend : legendConf ? Genoverse.Track.Legend.extend(legendConf) : true,
+    legend : legendConf ? Genoverse.Track.Legend.extend(legendConf) : Genoverse.Track.Legend,
   });
 
   describe('Simple tracks', () => {
