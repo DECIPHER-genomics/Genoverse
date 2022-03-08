@@ -29,15 +29,13 @@ Embed Genoverse using
 Add a script tag or JavaScript file which initializes Genoverse, e.g.
 ```html
 <script>
-  $(document).ready(function () {
-    const genoverse = new Genoverse({ ... configuration ... });
-  });
+  const genoverse = new Genoverse({ ... configuration ... });
 </script>
 ```
 
 Once initalized, the instance of Genoverse is avaliable as a jQuery data attribute on the container DOM element, and can be accessed by
 ```javascript
-const genoverse = $(container).data('genoverse');
+const genoverse = Genoverse.jQuery(container).data('genoverse');
 ```
 
 ### Build options
