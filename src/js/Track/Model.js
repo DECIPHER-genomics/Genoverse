@@ -100,7 +100,6 @@ export default Base.extend({
       return deferred.resolve();
     }
 
-    const model  = this;
     const bins   = [];
     const length = end - start + 1;
 
@@ -123,26 +122,28 @@ export default Base.extend({
       ...bins.map(
         (bin) => {
           const request = jQuery.ajax({
-            url       : model.parseURL(chr, bin[0], bin[1]),
-            data      : model.urlParams,
-            dataType  : model.dataType,
-            context   : model,
-            xhrFields : model.xhrFields,
-            success   : function (data) {
+            url       : this.parseURL(chr, bin[0], bin[1]),
+            data      : this.urlParams,
+            dataType  : this.dataType,
+            xhrFields : this.xhrFields,
+          }).then(
+            (data) => {
               this.receiveData(data, chr, bin[0], bin[1]);
-            },
-            error: function (xhr, statusText, ...args) {
+            }
+          ).catch(
+            (xhr, statusText, ...args) => {
               this.track.controller.showError(
-                this.showServerErrors && (xhr.responseJSON || {}).message
+                this.showServerErrors && xhr.responseJSON?.message
                   ? xhr.responseJSON.message
                   : `${statusText} while getting the data, see console for more details`,
                 [ xhr, statusText, ...args ]
               );
-            },
-            complete: function (xhr) {
-              this.dataLoading = this.dataLoading.filter(loading => xhr !== loading);
-            },
-          });
+            }
+          ).always(
+            () => {
+              this.dataLoading = this.dataLoading.filter(loading => request !== loading);
+            }
+          );
 
           request.coords = [ chr, bin[0], bin[1] ]; // store actual chr, start and end on the request, in case they are needed
 
@@ -150,7 +151,7 @@ export default Base.extend({
             request.done(done);
           }
 
-          model.dataLoading.push(request);
+          this.dataLoading.push(request);
 
           return request;
         }

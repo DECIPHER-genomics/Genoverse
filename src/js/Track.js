@@ -615,7 +615,9 @@ const Track = Base.extend({
   },
 
   reset: function (...args) {
-    this.setLengthMap();
+    if (args[0] !== 'resizing') {
+      this.setLengthMap();
+    }
 
     Object.values(this.models).filter(model => model.url !== false).forEach(model => model.init(true));
     Object.values(this.views).forEach(view => view.init(true));
