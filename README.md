@@ -6,7 +6,7 @@ Data is visualized in the browser, meaning Genoverse can be installed on any web
 
 Genoverse works with a variety of formats, such as JSON, BED, BAM, VCF, GFF, delimited text files, or XML, and can be customized to parse and display any data source as required.
 
-Genoverse works using a system of [**tracks**](https://github.com/wtsi-web/Genoverse/wiki/Tracks) - essentially horizontal sections of the genome browser which display **features** - genes, variants, etc. with defined genomic start and end points. Each track has its own data set stored in a **model**, a method for displaying that data, stored in a **view**, and a **controller** to manage the creation of DOM elements, and user interactions with them.
+Genoverse works using a system of [tracks](https://github.com/wtsi-web/Genoverse/wiki/Tracks) - essentially horizontal sections of the genome browser which display [features](https://github.com/wtsi-web/Genoverse/wiki/Features) - genes, variants, etc. with defined genomic start and end points. Each track has its own data set stored in a [model](https://github.com/wtsi-web/Genoverse/wiki/Genoverse.Track.Model-functions), a method for displaying that data, stored in a [view](https://github.com/wtsi-web/Genoverse/wiki/Genoverse.Track.View-functions), and a [controller](https://github.com/wtsi-web/Genoverse/wiki/Genoverse.Track.Controller-functions) to manage the creation of DOM elements, and user interactions with them.
 
 Tracks can have multiple models and views, which allows for switching between displays at different zoom levels. An example of this would be a track where you show genes when looking at a large region of a chromosome, and then switch to showing transcripts as the user zooms in.
 
