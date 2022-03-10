@@ -126,18 +126,20 @@ export default Base.extend({
             data      : this.urlParams,
             dataType  : this.dataType,
             xhrFields : this.xhrFields,
-          }).then(
+          }).done(
             (data) => {
               this.receiveData(data, chr, bin[0], bin[1]);
             }
-          ).catch(
+          ).fail(
             (xhr, statusText, ...args) => {
-              this.track.controller.showError(
-                this.showServerErrors && xhr.responseJSON?.message
-                  ? xhr.responseJSON.message
-                  : `${statusText} while getting the data, see console for more details`,
-                [ xhr, statusText, ...args ]
-              );
+              if (this.track?.controller?.showError) {
+                this.track.controller.showError(
+                  this.showServerErrors && xhr.responseJSON?.message
+                    ? xhr.responseJSON.message
+                    : `${statusText} while getting the data, see console for more details`,
+                  [ xhr, statusText, ...args ]
+                );
+              }
             }
           ).always(
             () => {
