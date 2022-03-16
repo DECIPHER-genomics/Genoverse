@@ -546,7 +546,7 @@ const Genoverse = Base.extend({
   onTracks: function (func, ...args) {
     this.tracks.forEach(
       (track) => {
-        if (track.disabled) {
+        if (track.disabled || !track._interface) { // if track._interface is undefined, the track has not been fully initialized yet
           return;
         }
 
