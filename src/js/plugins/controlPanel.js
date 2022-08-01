@@ -349,7 +349,7 @@ const plugin = function (pluginConf) {
     },
 
     afterAddDomElements: function () {
-      this.wrapper.after('<div class="gv-powered-by">Powered by <a target="_blank" href="https://wtsi-web.github.io/Genoverse/">Genoverse</a></div>');
+      this.wrapper.after('<div class="gv-powered-by">Powered by <a target="_blank" href="https://wtsi-decipher-grp.github.io/Genoverse/">Genoverse</a></div>');
       this.superContainer.find('.gv-panel-left').append(this.labelContainer);
     },
 
