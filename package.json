@@ -1,6 +1,6 @@
 {
   "name": "genoverse",
-  "version": "4.0.5",
+  "version": "4.0.6",
   "description": "Genoverse is a portable, customizable, back-end independent JavaScript and HTML5 based genome browser which allows the user to explore data in a dynamic and interactive manner.",
   "main": "src/js/Genoverse.js",
   "directories": {
