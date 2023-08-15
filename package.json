@@ -23,7 +23,7 @@
   "bugs": {
     "url": "https://github.com/DECIPHER-genomics/Genoverse/issues"
   },
-  "homepage": "https://wtsi-decipher-genomics.github.io/Genoverse/",
+  "homepage": "https://decipher-genomics.github.io/Genoverse/",
   "devDependencies": {
     "@babel/core": "^7.17.2",
     "@babel/eslint-parser": "^7.17.0",
