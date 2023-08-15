@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/WTSI-decipher-grp/Genoverse.git"
+    "url": "git+https://github.com/DECIPHER-genomics/Genoverse.git"
   },
   "author": "Simon Brent",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/WTSI-decipher-grp/Genoverse/issues"
+    "url": "https://github.com/DECIPHER-genomics/Genoverse/issues"
   },
-  "homepage": "https://wtsi-decipher-grp.github.io/Genoverse/",
+  "homepage": "https://wtsi-decipher-genomics.github.io/Genoverse/",
   "devDependencies": {
     "@babel/core": "^7.17.2",
     "@babel/eslint-parser": "^7.17.0",

@@ -1,4 +1,4 @@
-# Genoverse [![Build Status](https://github.com/WTSI-decipher-grp/Genoverse/actions/workflows/test.yml/badge.svg)](https://github.com/WTSI-decipher-grp/Genoverse/actions)
+# Genoverse [![Build Status](https://github.com/DECIPHER-genomics/Genoverse/actions/workflows/test.yml/badge.svg)](https://github.com/DECIPHER-genomics/Genoverse/actions)
 
 Genoverse is a portable, customizable, back-end independent JavaScript and HTML5 based genome browser which allows the user to explore data in a dynamic and interactive manner.
 
@@ -6,11 +6,11 @@ Data is visualized in the browser, meaning Genoverse can be installed on any web
 
 Genoverse works with a variety of formats, such as JSON, BED, BAM, VCF, GFF, delimited text files, or XML, and can be customized to parse and display any data source as required.
 
-Genoverse works using a system of [tracks](https://github.com/WTSI-decipher-grp/Genoverse/wiki/Tracks) - essentially horizontal sections of the genome browser which display [features](https://github.com/WTSI-decipher-grp/Genoverse/wiki/Features) - genes, variants, etc. with defined genomic start and end points. Each track has its own data set stored in a [model](https://github.com/WTSI-decipher-grp/Genoverse/wiki/Genoverse.Track.Model-functions), a method for displaying that data, stored in a [view](https://github.com/WTSI-decipher-grp/Genoverse/wiki/Genoverse.Track.View-functions), and a [controller](https://github.com/WTSI-decipher-grp/Genoverse/wiki/Genoverse.Track.Controller-functions) to manage the creation of DOM elements, and user interactions with them.
+Genoverse works using a system of [tracks](https://github.com/DECIPHER-genomics/Genoverse/wiki/Tracks) - essentially horizontal sections of the genome browser which display [features](https://github.com/DECIPHER-genomics/Genoverse/wiki/Features) - genes, variants, etc. with defined genomic start and end points. Each track has its own data set stored in a [model](https://github.com/DECIPHER-genomics/Genoverse/wiki/Genoverse.Track.Model-functions), a method for displaying that data, stored in a [view](https://github.com/DECIPHER-genomics/Genoverse/wiki/Genoverse.Track.View-functions), and a [controller](https://github.com/DECIPHER-genomics/Genoverse/wiki/Genoverse.Track.Controller-functions) to manage the creation of DOM elements, and user interactions with them.
 
 Tracks can have multiple models and views, which allows for switching between displays at different zoom levels. An example of this would be a track where you show genes when looking at a large region of a chromosome, and then switch to showing transcripts as the user zooms in.
 
-In addition to this, Genoverse has a set of [plugins](https://github.com/WTSI-decipher-grp/Genoverse/wiki/Plugins), which allow additional functionality beyond the core genome browser. These include a control panel for adding and removing tracks, and interacting with the browser more easily, a way to add controls to each individual track, and a way to enable drag and drop of local data files onto the genome browser.
+In addition to this, Genoverse has a set of [plugins](https://github.com/DECIPHER-genomics/Genoverse/wiki/Plugins), which allow additional functionality beyond the core genome browser. These include a control panel for adding and removing tracks, and interacting with the browser more easily, a way to add controls to each individual track, and a way to enable drag and drop of local data files onto the genome browser.
 
 ## Installation
 
@@ -42,7 +42,7 @@ const genoverse = Genoverse.jQuery(container).data('genoverse');
 
 By default, the Genoverse distribution in created with [Babel](https://babeljs.io/) and certain [polyfills](https://github.com/zloirock/core-js/blob/master/README.md), in order to support old web browsers like Internet Explorer 11.
 
-If you want to create your own distribution bundle, see `devDependencies` in [package.json](https://github.com/WTSI-decipher-grp/Genoverse/blob/master/package.json) for Webpack/Babel packages you need to install in order to be able to do so.
+If you want to create your own distribution bundle, see `devDependencies` in [package.json](https://github.com/DECIPHER-genomics/Genoverse/blob/master/package.json) for Webpack/Babel packages you need to install in order to be able to do so.
 
 Once these dependencies are installed, distributions can be built with [webpack-cli](https://webpack.js.org/api/cli/).
 
@@ -179,4 +179,4 @@ new Genoverse({
 });
 ```
 
-See [index.html](https://github.com/WTSI-decipher-grp/Genoverse/blob/master/index.html) for example configuration, or the [documentation](https://github.com/WTSI-decipher-grp/Genoverse/wiki/Genoverse-configuration) for more details about configuration properties.
+See [index.html](https://github.com/DECIPHER-genomics/Genoverse/blob/master/index.html) for example configuration, or the [documentation](https://github.com/DECIPHER-genomics/Genoverse/wiki/Genoverse-configuration) for more details about configuration properties.
