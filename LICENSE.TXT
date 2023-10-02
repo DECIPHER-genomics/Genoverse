@@ -1,4 +1,6 @@
-Copyright (c) 2011 Genome Research Ltd.
+Copyright (c) 2011-2023 Genome Research Ltd.
+Copyright (c) 2023 EMBL-European Bioinformatics Institute
+
 Author: Simon Brent, Evgeny Bragin
 
 Redistribution and use in source and binary forms, with or without
@@ -8,11 +10,11 @@ this list of conditions and the following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright
 notice, this list of conditions and the following disclaimer in the
 documentation and/or other materials provided with the distribution.
-3. Neither the names Genome Research Ltd and Wellcome Trust Sanger
+3. Neither the names of the copyright holders, the Wellcome Sanger
 Institute nor the names of its contributors may be used to endorse or promote
 products derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY GENOME RESEARCH LTD AND CONTRIBUTORS "AS IS" AND
+THIS SOFTWARE IS PROVIDED THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL GENOME RESEARCH LTD OR CONTRIBUTORS BE LIABLE
