@@ -1,7 +1,7 @@
 import Model from '../Sequence';
 
 export default Model.extend({
-  url: 'https://wtsi-decipher-grp.github.io/Genoverse/data/Homo_sapiens.GRCh37.72.dna.chromosome.1.fa', // Example url
+  url: 'https://github.com/DECIPHER-genomics/Genoverse/data/Homo_sapiens.GRCh37.72.dna.chromosome.1.fa', // Example url
 
   // Following settings could be left undefined and will be detected automatically via .getStartByte()
   startByte  : undefined, // Byte in the file where the sequence actually starts
