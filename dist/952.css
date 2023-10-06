@@ -1,0 +1,315 @@
+.gv-control-panel-plugin table.gv {
+  position: relative;
+  margin-bottom: 30px;
+  border-collapse: separate;
+}
+
+.gv-control-panel-plugin table.gv td {
+  padding: 0;
+  color: white;
+  vertical-align: top;
+}
+
+.gv-control-panel-plugin .gv-panel {
+  height: 100%;
+  background-color: #5F8CB0;
+  border: 1px solid #1C5380;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset, 0 1px 3px rgba(0, 0, 0, 0.1), -2px 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.gv-control-panel-plugin .gv-panel div {
+  white-space: nowrap;
+}
+
+.gv-control-panel-plugin .gv-panel button {
+  background: none;
+  border: none;
+  border-bottom: 1px solid #1C5380;
+  color: #E2E9EF;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.75);
+  width: 30px;
+  height: 50px;
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 20px;
+  padding: 2px;
+  margin: 0;
+}
+
+.gv-control-panel-plugin .gv-panel button:only-child {
+  width: 100%;
+}
+
+.gv-control-panel-plugin .gv-panel div.gv-button-set > button:not(:first-child) {
+  border-left: 1px solid #1C5380;
+}
+
+.gv-control-panel-plugin .gv-panel button.gv-button-large {
+  font-size: 25px;
+}
+
+.gv-control-panel-plugin .gv-panel div.gv-button-set:not(:first-child) > button {
+  box-shadow: 0 1px 1px rgba(255, 255, 255, 0.12) inset;
+}
+
+.gv-control-panel-plugin .gv-panel div.gv-button-set:last-child {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.gv-control-panel-plugin .gv-panel button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.gv-control-panel-plugin .gv-panel button:active,
+.gv-control-panel-plugin .gv-panel button.gv-active {
+  border-top: none;
+  background-color: rgba(6, 54, 95, 0.35);
+  box-shadow: 0 0 1px rgba(6, 54, 95, 0.8) inset !important;
+}
+
+.gv-control-panel-plugin .gv-panel-right {
+  background-image: -webkit-linear-gradient(left, #5F8CB0, #4A7496);
+  background-image: -moz-linear-gradient(left center, #5F8CB0, #4A7496);
+  border-radius: 0 5px 5px 0;
+  border-left: 0;
+}
+
+.gv-control-panel-plugin .gv-panel-right button.gv-wheel-zoom {
+  font-weight: bold;
+}
+
+.gv-control-panel-plugin .gv-panel-right button.gv-drag-select i {
+  border: 1px dashed #FFF;
+  padding: 0 5px;
+  box-shadow: 0px 0px 1px #FFF inset, 0px 1px 3px rgba(0, 0, 0, 0.1), 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+.gv-control-panel-plugin .gv-panel-left {
+  background-image: -webkit-linear-gradient(right, #5F8CB0, #4A7496);
+  background-image: -moz-linear-gradient(right center, #5F8CB0, #4A7496);
+  border-radius: 5px 0 0 5px;
+  border-right: 0;
+}
+
+.gv-control-panel-plugin .gv-panel-left .gv-label-container {
+  border: 0;
+  box-shadow: none;
+  background: none;
+}
+
+.gv-control-panel-plugin td.gv-canvas-container {
+  border: 1px solid #000;
+}
+
+.gv-control-panel-plugin .gv-karyotype-container {
+  border-width: 0 0 1px!important;
+}
+
+.gv-control-panel-plugin .gv-canvas-container .gv-wrapper {
+  border: 0;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu {
+  top: 70px;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu .gv-close {
+  font-size: 20px;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu .gv-menu-content {
+  font-size: 13px;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu table {
+  margin: 0 0 10px;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu td {
+  padding: 5px 10px!important;
+  vertical-align: top;
+  width: 50%;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu tr:first-child td {
+  font-weight: bold;
+  white-space: nowrap;
+  padding: 5px 30px 5px 10px;
+  margin-bottom: 5px;
+  background: rgba(6, 54, 95, 0.35);
+  line-height: normal;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu tr:first-child td:last-child {
+  border-radius: 0 12px 0 0;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu tr td:first-child {
+  padding-right: 50px!important;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu .gv-current-tracks.ui-sortable {
+  cursor: move;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu .gv-current-tracks-instructions {
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu .gv-remove-track,
+.gv-control-panel-plugin .gv-tracks-menu .gv-add-track {
+  font-size: 14px;
+  margin: 2px 5px 0 0;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu input {
+  margin-bottom: 10px;
+  width: 200px;
+}
+
+.gv-control-panel-plugin .gv-tracks-menu .gv-tracks-menu-reset {
+  font-style: italic;
+  margin-top: 10px;
+}
+
+.gv-control-panel-plugin .gv-tracks-library-category {
+  margin-bottom: 10px;
+}
+
+.gv-control-panel-plugin .gv-tracks-library-category:last-child {
+  margin-bottom: 0px;
+}
+
+.gv-control-panel-plugin .gv-tracks-library-category .gv-tracks-library-category-header {
+  font-weight: bold;
+}
+
+.gv-control-panel-plugin .gv-powered-by {
+  position: absolute;
+  right: 0;
+  bottom: -16px;
+  font-size: 10px;
+  color: black;
+}
+
+.gv-control-panel-plugin .gv-powered-by a {
+  font-weight: bold;
+}
+
+.tipsy { font-size: 10px; position: absolute; padding: 5px; z-index: 1000; }
+.tipsy-inner { background-color: #000; color: #FFF; max-width: 250px; padding: 5px 8px 4px 8px; text-align: center; font-family: Tahoma; font-size: 11px; }
+
+/* Rounded corners */
+.tipsy-inner { border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+
+.tipsy-arrow { position: absolute; width: 0; height: 0; line-height: 0; border: 5px dashed #000; }
+
+/* Rules to colour arrows */
+.tipsy-arrow-n { border-bottom-color: #000; }
+.tipsy-arrow-s { border-top-color: #000; }
+.tipsy-arrow-e { border-left-color: #000; }
+.tipsy-arrow-w { border-right-color: #000; }
+
+.tipsy-n  .tipsy-arrow { top: 0px; left: 50%; margin-left: -5px; border-bottom-style: solid; border-top: none; border-left-color: transparent; border-right-color: transparent; }
+.tipsy-nw .tipsy-arrow { top: 0; left: 10px; border-bottom-style: solid; border-top: none; border-left-color: transparent; border-right-color: transparent;}
+.tipsy-ne .tipsy-arrow { top: 0; right: 10px; border-bottom-style: solid; border-top: none;  border-left-color: transparent; border-right-color: transparent;}
+.tipsy-s  .tipsy-arrow { bottom: 0; left: 50%; margin-left: -5px; border-top-style: solid; border-bottom: none;  border-left-color: transparent; border-right-color: transparent; }
+.tipsy-sw .tipsy-arrow { bottom: 0; left: 10px; border-top-style: solid; border-bottom: none;  border-left-color: transparent; border-right-color: transparent; }
+.tipsy-se .tipsy-arrow { bottom: 0; right: 10px; border-top-style: solid; border-bottom: none; border-left-color: transparent; border-right-color: transparent; }
+.tipsy-e  .tipsy-arrow { right: 0; top: 50%; margin-top: -5px; border-left-style: solid; border-right: none; border-top-color: transparent; border-bottom-color: transparent; }
+.tipsy-w  .tipsy-arrow { left: 0; top: 50%; margin-top: -5px; border-right-style: solid; border-left: none; border-top-color: transparent; border-bottom-color: transparent; }
+
+.gv-wrapper-tooltip { position: absolute; left: 50%; top: 60px; }
+
+.genoverse .tooltip { z-index: 1000; }
+.gv-karyotype-plugin .gv-karyotype-container {
+  height: 50px;
+  overflow: hidden;
+  box-shadow: inset 0 0 33px -7px rgba(24, 36, 56, 0.97);
+  border: 1px solid #000;
+  background-color: #FFF;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-wrapper {
+  border: 0;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-chromosome {
+  margin: 15px;
+  position: relative;
+  height: calc(100% - 30px);
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-image-container {
+  box-shadow: 0 0 33px -7px #CCC inset;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-karyotype-viewpoint-wrapper {
+  position: relative;
+  height: 70%;
+  top: -85%;
+  margin: 0 15px;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-karyotype-viewpoint {
+  background-color: rgba(222, 84, 35, 0.37);
+  border: 1px dashed #E6380D;
+  box-shadow: 0 0 3px 2px rgba(237, 237, 237, 0.4) inset, 0 0 4px 0 rgba(116, 116, 116, 0.7);
+  height: 100%;
+  position: absolute;
+  z-index: 50;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .ui-resizable-e {
+  cursor: e-resize;
+  height: 100%;
+  right: -5px;
+  top: 0;
+  width: 7px;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .ui-resizable-w {
+  cursor: w-resize;
+  height: 100%;
+  left: -5px;
+  top: 0;
+  width: 7px;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .ui-resizable-handle {
+  display: block;
+  font-size: 0.1px;
+  position: absolute;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-chromosome .gv-label-container {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  cursor: default;
+  width: auto;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container .gv-chromosome .gv-label-container .gv-name {
+  color: #000;
+  float: none;
+  left: 0 !important;
+  margin: 0;
+  overflow: auto;
+  position: relative;
+  text-shadow: none;
+  width: 100%;
+}
+
+.gv-karyotype-plugin .gv-karyotype-container.gv-no-label .gv-wrapper {
+  margin-left: 0;
+}
+
+
+/*# sourceMappingURL=952.css.map*/
