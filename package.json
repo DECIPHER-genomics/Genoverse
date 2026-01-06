@@ -45,6 +45,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
     "jquery": "^3.2.1",
-    "jquery-ui-bundle": "^1.12.1-migrate"
+    "jquery-migrate": "3.4.1",
+    "jquery-ui-dist": "1.13.3"
   }
 }
