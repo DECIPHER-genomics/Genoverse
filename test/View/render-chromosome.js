@@ -26,7 +26,7 @@ describe('Correctly render a chromosome:', function () {
     }
   };
 
-  xit('with all band types', function () {
+  it('with all band types', function () {
     return testTrackRenderStatic(undefined, { _testClass: Genoverse.Track.Chromosome, featureHeight: 20 }, [
       [ 5, 0, 95, 20 ], [ 'fillText', 'p13', 50, 10.5, '#FFFFFF' ],
       [ 'beginPath' ], [ 'moveTo', 5, 0.5  ], [ 'lineTo', 100, 0.5  ], [ 'stroke' ],

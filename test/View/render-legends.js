@@ -1,6 +1,6 @@
 'use strict';
 
-xdescribe('Correctly render legends:', function () {
+describe('Correctly render legends:', function () {
   afterEach(afterTest);
 
   var track = {

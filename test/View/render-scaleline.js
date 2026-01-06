@@ -2,7 +2,7 @@
 
 // TODO: bytes, kb, mb, gb, tb
 
-xdescribe('Correctly render scale line:', function () {
+describe('Correctly render scale line:', function () {
   before(function() {
     // Test runs inconsistently on Linux vs MacOS
     if(global.isMacOS) {

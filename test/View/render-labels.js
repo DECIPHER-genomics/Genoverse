@@ -59,7 +59,7 @@ describe('Correctly render labels where:', function () {
 
     describe('with a repeated label (track.repeatLabels = true)', function () {
       describe('where the label is shorter than its feature', function () {
-        xit('and browser.scale > 1', function () {
+        it('and browser.scale > 1', function () {
           return testTrackRender([
             { start: 85, end: 128, label: 'abc' }
           ], $.extend({ repeatLabels: true }, track), {
@@ -147,7 +147,7 @@ describe('Correctly render labels where:', function () {
       ], tr, [ [ 'fillRect', 0, 0, 50, 15 ], [ 'fillText', 'abc def', 25, 8, 'white' ] ]);
     });
 
-    xit('with bumped features', function () {
+    it('with bumped features', function () {
       return testTrackRenderStatic([
         { start: 1, end: 10, label: 'abc', labelColor: 'white' },
         { start: 6, end: 7,  label: 'd',   labelColor: 'white' }
@@ -156,7 +156,7 @@ describe('Correctly render labels where:', function () {
 
     describe('with a repeated label (track.repeatLabels = true)', function () {
       describe('where the label is shorter than its feature', function () {
-        xit('and browser.scale > 1', function () {
+        it('and browser.scale > 1', function () {
           return testTrackRender([
             { start: 85, end: 138, label: 'abc', labelColor: 'red' }
           ], $.extend({ repeatLabels: true }, tr), {
@@ -214,7 +214,7 @@ describe('Correctly render labels where:', function () {
   describe('labels appear on a separate image - all labels are below all features (track.labels = "separate")', function () {
     var tr = $.extend({ labels: 'separate' }, track);
 
-    xit('with bumped features and unbumped labels', function () {
+    it('with bumped features and unbumped labels', function () {
       return testTrackRenderStatic([
         { start: 1, end: 10, label: 'abc' },
         { start: 6, end: 6,  label: 'def' }
@@ -246,7 +246,7 @@ describe('Correctly render labels where:', function () {
 
     describe('with a repeated label (track.repeatLabels = true)', function () {
       describe('where the label is shorter than its feature', function () {
-        xit('and browser.scale > 1', function () {
+        it('and browser.scale > 1', function () {
           return testTrackRender([
             { start: 85, end: 128, label: 'abc' }
           ], $.extend({ repeatLabels: true }, tr), {
@@ -373,7 +373,7 @@ describe('Correctly render labels where:', function () {
         });
       });
 
-      xit('with track.labels = "overlay"', function () {
+      it('with track.labels = "overlay"', function () {
         return testTrackRender([
           { start: 16, end: 25, label: 'abcdef', labelColor: 'white' },
         ], $.extend({ labels: 'overlay' }, track), {
@@ -404,7 +404,7 @@ describe('Correctly render labels where:', function () {
         });
       });
 
-      xit('with track.labels = "overlay"', function () {
+      it('with track.labels = "overlay"', function () {
         return testTrackRender([
           { start: 16, end: 25, label: 'a',      labelColor: 'white' },
           { start: 16, end: 25, label: 'abcdef', labelColor: 'white' },
