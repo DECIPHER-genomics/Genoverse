@@ -1,5 +1,6 @@
 'use strict';
 
+require('jquery-migrate');
 require('jquery-ui-dist/jquery-ui');
 require('./js/lib/jquery.mousewheel.js');
 require('./js/lib/jquery.mousehold.js');
