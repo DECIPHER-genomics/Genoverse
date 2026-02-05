@@ -459,7 +459,7 @@ module.exports = Base.extend({
 
     params.container = div;
 
-    this.imgContainers.push(div[0]);
+    this.imgContainers = this.imgContainers.add(div[0]);
     this.scrollContainer.append(this.imgContainers);
 
     if (!tooLarge && !this.model.checkDataRange(params.chr, params.start, params.end)) {

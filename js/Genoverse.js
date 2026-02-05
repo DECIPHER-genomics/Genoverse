@@ -1090,8 +1090,8 @@ const Genoverse = Base.extend({
         sorted[i].prop('top', container.position().top);
       }
 
-      labels.push(sorted[i].prop('label')[0]);
-      containers.push(container[0]);
+      labels = labels.add(sorted[i].prop('label')[0]);
+      containers = containers.add(container[0]);
     }
 
     this.labelContainer.append(labels);
