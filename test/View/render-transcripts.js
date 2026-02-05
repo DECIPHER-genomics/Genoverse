@@ -16,7 +16,7 @@ describe('Correctly render transcripts where:', function () {
         { why: 'reverse strand', strand: -1 }
       ].forEach(function (test) {
         var instructions = draw(test.strand);
-        var func         = $.isArray(instructions) ? testTrackRenderStatic : testTrackRender;
+        var func         = Array.isArray(instructions) ? testTrackRenderStatic : testTrackRender;
 
         it(test.why, function () { return func([ $.extend({ strand: test.strand }, feature) ], track, instructions, $.extend({ start: 1, end: 1000, chromosomeSize: 1e9, width: 1000 }, genoverseConfig)); });
       });

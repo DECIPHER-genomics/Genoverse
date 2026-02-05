@@ -3,7 +3,7 @@
 function getDrawingInstructions(draw, region, type, strand) {
   var instructions = {};
 
-  if ($.isArray(draw)) {
+  if (Array.isArray(draw)) {
     instructions[region] = { features: $.extend(true, [], draw) };
   } else if ($.isPlainObject(draw)) {
     draw = $.extend(true, {}, draw);
@@ -13,7 +13,7 @@ function getDrawingInstructions(draw, region, type, strand) {
     }
 
     if (typeof draw[region] !== 'undefined') {
-      if ($.isArray(draw[region])) {
+      if (Array.isArray(draw[region])) {
         instructions[region] = { features: draw[region] };
       } else {
         instructions = draw;

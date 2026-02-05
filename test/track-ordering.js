@@ -81,7 +81,7 @@ describe('Track ordering', function () {
     if (after     === msg) after     = undefined;
 
     genoverse._initDeferred.done(function () {
-      if ($.isArray(addTracks)) {
+      if (Array.isArray(addTracks)) {
         genoverse.addTracks(addTracks.map(function (t) { return Genoverse.Track.extend($.extend({ url: false }, t)); }), after);
       } else if (addTracks) {
         genoverse.addTrack(Genoverse.Track.extend($.extend({ url: false }, addTracks)), after);
@@ -91,7 +91,7 @@ describe('Track ordering', function () {
         var orderedIds = genoverse.tracks.map(function (t) { return t.id; }).join(' ');
 
         if (addTracks) {
-          addTracks = $.isArray(addTracks) ? addTracks : [ addTracks ];
+          addTracks = Array.isArray(addTracks) ? addTracks : [ addTracks ];
           genoverse.removeTracks(addTracks.map(function (t) { return genoverse.tracksById[t.id]; }));
         }
 
