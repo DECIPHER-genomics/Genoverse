@@ -1071,8 +1071,8 @@ const Genoverse = Base.extend({
     }
 
     var sorted     = $.extend([], this.tracks).sort(function (a, b) { return a.order - b.order; });
-    var labels     = $();
-    var containers = $();
+    var labels     = [];
+    var containers = [];
     var container;
 
     for (var i = 0; i < sorted.length; i++) {
@@ -1090,8 +1090,8 @@ const Genoverse = Base.extend({
         sorted[i].prop('top', container.position().top);
       }
 
-      labels = labels.add(sorted[i].prop('label')[0]);
-      containers = containers.add(container[0]);
+      labels.push(sorted[i].prop('label')[0]);
+      containers.push(container[0]);
     }
 
     this.labelContainer.append(labels);
@@ -1100,7 +1100,7 @@ const Genoverse = Base.extend({
     // Correct the order
     this.tracks = sorted;
 
-    labels.map(function () { return $(this).data('track'); }).each(function () {
+    $(labels).map(function () { return $(this).data('track'); }).each(function () {
       if (this.prop('menus').length) {
         var diff = (this.prop('superContainer') || this.prop('container')).position().top - this.prop('top');
         this.prop('menus').css('top', function (j, top) { return parseInt(top, 10) + diff; });
