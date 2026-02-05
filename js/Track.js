@@ -206,7 +206,7 @@ const Track = Base.extend({
   newMVC: function (object, functions, properties) {
     return new (object.extend(
       $.extend(true, {}, object.prototype, functions, {
-        prop: $.proxy(this.prop, this)
+        prop: this.prop.bind(this)
       })
     ))(
       $.extend(properties, {

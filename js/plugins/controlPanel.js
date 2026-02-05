@@ -268,7 +268,7 @@ module.exports = function () {
               cursor : 'move',
               axis   : 'y',
               handle : 'span',
-              update : $.proxy(browser.updateTrackOrder, browser),
+              update : browser.updateTrackOrder.bind(browser),
               start: function () {
                 currentTracks.find('.gv-track-menu-track-name').each(function () { $(this).tipsy('hide').tipsy('disable'); });
               },

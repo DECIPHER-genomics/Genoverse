@@ -298,7 +298,7 @@ module.exports = Base.extend({
     var filters  = this.prop('featureFilters') || [];
 
     for (var i = 0; i < filters.length; i++) {
-      features = $.grep(features, $.proxy(filters[i], this));
+      features = $.grep(features, filters[i].bind(this));
     }
 
     return this.sortFeatures(features);

@@ -188,9 +188,9 @@ module.exports = Base.extend({
       var msg = $('<div class="gv-msg gv-' + code + '">' + this.messages[code] + (additionalText || '') + '</div>').data('code', code).prependTo(messages);
 
       if (code === 'resize') {
-        msg.children('a.gv-resize').on('click', $.proxy(function () {
+        msg.children('a.gv-resize').on('click', function () {
           this.resize(this.fullVisibleHeight);
-        }, this));
+        }.bind(this));
       }
 
       this.messageContainer[document.cookie.match([ 'gv_msg', code, this.prop('id') ].join('_') + '=1') ? 'addClass' : 'removeClass']('gv-collapsed');
@@ -472,7 +472,7 @@ module.exports = Base.extend({
 
     if (!deferred) {
       deferred = $.Deferred();
-      setTimeout($.proxy(deferred.resolve, this), 1); // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
+      setTimeout(deferred.resolve.bind(this), 1); // This defer makes scrolling A LOT smoother, pushing render call to the end of the exec queue
     }
 
     this.deferreds.push(deferred);

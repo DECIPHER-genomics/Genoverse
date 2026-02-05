@@ -12,7 +12,7 @@ module.exports = Controller.extend({
     var featureStrand = this.prop('featureStrand');
 
     if (strand === -1) {
-      this._makeImage = this.track.makeReverseImage ? $.proxy(this.track.makeReverseImage, this) : this.makeImage;
+      this._makeImage = this.track.makeReverseImage ? this.track.makeReverseImage.bind(this) : this.makeImage;
       this.makeImage  = $.noop;
     } else {
       strand = this.prop('strand', 1);
