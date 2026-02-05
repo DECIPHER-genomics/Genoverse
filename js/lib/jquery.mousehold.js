@@ -1,3 +1,4 @@
+// NOTE: Vendored plugin; patched to replace deprecated jQuery event shorthands.
 /**
  * jQuery mousehold plugin - fires an event while the mouse is clicked down.
  * Additionally, the function, when executed, is passed a single
@@ -27,7 +28,7 @@ $.fn.mousehold = function(timeout, f) {
     var timer = 0;
     var fireStep = 0;
     return this.each(function() {
-      $(this).mousedown(function() {
+      $(this).on('mousedown', function() {
         fireStep = 1;
         var ctr = 0;
         var t = this;
@@ -44,8 +45,8 @@ $.fn.mousehold = function(timeout, f) {
         fireStep = 0;
       };
 
-      $(this).mouseout(clearMousehold);
-      $(this).mouseup(clearMousehold);
+      $(this).on('mouseout', clearMousehold);
+      $(this).on('mouseup', clearMousehold);
     })
   }
 }

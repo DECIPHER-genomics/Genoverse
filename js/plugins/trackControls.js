@@ -105,7 +105,7 @@ module.exports = function () {
         if (el.is('select')) {
           prop = el.data('control');
 
-          el.find('option[value=' + (savedConfig[prop] || defaultConfig[prop] || 'all') + ']').attr('selected', true).end().change(function () {
+          el.find('option[value=' + (savedConfig[prop] || defaultConfig[prop] || 'all') + ']').attr('selected', true).end().on('change', function () {
             $(this).data('track').setConfig($(this).data('control'), this.value);
           });
         }
