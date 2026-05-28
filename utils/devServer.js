@@ -16,9 +16,22 @@ const contentTypes = {
 
 http.createServer((req, res) => {
   const file            = req.url.split('?')[0].replace(/^\//, '') || 'index.html';
+  const resolvedPath    = path.resolve(dir,file);
+  // verify if resolvedPath is in the directory and stop if not
+  const relativePath    = path.relative(dir, resolvedPath);
+
+  if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+
+    res.writeHead(403);
+    res.end('Forbidden');
+
+    return;
+  }
+
+
   const [ , extension ] = file.match(/\.(\w+)$/) || [];
 
-  fs.readFile(path.resolve(dir, file), (err, data) => {
+  fs.readFile(resolvedPath, (err, data) => {
     try {
       if (err) {
         res.writeHead(404);
