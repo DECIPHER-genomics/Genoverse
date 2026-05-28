@@ -1,4 +1,5 @@
 import '../../css/fileDrop.css';
+import DOMPurify from 'dompurify';
 
 const plugin = function () {
   const jQuery = this.jQuery;
@@ -57,9 +58,10 @@ const plugin = function () {
             (importer) => {
               import(`../Track/library/File/${importer.trackType}`).then(
                 (imported) => {
+                  const trackName = DOMPurify.sanitize(importer.file.name);
                   const track = imported.default.extend({
-                    name      : importer.file.name,
-                    info      : `Local file "${importer.file.name}", size: ${importer.file.size} bytes`,
+                    name      : trackName,
+                    info      : `Local file "${trackName}", size: ${importer.file.size} bytes`,
                     isLocal   : true,
                     dataFile  : importer.file,
                     indexFile : importer.indexFile,
