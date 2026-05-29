@@ -1,11 +1,12 @@
 import Base                 from 'basejs';
+import DOMPurify            from 'dompurify';
 import _get                 from 'lodash/get';
 import Track                from './Track';
 import HighlightRegionTrack from './Track/library/HighlightRegion';
 import LegendTrack          from './Track/library/Legend';
 import importTracks         from './lib/import-tracks';
 import $                    from './lib/jquery';
-import wrapFunctions        from './lib/wrap-functions';
+import wrapFunctions        from './lib/wrap-functions'; 
 
 const Genoverse = Base.extend({
   // Defaults
@@ -1355,7 +1356,7 @@ const Genoverse = Base.extend({
     (track ? track.model.sortFeatures(features) : features.sort((a, b) => a.start - b.start)).forEach(
       (feature) => {
         const location = `${feature.chr}:${feature.start}${feature.end === feature.start ? '' : `-${feature.end}`}`;
-        const title    = feature.menuLabel || feature.name || (Array.isArray(feature.label) ? feature.label.join(' ') : feature.label) || String(feature.id);
+        const title    = DOMPurify.sanitize(feature.menuLabel || feature.name || (Array.isArray(feature.label) ? feature.label.join(' ') : feature.label) || String(feature.id));
 
         jQuery('<a href="#">').html(title.match(location) ? title : `${location} ${title}`).on('click', (e) => {
           this.makeFeatureMenu(feature, e, track);
@@ -1412,17 +1413,18 @@ const Genoverse = Base.extend({
         const start   = parseInt(typeof properties.start !== 'undefined' ? properties.start : feature.start, 10);
         const end     = parseInt(typeof properties.end   !== 'undefined' ? properties.end   : feature.end,   10);
         const columns = Math.max(...Object.values(properties).map(value => (Array.isArray(value) ? value.length : 1)));
+        const sanitizedTitle = DOMPurify.sanitize(properties.title);
 
         let table = '';
 
-        jQuery('.gv-title', el)[properties.title ? 'html' : 'remove'](properties.title);
+        jQuery('.gv-title', el)[properties.title ? 'html' : 'remove'](sanitizedTitle);
 
         if (track && start && end && !this.isStatic) {
           const linkData = {
             chr   : chr,
             start : start,
             end   : Math.max(end, start),
-            label : feature.label || (properties.title || '').replace(/<[^>]+>/g, ''),
+            label : feature.label || (sanitizedTitle || ''),
             color : feature.color,
           };
 
@@ -1462,7 +1464,7 @@ const Genoverse = Base.extend({
           }
         );
 
-        jQuery('table:not(.gv-focus-highlight)', el)[table ? 'html' : 'remove'](table);
+        jQuery('table:not(.gv-focus-highlight)', el)[table ? 'html' : 'remove'](DOMPurify.sanitize(table));
       }
     );
   },
