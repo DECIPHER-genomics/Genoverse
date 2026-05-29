@@ -1,4 +1,5 @@
 import '../../css/controlPanel.css';
+import DOMPurify from 'dompurify';
 import karyotype from './karyotype';
 
 const plugin = function (pluginConf) {
@@ -236,7 +237,7 @@ const plugin = function (pluginConf) {
                 ).forEach(
                   (track) => {
                     const el = jQuery('<div class="gv-tracks-menu-track">')
-                      .append(`<span class="gv-tracks-menu-track-name" title="${track.name}">${track.defaultName}</span>`)
+                      .append(DOMPurify.sanitize(`<span class="gv-tracks-menu-track-name" title="${track.name}">${track.defaultName}</span>`))
                       .appendTo(currentTracks)
                       .data('track', track)
                       .addClass(track.unsortable ? 'gv-unsortable' : '');
@@ -309,7 +310,7 @@ const plugin = function (pluginConf) {
                   const parentEl = (
                     allCategoryNames.length > 1
                       ? jQuery('<div class="gv-tracks-library-category">').append(
-                        jQuery('<div class="gv-tracks-library-category-header">').html(categoryName || 'Other')
+                        jQuery('<div class="gv-tracks-library-category-header">').html(DOMPurify.sanitize(categoryName) || 'Other')
                       ).appendTo(availableTracks)
                       : availableTracks
                   );
@@ -325,7 +326,7 @@ const plugin = function (pluginConf) {
 
                           browser.addTrack(track.extend({ id: `${track.prototype.id}${browser.tracksById[track.prototype.id] ? browser.trackIds[track.prototype.id]++ : ''}` }));
                         })
-                      ).append(`<span>${track.prototype.name}</span>`).appendTo(parentEl).data('track', track.prototype);
+                      ).append(`<span>${DOMPurify.sanitize(track.prototype.name)}</span>`).appendTo(parentEl).data('track', track.prototype);
                     }
                   );
                 }
@@ -349,7 +350,7 @@ const plugin = function (pluginConf) {
     },
 
     afterAddDomElements: function () {
-      this.wrapper.after('<div class="gv-powered-by">Powered by <a target="_blank" href="https://wtsi-web.github.io/Genoverse/">Genoverse</a></div>');
+      this.wrapper.after('<div class="gv-powered-by">Powered by <a target="_blank" href="https://github.com/DECIPHER-genomics/Genoverse">Genoverse</a></div>');
       this.superContainer.find('.gv-panel-left').append(this.labelContainer);
     },
 
