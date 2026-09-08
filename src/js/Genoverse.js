@@ -7,6 +7,7 @@ import LegendTrack          from './Track/library/Legend';
 import importTracks         from './lib/import-tracks';
 import $                    from './lib/jquery';
 import wrapFunctions        from './lib/wrap-functions'; 
+import dompurifyAllowed     from './settings';
 
 const Genoverse = Base.extend({
   // Defaults
@@ -1356,7 +1357,8 @@ const Genoverse = Base.extend({
     (track ? track.model.sortFeatures(features) : features.sort((a, b) => a.start - b.start)).forEach(
       (feature) => {
         const location = `${feature.chr}:${feature.start}${feature.end === feature.start ? '' : `-${feature.end}`}`;
-        const title    = DOMPurify.sanitize(feature.menuLabel || feature.name || (Array.isArray(feature.label) ? feature.label.join(' ') : feature.label) || String(feature.id));
+        let title    = feature.menuLabel || feature.name || (Array.isArray(feature.label) ? feature.label.join(' ') : feature.label) || String(feature.id);
+        title = DOMPurify.sanitize(title, dompurifyAllowed);
 
         jQuery('<a href="#">').html(title.match(location) ? title : `${location} ${title}`).on('click', (e) => {
           this.makeFeatureMenu(feature, e, track);
@@ -1413,7 +1415,7 @@ const Genoverse = Base.extend({
         const start   = parseInt(typeof properties.start !== 'undefined' ? properties.start : feature.start, 10);
         const end     = parseInt(typeof properties.end   !== 'undefined' ? properties.end   : feature.end,   10);
         const columns = Math.max(...Object.values(properties).map(value => (Array.isArray(value) ? value.length : 1)));
-        const sanitizedTitle = DOMPurify.sanitize(properties.title);
+        const sanitizedTitle = DOMPurify.sanitize(properties.title, dompurifyAllowed);
 
         let table = '';
 
@@ -1464,7 +1466,7 @@ const Genoverse = Base.extend({
           }
         );
 
-        jQuery('table:not(.gv-focus-highlight)', el)[table ? 'html' : 'remove'](DOMPurify.sanitize(table));
+        jQuery('table:not(.gv-focus-highlight)', el)[table ? 'html' : 'remove'](table);
       }
     );
   },
